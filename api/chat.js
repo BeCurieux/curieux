@@ -7,7 +7,7 @@ export default async function handler(req) {
 
   // Basic origin check — only allow your own domain
   const origin = req.headers.get('origin') || '';
-  const allowed = ['https://curieux.co', 'https://www.curieux.co', 'http://localhost:5173'];
+  const allowed = ['https://curieux.co', 'https://www.curieux.co', 'https://curieux-ruddy.vercel.app' ,'http://localhost:5173'];
   if (!allowed.includes(origin)) {
     return new Response('Forbidden', { status: 403 });
   }
@@ -54,3 +54,4 @@ export default async function handler(req) {
     },
   });
 }
+
