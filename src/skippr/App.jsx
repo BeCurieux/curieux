@@ -32,23 +32,37 @@ function TopBar() {
         <span style={{ width: 26, height: 26, borderRadius: 7, background: T.coral, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
           <Icon name="anchor" size={15} />
         </span>
-        DeckHand
+        Skippr
       </div>
       <Toggle />
-      {/* "Interactive prototype" label is intentionally dropped for production. */}
-      <div style={{ fontSize: 12, color: T.tealText, letterSpacing: '0.04em' }}>
-        deckhand.com.au
-      </div>
+      <SaveStatus />
+    </div>
+  )
+}
+
+function SaveStatus() {
+  const { persistent, hasDatabase } = useStore()
+  const live = persistent
+  return (
+    <div style={{ fontSize: 12, color: live ? T.tealText : '#8b9491', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 7 }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: live ? '#3fae8f' : '#c98a3d' }} />
+      {live ? 'Saving to database' : hasDatabase ? 'Connecting…' : 'Demo mode · not saving'}
     </div>
   )
 }
 
 export default function App() {
-  const { view } = useStore()
+  const { view, dbReady } = useStore()
   return (
     <div style={{ minHeight: '100vh', background: view === 'captain' ? T.pageSand : '#dfe7e4' }}>
       <TopBar />
-      {view === 'captain' ? <CaptainDashboard /> : <CustomerBooking />}
+      {!dbReady ? (
+        <div style={{ padding: '80px 0', textAlign: 'center', color: T.muted, fontFamily: sans }}>Loading your charter…</div>
+      ) : view === 'captain' ? (
+        <CaptainDashboard />
+      ) : (
+        <CustomerBooking />
+      )}
     </div>
   )
 }

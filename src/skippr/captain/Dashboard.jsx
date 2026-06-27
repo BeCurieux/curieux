@@ -63,7 +63,7 @@ function Sidebar() {
         }}
       >
         <div style={{ color: T.tealText, fontWeight: 600, marginBottom: 3 }}>Booking page live</div>
-        deckhand.com.au/{captain.slug}
+        skippr.com.au/{captain.slug}
       </div>
     </div>
   )

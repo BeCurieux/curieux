@@ -1,4 +1,4 @@
-// Small shared primitives for the DeckHand UI.
+// Small shared primitives for the Skippr UI.
 import { T, serif, sans } from './theme.js'
 
 export function Avatar({ initials, size = 38, fontSize = 15 }) {

@@ -1,4 +1,4 @@
-// DeckHand design tokens — mirrors README §8. Single source of truth for the
+// Skippr design tokens — mirrors README §8. Single source of truth for the
 // look the prototype defines (colour, type, shape).
 
 export const T = {

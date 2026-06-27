@@ -23,6 +23,37 @@ function riskColor(risk) {
   return risk === 'high' ? T.riskHigh : risk === 'watch' ? T.riskWatch : T.riskOk
 }
 
+function SourceLinks() {
+  const { captain } = useStore()
+  const city = (captain.location || '').split(',')[0].trim()
+  const links = [
+    { label: 'BOM MetEye', href: 'http://www.bom.gov.au/australia/meteye/' },
+    { label: 'WillyWeather', href: `https://www.willyweather.com.au/search.html?query=${encodeURIComponent(city)}` },
+    { label: 'Windy', href: `https://www.windy.com/?${captain.lat},${captain.lng},8` },
+  ]
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+      <span style={{ fontSize: 11, color: T.muted2 }}>Cross-check:</span>
+      {links.map((l) => (
+        <a
+          key={l.label}
+          href={l.href}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            fontSize: 11.5, fontWeight: 600, color: T.teal, textDecoration: 'none',
+            border: `1px solid ${T.cardBorder}`, borderRadius: 20, padding: '4px 10px',
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+          }}
+        >
+          {l.label}
+          <Icon name="arrowRight" size={11} />
+        </a>
+      ))}
+    </div>
+  )
+}
+
 function WeatherCard() {
   const { forecast, forecastSource, forecastLive, weatherRule, weatherCancelled, cancelAndRebook } = useStore()
   const [busy, setBusy] = useState(false)
@@ -50,7 +81,7 @@ function WeatherCard() {
             <div style={{ fontSize: 12.5, color: T.body2, marginTop: 1 }}>
               {weatherCancelled
                 ? '2 guests texted a one-tap link to pick a new open slot.'
-                : 'SE winds 25–30 kt off Cairns. Cancel & DeckHand rebooks every Saturday guest for you.'}
+                : 'SE winds 25–30 kt off Cairns. Cancel & Skippr rebooks every Saturday guest for you.'}
             </div>
           </div>
         </div>
@@ -86,6 +117,7 @@ function WeatherCard() {
         Source · {forecastSource} · checked hourly against your {weatherRule.gustKt} kt / {weatherRule.swellM} m cancel rule
         {forecastLive ? '' : ' (cached)'}
       </div>
+      <SourceLinks />
     </div>
   )
 }

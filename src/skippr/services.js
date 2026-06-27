@@ -20,7 +20,7 @@ export function classifyRisk(gustKt, swellM, rule) {
 // Pull a marine forecast for the launch point. Returns days with gust/swell/dir.
 export async function fetchForecast({ lat, lng }) {
   try {
-    const res = await fetch(`/api/deckhand/weather?lat=${lat}&lng=${lng}`)
+    const res = await fetch(`/api/skippr/weather?lat=${lat}&lng=${lng}`)
     if (!res.ok) throw new Error('weather ' + res.status)
     const data = await res.json()
     if (Array.isArray(data?.forecast) && data.forecast.length) {
@@ -42,7 +42,7 @@ export async function fetchForecast({ lat, lng }) {
 // when STRIPE_SECRET_KEY is set, otherwise a mock one so checkout completes.
 export async function createDeposit({ amount, tripName, customer }) {
   try {
-    const res = await fetch('/api/deckhand/pay', {
+    const res = await fetch('/api/skippr/pay', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount, currency: 'aud', tripName, customer }),
@@ -61,7 +61,7 @@ export async function createDeposit({ amount, tripName, customer }) {
 export async function notify({ channel, to, subject, body }) {
   const message = { channel, to, subject, body, at: new Date().toISOString() }
   try {
-    const res = await fetch('/api/deckhand/notify', {
+    const res = await fetch('/api/skippr/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message),

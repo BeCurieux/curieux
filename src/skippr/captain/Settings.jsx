@@ -29,7 +29,7 @@ export default function Settings() {
 
       <Block title="Booking page" sub="The public link anglers use to book direct — no OTA commission.">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 14, color: T.muted }}>deckhand.com.au/</span>
+          <span style={{ fontSize: 14, color: T.muted }}>skippr.com.au/</span>
           <input style={{ ...field, maxWidth: 220 }} value={captain.slug} onChange={(e) => updateCaptain({ slug: e.target.value.replace(/\s+/g, '-').toLowerCase() })} />
           <a href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: 13, color: T.teal, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
             <Icon name="arrowRight" size={14} /> Preview

@@ -1,6 +1,6 @@
-# DeckHand — production recreation
+# Skippr — production recreation
 
-A faithful, functional recreation of the DeckHand prototype (booking & ops for
+A faithful, functional recreation of the Skippr prototype (booking & ops for
 charter captains) built into this repo as a second Vite + React app, alongside
 Curieux. It follows the existing codebase conventions (Vite, React, inline-style
 components) rather than the README's greenfield Next.js suggestion, per the
@@ -10,8 +10,8 @@ components) rather than the README's greenfield Next.js suggestion, per the
 
 ```bash
 npm install
-npm run dev      # then open http://localhost:5173/deckhand.html
-npm run build    # builds both index.html (Curieux) and deckhand.html (DeckHand)
+npm run dev      # then open http://localhost:5173/skippr.html
+npm run build    # builds both index.html (Curieux) and skippr.html (Skippr)
 ```
 
 The top-bar toggle switches **Captain dashboard ⇄ Customer booking**.
@@ -45,23 +45,27 @@ back to mocks otherwise:
 
 | Endpoint | Real when | Falls back to |
 |---|---|---|
-| `api/deckhand/weather.js` | always (Open-Meteo, no key) | cached prototype forecast |
-| `api/deckhand/pay.js` | `STRIPE_SECRET_KEY` set | mock client secret |
-| `api/deckhand/notify.js` | Twilio / Postmark env set | logged "queued" message |
+| `api/skippr/weather.js` | always (Open-Meteo, no key) | cached prototype forecast |
+| `api/skippr/pay.js` | `STRIPE_SECRET_KEY` set | mock client secret |
+| `api/skippr/notify.js` | Twilio / Postmark env set | logged "queued" message |
 
-Persistence (Postgres/Prisma per README §6) and captain auth are not wired —
-state lives in `src/deckhand/store.jsx`, which mirrors the §6 data model and is
-the seam to swap for a real backend.
+**Persistence is wired up via Supabase (Postgres).** When `VITE_SUPABASE_URL` /
+`VITE_SUPABASE_ANON_KEY` are set, bookings, trip types, and captain settings load
+from and save to the database (the top bar shows "Saving to database"). Without
+them the app runs in in-memory demo mode ("Demo mode · not saving"). Schema +
+seed live in `supabase/schema.sql`; see `SETUP-DATABASE.md` for the step-by-step.
+Captain auth is the remaining piece (the RLS policies are demo-grade — tighten
+before launch).
 
 ## Layout
 
 ```
-deckhand.html              entry
-src/deckhand/
+skippr.html              entry
+src/skippr/
   main.jsx  App.jsx        shell + top bar + view toggle
   theme.js  icons.jsx  ui.jsx   tokens, inline SVG icons, primitives
   data.js   store.jsx  services.js   seed data, state + actions, integrations
   captain/  Dashboard TripsView Calendar Customers Payments Settings NewTripModal
   customer/ Booking
-api/deckhand/  weather.js pay.js notify.js
+api/skippr/  weather.js pay.js notify.js
 ```
