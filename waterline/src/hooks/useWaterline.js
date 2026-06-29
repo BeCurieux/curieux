@@ -7,6 +7,7 @@ import {
   FACTORS, RANGE_LABELS, money as _money, moneyK as _moneyK, pctTxt, perUnitCogs, enrich, waterfall,
 } from '../lib/compute.js'
 import { SHOPIFY_PRODUCTS, SHOPIFY_STORE, SHOPIFY_SOURCES } from '../lib/shopifyData.js'
+import { generatePlays } from '../lib/plays.js'
 import { segR, segV, segD, navItem, navRail, switchTrack, switchKnob, darkBtn, greyBtn, heldBtn, stepBtn } from '../lib/styles.js'
 
 const PAGE_TITLES = {
@@ -30,6 +31,7 @@ export default function useWaterline() {
     dataSource: 'seed', // 'seed' (Harbor & Vine sample) | 'shopify' (real Mamacita & Crew)
   })
   const toastT = useRef(null)
+  const playsRef = useRef([]) // generated plays, for handlers like enableAll
 
   useEffect(() => {
     const t = setTimeout(() => setState((s) => ({ ...s, mounted: true })), 70)
@@ -86,7 +88,7 @@ export default function useWaterline() {
     if (willRun && state.apOn) fireToastKeep(p.base === 'approval' ? 'Approved — Autopilot is running this play.' : 'Play enabled — Autopilot is tracking recovery.')
   }
   const enableAll = () => {
-    const added = PLAYS.filter((p) => p.base !== 'running' && !state.enabled[p.id])
+    const added = playsRef.current.filter((p) => p.base !== 'running' && !state.enabled[p.id])
     set((s) => {
       const enabled = { ...s.enabled }
       added.forEach((p) => { enabled[p.id] = true })
@@ -213,7 +215,11 @@ export default function useWaterline() {
 
   // ---- autopilot ----
   const apOn = state.apOn
-  const eff = PLAYS_DS.map((p) => {
+  // Plays are GENERATED from each product's signals (margin, ROAS, returns,
+  // shipping, discounts) — not hardcoded. Same brain for sample and real data.
+  const genPlays = generatePlays(enr, { money })
+  playsRef.current = genPlays
+  const eff = genPlays.map((p) => {
     let status
     if (p.base === 'running') status = state.paused[p.id] ? 'paused' : 'running'
     else status = state.enabled[p.id] ? 'running' : p.base

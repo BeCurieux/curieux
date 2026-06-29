@@ -8,6 +8,12 @@ import { FACTORS, RANGE_LABELS, enrich, perUnitCogs } from '../src/lib/compute.j
 import { CAT_COLOR } from '../src/lib/data.js'
 import { db, logAction } from './db.js'
 import { attribute } from './attribution.js'
+import { generatePlays } from '../src/lib/plays.js'
+
+// Curated seed plays if present; otherwise generate from real signals (real store).
+function playList(range = '30d') {
+  return db.plays?.length ? db.plays : generatePlays(enrichAll(range), { approvalLimit: 5000 })
+}
 
 export const validRange = (r) => Object.prototype.hasOwnProperty.call(FACTORS, r)
 const factorFor = (range) => FACTORS[range] ?? 1
@@ -137,7 +143,7 @@ export function checkGuardrails(play, range = '30d') {
 // Effective status of every play given store state + master switch + guardrails.
 export function effectivePlays(range = '30d') {
   const apOn = db.store.autopilot_on
-  return db.plays.map((p) => {
+  return playList(range).map((p) => {
     let status
     if (p.base === 'running') status = db.paused[p.id] ? 'paused' : 'running'
     else status = db.enabled[p.id] ? 'running' : p.base
@@ -184,7 +190,7 @@ export function autopilotView(range = '30d') {
 // ============ mutations ============
 
 export function togglePlay(id, range = '30d') {
-  const play = db.plays.find((p) => p.id === id)
+  const play = playList(range).find((p) => p.id === id)
   if (!play) return { error: 'not_found' }
   const running = play.base === 'running' ? !db.paused[id] : !!db.enabled[id]
   const willRun = !running
@@ -211,7 +217,7 @@ export function togglePlay(id, range = '30d') {
 
 export function enableAllPending(range = '30d') {
   const added = []
-  for (const play of db.plays) {
+  for (const play of playList(range)) {
     if (play.base === 'running' || db.enabled[play.id]) continue
     const guard = checkGuardrails(play, range)
     if (!guard.allowed) continue // respects guardrails: over-limit plays still wait for approval
