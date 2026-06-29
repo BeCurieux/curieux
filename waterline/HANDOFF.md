@@ -44,6 +44,29 @@ Every screen + interaction, verified in-browser:
 - Verified end-to-end via curl: totals match the UI, range scaling, guardrail
   routing, COGS override recompute, action log.
 
+### ✅ Done — Real Shopify ingestion (`server/shopify.js`)
+Pulls real catalog + COGS + orders from the Admin GraphQL API and maps them into
+the margin model. Captured snapshot of the live store **Mamacita & Crew** (29
+products, AUD) in `server/shopify-snapshot.json`; `WATERLINE_DATA=shopify` serves
+it. Verified: order #1001 (Signature Sweatshirt) → real 49.3% margin.
+
+### ✅ Done — Frontend on real data (data-source switch)
+Topbar toggle **Sample ⇄ Mamacita & Crew** recomputes the whole dashboard from the
+real snapshot (AUD currency, store name, real COGS, real margins), reusing the same
+compute pipeline. `src/lib/shopifyData.js` imports the snapshot.
+
+### ✅ Done — Ad attribution engine (`server/attribution.js`, BUILD_SPEC §4)
+Maps ad spend → products via feed / UTM / order-level fallback, with confidence
+degradation + per-product ROAS + unattributed tracking. `server/connectors/ads.js`
+is the Meta/Google interface (stubbed — no creds here). 12 passing tests
+(`node server/attribution.test.mjs`). Engine injects attributed spend before margin
+compute when `db.adSpend` is populated. Verified: a $30 feed ad drops the sample
+sale 49.3% → 24.1% (ROAS 3.97).
+
+### ✅ Done — ROAS in the UI
+Triage table ROAS column + drawer Ad-ROAS tile (color-coded, break-even ~1.8×).
+Sample store has ROAS; real store shows "—" until ad data flows.
+
 ### 🔜 Not done — the real integrations (next phases, per BUILD_SPEC §10)
 1. **Shopify OAuth + ingestion** (orders, products, COGS, returns) — replace seed data.
 2. Persistent DB + materialized `margins` table.

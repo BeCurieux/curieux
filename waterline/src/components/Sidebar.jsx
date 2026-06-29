@@ -8,7 +8,7 @@ export default function Sidebar({ v }) {
         <Logo />
         <div style={{ lineHeight: 1 }}>
           <div style={{ fontSize: 16.5, fontWeight: 800, color: '#fff', letterSpacing: '-.01em' }}>Waterline</div>
-          <div style={{ fontSize: 10, fontWeight: 600, color: '#7E8E97', letterSpacing: '.06em', marginTop: 3 }}>MARGIN INTELLIGENCE</div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: '#7E8E97', letterSpacing: '.06em', marginTop: 3 }}>SOUNDING LABS</div>
         </div>
       </div>
 
@@ -59,10 +59,10 @@ export default function Sidebar({ v }) {
       {/* store card */}
       <div onClick={v.openOnboarding} className="wl-store" style={{ background: 'rgba(255,255,255,0.045)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '13px 14px', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#6B8E4E,#4A6B30)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>H</div>
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#6B8E4E,#4A6B30)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{v.storeInitial}</div>
           <div style={{ minWidth: 0, lineHeight: 1.2, flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Harbor &amp; Vine</div>
-            <div style={{ fontSize: 11, color: '#7E8E97' }}>harborandvine.com</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.storeName}</div>
+            <div style={{ fontSize: 11, color: '#7E8E97', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.storeDomain}</div>
           </div>
           <IconGear color="#7E8E97" size={15} />
         </div>

@@ -4,18 +4,18 @@
 export const FACTORS = { '30d': 1, '90d': 2.9, '12mo': 11.6 }
 export const RANGE_LABELS = { '30d': 'last 30 days', '90d': 'last 90 days', '12mo': 'last 12 months' }
 
-export function money(n) {
+export function money(n, sym = '$') {
   const s = n < 0 ? '-' : ''
-  return s + '$' + Math.round(Math.abs(n)).toLocaleString('en-US')
+  return s + sym + Math.round(Math.abs(n)).toLocaleString('en-US')
 }
 
-export function moneyK(n) {
+export function moneyK(n, sym = '$') {
   const a = Math.abs(n)
   if (a >= 1000) {
     const v = a / 1000
-    return (n < 0 ? '-$' : '$') + v.toFixed(v >= 100 ? 0 : 1) + 'k'
+    return (n < 0 ? '-' + sym : sym) + v.toFixed(v >= 100 ? 0 : 1) + 'k'
   }
-  return money(n)
+  return money(n, sym)
 }
 
 export function pctTxt(x) {
@@ -26,23 +26,29 @@ export function pctTxt(x) {
 // Per-unit COGS, honoring any merchant override (which flips confidence → verified).
 export function perUnitCogs(p, cogsOverride) {
   const o = cogsOverride[p.id]
-  return o != null ? o : Math.round((p.cogs / p.units) * 100) / 100
+  if (o != null) return o
+  // Real (Shopify) data carries an explicit per-unit cost; seed data derives it from totals.
+  if (p.cogsPerUnit != null) return p.cogsPerUnit
+  return p.units ? Math.round((p.cogs / p.units) * 100) / 100 : 0
 }
 
 // Enrich one product for a given range factor + COGS overrides.
 // Returns absolute dollar figures scaled to the window plus derived margin/status.
+// Works for both the seed model (window totals) and the Shopify model (per-unit
+// cost + 0-sales products).
 export function enrich(p, factor, cogsOverride) {
-  const m = (k) => p[k] * factor
+  const m = (k) => (p[k] || 0) * factor
   const ov = cogsOverride[p.id]
-  const cogsBase = ov != null ? ov * p.units : p.cogs
-  const rev = m('rev'), cogs = cogsBase * factor, ship = m('ship'), fees = m('fees')
+  const perUnit = ov != null ? ov : p.cogsPerUnit != null ? p.cogsPerUnit : null
+  const cogsBase = perUnit != null ? perUnit * p.units : p.cogs
+  const rev = m('rev'), cogs = (cogsBase || 0) * factor, ship = m('ship'), fees = m('fees')
   const ads = m('ads'), disc = m('disc'), ret = m('ret')
   const net = rev - (cogs + ship + fees + ads + disc + ret)
-  const pct = net / rev
-  const status = pct < 0 ? 'under' : pct < 0.12 ? 'thin' : 'healthy'
+  const pct = rev ? net / rev : 0
+  const status = rev === 0 ? 'nosales' : pct < 0 ? 'under' : pct < 0.12 ? 'thin' : 'healthy'
   const leaks = [['Ad spend', ads], ['Shipping', ship], ['Returns', ret], ['Discounts', disc]]
   leaks.sort((a, b) => b[1] - a[1])
-  const leakLabel = leaks[0][0], leakShare = leaks[0][1] / rev
+  const leakLabel = leaks[0][0], leakShare = rev ? leaks[0][1] / rev : 0
   return { ...p, rev, cogs, ship, fees, ads, disc, ret, net, pct, status, leakLabel, leakShare, units: Math.round(p.units * factor) }
 }
 

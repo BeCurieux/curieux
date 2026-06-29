@@ -10,39 +10,65 @@ import {
   BASE, PLAYS, LEDGER, BASE_ACTIVITY, GUARDRAILS,
   SOURCES, COGS_CONF, ALERT_FEED, ALERT_RULES,
 } from '../src/lib/data.js'
+import { loadSnapshot } from './shopify.js'
 
-// A single fictional store. fee_rate + autopilot config live here per the spec.
+// WATERLINE_DATA=shopify → serve real ingested data from shopify-snapshot.json.
+// Anything else → the "Harbor & Vine" seed (lets the prototype run with no store).
+const MODE = process.env.WATERLINE_DATA === 'shopify' ? 'shopify' : 'seed'
+
+function seedDb() {
+  return {
+    store: { id: 'harbor-vine', shop_domain: 'harborandvine.com', name: 'Harbor & Vine', currency: 'USD', fee_rate: 0.029, autopilot_on: true, autopilot_mode: 'guarded' },
+    products: BASE.map((p) => ({ ...p })),
+    cogsConf: { ...COGS_CONF },
+    plays: PLAYS.map((p) => ({ ...p })),
+    ledger: LEDGER.map((l) => ({ ...l })),
+    activity: [...BASE_ACTIVITY],
+    alerts: ALERT_FEED.map((a) => ({ ...a })),
+    sources: SOURCES.map((s) => ({ ...s })),
+  }
+}
+
+// Real Shopify data. Autopilot plays/ledger/alerts start empty — they're generated
+// from real signals (ad attribution, return reasons, etc.), which is the next phase.
+function shopifyDb() {
+  const snap = loadSnapshot()
+  const sources = [
+    { id: 'shopify', name: 'Shopify', detail: `Orders, products, COGS · ${snap.catalog} products`, status: 'live', icon: 'S', color: '#95BF47' },
+    { id: 'meta', name: 'Meta Ads', detail: 'Not connected — ad spend unattributed', status: 'off', icon: 'M', color: '#0866FF' },
+    { id: 'google', name: 'Google Ads', detail: 'Not connected — ad spend unattributed', status: 'off', icon: 'G', color: '#EA4335' },
+  ]
+  return {
+    store: { id: snap.store.id, shop_domain: snap.store.shop_domain, name: snap.store.name, currency: snap.store.currency, fee_rate: snap.store.fee_rate, autopilot_on: false, autopilot_mode: 'ask' },
+    products: snap.products.map((p) => ({ ...p })),
+    cogsConf: Object.fromEntries(snap.products.map((p) => [p.id, 'verified'])), // real Shopify cost = verified
+    plays: [],
+    ledger: [],
+    activity: [],
+    alerts: [],
+    sources,
+  }
+}
+
+const seeded = MODE === 'shopify' ? shopifyDb() : seedDb()
+
 export const db = {
-  store: {
-    id: 'harbor-vine',
-    shop_domain: 'harborandvine.com',
-    fee_rate: 0.029, // 2.9% + $0.30/txn (the per-txn part is folded into seed `fees`)
-    autopilot_on: true,
-    autopilot_mode: 'guarded', // 'guarded' | 'ask'
-  },
-
-  products: BASE.map((p) => ({ ...p })),
-  cogsConf: { ...COGS_CONF },     // id -> 'verified' | 'estimated' | 'missing'
+  ...seeded,
+  mode: MODE,
   cogsOverride: {},               // id -> merchant-confirmed per-unit cost (flips conf to verified)
-
-  plays: PLAYS.map((p) => ({ ...p })),
   enabled: {},                    // play id -> true (suggested/approval plays the user turned on)
   paused: {},                     // play id -> true (running plays the user paused)
-
-  ledger: LEDGER.map((l) => ({ ...l })),
   reverted: {},                   // ledger id -> true
-
-  activity: [...BASE_ACTIVITY],   // most-recent-first feed; mutations prepend
-
-  guardrails: GUARDRAILS.map((g) => ({ ...g })),
-  alertRules: ALERT_RULES.map((r) => ({ ...r })),
-  alerts: ALERT_FEED.map((a) => ({ ...a })),
   dismissedAlerts: {},
-
-  sources: SOURCES.map((s) => ({ ...s })),
-
-  // action_log — written BEFORE every mutation, with the prior value captured so
-  // any action is reversible (BUILD_SPEC.md §6). Append-only.
+  guardrails: GUARDRAILS.map((g) => ({ ...g })), // policy applies in both modes
+  alertRules: ALERT_RULES.map((r) => ({ ...r })),
+  // ad_spend records from connectors (Meta/Google) — empty until one is wired.
+  // When present, the engine attributes them per product (BUILD_SPEC §4). Seed
+  // mode leaves this empty because its `ads` are already baked into the totals.
+  adSpend: [],
+  orders: {},      // ordersById, for order-level attribution fallback
+  handleToId: {},  // product handle -> id, for UTM attribution
+  // action_log — written BEFORE every mutation, prior value captured for revert.
   actionLog: [],
 }
 

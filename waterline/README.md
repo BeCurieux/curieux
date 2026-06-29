@@ -19,8 +19,27 @@ npm run build    # production build to dist/
 npm run preview  # serve the build
 
 # backend API (optional — same margin formula, served over REST)
-npm run server   # http://localhost:8787
+npm run server                          # http://localhost:8787 (Harbor & Vine seed data)
+WATERLINE_DATA=shopify npm run server   # serves REAL data from shopify-snapshot.json
 ```
+
+## Real Shopify data (`server/shopify.js`)
+
+The backend can serve **real ingested data** from the connected store instead of
+the seed. A snapshot captured from the live store **Mamacita & Crew** (29 products
+with real cost-per-item, in AUD) lives in `server/shopify-snapshot.json`; run the
+API with `WATERLINE_DATA=shopify` to use it.
+
+- `server/shopify.js` — validated Admin GraphQL queries (products + COGS, orders),
+  a live `fetchShopify()` client (env `SHOPIFY_SHOP` + `SHOPIFY_ADMIN_TOKEN`,
+  scopes `read_products`/`read_inventory`/`read_orders`), and `mapToWaterline()`
+  which aggregates orders into per-product margin rows (allocating order-level
+  discount / fees / refunds across line items by revenue share).
+- `server/build-snapshot.mjs` — regenerates the snapshot from captured data; in
+  production you'd call `fetchShopify()` → `mapToWaterline()` → write.
+- Notes: **ad spend is 0** until Meta/Google are connected (BUILD_SPEC §4), and
+  Shopify exposes shipping *charged*, not fulfillment *cost*, so ship-cost is 0
+  and flagged. Real COGS from Shopify counts as `verified` confidence.
 
 To make the frontend talk to the live backend instead of local mock data, set
 `VITE_API_BASE` (e.g. `VITE_API_BASE=http://localhost:8787 npm run dev`) — see
@@ -92,6 +111,26 @@ read endpoints accept `?range=30d|90d|12mo`.
 projected impact exceeds the $5,000 auto-approval limit returns
 `{ routedToApproval: true, reasons: [...] }` and does *not* mutate state —
 mirroring "a play that would violate a guardrail is routed to needs-approval."
+
+## Ad-spend attribution (`server/attribution.js`)
+
+The hard part of true margin (BUILD_SPEC §4): pushing ad spend down to individual
+products. `attribute()` maps platform spend to products via three tiers, recording
+the method and degrading confidence accordingly:
+
+1. **feed** — ad tied to a product id (Meta catalog / Google Shopping). High confidence.
+2. **utm** — ad landing URL → product handle. Medium.
+3. **order** — fallback: split a campaign's spend across its attributed orders'
+   products, weighted by revenue. Low.
+
+It computes per-product **ROAS** and tracks **unattributed** spend (never silently
+dropped). `server/connectors/ads.js` defines the Meta/Google connector interface
+(real OAuth plugs in there; stubbed until credentials exist). When `db.adSpend` is
+populated, the engine injects attributed spend before computing margin and surfaces
+`roas` + `adConfidence` per product — verified end-to-end (a $30 feed-matched ad
+drops the sample sale's margin 49.3% → 24.1%, ROAS 3.97).
+
+Tests: `node server/attribution.test.mjs` (12 assertions across all three tiers).
 
 ## Still ahead (next phases)
 

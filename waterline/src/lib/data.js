@@ -17,6 +17,11 @@ export const BASE = [
 
 export const CAT_COLOR = { Drinkware: '#3E7CA6', Apparel: '#6B8E4E', Bags: '#A6713E', Outerwear: '#7A5EA6', Accessories: '#B0894A' }
 
+// Sample per-product ad ROAS (attributed revenue / ad spend). Low-ROAS SKUs line
+// up with the underwater/thin products the Autopilot plays target. Real-store
+// ROAS comes from the attribution engine once ad platforms are connected.
+export const SEED_ROAS = { bottle: 4.2, tee: 2.1, daypack: 3.5, jacket: 1.3, socks: 2.8, cap: 1.6, shell: 1.1, mug: 2.4, fleece: 1.5 }
+
 // Opportunity recommendations shown in the drawer when a product has no Autopilot plays.
 export const RECS_MAP = {
   bottle: [

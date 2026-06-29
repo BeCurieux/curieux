@@ -90,7 +90,7 @@ export default function AutopilotView({ v }) {
         <div style={{ background: '#fff', border: '1px solid rgba(22,36,46,.07)', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 2px rgba(22,36,46,.04)' }}>
           <div style={{ padding: '16px 22px 13px', fontSize: 15, fontWeight: 700, color: '#16242E', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             Automated plays
-            <span style={{ fontSize: 12, fontWeight: 500, color: '#9AA7AE' }}>8 plays · 6 products</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#9AA7AE' }}>{v.playsSummary}</span>
           </div>
           {v.apPlays.map((p) => (
             <div key={p.id} style={{ borderTop: '1px solid rgba(22,36,46,.05)' }}>

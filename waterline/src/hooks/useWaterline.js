@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BASE, CAT_COLOR, RECS_MAP, PLAYS, LEDGER, BASE_ACTIVITY, GUARDRAILS,
-  SOURCES, COGS_CONF, ALERT_FEED, ALERT_RULES, TYPE_COLOR,
+  SOURCES, COGS_CONF, ALERT_FEED, ALERT_RULES, TYPE_COLOR, SEED_ROAS,
 } from '../lib/data.js'
 import {
-  FACTORS, RANGE_LABELS, money, moneyK, pctTxt, perUnitCogs, enrich, waterfall,
+  FACTORS, RANGE_LABELS, money as _money, moneyK as _moneyK, pctTxt, perUnitCogs, enrich, waterfall,
 } from '../lib/compute.js'
+import { SHOPIFY_PRODUCTS, SHOPIFY_STORE, SHOPIFY_SOURCES } from '../lib/shopifyData.js'
 import { segR, segV, segD, navItem, navRail, switchTrack, switchKnob, darkBtn, greyBtn, heldBtn, stepBtn } from '../lib/styles.js'
 
 const PAGE_TITLES = {
@@ -26,6 +27,7 @@ export default function useWaterline() {
     expanded: {}, reverted: {},
     nav: 'margins', cogsOverride: {}, alertRuleOff: {}, dismissedAlerts: {},
     onboarding: false, obStep: 0, obShopify: false, obAds: {}, obCogs: null, billYear: false,
+    dataSource: 'seed', // 'seed' (Harbor & Vine sample) | 'shopify' (real Mamacita & Crew)
   })
   const toastT = useRef(null)
 
@@ -38,6 +40,25 @@ export default function useWaterline() {
 
   const factor = FACTORS[state.range]
   const rangeLabel = RANGE_LABELS[state.range]
+
+  // ---- data source (sample seed vs real Shopify snapshot) ----
+  const isShop = state.dataSource === 'shopify'
+  const PRODUCTS = isShop ? SHOPIFY_PRODUCTS : BASE.map((p) => ({ ...p, roas: SEED_ROAS[p.id] }))
+  // ROAS display + threshold color (break-even ≈ 1.8×). null → "—" (no ad data).
+  const roasText = (r) => (r == null ? '—' : r.toFixed(1) + '×')
+  const roasColor = (r) => (r == null ? '#9AA7AE' : r < 1.8 ? '#C13A34' : r < 2.8 ? '#A8770F' : '#0E8F5E')
+  const PLAYS_DS = isShop ? [] : PLAYS
+  const LEDGER_DS = isShop ? [] : LEDGER
+  const ACTIVITY_DS = isShop ? [] : BASE_ACTIVITY
+  const SOURCES_DS = isShop ? SHOPIFY_SOURCES : SOURCES
+  const ALERTS_DS = isShop ? [] : ALERT_FEED
+  const COGSCONF_DS = isShop ? Object.fromEntries(PRODUCTS.map((p) => [p.id, 'verified'])) : COGS_CONF
+  const store = isShop ? SHOPIFY_STORE : { name: 'Harbor & Vine', shop_domain: 'harborandvine.com' }
+  const sym = isShop ? 'A$' : '$'
+  const money = (n) => _money(n, sym)
+  const moneyK = (n) => _moneyK(n, sym)
+  const nameOf = (id) => (PRODUCTS.find((b) => b.id === id) || {}).name
+  const catOf = (id) => (PRODUCTS.find((b) => b.id === id) || {}).cat
 
   // ---- toasts ----
   const fireToastKeep = (msg) => {
@@ -94,8 +115,10 @@ export default function useWaterline() {
 
   // ======== derived values (renderVals) ========
   const mounted = state.mounted
-  const enr = BASE.map((p) => enrich(p, factor, state.cogsOverride))
-  const maxAbsPct = Math.max(...enr.map((p) => Math.abs(p.pct))) || 1
+  const enr = PRODUCTS.map((p) => enrich(p, factor, state.cogsOverride))
+  // Margin views show only products with sales in the window; Cost inputs shows the full catalog.
+  const enrSold = enr.filter((p) => p.units > 0)
+  const maxAbsPct = Math.max(...enrSold.map((p) => Math.abs(p.pct)), 0.0001) || 1
   const sum = (k) => enr.reduce((a, p) => a + p[k], 0)
   const totRev = sum('rev'), totNet = sum('net')
   const under = enr.filter((p) => p.status === 'under')
@@ -103,7 +126,7 @@ export default function useWaterline() {
 
   // ---- waterline viz ----
   const PADt = 20, UP = 150, DOWN = 120, WLY = PADt + UP
-  const wlProducts = enr.map((p, i) => {
+  const wlProducts = enrSold.map((p, i) => {
     const mag = Math.abs(p.pct) / maxAbsPct
     const pos = p.pct >= 0
     const barH = mounted ? mag * (pos ? UP : DOWN) : 0
@@ -126,14 +149,14 @@ export default function useWaterline() {
       },
       wlNameStyle: {
         position: 'absolute', left: '-8%', right: '-8%', textAlign: 'center', top: WLY + DOWN + 16 + 'px',
-        fontSize: '10.5px', fontWeight: 600, color: CAT_COLOR[p.cat], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        fontSize: '10.5px', fontWeight: 600, color: p.catColor || CAT_COLOR[p.cat] || '#8B98A1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
       },
     }
   })
 
   // ---- triage ----
   const sk = state.sortKey, sd = state.sortDir
-  const sorted = [...enr].sort((a, b) => {
+  const sorted = [...enrSold].sort((a, b) => {
     if (sk === 'name') return sd * a.name.localeCompare(b.name)
     const av = sk === 'margin' ? a.pct : a[sk]
     const bv = sk === 'margin' ? b.pct : b[sk]
@@ -149,7 +172,8 @@ export default function useWaterline() {
       unitsText: p.units.toLocaleString('en-US'), revText: moneyK(p.rev), netText: money(p.net), netColor,
       pctText: (pos ? '' : '−') + pctTxt(Math.abs(p.pct)),
       leakText: p.leakLabel + ' ' + pctTxt(p.leakShare),
-      dotStyle: { width: '10px', height: '10px', borderRadius: '3px', background: CAT_COLOR[p.cat], flexShrink: 0 },
+      roasText: roasText(p.roas), roasColor: roasColor(p.roas),
+      dotStyle: { width: '10px', height: '10px', borderRadius: '3px', background: p.catColor || CAT_COLOR[p.cat] || '#8B98A1', flexShrink: 0 },
       pillStyle: { ...pill(p.status), fontSize: '11px', fontWeight: 700, padding: '4px 11px', borderRadius: '20px', whiteSpace: 'nowrap' },
       pillText: pillTxt(p.status),
       marginBarStyle: pos
@@ -189,7 +213,7 @@ export default function useWaterline() {
 
   // ---- autopilot ----
   const apOn = state.apOn
-  const eff = PLAYS.map((p) => {
+  const eff = PLAYS_DS.map((p) => {
     let status
     if (p.base === 'running') status = state.paused[p.id] ? 'paused' : 'running'
     else status = state.enabled[p.id] ? 'running' : p.base
@@ -200,7 +224,8 @@ export default function useWaterline() {
   const runningCount = eff.filter((p) => p.running).length
   const pending = eff.filter((p) => p.status === 'suggested' || p.status === 'approval')
   const pendingSum = pending.reduce((a, p) => a + p.amt, 0)
-  const quarterRecovered = 8200 + monthlyRun
+  const quarterRecovered = (isShop ? 0 : 8200) + monthlyRun
+  const playsSummary = eff.length ? `${eff.length} plays · ${new Set(eff.map((p) => p.pid)).size} products` : 'No plays yet'
 
   const badge = {
     running: { bg: '#E4F3EB', c: '#0E7A50', t: 'Running' }, suggested: { bg: '#EAF1F6', c: '#2E6E8E', t: 'Suggested' },
@@ -221,7 +246,7 @@ export default function useWaterline() {
       pillStyle: { background: b.bg, color: b.c, fontSize: '10.5px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', whiteSpace: 'nowrap', display: 'inline-block' },
       pillText: b.t,
       typeStyle: { background: (TYPE_COLOR[p.type] || '#888') + '1A', color: TYPE_COLOR[p.type] || '#555', fontSize: '10px', fontWeight: 700, padding: '4px 9px', borderRadius: '6px', whiteSpace: 'nowrap', letterSpacing: '.02em', flexShrink: 0 },
-      dotStyle: { width: '7px', height: '7px', borderRadius: '50%', background: CAT_COLOR[catOf(p.pid)], flexShrink: 0 },
+      dotStyle: { width: '7px', height: '7px', borderRadius: '50%', background: CAT_COLOR[catOf(p.pid)] || '#8B98A1', flexShrink: 0 },
       btnLabel, btnStyle: !apOn ? heldBtn : p.running ? greyBtn : darkBtn,
       toggle: !apOn ? () => {} : () => togglePlay(p),
       isOpen, expand: () => set((s) => ({ expanded: { ...s.expanded, [p.id]: !s.expanded[p.id] } })),
@@ -231,7 +256,7 @@ export default function useWaterline() {
     }
   })
 
-  const allAct = [...state.extraActivity, ...BASE_ACTIVITY]
+  const allAct = [...state.extraActivity, ...ACTIVITY_DS]
   const actColor = { good: '#0E8F5E', info: '#3E7CA6', warn: '#A8770F' }
   const activity = allAct.map((a) => ({
     ...a, deltaColor: actColor[a.kind] || '#6A7780',
@@ -244,14 +269,14 @@ export default function useWaterline() {
   })
 
   // ---- impact ledger ----
-  const ledgerV = LEDGER.map((l) => {
+  const ledgerV = LEDGER_DS.map((l) => {
     const reverted = !!state.reverted[l.id]
     const beforeTxt = (l.before < 0 ? '−' : '') + Math.abs(l.before) + '%'
     const afterTxt = (l.after < 0 ? '−' : '') + Math.abs(l.after) + '%'
     return {
       id: l.id, productName: nameOf(l.pid), action: l.action, when: l.when, note: l.note, type: l.type,
       typeStyle: { background: (TYPE_COLOR[l.type] || '#888') + '1A', color: TYPE_COLOR[l.type] || '#555', fontSize: '10px', fontWeight: 700, padding: '4px 9px', borderRadius: '6px', whiteSpace: 'nowrap', flexShrink: 0 },
-      dotStyle: { width: '7px', height: '7px', borderRadius: '50%', background: CAT_COLOR[catOf(l.pid)], flexShrink: 0 },
+      dotStyle: { width: '7px', height: '7px', borderRadius: '50%', background: CAT_COLOR[catOf(l.pid)] || '#8B98A1', flexShrink: 0 },
       beforeTxt, afterTxt,
       recoveredTxt: (reverted ? '' : '+') + money(l.recovered), reverted,
       chartSeries: reverted ? l.series.map(() => l.before) : l.series,
@@ -264,7 +289,7 @@ export default function useWaterline() {
       revert: () => revert(l),
     }
   })
-  const ledgerTotal = LEDGER.reduce((a, l) => a + (state.reverted[l.id] ? 0 : l.recovered), 0)
+  const ledgerTotal = LEDGER_DS.reduce((a, l) => a + (state.reverted[l.id] ? 0 : l.recovered), 0)
 
   const apModeDesc = !apOn
     ? 'Paused — plays are held until you switch Autopilot back on.'
@@ -274,7 +299,7 @@ export default function useWaterline() {
 
   // ---- cost inputs screen ----
   const srcStatus = { live: { bg: '#E4F3EB', c: '#0E7A50', t: 'Live' }, partial: { bg: '#F6ECD7', c: '#A8770F', t: 'Partial' }, off: { bg: '#ECEAE3', c: '#8B98A1', t: 'Not connected' } }
-  const sourcesV = SOURCES.map((s) => {
+  const sourcesV = SOURCES_DS.map((s) => {
     const st = srcStatus[s.status]
     return {
       ...s,
@@ -287,18 +312,18 @@ export default function useWaterline() {
   })
   const confMeta = { verified: { bg: '#E4F3EB', c: '#0E7A50', t: 'Verified' }, estimated: { bg: '#EAF1F6', c: '#2E6E8E', t: 'Estimated' }, missing: { bg: '#FBE8E6', c: '#C13A34', t: 'Missing' } }
   const confCount = { verified: 0, estimated: 0, missing: 0 }
-  enr.forEach((p) => { confCount[COGS_CONF[p.id]]++ })
+  enr.forEach((p) => { confCount[COGSCONF_DS[p.id]]++ })
   const costConfidence = Math.round(((confCount.verified + confCount.estimated * 0.5) / enr.length) * 100)
   const costRows = enr.map((p) => {
-    const conf = COGS_CONF[p.id], cm = confMeta[conf]
+    const conf = COGSCONF_DS[p.id], cm = confMeta[conf]
     const overridden = state.cogsOverride[p.id] != null
     return {
       id: p.id, name: p.name, cat: p.cat,
-      dotStyle: { width: '9px', height: '9px', borderRadius: '3px', background: CAT_COLOR[p.cat], flexShrink: 0 },
-      cogsText: '$' + perUnitCogs(p, state.cogsOverride).toFixed(2),
+      dotStyle: { width: '9px', height: '9px', borderRadius: '3px', background: p.catColor || CAT_COLOR[p.cat] || '#8B98A1', flexShrink: 0 },
+      cogsText: sym + perUnitCogs(p, state.cogsOverride).toFixed(2),
       cogsEditedStyle: { fontFamily: "'JetBrains Mono',monospace", fontSize: '13.5px', fontWeight: 700, color: overridden ? '#0E8F5E' : '#16242E', minWidth: '58px', textAlign: 'center' },
-      shipText: '$' + (p.ship / p.units).toFixed(2),
-      adText: '$' + (p.ads / p.units).toFixed(2),
+      shipText: sym + (p.units ? p.ship / p.units : 0).toFixed(2),
+      adText: sym + (p.units ? p.ads / p.units : 0).toFixed(2),
       marginText: (p.pct < 0 ? '−' : '') + pctTxt(Math.abs(p.pct)),
       marginColor: p.status === 'under' ? '#C13A34' : p.status === 'thin' ? '#A8770F' : '#0E8F5E',
       confStyle: { background: cm.bg, color: cm.c, fontSize: '10.5px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', whiteSpace: 'nowrap' },
@@ -310,7 +335,7 @@ export default function useWaterline() {
   // ---- alerts screen ----
   const sevMeta = { critical: { bg: '#FBE8E6', c: '#C13A34', dot: '#D6453F', t: 'Critical' }, warning: { bg: '#F6ECD7', c: '#A8770F', dot: '#D69A2A', t: 'Warning' }, good: { bg: '#E4F3EB', c: '#0E7A50', dot: '#1BB377', t: 'Resolved' } }
   const alertActLabel = { autopilot: 'Hand to Autopilot', view: 'View product', ledger: 'See impact' }
-  const liveAlerts = ALERT_FEED.filter((a) => !state.dismissedAlerts[a.id])
+  const liveAlerts = ALERTS_DS.filter((a) => !state.dismissedAlerts[a.id])
   const alertsV = liveAlerts.map((a) => {
     const sm = sevMeta[a.sev]
     return {
@@ -426,13 +451,14 @@ export default function useWaterline() {
       netText: money(selRaw.net),
       netColor: selRaw.status === 'under' ? '#C13A34' : selRaw.status === 'thin' ? '#A8770F' : '#0E8F5E',
       pctText: (pos ? '' : '−') + pctTxt(Math.abs(selRaw.pct)),
-      perUnitText: money(selRaw.net / selRaw.units),
+      roasText: roasText(selRaw.roas), roasColor: roasColor(selRaw.roas),
+      perUnitText: money(selRaw.units ? selRaw.net / selRaw.units : 0),
       recs: RECS_MAP[selRaw.id] || [],
       plays: selPlays,
       hasPlays: selPlays.length > 0,
       noPlays: selPlays.length === 0,
       fixHeader: selPlays.length > 0 ? 'Autopilot plays' : 'Opportunities',
-      dotStyleLg: { width: '40px', height: '40px', borderRadius: '11px', background: CAT_COLOR[selRaw.cat], flexShrink: 0 },
+      dotStyleLg: { width: '40px', height: '40px', borderRadius: '11px', background: selRaw.catColor || CAT_COLOR[selRaw.cat] || '#8B98A1', flexShrink: 0 },
     }
   }
 
@@ -441,8 +467,13 @@ export default function useWaterline() {
     range: state.range, rangeLabel,
     setRange30: () => set({ range: '30d' }), setRange90: () => set({ range: '90d' }), setRange12: () => set({ range: '12mo' }),
     range30Style: segR(state.range === '30d'), range90Style: segR(state.range === '90d'), range12Style: segR(state.range === '12mo'),
+    // data source
+    dataSource: state.dataSource, isShop,
+    storeName: store.name, storeDomain: store.shop_domain, storeInitial: (store.name || '?')[0],
+    setSeed: () => set({ dataSource: 'seed', selectedId: null, view: 'waterline', nav: 'margins' }),
+    setShopify: () => set({ dataSource: 'shopify', selectedId: null, view: 'waterline', nav: 'margins' }),
     // banner
-    showBanner: state.banner, dismissBanner: () => set({ banner: false }),
+    showBanner: state.banner && under.length > 0, dismissBanner: () => set({ banner: false }),
     bannerCount: under.length, bannerLoss: money(hiddenLoss) + '/mo',
     // kpis
     kpiRevenue: money(totRev), kpiNet: money(totNet), kpiMargin: pctTxt(totNet / totRev),
@@ -461,7 +492,7 @@ export default function useWaterline() {
     hasPending: apOn && pending.length > 0, pendingCount: String(pending.length), pendingSumText: money(pendingSum),
     enableAll,
     apPlays, activity, guardrails: guardrailsV,
-    ledger: ledgerV, ledgerTotalText: money(ledgerTotal), ledgerCount: String(LEDGER.length),
+    ledger: ledgerV, ledgerTotalText: money(ledgerTotal), ledgerCount: String(LEDGER_DS.length), playsSummary,
     // top-level nav
     nav, isNavMargins: nav === 'margins', isNavCosts: nav === 'costs', isNavAlerts: nav === 'alerts', isNavPlans: nav === 'plans',
     goMargins: () => set({ nav: 'margins', selectedId: null }), goCosts: () => set({ nav: 'costs', selectedId: null }), goAlerts: () => set({ nav: 'alerts', selectedId: null }), goPlans: () => set({ nav: 'plans', selectedId: null }),

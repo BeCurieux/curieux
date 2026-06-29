@@ -34,6 +34,10 @@ export default function Drawer({ v }) {
               <div style={{ fontSize: 11, color: '#8B98A1', fontWeight: 600 }}>Per unit</div>
               <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 19, fontWeight: 700, color: '#16242E', marginTop: 3 }}>{sel.perUnitText}</div>
             </div>
+            <div style={{ flex: 1, background: '#F6F4EE', borderRadius: 11, padding: '11px 13px' }}>
+              <div style={{ fontSize: 11, color: '#8B98A1', fontWeight: 600 }}>Ad ROAS</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 19, fontWeight: 700, color: sel.roasColor, marginTop: 3 }}>{sel.roasText}</div>
+            </div>
           </div>
         </div>
 

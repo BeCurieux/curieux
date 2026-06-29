@@ -1,4 +1,4 @@
-const GRID = '2.4fr 0.9fr 1fr 1.1fr 1.5fr 1.3fr 1fr'
+const GRID = '2.2fr 0.8fr 0.9fr 1fr 1.4fr 0.7fr 1.1fr 0.9fr'
 
 export default function TriageView({ v }) {
   return (
@@ -9,6 +9,7 @@ export default function TriageView({ v }) {
         <div onClick={v.sortRev} className="wl-sorth" style={{ cursor: 'pointer', textAlign: 'right' }}>Revenue {v.arrows.rev}</div>
         <div onClick={v.sortNet} className="wl-sorth" style={{ cursor: 'pointer', textAlign: 'right' }}>Net profit {v.arrows.net}</div>
         <div onClick={v.sortMargin} className="wl-sorth" style={{ cursor: 'pointer', textAlign: 'center' }}>Margin {v.arrows.margin}</div>
+        <div style={{ textAlign: 'right' }}>ROAS</div>
         <div>Top leak</div>
         <div style={{ textAlign: 'right' }}>Status</div>
       </div>
@@ -31,6 +32,7 @@ export default function TriageView({ v }) {
             </div>
             <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 600, color: p.netColor, width: 42, textAlign: 'right' }}>{p.pctText}</span>
           </div>
+          <div style={{ textAlign: 'right', fontFamily: "'JetBrains Mono',monospace", fontSize: 12.5, fontWeight: 700, color: p.roasColor }}>{p.roasText}</div>
           <div style={{ fontSize: 12.5, color: '#6A7780' }}>{p.leakText}</div>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}><span style={p.pillStyle}>{p.pillText}</span></div>
         </div>

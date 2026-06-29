@@ -7,6 +7,7 @@
 import { FACTORS, RANGE_LABELS, enrich, perUnitCogs } from '../src/lib/compute.js'
 import { CAT_COLOR } from '../src/lib/data.js'
 import { db, logAction } from './db.js'
+import { attribute } from './attribution.js'
 
 export const validRange = (r) => Object.prototype.hasOwnProperty.call(FACTORS, r)
 const factorFor = (range) => FACTORS[range] ?? 1
@@ -15,10 +16,26 @@ const productById = (id) => db.products.find((p) => p.id === id)
 export const nameOf = (id) => productById(id)?.name
 export const catOf = (id) => productById(id)?.cat
 
+// Per-product ad attribution for the current store, if any ad_spend is loaded
+// (BUILD_SPEC §4). Dormant until a connector populates db.adSpend — seed data
+// already carries its own `ads`, so this only kicks in for the real-store path.
+export function currentAttribution() {
+  if (!db.adSpend?.length) return null
+  return attribute(db.adSpend, { products: db.products, ordersById: db.orders || {}, handleToId: db.handleToId || {} })
+}
+
 // --- core: enrich every product for a window ---
 export function enrichAll(range = '30d') {
   const f = factorFor(range)
-  return db.products.map((p) => enrich(p, f, db.cogsOverride))
+  const attr = currentAttribution()
+  return db.products.map((p) => {
+    const hit = attr && (attr.byProduct[p.id] || attr.byProduct[p.shopifyId])
+    const src = hit ? { ...p, ads: hit.spend } : p // inject attributed ad spend before computing margin
+    const e = enrich(src, f, db.cogsOverride)
+    e.roas = hit ? hit.roas : null
+    e.adConfidence = hit ? hit.confidence : null
+    return e
+  })
 }
 
 // --- store-level rollup + leak buckets ---
@@ -52,18 +69,21 @@ export function marginsSummary(range = '30d') {
       hiddenLoss,
     },
     costBuckets,
-    topLeak: topLeak ? { ...topLeak, shareOfRevenue: topLeak.value / totRev, trim20: topLeak.value * 0.2 } : null,
-    products: enr.map(publicProduct),
+    topLeak: topLeak ? { ...topLeak, shareOfRevenue: totRev ? topLeak.value / totRev : 0, trim20: topLeak.value * 0.2 } : null,
+    // Margin views show products with sales in the window; the full catalog lives on Cost inputs.
+    products: enr.filter((p) => p.units > 0).map(publicProduct),
+    catalogCount: enr.length,
   }
 }
 
 // Trim an enriched product to the public API shape (raw numbers + meta).
 function publicProduct(p) {
   return {
-    id: p.id, name: p.name, short: p.short, cat: p.cat, catColor: CAT_COLOR[p.cat],
+    id: p.id, name: p.name, short: p.short, cat: p.cat, catColor: p.catColor || CAT_COLOR[p.cat] || '#8B98A1',
     units: p.units, revenue: p.rev, cogs: p.cogs, ship: p.ship, fees: p.fees,
     ads: p.ads, discounts: p.disc, returns: p.ret,
     netProfit: p.net, marginPct: p.pct, status: p.status,
+    roas: p.roas ?? null, adConfidence: p.adConfidence ?? null,
     topLeak: { label: p.leakLabel, shareOfRevenue: p.leakShare },
   }
 }
@@ -237,7 +257,7 @@ export function costInputs(range = '30d') {
   enr.forEach((p) => { conf[db.cogsConf[p.id]]++ })
   const score = Math.round(((conf.verified + conf.estimated * 0.5) / enr.length) * 100)
   const rows = enr.map((p) => ({
-    id: p.id, name: p.name, cat: p.cat, catColor: CAT_COLOR[p.cat],
+    id: p.id, name: p.name, cat: p.cat, catColor: p.catColor || CAT_COLOR[p.cat] || '#8B98A1',
     cogsPerUnit: perUnitCogs(p, db.cogsOverride),
     overridden: db.cogsOverride[p.id] != null,
     shipPerUnit: p.ship / p.units,
