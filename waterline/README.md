@@ -1,8 +1,9 @@
-# Waterline — frontend prototype
+# Waterline
 
-Margin intelligence + autopilot for Shopify merchants. This is a faithful React + Vite
-re-creation of the `Waterline.dc.html` design prototype: every screen, state, and
-interaction, wired to a single in-memory margin compute pipeline.
+Margin intelligence + autopilot for Shopify merchants. A faithful React + Vite
+re-creation of the `Waterline.dc.html` design prototype (every screen, state, and
+interaction) **plus a backend skeleton** — a server-side margin engine + REST API
+with server-side guardrails and a reversible action log.
 
 It lives in its own subdirectory and is independent of the `curieux` app at the repo root.
 
@@ -11,10 +12,19 @@ It lives in its own subdirectory and is independent of the `curieux` app at the 
 ```bash
 cd waterline
 npm install
+
+# frontend (runs standalone on local mock data)
 npm run dev      # http://localhost:5174
 npm run build    # production build to dist/
 npm run preview  # serve the build
+
+# backend API (optional — same margin formula, served over REST)
+npm run server   # http://localhost:8787
 ```
+
+To make the frontend talk to the live backend instead of local mock data, set
+`VITE_API_BASE` (e.g. `VITE_API_BASE=http://localhost:8787 npm run dev`) — see
+`src/lib/api.js`. With it unset, the UI runs entirely client-side.
 
 Fonts (Hanken Grotesk + JetBrains Mono) load from Google Fonts via `index.html`.
 
@@ -56,11 +66,39 @@ toggles, ledger reverts, and onboarding all behave as documented in the handoff.
   edited COGS or a changed range cascades everywhere.
 - `src/components/` — presentational components; `screens/` holds the four
   top-level screens and the Margins sub-views.
+- `src/lib/api.js` — client for the backend API (used when `VITE_API_BASE` is set).
 
-## Not in this prototype (the backend)
+## Backend skeleton (`server/`)
 
-Per the agreed scope, this is the **frontend only**. The data is mocked and no
-external services are called. The production build order — Shopify/Meta/Google OAuth
-+ ingestion, the materialized margin pipeline, Autopilot action executors with
-reversible logging, server-side guardrails, the alert rule engine, and billing —
-is described in the engineering spec and is the next phase.
+A small Express API that serves the same numbers over REST. It **reuses
+`src/lib/compute.js` and `src/lib/data.js`** so the margin formula and seed data
+have a single source of truth shared with the frontend.
+
+- `server/db.js` — in-memory store seeded from `data.js`, shaped like the data
+  model in the spec (store, products, plays, ledger, alerts, rules) plus an
+  append-only **action log**. Swap this module for a real database in production.
+- `server/engine.js` — margin rollups, product detail, the Autopilot view,
+  **server-side guardrail enforcement**, cost-input confidence, and all mutations
+  (COGS override, play toggle, ledger revert, etc.). Every mutation writes the
+  action log with prior→new values so it's reversible.
+- `server/server.js` — the Express routes.
+
+Key endpoints: `GET /api/margins`, `/api/products/:id`, `/api/cost-inputs`,
+`/api/autopilot`, `/api/alerts`, `/api/action-log`; mutations under
+`POST /api/cost-inputs/:id/cogs`, `/api/autopilot/plays/:id/toggle`, etc. All
+read endpoints accept `?range=30d|90d|12mo`.
+
+**Guardrails are enforced server-side** (spec §7): e.g. toggling a play whose
+projected impact exceeds the $5,000 auto-approval limit returns
+`{ routedToApproval: true, reasons: [...] }` and does *not* mutate state —
+mirroring "a play that would violate a guardrail is routed to needs-approval."
+
+## Still ahead (next phases)
+
+The store is in-memory and seeded with mock data. The remaining production work
+from the engineering spec: real **Shopify + Meta/Google OAuth and ingestion**
+(replacing the seed), a persistent database + materialized `margins` table, real
+**Autopilot action executors** (the API calls that actually pause ads / cap
+discounts, with revert), the **alert rule engine + delivery** (email/Slack), and
+**billing**. The route surface and guardrail/action-log machinery here are built
+to receive those.
