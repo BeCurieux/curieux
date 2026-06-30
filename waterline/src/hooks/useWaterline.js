@@ -20,11 +20,19 @@ const PAGE_TITLES = {
 const nameOf = (id) => BASE.find((b) => b.id === id).name
 const catOf = (id) => BASE.find((b) => b.id === id).cat
 
+// Easing ramp of N margin-% points from `before` to `after` for ledger sparklines.
+const rampSeries = (before, after, n = 9) =>
+  Array.from({ length: n }, (_, i) => {
+    const t = i / (n - 1)
+    const ease = t * t * (3 - 2 * t) // smoothstep
+    return Math.round((before + (after - before) * ease) * 10) / 10
+  })
+
 // The whole app state + derived "renderVals" object, returned to the view tree.
 export default function useWaterline() {
   const [state, setState] = useState({
     view: 'waterline', range: '30d', sortKey: 'net', sortDir: 1, selectedId: null, mounted: false, banner: true, toast: '',
-    apOn: true, apMode: 'guarded', enabled: {}, paused: {}, guardOff: {}, extraActivity: [],
+    apOn: true, apMode: 'guarded', enabled: {}, paused: {}, guardOff: {}, extraActivity: [], extraLedger: [],
     expanded: {}, reverted: {},
     nav: 'margins', cogsOverride: {}, alertRuleOff: {}, dismissedAlerts: {},
     onboarding: false, obStep: 0, obShopify: false, obAds: {}, obCogs: null, billYear: false,
@@ -78,14 +86,18 @@ export default function useWaterline() {
       const enabled = { ...s.enabled }, paused = { ...s.paused }
       if (p.base === 'running') { if (willRun) delete paused[p.id]; else paused[p.id] = true }
       else { if (willRun) enabled[p.id] = true; else delete enabled[p.id] }
-      let extra = s.extraActivity
+      let extra = s.extraActivity, extraLedger = s.extraLedger
       if (willRun && s.apOn) {
         const verb = p.base === 'approval' ? 'Approved' : 'Enabled'
         extra = [{ when: 'just now', text: verb + ': ' + p.action, delta: '+' + money(p.amt) + '/mo projected', kind: 'good' }, ...s.extraActivity]
+        // executing a play opens an Impact Ledger entry that tracks before→after
+        if (p.ledger && !s.extraLedger.some((l) => l.id === p.ledger.id)) extraLedger = [p.ledger, ...s.extraLedger]
+      } else if (!willRun && p.ledger) {
+        extraLedger = s.extraLedger.filter((l) => l.id !== p.ledger.id) // paused → drop its tracking entry
       }
-      return { enabled, paused, extraActivity: extra }
+      return { enabled, paused, extraActivity: extra, extraLedger }
     })
-    if (willRun && state.apOn) fireToastKeep(p.base === 'approval' ? 'Approved — Autopilot is running this play.' : 'Play enabled — Autopilot is tracking recovery.')
+    if (willRun && state.apOn) fireToastKeep(p.base === 'approval' ? 'Approved — Autopilot is running it. Tracking in the ledger.' : 'Play enabled — now tracking recovery in the Impact Ledger.')
   }
   const enableAll = () => {
     const added = playsRef.current.filter((p) => p.base !== 'running' && !state.enabled[p.id])
@@ -93,7 +105,8 @@ export default function useWaterline() {
       const enabled = { ...s.enabled }
       added.forEach((p) => { enabled[p.id] = true })
       const extra = added.map((p) => ({ when: 'just now', text: 'Enabled: ' + p.action, delta: '+' + money(p.amt) + '/mo projected', kind: 'good' }))
-      return { enabled, extraActivity: [...extra, ...s.extraActivity] }
+      const newLedger = added.map((p) => p.ledger).filter((l) => l && !s.extraLedger.some((x) => x.id === l.id))
+      return { enabled, extraActivity: [...extra, ...s.extraActivity], extraLedger: [...newLedger, ...s.extraLedger] }
     })
     fireToastKeep('All pending plays enabled — Autopilot is on it.')
   }
@@ -247,20 +260,26 @@ export default function useWaterline() {
     const b = badge[p.status]
     const btnLabel = !apOn ? 'Held' : p.running ? 'Pause' : p.base === 'approval' ? 'Approve' : 'Enable'
     const isOpen = !!state.expanded[p.id]
+    // ledger seed: before = product's current margin, after = projected with the play applied
+    const prod = enr.find((x) => x.id === p.pid)
+    const before = prod ? Math.round(prod.pct * 100) : 0
+    const after = prod && prod.rev ? Math.max(before + 1, Math.round(((prod.net + p.amt) / prod.rev) * 100)) : before + 1
+    const ledger = { id: 'led_' + p.id, pid: p.pid, type: p.type, action: p.action, when: 'just now', before, after, recovered: p.amt, note: 'Autopilot is tracking the realized margin change daily.', series: rampSeries(before, after) }
     return {
-      ...p, productName: nameOf(p.pid), amtText: '+' + money(p.amt) + '/mo',
+      ...p, productName: nameOf(p.pid), amtText: '+' + money(p.amt) + '/mo', ledger,
       pillStyle: { background: b.bg, color: b.c, fontSize: '10.5px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', whiteSpace: 'nowrap', display: 'inline-block' },
       pillText: b.t,
       typeStyle: { background: (TYPE_COLOR[p.type] || '#888') + '1A', color: TYPE_COLOR[p.type] || '#555', fontSize: '10px', fontWeight: 700, padding: '4px 9px', borderRadius: '6px', whiteSpace: 'nowrap', letterSpacing: '.02em', flexShrink: 0 },
       dotStyle: { width: '7px', height: '7px', borderRadius: '50%', background: CAT_COLOR[catOf(p.pid)] || '#8B98A1', flexShrink: 0 },
       btnLabel, btnStyle: !apOn ? heldBtn : p.running ? greyBtn : darkBtn,
-      toggle: !apOn ? () => {} : () => togglePlay(p),
+      toggle: !apOn ? () => {} : () => togglePlay({ ...p, ledger }),
       isOpen, expand: () => set((s) => ({ expanded: { ...s.expanded, [p.id]: !s.expanded[p.id] } })),
       whyLabel: isOpen ? 'Hide reasoning' : 'Why this play?',
       chevStyle: { display: 'inline-block', transition: 'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'none' },
       signals: buildSignals(p),
     }
   })
+  playsRef.current = apPlays // ledger-bearing plays, for enableAll
 
   const allAct = [...state.extraActivity, ...ACTIVITY_DS]
   const actColor = { good: '#0E8F5E', info: '#3E7CA6', warn: '#A8770F' }
@@ -274,8 +293,9 @@ export default function useWaterline() {
     return { label: g.label, toggle: () => set((s) => ({ guardOff: { ...s.guardOff, [i]: !s.guardOff[i] } })), trackStyle: switchTrack(on), knobStyle: switchKnob(on) }
   })
 
-  // ---- impact ledger ----
-  const ledgerV = LEDGER_DS.map((l) => {
+  // ---- impact ledger ---- (live entries from executed plays + curated history)
+  const allLedger = [...state.extraLedger, ...LEDGER_DS]
+  const ledgerV = allLedger.map((l) => {
     const reverted = !!state.reverted[l.id]
     const beforeTxt = (l.before < 0 ? '−' : '') + Math.abs(l.before) + '%'
     const afterTxt = (l.after < 0 ? '−' : '') + Math.abs(l.after) + '%'
@@ -295,7 +315,7 @@ export default function useWaterline() {
       revert: () => revert(l),
     }
   })
-  const ledgerTotal = LEDGER_DS.reduce((a, l) => a + (state.reverted[l.id] ? 0 : l.recovered), 0)
+  const ledgerTotal = allLedger.reduce((a, l) => a + (state.reverted[l.id] ? 0 : l.recovered), 0)
 
   const apModeDesc = !apOn
     ? 'Paused — plays are held until you switch Autopilot back on.'
@@ -328,10 +348,11 @@ export default function useWaterline() {
       dotStyle: { width: '9px', height: '9px', borderRadius: '3px', background: p.catColor || CAT_COLOR[p.cat] || '#8B98A1', flexShrink: 0 },
       cogsText: sym + perUnitCogs(p, state.cogsOverride).toFixed(2),
       cogsEditedStyle: { fontFamily: "'JetBrains Mono',monospace", fontSize: '13.5px', fontWeight: 700, color: overridden ? '#0E8F5E' : '#16242E', minWidth: '58px', textAlign: 'center' },
-      shipText: sym + (p.units ? p.ship / p.units : 0).toFixed(2),
-      adText: sym + (p.units ? p.ads / p.units : 0).toFixed(2),
-      marginText: (p.pct < 0 ? '−' : '') + pctTxt(Math.abs(p.pct)),
-      marginColor: p.status === 'under' ? '#C13A34' : p.status === 'thin' ? '#A8770F' : '#0E8F5E',
+      shipText: p.units ? sym + (p.ship / p.units).toFixed(2) : '—',
+      adText: p.units ? sym + (p.ads / p.units).toFixed(2) : '—',
+      // no sales in the window → margin is undefined; show "—" rather than a misleading 0%
+      marginText: p.units ? (p.pct < 0 ? '−' : '') + pctTxt(Math.abs(p.pct)) : '—',
+      marginColor: p.units === 0 ? '#9AA7AE' : p.status === 'under' ? '#C13A34' : p.status === 'thin' ? '#A8770F' : '#0E8F5E',
       confStyle: { background: cm.bg, color: cm.c, fontSize: '10.5px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', whiteSpace: 'nowrap' },
       confText: cm.t,
       dec: () => bumpCogs(p, -0.5), inc: () => bumpCogs(p, 0.5),
@@ -475,6 +496,7 @@ export default function useWaterline() {
     range30Style: segR(state.range === '30d'), range90Style: segR(state.range === '90d'), range12Style: segR(state.range === '12mo'),
     // data source
     dataSource: state.dataSource, isShop,
+    showDeltas: !isShop, // sample has illustrative vs-prior deltas; the real store has no prior period yet
     storeName: store.name, storeDomain: store.shop_domain, storeInitial: (store.name || '?')[0],
     setSeed: () => set({ dataSource: 'seed', selectedId: null, view: 'waterline', nav: 'margins' }),
     setShopify: () => set({ dataSource: 'shopify', selectedId: null, view: 'waterline', nav: 'margins' }),
@@ -498,7 +520,7 @@ export default function useWaterline() {
     hasPending: apOn && pending.length > 0, pendingCount: String(pending.length), pendingSumText: money(pendingSum),
     enableAll,
     apPlays, activity, guardrails: guardrailsV,
-    ledger: ledgerV, ledgerTotalText: money(ledgerTotal), ledgerCount: String(LEDGER_DS.length), playsSummary,
+    ledger: ledgerV, ledgerTotalText: money(ledgerTotal), ledgerCount: String(allLedger.length), playsSummary,
     // top-level nav
     nav, isNavMargins: nav === 'margins', isNavCosts: nav === 'costs', isNavAlerts: nav === 'alerts', isNavPlans: nav === 'plans',
     goMargins: () => set({ nav: 'margins', selectedId: null }), goCosts: () => set({ nav: 'costs', selectedId: null }), goAlerts: () => set({ nav: 'alerts', selectedId: null }), goPlans: () => set({ nav: 'plans', selectedId: null }),

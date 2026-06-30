@@ -9,6 +9,7 @@ import { CAT_COLOR } from '../src/lib/data.js'
 import { db, logAction } from './db.js'
 import { attribute } from './attribution.js'
 import { generatePlays } from '../src/lib/plays.js'
+import { executorFor } from './executors.js'
 
 // Curated seed plays if present; otherwise generate from real signals (real store).
 function playList(range = '30d') {
@@ -202,7 +203,10 @@ export function togglePlay(id, range = '30d') {
     }
   }
 
-  logAction({ playId: id, kind: willRun ? 'play.enable' : 'play.pause', prior: { running }, next: { running: willRun } })
+  // Run the typed executor (captures prior value for revert) and log BEFORE mutating.
+  const exec = executorFor(play.type)
+  const call = willRun && exec ? exec.execute(play) : null
+  logAction({ playId: id, kind: willRun ? 'play.execute' : 'play.pause', prior: call?.prior ?? { running }, next: call?.next ?? { running: willRun } })
   if (play.base === 'running') {
     if (willRun) delete db.paused[id]; else db.paused[id] = true
   } else {
@@ -211,8 +215,25 @@ export function togglePlay(id, range = '30d') {
   if (willRun && db.store.autopilot_on) {
     const verb = play.base === 'approval' ? 'Approved' : 'Enabled'
     db.activity.unshift({ when: 'just now', text: `${verb}: ${play.action}`, delta: `+$${play.amt.toLocaleString('en-US')}/mo projected`, kind: 'good' })
+    openLedgerEntry(play, range) // act → prove: track before→after in the Impact Ledger
   }
-  return { play: effectivePlays(range).find((p) => p.id === id) }
+  if (!willRun) closeLedgerEntry(id)
+  return { play: effectivePlays(range).find((p) => p.id === id), executed: call }
+}
+
+// Open an Impact Ledger entry tracking the play's projected before→after margin.
+function openLedgerEntry(play, range) {
+  const lid = 'led_' + play.id
+  if (db.ledger.some((l) => l.id === lid)) return
+  const prod = enrichAll(range).find((p) => p.id === play.pid)
+  const before = prod ? Math.round(prod.pct * 100) : 0
+  const after = prod && prod.rev ? Math.max(before + 1, Math.round(((prod.net + play.amt) / prod.rev) * 100)) : before + 1
+  const series = Array.from({ length: 9 }, (_, i) => { const t = i / 8, e = t * t * (3 - 2 * t); return Math.round((before + (after - before) * e) * 10) / 10 })
+  db.ledger.unshift({ id: lid, pid: play.pid, type: play.type, action: play.action, when: 'just now', before, after, recovered: play.amt, series, note: 'Autopilot is tracking the realized margin change daily.' })
+}
+function closeLedgerEntry(playId) {
+  const lid = 'led_' + playId
+  db.ledger = db.ledger.filter((l) => l.id !== lid)
 }
 
 export function enableAllPending(range = '30d') {
@@ -221,9 +242,12 @@ export function enableAllPending(range = '30d') {
     if (play.base === 'running' || db.enabled[play.id]) continue
     const guard = checkGuardrails(play, range)
     if (!guard.allowed) continue // respects guardrails: over-limit plays still wait for approval
-    logAction({ playId: play.id, kind: 'play.enable', prior: { running: false }, next: { running: true } })
+    const exec = executorFor(play.type)
+    const call = exec ? exec.execute(play) : null
+    logAction({ playId: play.id, kind: 'play.execute', prior: call?.prior ?? { running: false }, next: call?.next ?? { running: true } })
     db.enabled[play.id] = true
     db.activity.unshift({ when: 'just now', text: `Enabled: ${play.action}`, delta: `+$${play.amt.toLocaleString('en-US')}/mo projected`, kind: 'good' })
+    openLedgerEntry(play, range)
     added.push(play.id)
   }
   return { enabled: added }

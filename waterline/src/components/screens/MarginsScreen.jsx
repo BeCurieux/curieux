@@ -29,7 +29,9 @@ export default function MarginsScreen({ v }) {
         <div style={{ background: '#fff', border: '1px solid rgba(22,36,46,.07)', borderRadius: 15, padding: '18px 19px' }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#8B98A1', letterSpacing: '.02em' }}>Revenue</div>
           <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 27, fontWeight: 700, color: '#16242E', marginTop: 8, letterSpacing: '-.02em' }}>{v.kpiRevenue}</div>
-          <div style={{ fontSize: 12, color: '#6A7780', marginTop: 6, display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ color: '#0E8F5E', fontWeight: 700 }}>▲ 6.2%</span> vs prior</div>
+          {v.showDeltas
+            ? <div style={{ fontSize: 12, color: '#6A7780', marginTop: 6, display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ color: '#0E8F5E', fontWeight: 700 }}>▲ 6.2%</span> vs prior</div>
+            : <div style={{ fontSize: 12, color: '#9AA7AE', marginTop: 6 }}>this period · live from Shopify</div>}
         </div>
         <div style={{ background: '#fff', border: '1px solid rgba(22,36,46,.07)', borderRadius: 15, padding: '18px 19px' }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#8B98A1', letterSpacing: '.02em' }}>True net profit</div>
@@ -39,7 +41,9 @@ export default function MarginsScreen({ v }) {
         <div style={{ background: '#fff', border: '1px solid rgba(22,36,46,.07)', borderRadius: 15, padding: '18px 19px' }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#8B98A1', letterSpacing: '.02em' }}>Blended margin</div>
           <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 27, fontWeight: 700, color: '#16242E', marginTop: 8, letterSpacing: '-.02em' }}>{v.kpiMargin}</div>
-          <div style={{ fontSize: 12, color: '#6A7780', marginTop: 6, display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ color: '#C0871C', fontWeight: 700 }}>▼ 2.1 pts</span> vs prior</div>
+          {v.showDeltas
+            ? <div style={{ fontSize: 12, color: '#6A7780', marginTop: 6, display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ color: '#C0871C', fontWeight: 700 }}>▼ 2.1 pts</span> vs prior</div>
+            : <div style={{ fontSize: 12, color: '#9AA7AE', marginTop: 6 }}>after every variable cost</div>}
         </div>
         <div style={{ background: 'linear-gradient(135deg,#FBE8E6,#F8DAD7)', border: '1px solid rgba(214,69,63,.25)', borderRadius: 15, padding: '18px 19px', cursor: 'pointer' }} onClick={v.setTriage}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#A23A35', letterSpacing: '.02em' }}>Underwater products</div>
