@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BASE, CAT_COLOR, RECS_MAP, PLAYS, LEDGER, BASE_ACTIVITY, GUARDRAILS,
-  SOURCES, COGS_CONF, ALERT_FEED, ALERT_RULES, TYPE_COLOR, SEED_ROAS,
+  SOURCES, COGS_CONF, ALERT_FEED, ALERT_RULES, TYPE_COLOR, SEED_ROAS, ORDERS_SEED,
 } from '../lib/data.js'
 import {
   FACTORS, RANGE_LABELS, money as _money, moneyK as _moneyK, pctTxt, perUnitCogs, enrich, waterfall,
 } from '../lib/compute.js'
-import { SHOPIFY_PRODUCTS, SHOPIFY_STORE, SHOPIFY_SOURCES } from '../lib/shopifyData.js'
+import { SHOPIFY_PRODUCTS, SHOPIFY_STORE, SHOPIFY_SOURCES, SHOPIFY_ORDERS } from '../lib/shopifyData.js'
 import { generatePlays } from '../lib/plays.js'
 import { segR, segV, segD, navItem, navRail, switchTrack, switchKnob, darkBtn, greyBtn, heldBtn, stepBtn } from '../lib/styles.js'
 
 const PAGE_TITLES = {
+  overview: ['Overview', 'Your store at a glance — margins, leaks, and what Autopilot is doing.'],
   margins: ['Margin Waterline', 'True contribution margin after ads, shipping, fees, discounts & returns.'],
+  products: ['Products', 'Every product with its true margin, ROAS, and cost confidence.'],
+  orders: ['Orders', 'Recent orders flowing into your margin calculations.'],
   costs: ['Cost inputs', 'The numbers behind every margin. Keep them accurate and Autopilot stays sharp.'],
   alerts: ['Alerts', 'Get told the moment a product slips underwater — before it drains a month of profit.'],
   plans: ['Plans & billing', 'Start free. Pay for automation only when it recovers real margin.'],
@@ -62,6 +65,7 @@ export default function useWaterline() {
   const ACTIVITY_DS = isShop ? [] : BASE_ACTIVITY
   const SOURCES_DS = isShop ? SHOPIFY_SOURCES : SOURCES
   const ALERTS_DS = isShop ? [] : ALERT_FEED
+  const ORDERS_DS = isShop ? SHOPIFY_ORDERS : ORDERS_SEED
   const COGSCONF_DS = isShop ? Object.fromEntries(PRODUCTS.map((p) => [p.id, 'verified'])) : COGS_CONF
   const store = isShop ? SHOPIFY_STORE : { name: 'Harbor & Vine', shop_domain: 'harborandvine.com' }
   const sym = isShop ? 'A$' : '$'
@@ -457,6 +461,42 @@ export default function useWaterline() {
   const billToggleKnob = { position: 'absolute', top: '3px', left: billYear ? 'calc(50% + 1px)' : '3px', width: 'calc(50% - 4px)', height: 'calc(100% - 6px)', background: '#fff', borderRadius: '8px', transition: 'all .2s', boxShadow: '0 1px 3px rgba(22,36,46,.18)' }
   const billLabelStyle = (on) => ({ position: 'relative', zIndex: 1, padding: '7px 16px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', color: on ? '#16242E' : '#8B98A1', transition: 'color .2s', display: 'flex', alignItems: 'center', gap: '6px' })
 
+  // ---- products screen (full catalog) ----
+  const statusPill = (st) => st === 'under' ? { background: '#FBE8E6', color: '#C13A34', t: 'Underwater' }
+    : st === 'thin' ? { background: '#F6ECD7', color: '#A8770F', t: 'Thin' }
+      : st === 'nosales' ? { background: '#ECEAE3', color: '#8B98A1', t: 'No sales' }
+        : { background: '#E4F3EB', color: '#0E7A50', t: 'Healthy' }
+  const productRows = enr.map((p) => {
+    const sp = statusPill(p.status), cm = confMeta[COGSCONF_DS[p.id]] || confMeta.estimated
+    return {
+      id: p.id, name: p.name, cat: p.cat, open: () => set({ selectedId: p.id }),
+      dotStyle: { width: '10px', height: '10px', borderRadius: '3px', background: p.catColor || CAT_COLOR[p.cat] || '#8B98A1', flexShrink: 0 },
+      unitsText: p.units ? p.units.toLocaleString('en-US') : '—',
+      revText: p.units ? moneyK(p.rev) : '—',
+      netText: p.units ? money(p.net) : '—',
+      netColor: p.units === 0 ? '#9AA7AE' : p.status === 'under' ? '#C13A34' : p.status === 'thin' ? '#A8770F' : '#0E8F5E',
+      marginText: p.units ? (p.pct < 0 ? '−' : '') + pctTxt(Math.abs(p.pct)) : '—',
+      roasText: roasText(p.roas), roasColor: roasColor(p.roas),
+      pillStyle: { background: sp.background, color: sp.color, fontSize: '11px', fontWeight: 700, padding: '4px 11px', borderRadius: '20px', whiteSpace: 'nowrap' }, pillText: sp.t,
+      confStyle: { background: cm.bg, color: cm.c, fontSize: '10.5px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', whiteSpace: 'nowrap' }, confText: cm.t,
+    }
+  })
+
+  // ---- orders screen ----
+  const orderStatus = { fulfilled: { bg: '#E4F3EB', c: '#0E7A50', t: 'Fulfilled' }, paid: { bg: '#EAF1F6', c: '#2E6E8E', t: 'Paid' }, refunded: { bg: '#FBE8E6', c: '#C13A34', t: 'Refunded' }, pending: { bg: '#F6ECD7', c: '#A8770F', t: 'Pending' } }
+  const ordersV = ORDERS_DS.map((o) => {
+    const s = orderStatus[o.status] || orderStatus.paid
+    return { ...o, totalText: money(o.total), itemsText: o.items + (o.items === 1 ? ' item' : ' items'), pillStyle: { background: s.bg, color: s.c, fontSize: '11px', fontWeight: 700, padding: '3px 11px', borderRadius: '20px', whiteSpace: 'nowrap' }, pillText: s.t }
+  })
+  const ordersCount = ordersV.length
+
+  // ---- overview highlights ----
+  const topProducts = [...enrSold].sort((a, b) => b.net - a.net).slice(0, 5).map((p) => ({
+    id: p.id, name: p.name, cat: p.cat, catColor: p.catColor || CAT_COLOR[p.cat] || '#8B98A1',
+    netText: money(p.net), netColor: p.net < 0 ? '#C13A34' : '#0E8F5E', marginText: (p.pct < 0 ? '−' : '') + pctTxt(Math.abs(p.pct)),
+    open: () => set({ selectedId: p.id }),
+  }))
+
   // ---- nav + chrome ----
   const nav = state.nav
   const [pageTitle, pageSubtitle] = PAGE_TITLES[nav]
@@ -527,10 +567,16 @@ export default function useWaterline() {
     ledger: ledgerV, ledgerTotalText: money(ledgerTotal), ledgerCount: String(allLedger.length), playsSummary,
     // top-level nav
     nav, isNavMargins: nav === 'margins', isNavCosts: nav === 'costs', isNavAlerts: nav === 'alerts', isNavPlans: nav === 'plans',
+    isNavOverview: nav === 'overview', isNavProducts: nav === 'products', isNavOrders: nav === 'orders',
     goMargins: () => set({ nav: 'margins', selectedId: null }), goCosts: () => set({ nav: 'costs', selectedId: null }), goAlerts: () => set({ nav: 'alerts', selectedId: null }), goPlans: () => set({ nav: 'plans', selectedId: null }),
+    goOverview: () => set({ nav: 'overview', selectedId: null }), goProducts: () => set({ nav: 'products', selectedId: null }), goOrders: () => set({ nav: 'orders', selectedId: null }),
     goAutopilot: () => set({ nav: 'margins', view: 'autopilot' }),
     navMargins: navItem(nav === 'margins'), navCosts: navItem(nav === 'costs'), navAlerts: navItem(nav === 'alerts'), navPlans: navItem(nav === 'plans'),
     navMarginsRail: navRail(nav === 'margins'), navCostsRail: navRail(nav === 'costs'), navAlertsRail: navRail(nav === 'alerts'), navPlansRail: navRail(nav === 'plans'),
+    navOverview: navItem(nav === 'overview'), navProducts: navItem(nav === 'products'), navOrders: navItem(nav === 'orders'),
+    navOverviewRail: navRail(nav === 'overview'), navProductsRail: navRail(nav === 'products'), navOrdersRail: navRail(nav === 'orders'),
+    // overview / products / orders
+    topProducts, productRows, productCount: String(enr.length), orders: ordersV, ordersCount: String(ordersCount),
     // pricing
     plans, billYear, toggleBill: () => set((s) => ({ billYear: !s.billYear })),
     billMoStyle: billLabelStyle(!billYear), billYrStyle: billLabelStyle(billYear), billToggleKnob,

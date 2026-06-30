@@ -2,6 +2,9 @@ import useWaterline from './hooks/useWaterline.js'
 import Sidebar from './components/Sidebar.jsx'
 import Topbar from './components/Topbar.jsx'
 import MarginsScreen from './components/screens/MarginsScreen.jsx'
+import OverviewScreen from './components/screens/OverviewScreen.jsx'
+import ProductsScreen from './components/screens/ProductsScreen.jsx'
+import OrdersScreen from './components/screens/OrdersScreen.jsx'
 import CostInputsScreen from './components/screens/CostInputsScreen.jsx'
 import AlertsScreen from './components/screens/AlertsScreen.jsx'
 import PlansScreen from './components/screens/PlansScreen.jsx'
@@ -19,7 +22,10 @@ export default function App() {
         <Topbar v={v} />
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '4px 30px 40px' }}>
+          {v.isNavOverview && <OverviewScreen v={v} />}
           {v.isNavMargins && <MarginsScreen v={v} />}
+          {v.isNavProducts && <ProductsScreen v={v} />}
+          {v.isNavOrders && <OrdersScreen v={v} />}
           {v.isNavCosts && <CostInputsScreen v={v} />}
           {v.isNavAlerts && <AlertsScreen v={v} />}
           {v.isNavPlans && <PlansScreen v={v} />}

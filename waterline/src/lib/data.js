@@ -145,3 +145,16 @@ export const ALERT_RULES = [
 
 // Style/label lookup tables shared across screens.
 export const TYPE_COLOR = { 'Ad spend': '#7A5EA6', Returns: '#C13A34', Discounts: '#B0894A', Shipping: '#3E7CA6', AOV: '#0E8F5E', Pricing: '#6B8E4E' }
+
+// Sample recent orders for the Orders screen (Harbor & Vine). Real-store orders
+// come from Shopify ingestion; these are illustrative for the sample dataset.
+export const ORDERS_SEED = [
+  { id: '1042', when: '12 min ago', customer: 'Maya R.', items: 2, total: 138, status: 'fulfilled', lines: 'Insulated Bottle · Wool Socks' },
+  { id: '1041', when: '1h ago', customer: 'Tom B.', items: 1, total: 250, status: 'paid', lines: 'Alpine Down Jacket' },
+  { id: '1040', when: '3h ago', customer: 'Priya S.', items: 3, total: 96, status: 'fulfilled', lines: 'Camp Mug Set · Trail Cap · Wool Socks' },
+  { id: '1039', when: '5h ago', customer: 'Jordan L.', items: 1, total: 50, status: 'refunded', lines: 'Packable Rain Shell' },
+  { id: '1038', when: 'Yesterday', customer: 'Aisha K.', items: 1, total: 89, status: 'fulfilled', lines: 'Canvas Daypack' },
+  { id: '1037', when: 'Yesterday', customer: 'Diego M.', items: 2, total: 74, status: 'paid', lines: 'Merino Base Layer Tee · Trail Cap' },
+  { id: '1036', when: '2 days ago', customer: 'Lena F.', items: 1, total: 50, status: 'fulfilled', lines: 'Sunday Fleece' },
+  { id: '1035', when: '2 days ago', customer: 'Sam W.', items: 4, total: 162, status: 'fulfilled', lines: 'Insulated Bottle ×2 · Camp Mug Set · Trail Cap' },
+]

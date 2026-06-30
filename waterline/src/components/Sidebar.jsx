@@ -14,7 +14,8 @@ export default function Sidebar({ v }) {
 
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.09em', color: '#5E6E78', margin: '24px 8px 8px' }}>WORKSPACE</div>
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div className="wl-nav" style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 11px', borderRadius: 9, fontSize: 13.5, fontWeight: 500, color: '#9AAAB2', cursor: 'pointer' }}>
+        <div onClick={v.goOverview} style={v.navOverview}>
+          <div style={v.navOverviewRail} />
           <IconGrid /> Overview
         </div>
         <div onClick={v.goMargins} style={v.navMargins}>
@@ -28,10 +29,12 @@ export default function Sidebar({ v }) {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1BB377', boxShadow: '0 0 0 3px rgba(27,179,119,.18)' }} />
           </span>
         </div>
-        <div className="wl-nav" style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 11px', borderRadius: 9, fontSize: 13.5, fontWeight: 500, color: '#9AAAB2', cursor: 'pointer' }}>
+        <div onClick={v.goProducts} style={v.navProducts}>
+          <div style={v.navProductsRail} />
           <IconBox /> Products
         </div>
-        <div className="wl-nav" style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 11px', borderRadius: 9, fontSize: 13.5, fontWeight: 500, color: '#9AAAB2', cursor: 'pointer' }}>
+        <div onClick={v.goOrders} style={v.navOrders}>
+          <div style={v.navOrdersRail} />
           <IconList /> Orders
         </div>
         <div onClick={v.goCosts} style={v.navCosts}>
