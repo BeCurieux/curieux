@@ -1,0 +1,28 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* soft blush warmth behind the centered app card */
+  background: #ece4dc;
+  background-image: radial-gradient(1200px 600px at 50% -10%, #f3e7e4 0%, rgba(243,231,228,0) 60%);
+  color: #2a2420;
+  min-height: 100vh;
+}
+
+@keyframes ltRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes ltPulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+@keyframes ltToast { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(42,36,32,0.14); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(42,36,32,0.26); background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* hover helpers ported from the prototype */
+.lt-nav:hover { background: #f4efe7; }
+.lt-btn:hover { filter: brightness(.96); }
+.lt-card { transition: box-shadow .2s; }
+.lt-card:hover { box-shadow: 0 8px 22px -10px rgba(42,36,32,.18); }
+.lt-row:hover { background: #faf6f0; }
+.lt-screen { animation: ltRise .28s ease both; }
