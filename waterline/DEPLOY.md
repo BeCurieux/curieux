@@ -50,6 +50,23 @@ when `VITE_API_BASE` is set; CORS is already open on the server.)
 
 ---
 
+## Track 3 — Persistence (Postgres / Supabase)
+
+Without a database the API keeps state in memory (resets on restart). To persist
+overrides, enabled plays, the action log, and the Impact Ledger:
+
+1. **Supabase** (you already have it) → create a project → copy the connection
+   string (Project Settings → Database → Connection string / URI).
+2. Create the tables once:
+   `psql "$DATABASE_URL" -f waterline/server/db/schema.sql`
+   (or paste `server/db/schema.sql` into the Supabase SQL editor).
+3. Set `DATABASE_URL` on the API host (Render → Environment). On boot the app
+   **hydrates** saved state from Postgres and **write-throughs** every mutation.
+
+That's it — no code change. `server/db/pg.js` is a no-op when `DATABASE_URL` is
+unset, so local/demo runs stay in-memory. DB errors are caught (the in-memory
+store stays authoritative), so a flaky connection can't take the API down.
+
 ## Other hosts
 - **Frontend** also works on Netlify / Cloudflare Pages / GitHub Pages (build
   `vite build`, publish `dist`, SPA-rewrite to `index.html`).

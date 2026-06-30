@@ -6,7 +6,7 @@
 
 import { FACTORS, RANGE_LABELS, enrich, perUnitCogs } from '../src/lib/compute.js'
 import { CAT_COLOR } from '../src/lib/data.js'
-import { db, logAction } from './db.js'
+import { db, logAction, persist } from './db.js'
 import { attribute } from './attribution.js'
 import { generatePlays } from '../src/lib/plays.js'
 import { executorFor } from './executors.js'
@@ -213,8 +213,10 @@ export function togglePlay(id, range = '30d') {
   logAction({ playId: id, kind: willRun ? 'play.execute' : 'play.pause', prior: call?.prior ?? { running }, next: call?.next ?? { running: willRun } })
   if (byPause) {
     if (willRun) delete db.paused[id]; else db.paused[id] = true
+    persist.playState(db, id, willRun ? null : 'paused')
   } else {
     if (willRun) db.enabled[id] = true; else delete db.enabled[id]
+    persist.playState(db, id, willRun ? 'enabled' : null)
   }
   if (willRun && db.store.autopilot_on) {
     const verb = play.base === 'approval' ? 'Approved' : 'Enabled'
@@ -233,11 +235,14 @@ function openLedgerEntry(play, range) {
   const before = prod ? Math.round(prod.pct * 100) : 0
   const after = prod && prod.rev ? Math.max(before + 1, Math.round(((prod.net + play.amt) / prod.rev) * 100)) : before + 1
   const series = Array.from({ length: 9 }, (_, i) => { const t = i / 8, e = t * t * (3 - 2 * t); return Math.round((before + (after - before) * e) * 10) / 10 })
-  db.ledger.unshift({ id: lid, pid: play.pid, type: play.type, action: play.action, when: 'just now', before, after, recovered: play.amt, series, note: 'Autopilot is tracking the realized margin change daily.' })
+  const entry = { id: lid, pid: play.pid, type: play.type, action: play.action, when: 'just now', before, after, recovered: play.amt, series, note: 'Autopilot is tracking the realized margin change daily.' }
+  db.ledger.unshift(entry)
+  persist.ledgerOpen(db, entry)
 }
 function closeLedgerEntry(playId) {
   const lid = 'led_' + playId
   db.ledger = db.ledger.filter((l) => l.id !== lid)
+  persist.ledgerClose(db, lid)
 }
 
 export function enableAllPending(range = '30d') {
@@ -250,6 +255,7 @@ export function enableAllPending(range = '30d') {
     const call = exec ? exec.execute(play) : null
     logAction({ playId: play.id, kind: 'play.execute', prior: call?.prior ?? { running: false }, next: call?.next ?? { running: true } })
     db.enabled[play.id] = true
+    persist.playState(db, play.id, 'enabled')
     db.activity.unshift({ when: 'just now', text: `Enabled: ${play.action}`, delta: `+$${play.amt.toLocaleString('en-US')}/mo projected`, kind: 'good' })
     openLedgerEntry(play, range)
     added.push(play.id)
@@ -263,6 +269,7 @@ export function revertLedger(id) {
   const isReverted = !!db.reverted[id]
   logAction({ kind: isReverted ? 'ledger.restore' : 'ledger.revert', prior: { reverted: isReverted }, next: { reverted: !isReverted } })
   if (isReverted) delete db.reverted[id]; else db.reverted[id] = true
+  persist.ledgerReverted(db, id, !isReverted)
   if (!isReverted) db.activity.unshift({ when: 'just now', text: `Reverted: ${l.action}`, delta: `-$${l.recovered.toLocaleString('en-US')} rolled back`, kind: 'warn' })
   return { id, reverted: !isReverted }
 }
@@ -273,6 +280,7 @@ export function setAutopilot({ on, mode }) {
     db.store.autopilot_on = on
   }
   if (mode === 'guarded' || mode === 'ask') db.store.autopilot_mode = mode
+  persist.autopilot(db)
   return { autopilotOn: db.store.autopilot_on, mode: db.store.autopilot_mode }
 }
 
@@ -280,6 +288,7 @@ export function toggleGuardrail(index) {
   const g = db.guardrails[index]
   if (!g) return { error: 'not_found' }
   g.on = !g.on
+  persist.guardrail(db, index, g.on)
   return { index, on: g.on }
 }
 
@@ -316,6 +325,7 @@ export function setCogs(id, cogsPerUnit, range = '30d') {
   logAction({ kind: 'cogs.override', prior: { cogsPerUnit: perUnitCogs(p, db.cogsOverride), confidence: db.cogsConf[id] }, next: { cogsPerUnit: value, confidence: 'verified' } })
   db.cogsOverride[id] = value
   db.cogsConf[id] = 'verified'
+  persist.cogsOverride(db, id, value)
   const enr = enrichAll(range).find((x) => x.id === id)
   return { id, cogsPerUnit: value, confidence: 'verified', marginPct: enr.pct, status: enr.status, netProfit: enr.net }
 }
@@ -334,6 +344,7 @@ export function alertsView() {
 export function dismissAlert(id) {
   if (!db.alerts.find((a) => a.id === id)) return { error: 'not_found' }
   db.dismissedAlerts[id] = true
+  persist.dismissAlert(db, id)
   return { id, dismissed: true }
 }
 
@@ -341,5 +352,6 @@ export function toggleAlertRule(index) {
   const r = db.alertRules[index]
   if (!r) return { error: 'not_found' }
   r.on = !r.on
+  persist.alertRule(db, index, r.on)
   return { index, on: r.on }
 }

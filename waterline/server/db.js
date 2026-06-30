@@ -11,6 +11,7 @@ import {
   SOURCES, COGS_CONF, ALERT_FEED, ALERT_RULES,
 } from '../src/lib/data.js'
 import { loadSnapshot } from './shopify.js'
+import { hydrate, persist } from './db/pg.js'
 
 // WATERLINE_DATA=shopify → serve real ingested data from shopify-snapshot.json.
 // Anything else → the "Harbor & Vine" seed (lets the prototype run with no store).
@@ -88,5 +89,11 @@ export function logAction({ playId = null, kind, prior = null, next = null }) {
     reverted_at: null,
   }
   db.actionLog.unshift(row)
+  persist.actionLog(db, row) // write-through (no-op without DATABASE_URL)
   return row
 }
+
+// Hydrate saved state from Postgres on boot (no-op without DATABASE_URL).
+// Top-level await: importers (engine, server) resolve only after hydration.
+export { persist }
+await hydrate(db)
