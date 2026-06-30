@@ -41,9 +41,9 @@ export default function PlansScreen({ v }) {
       {/* value-based ROI proof */}
       <div style={{ maxWidth: 1040, margin: '0 auto 18px', background: 'linear-gradient(108deg,#EEF5F1,#E3EFE9)', border: '1px solid rgba(14,143,94,.2)', borderRadius: 18, padding: '24px 28px', display: 'flex', alignItems: 'center', gap: 30 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#0E8F5E' }}>WHY AUTOPILOT+ COSTS YOU NOTHING TO TRY</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#16242E', marginTop: 7, lineHeight: 1.35, maxWidth: 440, letterSpacing: '-.01em' }}>You only pay the 12% on margin Waterline has <span style={{ color: '#0E8F5E' }}>verifiably recovered</span> — proven in the Impact Ledger, and reversible.</div>
-          <div style={{ fontSize: 12.5, color: '#42584F', marginTop: 8, lineHeight: 1.5, maxWidth: 460 }}>If it recovers nothing, the variable fee is zero. The math only works in your favor.</div>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#0E8F5E' }}>WHY THE 12% IS RISK-FREE</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#16242E', marginTop: 7, lineHeight: 1.35, maxWidth: 460, letterSpacing: '-.01em' }}>Beyond the flat $299/mo, you only pay 12% on margin Waterline has <span style={{ color: '#0E8F5E' }}>verifiably recovered</span> — proven in the Impact Ledger, and reversible.</div>
+          <div style={{ fontSize: 12.5, color: '#42584F', marginTop: 8, lineHeight: 1.5, maxWidth: 460 }}>Recover nothing and the variable fee is zero — you're only ever charged a share of margin it actually wins back.</div>
         </div>
         <div style={{ background: '#fff', border: '1px solid rgba(22,36,46,.08)', borderRadius: 14, padding: '20px 22px', minWidth: 230 }}>
           <div style={{ fontSize: 11.5, color: '#8B98A1', fontWeight: 600 }}>Your last 30 days, on Autopilot+</div>

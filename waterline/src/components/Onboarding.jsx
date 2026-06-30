@@ -84,11 +84,11 @@ export default function Onboarding({ v }) {
               <div style={{ fontSize: 19, fontWeight: 800, color: '#16242E', letterSpacing: '-.01em' }}>How much should Autopilot do?</div>
               <div style={{ fontSize: 13.5, color: '#6A7780', marginTop: 5, lineHeight: 1.5, maxWidth: 520 }}>Waterline can simply alert you, or it can act within strict guardrails and prove the result. You can change this anytime.</div>
               <div style={{ marginTop: 22, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 13 }}>
-                <div style={{ background: '#fff', border: '2px solid rgba(22,36,46,.1)', borderRadius: 14, padding: 18 }}>
+                <div onClick={() => v.obPickAutopilot('alert')} style={{ background: '#fff', border: '2px solid ' + (v.obAutopilot === 'alert' ? '#16242E' : 'rgba(22,36,46,.1)'), borderRadius: 14, padding: 18, cursor: 'pointer', transition: 'all .15s' }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#16242E' }}>Alert me only</div>
                   <div style={{ fontSize: 12.5, color: '#6A7780', marginTop: 6, lineHeight: 1.5 }}>Waterline finds the leaks and tells you. You make every change yourself.</div>
                 </div>
-                <div style={{ background: '#16242E', border: '2px solid #16242E', borderRadius: 14, padding: 18, position: 'relative' }}>
+                <div onClick={() => v.obPickAutopilot('guarded')} style={{ background: '#16242E', border: '2px solid ' + (v.obAutopilot === 'guarded' ? '#1BB377' : '#16242E'), borderRadius: 14, padding: 18, position: 'relative', cursor: 'pointer', transition: 'all .15s' }}>
                   <div style={{ position: 'absolute', top: 12, right: 12, background: '#1BB377', color: '#06231A', fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 20 }}>RECOMMENDED</div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 7 }}><IconBolt fill="#1BB377" size={15} />Guarded Autopilot</div>
                   <div style={{ fontSize: 12.5, color: '#AEBCC4', marginTop: 6, lineHeight: 1.5 }}>Acts automatically inside your guardrails, holds big moves for approval, and logs every result.</div>

@@ -8,6 +8,7 @@ import {
 } from '../lib/compute.js'
 import { SHOPIFY_PRODUCTS, SHOPIFY_STORE, SHOPIFY_SOURCES, SHOPIFY_ORDERS } from '../lib/shopifyData.js'
 import { generatePlays } from '../lib/plays.js'
+import { api, isLiveBackend } from '../lib/api.js'
 import { segR, segV, segD, navItem, navRail, switchTrack, switchKnob, darkBtn, greyBtn, heldBtn, stepBtn } from '../lib/styles.js'
 
 const PAGE_TITLES = {
@@ -38,7 +39,7 @@ export default function useWaterline() {
     apOn: true, apMode: 'guarded', enabled: {}, paused: {}, guardOff: {}, extraActivity: [], extraLedger: [],
     expanded: {}, reverted: {},
     nav: 'margins', cogsOverride: {}, alertRuleOff: {}, dismissedAlerts: {},
-    onboarding: false, obStep: 0, obShopify: false, obAds: {}, obCogs: null, billYear: false,
+    onboarding: false, obStep: 0, obShopify: false, obAds: {}, obCogs: null, obAutopilot: 'guarded', billYear: false,
     dataSource: 'seed', // 'seed' (Harbor & Vine sample) | 'shopify' (real Mamacita & Crew)
   })
   const toastT = useRef(null)
@@ -433,6 +434,27 @@ export default function useWaterline() {
   const vbRate = 0.12
   const vbFeeMonthly = Math.round((quarterRecovered / 3) * vbRate)
   const keep = Math.round(quarterRecovered / 3) - vbFeeMonthly
+  // Choosing a plan. Autopilot+ on a live backend kicks off Shopify Billing
+  // (recurring $299 + the 12% usage line) and redirects to Shopify's approval
+  // screen. Standalone (no backend / not embedded) falls back to a toast.
+  const pickPlan = (p) => {
+    if (p.id !== 'autopilot') {
+      fireToastKeep(p.name + ' selected.')
+      return
+    }
+    if (isLiveBackend) {
+      fireToastKeep('Opening Shopify approval…')
+      api.subscribe()
+        .then((r) => {
+          if (r?.confirmationUrl) window.top.location.href = r.confirmationUrl
+          else fireToastKeep('Couldn\'t start billing — please try again.')
+        })
+        .catch(() => fireToastKeep('Connect your Shopify store first to enable Autopilot+ billing.'))
+      return
+    }
+    fireToastKeep('Autopilot+ selected — $299/mo + 12% of recovered margin, billed on your Shopify invoice.')
+  }
+
   const plans = [
     { id: 'lookout', name: 'Lookout', tagline: "Find out what's really profitable.", priceMo: 0, priceYr: 0, highlight: false, current: false, cta: 'Start free', note: 'Free forever', features: ['True margin on every product', 'Underwater & margin-drop alerts', '1 ad platform connected', 'Manual fixes — you act yourself'] },
     { id: 'operator', name: 'Operator', tagline: 'See it all, act with one tap.', priceMo: 149, priceYr: 119, highlight: false, current: true, cta: 'Current plan', note: billYear ? 'billed annually' : 'billed monthly', features: ['Everything in Lookout', 'All ad platforms · unlimited SKUs', 'Ask-first Autopilot (one-tap approve)', 'Impact Ledger & one-tap revert', 'Email + Slack alerts'] },
@@ -455,7 +477,7 @@ export default function useWaterline() {
         : p.highlight
           ? { width: '100%', marginTop: '16px', background: '#1BB377', color: '#06231A', border: 'none', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 700, padding: '12px', borderRadius: '11px', cursor: 'pointer' }
           : { width: '100%', marginTop: '16px', background: '#16242E', color: '#fff', border: 'none', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 700, padding: '12px', borderRadius: '11px', cursor: 'pointer' },
-      pick: () => fireToastKeep(p.name === 'Autopilot+' ? 'Autopilot+ selected — you only pay from recovered margin.' : p.name + ' selected.'),
+      pick: () => pickPlan(p),
     }
   })
   const billToggleKnob = { position: 'absolute', top: '3px', left: billYear ? 'calc(50% + 1px)' : '3px', width: 'calc(50% - 4px)', height: 'calc(100% - 6px)', background: '#fff', borderRadius: '8px', transition: 'all .2s', boxShadow: '0 1px 3px rgba(22,36,46,.18)' }
@@ -596,7 +618,13 @@ export default function useWaterline() {
     obShopifyBtnStyle: { background: state.obShopify ? '#E4F3EB' : '#95BF47', color: state.obShopify ? '#0E7A50' : '#16242E', border: 'none', fontFamily: 'inherit', fontSize: '14px', fontWeight: 700, padding: '12px 20px', borderRadius: '11px', cursor: 'pointer', width: '100%' },
     adPlatforms, cogsOptions,
     obNext: () => set((s) => ({ obStep: Math.min(s.obStep + 1, 3) })), obBack: () => set((s) => ({ obStep: Math.max(s.obStep - 1, 0) })),
-    obFinish: () => { set({ onboarding: false }); fireToastKeep('Setup complete — Waterline is watching your margins.') },
+    // step 4 choice: 'guarded' (auto within guardrails) vs 'alert' (alerts only, Autopilot off)
+    obAutopilot: state.obAutopilot, obPickAutopilot: (m) => set({ obAutopilot: m }),
+    obFinish: () => {
+      const guarded = state.obAutopilot === 'guarded'
+      set({ onboarding: false, apOn: guarded, apMode: guarded ? 'guarded' : 'ask' })
+      fireToastKeep(guarded ? 'Setup complete — Guarded Autopilot is on.' : 'Setup complete — alerts only. Autopilot is off.')
+    },
     obNextDisabled, obPrimaryStyle, obShowBack: obStep > 0,
     // waterline
     wlProducts,

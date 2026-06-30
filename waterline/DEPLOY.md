@@ -69,10 +69,13 @@ store stays authoritative), so a flaky connection can't take the API down.
 
 ## Track 4 — Connect Shopify (live ingestion)
 
-**Single store (fastest):** create a **custom app** in your Shopify admin
-(Settings → Apps → Develop apps), grant the read scopes, install it, copy the
-Admin API access token → set `SHOPIFY_SHOP` + `SHOPIFY_ADMIN_TOKEN` on the API.
-Run with `WATERLINE_DATA` unset and trigger a sync.
+**Single store (fastest — great for a test/dev store):** create a **custom app**
+in your Shopify admin (Settings → Apps → Develop apps), grant the read scopes,
+install it, copy the Admin API access token → set `SHOPIFY_SHOP` +
+`SHOPIFY_ADMIN_TOKEN` on the API (leave `WATERLINE_DATA` unset). On boot the API
+**auto-syncs** that store; you can also re-pull anytime with
+`POST /api/sync` (e.g. `curl -X POST https://<your-api>/api/sync`). No public
+URL or OAuth is needed for this path — the token is static.
 
 **Multi-merchant OAuth (a real app):**
 1. **Shopify Partners** → create an app → set **App URL** `${APP_URL}/auth` and
@@ -90,6 +93,41 @@ seed/snapshot data — nothing else is affected.
 > Autopilot *acting* on Shopify (discount caps, PDP notes, price changes) needs
 > **write** scopes (`write_products`, `write_price_rules`, …) — request those only
 > when you enable execution; ingestion is read-only.
+
+## Track 5 — Embedded app + billing (hybrid Autopilot+)
+
+Run Waterline **inside Shopify admin** and bill the hybrid plan ($299/mo +
+12% of recovered margin) on the merchant's Shopify invoice.
+
+**Embed the app (App Bridge):**
+1. In **Shopify Partners → your app → Configuration**, set the **App URL** to your
+   frontend (the Vercel URL) and keep **Embedded** on. Add the Vercel URL to the
+   allowed redirection URLs alongside `${APP_URL}/auth/callback`.
+2. Build the frontend with `VITE_SHOPIFY_API_KEY` = your app's **client id**
+   (same value as `SHOPIFY_API_KEY` on the API). On Vercel → Environment Variables.
+3. When Shopify opens the app it adds a `host` param; the UI then loads App Bridge
+   and attaches a session token to every API call (`Authorization: Bearer …`),
+   which the API verifies (`server/session.js`) to identify the shop. Standalone
+   (no `host`/key) the shell is a no-op — the demo deploy is unaffected.
+
+**Turn on billing:**
+4. Billing reuses `SHOPIFY_API_KEY/SECRET` + `APP_URL`. Optionally set
+   `SHOPIFY_BILLING_TEST=false` to issue real charges (defaults to test charges).
+5. The merchant clicks **Upgrade to Autopilot+** → `POST /api/billing/subscribe`
+   creates the subscription (recurring $299 + a usage line) and returns Shopify's
+   `confirmationUrl`; the UI redirects there for approval. Shopify returns them to
+   `${APP_URL}/billing/callback`.
+6. The 12% is charged as **usage records** against that subscription whenever the
+   Impact Ledger verifies recovered margin — `billing.recordRecoveryFee(shop,
+   token, usageLineItemId, recovered)` (wire this into ledger-close once you go
+   live; it's gated behind an active subscription).
+
+Without `SHOPIFY_API_KEY/SECRET` the billing routes return 503/401 and the Plans
+page falls back to an in-app toast — the standalone app still works end-to-end.
+
+> Billing needs an installed shop (a stored offline token from Track 4) and the
+> live embedded context, so it can't be exercised from the demo deploy — it's
+> verified by structure and the inert no-creds path.
 
 ## Other hosts
 - **Frontend** also works on Netlify / Cloudflare Pages / GitHub Pages (build

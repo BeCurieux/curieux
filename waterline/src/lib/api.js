@@ -5,13 +5,21 @@
 // Point it at the API with VITE_API_BASE (e.g. http://localhost:8791). When
 // unset, `isLiveBackend` is false and callers should fall back to local compute.
 
+import { getSessionToken } from './appbridge.js'
+
 const BASE = import.meta.env?.VITE_API_BASE || ''
 export const isLiveBackend = !!BASE
 
 async function req(path, { method = 'GET', body } = {}) {
+  const headers = {}
+  if (body) headers['Content-Type'] = 'application/json'
+  // When embedded in Shopify admin, attach the App Bridge session token so the
+  // backend can identify the shop (for billing). No-op standalone.
+  const token = await getSessionToken()
+  if (token) headers['Authorization'] = `Bearer ${token}`
   const res = await fetch(BASE + path, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: Object.keys(headers).length ? headers : undefined,
     body: body ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) throw new Error(`${method} ${path} → ${res.status}`)
@@ -46,4 +54,11 @@ export const api = {
 
   // trust surface
   actionLog: () => req('/api/action-log'),
+
+  // pull fresh data from the connected Shopify store
+  sync: () => req('/api/sync', { method: 'POST' }),
+
+  // billing (hybrid Autopilot+)
+  billingStatus: () => req('/api/billing/status'),
+  subscribe: () => req('/api/billing/subscribe', { method: 'POST' }),
 }

@@ -15,6 +15,8 @@ import {
 } from './engine.js'
 import { db, persist } from './db.js'
 import * as oauth from './shopify-oauth.js'
+import * as billing from './billing.js'
+import { shopFromRequest } from './session.js'
 import { syncFromShopify } from './sync.js'
 
 const app = express()
@@ -69,6 +71,25 @@ app.post('/api/alerts/rules/:index/toggle', (req, res) => send(res, toggleAlertR
 // the reversible action log (trust surface)
 app.get('/api/action-log', (_req, res) => res.json({ entries: db.actionLog }))
 
+// Manually pull fresh data from the connected store. Works for a single store
+// via env creds (SHOPIFY_SHOP/SHOPIFY_ADMIN_TOKEN — a custom app), or for an
+// OAuth-installed shop (session token / ?shop=). Returns what was ingested.
+app.post('/api/sync', async (req, res) => {
+  const sess = shopFromRequest(req)
+  const shop = sess?.shop || req.query.shop || process.env.SHOPIFY_SHOP
+  const token = (shop && db.tokens[shop]) || process.env.SHOPIFY_ADMIN_TOKEN
+  if (!shop || !token) return res.status(400).json({ error: 'no_shopify_credentials' })
+  try {
+    const creds = db.tokens[shop] ? { shop, token: db.tokens[shop] } : {} // {} → env fallback in shopify.js
+    const result = await syncFromShopify(creds)
+    db.store.shop_domain = shop
+    res.json({ ok: true, shop, ...result })
+  } catch (e) {
+    console.warn('[sync] manual sync failed:', e.message)
+    res.status(502).json({ error: 'sync_failed', message: e.message })
+  }
+})
+
 // ============ Shopify OAuth (per-merchant install) ============
 const oauthStates = new Set() // CSRF nonces (use a store/TTL cache in production)
 
@@ -100,6 +121,54 @@ app.get('/auth/callback', async (req, res) => {
   }
 })
 
+// ============ Billing (hybrid Autopilot+: $299/mo + 12% of recovered margin) ============
+// Charges go on the merchant's Shopify invoice via the Billing API. Embedded
+// requests carry an App Bridge session token; we verify it to learn the shop and
+// look up its offline token. Inert without app credentials + an installed shop —
+// the standalone UI uses the in-app toast fallback instead.
+
+const billingShop = (req) => {
+  const sess = shopFromRequest(req)
+  const shop = sess?.shop || req.query.shop || req.body?.shop
+  const token = shop ? db.tokens[shop] : null
+  return { shop, token }
+}
+
+// Is the hybrid billing path live for this caller?
+app.get('/api/billing/status', async (req, res) => {
+  if (!oauth.isConfigured()) return res.json({ configured: false })
+  const { shop, token } = billingShop(req)
+  if (!shop || !token) return res.json({ configured: true, installed: false })
+  try {
+    const sub = await billing.getActiveSubscription(shop, token)
+    res.json({ configured: true, installed: true, shop, subscription: sub })
+  } catch (e) {
+    res.json({ configured: true, installed: true, shop, error: e.message })
+  }
+})
+
+// Start the Autopilot+ subscription → returns a confirmationUrl to redirect to.
+app.post('/api/billing/subscribe', async (req, res) => {
+  if (!oauth.isConfigured()) return res.status(503).json({ error: 'billing_not_configured' })
+  const { shop, token } = billingShop(req)
+  if (!shop || !token) return res.status(401).json({ error: 'shop_not_installed' })
+  try {
+    const { confirmationUrl, id } = await billing.subscribe(shop, token)
+    res.json({ confirmationUrl, id })
+  } catch (e) {
+    console.warn('[billing] subscribe failed:', e.message)
+    res.status(502).json({ error: 'subscribe_failed', message: e.message })
+  }
+})
+
+// Shopify returns the merchant here after they approve (or decline) the charge.
+app.get('/billing/callback', (req, res) => {
+  const ok = req.query.charge_id || req.query.chargeId
+  res.send(ok
+    ? 'Autopilot+ is on ✓ — recovered margin is now billed at 12% on your Shopify invoice. You can close this tab.'
+    : 'Autopilot+ was not approved. You can close this tab and try again anytime.')
+})
+
 // Webhooks: verify HMAC against the raw body, then re-sync that shop.
 app.post('/webhooks', async (req, res) => {
   const ok = oauth.verifyWebhook(req.rawBody, req.get('X-Shopify-Hmac-Sha256'))
@@ -112,3 +181,12 @@ app.post('/webhooks', async (req, res) => {
 
 const port = process.env.PORT || 8787
 app.listen(port, () => console.log(`Waterline API on http://localhost:${port}`))
+
+// Single-store custom app: if env creds are present, pull live data on boot so
+// the app shows the real store immediately (no manual /api/sync needed).
+if (process.env.SHOPIFY_SHOP && process.env.SHOPIFY_ADMIN_TOKEN) {
+  db.store.shop_domain = process.env.SHOPIFY_SHOP
+  syncFromShopify({})
+    .then((r) => console.log(`[boot] synced ${process.env.SHOPIFY_SHOP}: ${r.catalog} products, ${r.sold} with sales`))
+    .catch((e) => console.warn('[boot] initial Shopify sync failed:', e.message))
+}
