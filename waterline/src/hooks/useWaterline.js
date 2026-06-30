@@ -79,34 +79,37 @@ export default function useWaterline() {
   const fireToast = (msg) => { set({ selectedId: null }); fireToastKeep(msg) }
 
   // ---- play state helpers ----
-  const isRunning = (p) => (p.base === 'running' ? !state.paused[p.id] : !!state.enabled[p.id])
+  // In GUARDED mode, within-guardrail plays (base 'suggested') run automatically
+  // unless paused; over-guardrail plays (base 'approval') always wait for approval.
+  // In ASK mode, every play waits to be enabled. Master switch off → all held.
+  const autoRuns = (p) => p.base !== 'running' && p.base !== 'approval' && state.apMode === 'guarded'
+  const isRunning = (p) => {
+    if (!state.apOn) return false
+    if (p.base === 'running' || autoRuns(p)) return !state.paused[p.id]
+    return !!state.enabled[p.id]
+  }
   const togglePlay = (p) => {
     const willRun = !isRunning(p)
     set((s) => {
       const enabled = { ...s.enabled }, paused = { ...s.paused }
-      if (p.base === 'running') { if (willRun) delete paused[p.id]; else paused[p.id] = true }
+      if (p.base === 'running' || autoRuns(p)) { if (willRun) delete paused[p.id]; else paused[p.id] = true }
       else { if (willRun) enabled[p.id] = true; else delete enabled[p.id] }
-      let extra = s.extraActivity, extraLedger = s.extraLedger
+      let extra = s.extraActivity
       if (willRun && s.apOn) {
         const verb = p.base === 'approval' ? 'Approved' : 'Enabled'
         extra = [{ when: 'just now', text: verb + ': ' + p.action, delta: '+' + money(p.amt) + '/mo projected', kind: 'good' }, ...s.extraActivity]
-        // executing a play opens an Impact Ledger entry that tracks before→after
-        if (p.ledger && !s.extraLedger.some((l) => l.id === p.ledger.id)) extraLedger = [p.ledger, ...s.extraLedger]
-      } else if (!willRun && p.ledger) {
-        extraLedger = s.extraLedger.filter((l) => l.id !== p.ledger.id) // paused → drop its tracking entry
       }
-      return { enabled, paused, extraActivity: extra, extraLedger }
+      return { enabled, paused, extraActivity: extra }
     })
-    if (willRun && state.apOn) fireToastKeep(p.base === 'approval' ? 'Approved — Autopilot is running it. Tracking in the ledger.' : 'Play enabled — now tracking recovery in the Impact Ledger.')
+    if (willRun && state.apOn) fireToastKeep(p.base === 'approval' ? 'Approved — Autopilot is running it.' : 'Play enabled — tracking recovery in the ledger.')
   }
   const enableAll = () => {
-    const added = playsRef.current.filter((p) => p.base !== 'running' && !state.enabled[p.id])
+    const added = playsRef.current.filter((p) => !isRunning(p))
     set((s) => {
-      const enabled = { ...s.enabled }
-      added.forEach((p) => { enabled[p.id] = true })
+      const enabled = { ...s.enabled }, paused = { ...s.paused }
+      added.forEach((p) => { if (autoRuns(p)) delete paused[p.id]; else enabled[p.id] = true })
       const extra = added.map((p) => ({ when: 'just now', text: 'Enabled: ' + p.action, delta: '+' + money(p.amt) + '/mo projected', kind: 'good' }))
-      const newLedger = added.map((p) => p.ledger).filter((l) => l && !s.extraLedger.some((x) => x.id === l.id))
-      return { enabled, extraActivity: [...extra, ...s.extraActivity], extraLedger: [...newLedger, ...s.extraLedger] }
+      return { enabled, paused, extraActivity: [...extra, ...s.extraActivity] }
     })
     fireToastKeep('All pending plays enabled — Autopilot is on it.')
   }
@@ -234,9 +237,9 @@ export default function useWaterline() {
   playsRef.current = genPlays
   const eff = genPlays.map((p) => {
     let status
-    if (p.base === 'running') status = state.paused[p.id] ? 'paused' : 'running'
-    else status = state.enabled[p.id] ? 'running' : p.base
     if (!apOn) status = 'held'
+    else if (p.base === 'running' || autoRuns(p)) status = state.paused[p.id] ? 'paused' : 'running' // guarded: auto-runs unless paused
+    else status = state.enabled[p.id] ? 'running' : p.base // ask / over-guardrail: needs enable/approval
     return { ...p, status, running: status === 'running' }
   })
   const monthlyRun = eff.filter((p) => p.running).reduce((a, p) => a + p.amt, 0)
@@ -293,8 +296,9 @@ export default function useWaterline() {
     return { label: g.label, toggle: () => set((s) => ({ guardOff: { ...s.guardOff, [i]: !s.guardOff[i] } })), trackStyle: switchTrack(on), knobStyle: switchKnob(on) }
   })
 
-  // ---- impact ledger ---- (live entries from executed plays + curated history)
-  const allLedger = [...state.extraLedger, ...LEDGER_DS]
+  // ---- impact ledger ---- (live entries derived from running plays + curated history)
+  const runningLedger = apPlays.filter((p) => p.running && p.ledger).map((p) => p.ledger)
+  const allLedger = [...runningLedger, ...LEDGER_DS]
   const ledgerV = allLedger.map((l) => {
     const reverted = !!state.reverted[l.id]
     const beforeTxt = (l.before < 0 ? '−' : '') + Math.abs(l.before) + '%'

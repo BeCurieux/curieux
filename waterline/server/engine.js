@@ -141,14 +141,17 @@ export function checkGuardrails(play, range = '30d') {
   return { allowed: reasons.length === 0, reasons }
 }
 
-// Effective status of every play given store state + master switch + guardrails.
+// In guarded mode, within-guardrail plays auto-run unless paused.
+const autoRuns = (p) => p.base !== 'running' && p.base !== 'approval' && db.store.autopilot_mode === 'guarded'
+
+// Effective status of every play given store state + mode + master switch + guardrails.
 export function effectivePlays(range = '30d') {
   const apOn = db.store.autopilot_on
   return playList(range).map((p) => {
     let status
-    if (p.base === 'running') status = db.paused[p.id] ? 'paused' : 'running'
-    else status = db.enabled[p.id] ? 'running' : p.base
     if (!apOn) status = 'held'
+    else if (p.base === 'running' || autoRuns(p)) status = db.paused[p.id] ? 'paused' : 'running'
+    else status = db.enabled[p.id] ? 'running' : p.base
     const guard = checkGuardrails(p, range)
     return {
       id: p.id, productId: p.pid, productName: nameOf(p.pid), cat: catOf(p.pid), catColor: CAT_COLOR[catOf(p.pid)],
@@ -193,7 +196,8 @@ export function autopilotView(range = '30d') {
 export function togglePlay(id, range = '30d') {
   const play = playList(range).find((p) => p.id === id)
   if (!play) return { error: 'not_found' }
-  const running = play.base === 'running' ? !db.paused[id] : !!db.enabled[id]
+  const byPause = play.base === 'running' || autoRuns(play)
+  const running = byPause ? !db.paused[id] : !!db.enabled[id]
   const willRun = !running
 
   if (willRun) {
@@ -207,7 +211,7 @@ export function togglePlay(id, range = '30d') {
   const exec = executorFor(play.type)
   const call = willRun && exec ? exec.execute(play) : null
   logAction({ playId: id, kind: willRun ? 'play.execute' : 'play.pause', prior: call?.prior ?? { running }, next: call?.next ?? { running: willRun } })
-  if (play.base === 'running') {
+  if (byPause) {
     if (willRun) delete db.paused[id]; else db.paused[id] = true
   } else {
     if (willRun) db.enabled[id] = true; else delete db.enabled[id]

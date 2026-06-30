@@ -67,7 +67,14 @@ sale 49.3% → 24.1% (ROAS 3.97).
 Triage table ROAS column + drawer Ad-ROAS tile (color-coded, break-even ~1.8×).
 Sample store has ROAS; real store shows "—" until ad data flows.
 
-### 🔜 Not done — the real integrations (next phases, per BUILD_SPEC §10)
+### ✅ Done — Autopilot execution + Guarded mode (build order §5–6 complete)
+Plays run through typed executors (`server/executors.js`, the §6 action→API map)
+that capture the prior value for revert and write the action log; enabling opens a
+live Impact Ledger entry (before→after). **Guarded mode** auto-runs within-guardrail
+plays (over-$5k → needs approval); **Ask** drafts each for one-tap approval. The
+mode toggle is functional in both frontend and backend.
+
+### 🔜 Not done — the remaining real integrations (per BUILD_SPEC §10)
 1. **Shopify OAuth + ingestion** (orders, products, COGS, returns) — replace seed data.
 2. Persistent DB + materialized `margins` table.
 3. **Ad attribution** (Meta, then Google) — §4; makes margins "true".
