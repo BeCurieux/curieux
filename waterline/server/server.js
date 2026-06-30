@@ -6,16 +6,20 @@
 // the next phase (BUILD_SPEC.md §3, §10); the route surface here is what the
 // frontend talks to.
 
+import crypto from 'node:crypto'
 import express from 'express'
 import {
   validRange, marginsSummary, productDetail, autopilotView, togglePlay,
   enableAllPending, revertLedger, setAutopilot, toggleGuardrail,
   costInputs, setCogs, alertsView, dismissAlert, toggleAlertRule,
 } from './engine.js'
-import { db } from './db.js'
+import { db, persist } from './db.js'
+import * as oauth from './shopify-oauth.js'
+import { syncFromShopify } from './sync.js'
 
 const app = express()
-app.use(express.json())
+// capture the raw body so webhook HMACs can be verified
+app.use(express.json({ verify: (req, _res, buf) => { req.rawBody = buf } }))
 
 // permissive CORS for local dev (Vite on :5174 → API on :8787)
 app.use((req, res, next) => {
@@ -64,6 +68,47 @@ app.post('/api/alerts/rules/:index/toggle', (req, res) => send(res, toggleAlertR
 
 // the reversible action log (trust surface)
 app.get('/api/action-log', (_req, res) => res.json({ entries: db.actionLog }))
+
+// ============ Shopify OAuth (per-merchant install) ============
+const oauthStates = new Set() // CSRF nonces (use a store/TTL cache in production)
+
+// Start install: /auth?shop=foo.myshopify.com → redirect to Shopify consent.
+app.get('/auth', (req, res) => {
+  if (!oauth.isConfigured()) return res.status(503).send('Shopify app not configured (set SHOPIFY_API_KEY/SECRET).')
+  const shop = req.query.shop
+  if (!oauth.validShop(shop)) return res.status(400).send('Add ?shop=your-store.myshopify.com')
+  const state = crypto.randomUUID()
+  oauthStates.add(state)
+  res.redirect(oauth.installUrl(shop, state))
+})
+
+// Consent callback: verify HMAC + state, exchange code, store token, sync.
+app.get('/auth/callback', async (req, res) => {
+  try {
+    const { shop, code, state } = req.query
+    if (!oauthStates.delete(state)) return res.status(403).send('bad state')
+    if (!oauth.verifyCallbackHmac(req.query)) return res.status(403).send('bad hmac')
+    const token = await oauth.exchangeToken(shop, code)
+    db.tokens[shop] = token
+    persist.shopToken(db, shop, token)
+    await oauth.registerWebhooks(shop, token)
+    await syncFromShopify({ shop, token }).catch((e) => console.warn('[auth] first sync failed:', e.message))
+    res.send('Waterline connected ✓ — you can close this tab.')
+  } catch (e) {
+    console.warn('[auth] callback failed:', e.message)
+    res.status(500).send('install failed')
+  }
+})
+
+// Webhooks: verify HMAC against the raw body, then re-sync that shop.
+app.post('/webhooks', async (req, res) => {
+  const ok = oauth.verifyWebhook(req.rawBody, req.get('X-Shopify-Hmac-Sha256'))
+  if (!ok) return res.sendStatus(401)
+  res.sendStatus(200) // ack fast; sync async
+  const shop = req.get('X-Shopify-Shop-Domain')
+  const token = db.tokens[shop]
+  if (token) syncFromShopify({ shop, token }).catch((e) => console.warn('[webhook] sync failed:', e.message))
+})
 
 const port = process.env.PORT || 8787
 app.listen(port, () => console.log(`Waterline API on http://localhost:${port}`))

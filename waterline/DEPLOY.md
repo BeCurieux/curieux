@@ -67,6 +67,30 @@ That's it — no code change. `server/db/pg.js` is a no-op when `DATABASE_URL` i
 unset, so local/demo runs stay in-memory. DB errors are caught (the in-memory
 store stays authoritative), so a flaky connection can't take the API down.
 
+## Track 4 — Connect Shopify (live ingestion)
+
+**Single store (fastest):** create a **custom app** in your Shopify admin
+(Settings → Apps → Develop apps), grant the read scopes, install it, copy the
+Admin API access token → set `SHOPIFY_SHOP` + `SHOPIFY_ADMIN_TOKEN` on the API.
+Run with `WATERLINE_DATA` unset and trigger a sync.
+
+**Multi-merchant OAuth (a real app):**
+1. **Shopify Partners** → create an app → set **App URL** `${APP_URL}/auth` and
+   **Redirect URL** `${APP_URL}/auth/callback`.
+2. Set `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `APP_URL` (your public API URL),
+   and `SHOPIFY_SCOPES` on the API host.
+3. A merchant installs by visiting `${APP_URL}/auth?shop=their-store.myshopify.com`.
+   The callback verifies HMAC, exchanges the token, registers `orders`/`refunds`
+   webhooks, and runs the first sync. Webhooks re-sync automatically on new orders.
+
+Token storage + product catalog persist to Postgres (Track 3). Without
+`SHOPIFY_API_KEY/SECRET` the `/auth` route returns 503 and the app stays on
+seed/snapshot data — nothing else is affected.
+
+> Autopilot *acting* on Shopify (discount caps, PDP notes, price changes) needs
+> **write** scopes (`write_products`, `write_price_rules`, …) — request those only
+> when you enable execution; ingestion is read-only.
+
 ## Other hosts
 - **Frontend** also works on Netlify / Cloudflare Pages / GitHub Pages (build
   `vite build`, publish `dist`, SPA-rewrite to `index.html`).

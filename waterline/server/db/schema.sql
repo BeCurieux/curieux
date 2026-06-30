@@ -130,6 +130,15 @@ create table if not exists guardrails (
   primary key (store_id, idx)
 );
 
+-- Per-merchant OAuth access tokens (offline).
+create table if not exists shop_tokens (
+  shop          text primary key,         -- foo.myshopify.com
+  store_id      text references stores(id) on delete cascade,
+  access_token  text not null,
+  scope         text,
+  installed_at  timestamptz default now()
+);
+
 create index if not exists idx_products_store on products (store_id);
 create index if not exists idx_ad_spend_store on ad_spend (store_id, product_id);
 create index if not exists idx_ledger_store on ledger (store_id);

@@ -69,6 +69,7 @@ export const db = {
   adSpend: [],
   orders: {},      // ordersById, for order-level attribution fallback
   handleToId: {},  // product handle -> id, for UTM attribution
+  tokens: {},      // shop domain -> offline access token (from OAuth)
   // action_log — written BEFORE every mutation, prior value captured for revert.
   actionLog: [],
 }

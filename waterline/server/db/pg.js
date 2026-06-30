@@ -59,6 +59,13 @@ export async function hydrate(db) {
     db.ledger = led.map((l) => ({ id: l.id, pid: l.product_id, type: l.type, action: l.action, when: 'saved', before: Number(l.before_margin), after: Number(l.after_margin), recovered: Number(l.recovered), series: l.series_json || [], note: l.note }))
     led.filter((l) => l.reverted_at).forEach((l) => { db.reverted[l.id] = true })
   }
+  const prods = (await q('select * from products where store_id=$1', [sid])).rows
+  if (prods.length) {
+    db.products = prods.map((p) => ({ id: p.id, shopifyId: p.shopify_id, name: p.title, short: p.short, cat: p.category, catColor: p.cat_color, price: Number(p.price), units: p.units, cogsPerUnit: p.cogs_per_unit != null ? Number(p.cogs_per_unit) : null, cogs: Number(p.cogs), ship: Number(p.ship), fees: Number(p.fees), ads: Number(p.ads), disc: Number(p.disc), ret: Number(p.ret) }))
+    db.cogsConf = Object.fromEntries(prods.map((p) => [p.id, p.cogs_confidence || 'estimated']))
+  }
+  const tok = (await q('select shop, access_token from shop_tokens where store_id=$1', [sid])).rows
+  tok.forEach((t) => { db.tokens[t.shop] = t.access_token })
   const spend = (await q('select * from ad_spend where store_id=$1', [sid])).rows
   if (spend.length) db.adSpend = spend.map((s) => ({ id: s.id, platform: s.platform, campaign: s.campaign, spend: Number(s.spend), attributedRevenue: Number(s.attributed_revenue), productId: s.product_id }))
   const log = (await q('select * from action_log where store_id=$1 order by executed_at desc limit 200', [sid])).rows
@@ -107,4 +114,22 @@ export const persist = {
   ledgerClose: (db, id) => isEnabled() && q('delete from ledger where store_id=$1 and id=$2', [sid(db), id]),
 
   ledgerReverted: (db, id, reverted) => isEnabled() && q('update ledger set reverted_at=$3 where store_id=$1 and id=$2', [sid(db), id, reverted ? new Date().toISOString() : null]),
+
+  // Replace the catalog after a Shopify sync.
+  products: async (db, products) => {
+    if (!isEnabled()) return
+    await q('delete from products where store_id=$1', [sid(db)])
+    for (const p of products) {
+      await q(
+        `insert into products (store_id, id, shopify_id, title, short, category, cat_color, price, units, cogs_per_unit, cogs, ship, fees, ads, disc, ret, cogs_confidence)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+        [sid(db), p.id, p.shopifyId, p.name, p.short, p.cat, p.catColor, p.price, p.units, p.cogsPerUnit, p.cogs, p.ship, p.fees, p.ads, p.disc, p.ret, p.cogsPerUnit != null ? 'verified' : 'missing'],
+      )
+    }
+  },
+
+  shopToken: (db, shop, token) => isEnabled() && q(
+    `insert into shop_tokens (shop, store_id, access_token, installed_at) values ($1,$2,$3,now())
+     on conflict (shop) do update set access_token=excluded.access_token, installed_at=now()`,
+    [shop, sid(db), token]),
 }

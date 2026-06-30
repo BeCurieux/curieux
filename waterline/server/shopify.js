@@ -59,10 +59,11 @@ const num = (x) => Number(x || 0)
 const shortId = (gid) => 'p' + String(gid).split('/').pop()
 
 // --- live Admin API client ---
-async function adminGraphql(query, variables = {}) {
-  const shop = process.env.SHOPIFY_SHOP
-  const token = process.env.SHOPIFY_ADMIN_TOKEN
-  if (!shop || !token) throw new Error('Set SHOPIFY_SHOP and SHOPIFY_ADMIN_TOKEN to ingest live data.')
+// creds: { shop, token } from OAuth; falls back to env (single-store/dev).
+async function adminGraphql(query, variables = {}, creds = {}) {
+  const shop = creds.shop || process.env.SHOPIFY_SHOP
+  const token = creds.token || process.env.SHOPIFY_ADMIN_TOKEN
+  if (!shop || !token) throw new Error('No Shopify credentials (pass {shop,token} or set SHOPIFY_SHOP/SHOPIFY_ADMIN_TOKEN).')
   const res = await fetch(`https://${shop}/admin/api/${API_VERSION}/graphql.json`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
@@ -73,11 +74,11 @@ async function adminGraphql(query, variables = {}) {
   return json.data
 }
 
-async function paginate(query, key, variables = {}) {
+async function paginate(query, key, variables = {}, creds = {}) {
   const out = []
   let after = null
   do {
-    const data = await adminGraphql(query, { first: 50, after, ...variables })
+    const data = await adminGraphql(query, { first: 50, after, ...variables }, creds)
     const conn = data[key]
     out.push(...conn.edges.map((e) => e.node))
     after = conn.pageInfo.hasNextPage ? conn.pageInfo.endCursor : null
@@ -85,9 +86,9 @@ async function paginate(query, key, variables = {}) {
   return out
 }
 
-export async function fetchShopify({ ordersQuery } = {}) {
-  const products = await paginate(PRODUCTS_QUERY, 'products')
-  const orders = await paginate(ORDERS_QUERY, 'orders', { q: ordersQuery || '' })
+export async function fetchShopify(creds = {}, { ordersQuery } = {}) {
+  const products = await paginate(PRODUCTS_QUERY, 'products', {}, creds)
+  const orders = await paginate(ORDERS_QUERY, 'orders', { q: ordersQuery || '' }, creds)
   return { products, orders }
 }
 
