@@ -1,0 +1,25 @@
+/* Cozy dusk, candlelight — friendly ghost, never horror. */
+.haunt-save {
+  background: #ffb86b; color: #241a10; border: none; border-radius: 12px;
+  padding: 12px 18px; font-weight: 700; cursor: pointer; font-size: 15px;
+}
+.haunt-save:disabled { opacity: .8; cursor: default; }
+.haunt-room { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.haunt-room h2 { grid-column: 1 / -1; color: #a79fc9; font-weight: 600; }
+.haunt-card {
+  background: #2c2846; border: 1px solid #3a355c; border-radius: 16px; padding: 14px;
+  color: #e9e4ff; transition: transform .15s ease;
+}
+.haunt-card:hover { transform: translateY(-3px); }
+.haunt-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 10px; }
+.haunt-title { font-weight: 700; margin: 10px 0; }
+.haunt-actions { display: flex; gap: 8px; }
+.haunt-reunite {
+  flex: 1; text-align: center; background: #ffb86b; color: #241a10;
+  padding: 8px; border-radius: 8px; text-decoration: none; font-weight: 700;
+}
+.haunt-release {
+  background: transparent; color: #a79fc9; border: 1px solid #3a355c;
+  border-radius: 8px; padding: 8px 12px; cursor: pointer;
+}
+.haunt-empty { color: #a79fc9; }

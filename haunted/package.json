@@ -1,0 +1,37 @@
+{
+  "name": "haunted",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Haunted Wishlist — a Shopify app where saved products haunt shoppers with cozy, well-timed web-push notes in their own voice.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:guardrail": "vitest run tests/guardrail.regression.test.ts",
+    "test:cadence": "vitest run tests/cadence.simulation.test.ts",
+    "test:e2e": "playwright test",
+    "keys:vapid": "node scripts/gen-vapid.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "stripe": "^17.3.0",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.7.0",
+    "@types/react": "^18.3.11",
+    "@types/web-push": "^3.6.4",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}

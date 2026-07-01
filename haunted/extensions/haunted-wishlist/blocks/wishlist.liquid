@@ -1,0 +1,24 @@
+{% comment %}
+  The customer wishlist surface — "a room full of patient little ghosts". Each
+  saved item is a card with a fading glow (a pure function of now - saved_at,
+  computed client-side in haunt.js). Two actions: Reunite (→ PDP), Release.
+{% endcomment %}
+<section class="haunt-room-section">
+  <div class="haunt-room" data-haunt-wishlist>
+    <h2>{{ block.settings.heading | default: 'A room full of patient little ghosts' }}</h2>
+    <p class="haunt-empty">Lighting the candles…</p>
+  </div>
+</section>
+
+{{ 'haunt.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'haunt.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Haunt: wishlist room",
+  "target": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "A room full of patient little ghosts" }
+  ]
+}
+{% endschema %}

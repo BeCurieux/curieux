@@ -1,0 +1,32 @@
+{% comment %}
+  PDP save button — "let it haunt you". Placed on the product page. On click it
+  creates the wishlist item and THEN requests push opt-in (haunt.js). Push
+  permission is never requested on page load.
+{% endcomment %}
+<div class="haunt-save-wrap">
+  <button
+    class="haunt-save"
+    data-haunt-save
+    data-product-id="gid://shopify/Product/{{ product.id }}"
+    data-variant-id="gid://shopify/ProductVariant/{{ product.selected_or_first_available_variant.id }}"
+    data-title="{{ product.title | escape }}"
+    data-image="{{ product.featured_image | image_url: width: 400 }}"
+    data-price-cents="{{ product.selected_or_first_available_variant.price }}"
+    data-in-stock="{{ product.selected_or_first_available_variant.available }}"
+  >
+    {{ block.settings.label | default: 'let it haunt you' }}
+  </button>
+</div>
+
+{{ 'haunt.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'haunt.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Haunt: save button",
+  "target": "section",
+  "settings": [
+    { "type": "text", "id": "label", "label": "Button label", "default": "let it haunt you" }
+  ]
+}
+{% endschema %}
