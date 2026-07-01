@@ -1,0 +1,15 @@
+api_version = "2025-01"
+
+[[extensions]]
+name = "Haunted Wishlist"
+handle = "haunted-wishlist"
+type = "theme"
+
+# The app block ("let it haunt you" button) is placed on the PDP; the wishlist
+# block ("a room full of patient little ghosts") on a page/section of the
+# merchant's choosing. Storefront calls go through the App Proxy so they are
+# same-origin and signed:
+#
+#   App Proxy → subpath prefix: apps, subpath: haunted
+#   Proxy URL: https://<your-app-host>/api/public
+#   => /apps/haunted/config, /apps/haunted/subscribe, /apps/haunted/wishlist, /apps/haunted/sw
