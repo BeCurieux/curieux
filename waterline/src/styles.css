@@ -11,6 +11,7 @@ body {
 @keyframes wlDrawerIn { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes wlBackdrop { from { opacity: 0; } to { opacity: 1; } }
 @keyframes wlToast { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes wlSpin { to { transform: rotate(360deg); } }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: rgba(22,36,46,0.16); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }

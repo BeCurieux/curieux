@@ -24,6 +24,21 @@ const PAGE_TITLES = {
 const nameOf = (id) => BASE.find((b) => b.id === id).name
 const catOf = (id) => BASE.find((b) => b.id === id).cat
 
+// Currency code → display symbol (live store carries its own currency).
+const CURRENCY_SYM = { USD: '$', AUD: 'A$', GBP: '£', EUR: '€', CAD: 'C$', NZD: 'NZ$', JPY: '¥' }
+
+// Map a backend product (engine publicProduct shape — already enriched for the
+// window) into the raw shape enrich() expects. We fetch per-range and enrich with
+// factor 1, so the numbers pass straight through unchanged.
+const mapLiveProduct = (p) => ({
+  id: p.id, name: p.name, short: p.short || p.name, cat: p.cat || 'Other', catColor: p.catColor,
+  units: p.units || 0,
+  rev: p.revenue || 0, cogs: p.cogs || 0, ship: p.ship || 0, fees: p.fees || 0,
+  ads: p.ads || 0, disc: p.discounts || 0, ret: p.returns || 0,
+  cogsPerUnit: null, price: p.units ? Math.round((p.revenue / p.units) * 100) / 100 : 0,
+  roas: p.roas ?? null,
+})
+
 // Easing ramp of N margin-% points from `before` to `after` for ledger sparklines.
 const rampSeries = (before, after, n = 9) =>
   Array.from({ length: n }, (_, i) => {
@@ -40,7 +55,10 @@ export default function useWaterline() {
     expanded: {}, reverted: {},
     nav: 'margins', cogsOverride: {}, alertRuleOff: {}, dismissedAlerts: {},
     onboarding: false, obStep: 0, obShopify: false, obAds: {}, obCogs: null, obAutopilot: 'guarded', billYear: false,
-    dataSource: 'seed', // 'seed' (Harbor & Vine sample) | 'shopify' (real Mamacita & Crew)
+    // 'seed' (sample) | 'shopify' (real store). With a live backend configured,
+    // the "My store" source pulls live data from the API; otherwise the bundled snapshot.
+    dataSource: isLiveBackend ? 'shopify' : 'seed',
+    liveProducts: null, liveStore: null, liveLoading: false,
   })
   const toastT = useRef(null)
   const playsRef = useRef([]) // generated plays, for handlers like enableAll
@@ -50,14 +68,36 @@ export default function useWaterline() {
     return () => { clearTimeout(t); clearTimeout(toastT.current) }
   }, [])
 
+  // Live backend: pull the real store's products (+ store info) from the API when
+  // "My store" is selected. Refetches on range change. No-op standalone.
+  useEffect(() => {
+    if (!isLiveBackend || state.dataSource !== 'shopify') return
+    let cancelled = false
+    setState((s) => ({ ...s, liveLoading: true }))
+    Promise.all([api.products(state.range), api.store().catch(() => null)])
+      .then(([res, store]) => {
+        if (cancelled) return
+        const rows = (res?.products || []).map(mapLiveProduct)
+        setState((s) => ({ ...s, liveProducts: rows, liveStore: store, liveLoading: false }))
+      })
+      .catch(() => { if (!cancelled) setState((s) => ({ ...s, liveProducts: [], liveLoading: false })) })
+    return () => { cancelled = true }
+  }, [state.range, state.dataSource])
+
   const set = (patch) => setState((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }))
 
-  const factor = FACTORS[state.range]
+  // ---- data source (sample seed | real store) ----
+  // "My store" (isShop) is served from the LIVE backend when one is configured
+  // (VITE_API_BASE set), otherwise from the bundled snapshot. Live data is fetched
+  // per-range, so it's enriched with factor 1 (numbers pass through unchanged).
+  const isShop = state.dataSource === 'shopify'
+  const isLive = isLiveBackend && isShop
+  const factor = isLive ? 1 : FACTORS[state.range]
   const rangeLabel = RANGE_LABELS[state.range]
 
-  // ---- data source (sample seed vs real Shopify snapshot) ----
-  const isShop = state.dataSource === 'shopify'
-  const PRODUCTS = isShop ? SHOPIFY_PRODUCTS : BASE.map((p) => ({ ...p, roas: SEED_ROAS[p.id] }))
+  const PRODUCTS = isLive
+    ? (state.liveProducts || [])
+    : isShop ? SHOPIFY_PRODUCTS : BASE.map((p) => ({ ...p, roas: SEED_ROAS[p.id] }))
   // ROAS display + threshold color (break-even ≈ 1.8×). null → "—" (no ad data).
   const roasText = (r) => (r == null ? '—' : r.toFixed(1) + '×')
   const roasColor = (r) => (r == null ? '#9AA7AE' : r < 1.8 ? '#C13A34' : r < 2.8 ? '#A8770F' : '#0E8F5E')
@@ -66,10 +106,14 @@ export default function useWaterline() {
   const ACTIVITY_DS = isShop ? [] : BASE_ACTIVITY
   const SOURCES_DS = isShop ? SHOPIFY_SOURCES : SOURCES
   const ALERTS_DS = isShop ? [] : ALERT_FEED
-  const ORDERS_DS = isShop ? SHOPIFY_ORDERS : ORDERS_SEED
-  const COGSCONF_DS = isShop ? Object.fromEntries(PRODUCTS.map((p) => [p.id, 'verified'])) : COGS_CONF
-  const store = isShop ? SHOPIFY_STORE : { name: 'Harbor & Vine', shop_domain: 'harborandvine.com' }
-  const sym = isShop ? 'A$' : '$'
+  const ORDERS_DS = isLive ? [] : isShop ? SHOPIFY_ORDERS : ORDERS_SEED
+  const COGSCONF_DS = isLive
+    ? Object.fromEntries(PRODUCTS.map((p) => [p.id, p.cogs > 0 ? 'verified' : 'missing']))
+    : isShop ? Object.fromEntries(PRODUCTS.map((p) => [p.id, 'verified'])) : COGS_CONF
+  const store = isLive
+    ? { name: state.liveStore?.name || 'Your store', shop_domain: state.liveStore?.shop_domain || '' }
+    : isShop ? SHOPIFY_STORE : { name: 'Harbor & Vine', shop_domain: 'harborandvine.com' }
+  const sym = isLive ? (CURRENCY_SYM[state.liveStore?.currency] || '$') : isShop ? 'A$' : '$'
   const money = (n) => _money(n, sym)
   const moneyK = (n) => _moneyK(n, sym)
   const nameOf = (id) => (PRODUCTS.find((b) => b.id === id) || {}).name
@@ -561,7 +605,9 @@ export default function useWaterline() {
     setRange30: () => set({ range: '30d' }), setRange90: () => set({ range: '90d' }), setRange12: () => set({ range: '12mo' }),
     range30Style: segR(state.range === '30d'), range90Style: segR(state.range === '90d'), range12Style: segR(state.range === '12mo'),
     // data source
-    dataSource: state.dataSource, isShop,
+    dataSource: state.dataSource, isShop, isLive,
+    // true while the live store's first page of data is still loading (Render cold start)
+    loading: isLive && state.liveProducts === null,
     showDeltas: !isShop, // sample has illustrative vs-prior deltas; the real store has no prior period yet
     storeName: store.name, storeDomain: store.shop_domain, storeInitial: (store.name || '?')[0],
     setSeed: () => set({ dataSource: 'seed', selectedId: null, view: 'waterline', nav: 'margins' }),

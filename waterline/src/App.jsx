@@ -31,6 +31,16 @@ export default function App() {
           {v.isNavPlans && <PlansScreen v={v} />}
         </div>
 
+        {v.loading && (
+          <div style={{ position: 'absolute', inset: 0, top: 72, background: 'rgba(241,239,233,.82)', backdropFilter: 'blur(2px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, zIndex: 40 }}>
+            <div style={{ width: 34, height: 34, border: '3px solid rgba(22,36,46,.15)', borderTopColor: '#0E8F5E', borderRadius: '50%', animation: 'wlSpin .8s linear infinite' }} />
+            <div style={{ fontSize: 13.5, fontWeight: 600, color: '#42584F', textAlign: 'center', maxWidth: 300, lineHeight: 1.5 }}>
+              Loading your store…<br />
+              <span style={{ fontSize: 12, color: '#8B98A1' }}>first load can take ~30s while the server wakes up</span>
+            </div>
+          </div>
+        )}
+
         {v.showDrawer && <Drawer v={v} />}
         {v.showToast && <Toast message={v.toast} />}
       </main>
