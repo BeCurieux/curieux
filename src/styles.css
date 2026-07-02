@@ -1,0 +1,27 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #1B2730;
+  color: #16242E;
+}
+
+@keyframes wlFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes wlDrawerIn { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes wlBackdrop { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wlToast { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes wlSpin { to { transform: rotate(360deg); } }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(22,36,46,0.16); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(22,36,46,0.30); background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* hover helpers ported from the prototype's style-hover attribute */
+.wl-nav:hover { background: rgba(255,255,255,0.05); color: #E3EBEF; }
+.wl-store:hover { background: rgba(255,255,255,0.08); }
+.wl-chip:hover { background: #21353f; }
+.wl-row:hover { background: #FAF9F5; }
+.wl-col:hover { background: rgba(22,36,46,0.035); }
+.wl-sorth:hover { color: #16242E; }
