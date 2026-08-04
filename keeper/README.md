@@ -54,10 +54,15 @@ scripts/            seed.mjs (Florence demo family) · run-jobs.mjs
 
 ## Getting started
 
+**New to this? Follow [SETUP.md](./SETUP.md)** — a step-by-step walkthrough
+from installing Node.js through to clicking around the demo family.
+
+The short version:
+
 ```bash
 npm install
 cp .env.example .env.local          # fill in Supabase keys at minimum
-# apply supabase/migrations/*.sql to your Supabase project (in order)
+# paste supabase/setup.sql into the Supabase SQL Editor and run it
 npm run dev
 ```
 
