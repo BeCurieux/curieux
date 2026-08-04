@@ -1,0 +1,60 @@
+import Link from "next/link";
+import { Uploader } from "./uploader";
+import { addTextMemory } from "@/app/actions";
+
+export default function UploadPage({
+  params,
+  searchParams,
+}: {
+  params: { childId: string };
+  searchParams: { welcome?: string };
+}) {
+  return (
+    <div className="py-10">
+      {searchParams.welcome && (
+        <p className="mb-6 rounded-lg bg-sand/50 p-4 text-sm">
+          Add some memories — photos are the fastest way to start.
+        </p>
+      )}
+      <h1 className="text-3xl">Add their moments</h1>
+
+      <section className="mt-8">
+        <h2 className="text-lg">Upload photos</h2>
+        <p className="mt-1 text-sm text-ink/60">
+          Drag in 50–150 photos at once. We&rsquo;ll spot duplicates and start making sense of them —
+          you don&rsquo;t need to wait around.
+        </p>
+        <div className="mt-4">
+          <Uploader childId={params.childId} />
+        </div>
+      </section>
+
+      <section className="mt-12 grid gap-8 md:grid-cols-2">
+        <div>
+          <h2 className="text-lg">Add a quote</h2>
+          <form action={addTextMemory} className="mt-3 space-y-3">
+            <input type="hidden" name="child_id" value={params.childId} />
+            <input type="hidden" name="type" value="quote" />
+            <textarea className="input h-24" name="text" placeholder={"Something they said, exactly how they said it.\n“I do it!”"} />
+            <input className="input" type="date" name="memory_date" />
+            <button className="btn-secondary">Keep this quote</button>
+          </form>
+        </div>
+        <div>
+          <h2 className="text-lg">Tell us something</h2>
+          <form action={addTextMemory} className="mt-3 space-y-3">
+            <input type="hidden" name="child_id" value={params.childId} />
+            <input type="hidden" name="type" value="text" />
+            <textarea className="input h-24" name="text" placeholder="A moment you don't want to lose. A sentence is plenty." />
+            <input className="input" type="date" name="memory_date" />
+            <button className="btn-secondary">Keep this memory</button>
+          </form>
+        </div>
+      </section>
+
+      <p className="mt-12 text-sm text-ink/50">
+        Done for now? <Link className="text-clay" href={`/children/${params.childId}`}>Back to their year</Link>
+      </p>
+    </div>
+  );
+}
