@@ -13,7 +13,7 @@ import {
   ACCESS_COOKIE, REFRESH_COOKIE, adminClient, requireAdmin, requireUser, userClient,
 } from "@/lib/supabase/server";
 import { enqueue, retry } from "@/lib/jobs/queue";
-import { createBookCheckout } from "@/lib/stripe";
+import { clampExtraCopies, createBookCheckout } from "@/lib/stripe";
 import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
 
@@ -434,42 +434,44 @@ export async function startCheckout(formData: FormData) {
   const user = await requireUser();
   const db = userClient();
   const bookId = String(formData.get("book_id"));
-  const kind = String(formData.get("kind")) === "print" ? ("print" as const) : ("digital" as const);
   const { data: book } = await db.from("books").select("*").eq("id", bookId).single();
   if (!book) throw new Error("book not found");
 
-  if (kind === "print") {
-    // Persist recipient as a draft print order; submitted only after payment.
-    const recipient = {
-      name: String(formData.get("name") ?? ""),
-      line1: String(formData.get("line1") ?? ""),
-      line2: String(formData.get("line2") ?? "") || undefined,
-      city: String(formData.get("city") ?? ""),
-      region: String(formData.get("region") ?? "") || undefined,
-      postcode: String(formData.get("postcode") ?? ""),
-      countryCode: String(formData.get("country") ?? "AU"),
-    };
-    const admin = adminClient();
-    await admin.from("print_orders").upsert(
-      {
-        book_id: bookId,
-        provider: process.env.PRINT_PROVIDER ?? "mock",
-        sku: process.env.PRODIGI_BOOK_SKU ?? "BOOK-A4-HARD-M",
-        page_count: book.page_count ?? 0,
-        recipient_json: recipient,
-        status: "draft",
-        idempotency_key: `print-${bookId}`,
-      },
-      { onConflict: "idempotency_key" }
-    );
-  }
+  // One product: the printed book, digital included. Extra copies ride along
+  // on the same run, so the count belongs on the print order.
+  const extraCopies = clampExtraCopies(formData.get("extra_copies"));
+
+  // Persist recipient as a draft print order; submitted only after payment.
+  const recipient = {
+    name: String(formData.get("name") ?? ""),
+    line1: String(formData.get("line1") ?? ""),
+    line2: String(formData.get("line2") ?? "") || undefined,
+    city: String(formData.get("city") ?? ""),
+    region: String(formData.get("region") ?? "") || undefined,
+    postcode: String(formData.get("postcode") ?? ""),
+    countryCode: String(formData.get("country") ?? "AU"),
+  };
+  const admin = adminClient();
+  await admin.from("print_orders").upsert(
+    {
+      book_id: bookId,
+      provider: process.env.PRINT_PROVIDER ?? "mock",
+      sku: process.env.PRODIGI_BOOK_SKU ?? "BOOK-A4-HARD-M",
+      page_count: book.page_count ?? 0,
+      recipient_json: recipient,
+      copies: extraCopies + 1,
+      status: "draft",
+      idempotency_key: `print-${bookId}`,
+    },
+    { onConflict: "idempotency_key" }
+  );
 
   const { data: profile } = await db.from("profiles").select("stripe_customer_id").eq("id", user.id).single();
   const session = await createBookCheckout({
-    kind,
     bookId,
     bookTitle: book.title,
     customerEmail: user.email!,
+    extraCopies,
     stripeCustomerId: profile?.stripe_customer_id,
   });
   redirect(session.url!);

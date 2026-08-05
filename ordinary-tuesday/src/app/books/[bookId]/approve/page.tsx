@@ -1,4 +1,5 @@
 // Print approval (brief §24): explicit review checklist + confirmation.
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { approveBook } from "@/app/actions";
@@ -34,13 +35,26 @@ export default async function ApprovePage({
             </li>
           ))}
         </ul>
-        <form action={approveBook} className="mt-6">
+
+        {/* Asking someone to confirm the photographs are right, on a page with
+            no way to look at them, is asking them to guess. */}
+        <Link
+          href={`/books/${book.id}/preview`}
+          className="btn-secondary mt-5 block w-full text-center"
+        >
+          Read it through again
+        </Link>
+
+        <form action={approveBook} className="mt-6 border-t border-rule pt-6">
           <input type="hidden" name="book_id" value={book.id} />
           <label className="flex items-start gap-3 text-sm">
             <input type="checkbox" name="confirm" className="mt-1" required />
             <span>I have reviewed this book and approve it for printing.</span>
           </label>
           <button className="btn mt-6 w-full">Approve &amp; continue</button>
+          <p className="mt-3 text-center text-xs text-stone">
+            You can still change anything up until you pay.
+          </p>
         </form>
       </div>
     </div>

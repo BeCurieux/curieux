@@ -482,7 +482,9 @@ async function submitPrint(db: SupabaseClient, payload: Record<string, unknown>)
     idempotencyKey: order.idempotency_key,
     sku: order.sku,
     pageCount: order.page_count,
-    copies: 1,
+    // What the customer actually paid for. Hard-coding 1 here shipped a
+    // single book to someone who bought copies for both sets of grandparents.
+    copies: order.copies ?? 1,
     recipient: order.recipient_json,
     interiorPdfUrl: interior.signedUrl,
     coverPdfUrl: cover.signedUrl,
