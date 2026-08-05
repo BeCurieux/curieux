@@ -137,7 +137,7 @@ export function renderBookHtml(book: RenderBook, target: RenderTarget): string {
 
   /* An intimate-tier photograph is placed small on purpose, with the white
      space doing the work. Never enlarged to fill the frame. */
-  .intimate { width:46%; align-self:flex-start; }
+  .intimate { width:100%; align-self:flex-start; }
 
   /* One column, not two. Eight short entries cannot fill an A4 spread in
      two columns without leaving craters between rows; run down the page and
@@ -308,7 +308,7 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
           : "") +
         `<div class="content" style="top:${IMG_H}%;bottom:${mgn.bottom}mm;` +
         `left:${mgn.left}mm;right:${mgn.right}mm;padding-top:${mm(10)}in">
-          <div class="low hang">
+          <div class="hang">
             ${texts.map((t) => `<p>${esc(t.content)}</p>`).join("")}
           </div>
           ${cap(captions)}
@@ -319,13 +319,17 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
     case "object_portrait":
       // Deliberately small. A poor but important photograph earns its place
       // through white space and story, never through enlargement (§14).
+      // Sparse by design (brief §9) — but the block sits ON the page rather
+      // than in a corner. Air above and below, the object off to one side.
       inner = `<div class="content" style="inset:${inset}">
-        <div style="width:38%;margin-left:${right ? "auto" : "0"}">
-          ${photos[0] ? img(photos[0], "photo intimate") : ""}
-          ${cap(captions)}
-        </div>
-        <div class="low hang">
-          ${texts.map((t) => `<p>${esc(t.content)}</p>`).join("")}
+        <div style="margin:auto 0">
+          <div style="width:44%;margin-left:${right ? "auto" : "0"}">
+            ${photos[0] ? img(photos[0], "photo intimate") : ""}
+            ${cap(captions)}
+          </div>
+          <div class="hang" style="margin-top:${mm(18)}in">
+            ${texts.map((t) => `<p>${esc(t.content)}</p>`).join("")}
+          </div>
         </div>
       </div>`;
       break;
@@ -368,7 +372,7 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
         ${heading ? `<h2 style="margin-top:${mm(4)}in">${esc(heading.content)}</h2>` : ""}
         ${photos[0] ? `<div style="height:46%;margin-top:${mm(10)}in">${img(photos[0])}</div>` : ""}
         ${cap(captions)}
-        <div class="low hang" style="padding-top:${mm(8)}in">
+        <div class="hang" style="padding-top:${mm(12)}in">
           ${texts.map((t) => `<p>${esc(t.content)}</p>`).join("")}
         </div>
       </div>`;
@@ -389,11 +393,11 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
     case "closing_page":
       inner = `<div class="content" style="inset:${inset}">
         ${photos[0] ? `<div style="height:44%">${img(photos[0])}</div>` : ""}
-        <div class="low">
+        <div style="margin-top:${mm(14)}in">
           ${heading ? `<h2 style="margin-bottom:${mm(7)}in">${esc(heading.content)}</h2>` : ""}
           <div class="hang">${texts.map((t) => `<p>${esc(t.content)}</p>`).join("")}</div>
-          ${annotations[0] ? `<div class="annotation" style="margin-top:${mm(8)}in">${esc(annotations[0].content)}</div>` : ""}
         </div>
+        ${annotations[0] ? `<div class="annotation bottom">${esc(annotations[0].content)}</div>` : ""}
       </div>`;
       break;
 
