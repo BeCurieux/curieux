@@ -16,6 +16,7 @@
 // manufacturing urgency about a childhood.
 
 import { countOf } from "@/lib/words";
+import { NOTICE_DAYS } from "@/lib/renewal/policy";
 import type { OutboundEmail } from "./provider";
 
 const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? "https://ordinarytuesday.com";
@@ -157,6 +158,108 @@ export function yearClosing(opts: {
       `word, the thing they do every single morning — this is the moment. In a year ` +
       `you will not be able to reconstruct it, and that is the whole reason this exists.\n\n` +
       `${url}` + optOut(opts.optOutToken) + SIGNOFF,
+  };
+}
+
+// ------------------------------------------------------------- renewals
+
+/**
+ * We are going to charge you, on this date, unless you say otherwise.
+ *
+ * The most important email the product sends, because it is the one that
+ * decides whether a charge next month is expected or a dispute. It leads
+ * with the amount and the date — not with how lovely the book is.
+ */
+export function renewalScheduled(opts: {
+  to: Recipient;
+  childName: string;
+  bookTitle: string;
+  bookId: string;
+  renewalId: string;
+  amountAud: number;
+  chargeOn: string;
+  cardLast4?: string | null;
+}): OutboundEmail {
+  const money = `A$${Math.round(opts.amountAud / 100)}`;
+  return {
+    to: opts.to,
+    subject: `${opts.bookTitle} is ready — we'll charge ${money} on ${opts.chargeOn}`,
+    text:
+      `${opts.childName}'s year is made and waiting for you to read.\n\n` +
+      `On ${opts.chargeOn} we will charge ${money}` +
+      (opts.cardLast4 ? ` to the card ending ${opts.cardLast4}` : "") +
+      ` and send it to print. That is ${NOTICE_DAYS} days from now, so there is time to ` +
+      `read it through, change anything, or stop it.\n\n` +
+      `Read it:\n${appUrl()}/books/${opts.bookId}/preview\n\n` +
+      `Don't print it this year:\n${appUrl()}/renewals/${opts.renewalId}/cancel\n\n` +
+      `One click, no reason needed, and we will not ask again unless you turn it ` +
+      `back on.` + SIGNOFF,
+  };
+}
+
+/** The quieter second notice, a few days out. */
+export function renewalReminder(opts: {
+  to: Recipient;
+  bookTitle: string;
+  bookId: string;
+  renewalId: string;
+  amountAud: number;
+  days: number;
+}): OutboundEmail {
+  const money = `A$${Math.round(opts.amountAud / 100)}`;
+  return {
+    to: opts.to,
+    subject: `${opts.bookTitle} goes to print in ${countOf(opts.days, "day")}`,
+    text:
+      `Just so it isn't a surprise: ${money} in ${countOf(opts.days, "day")}, then it prints.\n\n` +
+      `Read it:\n${appUrl()}/books/${opts.bookId}/preview\n\n` +
+      `Stop it:\n${appUrl()}/renewals/${opts.renewalId}/cancel` + SIGNOFF,
+  };
+}
+
+/**
+ * Not enough happened this year, so we are not charging.
+ *
+ * This costs revenue on purpose. Charging A$199 for a thin book about
+ * someone's child is the worst thing this product could do, and the year
+ * with nothing in it is exactly the year a silent charge becomes a dispute.
+ */
+export function renewalSkipped(opts: {
+  to: Recipient;
+  childName: string;
+  subjectId: string;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    subject: `We haven't charged you for ${opts.childName}'s book`,
+    text:
+      `There wasn't enough in the archive this year to make a book worth printing, ` +
+      `so we have not charged you and nothing has gone to print.\n\n` +
+      `No judgement — some years are like that, and a thin book is worse than no ` +
+      `book. Everything you have kept is still there, and it will all still be ` +
+      `there whenever you want to pick it up.\n\n` +
+      `${appUrl()}/subjects/${opts.subjectId}` + SIGNOFF,
+  };
+}
+
+/** The card was declined, or the bank wants the cardholder present. */
+export function renewalPaymentFailed(opts: {
+  to: Recipient;
+  bookTitle: string;
+  bookId: string;
+  needsAuthentication: boolean;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    subject: `We couldn't take payment for ${opts.bookTitle}`,
+    text:
+      (opts.needsAuthentication
+        ? `Your bank wants you to confirm this one yourself, which is normal for a ` +
+          `payment made without you there.\n\n`
+        : `The saved card was declined — usually it has expired or been replaced.\n\n`) +
+      `Nothing has been charged and nothing has printed. The book is finished and ` +
+      `waiting; paying takes a minute:\n\n` +
+      `${appUrl()}/books/${opts.bookId}/checkout` + SIGNOFF,
   };
 }
 

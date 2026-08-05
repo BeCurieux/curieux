@@ -13,7 +13,7 @@ import {
   ACCESS_COOKIE, REFRESH_COOKIE, adminClient, requireAdmin, requireUser, userClient,
 } from "@/lib/supabase/server";
 import { enqueue, retry } from "@/lib/jobs/queue";
-import { clampExtraCopies, createBookCheckout } from "@/lib/stripe";
+import { AUTORENEW_TERMS, clampExtraCopies, createBookCheckout } from "@/lib/stripe";
 import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
 import { randomBytes } from "node:crypto";
@@ -495,6 +495,21 @@ export async function startCheckout(formData: FormData) {
     { onConflict: "idempotency_key" }
   );
 
+  // Only ever from an explicit tick, and the exact wording they agreed to is
+  // stored alongside the flag — "did they consent" is the whole question in
+  // a dispute, and a boolean cannot answer it.
+  const autorenew = formData.get("autorenew") === "on";
+  if (autorenew) {
+    await db
+      .from("subjects")
+      .update({
+        autorenew_enabled: true,
+        autorenew_agreed_at: new Date().toISOString(),
+        autorenew_agreed_terms: AUTORENEW_TERMS,
+      })
+      .eq("id", book.subject_id);
+  }
+
   const { data: profile } = await db.from("profiles").select("stripe_customer_id").eq("id", user.id).single();
   const session = await createBookCheckout({
     bookId,
@@ -502,8 +517,61 @@ export async function startCheckout(formData: FormData) {
     customerEmail: user.email!,
     extraCopies,
     stripeCustomerId: profile?.stripe_customer_id,
+    saveCardForRenewal: autorenew,
   });
   redirect(session.url!);
+}
+
+/**
+ * Stop a renewal from the link in an email, without a login.
+ *
+ * The id is the credential, which is a deliberate trade: this route can only
+ * ever *prevent* a payment, so a leaked link cannot cost anyone anything. The
+ * alternative — making people log in to stop a charge — turns cancellations
+ * into chargebacks.
+ */
+export async function stopRenewalByLink(formData: FormData) {
+  const renewalId = String(formData.get("renewal_id"));
+  const admin = adminClient();
+
+  const { data: renewal } = await admin
+    .from("renewals")
+    .select("id, subject_id, status")
+    .eq("id", renewalId)
+    .maybeSingle();
+  if (!renewal || renewal.status !== "scheduled") redirect(`/renewals/${renewalId}/cancel`);
+
+  await admin
+    .from("renewals")
+    .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+    .eq("id", renewalId)
+    .eq("status", "scheduled");
+  await admin.from("subjects").update({ autorenew_enabled: false }).eq("id", renewal.subject_id);
+
+  redirect(`/renewals/${renewalId}/cancel?done=1`);
+}
+
+/** Stop a scheduled renewal. One click, no reason asked for. */
+export async function cancelRenewal(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const renewalId = String(formData.get("renewal_id"));
+  const subjectId = String(formData.get("subject_id"));
+
+  await db
+    .from("renewals")
+    .update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      cancelled_by: user.id,
+    })
+    .eq("id", renewalId)
+    .eq("status", "scheduled");
+
+  // Turning off the coming charge turns off the arrangement. Leaving it on
+  // so it silently returns next year is the trick this is avoiding.
+  await db.from("subjects").update({ autorenew_enabled: false }).eq("id", subjectId);
+  revalidatePath(`/subjects/${subjectId}`);
 }
 
 // ------------------------------------------------------- shared archive

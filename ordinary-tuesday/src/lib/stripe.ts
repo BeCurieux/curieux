@@ -39,12 +39,27 @@ export function orderTotalAud(extraCopies: number): number {
   return PRICES.bookAud() + clampExtraCopies(extraCopies) * PRICES.extraCopyAud();
 }
 
+/**
+ * The exact words someone agreed to, stored alongside their consent.
+ *
+ * Written out in full on the checkout page rather than behind a link, because
+ * the whole defence against a dispute a year from now is that they read this.
+ */
+export const AUTORENEW_TERMS =
+  `Each year, around their birthday, we close the year and make the book. ` +
+  `We'll email you when it's ready, then charge A$${PRICES.bookAud() / 100} a fortnight ` +
+  `later and send it to print. You can stop it in one click any time before ` +
+  `that, and if there isn't enough in the archive to make a book worth ` +
+  `printing, we won't charge you at all.`;
+
 export async function createBookCheckout(opts: {
   bookId: string;
   bookTitle: string;
   customerEmail: string;
   extraCopies: number;
   stripeCustomerId?: string | null;
+  /** Keep the card for next year's book. Only ever set from an explicit tick. */
+  saveCardForRenewal?: boolean;
 }): Promise<Stripe.Checkout.Session> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const extras = clampExtraCopies(opts.extraCopies);
@@ -80,12 +95,74 @@ export async function createBookCheckout(opts: {
         ? { customer: opts.stripeCustomerId }
         : { customer_email: opts.customerEmail }),
       line_items: lineItems,
-      metadata: { book_id: opts.bookId, kind: "print", copies: String(extras + 1) },
+      // Keeping the card is a separate decision from this purchase, so it is
+      // only ever requested when the customer explicitly asked for it.
+      ...(opts.saveCardForRenewal
+        ? { payment_intent_data: { setup_future_usage: "off_session" as const } }
+        : {}),
+      metadata: {
+        book_id: opts.bookId,
+        kind: "print",
+        copies: String(extras + 1),
+        autorenew: opts.saveCardForRenewal ? "1" : "0",
+      },
       success_url: `${appUrl}/books/${opts.bookId}?paid=1`,
       cancel_url: `${appUrl}/books/${opts.bookId}/checkout?cancelled=1`,
     },
     // Payment idempotency (§26). Keyed on the copy count too, so a customer
     // who backs out and adds a grandparent copy is not handed the old session.
-    { idempotencyKey: `checkout-${opts.bookId}-print-${extras}` }
+    { idempotencyKey: `checkout-${opts.bookId}-print-${extras}-${opts.saveCardForRenewal ? "r" : "n"}` }
   );
+}
+
+export type OffSessionOutcome =
+  | { ok: true; paymentIntentId: string }
+  | { ok: false; reason: "needs_authentication" | "declined" | "no_card"; message: string };
+
+/**
+ * Charge a saved card for next year's book.
+ *
+ * The interesting case is `needs_authentication`: a card can demand the
+ * cardholder be present, and when that happens the answer is to ask them
+ * rather than retry — a silent retry loop against a card that wants 3-D
+ * Secure is how an account collects declines.
+ */
+export async function chargeSavedCard(opts: {
+  customerId: string;
+  paymentMethodId: string;
+  amountAud: number;
+  description: string;
+  idempotencyKey: string;
+  metadata?: Record<string, string>;
+}): Promise<OffSessionOutcome> {
+  if (!opts.paymentMethodId) {
+    return { ok: false, reason: "no_card", message: "no saved card" };
+  }
+  try {
+    const intent = await stripe().paymentIntents.create(
+      {
+        amount: opts.amountAud,
+        currency: "aud",
+        customer: opts.customerId,
+        payment_method: opts.paymentMethodId,
+        off_session: true,
+        confirm: true,
+        description: opts.description,
+        metadata: opts.metadata,
+      },
+      { idempotencyKey: opts.idempotencyKey }
+    );
+    return { ok: true, paymentIntentId: intent.id };
+  } catch (err) {
+    const e = err as Stripe.errors.StripeError;
+    const code = (e as any)?.code ?? "";
+    if (code === "authentication_required") {
+      return {
+        ok: false,
+        reason: "needs_authentication",
+        message: "the bank wants the cardholder present",
+      };
+    }
+    return { ok: false, reason: "declined", message: e.message ?? "card declined" };
+  }
 }

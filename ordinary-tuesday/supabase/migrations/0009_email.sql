@@ -17,7 +17,11 @@ create type email_kind as enum (
   'book_ready',
   'order_placed',
   'order_shipped',
-  'year_closing'
+  'year_closing',
+  'renewal_scheduled',
+  'renewal_reminder',
+  'renewal_skipped',
+  'renewal_payment_failed'
 );
 
 /** Which kinds a person may switch off. The rest are transactional. */

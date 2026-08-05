@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
-import { createBook } from "@/app/actions";
+import { cancelRenewal, createBook } from "@/app/actions";
 import { yearWord } from "@/lib/book/structure";
 import { ageInYears } from "@/lib/book/format";
 import { countOf, friendlyDate } from "@/lib/words";
@@ -48,6 +48,13 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
 
   const role = (await roleForSubject(db, child.id, user.id))?.role ?? null;
   const pendingCount = pending ?? 0;
+
+  const { data: renewal } = await db
+    .from("renewals")
+    .select("id, scheduled_for, amount_aud")
+    .eq("subject_id", child.id)
+    .eq("status", "scheduled")
+    .maybeSingle();
 
   const kept = memoryCount ?? 0;
 
@@ -175,6 +182,31 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           </Link>
         </p>
       </section>
+
+      {/* A charge nobody can find except in an inbox is exactly what turns
+          into a dispute. It sits on the dashboard, with the date, the amount
+          and the way out, for everyone in the family to see. */}
+      {renewal && (
+        <div className="card mt-12 border-boot">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg">
+                Printing on {friendlyDate(renewal.scheduled_for)}
+              </h2>
+              <p className="mt-1 max-w-[46ch] text-sm leading-relaxed text-stone">
+                We&rsquo;ll charge A${Math.round(renewal.amount_aud / 100)} that day and
+                send {first}&rsquo;s book to print. Read it through before then and change
+                anything you like.
+              </p>
+            </div>
+            <form action={cancelRenewal}>
+              <input type="hidden" name="renewal_id" value={renewal.id} />
+              <input type="hidden" name="subject_id" value={child.id} />
+              <button className="text-sm text-stone hover:text-ink">Not this year</button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {pendingCount > 0 && canModerate(role) && (
         <Link

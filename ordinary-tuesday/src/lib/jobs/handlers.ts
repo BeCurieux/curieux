@@ -16,6 +16,7 @@ import { sha256 } from "@/lib/media";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
+import { announceRenewals, collectRenewals } from "@/lib/renewal/run";
 import {
   bookReady as bookReadyEmail,
   orderShipped as orderShippedEmail,
@@ -367,6 +368,11 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
       now
     );
   }
+
+  // Announce before collecting, always and in that order — a charge must
+  // never precede the notice that promised it.
+  await announceRenewals(db, now, (familyId) => familyOwner(db, familyId));
+  await collectRenewals(db, now, (familyId) => familyOwner(db, familyId));
 }
 
 /** The owner of a family, with the address to write to. */

@@ -7,7 +7,7 @@
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { startCheckout } from "@/app/actions";
-import { MAX_EXTRA_COPIES, PRICES } from "@/lib/stripe";
+import { AUTORENEW_TERMS, MAX_EXTRA_COPIES, PRICES } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
@@ -97,6 +97,20 @@ export default async function CheckoutPage({
               <option value="US">United States</option>
             </select>
           </div>
+
+          {/* Deliberately unticked. A saved card the customer did not ask
+              for is how this product would end up in a consumer-affairs
+              story, and the terms are stated here in full rather than
+              behind a link nobody opens. */}
+          <label className="mt-2 flex gap-3 rounded border border-rule bg-paper/60 p-3">
+            <input type="checkbox" name="autorenew" className="mt-1" />
+            <span>
+              <span className="block text-sm">Do this again next year</span>
+              <span className="mt-1 block text-xs leading-relaxed text-stone">
+                {AUTORENEW_TERMS}
+              </span>
+            </span>
+          </label>
 
           <button className="btn mt-2 w-full">Order the book</button>
           <p className="text-center text-xs text-stone">

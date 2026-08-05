@@ -21,7 +21,11 @@ export type EmailKind =
   | "book_ready"
   | "order_placed"
   | "order_shipped"
-  | "year_closing";
+  | "year_closing"
+  | "renewal_scheduled"
+  | "renewal_reminder"
+  | "renewal_skipped"
+  | "renewal_payment_failed";
 
 /** Kinds a person may switch off. Anything else was asked for by paying. */
 const OPTIONAL: Record<EmailKind, string | null> = {
@@ -31,6 +35,12 @@ const OPTIONAL: Record<EmailKind, string | null> = {
   order_shipped: null,
   contributions_waiting: "contributions_waiting",
   year_closing: "year_closing",
+  // Never optional. Telling someone you are about to charge them is not a
+  // marketing preference, and an unsubscribe must not be able to silence it.
+  renewal_scheduled: null,
+  renewal_reminder: null,
+  renewal_skipped: null,
+  renewal_payment_failed: null,
 };
 
 export const isTransactional = (kind: EmailKind) => OPTIONAL[kind] === null;

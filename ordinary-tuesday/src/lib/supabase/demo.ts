@@ -249,6 +249,16 @@ function buildTables(): Record<string, Row[]> {
     book_sections: sections, book_pages: pages, book_content_blocks: blocks,
     book_approvals: [], print_orders: [], jobs: [],
 
+    // A charge announced and not yet taken, so the dashboard banner and the
+    // cancel page can both be looked at.
+    renewals: [{
+      id: "demo-renewal", subject_id: subjectId, book_id: bookId, year_number: 3,
+      status: "scheduled", scheduled_for: day(380), announced_at: day(366),
+      reminded_at: null, cancelled_at: null, cancelled_by: null, charged_at: null,
+      skipped_reason: null, failure_reason: null,
+      amount_aud: 19900, payment_intent_id: null, created_at: day(366),
+    }],
+
     // The shared archive: the parent who keeps it, and Florence's grandfather,
     // whose additions wait for her.
     family_memberships: [
@@ -289,6 +299,7 @@ function buildTables(): Record<string, Row[]> {
 const PARENTS: Record<string, { table: string; fk: string; as: string }[]> = {
   book_pages: [{ table: "book_sections", fk: "section_id", as: "book_sections" }],
   family_memberships: [{ table: "profiles", fk: "user_id", as: "profiles" }],
+  renewals: [{ table: "subjects", fk: "subject_id", as: "subjects" }],
 };
 
 const NESTED: Record<string, { table: string; fk: string; as: string }[]> = {
