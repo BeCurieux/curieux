@@ -167,6 +167,49 @@ export async function registerUploadedPhoto(input: {
   return { duplicate: false as const, memoryId: memory.id };
 }
 
+/** Voice memory: recording already uploaded to private storage by the client. */
+export async function registerVoiceMemory(input: {
+  subjectId: string;
+  storagePath: string;
+  checksum: string;
+  mimeType: string;
+  durationSeconds: number;
+  transcript: string;
+  memoryDate: string | null;
+}) {
+  const user = await requireUser();
+  const db = userClient();
+
+  const { data: memory, error } = await db
+    .from("memories")
+    .insert({
+      subject_id: input.subjectId,
+      created_by: user.id,
+      type: "voice",
+      // The parent's own transcription — never a machine guess (§29).
+      transcript: input.transcript,
+      raw_text: input.transcript,
+      memory_date: input.memoryDate,
+      metadata: {},
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  const { error: assetErr } = await db.from("media_assets").insert({
+    memory_id: memory.id,
+    storage_path: input.storagePath,
+    mime_type: input.mimeType,
+    duration_seconds: input.durationSeconds,
+    checksum: input.checksum,
+    processing_status: "complete",
+  });
+  if (assetErr) throw new Error(assetErr.message);
+
+  revalidatePath(`/subjects/${input.subjectId}`);
+  return { memoryId: memory.id };
+}
+
 export async function addTextMemory(formData: FormData) {
   const user = await requireUser();
   const db = userClient();
@@ -374,6 +417,11 @@ export async function approveBook(formData: FormData) {
     page_count: book.page_count ?? 0,
     provider_sku: process.env.PRODIGI_BOOK_SKU ?? "BOOK-A4-HARD-M",
   });
+
+  // Mint the listen token now, so the QR codes printed on the page resolve —
+  // and so a draft book's codes never could.
+  await admin.rpc("mint_listen_token", { bid: bookId });
+
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "print" }, `render-print-${bookId}-${approvedAt}`);
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "digital" }, `render-digital-${bookId}-${approvedAt}`);
   redirect(`/books/${bookId}/checkout`);

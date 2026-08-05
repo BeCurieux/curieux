@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Uploader } from "./uploader";
+import { Recorder } from "./recorder";
 import { addTextMemory } from "@/app/actions";
 
 export default function UploadPage({
@@ -49,6 +50,17 @@ export default function UploadPage({
             <input className="input" type="date" name="memory_date" />
             <button className="btn-secondary">Keep this memory</button>
           </form>
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="text-lg">Record their voice</h2>
+        <p className="mt-1 text-sm text-ink/60">
+          The thing you forget first. If it makes the book, the printed page
+          carries a small code — scan it and you hear them say it again.
+        </p>
+        <div className="mt-4 max-w-lg">
+          <Recorder subjectId={params.subjectId} />
         </div>
       </section>
 

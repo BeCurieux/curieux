@@ -11,6 +11,7 @@ import { renderBookPdf } from "@/lib/pdf/render";
 import { runPreflight, type PlacedImage } from "@/lib/pdf/preflight";
 import { BOOK_SPEC } from "@/lib/book/structure";
 import { sha256 } from "@/lib/media";
+import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import type { ContentBlockDraft, MediaAsset, Memory } from "@/lib/types";
 
 type Handler = (db: SupabaseClient, payload: Record<string, unknown>) => Promise<void>;
@@ -314,6 +315,21 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
     if (signed?.signedUrl) urlByMemory.set(mid, signed.signedUrl);
   }
 
+  // "Hear this moment": a page whose quote came from a voice memory gets a
+  // small printed code. Only possible once the book is approved, because the
+  // token is minted then — a draft's codes would resolve to nothing.
+  const listenByPage = new Map<number, { qrDataUri: string; label: string }>();
+  if (book.listen_token) {
+    const { data: listenable } = await db.rpc("book_listenable", { bid: bookId });
+    for (const row of (listenable ?? []) as { memory_id: string; page_number: number }[]) {
+      if (listenByPage.has(row.page_number)) continue; // one code per page
+      listenByPage.set(row.page_number, {
+        qrDataUri: await qrDataUri(listenUrl(book.listen_token, row.memory_id)),
+        label: "Hear this moment",
+      });
+    }
+  }
+
   const renderPages = (pageRows ?? []).map((page: any) => ({
     pageNumber: page.page_number,
     templateId: page.template_id,
@@ -321,6 +337,7 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
       type: b.type,
       content: b.type === "photo" ? urlByMemory.get(b.content) ?? "" : b.content,
     })),
+    listen: listenByPage.get(page.page_number),
   }));
 
   const result = await renderBookPdf(

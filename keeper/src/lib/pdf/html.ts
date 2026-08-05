@@ -9,10 +9,17 @@ export interface RenderBlock {
   content: string;       // text, or an image URL for photo blocks
 }
 
+/** A printed QR that resolves to a recording (see lib/listen). */
+export interface ListenMark {
+  qrDataUri: string;
+  label: string;
+}
+
 export interface RenderPage {
   pageNumber: number;
   templateId: string;
   blocks: RenderBlock[];
+  listen?: ListenMark;
 }
 
 export interface RenderBook {
@@ -69,6 +76,15 @@ export function renderBookHtml(book: RenderBook, target: RenderTarget): string {
   .lt-item .lt-label { font-family: Helvetica, Arial, sans-serif; font-size: 8pt;
     text-transform: uppercase; letter-spacing: 0.12em; color: #a8552f; margin-bottom: 0.05in; }
   .lt-item .lt-value { font-size: 14pt; }
+  /* Listen mark: deliberately small and quiet. A premium page can carry a
+     code without becoming a leaflet. Sized at the scannable minimum from
+     lib/listen/qr.ts. */
+  .listen { position: absolute; right: ${geo.safeMargin}in; bottom: ${geo.safeMargin}in;
+            display: flex; align-items: center; gap: 0.09in; }
+  .listen img { width: 0.62in; height: 0.62in; display: block; }
+  .listen .listen-label { font-family: Helvetica, Arial, sans-serif; font-size: 6.5pt;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #78716c;
+    writing-mode: vertical-rl; transform: rotate(180deg); }
 </style>
 </head>
 <body>
@@ -143,7 +159,11 @@ function renderPage(page: RenderPage, safeMargin: number): string {
         ${captionHtml(texts)}
       </div>`;
   }
-  return `<div class="page" data-page="${page.pageNumber}">${inner}</div>`;
+  const listen = page.listen
+    ? `<div class="listen"><img src="${esc(page.listen.qrDataUri)}" alt="">` +
+      `<span class="listen-label">${esc(page.listen.label)}</span></div>`
+    : "";
+  return `<div class="page" data-page="${page.pageNumber}">${inner}${listen}</div>`;
 }
 
 function captionHtml(texts: RenderBlock[]): string {
