@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { createBook } from "@/app/actions";
 import { yearWord } from "@/lib/book/structure";
+import { ageInYears } from "@/lib/book/format";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   const { data: child } = await db.from("subjects").select("*").eq("id", params.subjectId).single();
   if (!child) redirect("/home");
 
-  const age = Math.max(
-    0,
-    Math.floor((Date.now() - new Date(child.date_of_birth).getTime()) / (365.25 * 24 * 3600 * 1000))
-  );
+  const age = child.date_of_birth ? ageInYears(child.date_of_birth) : 0;
 
   const [{ count: memoryCount }, { data: recent }, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }] =
     await Promise.all([

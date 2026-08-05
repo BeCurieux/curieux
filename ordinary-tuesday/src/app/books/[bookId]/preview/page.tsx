@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
+import { photoMemoryIds, resolvePhotoUrls } from "@/lib/book/photos";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,13 @@ export default async function PreviewPage({ params }: { params: { bookId: string
     .select("*, book_content_blocks(*)")
     .eq("book_id", book.id)
     .order("page_number");
+
+  // The approval checklist asks the parent to confirm "Photos correct", so
+  // the preview has to actually show them.
+  const photoUrls = await resolvePhotoUrls(
+    db,
+    photoMemoryIds((pages ?? []).flatMap((p: any) => p.book_content_blocks ?? []))
+  );
 
   return (
     <div className="py-10">
@@ -46,9 +54,17 @@ export default async function PreviewPage({ params }: { params: { bookId: string
                   <p className="font-display text-xl italic">&ldquo;{block.content}&rdquo;</p>
                 )}
                 {block.type === "photo" && (
-                  <div className="flex h-40 items-center justify-center rounded-lg bg-rule text-xs text-stone">
-                    photo
-                  </div>
+                  photoUrls.has(block.content) ? (
+                    <img
+                      src={photoUrls.get(block.content)}
+                      alt=""
+                      className="max-h-72 w-full rounded object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-40 items-center justify-center rounded bg-rule text-xs text-stone">
+                      photograph unavailable
+                    </div>
+                  )
                 )}
               </div>
             ))}

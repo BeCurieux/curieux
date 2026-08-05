@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  FORMAT, isRightHandPage, pageMarginsMm, totalPdfPages, imageTier,
+  FORMAT, ageInYears, isRightHandPage, pageMarginsMm, totalPdfPages, imageTier,
 } from "@/lib/book/format";
 import { AGE_COLOURS, colourForAge, contrastRatio, coverContrastOk } from "@/lib/book/colours";
 import { pace, padToEven, rhythmPenalty, rhythmReport, type PagePlan } from "@/lib/book/rhythm";
@@ -134,5 +134,25 @@ describe("imperfect source material (§14)", () => {
 
   it("treats a missing size as unprintable rather than guessing", () => {
     expect(imageTier(null, null)).toBe("unprintable");
+  });
+});
+
+describe("age, by the calendar", () => {
+  const at = (s: string) => new Date(s + "T12:00:00Z");
+
+  it("counts completed years, not elapsed milliseconds", () => {
+    expect(ageInYears("2023-04-14", at("2026-04-13"))).toBe(2); // day before
+    expect(ageInYears("2023-04-14", at("2026-04-14"))).toBe(3); // birthday
+    expect(ageInYears("2023-04-14", at("2026-04-15"))).toBe(3);
+  });
+
+  it("does not drift across leap years", () => {
+    // Four birthdays including two leap years — ms division loses a day a year.
+    expect(ageInYears("2020-02-29", at("2024-02-29"))).toBe(4);
+    expect(ageInYears("2020-03-01", at("2028-03-01"))).toBe(8);
+  });
+
+  it("never reports a negative age", () => {
+    expect(ageInYears("2030-01-01", at("2026-01-01"))).toBe(0);
   });
 });

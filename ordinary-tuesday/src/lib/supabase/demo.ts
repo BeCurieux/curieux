@@ -85,6 +85,11 @@ function buildTables(): Record<string, Row[]> {
     return d.toISOString().slice(0, 10);
   };
 
+  // Florence is two, turning three — so the dashboard and her book agree.
+  const dob = new Date(start);
+  dob.setFullYear(dob.getFullYear() - 2);
+  const dobIso = dob.toISOString().slice(0, 10);
+
   const familyId = "demo-family";
   const subjectId = "demo-subject";
 
@@ -196,7 +201,7 @@ function buildTables(): Record<string, Row[]> {
     family_members: members,
     subjects: [{
       id: subjectId, family_id: familyId, subject_type: "child",
-      display_name: "Florence", date_of_birth: "2026-04-14", pronouns: "she/her",
+      display_name: "Florence", date_of_birth: dobIso, pronouns: "she/her",
       photo_path: null, created_at: day(0),
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: [],

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { changeTemplate, removeBlock, updateBlock } from "@/app/actions";
 import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
+import { photoMemoryIds, resolvePhotoUrls } from "@/lib/book/photos";
 import { WhyIsThisHere } from "./why";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function PageEditor({ params }: { params: { pageId: string 
   const book = page.books as any;
   const editable = book.status === "review";
   const templates = compatibleArchetypes(page.template_id as ArchetypeId, "hero");
+  const photoUrls = await resolvePhotoUrls(db, photoMemoryIds(page.book_content_blocks ?? []));
 
   return (
     <div className="py-10">
@@ -73,9 +75,17 @@ export default async function PageEditor({ params }: { params: { pageId: string 
               </div>
             </div>
             {block.type === "photo" ? (
-              <div className="mt-2 flex h-32 items-center justify-center rounded-lg bg-rule text-xs text-stone">
-                photo · memory {String(block.content).slice(0, 8)}
-              </div>
+              photoUrls.has(block.content) ? (
+                <img
+                  src={photoUrls.get(block.content)}
+                  alt=""
+                  className="mt-2 max-h-80 w-full rounded object-cover"
+                />
+              ) : (
+                <div className="mt-2 flex h-32 items-center justify-center rounded bg-rule text-xs text-stone">
+                  photograph unavailable
+                </div>
+              )
             ) : editable ? (
               <form action={updateBlock} className="mt-2 flex items-start gap-2">
                 <input type="hidden" name="block_id" value={block.id} />

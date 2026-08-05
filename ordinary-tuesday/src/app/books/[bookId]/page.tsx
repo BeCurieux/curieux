@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { removePage } from "@/app/actions";
+import { photoMemoryIds, resolvePhotoUrls } from "@/lib/book/photos";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,11 @@ export default async function BookOverview({ params }: { params: { bookId: strin
     .select("*, book_sections(title), book_content_blocks(type, content)")
     .eq("book_id", book.id)
     .order("page_number");
+
+  const photoUrls = await resolvePhotoUrls(
+    db,
+    photoMemoryIds((pages ?? []).flatMap((p: any) => p.book_content_blocks ?? []))
+  );
 
   const { data: order } = await db
     .from("print_orders")
@@ -90,9 +96,17 @@ export default async function BookOverview({ params }: { params: { bookId: strin
                 {quote && <div className="mt-2 text-xs italic text-stone">&ldquo;{quote.content.slice(0, 60)}&rdquo;</div>}
                 {photoCount > 0 && (
                   <div className="mt-2 flex gap-1">
-                    {Array.from({ length: Math.min(photoCount, 3) }).map((_, i) => (
-                      <div key={i} className="h-8 w-8 rounded bg-rule" />
-                    ))}
+                    {blocks
+                      .filter((b: any) => b.type === "photo")
+                      .slice(0, 3)
+                      .map((b: any, i: number) =>
+                        photoUrls.has(b.content) ? (
+                          <img key={i} src={photoUrls.get(b.content)} alt=""
+                               className="h-10 w-10 rounded object-cover" />
+                        ) : (
+                          <div key={i} className="h-10 w-10 rounded bg-rule" />
+                        )
+                      )}
                   </div>
                 )}
               </Link>

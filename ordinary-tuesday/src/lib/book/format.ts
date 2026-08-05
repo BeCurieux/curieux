@@ -118,3 +118,18 @@ export function pageMarginsMm(interiorPageNumber: number) {
     right: right ? FORMAT.outerMarginMm : FORMAT.innerMarginMm,
   };
 }
+
+/**
+ * Completed years of life, by the calendar rather than by dividing
+ * milliseconds. The ms approach drifts on leap years and misreports around a
+ * birthday — the one moment a parent is certain of the answer.
+ */
+export function ageInYears(dateOfBirth: string, at: Date = new Date()): number {
+  const dob = new Date(dateOfBirth);
+  let age = at.getFullYear() - dob.getFullYear();
+  const beforeBirthday =
+    at.getMonth() < dob.getMonth() ||
+    (at.getMonth() === dob.getMonth() && at.getDate() < dob.getDate());
+  if (beforeBirthday) age -= 1;
+  return Math.max(0, age);
+}
