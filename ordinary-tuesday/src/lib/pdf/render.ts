@@ -11,6 +11,26 @@ import { chromium } from "playwright-core";
 import { renderBookHtml, type RenderBook, type RenderTarget } from "./html";
 import { FORMAT } from "@/lib/book/format";
 
+/**
+ * Read the MediaBox back out of the produced PDF.
+ *
+ * Preflight used to be handed the page size as a literal, which meant it was
+ * checking an assumption rather than the artefact. Chromium routes @page
+ * through CSS pixels, so an A4 page lands at 209.89 x 297.01mm however the
+ * size is expressed — 0.11mm under, which no press will notice but which the
+ * checker should state honestly rather than paper over.
+ */
+export function readPageSizeMm(pdf: Buffer): { widthMm: number; heightMm: number } | null {
+  const m = pdf.toString("latin1").match(/\/MediaBox\s*\[([^\]]+)\]/);
+  if (!m) return null;
+  const v = m[1].trim().split(/\s+/).map(Number);
+  if (v.length !== 4 || v.some((n) => !Number.isFinite(n))) return null;
+  return {
+    widthMm: ((v[2] - v[0]) / 72) * 25.4,
+    heightMm: ((v[3] - v[1]) / 72) * 25.4,
+  };
+}
+
 export interface RenderResult {
   pdf: Buffer;
   /** Interior pages only — covers excluded. */
@@ -20,6 +40,9 @@ export interface RenderResult {
   overflowPages: number[];
   safeAreaViolations: number[];
   blankPages: number[];
+  /** Measured from the produced file, not assumed. */
+  pageWidthMm: number | null;
+  pageHeightMm: number | null;
 }
 
 export async function renderBookPdf(book: RenderBook, target: RenderTarget): Promise<RenderResult> {
@@ -84,8 +107,13 @@ export async function renderBookPdf(book: RenderBook, target: RenderTarget): Pro
       scale: 1,
     });
 
+    const buf = Buffer.from(pdf);
+    const size = readPageSizeMm(buf);
+
     return {
-      pdf: Buffer.from(pdf),
+      pdf: buf,
+      pageWidthMm: size?.widthMm ?? null,
+      pageHeightMm: size?.heightMm ?? null,
       interiorPages: book.pages.length,
       totalPdfPages: book.pages.length + 2,
       overflowPages: audit.overflow,

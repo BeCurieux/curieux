@@ -62,6 +62,9 @@ export interface PreflightInput {
   };
 }
 
+/** How far a produced page may sit from nominal trim before it is rejected. */
+export const DIMENSION_TOLERANCE_MM = 0.5;
+
 export function effectiveDpi(img: PlacedImage): number {
   const dpiW = img.pixelWidth / (img.placedWidthMm / 25.4);
   const dpiH = img.pixelHeight / (img.placedHeightMm / 25.4);
@@ -76,10 +79,17 @@ export function runPreflight(input: PreflightInput): PreflightResult {
     issues.push({ severity: "warning", code, message, page });
 
   // --- physical dimensions -------------------------------------------------
-  if (input.pageWidthMm !== FORMAT.trimWidthMm || input.pageHeightMm !== FORMAT.trimHeightMm) {
+  // Measured from the produced file. A tolerance is used rather than exact
+  // equality because no HTML renderer lands on the millimetre — Chromium
+  // routes page size through CSS pixels and comes out 0.11mm under A4. That
+  // is far inside any press tolerance; a whole millimetre would not be.
+  const dW = Math.abs(input.pageWidthMm - FORMAT.trimWidthMm);
+  const dH = Math.abs(input.pageHeightMm - FORMAT.trimHeightMm);
+  if (dW > DIMENSION_TOLERANCE_MM || dH > DIMENSION_TOLERANCE_MM) {
     err("wrong_dimensions",
-      `pages are ${input.pageWidthMm}×${input.pageHeightMm}mm; ` +
-      `Prodigi requires exactly ${FORMAT.trimWidthMm}×${FORMAT.trimHeightMm}mm`);
+      `pages measure ${input.pageWidthMm.toFixed(2)}×${input.pageHeightMm.toFixed(2)}mm; ` +
+      `${FORMAT.trimWidthMm}×${FORMAT.trimHeightMm}mm required ` +
+      `(tolerance ±${DIMENSION_TOLERANCE_MM}mm)`);
   }
 
   // Prodigi adds bleed and crop marks itself. Ours would mis-trim every page.

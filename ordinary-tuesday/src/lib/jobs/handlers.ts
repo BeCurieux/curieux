@@ -405,8 +405,9 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
 
     const preflight = runPreflight({
       interiorPages: result.interiorPages,
-      pageWidthMm: FORMAT.trimWidthMm,
-      pageHeightMm: FORMAT.trimHeightMm,
+      // Measured from the rendered file rather than assumed.
+      pageWidthMm: result.pageWidthMm ?? 0,
+      pageHeightMm: result.pageHeightMm ?? 0,
       bleedAdded: false,
       cropMarksAdded: false,
       images: placed,

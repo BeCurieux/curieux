@@ -12,7 +12,7 @@
 // designed as a double-page spread.
 
 import {
-  FORMAT, TRIM_H_IN, TRIM_W_IN, isRightHandPage, pageMarginsMm, mm,
+  FORMAT, isRightHandPage, pageMarginsMm, mm,
 } from "@/lib/book/format";
 import type { ArchetypeId } from "@/lib/book/templates";
 import { accentForPaper, type AgeColour } from "@/lib/book/colours";
@@ -77,13 +77,16 @@ const SERIF = `Charter, "Bitstream Charter", "Charis SIL", Georgia, serif`;
 const SANS = `"Liberation Sans", "Helvetica Neue", Helvetica, Arial, sans-serif`;
 
 export function renderBookHtml(book: RenderBook, target: RenderTarget): string {
-  const w = TRIM_W_IN, h = TRIM_H_IN;
+  // Points are the PDF's native unit; giving Chromium mm or inches routes
+  // through CSS pixels and lands the MediaBox at 209.89mm instead of 210.
+  const w = `${(FORMAT.trimWidthMm / 25.4 * 72).toFixed(3)}pt`;
+  const h = `${(FORMAT.trimHeightMm / 25.4 * 72).toFixed(3)}pt`;
   const foot = `${book.cover.childName} · ${book.cover.ageWord.toLowerCase()}`;
   const interior = book.pages.map((p) => renderInterior(p, target, foot)).join("\n");
 
   return `<!doctype html>
 <html><head><meta charset="utf-8"><style>
-  @page { size: ${w}in ${h}in; margin: 0; }
+  @page { size: ${w} ${h}; margin: 0; }
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { background:#fff; }
   /* The volume colour runs through the interior, not just the cover:
@@ -92,7 +95,7 @@ export function renderBookHtml(book: RenderBook, target: RenderTarget): string {
           --accent-paper:${accentForPaper(book.cover.colour)}; }
   body { font-family:${SERIF}; color:#191A17; -webkit-font-smoothing:antialiased; }
 
-  .page { width:${w}in; height:${h}in; page-break-after:always;
+  .page { width:${w}; height:${h}; page-break-after:always;
           position:relative; overflow:hidden; background:#fff; }
   .content { position:absolute; display:flex; flex-direction:column; }
 

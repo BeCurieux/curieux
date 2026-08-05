@@ -2,7 +2,10 @@
 // self-added bleed, odd extent, and content in the safe area or the gutter.
 
 import { describe, expect, it } from "vitest";
-import { effectiveDpi, runPreflight, type PlacedImage, type PreflightInput } from "@/lib/pdf/preflight";
+import {
+  DIMENSION_TOLERANCE_MM, effectiveDpi, runPreflight,
+  type PlacedImage, type PreflightInput,
+} from "@/lib/pdf/preflight";
 import { FORMAT, imageTier, maxPrintWidthMm } from "@/lib/book/format";
 import { colourForAge } from "@/lib/book/colours";
 
@@ -162,5 +165,30 @@ describe("cover", () => {
 
   it("rejects a nonsensical spine width", () => {
     expect(runPreflight(base({ cover: cover({ spineWidthMm: 0 }) })).passed).toBe(false);
+  });
+});
+
+describe("measured page size, not assumed", () => {
+  it("accepts what Chromium actually produces", () => {
+    // An HTML renderer never lands on the millimetre; Chromium routes page
+    // size through CSS pixels and comes out 0.11mm under A4.
+    const r = runPreflight(base({ pageWidthMm: 209.889, pageHeightMm: 297.011 }));
+    expect(r.passed).toBe(true);
+  });
+
+  it("still rejects a page that is genuinely the wrong size", () => {
+    const r = runPreflight(base({ pageWidthMm: 215.9, pageHeightMm: 279.4 })); // US Letter
+    expect(r.passed).toBe(false);
+    expect(r.issues.some((i) => i.code === "wrong_dimensions")).toBe(true);
+  });
+
+  it("rejects a drift larger than the stated tolerance", () => {
+    expect(runPreflight(base({ pageWidthMm: 210 + DIMENSION_TOLERANCE_MM + 0.1 })).passed).toBe(false);
+    expect(runPreflight(base({ pageWidthMm: 210 + DIMENSION_TOLERANCE_MM - 0.1 })).passed).toBe(true);
+  });
+
+  it("treats an unreadable MediaBox as a failure rather than a pass", () => {
+    // render.ts yields null when it cannot find one; handlers coerce to 0.
+    expect(runPreflight(base({ pageWidthMm: 0, pageHeightMm: 0 })).passed).toBe(false);
   });
 });
