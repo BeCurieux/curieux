@@ -21,8 +21,10 @@ export default async function QuestionsPage({ params }: { params: { subjectId: s
   return (
     <div className="py-10">
       <h1 className="text-3xl">A few things we couldn&rsquo;t tell from the photos</h1>
-      <p className="mt-2 text-sm text-stone">
-        Answer what you like, skip what you don&rsquo;t. Never more than five.
+      <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-stone">
+        Answer what you like, skip what you don&rsquo;t &mdash; never more than
+        five. Anything you skip simply stays out of the book. We&rsquo;d rather
+        leave a gap than fill it with something you didn&rsquo;t say.
       </p>
 
       <div className="mt-8 space-y-4">
@@ -38,7 +40,13 @@ export default async function QuestionsPage({ params }: { params: { subjectId: s
             </form>
           </div>
         ))}
-        {pending.length === 0 && <p className="text-sm text-stone">Nothing waiting.</p>}
+        {pending.length === 0 && (
+          <p className="max-w-[46ch] text-sm leading-relaxed text-stone">
+            Nothing to ask right now. When something in the photos needs a
+            person to explain it &mdash; who that is, where you were, why it
+            mattered &mdash; we&rsquo;ll ask you here rather than guess.
+          </p>
+        )}
       </div>
 
       {answered.length > 0 && (

@@ -243,6 +243,11 @@ function buildTables(): Record<string, Row[]> {
 
 // ------------------------------------------------------- query builder
 
+/** Parent rows pulled in by a nested select, keyed by the child table. */
+const PARENTS: Record<string, { table: string; fk: string; as: string }[]> = {
+  book_pages: [{ table: "book_sections", fk: "section_id", as: "book_sections" }],
+};
+
 const NESTED: Record<string, { table: string; fk: string; as: string }[]> = {
   book_pages: [{ table: "book_content_blocks", fk: "page_id", as: "book_content_blocks" }],
   memory_clusters: [{ table: "cluster_memories", fk: "cluster_id", as: "cluster_memories" }],
@@ -269,6 +274,16 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
     }
     if (table === "book_pages" && select.includes("books(")) {
       this.rows = this.rows.map((r) => ({ ...r, books: db.books.find((b) => b.id === r.book_id) }));
+    }
+    // Parent lookups, as opposed to the child collections above. The book
+    // overview labels each page with the chapter it belongs to, so without
+    // this the demo shows the fallback and hides whether the real path works.
+    for (const parent of PARENTS[table] ?? []) {
+      if (!select.includes(`${parent.as}(`)) continue;
+      this.rows = this.rows.map((r) => ({
+        ...r,
+        [parent.as]: (db[parent.table] ?? []).find((p) => p.id === r[parent.fk]) ?? null,
+      }));
     }
     if (table === "print_orders" && select.includes("books(")) {
       this.rows = this.rows.map((r) => ({ ...r, books: db.books.find((b) => b.id === r.book_id) }));

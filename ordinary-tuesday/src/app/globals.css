@@ -24,7 +24,10 @@
   .input {
     @apply w-full rounded border border-rule bg-white px-4 py-2.5 text-sm outline-none focus:border-slate;
   }
+  /* Sentence case, not micro-caps. These labels are often real questions
+     ("What do you call them?") and setting a question in tracked uppercase
+     makes the app sound like a form at a clinic rather than a person asking. */
   .label {
-    @apply mb-1 block text-xs font-medium uppercase tracking-wider text-stone;
+    @apply mb-1.5 block text-sm text-ink/80;
   }
 }

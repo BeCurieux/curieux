@@ -8,16 +8,16 @@ import { photoMemoryIds, resolvePhotoUrls } from "@/lib/book/photos";
 export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<string, string> = {
-  collecting: "Gathering their year…",
-  drafting: "Putting their year together…",
-  review: "Ready for your review",
-  approved: "Approved — preparing print files",
-  rendering: "Preparing print files",
+  collecting: "Still gathering",
+  drafting: "Being put together",
+  review: "Yours to read",
+  approved: "Approved — getting it ready",
+  rendering: "Getting it ready",
   print_ready: "Ready to print",
-  ordered: "Order placed",
-  in_production: "Being printed",
-  shipped: "On its way",
-  delivered: "Delivered",
+  ordered: "Ordered",
+  in_production: "On the press",
+  shipped: "On its way to you",
+  delivered: "With you",
 };
 
 export default async function BookOverview({ params }: { params: { bookId: string } }) {
@@ -71,9 +71,10 @@ export default async function BookOverview({ params }: { params: { bookId: strin
       </div>
 
       {(book.status === "collecting" || book.status === "drafting") && (
-        <p className="mt-10 rounded-lg bg-rule/50 p-6 text-sm">
-          We&rsquo;re assembling the book from their memories. This can take a few minutes —
-          you can leave and come back.
+        <p className="mt-10 max-w-[52ch] rounded-lg bg-rule/50 p-6 text-sm leading-relaxed">
+          We&rsquo;re reading through everything you&rsquo;ve kept and working
+          out the shape of the year. It takes a few minutes. Go and do
+          something else &mdash; we&rsquo;ll be here.
         </p>
       )}
 
@@ -89,8 +90,13 @@ export default async function BookOverview({ params }: { params: { bookId: strin
                 href={`/books/pages/${page.id}`}
                 className="card block aspect-[1/1.41] overflow-hidden !p-4 transition hover:border-boot"
               >
+                {/* The template id is ours, not theirs. A parent looking at
+                    their child's book should see the chapter it belongs to —
+                    "portrait_plus_story" is a fact about our layout engine. */}
                 <div className="text-[10px] uppercase tracking-wider text-stone">
-                  p.{page.page_number} · {page.template_id.replace(/_/g, " ")}
+                  {page.book_sections?.title
+                    ? `${page.book_sections.title} · ${page.page_number}`
+                    : `Page ${page.page_number}`}
                 </div>
                 {heading && <div className="mt-2 font-display text-sm">{heading.content}</div>}
                 {quote && <div className="mt-2 text-xs italic text-stone">&ldquo;{quote.content.slice(0, 60)}&rdquo;</div>}
@@ -114,8 +120,13 @@ export default async function BookOverview({ params }: { params: { bookId: strin
                 <form action={removePage} className="absolute right-2 top-2 hidden group-hover:block">
                   <input type="hidden" name="page_id" value={page.id} />
                   <input type="hidden" name="book_id" value={book.id} />
-                  <button className="rounded-full bg-white/90 px-2 py-0.5 text-xs text-red-600 shadow">
-                    remove
+                  {/* Taking a page out of your child's book is a considered
+                      act, not a destructive one. It shouldn't be in red. */}
+                  <button
+                    className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs text-stone shadow hover:text-ink"
+                    title="Leave this page out of the book"
+                  >
+                    leave out
                   </button>
                 </form>
               )}
