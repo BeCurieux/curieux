@@ -4,7 +4,7 @@
 
 import type {
   BookValidationInput, BookValidationResult, CreateOrderRequest, PrintProvider,
-  PrintQuote, PrintQuoteRequest, ProviderOrder, ProviderOrderStatus, TrackingInfo,
+  PrintQuote, PrintQuoteRequest, ProviderOrder, ProviderOrderStatus, SpineRequest, SpineSpec, TrackingInfo,
 } from "./provider";
 
 export class ProdigiProvider implements PrintProvider {
@@ -33,6 +33,25 @@ export class ProdigiProvider implements PrintProvider {
       throw new Error(`prodigi ${method} ${path} failed: ${res.status} ${text.slice(0, 300)}`);
     }
     return (await res.json()) as T;
+  }
+
+  async getSpineWidth(req: SpineRequest): Promise<SpineSpec> {
+    // Prodigi derives spine width from extent and production location, so it
+    // must be asked rather than calculated. The cover artwork is rendered
+    // only after this returns (brief §6).
+    const out = await this.request<any>(
+      "GET",
+      `/products/${encodeURIComponent(req.sku)}?pageCount=${req.pageCount}` +
+        `&destinationCountryCode=${encodeURIComponent(req.destinationCountryCode)}`
+    );
+    const widthMm =
+      out?.product?.spine?.widthMm ??
+      out?.product?.variants?.[0]?.spine?.widthMm ??
+      null;
+    if (typeof widthMm !== "number") {
+      throw new Error("prodigi did not return a spine width; refusing to guess");
+    }
+    return { widthMm, authoritative: true };
   }
 
   async getQuote(req: PrintQuoteRequest): Promise<PrintQuote> {

@@ -3,7 +3,7 @@
 
 import type {
   BookValidationInput, BookValidationResult, CreateOrderRequest, PrintProvider,
-  PrintQuote, PrintQuoteRequest, ProviderOrder, TrackingInfo,
+  PrintQuote, PrintQuoteRequest, ProviderOrder, SpineRequest, SpineSpec, TrackingInfo,
 } from "./provider";
 
 export class MockPrintProvider implements PrintProvider {
@@ -11,6 +11,14 @@ export class MockPrintProvider implements PrintProvider {
   private orders = new Map<string, ProviderOrder>();
   private byIdempotencyKey = new Map<string, string>();
   private counter = 0;
+
+  async getSpineWidth(req: SpineRequest): Promise<SpineSpec> {
+    // Stand-in for the provider's own calculation: ~0.16mm per interior leaf
+    // plus the boards. Marked non-authoritative so preflight warns loudly if
+    // a real book is ever rendered against it.
+    const leaves = Math.ceil(req.pageCount / 2);
+    return { widthMm: Math.round((leaves * 0.16 + 5) * 10) / 10, authoritative: false };
+  }
 
   async getQuote(req: PrintQuoteRequest): Promise<PrintQuote> {
     const base = 24 + req.pageCount * 0.35;

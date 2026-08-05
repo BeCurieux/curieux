@@ -14,7 +14,7 @@ import {
 } from "@/lib/supabase/server";
 import { enqueue, retry } from "@/lib/jobs/queue";
 import { createBookCheckout } from "@/lib/stripe";
-import { compatibleTemplates } from "@/lib/book/templates";
+import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
 
 function anonAuthClient() {
@@ -363,7 +363,8 @@ export async function changeTemplate(formData: FormData) {
   const { data: page } = await db.from("book_pages").select("template_id").eq("id", pageId).single();
   if (!page) return;
   // Constrained editor (§15): only compatible layout swaps are allowed.
-  const allowed = compatibleTemplates(page.template_id).some((t) => t.id === templateId);
+  const allowed = compatibleArchetypes(page.template_id as ArchetypeId, "hero")
+    .some((t: { id: string }) => t.id === templateId);
   if (!allowed) return;
   await db.from("book_pages").update({ template_id: templateId }).eq("id", pageId);
   revalidatePath(`/books/pages/${pageId}`);
@@ -423,7 +424,6 @@ export async function approveBook(formData: FormData) {
   await admin.rpc("mint_listen_token", { bid: bookId });
 
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "print" }, `render-print-${bookId}-${approvedAt}`);
-  await enqueue(admin, "render_pdf", { book_id: bookId, target: "cover" }, `render-cover-${bookId}-${approvedAt}`);
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "digital" }, `render-digital-${bookId}-${approvedAt}`);
   redirect(`/books/${bookId}/checkout`);
 }

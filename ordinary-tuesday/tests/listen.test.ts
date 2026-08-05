@@ -9,6 +9,12 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { MIN_QR_INCHES, listenUrl, qrDataUri, qrIsScannable } from "@/lib/listen/qr";
 import { renderBookHtml } from "@/lib/pdf/html";
+import { colourForAge } from "@/lib/book/colours";
+
+const COVER = {
+  childName: "Florence", ageWord: "TWO", year: "2028",
+  imprint: "Ordinary Tuesday", colour: colourForAge(2), spineWidthMm: 12.8,
+};
 
 const listenSql = readFileSync(
   join(__dirname, "..", "supabase", "migrations", "0005_listen.sql"),
@@ -39,12 +45,12 @@ describe("listen URLs and codes", () => {
 describe("the printed page", () => {
   const page = {
     pageNumber: 19,
-    templateId: "single_photo_caption",
+    archetype: "portrait_plus_story" as const,
     blocks: [{ type: "quote" as const, content: "Moon gone to work." }],
   };
 
   it("prints no code when there is no recording", () => {
-    const html = renderBookHtml({ title: "T", pages: [page] }, "print");
+    const html = renderBookHtml({ cover: COVER, pages: [page] }, "print");
     // The stylesheet always carries the rule; what must be absent is the mark.
     expect(html).not.toContain(`<div class="listen">`);
     expect(html).not.toContain("Hear this moment");
@@ -52,17 +58,20 @@ describe("the printed page", () => {
 
   it("prints the code and its label when there is one", () => {
     const html = renderBookHtml(
-      { title: "T", pages: [{ ...page, listen: { qrDataUri: "data:image/svg+xml;base64,AAA", label: "Hear this moment" } }] },
+      { cover: COVER, pages: [{ ...page, listen: { qrDataUri: "data:image/svg+xml;base64,AAA", label: "Hear this moment" } }] },
       "print"
     );
     expect(html).toContain("Hear this moment");
     expect(html).toContain("data:image/svg+xml;base64,AAA");
   });
 
-  it("keeps the code inside the safe margin, not the bleed", () => {
-    const html = renderBookHtml({ title: "T", pages: [page] }, "print");
-    // .listen is positioned off the safe margin, which already includes bleed.
-    expect(html).toMatch(/\.listen \{[^}]*right: 0\.625in/);
+  it("places the mark on the outer edge, clear of the gutter", () => {
+    const html = renderBookHtml(
+      { cover: COVER, pages: [{ ...page, listen: { qrDataUri: "d", label: "Hear this moment" } }] },
+      "print"
+    );
+    // Page 19 is odd, so it falls on the right and its outer edge is the right.
+    expect(html).toMatch(/class="listen"[^>]*right:16mm/);
   });
 });
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { changeTemplate, removeBlock, updateBlock } from "@/app/actions";
-import { compatibleTemplates } from "@/lib/book/templates";
+import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { WhyIsThisHere } from "./why";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export default async function PageEditor({ params }: { params: { pageId: string 
   if (!page) redirect("/home");
   const book = page.books as any;
   const editable = book.status === "review";
-  const templates = compatibleTemplates(page.template_id);
+  const templates = compatibleArchetypes(page.template_id as ArchetypeId, "hero");
 
   return (
     <div className="py-10">

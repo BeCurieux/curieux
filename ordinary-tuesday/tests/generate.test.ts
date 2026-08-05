@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { paginateBook, littleThingsBlocks } from "@/lib/book/generate";
 import { renderBookHtml } from "@/lib/pdf/html";
-import { compatibleTemplates, pickPhotoTemplate } from "@/lib/book/templates";
+import { archetypeForSinglePhoto, compatibleArchetypes } from "@/lib/book/templates";
+import { imageTier } from "@/lib/book/format";
+import { colourForAge } from "@/lib/book/colours";
 import type { BookStructureDraft, MediaAsset } from "@/lib/types";
 
 const asset = (memoryId: string, width = 3000, height = 2000): MediaAsset => ({
@@ -60,15 +62,21 @@ describe("pagination (§12, §16)", () => {
 });
 
 describe("templates (§15, §16)", () => {
-  it("layout responds to aspect ratio", () => {
-    expect(pickPhotoTemplate(2000, 3000)).toBe("portrait_plus_text");
-    expect(pickPhotoTemplate(3000, 2000)).toBe("full_bleed_photo");
-    expect(pickPhotoTemplate(null, null)).toBe("single_photo_caption");
+  it("places a photograph at the largest size its pixels honestly support", () => {
+    // Good camera file, no story to tell → let it fill the page.
+    expect(archetypeForSinglePhoto(imageTier(4000, 3000), false)).toBe("hero_photograph");
+    // Same file, with a story → give the story room.
+    expect(archetypeForSinglePhoto(imageTier(4000, 3000), true)).toBe("portrait_plus_story");
+    // Poor but important photo → small, with white space, carried by words.
+    expect(archetypeForSinglePhoto("intimate", true)).toBe("object_portrait");
+    // Nothing printable → the page becomes a quote rather than a blur.
+    expect(archetypeForSinglePhoto("unprintable", true)).toBe("quote_page");
   });
 
-  it("template swaps are constrained to compatible layouts", () => {
-    const options = compatibleTemplates("two_photo");
-    expect(options.every((t) => t.photoSlots === 2)).toBe(true);
+  it("layout swaps stay within what the image can carry", () => {
+    const options = compatibleArchetypes("two_photo_sequence", "editorial");
+    expect(options.length).toBeGreaterThan(0);
+    expect(options.every((t: { photoSlots: number }) => t.photoSlots === 2)).toBe(true);
   });
 });
 
@@ -76,12 +84,15 @@ describe("html rendering", () => {
   it("escapes user content", () => {
     const html = renderBookHtml(
       {
-        title: "T",
+        cover: {
+          childName: "Florence", ageWord: "TWO", year: "2028",
+          imprint: "Ordinary Tuesday", colour: colourForAge(2), spineWidthMm: 12.8,
+        },
         pages: [
           {
             pageNumber: 1,
-            templateId: "quote_page",
-            blocks: [{ type: "quote", content: `<script>alert("x")</script>` }],
+            archetype: "quote_page" as const,
+            blocks: [{ type: "quote" as const, content: `<script>alert("x")</script>` }],
           },
         ],
       },

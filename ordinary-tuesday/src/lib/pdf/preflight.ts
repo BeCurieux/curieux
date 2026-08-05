@@ -1,40 +1,30 @@
-// Automated preflight (brief §18).
-// Runs before any print PDF is approved for submission. Prefers hard
-// rejection over a bad physical book. Pure functions — fully unit-testable.
+// Automated preflight (brief §17).
+//
+// A book cannot reach "approve for print" if any of these fail. The rules
+// encode Prodigi's actual production constraints, including three that
+// commonly ruin runs: manually added bleed, odd page counts, and content
+// inside the 10mm safe area or designed across the PUR gutter.
 
-import { BOOK_SPEC } from "@/lib/book/structure";
-import {
-  MIN_SPINE_TEXT_INCHES, spineTakesText,
-  type CoverGeometry, type PaperStock,
-} from "./cover";
+import { FORMAT, TIER_MIN_DPI, type ImageTier } from "@/lib/book/format";
+import { coverContrastOk, type AgeColour } from "@/lib/book/colours";
 
 export interface PlacedImage {
   assetId: string;
   pixelWidth: number;
   pixelHeight: number;
-  /** physical placement size on the page, in inches */
-  placedWidthInches: number;
-  placedHeightInches: number;
+  /** Printed placement on the page, in mm. */
+  placedWidthMm: number;
+  placedHeightMm: number;
+  /** The tier this placement is claiming. */
+  tier: Exclude<ImageTier, "unprintable">;
   missing?: boolean;
-}
-
-export interface PreflightInput {
-  pageCount: number;
-  images: PlacedImage[];
-  fontsEmbedded: boolean;
-  /** page indexes where content overflowed its frame during layout */
-  overflowPages: number[];
-  provider?: {
-    minPages: number;
-    maxPages: number;
-    requiresEvenPages: boolean;
-  };
 }
 
 export interface PreflightIssue {
   severity: "error" | "warning";
   code: string;
   message: string;
+  page?: number;
 }
 
 export interface PreflightResult {
@@ -42,151 +32,134 @@ export interface PreflightResult {
   issues: PreflightIssue[];
 }
 
+export interface PreflightInput {
+  /** Interior pages only — covers are counted separately. */
+  interiorPages: number;
+  /** Exact page size supplied to the printer, in mm. */
+  pageWidthMm: number;
+  pageHeightMm: number;
+  /** True if our renderer added its own bleed. Must be false. */
+  bleedAdded: boolean;
+  cropMarksAdded: boolean;
+  images: PlacedImage[];
+  fontsEmbedded: boolean;
+  colourSpace: string;
+  transparencyFlattened: boolean;
+  /** Pages where content overflowed its frame. */
+  overflowPages: number[];
+  /** Pages where content sits inside the 10mm safe area. */
+  safeAreaViolations: number[];
+  /** Pages designed as one image across the spine. Always fatal. */
+  spreadPages: number[];
+  /** Pages with no content at all. */
+  blankPages: number[];
+  /** AI-drafted blocks that arrived without provenance. */
+  uncitedBlocks: number;
+  cover?: {
+    colour: AgeColour;
+    spineWidthMm: number;
+    spineAuthoritative: boolean;
+  };
+}
+
 export function effectiveDpi(img: PlacedImage): number {
-  const dpiW = img.pixelWidth / img.placedWidthInches;
-  const dpiH = img.pixelHeight / img.placedHeightInches;
+  const dpiW = img.pixelWidth / (img.placedWidthMm / 25.4);
+  const dpiH = img.pixelHeight / (img.placedHeightMm / 25.4);
   return Math.min(dpiW, dpiH);
 }
 
 export function runPreflight(input: PreflightInput): PreflightResult {
   const issues: PreflightIssue[] = [];
+  const err = (code: string, message: string, page?: number) =>
+    issues.push({ severity: "error", code, message, page });
+  const warn = (code: string, message: string, page?: number) =>
+    issues.push({ severity: "warning", code, message, page });
 
-  // Page count within product spec and even (books are printed in spreads).
-  if (input.pageCount < BOOK_SPEC.minPages || input.pageCount > BOOK_SPEC.maxPages) {
-    issues.push({
-      severity: "error",
-      code: "page_count_out_of_range",
-      message: `page count ${input.pageCount} outside ${BOOK_SPEC.minPages}–${BOOK_SPEC.maxPages}`,
-    });
-  }
-  if (input.pageCount % 2 !== 0) {
-    issues.push({ severity: "error", code: "page_count_odd", message: "page count must be even" });
-  }
-
-  // Provider-specific trim/count constraints.
-  if (input.provider) {
-    if (input.pageCount < input.provider.minPages || input.pageCount > input.provider.maxPages) {
-      issues.push({
-        severity: "error",
-        code: "provider_page_count",
-        message: `provider requires ${input.provider.minPages}–${input.provider.maxPages} pages`,
-      });
-    }
+  // --- physical dimensions -------------------------------------------------
+  if (input.pageWidthMm !== FORMAT.trimWidthMm || input.pageHeightMm !== FORMAT.trimHeightMm) {
+    err("wrong_dimensions",
+      `pages are ${input.pageWidthMm}×${input.pageHeightMm}mm; ` +
+      `Prodigi requires exactly ${FORMAT.trimWidthMm}×${FORMAT.trimHeightMm}mm`);
   }
 
-  // Image resolution + missing assets.
+  // Prodigi adds bleed and crop marks itself. Ours would mis-trim every page.
+  if (input.bleedAdded) {
+    err("bleed_added", "artwork includes bleed; Prodigi generates its own and requires exact trim");
+  }
+  if (input.cropMarksAdded) {
+    err("crop_marks_added", "artwork includes crop marks; Prodigi adds these itself");
+  }
+
+  // --- extent --------------------------------------------------------------
+  if (input.interiorPages % 2 !== 0) {
+    err("page_count_odd", `interior extent is ${input.interiorPages}; must be even`);
+  }
+  if (input.interiorPages < FORMAT.minInteriorPages || input.interiorPages > FORMAT.maxInteriorPages) {
+    err("page_count_out_of_range",
+      `interior extent ${input.interiorPages} outside ${FORMAT.minInteriorPages}–${FORMAT.maxInteriorPages}`);
+  }
+  const drift = Math.abs(input.interiorPages - FORMAT.targetInteriorPages);
+  if (drift > 24) {
+    warn("extent_drift",
+      `interior extent ${input.interiorPages} is ${drift} pages from the ${FORMAT.targetInteriorPages}-page ` +
+      `house standard; volumes will not line up on the shelf`);
+  }
+
+  // --- imagery -------------------------------------------------------------
   for (const img of input.images) {
     if (img.missing) {
-      issues.push({ severity: "error", code: "asset_missing", message: `asset ${img.assetId} is missing` });
+      err("asset_missing", `asset ${img.assetId} is missing`);
       continue;
     }
     const dpi = effectiveDpi(img);
-    if (dpi < BOOK_SPEC.minEffectiveDpi) {
-      issues.push({
-        severity: "error",
-        code: "dpi_too_low",
-        message: `asset ${img.assetId} effective ${Math.round(dpi)}dpi < ${BOOK_SPEC.minEffectiveDpi}dpi minimum`,
-      });
-    } else if (dpi < BOOK_SPEC.targetEffectiveDpi) {
-      issues.push({
-        severity: "warning",
-        code: "dpi_below_target",
-        message: `asset ${img.assetId} effective ${Math.round(dpi)}dpi below ${BOOK_SPEC.targetEffectiveDpi}dpi target`,
-      });
+    const required = TIER_MIN_DPI[img.tier];
+    if (dpi < required) {
+      err("resolution_below_tier",
+        `asset ${img.assetId} is ${Math.round(dpi)}dpi at its ${img.tier} placement; ` +
+        `needs ${required}dpi — place it smaller rather than enlarging it`);
     }
   }
 
-  if (!input.fontsEmbedded) {
-    issues.push({ severity: "error", code: "fonts_not_embedded", message: "fonts failed to embed" });
+  // --- typography and colour ----------------------------------------------
+  if (!input.fontsEmbedded) err("fonts_not_embedded", "fonts are not embedded in the PDF");
+  if (input.colourSpace !== FORMAT.colourSpace) {
+    err("wrong_colour_space", `PDF is ${input.colourSpace}; Prodigi expects ${FORMAT.colourSpace}`);
+  }
+  if (!input.transparencyFlattened) {
+    err("transparency_not_flattened", `transparency must be flattened for ${FORMAT.pdfStandard}`);
   }
 
-  for (const page of input.overflowPages) {
-    issues.push({ severity: "error", code: "overflow", message: `content overflow on page ${page}` });
+  // --- layout integrity ----------------------------------------------------
+  for (const p of input.overflowPages) err("overflow", `content overflows its frame on page ${p}`, p);
+  for (const p of input.safeAreaViolations) {
+    err("safe_area", `content sits inside the ${FORMAT.safeMarginMm}mm safe area on page ${p}`, p);
+  }
+  for (const p of input.spreadPages) {
+    err("designed_spread",
+      `page ${p} is designed across the spine; PUR binding hides about ` +
+      `${FORMAT.gutterLossMm}mm at the gutter`, p);
+  }
+  for (const p of input.blankPages) err("unintended_blank", `page ${p} is blank`, p);
+
+  // --- editorial integrity -------------------------------------------------
+  if (input.uncitedBlocks > 0) {
+    err("missing_provenance",
+      `${input.uncitedBlocks} generated block(s) have no supporting memory`);
   }
 
-  return { passed: !issues.some((i) => i.severity === "error"), issues };
-}
-
-// ------------------------------------------------------------------ cover
-
-export interface CoverPreflightInput {
-  pageCount: number;
-  stock: PaperStock;
-  geometry: CoverGeometry;
-  /** Longest string set on the spine, if any. */
-  spineText?: string;
-  /** Provider limits on the flat printed sheet, if known. */
-  provider?: { maxSheetWidthInches: number; maxSheetHeightInches: number };
-}
-
-/**
- * A wrong cover is more expensive than a wrong page: the whole run is
- * unusable, because the spine lands off-centre on every copy.
- */
-export function runCoverPreflight(input: CoverPreflightInput): PreflightResult {
-  const issues: PreflightIssue[] = [];
-  const { geometry: geo, stock } = input;
-
-  // The single most dangerous unknown in the whole print path.
-  if (!stock.measured) {
-    issues.push({
-      severity: "warning",
-      code: "caliper_unmeasured",
-      message:
-        `paper caliper for "${stock.name}" is published, not measured — ` +
-        `spine width ${geo.spineWidthInches}in is provisional until a sample is checked`,
-    });
-  }
-
-  if (input.pageCount % 2 !== 0) {
-    issues.push({ severity: "error", code: "page_count_odd", message: "page count must be even" });
-  }
-
-  // A spine narrower than its type is a spine with unreadable type on it.
-  if (input.spineText && !spineTakesText(geo.spineWidthInches)) {
-    issues.push({
-      severity: "error",
-      code: "spine_too_narrow_for_text",
-      message: `spine is ${geo.spineWidthInches}in; text needs at least ${MIN_SPINE_TEXT_INCHES}in`,
-    });
-  }
-
-  // Spine type must fit along the spine's height, not just its width.
-  if (input.spineText) {
-    // ~11pt Georgia averages 0.075in per character set vertically.
-    const needed = input.spineText.length * 0.075;
-    const available = geo.boardHeightInches - 2 * geo.turnInInches;
-    if (needed > available) {
-      issues.push({
-        severity: "error",
-        code: "spine_text_too_long",
-        message: `spine text needs ~${needed.toFixed(2)}in of ${available.toFixed(2)}in available`,
-      });
+  // --- cover ---------------------------------------------------------------
+  if (input.cover) {
+    if (!input.cover.spineAuthoritative) {
+      err("spine_not_authoritative",
+        "spine width was estimated locally; query the provider before rendering the cover");
     }
-  }
-
-  if (geo.turnInInches <= 0) {
-    issues.push({
-      severity: "error",
-      code: "no_turn_in",
-      message: "cover sheet has no turn-in allowance to fold around the board",
-    });
-  }
-
-  if (input.provider) {
-    if (geo.sheetWidthInches > input.provider.maxSheetWidthInches) {
-      issues.push({
-        severity: "error",
-        code: "cover_too_wide",
-        message: `cover sheet ${geo.sheetWidthInches}in exceeds provider maximum ${input.provider.maxSheetWidthInches}in`,
-      });
+    if (input.cover.spineWidthMm <= 0) {
+      err("spine_width_invalid", `spine width ${input.cover.spineWidthMm}mm is not usable`);
     }
-    if (geo.sheetHeightInches > input.provider.maxSheetHeightInches) {
-      issues.push({
-        severity: "error",
-        code: "cover_too_tall",
-        message: `cover sheet ${geo.sheetHeightInches}in exceeds provider maximum ${input.provider.maxSheetHeightInches}in`,
-      });
+    if (!coverContrastOk(input.cover.colour)) {
+      warn("cover_contrast",
+        `${input.cover.colour.name} does not clear the contrast floor; uncoated stock will ` +
+        `flatten it further and the name may not read across a room`);
     }
   }
 

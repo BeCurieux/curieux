@@ -4,7 +4,8 @@
 import type {
   BookStructureDraft, ContentBlockDraft, MediaAsset, PageDraft, SectionDraft,
 } from "@/lib/types";
-import { pickPhotoTemplate } from "./templates";
+import { archetypeForSinglePhoto } from "./templates";
+import { imageTier } from "./format";
 
 export interface PaginationInput {
   structure: BookStructureDraft;
@@ -43,7 +44,7 @@ export function paginateBook(input: PaginationInput): PageDraft[] {
 
     if (section.section_type === "little_things") {
       pages.push({
-        template_id: "little_things_grid",
+        template_id: "little_things",
         section_index: sectionIndex,
         blocks: [
           heading ?? { type: "heading", content: section.title, source_ids: [], ai_generated: false },
@@ -93,7 +94,7 @@ export function paginateBook(input: PaginationInput): PageDraft[] {
         // Vary pacing: alternate single-photo and multi-photo pages.
         const ids = photoMemories.slice(i, i + 3);
         pages.push({
-          template_id: "three_photo",
+          template_id: "three_photo_sequence",
           section_index: sectionIndex,
           blocks: ids.map((id) => photoBlock(id)),
         });
@@ -101,7 +102,7 @@ export function paginateBook(input: PaginationInput): PageDraft[] {
       } else if (remaining === 2) {
         const ids = photoMemories.slice(i, i + 2);
         pages.push({
-          template_id: "two_photo",
+          template_id: "two_photo_sequence",
           section_index: sectionIndex,
           blocks: ids.map((id) => photoBlock(id)),
         });
@@ -109,7 +110,7 @@ export function paginateBook(input: PaginationInput): PageDraft[] {
       } else {
         const caption = captionByMemory.get(photoMemories[i]);
         pages.push({
-          template_id: pickPhotoTemplate(asset.width, asset.height),
+          template_id: archetypeForSinglePhoto(imageTier(asset.width, asset.height), !!caption),
           section_index: sectionIndex,
           blocks: [photoBlock(photoMemories[i]), ...(caption ? [caption] : [])],
         });

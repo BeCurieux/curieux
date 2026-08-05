@@ -65,8 +65,30 @@ export interface TrackingInfo {
   carrier: string | null;
 }
 
+export interface SpineRequest {
+  sku: string;
+  pageCount: number;
+  /** Spine width varies by where the book is actually manufactured. */
+  destinationCountryCode: string;
+}
+
+export interface SpineSpec {
+  widthMm: number;
+  /** True when the provider returned this; false when it is a local estimate. */
+  authoritative: boolean;
+}
+
 export interface PrintProvider {
   readonly name: string;
+
+  /**
+   * Spine width for a given extent and production location (brief §6).
+   * This is NOT ours to compute from paper caliper — it depends on the
+   * binding and the facility, so it is queried before the cover is rendered
+   * and the design system adapts to whatever comes back.
+   */
+  getSpineWidth(req: SpineRequest): Promise<SpineSpec>;
+
   getQuote(req: PrintQuoteRequest): Promise<PrintQuote>;
   validateBook(input: BookValidationInput): Promise<BookValidationResult>;
   createOrder(req: CreateOrderRequest): Promise<ProviderOrder>;

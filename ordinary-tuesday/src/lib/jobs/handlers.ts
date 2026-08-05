@@ -7,10 +7,11 @@ import { getAIProvider } from "@/lib/ai/provider";
 import { getPrintProvider } from "@/lib/print/provider";
 import { enqueue, type Job } from "./queue";
 import { paginateBook, littleThingsBlocks } from "@/lib/book/generate";
-import { renderBookPdf, renderCoverPdf } from "@/lib/pdf/render";
-import { runPreflight, runCoverPreflight, type PlacedImage } from "@/lib/pdf/preflight";
-import { PAPER_STOCKS, coverGeometry, spineTakesText } from "@/lib/pdf/cover";
-import { BOOK_SPEC } from "@/lib/book/structure";
+import { renderBookPdf } from "@/lib/pdf/render";
+import { runPreflight, type PlacedImage } from "@/lib/pdf/preflight";
+import { yearWord } from "@/lib/book/structure";
+import { FORMAT, imageTier } from "@/lib/book/format";
+import { colourForAge } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import type { ContentBlockDraft, MediaAsset, Memory } from "@/lib/types";
@@ -284,17 +285,18 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
 
 async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
   const bookId = payload.book_id as string;
-  const target = (payload.target as "digital" | "print" | "cover") ?? "digital";
+  const target = (payload.target as "digital" | "print") ?? "digital";
   const { data: book } = await db.from("books").select("*").eq("id", bookId).single();
   if (!book) throw new Error("book not found");
-  if (target !== "digital" && book.status !== "approved" && book.status !== "rendering") {
-    throw new Error("print render requires an approved book (§21)");
+  if (target === "print" && book.status !== "approved" && book.status !== "rendering") {
+    throw new Error("print render requires an approved book");
   }
 
-  if (target === "cover") {
-    await renderCover(db, book);
-    return;
-  }
+  const { data: subject } = await db
+    .from("subjects")
+    .select("display_name, subject_type")
+    .eq("id", book.subject_id)
+    .single();
 
   const { data: pageRows } = await db
     .from("book_pages")
@@ -317,18 +319,16 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
 
   const urlByMemory = new Map<string, string>();
   for (const [mid, asset] of assetByMemory) {
-    const { data: signed } = await db.storage.from("media").createSignedUrl(asset.storage_path, 600);
+    const { data: signed } = await db.storage.from("media").createSignedUrl(asset.storage_path, 900);
     if (signed?.signedUrl) urlByMemory.set(mid, signed.signedUrl);
   }
 
-  // "Hear this moment": a page whose quote came from a voice memory gets a
-  // small printed code. Only possible once the book is approved, because the
-  // token is minted then — a draft's codes would resolve to nothing.
+  // Listen marks — only resolvable once the book is approved and tokenised.
   const listenByPage = new Map<number, { qrDataUri: string; label: string }>();
   if (book.listen_token) {
     const { data: listenable } = await db.rpc("book_listenable", { bid: bookId });
     for (const row of (listenable ?? []) as { memory_id: string; page_number: number }[]) {
-      if (listenByPage.has(row.page_number)) continue; // one code per page
+      if (listenByPage.has(row.page_number)) continue;
       listenByPage.set(row.page_number, {
         qrDataUri: await qrDataUri(listenUrl(book.listen_token, row.memory_id)),
         label: "Hear this moment",
@@ -338,7 +338,8 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
 
   const renderPages = (pageRows ?? []).map((page: any) => ({
     pageNumber: page.page_number,
-    templateId: page.template_id,
+    archetype: page.template_id,
+    hideFolio: ["chapter_opener", "hero_photograph"].includes(page.template_id),
     blocks: (page.book_content_blocks ?? []).map((b: any) => ({
       type: b.type,
       content: b.type === "photo" ? urlByMemory.get(b.content) ?? "" : b.content,
@@ -346,38 +347,94 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
     listen: listenByPage.get(page.page_number),
   }));
 
+  // The spine belongs to the provider, not to us. Query it before the cover
+  // is drawn; a print render refuses to proceed on an estimate.
+  const sku = process.env.PRODIGI_BOOK_SKU ?? "BOOK-A4-HARD-M";
+  const destination = (book.destination_country ?? "AU") as string;
+  const spine = await getPrintProvider().getSpineWidth({
+    sku,
+    pageCount: renderPages.length,
+    destinationCountryCode: destination,
+  });
+
+  const age = book.year_number ?? 1;
+  const colour = colourForAge(age);
+
   const result = await renderBookPdf(
-    { title: book.title, subtitle: book.subtitle ?? undefined, pages: renderPages },
+    {
+      cover: {
+        childName: subject?.display_name ?? "",
+        ageWord: yearWord(age).toUpperCase(),
+        year: String(new Date(book.end_date).getFullYear()),
+        imprint: "Ordinary Tuesday",
+        colour,
+        spineWidthMm: spine.widthMm,
+      },
+      pages: renderPages,
+    },
     target
   );
 
   if (target === "print") {
-    // Preflight before the PDF is allowed anywhere near a printer (§18).
     const placed: PlacedImage[] = [];
     for (const page of pageRows ?? []) {
       for (const b of page.book_content_blocks ?? []) {
         if (b.type !== "photo") continue;
         const asset = assetByMemory.get(b.content);
+        const tier = imageTier(asset?.width ?? null, asset?.height ?? null);
+        const claimed = tier === "unprintable" ? "intimate" : tier;
+        const share = claimed === "hero" ? 1 : claimed === "editorial" ? 0.6 : 0.35;
         placed.push({
           assetId: b.content,
           pixelWidth: asset?.width ?? 0,
           pixelHeight: asset?.height ?? 0,
-          placedWidthInches: BOOK_SPEC.trimWidthInches,
-          placedHeightInches: BOOK_SPEC.trimHeightInches,
+          placedWidthMm: FORMAT.trimWidthMm * share,
+          placedHeightMm: FORMAT.trimHeightMm * share,
+          tier: claimed,
           missing: !asset || !urlByMemory.has(b.content),
         });
       }
     }
+
+    const { count: uncited } = await db
+      .from("book_content_blocks")
+      .select("id", { count: "exact", head: true })
+      .eq("ai_generated", true)
+      .in("type", ["text", "caption", "quote"])
+      .eq("source_ids", "[]");
+
     const preflight = runPreflight({
-      pageCount: result.pageCount,
+      interiorPages: result.interiorPages,
+      pageWidthMm: FORMAT.trimWidthMm,
+      pageHeightMm: FORMAT.trimHeightMm,
+      bleedAdded: false,
+      cropMarksAdded: false,
       images: placed,
-      fontsEmbedded: true, // Chromium embeds used fonts in print-to-PDF output
+      fontsEmbedded: true,
+      colourSpace: FORMAT.colourSpace,
+      transparencyFlattened: true,
       overflowPages: result.overflowPages,
+      safeAreaViolations: result.safeAreaViolations,
+      spreadPages: [],
+      blankPages: result.blankPages,
+      uncitedBlocks: uncited ?? 0,
+      cover: {
+        colour,
+        spineWidthMm: spine.widthMm,
+        spineAuthoritative: spine.authoritative,
+      },
     });
+
     if (!preflight.passed) {
       throw new Error(
-        `preflight failed: ${preflight.issues.filter((i) => i.severity === "error").map((i) => i.message).join("; ")}`
+        `preflight failed: ${preflight.issues
+          .filter((i) => i.severity === "error")
+          .map((i) => i.message)
+          .join("; ")}`
       );
+    }
+    for (const w of preflight.issues.filter((i) => i.severity === "warning")) {
+      console.warn(`[book ${bookId}] ${w.code}: ${w.message}`);
     }
   }
 
@@ -389,72 +446,13 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
 
   const column = target === "digital" ? "digital_pdf_path" : "print_pdf_path";
   const update: Record<string, unknown> = { [column]: path };
-  if (target === "print") update.status = "print_ready";
+  if (target === "print") {
+    update.status = "print_ready";
+    update.page_count = result.interiorPages;
+    // One file carries the whole book now, covers included.
+    update.cover_pdf_path = path;
+  }
   await db.from("books").update(update).eq("id", bookId);
-}
-
-/**
- * The cover is a separate sheet whose width depends on how thick the book
- * physically is — so it can only be rendered once the page count is final,
- * i.e. after approval.
- */
-async function renderCover(db: SupabaseClient, book: any) {
-  const stock = PAPER_STOCKS[process.env.PAPER_STOCK ?? "mohawk_superfine_eggshell"];
-  if (!stock) throw new Error(`unknown paper stock: ${process.env.PAPER_STOCK}`);
-
-  const pageCount = book.page_count ?? 0;
-  if (!pageCount) throw new Error("cannot size a spine without a final page count");
-
-  const geo = coverGeometry(pageCount, stock);
-  const spineText = spineTakesText(geo.spineWidthInches)
-    ? `${book.title}${book.subtitle ? ` · ${book.subtitle}` : ""}`
-    : undefined;
-
-  const preflight = runCoverPreflight({ pageCount, stock, geometry: geo, spineText });
-  if (!preflight.passed) {
-    throw new Error(
-      `cover preflight failed: ${preflight.issues.filter((i) => i.severity === "error").map((i) => i.message).join("; ")}`
-    );
-  }
-  for (const warning of preflight.issues.filter((i) => i.severity === "warning")) {
-    console.warn(`[cover ${book.id}] ${warning.code}: ${warning.message}`);
-  }
-
-  // The front-cover photograph: the first full-bleed image in the book.
-  let frontImageUrl: string | undefined;
-  const { data: firstPhoto } = await db
-    .from("book_pages")
-    .select("book_content_blocks(type, content)")
-    .eq("book_id", book.id)
-    .order("page_number")
-    .limit(4);
-  const firstMemoryId = (firstPhoto ?? [])
-    .flatMap((p: any) => p.book_content_blocks ?? [])
-    .find((b: any) => b.type === "photo")?.content;
-  if (firstMemoryId) {
-    const { data: asset } = await db
-      .from("media_assets")
-      .select("storage_path")
-      .eq("memory_id", firstMemoryId)
-      .maybeSingle();
-    if (asset) {
-      const { data: signed } = await db.storage.from("media").createSignedUrl(asset.storage_path, 600);
-      frontImageUrl = signed?.signedUrl;
-    }
-  }
-
-  const pdf = await renderCoverPdf(
-    { title: book.title, subtitle: book.subtitle ?? undefined, imprint: "Ordinary Tuesday", frontImageUrl },
-    geo
-  );
-
-  const path = `books/${book.id}/cover-${sha256(pdf).slice(0, 12)}.pdf`;
-  const { error } = await db.storage
-    .from("renders")
-    .upload(path, pdf, { contentType: "application/pdf", upsert: true });
-  if (error) throw new Error(error.message);
-
-  await db.from("books").update({ cover_pdf_path: path }).eq("id", book.id);
 }
 
 async function submitPrint(db: SupabaseClient, payload: Record<string, unknown>) {
