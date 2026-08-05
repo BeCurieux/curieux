@@ -17,23 +17,69 @@ import { runPreflight } from "../src/lib/pdf/preflight";
 const outDir = process.argv[2] ?? "./sample";
 mkdirSync(outDir, { recursive: true });
 
-// Stand-in photographs: flat tone with a label, so layout and pacing read
-// clearly without pretending to be real images.
+// Stand-in photographs.
+//
+// No real child's imagery is used anywhere in this project (brief §32), and
+// outbound image hosts are blocked, so these are generated. They are built to
+// have the things that actually matter for judging a layout: a real tonal
+// range, a subject mass separated from its ground, and a vignette. Grain is
+// deliberately omitted — an SVG noise filter rasterises at full page size and
+// pushed the sample PDF to 91MB.
+// Flat grey rectangles cannot tell you whether a page works; these can.
+
+interface Scene { sky: string; mid: string; ground: string; subject: string; warmth: number; }
+
+const SCENES: Scene[] = [
+  // kitchen morning — warm, low contrast
+  { sky: "#E8DCC6", mid: "#C9B393", ground: "#8E7659", subject: "#D9C4A5", warmth: 0.9 },
+  // garden, overcast — cool green
+  { sky: "#CBD4C6", mid: "#93A388", ground: "#5C6B52", subject: "#B4C0A6", warmth: 0.3 },
+  // beach — pale, bright, high key
+  { sky: "#DCE4E7", mid: "#C4CDD1", ground: "#A9A491", subject: "#E4DED0", warmth: 0.6 },
+  // bath / indoor evening — deep, warm shadow
+  { sky: "#B9A48C", mid: "#8A7460", ground: "#4E4034", subject: "#CBB89F", warmth: 1.0 },
+  // pool — cool blue-green
+  { sky: "#BBCBCE", mid: "#7E9BA1", ground: "#3F5B62", subject: "#CFDADA", warmth: 0.2 },
+  // living room, curtain light — neutral
+  { sky: "#DAD6CC", mid: "#B3ADA1", ground: "#78716A", subject: "#C8C1B4", warmth: 0.5 },
+];
+
 function photo(seed: number, w = 2400, h = 3200): string {
-  const tones = [
-    ["#C6C6BE", "#9DA09A"], ["#CFC7B6", "#A39B8C"], ["#BFC4C2", "#8E9491"],
-    ["#D2C9B4", "#A69C86"], ["#C2C6C8", "#93999B"],
-  ];
-  const [a, b] = tones[seed % tones.length];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/>
-    </linearGradient></defs>
-    <rect width="100%" height="100%" fill="url(#g)"/>
-    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
-      font-family="Helvetica" font-size="${Math.round(w / 30)}"
-      fill="rgba(25,26,23,0.26)" letter-spacing="8">PHOTOGRAPH</text>
-  </svg>`;
+  const s = SCENES[seed % SCENES.length];
+  const portrait = h >= w;
+  // Subject sits off-centre, alternating side, the way real photographs do.
+  const cx = seed % 2 === 0 ? 0.42 : 0.58;
+  const cy = portrait ? 0.44 : 0.48;
+  const r = portrait ? 0.34 : 0.42;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 100 ${Math.round((h / w) * 100)}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.15" y2="1">
+      <stop offset="0" stop-color="${s.sky}"/>
+      <stop offset="0.55" stop-color="${s.mid}"/>
+      <stop offset="1" stop-color="${s.ground}"/>
+    </linearGradient>
+    <radialGradient id="subj" cx="${cx}" cy="${cy}" r="${r}">
+      <stop offset="0" stop-color="${s.subject}" stop-opacity="0.95"/>
+      <stop offset="0.6" stop-color="${s.subject}" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="${s.subject}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vig" cx="0.5" cy="0.45" r="0.78">
+      <stop offset="0.5" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.3"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="0.7"/></filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <!-- soft background masses, out of focus -->
+  <g filter="url(#soft)" opacity="0.5">
+    <ellipse cx="${18 + (seed % 5) * 6}" cy="${20 + (seed % 3) * 8}" rx="26" ry="14" fill="${s.sky}" opacity="0.7"/>
+    <ellipse cx="${76 - (seed % 4) * 5}" cy="${58 + (seed % 4) * 6}" rx="30" ry="20" fill="${s.ground}" opacity="0.5"/>
+  </g>
+  <rect width="100%" height="100%" fill="url(#subj)"/>
+  <rect width="100%" height="100%" fill="url(#vig)"/>
+</svg>`;
   return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 }
 
