@@ -8,6 +8,8 @@ import { ageInYears } from "@/lib/book/format";
 import { countOf, friendlyDate } from "@/lib/words";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { Shelf } from "@/app/shelf";
+import { roleForSubject } from "@/lib/family/membership";
+import { canModerate } from "@/lib/family/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +34,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       : "they";
   const verb = subject === "they" ? "are" : "is";
 
-  const [{ count: memoryCount }, { data: recent }, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }] =
+  const [{ count: memoryCount }, { data: recent }, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }, { count: pending }] =
     await Promise.all([
       db.from("memories").select("id", { count: "exact", head: true }).eq("subject_id", child.id),
       db.from("memories").select("id, type, raw_text, memory_date").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(5),
@@ -40,7 +42,12 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       db.from("follow_up_questions").select("id", { count: "exact", head: true }).eq("subject_id", child.id).eq("status", "pending"),
       db.from("little_things").select("id, category, value").eq("subject_id", child.id).order("recorded_date", { ascending: false }).limit(3),
       db.from("books").select("id, title, status, year_number").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      db.from("memories").select("id", { count: "exact", head: true })
+        .eq("subject_id", child.id).eq("contribution_status", "pending"),
     ]);
+
+  const role = (await roleForSubject(db, child.id, user.id))?.role ?? null;
+  const pendingCount = pending ?? 0;
 
   const kept = memoryCount ?? 0;
 
@@ -161,10 +168,37 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           current={yearNumber}
           className="mt-4"
         />
+        <p className="mt-4 text-sm text-stone">
+          {first}&rsquo;s year is better with the people who were there.{" "}
+          <Link href={`/family/${child.family_id}`} className="text-ochre">
+            Who can see this
+          </Link>
+        </p>
       </section>
 
+      {pendingCount > 0 && canModerate(role) && (
+        <Link
+          href={`/subjects/${child.id}/review`}
+          className="card mt-12 flex items-center justify-between border-boot hover:border-ink"
+        >
+          <div>
+            <h2 className="text-lg">{countOf(pendingCount, "thing")} waiting on you</h2>
+            <p className="mt-1 text-sm text-stone">
+              {first}&rsquo;s family have added something. Nothing reaches the
+              book until you&rsquo;ve seen it.
+            </p>
+          </div>
+          <span className="text-ochre" aria-hidden>&rarr;</span>
+        </Link>
+      )}
+
       <section className="mt-12">
-        <h2 className="text-xl">Lately</h2>
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xl">Lately</h2>
+          <Link href={`/subjects/${child.id}/years`} className="text-sm text-ochre">
+            All of {first}&rsquo;s years
+          </Link>
+        </div>
         {recent && recent.length > 0 ? (
           <ul className="mt-4 space-y-2">
             {/* No type badges. A quote is shown as a quote and a photo says so

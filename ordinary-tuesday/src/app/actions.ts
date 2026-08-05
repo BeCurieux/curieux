@@ -16,6 +16,11 @@ import { enqueue, retry } from "@/lib/jobs/queue";
 import { clampExtraCopies, createBookCheckout } from "@/lib/stripe";
 import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
+import { randomBytes } from "node:crypto";
+import { roleForSubject, roleInFamily } from "@/lib/family/membership";
+import {
+  canComment, canManageAccess, canModerate, statusForNewMemory,
+} from "@/lib/family/roles";
 
 function anonAuthClient() {
   return createClient(
@@ -75,6 +80,14 @@ export async function createChild(formData: FormData) {
     .select("id")
     .single();
   if (famErr) throw new Error(famErr.message);
+
+  // Access is membership now, so the owner needs their row before anything
+  // else is written — without it the very next insert is refused by RLS and
+  // the person who just created the family cannot see it.
+  const { error: memberErr } = await db
+    .from("family_memberships")
+    .insert({ family_id: family.id, user_id: user.id, role: "owner" });
+  if (memberErr) throw new Error(memberErr.message);
 
   const { data: child, error: childErr } = await db
     .from("subjects")
@@ -136,6 +149,9 @@ export async function registerUploadedPhoto(input: {
     .eq("memories.subject_id", input.subjectId);
   if (dupes && dupes.length > 0) return { duplicate: true as const };
 
+  const membership = await roleForSubject(db, input.subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+
   const { data: memory, error } = await db
     .from("memories")
     .insert({
@@ -144,6 +160,7 @@ export async function registerUploadedPhoto(input: {
       type: "photo",
       memory_date: input.memoryDate,
       metadata: {},
+      contribution_status: statusForNewMemory(membership.role),
     })
     .select("id")
     .single();
@@ -180,6 +197,9 @@ export async function registerVoiceMemory(input: {
   const user = await requireUser();
   const db = userClient();
 
+  const membership = await roleForSubject(db, input.subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+
   const { data: memory, error } = await db
     .from("memories")
     .insert({
@@ -191,6 +211,7 @@ export async function registerVoiceMemory(input: {
       raw_text: input.transcript,
       memory_date: input.memoryDate,
       metadata: {},
+      contribution_status: statusForNewMemory(membership.role),
     })
     .select("id")
     .single();
@@ -217,12 +238,18 @@ export async function addTextMemory(formData: FormData) {
   const type = String(formData.get("type")) === "quote" ? "quote" : "text";
   const text = String(formData.get("text") ?? "").trim();
   if (!text) return;
+
+  // A grandparent's note waits for the parent; a parent's does not.
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+
   await db.from("memories").insert({
     subject_id: subjectId,
     created_by: user.id,
     type,
     raw_text: text,
     memory_date: String(formData.get("memory_date") ?? "") || null,
+    contribution_status: statusForNewMemory(membership.role),
   });
   revalidatePath(`/subjects/${subjectId}`);
 }
@@ -475,6 +502,164 @@ export async function startCheckout(formData: FormData) {
     stripeCustomerId: profile?.stripe_customer_id,
   });
   redirect(session.url!);
+}
+
+// ------------------------------------------------------- shared archive
+//
+// Everything below concerns more than one person having access to a child's
+// archive. The database enforces who may see what; these actions enforce the
+// finer rules about what each role may do, and they ask the same questions
+// the RLS policies ask so the two cannot drift.
+
+/** Invite someone to a family. Owner only; never as owner. */
+export async function inviteToFamily(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const role = String(formData.get("role")) === "editor" ? "editor" : "contributor";
+  const displayName = String(formData.get("display_name") ?? "").trim();
+  const back = `/family/${familyId}`;
+
+  if (!email.includes("@")) redirect(`${back}?error=${encodeURIComponent("That doesn't look like an email address")}`);
+
+  const role_ = await roleInFamily(db, familyId, user.id);
+  if (!canManageAccess(role_)) {
+    redirect(`${back}?error=${encodeURIComponent("Only the person who keeps this archive can invite people")}`);
+  }
+
+  // Single-use and unguessable. This is the whole credential, so it is
+  // generated with the crypto RNG rather than anything derived from time.
+  const token = randomBytes(32).toString("base64url");
+
+  const { error } = await db.from("family_invitations").insert({
+    family_id: familyId,
+    email,
+    role,
+    token,
+    invited_by: user.id,
+  });
+  // A pending invitation for the same address already exists.
+  if (error) redirect(`${back}?error=${encodeURIComponent("They have already been invited")}`);
+
+  // The invitee needs this link. Until email exists, it is shown to the
+  // person who sent it so they can pass it on themselves.
+  if (displayName) {
+    await db.from("family_members").insert({
+      family_id: familyId, name: displayName, relationship: role === "editor" ? "parent" : "family",
+    });
+  }
+  redirect(`${back}?invited=${encodeURIComponent(token)}`);
+}
+
+/** Accept an invitation. The token is the only thing the invitee needs. */
+export async function acceptInvitation(formData: FormData) {
+  const user = await requireUser();
+  const admin = adminClient();
+  const token = String(formData.get("token") ?? "");
+
+  const { data: invite } = await admin
+    .from("family_invitations")
+    .select("*")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (!invite) redirect("/home?error=" + encodeURIComponent("That invitation link is not valid"));
+  if (invite.accepted_at) redirect("/home?error=" + encodeURIComponent("That invitation has already been used"));
+  if (new Date(invite.expires_at) < new Date()) {
+    redirect("/home?error=" + encodeURIComponent("That invitation has expired — ask for a new one"));
+  }
+
+  // Service role, because the invitee is by definition not yet a member and
+  // so cannot write their own membership row under RLS.
+  const { error } = await admin.from("family_memberships").upsert(
+    { family_id: invite.family_id, user_id: user.id, role: invite.role, invited_by: invite.invited_by },
+    { onConflict: "family_id,user_id" }
+  );
+  if (error) throw new Error(error.message);
+
+  await admin
+    .from("family_invitations")
+    .update({ accepted_at: new Date().toISOString(), accepted_by: user.id })
+    .eq("id", invite.id);
+
+  redirect("/home");
+}
+
+/** Change what someone may do, or remove their access entirely. */
+export async function updateMembership(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const membershipId = String(formData.get("membership_id"));
+  const familyId = String(formData.get("family_id"));
+  const action = String(formData.get("action"));
+
+  const role = await roleInFamily(db, familyId, user.id);
+  if (!canManageAccess(role)) throw new Error("only the owner can change access");
+
+  if (action === "remove") {
+    await db.from("family_memberships").delete().eq("id", membershipId);
+  } else if (action === "editor" || action === "contributor") {
+    await db.from("family_memberships").update({ role: action }).eq("id", membershipId);
+  }
+  revalidatePath(`/family/${familyId}`);
+}
+
+/** Accept or decline something a contributor added. */
+export async function reviewContribution(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const memoryId = String(formData.get("memory_id"));
+  const subjectId = String(formData.get("subject_id"));
+  const decision = String(formData.get("decision")) === "approve" ? "approved" : "declined";
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!canModerate(membership?.role ?? null)) throw new Error("not allowed to review contributions");
+
+  await db
+    .from("memories")
+    .update({
+      contribution_status: decision,
+      reviewed_by: user.id,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", memoryId);
+
+  // An accepted contribution joins the archive, so it must be read into the
+  // patterns like anything else. A declined one changes nothing.
+  if (decision === "approved") {
+    const window = Math.floor(Date.now() / (60 * 60 * 1000));
+    await enqueue(adminClient(), "analyse_memories", { subject_id: subjectId }, `analyse-${subjectId}-${window}`);
+  }
+  revalidatePath(`/subjects/${subjectId}/review`);
+  revalidatePath(`/subjects/${subjectId}`);
+}
+
+/** Say something about a memory. Conversation, never book content. */
+export async function addComment(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const memoryId = String(formData.get("memory_id"));
+  const subjectId = String(formData.get("subject_id"));
+  const body = String(formData.get("body") ?? "").trim();
+  if (!body) return;
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!canComment(membership?.role ?? null)) throw new Error("not a member of this family");
+
+  await db.from("memory_comments").insert({
+    memory_id: memoryId,
+    author_user_id: user.id,
+    body: body.slice(0, 2000),
+  });
+  revalidatePath(`/subjects/${subjectId}/years`);
+}
+
+export async function deleteComment(formData: FormData) {
+  await requireUser();
+  const db = userClient();
+  await db.from("memory_comments").delete().eq("id", String(formData.get("comment_id")));
+  revalidatePath(`/subjects/${String(formData.get("subject_id"))}/years`);
 }
 
 // ----------------------------------------------------------------- admin

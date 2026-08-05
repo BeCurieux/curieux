@@ -36,11 +36,21 @@ export async function runJob(db: SupabaseClient, job: Job): Promise<void> {
 
 // ------------------------------------------------------------- helpers
 
+/**
+ * Every memory that is allowed to shape the book.
+ *
+ * The filter is the whole point of moderation: a grandparent can add to the
+ * archive, but nothing they add reaches a printed page — or even the pattern
+ * finding that decides what the year was about — until the parent has said
+ * yes. These jobs run as the service role and so are not covered by RLS;
+ * this is the only thing standing between a pending contribution and print.
+ */
 async function loadMemories(db: SupabaseClient, subjectId: string): Promise<Memory[]> {
   const { data, error } = await db
     .from("memories")
     .select("*, memory_tags(tag), memory_people(family_members(name))")
-    .eq("subject_id", subjectId);
+    .eq("subject_id", subjectId)
+    .eq("contribution_status", "approved");
   if (error) throw new Error(error.message);
   return (data ?? []).map((m: any) => ({
     ...m,

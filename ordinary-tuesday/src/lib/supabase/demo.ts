@@ -105,10 +105,17 @@ function buildTables(): Record<string, Row[]> {
   const assets: Row[] = [];
   MEMORY_SEED.forEach(([offset, type, text, tagList], i) => {
     const id = `mem-${i}`;
+    // The last two are Grandpa's, and are waiting — so the review queue has
+    // something in it and the dashboard shows the prompt.
+    const fromGrandpa = i >= MEMORY_SEED.length - 2;
     memories.push({
-      id, subject_id: subjectId, created_by: DEMO_USER.id, type,
+      id, subject_id: subjectId,
+      created_by: fromGrandpa ? "demo-grandpa" : DEMO_USER.id,
+      type,
       raw_text: text, transcript: null, location: null, metadata: {},
       memory_date: day(offset), created_at: day(offset),
+      contribution_status: fromGrandpa ? "pending" : "approved",
+      reviewed_by: null, reviewed_at: null,
     });
     tagList.forEach((tag, t) =>
       tags.push({ id: `tag-${i}-${t}`, memory_id: id, tag, source: "parent" }));
@@ -196,7 +203,10 @@ function buildTables(): Record<string, Row[]> {
   ]);
 
   return {
-    profiles: [{ id: DEMO_USER.id, email: DEMO_USER.email, is_admin: true, subscription_status: "none", stripe_customer_id: null, created_at: day(0) }],
+    profiles: [
+      { id: DEMO_USER.id, email: DEMO_USER.email, is_admin: true, subscription_status: "none", stripe_customer_id: null, created_at: day(0) },
+      { id: "demo-grandpa", email: "grandpa@example.com", is_admin: false, subscription_status: "none", stripe_customer_id: null, created_at: day(30) },
+    ],
     families: [{ id: familyId, owner_user_id: DEMO_USER.id, family_name: "Demo family", created_at: day(0) }],
     family_members: members,
     subjects: [{
@@ -238,6 +248,38 @@ function buildTables(): Record<string, Row[]> {
     }],
     book_sections: sections, book_pages: pages, book_content_blocks: blocks,
     book_approvals: [], print_orders: [], jobs: [],
+
+    // The shared archive: the parent who keeps it, and Florence's grandfather,
+    // whose additions wait for her.
+    family_memberships: [
+      { id: "mem-owner", family_id: familyId, user_id: DEMO_USER.id, role: "owner",
+        display_name: "Mum", invited_by: null, created_at: day(0) },
+      { id: "mem-gran", family_id: familyId, user_id: "demo-grandpa", role: "contributor",
+        display_name: "Grandpa", invited_by: DEMO_USER.id, created_at: day(30) },
+    ],
+    family_invitations: [
+      { id: "inv-1", family_id: familyId, email: "nonna@example.com", role: "contributor",
+        token: "demo-token", invited_by: DEMO_USER.id,
+        expires_at: day(400), accepted_at: null, accepted_by: null, created_at: day(300) },
+    ],
+    // Anchored by content rather than index, so the conversation stays
+    // attached to the thing it is actually about when the seed changes.
+    memory_comments: [
+      {
+        id: "c-1",
+        memory_id: memories.find((m) => /garbage truck/i.test(String(m.raw_text)))?.id,
+        author_user_id: "demo-grandpa",
+        body: "She has been waving at that truck since before she could walk.",
+        created_at: day(281),
+      },
+      {
+        id: "c-2",
+        memory_id: memories.find((m) => /swimming/i.test(String(m.raw_text)))?.id,
+        author_user_id: "demo-grandpa",
+        body: "We watched from the car park. She did not stop talking about it.",
+        created_at: day(300),
+      },
+    ],
   };
 }
 
@@ -246,6 +288,7 @@ function buildTables(): Record<string, Row[]> {
 /** Parent rows pulled in by a nested select, keyed by the child table. */
 const PARENTS: Record<string, { table: string; fk: string; as: string }[]> = {
   book_pages: [{ table: "book_sections", fk: "section_id", as: "book_sections" }],
+  family_memberships: [{ table: "profiles", fk: "user_id", as: "profiles" }],
 };
 
 const NESTED: Record<string, { table: string; fk: string; as: string }[]> = {
@@ -292,6 +335,8 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
 
   eq(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] === val); return this; }
   neq(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] !== val); return this; }
+  /** Only the null/not-null forms are used, which is all this supports. */
+  is(col: string, val: null) { this.rows = this.rows.filter((r) => (r[col] ?? null) === val); return this; }
   in(col: string, vals: any[]) { this.rows = this.rows.filter((r) => vals.includes(r[col])); return this; }
   order(col: string, opts?: { ascending?: boolean }) {
     const dir = opts?.ascending === false ? -1 : 1;
