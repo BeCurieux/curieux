@@ -33,7 +33,7 @@ export default async function ListenPage({
 
   return (
     <div className="mx-auto max-w-md py-20 text-center">
-      <p className="text-xs uppercase tracking-[0.2em] text-boot">
+      <p className="text-xs uppercase tracking-[0.2em] text-ochre">
         From {row.book_title}
       </p>
 

@@ -53,7 +53,7 @@ export default async function OrderPage({ params }: { params: { orderId: string 
 
   return (
     <div className="mx-auto max-w-lg py-16">
-      <Link href={`/books/${book.id}`} className="text-sm text-boot">&larr; {book.title}</Link>
+      <Link href={`/books/${book.id}`} className="text-sm text-ochre">&larr; {book.title}</Link>
       <h1 className="mt-2 text-3xl">{LABELS[order.status] ?? order.status}</h1>
 
       {/* A numbered 1-2-3-4 is a parcel tracker. This is a book about someone's
@@ -89,7 +89,7 @@ export default async function OrderPage({ params }: { params: { orderId: string 
           {order.tracking_url && (
             <>
               {" · "}
-              <a className="text-boot underline" href={order.tracking_url} target="_blank" rel="noreferrer">
+              <a className="text-ochre underline" href={order.tracking_url} target="_blank" rel="noreferrer">
                 Track delivery
               </a>
             </>

@@ -31,7 +31,7 @@ export default async function ApprovePage({
         <ul className="mt-3 space-y-2 text-sm">
           {["Names correct", "Dates correct", "Stories correct", "Photos correct"].map((item) => (
             <li key={item} className="flex items-center gap-2">
-              <span className="text-boot">—</span> {item}
+              <span className="text-ochre">—</span> {item}
             </li>
           ))}
         </ul>

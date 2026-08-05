@@ -53,7 +53,7 @@ export default async function CheckoutPage({
             "Delivered to your door in about two weeks",
           ].map((item) => (
             <li key={item} className="flex gap-2">
-              <span className="text-boot">&mdash;</span>
+              <span className="text-ochre">&mdash;</span>
               {item}
             </li>
           ))}

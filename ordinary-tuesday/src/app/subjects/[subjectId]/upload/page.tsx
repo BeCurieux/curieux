@@ -78,7 +78,7 @@ export default function UploadPage({
 
       <p className="mt-12 text-sm text-stone">
         That&rsquo;s plenty for now.{" "}
-        <Link className="text-boot" href={`/subjects/${params.subjectId}`}>
+        <Link className="text-ochre" href={`/subjects/${params.subjectId}`}>
           Back to their year
         </Link>
       </p>

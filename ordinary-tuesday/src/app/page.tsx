@@ -5,15 +5,18 @@
 // mention of AI. A parent should be able to read this in forty seconds.
 
 import Link from "next/link";
+import { Shelf } from "./shelf";
+import { colourForAge } from "@/lib/book/colours";
 
 export default function LandingPage() {
+  const two = colourForAge(2);
   return (
     <div className="-mx-6">
       {/* Hero — opens on the dark of forgetting, resolves onto paper below. */}
       <section className="bg-ink px-6 py-16 text-paper md:py-24">
         <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <h1 className="max-w-[13ch] text-5xl leading-[1.02] md:text-6xl">
+            <h1 className="max-w-[13ch] text-display">
               They won&rsquo;t remember <span className="text-paper/40">being two.</span>
             </h1>
             <p className="mt-8 max-w-[38ch] text-lg leading-relaxed text-paper/75">
@@ -33,9 +36,14 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* The book itself, standing in for a photograph until one exists. */}
-          <div className="mx-auto flex aspect-[1/1.26] w-full max-w-sm flex-col justify-between rounded-r-md bg-gradient-to-br from-slate to-ink p-8 shadow-2xl ring-1 ring-white/5">
-            <span className="text-[0.6rem] uppercase tracking-[0.3em] text-paper/45">
+          {/* The book itself, in the actual colour of two — faded butter, the
+              same value that prints on the cover. A grey gradient here was
+              standing in for the one thing the page is selling. */}
+          <div
+            className="mx-auto flex aspect-[1/1.26] w-full max-w-sm flex-col justify-between rounded-r-md p-8 shadow-2xl"
+            style={{ backgroundColor: two.hex, color: two.inkHex }}
+          >
+            <span className="text-[0.6rem] uppercase tracking-[0.3em] opacity-60">
               Ordinary Tuesday
             </span>
             <div>
@@ -44,7 +52,7 @@ export default function LandingPage() {
                 <br />
                 You Were Two
               </div>
-              <div className="mt-2 text-paper/60">Florence</div>
+              <div className="mt-2 opacity-70">Florence</div>
             </div>
           </div>
         </div>
@@ -63,30 +71,15 @@ export default function LandingPage() {
             themselves.
           </p>
 
-          <div
-            className="mt-10 flex items-end gap-2 overflow-x-auto border-b-[3px] border-rule pb-4"
-            role="img"
-            aria-label="A shelf of annual volumes, with a fourth still to come."
-          >
-            {[
-              ["The Year You Were One", "2027", "h-52"],
-              ["The Year You Were Two", "2028", "h-56"],
-              ["The Year You Were Three", "2029", "h-[13.5rem]"],
-            ].map(([title, year, height]) => (
-              <div
-                key={year}
-                className={`${height} flex w-16 flex-none flex-col items-center justify-between rounded-t bg-gradient-to-b from-slate to-ink px-2 py-3 text-paper/90`}
-              >
-                <span className="[writing-mode:vertical-rl] whitespace-nowrap text-sm">{title}</span>
-                <span className="text-[0.6rem] tracking-widest text-paper/60">{year}</span>
-              </div>
-            ))}
-            <div className="flex h-48 w-16 flex-none items-center justify-center rounded-t border border-dashed border-rule">
-              <span className="[writing-mode:vertical-rl] whitespace-nowrap text-xs text-stone">
-                next year
-              </span>
-            </div>
-          </div>
+          {/* The real spectrum from colours.ts — every age has had its own
+              permanent colour since the beginning, and the site had never
+              shown one. Three of them are drawn as still to come, because the
+              gap in the sequence is the point. */}
+          <Shelf from={1} count={8} owned={[1, 2, 3, 4, 5]} className="mt-10" />
+          <p className="mt-4 max-w-[46ch] text-sm text-stone">
+            Every age has its own colour, fixed for good. You can see across a
+            room which years a family has kept &mdash; and which one is missing.
+          </p>
         </section>
 
         {/* Three beats, measured in time — the real argument. */}
@@ -111,7 +104,7 @@ export default function LandingPage() {
               },
             ].map((beat) => (
               <div key={beat.when}>
-                <div className="text-xs uppercase tracking-[0.18em] text-boot">{beat.when}</div>
+                <div className="text-xs uppercase tracking-[0.18em] text-ochre">{beat.when}</div>
                 <h3 className="mt-2 text-xl leading-snug">{beat.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone">{beat.body}</p>
               </div>
@@ -136,7 +129,7 @@ export default function LandingPage() {
               <p className="mt-5 text-[0.6rem] tracking-[0.16em] text-stone">18</p>
             </div>
             <div className="p-5 md:p-8">
-              <div className="mb-3 text-[0.62rem] uppercase tracking-[0.2em] text-boot">
+              <div className="mb-3 text-[0.62rem] uppercase tracking-[0.2em] text-ochre">
                 Chapter four
               </div>
               <p className="max-w-[26ch] font-display text-xl leading-snug md:text-2xl">
@@ -181,7 +174,7 @@ export default function LandingPage() {
                 "Unlimited family contributors, free",
               ].map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span className="text-boot">&mdash;</span>
+                  <span className="text-ochre">&mdash;</span>
                   {item}
                 </li>
               ))}

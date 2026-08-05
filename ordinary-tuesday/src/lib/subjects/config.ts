@@ -40,9 +40,18 @@ export interface SubjectTypeConfig {
   voiceGuidance: string;
 }
 
+// The colour system runs to eighteen, so the words have to as well. Stopping
+// at ten meant a cover reading FLORENCE / ELEVEN fell back to FLORENCE / 11 —
+// a numeral set at 96pt where every earlier volume in the row has a word. The
+// shelf is the product; it cannot change convention halfway along.
 const YEAR_WORDS: Record<number, string> = {
+  // Birth to the first birthday. "The Year You Were Born" is the sentence the
+  // title template already wants; "The Year You Were 0" is what it printed.
+  0: "Born",
   1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five",
   6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten",
+  11: "Eleven", 12: "Twelve", 13: "Thirteen", 14: "Fourteen",
+  15: "Fifteen", 16: "Sixteen", 17: "Seventeen", 18: "Eighteen",
 };
 
 export function yearWord(year: number): string {

@@ -61,7 +61,7 @@ export default async function LittleThingsPage({ params }: { params: { subjectId
       <ul className="mt-8 grid gap-3 md:grid-cols-2">
         {(things ?? []).map((t) => (
           <li key={t.id} className="card !p-4">
-            <div className="text-xs uppercase tracking-wider text-boot">
+            <div className="text-xs uppercase tracking-wider text-ochre">
               {t.category.replace(/_/g, " ")} · {t.recorded_date}
             </div>
             <div className="mt-1 font-display text-lg">{t.value}</div>

@@ -7,6 +7,7 @@ import { yearWord } from "@/lib/book/structure";
 import { ageInYears } from "@/lib/book/format";
 import { countOf, friendlyDate } from "@/lib/words";
 import { resolvePhotoUrls } from "@/lib/book/photos";
+import { Shelf } from "@/app/shelf";
 
 export const dynamic = "force-dynamic";
 
@@ -129,7 +130,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
         <section className="mt-10">
           <div className="flex items-center justify-between">
             <h2 className="text-xl">Things that keep coming up</h2>
-            <Link href={`/subjects/${child.id}/clusters`} className="text-sm text-boot">See them all</Link>
+            <Link href={`/subjects/${child.id}/clusters`} className="text-sm text-ochre">See them all</Link>
           </div>
           <p className="mt-1 text-sm text-stone">
             We noticed these in {first}&rsquo;s year. Tell us which ones matter.
@@ -144,7 +145,25 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
         </section>
       )}
 
-      <section className="mt-10">
+      {/* Their own shelf. The years already made are in their colours; the
+          ones still to come are drawn as the space they will take. */}
+      <section className="mt-12">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xl">{first}&rsquo;s shelf</h2>
+          <span className="text-sm text-stone">
+            {countOf(yearNumber, "volume")} of eighteen
+          </span>
+        </div>
+        <Shelf
+          from={1}
+          count={8}
+          owned={Array.from({ length: yearNumber }, (_, i) => i + 1)}
+          current={yearNumber}
+          className="mt-4"
+        />
+      </section>
+
+      <section className="mt-12">
         <h2 className="text-xl">Lately</h2>
         {recent && recent.length > 0 ? (
           <ul className="mt-4 space-y-2">

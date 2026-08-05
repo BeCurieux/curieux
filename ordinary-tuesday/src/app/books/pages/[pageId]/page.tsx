@@ -28,7 +28,7 @@ export default async function PageEditor({ params }: { params: { pageId: string 
 
   return (
     <div className="py-10">
-      <Link href={`/books/${book.id}`} className="text-sm text-boot">&larr; {book.title}</Link>
+      <Link href={`/books/${book.id}`} className="text-sm text-ochre">&larr; {book.title}</Link>
       <h1 className="mt-2 text-3xl">Page {page.page_number}</h1>
 
       {editable && templates.length > 1 && (

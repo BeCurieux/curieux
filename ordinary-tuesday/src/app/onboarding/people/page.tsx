@@ -22,7 +22,7 @@ export default function OnboardingPeoplePage({ searchParams }: { searchParams: {
         <button className="btn w-full">Continue</button>
         <Link
           href={`/subjects/${subjectId}/upload?welcome=1`}
-          className="block text-center text-sm text-stone hover:text-boot"
+          className="block text-center text-sm text-stone hover:text-ochre"
         >
           Skip for now
         </Link>

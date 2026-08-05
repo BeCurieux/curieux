@@ -8,6 +8,7 @@ import {
 import { AGE_COLOURS, colourForAge, contrastRatio, coverContrastOk } from "@/lib/book/colours";
 import { pace, padToEven, rhythmPenalty, rhythmReport, type PagePlan } from "@/lib/book/rhythm";
 import { ALL_ARCHETYPES, ARCHETYPES } from "@/lib/book/templates";
+import { yearWord } from "@/lib/subjects/config";
 
 describe("Prodigi page mapping (§16)", () => {
   it("wraps the interior in two covers", () => {
@@ -134,6 +135,27 @@ describe("imperfect source material (§14)", () => {
 
   it("treats a missing size as unprintable rather than guessing", () => {
     expect(imageTier(null, null)).toBe("unprintable");
+  });
+});
+
+describe("cover words cover the whole shelf", () => {
+  // The colour system runs 0–18 and the words stopped at 10, so the eleventh
+  // cover printed FLORENCE / 11 at 96pt in a row of words. Caught by rendering
+  // every cover and looking at them, which is the only way it was ever going
+  // to surface.
+  it("gives every age in the colour system a word, not a numeral", () => {
+    for (const colour of AGE_COLOURS) {
+      const word = yearWord(colour.age);
+      expect(word, `age ${colour.age} has no word`).not.toMatch(/^\d+$/);
+    }
+  });
+
+  it("names the first volume for what it is", () => {
+    expect(`The Year You Were ${yearWord(0)}`).toBe("The Year You Were Born");
+  });
+
+  it("still degrades to a numeral past the designed range", () => {
+    expect(yearWord(40)).toBe("40");
   });
 });
 

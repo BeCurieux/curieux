@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import { charter } from "./fonts";
 import { currentUser } from "@/lib/supabase/server";
 import { signOut } from "./actions";
 
@@ -15,7 +16,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const signedIn = !!user;
 
   return (
-    <html lang="en">
+    <html lang="en" className={charter.variable}>
       <body>
         {/* On the landing page the wordmark sits inside the dark hero, so the
             header goes transparent and lets it through. */}
@@ -29,15 +30,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <nav className="flex items-center gap-5 text-sm">
             {signedIn ? (
               <>
-                <Link href="/home" className="hover:text-boot">Home</Link>
-                <Link href="/account" className="hover:text-boot">Account</Link>
+                <Link href="/home" className="hover:text-ochre">Home</Link>
+                <Link href="/account" className="hover:text-ochre">Account</Link>
                 <form action={signOut}>
-                  <button className="text-stone hover:text-boot">Sign out</button>
+                  <button className="text-stone hover:text-ochre">Sign out</button>
                 </form>
               </>
             ) : (
               <>
-                <Link href="/login" className="hover:text-boot">Log in</Link>
+                <Link href="/login" className="hover:text-ochre">Log in</Link>
                 <Link href="/signup" className="btn !px-5 !py-2">Make their year</Link>
               </>
             )}

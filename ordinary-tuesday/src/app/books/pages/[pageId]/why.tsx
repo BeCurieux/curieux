@@ -10,7 +10,7 @@ export function WhyIsThisHere({ sources }: { sources: { kind: string; id: string
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="text-xs text-boot underline decoration-dotted"
+        className="text-xs text-ochre underline decoration-dotted"
       >
         Why is this here?
       </button>

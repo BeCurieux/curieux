@@ -29,7 +29,7 @@ export default async function PreviewPage({ params }: { params: { bookId: string
   return (
     <div className="py-10">
       <div className="flex items-center justify-between">
-        <Link href={`/books/${book.id}`} className="text-sm text-boot">&larr; Back</Link>
+        <Link href={`/books/${book.id}`} className="text-sm text-ochre">&larr; Back</Link>
         {book.status === "review" && (
           <Link href={`/books/${book.id}/approve`} className="btn">This feels true — approve it</Link>
         )}

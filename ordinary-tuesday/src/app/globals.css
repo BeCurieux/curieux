@@ -5,9 +5,18 @@
 @layer base {
   body {
     @apply bg-paper text-ink font-body antialiased;
+    /* Charter was drawn for print, where it is set solid. On screen it wants
+       a little more air between lines and a fraction less between letters. */
+    line-height: 1.6;
   }
   h1, h2, h3 {
     @apply font-display font-normal tracking-tight;
+    line-height: 1.15;
+  }
+  /* Form furniture and buttons stay in the sans — the same division the
+     printed page makes between what you read and what you operate. */
+  input, select, textarea, button {
+    @apply font-ui;
   }
 }
 
@@ -23,6 +32,13 @@
   }
   .input {
     @apply w-full rounded border border-rule bg-white px-4 py-2.5 text-sm outline-none focus:border-slate;
+  }
+  /* The annual colour system, on screen. Nineteen fixed colours, one per age,
+     is the strongest thing this brand owns — and until now it existed only
+     inside the printed book, so nothing on the site suggested the two were
+     the same product. */
+  .spine {
+    @apply flex w-14 flex-none flex-col items-center justify-between rounded-t px-2 py-3;
   }
   /* Sentence case, not micro-caps. These labels are often real questions
      ("What do you call them?") and setting a question in tracked uppercase
