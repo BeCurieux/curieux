@@ -2,7 +2,7 @@
   "name": "ordinary-tuesday",
   "private": true,
   "version": "0.1.0",
-  "description": "Ordinary Tuesday (working brand TBD) \u2014 turns a parent's photos, quotes and memories into a beautifully designed annual childhood book. You live it. We help you keep it.",
+  "description": "Ordinary Tuesday (working brand TBD) — turns a parent's photos, quotes and memories into a beautifully designed annual childhood book. You live it. We help you keep it.",
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -32,6 +32,7 @@
     "@types/react": "^18.3.11",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
+    "sharp": "^0.35.3",
     "tailwindcss": "^3.4.14",
     "tsx": "^4.23.6",
     "typescript": "^5.6.3",

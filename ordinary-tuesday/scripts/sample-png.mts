@@ -1,7 +1,8 @@
 // Render the sample volume to PNGs — every page, plus a contact sheet.
 // Same renderer as the print PDF, so what you see is what would print.
 import { chromium } from "playwright-core";
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import sharp from "sharp";
 import { execSync } from "node:child_process";
 
 mkdirSync("./sample/png", { recursive: true });
@@ -18,15 +19,33 @@ writeFileSync("./scripts/_book.mts", mod.replace(/import type { RenderPage[^\n]*
 
 const { html } = await import("./_book.mts");
 
+// A4 at 300dpi is 2480x3508px. One CSS pixel is 1/96in, so an A4 page is
+// 793.7 x 1122.5 CSS px and the device scale factor that lands exactly on
+// 2480 wide is 300/96 = 3.125. Rendering at this scale means the PNGs are
+// press resolution, not screen resolution.
+const PRINT_SCALE = 300 / 96;
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ["--no-sandbox"] });
-const page = await browser.newPage({ viewport: { width: 900, height: 1273 }, deviceScaleFactor: 1.4 });
+const page = await browser.newPage({
+  viewport: { width: 794, height: 1123 },
+  deviceScaleFactor: PRINT_SCALE,
+});
 await page.setContent(html, { waitUntil: "networkidle" });
+
+// Prodigi wants A4 at 300dpi: exactly 2480 x 3508px. Chromium's element box
+// lands a pixel or two off (and taller still where display type overhangs its
+// line box), so every page is normalised to the exact spec afterwards. A file
+// that is 2481px wide is the kind of thing a print system rejects.
+const PRINT_W = 2480, PRINT_H = 3508;
 
 const els = await page.$$(".page");
 const names: string[] = [];
 for (let i = 0; i < els.length; i++) {
   const n = `./sample/png/${String(i).padStart(2, "0")}.png`;
-  await els[i].screenshot({ path: n });
+  const raw = await els[i].screenshot();
+  await sharp(raw)
+    .resize(PRINT_W, PRINT_H, { fit: "cover", position: "top" })
+    .png({ compressionLevel: 9 })
+    .toFile(n);
   names.push(n);
 }
 
@@ -55,9 +74,10 @@ const sheet = `<html><head><style>
   <div class="grid">${thumbs}</div>
 </body></html>`;
 
+// The contact sheet is for reading on screen, so it stays at screen scale.
 const sheetPage = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1.5 });
 await sheetPage.setContent(sheet, { waitUntil: "networkidle" });
 await sheetPage.screenshot({ path: "./sample/png/contact-sheet.png", fullPage: true });
 
 await browser.close();
-console.log(`wrote ${names.length} page PNGs + contact sheet`);
+console.log(`wrote ${names.length} page PNGs at 300dpi A4 + contact sheet`);
