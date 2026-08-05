@@ -77,3 +77,21 @@ export const MIN_COVER_CONTRAST = 4.5;
 export function coverContrastOk(colour: AgeColour): boolean {
   return contrastRatio(colour.hex, colour.inkHex) >= MIN_COVER_CONTRAST;
 }
+
+/**
+ * The cover field colour is chosen to carry reversed-out type, which makes it
+ * far too pale to set small labels on white paper — faded butter on white is
+ * about 1.7:1, i.e. invisible. This darkens the same hue until it is legible
+ * as 7pt type, so the interior can use the volume's colour without becoming
+ * unreadable.
+ */
+export function accentForPaper(colour: AgeColour, target = 4.5): string {
+  const v = colour.hex.replace("#", "");
+  let [r, g, b] = [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16));
+  for (let i = 0; i < 40; i++) {
+    const hex = `#${[r, g, b].map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
+    if (contrastRatio(hex, "#FFFFFF") >= target) return hex;
+    [r, g, b] = [r * 0.92, g * 0.92, b * 0.92];
+  }
+  return "#4A4A48";
+}
