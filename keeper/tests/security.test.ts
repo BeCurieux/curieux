@@ -10,6 +10,7 @@ const migrationsDir = join(__dirname, "..", "supabase", "migrations");
 const schemaSql = readFileSync(join(migrationsDir, "0001_schema.sql"), "utf8");
 const rlsSql = readFileSync(join(migrationsDir, "0002_rls.sql"), "utf8");
 const storageSql = readFileSync(join(migrationsDir, "0003_storage.sql"), "utf8");
+const subjectsSql = readFileSync(join(migrationsDir, "0004_subjects.sql"), "utf8");
 
 const createdTables = [...schemaSql.matchAll(/create table (\w+)/g)].map((m) => m[1]);
 
@@ -45,6 +46,38 @@ describe("RLS coverage (§4)", () => {
 
   it("jobs table has no user policies (service role only)", () => {
     expect(rlsSql).not.toMatch(/create policy[^;]*on jobs/s);
+  });
+});
+
+describe("RLS survives the subjects rename (0004)", () => {
+  // Renaming children→subjects moved every policy's ownership check onto a new
+  // helper. A policy left behind on the old helper would silently fail open.
+  it("recreates a policy for every table whose scoping column was renamed", () => {
+    for (const table of [
+      "subjects", "memories", "memory_clusters",
+      "follow_up_questions", "little_things", "books",
+    ]) {
+      expect(subjectsSql, `no policy recreated for ${table}`).toMatch(
+        new RegExp(`create policy "${table} all" on ${table}`)
+      );
+    }
+  });
+
+  it("scopes every recreated policy through ownership", () => {
+    const policies = [...subjectsSql.matchAll(/create policy[^;]+;/gs)].map((m) => m[0]);
+    expect(policies.length).toBeGreaterThanOrEqual(6);
+    for (const policy of policies) {
+      expect(policy, `unscoped policy: ${policy.slice(0, 60)}`).toMatch(/auth\.uid\(\)|owns_\w+\(/);
+    }
+  });
+
+  it("drops the stale child helper so nothing can call it", () => {
+    expect(subjectsSql).toMatch(/drop function if exists owns_child\(uuid\)/);
+  });
+
+  it("keeps a date of birth mandatory for children only", () => {
+    expect(subjectsSql).toMatch(/child_requires_dob/);
+    expect(subjectsSql).toMatch(/subject_type <> 'child' or date_of_birth is not null/);
   });
 });
 

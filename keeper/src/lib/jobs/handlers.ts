@@ -33,11 +33,11 @@ export async function runJob(db: SupabaseClient, job: Job): Promise<void> {
 
 // ------------------------------------------------------------- helpers
 
-async function loadMemories(db: SupabaseClient, childId: string): Promise<Memory[]> {
+async function loadMemories(db: SupabaseClient, subjectId: string): Promise<Memory[]> {
   const { data, error } = await db
     .from("memories")
     .select("*, memory_tags(tag), memory_people(family_members(name))")
-    .eq("child_id", childId);
+    .eq("subject_id", subjectId);
   if (error) throw new Error(error.message);
   return (data ?? []).map((m: any) => ({
     ...m,
@@ -51,16 +51,16 @@ async function loadMemories(db: SupabaseClient, childId: string): Promise<Memory
 // ------------------------------------------------------------- handlers
 
 async function analyseMemories(db: SupabaseClient, payload: Record<string, unknown>) {
-  const childId = payload.child_id as string;
-  const memories = await loadMemories(db, childId);
+  const subjectId = payload.subject_id as string;
+  const memories = await loadMemories(db, subjectId);
   const pending = memories.filter((m) => !(m.metadata as any)?.analysis);
   if (pending.length === 0) return;
 
-  const { data: child } = await db.from("children").select("family_id").eq("id", childId).single();
+  const { data: subject } = await db.from("subjects").select("family_id").eq("id", subjectId).single();
   const { data: members } = await db
     .from("family_members")
     .select("*")
-    .eq("family_id", child!.family_id);
+    .eq("family_id", subject!.family_id);
 
   const analyses = await getAIProvider().analyseMemories({
     memories: pending,
@@ -84,18 +84,18 @@ async function analyseMemories(db: SupabaseClient, payload: Record<string, unkno
         );
     }
   }
-  await enqueue(db, "cluster_memories", { child_id: childId }, `cluster-${childId}-${Date.now()}`);
+  await enqueue(db, "cluster_memories", { subject_id: subjectId }, `cluster-${subjectId}-${Date.now()}`);
 }
 
 async function clusterMemories(db: SupabaseClient, payload: Record<string, unknown>) {
-  const childId = payload.child_id as string;
-  const memories = await loadMemories(db, childId);
+  const subjectId = payload.subject_id as string;
+  const memories = await loadMemories(db, subjectId);
   const suggestions = await getAIProvider().clusterMemories(memories);
 
   const { data: existing } = await db
     .from("memory_clusters")
     .select("id, title, status")
-    .eq("child_id", childId);
+    .eq("subject_id", subjectId);
   const existingTitles = new Set((existing ?? []).map((c: any) => c.title.toLowerCase()));
 
   for (const cluster of suggestions) {
@@ -104,7 +104,7 @@ async function clusterMemories(db: SupabaseClient, payload: Record<string, unkno
     const { data: row, error } = await db
       .from("memory_clusters")
       .insert({
-        child_id: childId,
+        subject_id: subjectId,
         title: cluster.title,
         summary: cluster.summary,
         start_date: cluster.start_date,
@@ -119,16 +119,16 @@ async function clusterMemories(db: SupabaseClient, payload: Record<string, unkno
       .from("cluster_memories")
       .insert(cluster.memory_ids.map((mid) => ({ cluster_id: row.id, memory_id: mid })));
   }
-  await enqueue(db, "generate_questions", { child_id: childId }, `questions-${childId}-${Date.now()}`);
+  await enqueue(db, "generate_questions", { subject_id: subjectId }, `questions-${subjectId}-${Date.now()}`);
 }
 
 async function generateQuestions(db: SupabaseClient, payload: Record<string, unknown>) {
-  const childId = payload.child_id as string;
-  const memories = await loadMemories(db, childId);
+  const subjectId = payload.subject_id as string;
+  const memories = await loadMemories(db, subjectId);
   const { data: clusterRows } = await db
     .from("memory_clusters")
     .select("*, cluster_memories(memory_id)")
-    .eq("child_id", childId)
+    .eq("subject_id", subjectId)
     .neq("status", "rejected");
   const clusters = (clusterRows ?? []).map((c: any) => ({
     ...c,
@@ -137,14 +137,14 @@ async function generateQuestions(db: SupabaseClient, payload: Record<string, unk
   const { data: existing } = await db
     .from("follow_up_questions")
     .select("*")
-    .eq("child_id", childId);
+    .eq("subject_id", subjectId);
 
   const questions = await getAIProvider().generateQuestions(memories, clusters, existing ?? []);
   const asked = new Set((existing ?? []).map((q: any) => q.question));
   for (const q of questions) {
     if (asked.has(q.question)) continue;
     await db.from("follow_up_questions").insert({
-      child_id: childId,
+      subject_id: subjectId,
       cluster_id: q.cluster_id,
       question: q.question,
       reason: q.reason,
@@ -161,31 +161,31 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
 
   await db.from("books").update({ status: "drafting" }).eq("id", bookId);
 
-  const childId = book.child_id;
-  const { data: child } = await db.from("children").select("*").eq("id", childId).single();
-  const allMemories = await loadMemories(db, childId);
+  const subjectId = book.subject_id;
+  const { data: subject } = await db.from("subjects").select("*").eq("id", subjectId).single();
+  const allMemories = await loadMemories(db, subjectId);
   const memories = allMemories.filter(
     (m) => !m.memory_date || (m.memory_date >= book.start_date && m.memory_date <= book.end_date)
   );
   const { data: clusterRows } = await db
     .from("memory_clusters")
     .select("*, cluster_memories(memory_id)")
-    .eq("child_id", childId)
+    .eq("subject_id", subjectId)
     .eq("status", "confirmed");
   const clusters = (clusterRows ?? []).map((c: any) => ({
     ...c,
     memory_ids: (c.cluster_memories ?? []).map((cm: any) => cm.memory_id),
   }));
-  const { data: littleThings } = await db.from("little_things").select("*").eq("child_id", childId);
+  const { data: littleThings } = await db.from("little_things").select("*").eq("subject_id", subjectId);
   const { data: answers } = await db
     .from("follow_up_questions")
     .select("*")
-    .eq("child_id", childId)
+    .eq("subject_id", subjectId)
     .eq("status", "answered");
 
   const ai = getAIProvider();
   const structure = await ai.generateBookStructure({
-    child,
+    subject,
     yearNumber: book.year_number,
     memories,
     clusters,
@@ -208,7 +208,7 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
       .filter((m): m is Memory => !!m);
     sectionBlocks.push(
       await ai.draftBookCopy({
-        child,
+        subject,
         yearNumber: book.year_number,
         section,
         memories: sectionMemories,

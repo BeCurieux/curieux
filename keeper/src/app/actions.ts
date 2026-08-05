@@ -65,7 +65,7 @@ export async function signOut() {
 export async function createChild(formData: FormData) {
   const user = await requireUser();
   const db = userClient();
-  const firstName = String(formData.get("first_name") ?? "").trim();
+  const firstName = String(formData.get("display_name") ?? "").trim();
   const dob = String(formData.get("date_of_birth") ?? "");
   if (!firstName || !dob) redirect("/onboarding?error=Name and birthday are required");
 
@@ -77,10 +77,10 @@ export async function createChild(formData: FormData) {
   if (famErr) throw new Error(famErr.message);
 
   const { data: child, error: childErr } = await db
-    .from("children")
+    .from("subjects")
     .insert({
       family_id: family.id,
-      first_name: firstName,
+      display_name: firstName,
       date_of_birth: dob,
       pronouns: String(formData.get("pronouns") ?? "") || null,
     })
@@ -93,8 +93,8 @@ export async function createChild(formData: FormData) {
 export async function addFamilyMembers(formData: FormData) {
   await requireUser();
   const db = userClient();
-  const childId = String(formData.get("child_id"));
-  const { data: child } = await db.from("children").select("family_id").eq("id", childId).single();
+  const subjectId = String(formData.get("subject_id"));
+  const { data: child } = await db.from("subjects").select("family_id").eq("id", subjectId).single();
   if (!child) throw new Error("child not found");
 
   const raw = String(formData.get("members") ?? "");
@@ -109,14 +109,14 @@ export async function addFamilyMembers(formData: FormData) {
       nickname_used_by_child: nickname || null,
     });
   }
-  redirect(`/children/${childId}/upload?welcome=1`);
+  redirect(`/subjects/${subjectId}/upload?welcome=1`);
 }
 
 // -------------------------------------------------------------- memories
 
 /** Called after the client has uploaded bytes directly to private storage. */
 export async function registerUploadedPhoto(input: {
-  childId: string;
+  subjectId: string;
   storagePath: string;
   checksum: string;
   mimeType: string;
@@ -131,15 +131,15 @@ export async function registerUploadedPhoto(input: {
   // Exact-duplicate detection (§7): same checksum for this child is skipped.
   const { data: dupes } = await db
     .from("media_assets")
-    .select("id, memories!inner(child_id)")
+    .select("id, memories!inner(subject_id)")
     .eq("checksum", input.checksum)
-    .eq("memories.child_id", input.childId);
+    .eq("memories.subject_id", input.subjectId);
   if (dupes && dupes.length > 0) return { duplicate: true as const };
 
   const { data: memory, error } = await db
     .from("memories")
     .insert({
-      child_id: input.childId,
+      subject_id: input.subjectId,
       created_by: user.id,
       type: "photo",
       memory_date: input.memoryDate,
@@ -163,36 +163,36 @@ export async function registerUploadedPhoto(input: {
 
   // Queue analysis in batches — one job per child per hour window.
   const window = Math.floor(Date.now() / (60 * 60 * 1000));
-  await enqueue(adminClient(), "analyse_memories", { child_id: input.childId }, `analyse-${input.childId}-${window}`);
+  await enqueue(adminClient(), "analyse_memories", { subject_id: input.subjectId }, `analyse-${input.subjectId}-${window}`);
   return { duplicate: false as const, memoryId: memory.id };
 }
 
 export async function addTextMemory(formData: FormData) {
   const user = await requireUser();
   const db = userClient();
-  const childId = String(formData.get("child_id"));
+  const subjectId = String(formData.get("subject_id"));
   const type = String(formData.get("type")) === "quote" ? "quote" : "text";
   const text = String(formData.get("text") ?? "").trim();
   if (!text) return;
   await db.from("memories").insert({
-    child_id: childId,
+    subject_id: subjectId,
     created_by: user.id,
     type,
     raw_text: text,
     memory_date: String(formData.get("memory_date") ?? "") || null,
   });
-  revalidatePath(`/children/${childId}`);
+  revalidatePath(`/subjects/${subjectId}`);
 }
 
 export async function addLittleThing(formData: FormData) {
   await requireUser();
   const db = userClient();
-  const childId = String(formData.get("child_id"));
+  const subjectId = String(formData.get("subject_id"));
   const category = String(formData.get("category") ?? "");
   const value = String(formData.get("value") ?? "").trim();
   if (!category || !value) return;
-  await db.from("little_things").insert({ child_id: childId, category, value });
-  revalidatePath(`/children/${childId}/little-things`);
+  await db.from("little_things").insert({ subject_id: subjectId, category, value });
+  revalidatePath(`/subjects/${subjectId}/little-things`);
 }
 
 // -------------------------------------------------------------- clusters
@@ -202,7 +202,7 @@ export async function updateCluster(formData: FormData) {
   const db = userClient();
   const clusterId = String(formData.get("cluster_id"));
   const action = String(formData.get("action"));
-  const childId = String(formData.get("child_id"));
+  const subjectId = String(formData.get("subject_id"));
 
   if (action === "keep") {
     await db.from("memory_clusters").update({ status: "confirmed" }).eq("id", clusterId);
@@ -221,7 +221,7 @@ export async function updateCluster(formData: FormData) {
     }
     await db.from("memory_clusters").update({ status: "rejected" }).eq("id", clusterId);
   }
-  revalidatePath(`/children/${childId}/clusters`);
+  revalidatePath(`/subjects/${subjectId}/clusters`);
 }
 
 // -------------------------------------------------------------- questions
@@ -230,7 +230,7 @@ export async function answerQuestion(formData: FormData) {
   await requireUser();
   const db = userClient();
   const id = String(formData.get("question_id"));
-  const childId = String(formData.get("child_id"));
+  const subjectId = String(formData.get("subject_id"));
   const action = String(formData.get("action"));
   if (action === "dismiss") {
     await db.from("follow_up_questions").update({ status: "dismissed" }).eq("id", id);
@@ -240,7 +240,7 @@ export async function answerQuestion(formData: FormData) {
       await db.from("follow_up_questions").update({ status: "answered", answer }).eq("id", id);
     }
   }
-  revalidatePath(`/children/${childId}/questions`);
+  revalidatePath(`/subjects/${subjectId}/questions`);
 }
 
 // ------------------------------------------------------------------ book
@@ -248,8 +248,8 @@ export async function answerQuestion(formData: FormData) {
 export async function createBook(formData: FormData) {
   await requireUser();
   const db = userClient();
-  const childId = String(formData.get("child_id"));
-  const { data: child } = await db.from("children").select("*").eq("id", childId).single();
+  const subjectId = String(formData.get("subject_id"));
+  const { data: child } = await db.from("subjects").select("*").eq("id", subjectId).single();
   if (!child) throw new Error("child not found");
 
   // "The year you were N": the most recently completed year of life.
@@ -268,7 +268,7 @@ export async function createBook(formData: FormData) {
   const { data: existing } = await db
     .from("books")
     .select("id")
-    .eq("child_id", childId)
+    .eq("subject_id", subjectId)
     .eq("year_number", yearNumber)
     .maybeSingle();
   if (existing) redirect(`/books/${existing.id}`);
@@ -276,7 +276,7 @@ export async function createBook(formData: FormData) {
   const { data: book, error } = await db
     .from("books")
     .insert({
-      child_id: childId,
+      subject_id: subjectId,
       year_number: yearNumber,
       title: `The Year You Were ${yearNumber}`,
       start_date: start.toISOString().slice(0, 10),
@@ -343,7 +343,7 @@ export async function removePage(formData: FormData) {
     if (p.page_number !== n) await db.from("book_pages").update({ page_number: n }).eq("id", p.id);
     n++;
   }
-  const { data: book } = await db.from("books").select("child_id").eq("id", bookId).single();
+  const { data: book } = await db.from("books").select("subject_id").eq("id", bookId).single();
   await db.from("books").update({ page_count: (pages ?? []).length }).eq("id", bookId);
   revalidatePath(`/books/${bookId}`);
 }

@@ -7,12 +7,12 @@ import { yearWord } from "@/lib/book/structure";
 
 export const dynamic = "force-dynamic";
 
-export default async function ChildDashboard({ params }: { params: { childId: string } }) {
+export default async function ChildDashboard({ params }: { params: { subjectId: string } }) {
   const user = await currentUser();
   if (!user) redirect("/login");
   const db = userClient();
 
-  const { data: child } = await db.from("children").select("*").eq("id", params.childId).single();
+  const { data: child } = await db.from("subjects").select("*").eq("id", params.subjectId).single();
   if (!child) redirect("/home");
 
   const age = Math.max(
@@ -22,19 +22,19 @@ export default async function ChildDashboard({ params }: { params: { childId: st
 
   const [{ count: memoryCount }, { data: recent }, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }] =
     await Promise.all([
-      db.from("memories").select("id", { count: "exact", head: true }).eq("child_id", child.id),
-      db.from("memories").select("id, type, raw_text, memory_date").eq("child_id", child.id).order("created_at", { ascending: false }).limit(5),
-      db.from("memory_clusters").select("id, title, status").eq("child_id", child.id).eq("status", "suggested").limit(5),
-      db.from("follow_up_questions").select("id", { count: "exact", head: true }).eq("child_id", child.id).eq("status", "pending"),
-      db.from("little_things").select("id, category, value").eq("child_id", child.id).order("recorded_date", { ascending: false }).limit(3),
-      db.from("books").select("id, title, status").eq("child_id", child.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      db.from("memories").select("id", { count: "exact", head: true }).eq("subject_id", child.id),
+      db.from("memories").select("id, type, raw_text, memory_date").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(5),
+      db.from("memory_clusters").select("id, title, status").eq("subject_id", child.id).eq("status", "suggested").limit(5),
+      db.from("follow_up_questions").select("id", { count: "exact", head: true }).eq("subject_id", child.id).eq("status", "pending"),
+      db.from("little_things").select("id, category, value").eq("subject_id", child.id).order("recorded_date", { ascending: false }).limit(3),
+      db.from("books").select("id, title, status").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
 
   return (
     <div className="py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl">{child.first_name}</h1>
+          <h1 className="text-4xl">{child.display_name}</h1>
           <p className="mt-1 text-ink/60">
             The year {child.pronouns?.startsWith("he") ? "he is" : child.pronouns?.startsWith("she") ? "she is" : "they are"}{" "}
             {yearWord(Math.max(1, age)).toLowerCase()} · {memoryCount ?? 0} memories kept
@@ -46,18 +46,18 @@ export default async function ChildDashboard({ params }: { params: { childId: st
           </Link>
         ) : (
           <form action={createBook}>
-            <input type="hidden" name="child_id" value={child.id} />
+            <input type="hidden" name="subject_id" value={child.id} />
             <button className="btn">Create their book</button>
           </form>
         )}
       </div>
 
       <div className="mt-10 grid gap-4 md:grid-cols-3">
-        <Link href={`/children/${child.id}/upload`} className="card hover:border-clay">
+        <Link href={`/subjects/${child.id}/upload`} className="card hover:border-clay">
           <h2 className="text-lg">Add memories</h2>
           <p className="mt-1 text-sm text-ink/60">Photos, quotes, moments — straight from your camera roll.</p>
         </Link>
-        <Link href={`/children/${child.id}/little-things`} className="card hover:border-clay">
+        <Link href={`/subjects/${child.id}/little-things`} className="card hover:border-clay">
           <h2 className="text-lg">The little things</h2>
           <p className="mt-1 text-sm text-ink/60">
             {littleThings && littleThings.length > 0
@@ -65,7 +65,7 @@ export default async function ChildDashboard({ params }: { params: { childId: st
               : "Right now… what are they obsessed with?"}
           </p>
         </Link>
-        <Link href={`/children/${child.id}/questions`} className="card hover:border-clay">
+        <Link href={`/subjects/${child.id}/questions`} className="card hover:border-clay">
           <h2 className="text-lg">Questions waiting {questionCount ? <span className="text-clay">({questionCount})</span> : null}</h2>
           <p className="mt-1 text-sm text-ink/60">Only the ones the photos can&rsquo;t answer.</p>
         </Link>
@@ -75,7 +75,7 @@ export default async function ChildDashboard({ params }: { params: { childId: st
         <section className="mt-10">
           <div className="flex items-center justify-between">
             <h2 className="text-xl">Suggested stories</h2>
-            <Link href={`/children/${child.id}/clusters`} className="text-sm text-clay">Review all</Link>
+            <Link href={`/subjects/${child.id}/clusters`} className="text-sm text-clay">Review all</Link>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {clusters.map((c) => (

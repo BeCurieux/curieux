@@ -5,7 +5,7 @@ import { updateCluster } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function ClustersPage({ params }: { params: { childId: string } }) {
+export default async function ClustersPage({ params }: { params: { subjectId: string } }) {
   const user = await currentUser();
   if (!user) redirect("/login");
   const db = userClient();
@@ -13,7 +13,7 @@ export default async function ClustersPage({ params }: { params: { childId: stri
   const { data: clusters } = await db
     .from("memory_clusters")
     .select("*, cluster_memories(memory_id)")
-    .eq("child_id", params.childId)
+    .eq("subject_id", params.subjectId)
     .neq("status", "rejected")
     .order("created_at");
 
@@ -44,14 +44,14 @@ export default async function ClustersPage({ params }: { params: { childId: stri
                 {cluster.status === "suggested" && (
                   <form action={updateCluster}>
                     <input type="hidden" name="cluster_id" value={cluster.id} />
-                    <input type="hidden" name="child_id" value={params.childId} />
+                    <input type="hidden" name="subject_id" value={params.subjectId} />
                     <input type="hidden" name="action" value="keep" />
                     <button className="btn !px-4 !py-1.5 text-xs">Keep</button>
                   </form>
                 )}
                 <form action={updateCluster} className="flex items-center gap-2">
                   <input type="hidden" name="cluster_id" value={cluster.id} />
-                  <input type="hidden" name="child_id" value={params.childId} />
+                  <input type="hidden" name="subject_id" value={params.subjectId} />
                   <input type="hidden" name="action" value="rename" />
                   <input className="input !w-40 !py-1.5 text-xs" name="title" placeholder="Rename…" />
                   <button className="btn-secondary !px-4 !py-1.5 text-xs">Rename</button>
@@ -59,7 +59,7 @@ export default async function ClustersPage({ params }: { params: { childId: stri
                 {others.length > 1 && (
                   <form action={updateCluster} className="flex items-center gap-2">
                     <input type="hidden" name="cluster_id" value={cluster.id} />
-                    <input type="hidden" name="child_id" value={params.childId} />
+                    <input type="hidden" name="subject_id" value={params.subjectId} />
                     <input type="hidden" name="action" value="merge" />
                     <select className="input !w-40 !py-1.5 text-xs" name="into_cluster_id">
                       {others
@@ -73,7 +73,7 @@ export default async function ClustersPage({ params }: { params: { childId: stri
                 )}
                 <form action={updateCluster}>
                   <input type="hidden" name="cluster_id" value={cluster.id} />
-                  <input type="hidden" name="child_id" value={params.childId} />
+                  <input type="hidden" name="subject_id" value={params.subjectId} />
                   <input type="hidden" name="action" value="remove" />
                   <button className="text-xs text-ink/40 hover:text-red-600">Remove</button>
                 </form>

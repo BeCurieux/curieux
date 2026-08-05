@@ -6,7 +6,7 @@ import type { Memory, MemoryCluster } from "@/lib/types";
 
 const photo = (id: string, tags: string[] = [], people: string[] = []): Memory => ({
   id,
-  child_id: "c1",
+  subject_id: "c1",
   memory_date: "2025-06-01",
   type: "photo",
   raw_text: null,
@@ -19,7 +19,7 @@ const photo = (id: string, tags: string[] = [], people: string[] = []): Memory =
 
 const cluster = (id: string, title: string, ids: string[]): MemoryCluster => ({
   id,
-  child_id: "c1",
+  subject_id: "c1",
   title,
   summary: null,
   start_date: "2025-03-01",
@@ -32,7 +32,7 @@ const cluster = (id: string, title: string, ids: string[]): MemoryCluster => ({
 describe("book structure (§12)", () => {
   it("only includes sections with actual material", () => {
     const structure = proposeStructure({
-      child: { first_name: "Florence" },
+      subject: { display_name: "Florence", subject_type: "child" as const },
       yearNumber: 2,
       memories: [photo("m1"), photo("m2")],
       clusters: [],
@@ -52,7 +52,7 @@ describe("book structure (§12)", () => {
       cluster(`cl${i}`, `Cluster ${i}`, Array.from({ length: 3 + i }, (_, j) => `m${i}-${j}`))
     );
     const structure = proposeStructure({
-      child: { first_name: "Florence" },
+      subject: { display_name: "Florence", subject_type: "child" as const },
       yearNumber: 2,
       memories: [],
       clusters,
@@ -66,7 +66,7 @@ describe("book structure (§12)", () => {
 
   it("titles the book with the year word", () => {
     const structure = proposeStructure({
-      child: { first_name: "Florence" },
+      subject: { display_name: "Florence", subject_type: "child" as const },
       yearNumber: 2,
       memories: [],
       clusters: [],
@@ -91,7 +91,7 @@ describe("question engine limit (§10)", () => {
   it("counts already-asked questions against the budget", async () => {
     const ai = new MockAIProvider();
     const existing = Array.from({ length: 4 }, (_, i) => ({
-      child_id: "c1",
+      subject_id: "c1",
       question: `q${i}`,
       reason: "r",
       status: "pending" as const,

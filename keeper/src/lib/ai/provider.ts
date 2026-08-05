@@ -4,7 +4,7 @@
 // provenance (src/lib/book/provenance.ts) and editorial rules (src/lib/editorial.ts).
 
 import type {
-  BookStructureDraft, Child, ContentBlockDraft, FamilyMember, FollowUpQuestion,
+  BookStructureDraft, Subject, ContentBlockDraft, FamilyMember, FollowUpQuestion,
   LittleThing, Memory, MemoryCluster, PhotoAnalysis, SectionDraft,
 } from "@/lib/types";
 
@@ -16,8 +16,9 @@ export interface AnalyseMemoriesInput {
 }
 
 export interface DraftCopyInput {
-  child: Pick<Child, "first_name" | "pronouns">;
-  yearNumber: number;
+  subject: Pick<Subject, "display_name" | "pronouns">;
+  yearNumber?: number | null;
+  calendarYear?: number | null;
   section: SectionDraft;
   memories: Memory[];              // the section's source memories, full detail
   answers: FollowUpQuestion[];     // answered questions relevant to this child
@@ -40,8 +41,9 @@ export interface AIProvider {
 
   /** Propose a book structure from actual available material (§12). */
   generateBookStructure(input: {
-    child: Pick<Child, "first_name">;
-    yearNumber: number;
+    subject: Pick<Subject, "display_name" | "subject_type">;
+    yearNumber?: number | null;
+    calendarYear?: number | null;
     memories: Memory[];
     clusters: MemoryCluster[];
     littleThings: LittleThing[];

@@ -35,7 +35,7 @@ async function imageDimensions(file: File): Promise<{ width: number | null; heig
   });
 }
 
-export function Uploader({ childId }: { childId: string }) {
+export function Uploader({ subjectId }: { subjectId: string }) {
   const [items, setItems] = useState<Item[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,14 +64,14 @@ export function Uploader({ childId }: { childId: string }) {
             setItem(file.name, { state: "uploading" });
 
             const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-            const path = `${auth.user?.id}/${childId}/${checksum}.${ext}`;
+            const path = `${auth.user?.id}/${subjectId}/${checksum}.${ext}`;
             const { error: upErr } = await supabase.storage
               .from("media")
               .upload(path, file, { contentType: file.type, upsert: true });
             if (upErr && !upErr.message.includes("already exists")) throw upErr;
 
             const result = await registerUploadedPhoto({
-              childId,
+              subjectId,
               storagePath: path,
               checksum,
               mimeType: file.type,
@@ -88,7 +88,7 @@ export function Uploader({ childId }: { childId: string }) {
       });
       await Promise.all(workers);
     },
-    [childId]
+    [subjectId]
   );
 
   const doneCount = items.filter((i) => i.state === "done").length;

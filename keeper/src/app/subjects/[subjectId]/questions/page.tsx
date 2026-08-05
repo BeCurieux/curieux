@@ -5,14 +5,14 @@ import { answerQuestion } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function QuestionsPage({ params }: { params: { childId: string } }) {
+export default async function QuestionsPage({ params }: { params: { subjectId: string } }) {
   const user = await currentUser();
   if (!user) redirect("/login");
   const db = userClient();
   const { data: questions } = await db
     .from("follow_up_questions")
     .select("*")
-    .eq("child_id", params.childId)
+    .eq("subject_id", params.subjectId)
     .order("created_at");
 
   const pending = (questions ?? []).filter((q) => q.status === "pending");
@@ -31,7 +31,7 @@ export default async function QuestionsPage({ params }: { params: { childId: str
             <p className="font-display text-lg">{q.question}</p>
             <form action={answerQuestion} className="mt-3 flex flex-wrap items-center gap-2">
               <input type="hidden" name="question_id" value={q.id} />
-              <input type="hidden" name="child_id" value={params.childId} />
+              <input type="hidden" name="subject_id" value={params.subjectId} />
               <input className="input flex-1" name="answer" placeholder="Your answer…" />
               <button className="btn !px-4 !py-2 text-xs" name="action" value="answer">Answer</button>
               <button className="text-xs text-ink/40 hover:text-ink" name="action" value="dismiss">Skip</button>

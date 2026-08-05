@@ -46,7 +46,7 @@ export class MockAIProvider implements AIProvider {
         .filter((d): d is string => !!d)
         .sort();
       clusters.push({
-        child_id: members[0].child_id,
+        subject_id: members[0].subject_id,
         title: titleCase(tag.replace(/_/g, " ")),
         summary: null,
         start_date: dates[0] ?? null,
@@ -72,7 +72,7 @@ export class MockAIProvider implements AIProvider {
       if (cluster.memory_ids.length < 4) continue;
       const span = cluster.start_date && cluster.end_date && cluster.start_date !== cluster.end_date;
       questions.push({
-        child_id: cluster.child_id,
+        subject_id: cluster.subject_id,
         cluster_id: cluster.id ?? null,
         question: span
           ? `"${cluster.title}" shows up from ${cluster.start_date} to ${cluster.end_date}. Did anything change about it over the year?`

@@ -17,7 +17,7 @@ export default async function AdminPage() {
   const [{ count: users }, { count: children }, { count: books }, { data: failedJobs }, { data: orders }] =
     await Promise.all([
       db.from("profiles").select("id", { count: "exact", head: true }),
-      db.from("children").select("id", { count: "exact", head: true }),
+      db.from("subjects").select("id", { count: "exact", head: true }),
       db.from("books").select("id", { count: "exact", head: true }),
       db.from("jobs").select("*").in("status", ["failed", "dead"]).order("updated_at", { ascending: false }).limit(20),
       db.from("print_orders").select("*").order("created_at", { ascending: false }).limit(20),

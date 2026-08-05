@@ -44,7 +44,7 @@ export function readImageMeta(buf: Buffer): ImageMeta {
   return { width: null, height: null, mimeType: null };
 }
 
-/** Storage path convention enforced by RLS: <user_id>/<child_id>/<name> */
-export function mediaPath(userId: string, childId: string, checksum: string, ext: string): string {
-  return `${userId}/${childId}/${checksum}.${ext.replace(/[^a-z0-9]/gi, "")}`;
+/** Storage path convention enforced by RLS: <user_id>/<subject_id>/<name> */
+export function mediaPath(userId: string, subjectId: string, checksum: string, ext: string): string {
+  return `${userId}/${subjectId}/${checksum}.${ext.replace(/[^a-z0-9]/gi, "")}`;
 }

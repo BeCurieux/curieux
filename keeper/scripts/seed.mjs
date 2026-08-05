@@ -130,16 +130,17 @@ async function main() {
   }
 
   // 3. Florence
-  const { data: child } = await db
-    .from("children")
+  const { data: subject } = await db
+    .from("subjects")
     .insert({
       family_id: family.id,
-      first_name: "Florence",
+      display_name: "Florence",
+      subject_type: "child",
       date_of_birth: dob.toISOString().slice(0, 10),
       pronouns: "she/her",
     })
     .select("id").single();
-  console.log("Created Florence", child.id);
+  console.log("Created Florence", subject.id);
 
   // 4. Memories
   let count = 0;
@@ -147,7 +148,7 @@ async function main() {
     const { data: memory } = await db
       .from("memories")
       .insert({
-        child_id: child.id,
+        subject_id: subject.id,
         created_by: userId,
         type,
         raw_text: text,
@@ -170,7 +171,7 @@ async function main() {
   // 5. Little things
   for (const [category, value] of LITTLE_THINGS) {
     await db.from("little_things").insert({
-      child_id: child.id,
+      subject_id: subject.id,
       category,
       value,
       recorded_date: day(120),
@@ -181,8 +182,8 @@ async function main() {
   // 6. Queue the AI pipeline so clusters/questions appear after `npm run jobs`.
   await db.from("jobs").insert({
     type: "analyse_memories",
-    payload: { child_id: child.id },
-    idempotency_key: `seed-analyse-${child.id}`,
+    payload: { subject_id: subject.id },
+    idempotency_key: `seed-analyse-${subject.id}`,
   });
 
   console.log(`\nDone. Log in as ${SEED_EMAIL} / ${SEED_PASSWORD}`);

@@ -6,7 +6,7 @@ export default function UploadPage({
   params,
   searchParams,
 }: {
-  params: { childId: string };
+  params: { subjectId: string };
   searchParams: { welcome?: string };
 }) {
   return (
@@ -25,7 +25,7 @@ export default function UploadPage({
           you don&rsquo;t need to wait around.
         </p>
         <div className="mt-4">
-          <Uploader childId={params.childId} />
+          <Uploader subjectId={params.subjectId} />
         </div>
       </section>
 
@@ -33,7 +33,7 @@ export default function UploadPage({
         <div>
           <h2 className="text-lg">Add a quote</h2>
           <form action={addTextMemory} className="mt-3 space-y-3">
-            <input type="hidden" name="child_id" value={params.childId} />
+            <input type="hidden" name="subject_id" value={params.subjectId} />
             <input type="hidden" name="type" value="quote" />
             <textarea className="input h-24" name="text" placeholder={"Something they said, exactly how they said it.\n“I do it!”"} />
             <input className="input" type="date" name="memory_date" />
@@ -43,7 +43,7 @@ export default function UploadPage({
         <div>
           <h2 className="text-lg">Tell us something</h2>
           <form action={addTextMemory} className="mt-3 space-y-3">
-            <input type="hidden" name="child_id" value={params.childId} />
+            <input type="hidden" name="subject_id" value={params.subjectId} />
             <input type="hidden" name="type" value="text" />
             <textarea className="input h-24" name="text" placeholder="A moment you don't want to lose. A sentence is plenty." />
             <input className="input" type="date" name="memory_date" />
@@ -53,7 +53,7 @@ export default function UploadPage({
       </section>
 
       <p className="mt-12 text-sm text-ink/50">
-        Done for now? <Link className="text-clay" href={`/children/${params.childId}`}>Back to their year</Link>
+        Done for now? <Link className="text-clay" href={`/subjects/${params.subjectId}`}>Back to their year</Link>
       </p>
     </div>
   );

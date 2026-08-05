@@ -12,15 +12,23 @@ export type BookStatus =
 
 export type SectionType =
   | "opening" | "month" | "people" | "little_things" | "theme" | "trip"
-  | "quotes" | "ordinary_days" | "change_over_time" | "closing";
+  | "quotes" | "ordinary_days" | "change_over_time" | "era" | "closing";
 
 export type BlockType = "text" | "photo" | "quote" | "heading" | "caption";
 
-export interface Child {
+export type SubjectType = "child" | "family" | "life";
+
+/**
+ * Whatever the book is about: one child's year, a household's year, or a
+ * whole life. Per-type behaviour lives in lib/subjects/config.ts.
+ */
+export interface Subject {
   id: string;
   family_id: string;
-  first_name: string;
-  date_of_birth: string;
+  subject_type: SubjectType;
+  display_name: string;
+  /** Required for children; optional for families and life stories. */
+  date_of_birth: string | null;
   pronouns: string | null;
 }
 
@@ -34,7 +42,7 @@ export interface FamilyMember {
 
 export interface Memory {
   id: string;
-  child_id: string;
+  subject_id: string;
   memory_date: string | null;
   type: MemoryType;
   raw_text: string | null;
@@ -59,7 +67,7 @@ export interface MediaAsset {
 
 export interface MemoryCluster {
   id?: string;
-  child_id: string;
+  subject_id: string;
   title: string;
   summary: string | null;
   start_date: string | null;
@@ -71,7 +79,7 @@ export interface MemoryCluster {
 
 export interface FollowUpQuestion {
   id?: string;
-  child_id: string;
+  subject_id: string;
   cluster_id?: string | null;
   question: string;
   reason: string;
@@ -81,7 +89,7 @@ export interface FollowUpQuestion {
 
 export interface LittleThing {
   id?: string;
-  child_id: string;
+  subject_id: string;
   recorded_date: string;
   category: string;
   value: string;

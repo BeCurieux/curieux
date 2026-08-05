@@ -10,8 +10,8 @@ export default function OnboardingPage({ searchParams }: { searchParams: { error
       )}
       <form action={createChild} className="mt-8 space-y-4">
         <div>
-          <label className="label" htmlFor="first_name">Their first name</label>
-          <input className="input" id="first_name" name="first_name" required />
+          <label className="label" htmlFor="display_name">Their first name</label>
+          <input className="input" id="display_name" name="display_name" required />
         </div>
         <div>
           <label className="label" htmlFor="date_of_birth">Their birthday</label>

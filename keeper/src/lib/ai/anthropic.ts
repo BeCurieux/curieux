@@ -56,16 +56,16 @@ export class AnthropicProvider implements AIProvider {
   }
 
   async clusterMemories(memories: Memory[]): Promise<MemoryCluster[]> {
-    const out = await this.json<{ clusters: Omit<MemoryCluster, "child_id" | "status">[] }>(
+    const out = await this.json<{ clusters: Omit<MemoryCluster, "subject_id" | "status">[] }>(
       EDITORIAL_SYSTEM,
       clusterPrompt(JSON.stringify(strip(memories)))
     );
     const known = new Set(memories.map((m) => m.id));
-    const childId = memories[0]?.child_id;
+    const subjectId = memories[0]?.subject_id;
     return (out.clusters ?? [])
       .map((c) => ({
         ...c,
-        child_id: childId,
+        subject_id: subjectId,
         status: "suggested" as const,
         confidence: clamp01(c.confidence),
         memory_ids: (c.memory_ids ?? []).filter((id) => known.has(id)),
@@ -88,9 +88,9 @@ export class AnthropicProvider implements AIProvider {
         `Already asked (do not repeat): ${JSON.stringify(existing.map((q) => q.question))}\n` +
         `Respond with JSON: {"questions":[{"question":string,"reason":string,"cluster_id":string|null}]}`
     );
-    const childId = memories[0]?.child_id;
+    const subjectId = memories[0]?.subject_id;
     return (out.questions ?? []).slice(0, budget).map((q) => ({
-      child_id: childId,
+      subject_id: subjectId,
       cluster_id: q.cluster_id ?? null,
       question: q.question,
       reason: q.reason,
@@ -139,7 +139,7 @@ Respond with JSON: {"titles":{"<index>":"<new title>"}}`
     const out = await this.json<{ blocks: ContentBlockDraft[] }>(
       EDITORIAL_SYSTEM,
       copyPrompt(
-        JSON.stringify({ title: input.section.title, type: input.section.section_type, child: input.child.first_name, year: input.yearNumber }),
+        JSON.stringify({ title: input.section.title, type: input.section.section_type, subject: input.subject.display_name, year: input.yearNumber }),
         JSON.stringify(material)
       )
     );
