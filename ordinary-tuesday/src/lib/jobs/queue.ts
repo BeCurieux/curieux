@@ -12,7 +12,9 @@ export type JobType =
   | "generate_book"
   | "render_pdf"
   | "submit_print"
-  | "poll_print_status";
+  | "poll_print_status"
+  /** Daily sweep: tells parents what is waiting, and warns of a closing year. */
+  | "notify_digest";
 
 export interface Job {
   id: string;

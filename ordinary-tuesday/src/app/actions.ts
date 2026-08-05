@@ -21,6 +21,8 @@ import { roleForSubject, roleInFamily } from "@/lib/family/membership";
 import {
   canComment, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
+import { sendOnce } from "@/lib/email/send";
+import { invitation as invitationEmail } from "@/lib/email/messages";
 
 function anonAuthClient() {
   return createClient(
@@ -542,13 +544,33 @@ export async function inviteToFamily(formData: FormData) {
   // A pending invitation for the same address already exists.
   if (error) redirect(`${back}?error=${encodeURIComponent("They have already been invited")}`);
 
-  // The invitee needs this link. Until email exists, it is shown to the
-  // person who sent it so they can pass it on themselves.
   if (displayName) {
     await db.from("family_members").insert({
       family_id: familyId, name: displayName, relationship: role === "editor" ? "parent" : "family",
     });
   }
+
+  // Send it. The link is still shown to the inviter afterwards, because a
+  // grandparent's mail provider is not to be trusted with something they are
+  // waiting for, and passing it on by hand should always be possible.
+  const admin = adminClient();
+  const { data: subjects } = await admin
+    .from("subjects").select("display_name").eq("family_id", familyId).limit(1);
+  const { data: inviter } = await admin
+    .from("profiles").select("email").eq("id", user.id).maybeSingle();
+
+  await sendOnce(admin, {
+    kind: "invitation",
+    dedupeKey: `invitation-${token}`,
+    subjectId: null,
+    message: invitationEmail({
+      to: { email },
+      childName: subjects?.[0]?.display_name ?? "their grandchild",
+      invitedByName: inviter?.email?.split("@")[0] ?? "Someone",
+      token,
+    }),
+  });
+
   redirect(`${back}?invited=${encodeURIComponent(token)}`);
 }
 
@@ -660,6 +682,34 @@ export async function deleteComment(formData: FormData) {
   const db = userClient();
   await db.from("memory_comments").delete().eq("id", String(formData.get("comment_id")));
   revalidatePath(`/subjects/${String(formData.get("subject_id"))}/years`);
+}
+
+/**
+ * What we may write to someone about.
+ *
+ * Reachable from a token in an email footer as well as from a session, so a
+ * person can stop the mail without remembering a password — which is the
+ * difference between an unsubscribe link and a mark-as-spam.
+ */
+export async function updateNotificationPreferences(formData: FormData) {
+  const token = String(formData.get("token") ?? "");
+  const prefs = {
+    contributions_waiting: formData.get("contributions_waiting") === "on",
+    year_closing: formData.get("year_closing") === "on",
+    updated_at: new Date().toISOString(),
+  };
+
+  if (token) {
+    const admin = adminClient();
+    await admin.from("email_preferences").update(prefs).eq("opt_out_token", token);
+    redirect(`/settings/notifications?t=${encodeURIComponent(token)}&saved=1`);
+  }
+
+  const user = await requireUser();
+  await userClient()
+    .from("email_preferences")
+    .upsert({ user_id: user.id, ...prefs }, { onConflict: "user_id" });
+  redirect("/settings/notifications?saved=1");
 }
 
 // ----------------------------------------------------------------- admin

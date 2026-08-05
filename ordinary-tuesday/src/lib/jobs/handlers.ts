@@ -14,6 +14,12 @@ import { FORMAT, imageTier } from "@/lib/book/format";
 import { colourForAge } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
+import { sendOnce } from "@/lib/email/send";
+import { runDigestFor } from "@/lib/email/digest";
+import {
+  bookReady as bookReadyEmail,
+  orderShipped as orderShippedEmail,
+} from "@/lib/email/messages";
 import type { ContentBlockDraft, MediaAsset, Memory } from "@/lib/types";
 
 type Handler = (db: SupabaseClient, payload: Record<string, unknown>) => Promise<void>;
@@ -26,6 +32,7 @@ export const handlers: Record<string, Handler> = {
   render_pdf: renderPdf,
   submit_print: submitPrint,
   poll_print_status: pollPrintStatus,
+  notify_digest: notifyDigest,
 };
 
 export async function runJob(db: SupabaseClient, job: Job): Promise<void> {
@@ -291,6 +298,90 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
     .from("books")
     .update({ status: "review", title: structure.title, subtitle: structure.subtitle ?? null, page_count: pages.length })
     .eq("id", bookId);
+
+  // The book is made and the parent has no idea. Until now this was the
+  // largest hole in the whole flow: the product silently waited to be
+  // rediscovered.
+  await notifyBookReady(db, bookId, structure.title);
+}
+
+/** Tell whoever keeps the archive that their book is ready to read. */
+async function notifyBookReady(db: SupabaseClient, bookId: string, title: string) {
+  const { data: book } = await db
+    .from("books")
+    .select("id, subject_id, subjects(display_name, family_id)")
+    .eq("id", bookId)
+    .maybeSingle();
+  const subject = (book as any)?.subjects;
+  if (!subject) return;
+
+  const owner = await familyOwner(db, subject.family_id);
+  if (!owner) return;
+
+  await sendOnce(db, {
+    kind: "book_ready",
+    dedupeKey: `book_ready-${bookId}`,
+    userId: owner.userId,
+    subjectId: book!.subject_id,
+    message: bookReadyEmail({
+      to: { email: owner.email },
+      childName: subject.display_name,
+      bookTitle: title,
+      bookId,
+    }),
+  });
+}
+
+/**
+ * The daily sweep — what is waiting, and whether a year is about to close.
+ * Enqueued once a day by the scheduler that already drives the job runner.
+ */
+async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>) {
+  // The day is passed in so a re-run reproduces the same decisions, and so
+  // the batching window can be tested.
+  const now = payload.day ? new Date(String(payload.day)) : new Date();
+
+  const { data: subjects } = await db
+    .from("subjects")
+    .select("id, display_name, date_of_birth, family_id");
+
+  for (const s of subjects ?? []) {
+    const { count } = await db
+      .from("memories")
+      .select("id", { count: "exact", head: true })
+      .eq("subject_id", s.id)
+      .eq("contribution_status", "pending");
+
+    const owner = await familyOwner(db, s.family_id);
+
+    await runDigestFor(
+      db,
+      {
+        id: s.id,
+        displayName: s.display_name,
+        dateOfBirth: s.date_of_birth,
+        familyId: s.family_id,
+        pendingCount: count ?? 0,
+        owner,
+      },
+      now
+    );
+  }
+}
+
+/** The owner of a family, with the address to write to. */
+async function familyOwner(
+  db: SupabaseClient,
+  familyId: string
+): Promise<{ userId: string; email: string } | null> {
+  const { data } = await db
+    .from("family_memberships")
+    .select("user_id, profiles(email)")
+    .eq("family_id", familyId)
+    .eq("role", "owner")
+    .maybeSingle();
+  const email = (data as any)?.profiles?.email;
+  return data && email ? { userId: data.user_id, email } : null;
 }
 
 async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
@@ -552,6 +643,34 @@ async function pollPrintStatus(db: SupabaseClient, payload: Record<string, unkno
   };
   if (bookStatusMap[newStatus]) {
     await db.from("books").update({ status: bookStatusMap[newStatus] }).eq("id", order.book_id);
+  }
+
+  // Told once, when it actually leaves. sendOnce keeps the repeated polling
+  // from turning that into a message every few hours.
+  if (newStatus === "shipped" && order.status !== "shipped") {
+    const { data: book } = await db
+      .from("books")
+      .select("id, title, subject_id, subjects(family_id)")
+      .eq("id", order.book_id)
+      .maybeSingle();
+    const familyId = (book as any)?.subjects?.family_id;
+    if (familyId) {
+      const owner = await familyOwner(db, familyId);
+      if (owner) {
+        await sendOnce(db, {
+          kind: "order_shipped",
+          dedupeKey: `order_shipped-${printOrderId}`,
+          userId: owner.userId,
+          subjectId: book!.subject_id,
+          message: orderShippedEmail({
+            to: { email: owner.email },
+            bookTitle: book!.title,
+            orderId: printOrderId,
+            trackingUrl: tracking.trackingUrl,
+          }),
+        });
+      }
+    }
   }
 
   // Keep polling until a terminal state; backoff handled via run_after.
