@@ -7,6 +7,7 @@
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { DEMO_USER, demoClient, isDemoMode } from "./demo";
 
 const url = () => process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anonKey = () => process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -16,6 +17,9 @@ export const REFRESH_COOKIE = "kp-refresh-token";
 
 /** RLS-enforced client authenticated as the current user (or anon). */
 export function userClient(): SupabaseClient {
+  // Demo mode runs the whole interface against an in-memory fixture so the
+  // product can be walked end to end without provisioning anything.
+  if (isDemoMode()) return demoClient();
   const token = cookies().get(ACCESS_COOKIE)?.value;
   return createClient(url(), anonKey(), {
     global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
@@ -24,6 +28,7 @@ export function userClient(): SupabaseClient {
 }
 
 export async function currentUser() {
+  if (isDemoMode()) return DEMO_USER as any;
   const token = cookies().get(ACCESS_COOKIE)?.value;
   if (!token) return null;
   const { data, error } = await userClient().auth.getUser(token);
@@ -39,6 +44,7 @@ export async function requireUser() {
 
 /** Service-role client. RLS bypassed — jobs/webhooks/admin only. */
 export function adminClient(): SupabaseClient {
+  if (isDemoMode()) return demoClient();
   return createClient(url(), process.env.SUPABASE_SERVICE_ROLE_KEY!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -46,6 +52,7 @@ export function adminClient(): SupabaseClient {
 
 export async function requireAdmin() {
   const user = await requireUser();
+  if (isDemoMode()) return user;
   const { data } = await adminClient()
     .from("profiles")
     .select("is_admin")

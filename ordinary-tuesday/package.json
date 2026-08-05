@@ -2,7 +2,7 @@
   "name": "ordinary-tuesday",
   "private": true,
   "version": "0.1.0",
-  "description": "Ordinary Tuesday (working brand TBD) — turns a parent's photos, quotes and memories into a beautifully designed annual childhood book. You live it. We help you keep it.",
+  "description": "Ordinary Tuesday (working brand TBD) \u2014 turns a parent's photos, quotes and memories into a beautifully designed annual childhood book. You live it. We help you keep it.",
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "seed": "node scripts/seed.mjs",
     "jobs": "node scripts/run-jobs.mjs",
-    "sample": "CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome tsx scripts/sample-book.ts"
+    "sample": "CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome tsx scripts/sample-book.ts",
+    "demo": "DEMO_MODE=1 next dev -p 3000"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",

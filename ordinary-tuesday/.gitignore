@@ -9,3 +9,5 @@ sample/*
 !sample/photos/
 sample/photos/*
 !sample/photos/README.md
+
+sample/ui/
