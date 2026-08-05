@@ -5,4 +5,7 @@ node_modules/
 .env*.local
 *.tsbuildinfo
 
-sample/
+sample/*
+!sample/photos/
+sample/photos/*
+!sample/photos/README.md
