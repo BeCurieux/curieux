@@ -423,6 +423,7 @@ export async function approveBook(formData: FormData) {
   await admin.rpc("mint_listen_token", { bid: bookId });
 
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "print" }, `render-print-${bookId}-${approvedAt}`);
+  await enqueue(admin, "render_pdf", { book_id: bookId, target: "cover" }, `render-cover-${bookId}-${approvedAt}`);
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "digital" }, `render-digital-${bookId}-${approvedAt}`);
   redirect(`/books/${bookId}/checkout`);
 }

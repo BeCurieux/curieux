@@ -7,8 +7,9 @@ import { getAIProvider } from "@/lib/ai/provider";
 import { getPrintProvider } from "@/lib/print/provider";
 import { enqueue, type Job } from "./queue";
 import { paginateBook, littleThingsBlocks } from "@/lib/book/generate";
-import { renderBookPdf } from "@/lib/pdf/render";
-import { runPreflight, type PlacedImage } from "@/lib/pdf/preflight";
+import { renderBookPdf, renderCoverPdf } from "@/lib/pdf/render";
+import { runPreflight, runCoverPreflight, type PlacedImage } from "@/lib/pdf/preflight";
+import { PAPER_STOCKS, coverGeometry, spineTakesText } from "@/lib/pdf/cover";
 import { BOOK_SPEC } from "@/lib/book/structure";
 import { sha256 } from "@/lib/media";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
@@ -283,11 +284,16 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
 
 async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
   const bookId = payload.book_id as string;
-  const target = (payload.target as "digital" | "print") ?? "digital";
+  const target = (payload.target as "digital" | "print" | "cover") ?? "digital";
   const { data: book } = await db.from("books").select("*").eq("id", bookId).single();
   if (!book) throw new Error("book not found");
-  if (target === "print" && book.status !== "approved" && book.status !== "rendering") {
+  if (target !== "digital" && book.status !== "approved" && book.status !== "rendering") {
     throw new Error("print render requires an approved book (§21)");
+  }
+
+  if (target === "cover") {
+    await renderCover(db, book);
+    return;
   }
 
   const { data: pageRows } = await db
@@ -387,6 +393,70 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
   await db.from("books").update(update).eq("id", bookId);
 }
 
+/**
+ * The cover is a separate sheet whose width depends on how thick the book
+ * physically is — so it can only be rendered once the page count is final,
+ * i.e. after approval.
+ */
+async function renderCover(db: SupabaseClient, book: any) {
+  const stock = PAPER_STOCKS[process.env.PAPER_STOCK ?? "mohawk_superfine_eggshell"];
+  if (!stock) throw new Error(`unknown paper stock: ${process.env.PAPER_STOCK}`);
+
+  const pageCount = book.page_count ?? 0;
+  if (!pageCount) throw new Error("cannot size a spine without a final page count");
+
+  const geo = coverGeometry(pageCount, stock);
+  const spineText = spineTakesText(geo.spineWidthInches)
+    ? `${book.title}${book.subtitle ? ` · ${book.subtitle}` : ""}`
+    : undefined;
+
+  const preflight = runCoverPreflight({ pageCount, stock, geometry: geo, spineText });
+  if (!preflight.passed) {
+    throw new Error(
+      `cover preflight failed: ${preflight.issues.filter((i) => i.severity === "error").map((i) => i.message).join("; ")}`
+    );
+  }
+  for (const warning of preflight.issues.filter((i) => i.severity === "warning")) {
+    console.warn(`[cover ${book.id}] ${warning.code}: ${warning.message}`);
+  }
+
+  // The front-cover photograph: the first full-bleed image in the book.
+  let frontImageUrl: string | undefined;
+  const { data: firstPhoto } = await db
+    .from("book_pages")
+    .select("book_content_blocks(type, content)")
+    .eq("book_id", book.id)
+    .order("page_number")
+    .limit(4);
+  const firstMemoryId = (firstPhoto ?? [])
+    .flatMap((p: any) => p.book_content_blocks ?? [])
+    .find((b: any) => b.type === "photo")?.content;
+  if (firstMemoryId) {
+    const { data: asset } = await db
+      .from("media_assets")
+      .select("storage_path")
+      .eq("memory_id", firstMemoryId)
+      .maybeSingle();
+    if (asset) {
+      const { data: signed } = await db.storage.from("media").createSignedUrl(asset.storage_path, 600);
+      frontImageUrl = signed?.signedUrl;
+    }
+  }
+
+  const pdf = await renderCoverPdf(
+    { title: book.title, subtitle: book.subtitle ?? undefined, imprint: "Keeper", frontImageUrl },
+    geo
+  );
+
+  const path = `books/${book.id}/cover-${sha256(pdf).slice(0, 12)}.pdf`;
+  const { error } = await db.storage
+    .from("renders")
+    .upload(path, pdf, { contentType: "application/pdf", upsert: true });
+  if (error) throw new Error(error.message);
+
+  await db.from("books").update({ cover_pdf_path: path }).eq("id", book.id);
+}
+
 async function submitPrint(db: SupabaseClient, payload: Record<string, unknown>) {
   const printOrderId = payload.print_order_id as string;
   const { data: order } = await db.from("print_orders").select("*").eq("id", printOrderId).single();
@@ -402,7 +472,10 @@ async function submitPrint(db: SupabaseClient, payload: Record<string, unknown>)
   const { data: interior } = await db.storage
     .from("renders")
     .createSignedUrl(book.print_pdf_path, 3600);
-  const coverPath = book.cover_pdf_path ?? book.print_pdf_path;
+  // A real cover is now required: falling back to the interior would print a
+  // book with a page where its front should be.
+  if (!book.cover_pdf_path) throw new Error("cover PDF not rendered");
+  const coverPath = book.cover_pdf_path;
   const { data: cover } = await db.storage.from("renders").createSignedUrl(coverPath, 3600);
   if (!interior?.signedUrl || !cover?.signedUrl) throw new Error("could not sign print assets");
 

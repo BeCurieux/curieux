@@ -6,6 +6,7 @@
 
 import { chromium } from "playwright-core";
 import { renderBookHtml, type RenderBook, type RenderTarget } from "./html";
+import { renderCoverHtml, type CoverContent, type CoverGeometry } from "./cover";
 
 export interface RenderResult {
   pdf: Buffer;
@@ -52,6 +53,29 @@ export async function renderBookPdf(book: RenderBook, target: RenderTarget): Pro
       pageCount: book.pages.length,
       overflowPages,
     };
+  } finally {
+    await browser.close();
+  }
+}
+
+/**
+ * The cover prints as one flat sheet — back, spine, front — sized from the
+ * page count and the paper's caliper. Separate from the interior PDF because
+ * the press runs it on different stock, in a different pass.
+ */
+export async function renderCoverPdf(
+  content: CoverContent,
+  geo: CoverGeometry
+): Promise<Buffer> {
+  const browser = await chromium.launch({
+    executablePath: process.env.CHROMIUM_PATH || undefined,
+    args: ["--no-sandbox", "--font-render-hinting=none"],
+  });
+  try {
+    const page = await browser.newPage();
+    await page.setContent(renderCoverHtml(content, geo), { waitUntil: "networkidle" });
+    const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true, scale: 1 });
+    return Buffer.from(pdf);
   } finally {
     await browser.close();
   }
