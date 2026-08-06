@@ -130,6 +130,35 @@ export default function PrivacyExplainerPage() {
         </section>
 
         <section className="border-t border-rule py-12">
+          <h2 className="text-title">The address you can send things to</h2>
+          {/* A new way in deserves saying out loud in the same place as
+              everything else, including the part that is a downside. A
+              private address is a convenience and a key, and a page that
+              describes only the convenience is a page doing marketing. */}
+          <p className="mt-3 max-w-[56ch] leading-relaxed text-stone">
+            Each child has a long, random, private email address, so you can
+            forward something in without opening anything. Two things follow
+            from that, and the second one matters.
+          </p>
+          <p className="mt-3 max-w-[56ch] leading-relaxed text-stone">
+            It is a key. Anyone who has it can add to that child&rsquo;s
+            archive &mdash; so by default we only accept mail from people
+            already in your family, and everything else is turned away. You can
+            change that, and you can replace the address at any time, which
+            stops the old one working immediately. Nobody who has it can{" "}
+            <em>read</em> anything: it only goes one way.
+          </p>
+          <p className="mt-3 max-w-[56ch] leading-relaxed text-stone">
+            Mail reaches us through an email provider, the same way the
+            messages we send you do. That is a company outside our systems
+            handling the message on its way in, and we would rather you knew
+            that than found out. Once it arrives, an emailed photograph is
+            treated exactly like an uploaded one &mdash; opened, checked, and
+            never shown to anyone until it passes.
+          </p>
+        </section>
+
+        <section className="border-t border-rule py-12">
           <h2 className="text-title">What we deliberately don&rsquo;t collect</h2>
           <p className="mt-3 max-w-[56ch] text-stone">
             The safest data is the data nobody has. We ask for a first name, a

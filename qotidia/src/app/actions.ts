@@ -1319,3 +1319,139 @@ export async function answerNoticed(formData: FormData) {
 
   revalidatePath(`/subjects/${subjectId}`);
 }
+
+// ------------------------------------------------------------- the inbox
+
+/**
+ * Answer the one open question about an arrival, or decide not to.
+ *
+ * "Keep it undated" is offered as plainly as a date, and does the same
+ * thing to the row: it clears the question. An archive that will not let
+ * you say "I don't remember" is an archive that collects wrong answers,
+ * and a wrong date is worse than none — it moves a memory into the wrong
+ * year and the wrong book, where nothing downstream can tell it was a guess.
+ */
+export async function fileArrivalAction(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const memoryId = String(formData.get("memory_id"));
+  const subjectId = String(formData.get("subject_id"));
+  // Which button was pressed, not merely what is in the field. Someone who
+  // types a date, thinks better of it and presses "I don't know" has said
+  // they don't know, and reading the field anyway would record a date they
+  // just withdrew.
+  const saidUnknown = String(formData.get("intent") ?? "") === "unknown";
+  const date = saidUnknown ? "" : String(formData.get("memory_date") ?? "").trim();
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change this archive");
+  }
+
+  await db
+    .from("memories")
+    .update({
+      filed_at: new Date().toISOString(),
+      ...(date ? { memory_date: date } : {}),
+    })
+    .eq("id", memoryId)
+    .eq("subject_id", subjectId);
+
+  revalidatePath(`/subjects/${subjectId}/inbox`);
+}
+
+/**
+ * Move an arrival to the child it was actually about.
+ *
+ * Only ever a correction of our own guess: a share sheet cannot ask whose
+ * photograph it is, so a family with two children gets one. Checked on both
+ * ends, because moving a memory between subjects is moving it between two
+ * sets of permissions.
+ */
+export async function moveArrival(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const memoryId = String(formData.get("memory_id"));
+  const fromSubject = String(formData.get("subject_id"));
+  const toSubject = String(formData.get("to_subject_id"));
+
+  for (const id of [fromSubject, toSubject]) {
+    const membership = await roleForSubject(db, id, user.id);
+    if (!membership || !canEdit(membership.role)) {
+      throw new Error("not allowed to move this");
+    }
+  }
+
+  await db
+    .from("memories")
+    .update({ subject_id: toSubject, filed_at: new Date().toISOString() })
+    .eq("id", memoryId)
+    .eq("subject_id", fromSubject);
+
+  revalidatePath(`/subjects/${fromSubject}/inbox`);
+  revalidatePath(`/subjects/${toSubject}/inbox`);
+}
+
+/**
+ * Issue a new private address, retiring the old one immediately.
+ *
+ * Anything given out eventually ends up somewhere it should not be — a
+ * forwarded thread, a screenshot in a group chat — and a write credential
+ * you cannot change is one you can only hope about. Recorded in the activity
+ * log, because a rotation somebody did not perform is worth them seeing.
+ */
+export async function rotateInboxAddress(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change this archive");
+  }
+
+  const { newToken } = await import("@/lib/inbox/address");
+  await db
+    .from("subject_inboxes")
+    .upsert(
+      { subject_id: subjectId, token: newToken(), rotated_at: new Date().toISOString() },
+      { onConflict: "subject_id" }
+    );
+
+  const { data: subject } = await db
+    .from("subjects")
+    .select("family_id")
+    .eq("id", subjectId)
+    .maybeSingle();
+
+  await record(adminClient(), {
+    familyId: subject?.family_id,
+    subjectId,
+    actorId: user.id,
+    actorLabel: user.email ?? "a parent",
+    kind: "inbox_address_rotated",
+    detail: "The old address stopped working straight away.",
+  });
+
+  revalidatePath(`/subjects/${subjectId}/inbox`);
+}
+
+/** Whether mail from outside the family is reviewed or refused. */
+export async function setInboxOpenness(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const open = formData.get("accept_from_anyone") === "on";
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change this archive");
+  }
+
+  await db
+    .from("subject_inboxes")
+    .update({ accept_from_anyone: open })
+    .eq("subject_id", subjectId);
+
+  revalidatePath(`/subjects/${subjectId}/inbox`);
+}

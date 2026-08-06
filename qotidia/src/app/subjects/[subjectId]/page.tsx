@@ -103,6 +103,15 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   const look = await loadLookBack(db, child.id, { userId: user.id, role });
   const renewalPrice = await bookPriceFor(db, child.family_id);
 
+  // How much is sitting in the inbox. Almost always zero — arrivals file
+  // themselves — so the link reads as an offer rather than a chore queue.
+  const { count: waitingToFile } = await db
+    .from("memories")
+    .select("id", { count: "exact", head: true })
+    .eq("subject_id", child.id)
+    .is("filed_at", null)
+    .not("arrived_via", "is", null);
+
   // This week's noticing. Written the first time somebody who can answer it
   // opens the page, and read from then on — so the sentence holds still for
   // the week and the Keep/Ignore buttons have a row to point at.
@@ -188,6 +197,18 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           </p>
         </Link>
       </div>
+
+      {/* The cards above are about coming here to add something. This is
+          about not having to — which is the version people are still doing in
+          March, and therefore the one worth a line on the page rather than a
+          setting nobody opens. */}
+      <p className="mt-4 text-sm">
+        <Link href={`/subjects/${child.id}/inbox`} className="text-ochre hover:underline">
+          {(waitingToFile ?? 0) > 0
+            ? `${countOf(waitingToFile ?? 0, "thing")} we couldn’t place`
+            : `Send things to ${first}’s archive without opening this`}
+        </Link>
+      </p>
 
       {prompt && (
         <Link

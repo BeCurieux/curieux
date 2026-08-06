@@ -197,6 +197,24 @@ function buildTables(): Record<string, Row[]> {
     });
   });
 
+  // Two arrivals the archive could not place. Both are photographs shared
+  // from a phone with the EXIF stripped, which is the one case the inbox
+  // exists for — everything else files itself and never appears there.
+  [
+    ["Found in the camera roll. No idea when.", "Photos"],
+    ["From Dad's phone.", "Shared album"],
+  ].forEach(([text, note], i) => {
+    const id = `mem-inbox-${i}`;
+    memories.push({
+      id, subject_id: subjectId, created_by: DEMO_USER.id, type: "photo",
+      raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: null, created_at: recently(i + 1),
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+      arrived_via: i === 0 ? "share" : "email", arrival_note: note, filed_at: null,
+    });
+  });
+
   // Last year's few. The seed above all falls inside the year being
   // collected, and a look-back needs something older than that — so without
   // these the demo shows the feature's empty state, which is honest for a
@@ -352,6 +370,10 @@ function buildTables(): Record<string, Row[]> {
       photo_path: null, created_at: day(0),
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: people,
+    subject_inboxes: [
+      { subject_id: subjectId, token: "k3mfwqbtsxnhjdrv2p8c6zgy", accept_from_anyone: false,
+        rotated_at: null, created_at: day(0) },
+    ],
     memory_clusters: clusters, cluster_memories: clusterMembers,
     // The weekly note's record. Empty, so the demo shows a first week
     // rather than a fourth — which is the state most worth getting right.

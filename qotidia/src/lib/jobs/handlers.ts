@@ -15,6 +15,7 @@ import { colourForBook } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
 import { ghostscriptAvailable, toPressReady } from "@/lib/pdf/pdfx";
 import { SERVABLE_VERDICT, verifyUpload } from "@/lib/media/verify";
+import { takenOn } from "@/lib/media/taken";
 import { getScanner } from "@/lib/media/scanner";
 import { record } from "@/lib/privacy/activity";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
@@ -107,10 +108,17 @@ async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
     }
   }
 
+  // When it was taken, read here because this is already the one place that
+  // opens the bytes. It is what lets the Memory Inbox stay empty: a shared
+  // photograph carrying its own date files itself a few seconds later
+  // instead of waiting to ask a parent something the file already knew.
+  const taken = verdict === "clean" ? takenOn(bytes) : null;
+
   await db.from("media_assets").update({
     scan_verdict: verdict,
     scan_reason: reason,
     declared_mime: asset.mime_type,
+    capture_timestamp: asset.capture_timestamp ?? (taken ? `${taken}T00:00:00Z` : null),
     // Written from the bytes, whatever the browser said. The dimensions in
     // particular decide the print tier — a lie there is a full-page
     // photograph printed at 30 DPI in a book someone paid for.
@@ -120,6 +128,19 @@ async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
     checksum: checked.checksum,
     ...stamp,
   }).eq("id", assetId);
+
+  // An arrival that was only waiting to be dated can now be filed, and drops
+  // out of the inbox without anybody having touched it. Guarded on
+  // memory_date being null so this can never move a date a person set: the
+  // file's opinion loses to a parent's, always.
+  if (taken) {
+    await db
+      .from("memories")
+      .update({ memory_date: taken, filed_at: new Date().toISOString() })
+      .eq("id", asset.memory_id)
+      .is("memory_date", null)
+      .is("filed_at", null);
+  }
 
   if (verdict === "quarantined") {
     // The bytes go. Keeping a refused file costs storage, keeps a hazard in
