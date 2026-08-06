@@ -14,17 +14,11 @@ import { lookBackFor, type LookBack, type LookBackCandidate } from "./engine";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import type { FamilyRole } from "@/lib/family/roles";
 
-/** Today where the family lives, not where the server is. */
-export function todayIso(now: Date = new Date(), timeZone = "Australia/Sydney"): string {
-  // en-CA renders ISO order, which is the one formatting shortcut here that
-  // is not a hack: it is the documented output for that locale.
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-}
+// Re-exported so the many callers that reach for it here keep working; the
+// implementation lives in lib/time so things underneath the database layer
+// can reach it too.
+import { todayIso } from "@/lib/time";
+export { todayIso };
 
 export interface LoadedLookBack extends LookBack {
   /** Signed URLs by memory id, for whichever of them have a photograph. */

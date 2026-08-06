@@ -10,6 +10,8 @@
 // pages actually use, and throws loudly on anything else so a page that grows
 // a new query cannot silently render empty.
 
+import { shiftDays, todayIso } from "@/lib/time";
+
 export const DEMO_USER = {
   id: "demo-user",
   email: "demo@qotidia.test",
@@ -98,18 +100,16 @@ const MEMORY_SEED: [number, string, string, string[]][] = [
 ];
 
 function buildTables(): Record<string, Row[]> {
-  const start = new Date();
-  start.setFullYear(start.getFullYear() - 1);
-  const day = (n: number) => {
-    const d = new Date(start);
-    d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0, 10);
-  };
+  // Anchored on the same "today" the product reasons about, not on the
+  // server's UTC clock. Those two disagree for ten hours a day, and while
+  // they did the fixture was silently a day out: the hat photographed four
+  // times this week read as three, but only after 10am UTC.
+  const today = todayIso();
+  const start = shiftDays(today, -365);
+  const day = (n: number) => shiftDays(start, n);
 
   // Florence is two, turning three — so the dashboard and her book agree.
-  const dob = new Date(start);
-  dob.setFullYear(dob.getFullYear() - 2);
-  const dobIso = dob.toISOString().slice(0, 10);
+  const dobIso = shiftDays(start, -730);
 
   const familyId = "demo-family";
   const subjectId = "demo-subject";
@@ -133,11 +133,7 @@ function buildTables(): Record<string, Row[]> {
   // before them is a first appearance, not a surge, and the shape code says
   // so correctly; a fixture that wants to demonstrate a surge has to contain
   // one rather than rely on the sentence sounding right.
-  const recently = (offsetDays: number) => {
-    const d = new Date();
-    d.setDate(d.getDate() - offsetDays);
-    return d.toISOString().slice(0, 10);
-  };
+  const recently = (offsetDays: number) => shiftDays(today, -offsetDays);
   [
     [1, "the dinosaur hat", "Wore the dinosaur hat to the shops. Again."],
     [2, "the dinosaur hat", "Dinosaur hat at breakfast."],
@@ -164,12 +160,7 @@ function buildTables(): Record<string, Row[]> {
   //
   // One of them is dated exactly a year before today, so "a year ago today"
   // fires whenever the demo is opened rather than one day in six.
-  const yearBefore = (offsetDays: number) => {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 1);
-    d.setDate(d.getDate() + offsetDays);
-    return d.toISOString().slice(0, 10);
-  };
+  const yearBefore = (offsetDays: number) => shiftDays(today, -365 + offsetDays);
   [
     [0, "quote", "Bun Bun tired now. Bun Bun go bed."],
     [-2, "text", "Slept through for the first time. We didn't."],
