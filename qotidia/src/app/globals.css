@@ -5,6 +5,10 @@
 @layer base {
   body {
     @apply bg-paper text-ink font-body antialiased;
+    /* The landing page's bands break out of main with width:100vw. Without
+       this, that 100vw is measured including the scrollbar and every page
+       gains a horizontal scroll of a few pixels. */
+    overflow-x: hidden;
     /* Charter was drawn for print, where it is set solid. On screen it wants
        a little more air between lines and a fraction less between letters. */
     line-height: 1.6;
@@ -46,4 +50,90 @@
   .label {
     @apply mb-1.5 block text-sm text-ink/80;
   }
+}
+
+/* ---------------------------------------------------------------- depth
+ *
+ * The landing page was seven sections of the same width on the same ground,
+ * separated by hairline rules — a well-set document rather than a designed
+ * page, and it read as one. Everything below exists to give it what a
+ * document does not have: material, scale and a horizon.
+ */
+@layer components {
+  /* A cover that reads as an object rather than a coloured rectangle.
+     Perspective plus a spine plus a shadow that grounds it — a printed book
+     is the thing being sold, and until now the page showed a div. */
+  /* Note this goes on a wrapper, never on the <img> itself: pseudo-elements
+     do not render on replaced elements, so ::after on an image is silently
+     nothing — which is exactly how the first version shipped a book with no
+     visible thickness. */
+  .volume {
+    @apply relative;
+    transform: perspective(1600px) rotateY(-14deg) rotateX(2deg);
+    transform-style: preserve-3d;
+    box-shadow:
+      -18px 26px 48px -12px rgb(43 38 32 / 0.34),
+      -4px 6px 14px -4px rgb(43 38 32 / 0.22);
+  }
+  /* The block edge, so the eye reads pages rather than a flat plane. */
+  .volume::after {
+    content: "";
+    @apply absolute inset-y-[1.5%] -right-[7px] rounded-r-sm;
+    width: 9px;
+    background: linear-gradient(
+      90deg,
+      rgb(43 38 32 / 0.28) 0%,
+      #ECE3D5 22%, #FEFCF8 42%, #E7DDCC 62%, #FEFCF8 82%, #DED2BE 100%
+    );
+    transform: rotateY(28deg) translateZ(-2px);
+    transform-origin: left center;
+  }
+
+  /* Break out of the layout's max-w-5xl main. The bands were written as
+     full-bleed and were not: main constrains every page, so each coloured
+     ground stopped short with paper either side, which reads as a wide card
+     rather than as a change of ground.
+
+     margin-inline rather than width:100vw, because 100vw includes the
+     scrollbar and produces a horizontal scroll on every page it touches. */
+  .bleed {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+  }
+
+  /* Full-bleed grounds. Sections change colour rather than being divided by
+     a line — the horizon a stack of ruled blocks never has. */
+  .band-ink {
+    @apply bg-ink text-paper;
+  }
+  .band-card {
+    @apply bg-card;
+  }
+}
+
+/* One orchestrated entrance rather than scattered micro-interactions.
+   Staggered with a delay variable at each call site. */
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* Paper tooth. A flat wash of beige looks like a background colour; a very
+   slight grain looks like stock, which is what this product is made of. */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
