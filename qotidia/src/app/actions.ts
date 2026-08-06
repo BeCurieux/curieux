@@ -24,6 +24,7 @@ import {
 import { record, safeDetail } from "@/lib/privacy/activity";
 import { requireSecondFactor, StepUpRequired, stepUpPath } from "@/lib/auth/step-up";
 import type { ProtectedAction } from "@/lib/auth/mfa";
+import { colourById } from "@/lib/book/colours";
 import { sendOnce } from "@/lib/email/send";
 import { invitation as invitationEmail } from "@/lib/email/messages";
 
@@ -981,4 +982,80 @@ export async function adminRetryJob(formData: FormData) {
   await requireAdmin();
   await retry(adminClient(), String(formData.get("job_id")));
   revalidatePath("/admin");
+}
+
+// ------------------------------------------------------ cover colour
+
+/**
+ * Statuses past which a cover colour can no longer be changed.
+ *
+ * Once a file has been handed to the printer, the object exists — or is
+ * about to. Letting the picker keep accepting changes after that would show
+ * a parent a colour their book will never be, which is worse than telling
+ * them the moment has passed.
+ */
+const COLOUR_LOCKED_AFTER = ["ordered", "in_production", "shipped", "delivered"];
+
+async function assertCanRestyle(db: ReturnType<typeof userClient>, bookId: string, userId: string) {
+  const { data: book } = await db
+    .from("books")
+    .select("id, subject_id, status")
+    .eq("id", bookId)
+    .single();
+  if (!book) throw new Error("book not found");
+
+  // A contributor may add to the archive but not restyle the object that
+  // gets printed and posted to the whole family.
+  const membership = await roleForSubject(db, book.subject_id, userId);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change this cover");
+  }
+  return book;
+}
+
+/** Set (or clear) the colour of one volume. */
+export async function setCoverColour(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const bookId = String(formData.get("book_id"));
+  const raw = String(formData.get("colour") ?? "");
+
+  const book = await assertCanRestyle(db, bookId, user.id);
+  if (COLOUR_LOCKED_AFTER.includes(book.status)) {
+    redirect(`/books/${bookId}?error=${encodeURIComponent("That book has already gone to print.")}`);
+  }
+
+  // An empty value is "back to the spectrum" and stores null. An id we do
+  // not recognise is dropped rather than written — the column has no foreign
+  // key behind it, so this is the only thing standing between a typo in a
+  // form post and a cover that renders in whatever the fallback happens to be.
+  const colour = colourById(raw)?.id ?? null;
+
+  const { error } = await db.from("books").update({ cover_colour: colour }).eq("id", bookId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/books/${bookId}`);
+  revalidatePath(`/subjects/${book.subject_id}`);
+}
+
+/** Set the standing preference: every volume this colour, unless set by hand. */
+export async function setCoverColourForAll(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const raw = String(formData.get("colour") ?? "");
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change these covers");
+  }
+
+  const colour = colourById(raw)?.id ?? null;
+  const { error } = await db.from("subjects").update({ cover_colour: colour }).eq("id", subjectId);
+  if (error) throw new Error(error.message);
+
+  // Deliberately does not touch books.cover_colour. A volume someone chose
+  // by hand keeps what they chose — the standing preference is the rule
+  // underneath, not a bulk overwrite of decisions already made.
+  revalidatePath(`/subjects/${subjectId}`);
 }

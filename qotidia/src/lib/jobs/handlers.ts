@@ -11,7 +11,7 @@ import { renderBookPdf } from "@/lib/pdf/render";
 import { runPreflight, type PlacedImage } from "@/lib/pdf/preflight";
 import { yearWord } from "@/lib/book/structure";
 import { FORMAT, imageTier } from "@/lib/book/format";
-import { colourForAge } from "@/lib/book/colours";
+import { colourForBook } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
 import { ghostscriptAvailable, toPressReady } from "@/lib/pdf/pdfx";
 import { SERVABLE_VERDICT, verifyUpload } from "@/lib/media/verify";
@@ -688,7 +688,19 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
   });
 
   const age = book.year_number ?? 1;
-  const colour = colourForAge(age);
+  // The spectrum is the default, not the rule — a family may have set this
+  // volume by hand, or asked for every volume to match. Read the standing
+  // preference off the subject rather than assuming the age.
+  const { data: colourPref } = await db
+    .from("subjects")
+    .select("cover_colour")
+    .eq("id", book.subject_id)
+    .single();
+  const colour = colourForBook({
+    bookColour: book.cover_colour,
+    subjectColour: colourPref?.cover_colour ?? null,
+    age,
+  });
 
   const result = await renderBookPdf(
     {

@@ -237,6 +237,10 @@ function buildTables(): Record<string, Row[]> {
     subjects: [{
       id: subjectId, family_id: familyId, subject_type: "child",
       display_name: "Florence", date_of_birth: dobIso, pronouns: "she/her",
+      // Null: the demo shelf shows the age spectrum, which is the default a
+      // new family sees. Setting one here would show the exception as if it
+      // were the rule.
+      cover_colour: null,
       photo_path: null, created_at: day(0),
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: [],
@@ -267,7 +271,7 @@ function buildTables(): Record<string, Row[]> {
     books: [{
       id: bookId, subject_id: subjectId, year_number: 2, title: "The Year You Were Two",
       subtitle: "Florence", start_date: day(0), end_date: day(365), status: "review",
-      cover_theme: null, page_count: pages.length, digital_pdf_path: null,
+      cover_theme: null, cover_colour: null, page_count: pages.length, digital_pdf_path: null,
       print_pdf_path: null, cover_pdf_path: null, approved_at: null,
       listen_token: null, created_at: day(0),
     }],

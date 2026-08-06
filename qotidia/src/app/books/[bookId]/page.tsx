@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { removePage } from "@/app/actions";
 import { photoMemoryIds, resolvePhotoUrls } from "@/lib/book/photos";
+import { CoverColour } from "./cover-colour";
+
+/** Once it is with a printer, the object exists and the choice has passed. */
+const COLOUR_LOCKED = ["ordered", "in_production", "shipped", "delivered"];
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +24,13 @@ const STATUS_LABEL: Record<string, string> = {
   delivered: "With you",
 };
 
-export default async function BookOverview({ params }: { params: { bookId: string } }) {
+export default async function BookOverview({
+  params,
+  searchParams,
+}: {
+  params: { bookId: string };
+  searchParams: { error?: string };
+}) {
   const user = await currentUser();
   if (!user) redirect("/login");
   const db = userClient();
@@ -38,6 +48,12 @@ export default async function BookOverview({ params }: { params: { bookId: strin
     db,
     photoMemoryIds((pages ?? []).flatMap((p: any) => p.book_content_blocks ?? []))
   );
+
+  const { data: subject } = await db
+    .from("subjects")
+    .select("id, display_name, cover_colour")
+    .eq("id", book.subject_id)
+    .single();
 
   const { data: order } = await db
     .from("print_orders")
@@ -69,6 +85,26 @@ export default async function BookOverview({ params }: { params: { bookId: strin
           )}
         </div>
       </div>
+
+      {searchParams.error && (
+        <p className="mt-6 max-w-[52ch] rounded-lg bg-rule/50 p-4 text-sm">{searchParams.error}</p>
+      )}
+
+      {/* Above the pages, not buried under them: the colour is decided by
+          looking at the shelf it will join, and the page thumbnails are a
+          different question. */}
+      {subject && !COLOUR_LOCKED.includes(book.status) && (
+        <div className="mt-10">
+          <CoverColour
+            bookId={book.id}
+            subjectId={subject.id}
+            childName={subject.display_name}
+            age={book.year_number ?? 1}
+            bookColour={book.cover_colour ?? null}
+            subjectColour={subject.cover_colour ?? null}
+          />
+        </div>
+      )}
 
       {(book.status === "collecting" || book.status === "drafting") && (
         <p className="mt-10 max-w-[52ch] rounded-lg bg-rule/50 p-6 text-sm leading-relaxed">

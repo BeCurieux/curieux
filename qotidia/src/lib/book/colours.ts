@@ -12,6 +12,8 @@
 // PROVISIONAL until a physical sample comes back (brief §18).
 
 export interface AgeColour {
+  /** Stable key. Stored in the database, so it must never be re-spelled. */
+  id: string;
   age: number;
   name: string;
   /** Cover field. */
@@ -30,25 +32,25 @@ export interface AgeColour {
 // spine is unreadable across the room and worse on uncoated stock, which
 // flattens contrast further.
 export const AGE_COLOURS: AgeColour[] = [
-  { age: 0,  name: "oat",            hex: "#D9CFBE", inkHex: "#2B2721" },
-  { age: 1,  name: "eucalypt",       hex: "#63746B", inkHex: "#F7F8F4" },
-  { age: 2,  name: "terracotta",     hex: "#A95C3C", inkHex: "#FDF8F2" },
-  { age: 3,  name: "amber",          hex: "#C08A2E", inkHex: "#2A2210" },
-  { age: 4,  name: "dusty blue",     hex: "#577388", inkHex: "#F7F6F2" },
-  { age: 5,  name: "olive",          hex: "#6B7455", inkHex: "#FAF8F1" },
-  { age: 6,  name: "linen",          hex: "#CFC3AE", inkHex: "#2A261F" },
-  { age: 7,  name: "russet",         hex: "#95462E", inkHex: "#FBF4EC" },
-  { age: 8,  name: "wheat",          hex: "#C6A455", inkHex: "#2A2413" },
-  { age: 9,  name: "slate blue",     hex: "#4E6474", inkHex: "#F5F5F1" },
-  { age: 10, name: "moss",           hex: "#69744A", inkHex: "#F7F6EE" },
-  { age: 11, name: "shell",          hex: "#DBCFC4", inkHex: "#2C2721" },
-  { age: 12, name: "rust",           hex: "#9C5334", inkHex: "#FCF6EE" },
-  { age: 13, name: "ochre",          hex: "#B08430", inkHex: "#282111" },
-  { age: 14, name: "harbour",        hex: "#42596B", inkHex: "#F4F4F0" },
-  { age: 15, name: "fern",           hex: "#3F5A3E", inkHex: "#F6F6EE" },
-  { age: 16, name: "sand",           hex: "#C9B79A", inkHex: "#2A251D" },
-  { age: 17, name: "brick",          hex: "#8E4535", inkHex: "#FBF3EC" },
-  { age: 18, name: "walnut",         hex: "#5A4634", inkHex: "#F8F3EA" },
+  { id: "oat",          age: 0,   name: "oat",            hex: "#D9CFBE", inkHex: "#2B2721" },
+  { id: "eucalypt",     age: 1,   name: "eucalypt",       hex: "#63746B", inkHex: "#F7F8F4" },
+  { id: "terracotta",   age: 2,   name: "terracotta",     hex: "#A95C3C", inkHex: "#FDF8F2" },
+  { id: "amber",        age: 3,   name: "amber",          hex: "#C08A2E", inkHex: "#2A2210" },
+  { id: "dusty_blue",   age: 4,   name: "dusty blue",     hex: "#577388", inkHex: "#F7F6F2" },
+  { id: "olive",        age: 5,   name: "olive",          hex: "#6B7455", inkHex: "#FAF8F1" },
+  { id: "linen",        age: 6,   name: "linen",          hex: "#CFC3AE", inkHex: "#2A261F" },
+  { id: "russet",       age: 7,   name: "russet",         hex: "#95462E", inkHex: "#FBF4EC" },
+  { id: "wheat",        age: 8,   name: "wheat",          hex: "#C6A455", inkHex: "#2A2413" },
+  { id: "slate_blue",   age: 9,   name: "slate blue",     hex: "#4E6474", inkHex: "#F5F5F1" },
+  { id: "moss",         age: 10,  name: "moss",           hex: "#69744A", inkHex: "#F7F6EE" },
+  { id: "shell",        age: 11,  name: "shell",          hex: "#DBCFC4", inkHex: "#2C2721" },
+  { id: "rust",         age: 12,  name: "rust",           hex: "#9C5334", inkHex: "#FCF6EE" },
+  { id: "ochre",        age: 13,  name: "ochre",          hex: "#B08430", inkHex: "#282111" },
+  { id: "harbour",      age: 14,  name: "harbour",        hex: "#42596B", inkHex: "#F4F4F0" },
+  { id: "fern",         age: 15,  name: "fern",           hex: "#3F5A3E", inkHex: "#F6F6EE" },
+  { id: "sand",         age: 16,  name: "sand",           hex: "#C9B79A", inkHex: "#2A251D" },
+  { id: "brick",        age: 17,  name: "brick",          hex: "#8E4535", inkHex: "#FBF3EC" },
+  { id: "walnut",       age: 18,  name: "walnut",         hex: "#5A4634", inkHex: "#F8F3EA" },
 ];
 
 export function colourForAge(age: number): AgeColour {
@@ -104,3 +106,69 @@ export function accentForPaper(colour: AgeColour, target = 4.5): string {
   }
   return "#4A4A48";
 }
+
+// --------------------------------------------------------- chosen colours
+//
+// The spectrum is the default, not the rule. Two things parents actually
+// want and the age-mapping alone cannot give them:
+//
+//   "I want this one darker." A single book, changed, with the rest of the
+//   shelf left alone.
+//
+//   "I want them all the same." A row of identical spines is a legitimate
+//   taste, and for some shelves it looks better than a gradient.
+//
+// So there are two levels of override and a default underneath both, and the
+// order between them is the whole design: a choice made about one book must
+// not be silently undone by a later change to the child's default.
+
+/** Stored on a subject: every book this colour. Null means the spectrum. */
+export type SubjectColourPreference = string | null;
+
+/** Stored on a book: this volume only. Null means "whatever the rule says". */
+export type BookColourChoice = string | null;
+
+export function colourById(id: string | null | undefined): AgeColour | null {
+  if (!id) return null;
+  return AGE_COLOURS.find((c) => c.id === id) ?? null;
+}
+
+/**
+ * Which colour a given book is actually printed in.
+ *
+ * Precedence, most specific first:
+ *
+ *   1. this book's own choice — someone opened this volume and picked
+ *   2. the child's standing preference — "make them all walnut"
+ *   3. the age spectrum — the default, and what most shelves will be
+ *
+ * An unrecognised id falls through rather than failing. Colours may be
+ * retired from the palette; a book printed in one four years ago should not
+ * stop rendering because of it, and the shelf reading slightly differently
+ * is a far better outcome than a render job that throws at print time.
+ */
+export function colourForBook(input: {
+  bookColour?: BookColourChoice;
+  subjectColour?: SubjectColourPreference;
+  age: number;
+}): AgeColour {
+  return (
+    colourById(input.bookColour) ??
+    colourById(input.subjectColour) ??
+    colourForAge(input.age)
+  );
+}
+
+/**
+ * Whether a book is following the rule or has been set by hand.
+ *
+ * The picker needs this to show "following the spectrum" as a state rather
+ * than as a highlighted swatch — otherwise a parent who has changed nothing
+ * appears to have made a choice, and cannot tell how to get back.
+ */
+export function isFollowingDefault(bookColour: BookColourChoice): boolean {
+  return colourById(bookColour) === null;
+}
+
+/** Every colour offered in the picker, in shelf order. */
+export const COLOUR_CHOICES: AgeColour[] = AGE_COLOURS;

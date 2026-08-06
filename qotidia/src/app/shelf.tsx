@@ -8,7 +8,7 @@
 // So the spectrum belongs on screen too — before anyone has bought anything,
 // so the set is legible as a set rather than discovered one year at a time.
 
-import { AGE_COLOURS, colourForAge } from "@/lib/book/colours";
+import { AGE_COLOURS, colourForBook } from "@/lib/book/colours";
 import { yearWord } from "@/lib/book/structure";
 
 /** Heights vary slightly so a row reads as books rather than as a chart. */
@@ -19,6 +19,8 @@ export function Shelf({
   count = 8,
   owned,
   current,
+  chosen,
+  subjectColour,
   className = "",
 }: {
   /** First age shown. */
@@ -29,6 +31,12 @@ export function Shelf({
   owned?: number[];
   /** The volume being made now, drawn slightly proud of the rest. */
   current?: number;
+  /** Colours chosen by hand, keyed by age. The shelf must show the real
+      object — a parent who set every volume walnut and still sees a
+      gradient here has been shown a picture of someone else's shelf. */
+  chosen?: Record<number, string | null>;
+  /** The child's standing preference, if they set one. */
+  subjectColour?: string | null;
   className?: string;
 }) {
   const ages = Array.from({ length: count }, (_, i) => from + i).filter(
@@ -44,7 +52,11 @@ export function Shelf({
       )}.`}
     >
       {ages.map((age, i) => {
-        const colour = colourForAge(age);
+        const colour = colourForBook({
+          bookColour: chosen?.[age] ?? null,
+          subjectColour: subjectColour ?? null,
+          age,
+        });
         const has = !owned || owned.includes(age);
         const isCurrent = current === age;
         const height = HEIGHTS[i % HEIGHTS.length] + (isCurrent ? 1 : 0);
