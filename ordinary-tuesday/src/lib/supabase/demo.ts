@@ -381,6 +381,16 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
 /** Writes are accepted and discarded: demo mode never persists. */
 class Mutation implements PromiseLike<{ data: any; error: any }> {
   private returning: any = null;
+  constructor(row?: any) {
+    // Echo back what was written, with an id, so a caller doing
+    // .insert(...).select("id").single() gets a row rather than null.
+    // Returning null here made every such call look like a silent failure
+    // in demo mode — and hid a real 500 in the route that did it.
+    if (row) {
+      const first = Array.isArray(row) ? row[0] : row;
+      this.returning = { id: `demo-${Math.abs(hashish(JSON.stringify(first)))}`, ...first };
+    }
+  }
   select() { return this; }
   single() { return this; }
   maybeSingle() { return this; }
@@ -394,6 +404,13 @@ class Mutation implements PromiseLike<{ data: any; error: any }> {
   }
 }
 
+/** Stable pseudo-id for demo rows; no randomness, so a re-run matches. */
+function hashish(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return h;
+}
+
 export function demoClient(): any {
   const db = buildTables();
   return {
@@ -403,7 +420,7 @@ export function demoClient(): any {
           const q = new Query(db, table, cols);
           return (q as any).selectAgain(cols, opts);
         },
-        insert() { return new Mutation(); },
+        insert(row?: any) { return new Mutation(row); },
         update() { return new Mutation(); },
         upsert() { return new Mutation(); },
         delete() { return new Mutation(); },

@@ -3,6 +3,7 @@ import { Uploader } from "./uploader";
 import { Recorder } from "./recorder";
 import { addTextMemory } from "@/app/actions";
 import { PRIVATE_BLURB } from "@/lib/family/roles";
+import { QuickAdd } from "./quick-add";
 
 export default function UploadPage({
   params,
@@ -19,9 +20,14 @@ export default function UploadPage({
           on this page can wait until something occurs to you.
         </p>
       )}
-      <h1 className="text-3xl">Whatever you&rsquo;ve got.</h1>
+      <h1 className="text-title">Whatever you&rsquo;ve got.</h1>
 
+      {/* One thing, quickly — the 360 days that aren't the big upload day. */}
       <section className="mt-8">
+        <QuickAdd subjectId={params.subjectId} />
+      </section>
+
+      <section className="mt-12">
         <h2 className="text-lg">Photographs</h2>
         <p className="mt-1 max-w-[54ch] text-sm leading-relaxed text-stone">
           Drag in a few hundred at once &mdash; the blurry ones and the near
