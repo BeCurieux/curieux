@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { startCheckout } from "@/app/actions";
 import { AUTORENEW_TERMS, MAX_EXTRA_COPIES, PRICES, instalmentsOffered } from "@/lib/stripe";
+import { bookPriceFor } from "@/lib/billing/price";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,17 @@ export default async function CheckoutPage({
   const { data: book } = await db.from("books").select("*").eq("id", params.bookId).single();
   if (!book) redirect("/home");
 
-  const bookPrice = PRICES.bookAud();
+  // The same helper the action charges from. These were two calculations,
+  // and the page's one did not know plans existed — so a monthly member was
+  // shown A$199 and charged A$199 for a book they had partly or wholly paid
+  // for already.
+  const { data: subjectForPrice } = await db
+    .from("subjects")
+    .select("family_id")
+    .eq("id", book.subject_id)
+    .single();
+  const price = await bookPriceFor(db, subjectForPrice?.family_id ?? "");
+  const bookPrice = price.amountAud;
   const extraPrice = PRICES.extraCopyAud();
 
   return (
@@ -43,8 +54,16 @@ export default async function CheckoutPage({
       <div className="card mt-8 border-clay">
         <div className="flex items-baseline justify-between">
           <h2 className="text-xl">The printed hardcover</h2>
-          <span className="font-display text-3xl">{aud(bookPrice)}</span>
+          <span className="font-display text-3xl">
+            {bookPrice === 0 ? "Included" : aud(bookPrice)}
+          </span>
         </div>
+        {/* The reason travels with the number. A price shown without one
+            invites "why is this A$47?", and the answer has to be the same
+            here, on the receipt, and in a support reply. */}
+        {price.explanation && (
+          <p className="mt-2 text-sm leading-relaxed text-ochre">{price.explanation}</p>
+        )}
         <ul className="mt-4 space-y-1.5 text-sm text-stone">
           {[
             "A4 portrait hardcover, PUR bound, matte laminated",

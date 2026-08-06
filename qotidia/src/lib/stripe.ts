@@ -94,6 +94,12 @@ export async function createBookCheckout(opts: {
   bookTitle: string;
   customerEmail: string;
   extraCopies: number;
+  /**
+   * What to charge for the book itself, in cents. Passed in rather than read
+   * from PRICES here, because a monthly member may owe part of it or none —
+   * and this function used to be the place that silently assumed otherwise.
+   */
+  bookAmountAud: number;
   stripeCustomerId?: string | null;
   /** Keep the card for next year's book. Only ever set from an explicit tick. */
   saveCardForRenewal?: boolean;
@@ -111,7 +117,7 @@ export async function createBookCheckout(opts: {
       quantity: 1,
       price_data: {
         currency: "aud",
-        unit_amount: PRICES.bookAud(),
+        unit_amount: opts.bookAmountAud,
         product_data: {
           name: `${opts.bookTitle} — printed hardcover`,
           description: "A4 portrait hardcover, delivered. Includes the digital copy.",

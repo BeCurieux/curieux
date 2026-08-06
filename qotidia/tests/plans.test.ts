@@ -109,11 +109,37 @@ describe("when a year closes", () => {
   });
 
   it("quotes one number to the customer and charges the same one", () => {
-    // These were briefly two calculations, which is how someone gets told
-    // A$199 and charged A$104.
-    const run = readFileSync(join(root, "src/lib/renewal/run.ts"), "utf8");
-    expect(run).toContain("async function amountDueFor");
-    expect(run).not.toMatch(/amountAud:\s*r\.amount_aud/);
+    // There is exactly one implementation of "what does this family pay for
+    // this book", and all three places that need it read from it. They were
+    // two implementations and one omission — the omission being the manual
+    // checkout, which charged a monthly member the full A$199 on top of
+    // their subscription because it did not know plans existed.
+    const callers = [
+      "src/lib/renewal/run.ts",                       // the annual charge
+      "src/app/actions.ts",                           // what is charged
+      "src/app/books/[bookId]/checkout/page.tsx",     // what is shown
+    ];
+    for (const file of callers) {
+      expect(readFileSync(join(root, file), "utf8"), `${file} prices books itself`)
+        .toContain("bookPriceFor");
+    }
+  });
+
+  it("never charges a full price the family has already partly paid", () => {
+    // The page and the action must both take the amount from the helper, not
+    // from PRICES and not from the form.
+    const stripe = readFileSync(join(root, "src/lib/stripe.ts"), "utf8");
+    const checkout = stripe.slice(stripe.indexOf("export async function createBookCheckout"));
+    // The book line item takes the amount it was given.
+    expect(checkout).toContain("unit_amount: opts.bookAmountAud");
+    expect(checkout).not.toMatch(/unit_amount:\s*PRICES\.bookAud\(\)/);
+  });
+
+  it("does not send someone to a checkout for nothing", () => {
+    // A Stripe session for A$0 either fails or asks for a card to be charged
+    // nothing. Both read as our mistake.
+    const actions = codeOnly(readFileSync(join(root, "src/app/actions.ts"), "utf8"));
+    expect(actions).toMatch(/price\.amountAud === 0/);
   });
 });
 

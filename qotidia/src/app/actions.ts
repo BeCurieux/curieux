@@ -13,7 +13,8 @@ import {
   ACCESS_COOKIE, REFRESH_COOKIE, adminClient, requireAdmin, requireUser, userClient,
 } from "@/lib/supabase/server";
 import { enqueue, retry } from "@/lib/jobs/queue";
-import { AUTORENEW_TERMS, clampExtraCopies, createBookCheckout } from "@/lib/stripe";
+import { AUTORENEW_TERMS, PRICES, clampExtraCopies, createBookCheckout } from "@/lib/stripe";
+import { bookPriceFor } from "@/lib/billing/price";
 import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
 import { randomBytes } from "node:crypto";
@@ -632,6 +633,17 @@ export async function startCheckout(formData: FormData) {
   // on the same run, so the count belongs on the print order.
   const extraCopies = clampExtraCopies(formData.get("extra_copies"));
 
+  // The price is worked out here, from the family's plan — never taken from
+  // the form. A page can be edited; this is where money is decided.
+  const { data: subjectRow } = await db
+    .from("subjects")
+    .select("family_id")
+    .eq("id", book.subject_id)
+    .single();
+  const price = subjectRow
+    ? await bookPriceFor(db, subjectRow.family_id)
+    : { amountAud: PRICES.bookAud(), plan: "one_off" as const, monthsPaidThisYear: 0, creditAud: 0, explanation: null };
+
   // Persist recipient as a draft print order; submitted only after payment.
   const recipient = {
     name: String(formData.get("name") ?? ""),
@@ -673,11 +685,29 @@ export async function startCheckout(formData: FormData) {
   }
 
   const { data: profile } = await db.from("profiles").select("stripe_customer_id").eq("id", user.id).single();
+  // Nothing to pay: a member whose membership already covers this book must
+  // not be sent to a checkout at all. A Stripe session for A$0 either fails
+  // or asks someone for a card to be charged nothing, and both read as a
+  // mistake by us.
+  if (price.amountAud === 0 && extraCopies === 0) {
+    const { data: draft } = await admin
+      .from("print_orders")
+      .select("id")
+      .eq("book_id", bookId)
+      .eq("status", "draft")
+      .maybeSingle();
+    if (draft) {
+      await enqueue(admin, "submit_print", { print_order_id: draft.id }, `submit-${draft.id}`);
+    }
+    redirect(`/books/${bookId}?included=1`);
+  }
+
   const session = await createBookCheckout({
     bookId,
     bookTitle: book.title,
     customerEmail: user.email!,
     extraCopies,
+    bookAmountAud: price.amountAud,
     stripeCustomerId: profile?.stripe_customer_id,
     saveCardForRenewal: autorenew,
   });
