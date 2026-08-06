@@ -86,6 +86,14 @@ export default async function PrivacyPage({
         <Link href="/privacy" className="text-ochre">How we keep your family private</Link>
       </p>
 
+      {/* Sits at the top rather than buried: it is the one thing on this page
+          that prevents a problem instead of describing one. */}
+      <p className="mt-4 text-sm">
+        <Link href="/settings/security" className="text-ochre">
+          Getting in &mdash; passkeys and second factors
+        </Link>
+      </p>
+
       {searchParams.error && (
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{searchParams.error}</p>
       )}

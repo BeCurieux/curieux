@@ -22,6 +22,8 @@ import {
   canComment, canEdit, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
 import { record, safeDetail } from "@/lib/privacy/activity";
+import { requireSecondFactor, StepUpRequired, stepUpPath } from "@/lib/auth/step-up";
+import type { ProtectedAction } from "@/lib/auth/mfa";
 import { sendOnce } from "@/lib/email/send";
 import { invitation as invitationEmail } from "@/lib/email/messages";
 
@@ -31,6 +33,27 @@ function anonAuthClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { auth: { persistSession: false } }
   );
+}
+
+/**
+ * Stop an irreversible action until this session has proved itself again.
+ *
+ * Redirects rather than throwing, because a server action that throws lands
+ * a parent on an error page having no idea what to do. `redirect` throws its
+ * own control-flow signal, so this must be called before any work is done —
+ * never after a row has been written.
+ *
+ * Passes straight through for an account with no second factor enrolled;
+ * there is nothing to ask for. See lib/auth/mfa.ts for why that is the right
+ * answer rather than a hole.
+ */
+async function gateOn(action: ProtectedAction, back: string) {
+  try {
+    await requireSecondFactor(action);
+  } catch (err) {
+    if (err instanceof StepUpRequired) redirect(stepUpPath(action, back));
+    throw err;
+  }
 }
 
 function setSessionCookies(accessToken: string, refreshToken: string) {
@@ -739,6 +762,10 @@ export async function updateMembership(formData: FormData) {
   const familyId = String(formData.get("family_id"));
   const action = String(formData.get("action"));
 
+  // Before any work, and after familyId is known so the confirmation screen
+  // can send them back to the right page.
+  await gateOn("change_access", `/family/${familyId}`);
+
   const role = await roleInFamily(db, familyId, user.id);
   if (!canManageAccess(role)) throw new Error("only the owner can change access");
 
@@ -840,6 +867,7 @@ export async function updateNotificationPreferences(formData: FormData) {
 /** Ask for a copy of everything. Anyone who can edit may take one. */
 export async function requestExport(formData: FormData) {
   const user = await requireUser();
+  await gateOn("export_archive", `/settings/privacy`);
   const db = userClient();
   const familyId = String(formData.get("family_id"));
 
@@ -873,6 +901,7 @@ export async function requestExport(formData: FormData) {
  */
 export async function deleteEverything(formData: FormData) {
   const user = await requireUser();
+  await gateOn("delete_everything", `/settings/privacy`);
   const db = userClient();
   const familyId = String(formData.get("family_id"));
   const typed = String(formData.get("confirmation") ?? "").trim();
@@ -909,6 +938,7 @@ export async function deleteEverything(formData: FormData) {
  */
 export async function grantSupportAccess(formData: FormData) {
   const user = await requireUser();
+  await gateOn("grant_support_access", `/settings/privacy`);
   const db = userClient();
   const familyId = String(formData.get("family_id"));
   const reason = String(formData.get("reason") ?? "").trim() || "support request";

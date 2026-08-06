@@ -13,6 +13,26 @@
 export const DEMO_USER = {
   id: "demo-user",
   email: "demo@qotidia.test",
+  // A passkey and an app, so the security screens are walkable. The demo has
+  // no auth server, so nothing here can actually be verified — it exists to
+  // show the shape of the page, and step-up.ts reports the demo session as
+  // already having proved itself rather than pretending a ceremony ran.
+  factors: [
+    {
+      id: "demo-passkey",
+      factor_type: "webauthn",
+      status: "verified",
+      friendly_name: "Passkey",
+      created_at: "2026-01-04T00:00:00Z",
+    },
+    {
+      id: "demo-totp",
+      factor_type: "totp",
+      status: "verified",
+      friendly_name: "Authenticator app",
+      created_at: "2026-02-11T00:00:00Z",
+    },
+  ],
 };
 
 type Row = Record<string, any>;
