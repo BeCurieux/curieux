@@ -223,7 +223,7 @@ export default function LandingPage() {
 
           <p className="mt-6 max-w-[48ch] text-sm leading-relaxed text-stone">
             Extra copies for grandparents are {aud(PRICES.extraCopyAud())} each when ordered
-            together. Free to build &mdash; you pay once you&rsquo;ve read it
+            together, and come to you to pass on. Free to build &mdash; you pay once you&rsquo;ve read it
             through and you&rsquo;re happy to print.
           </p>
         </section>

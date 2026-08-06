@@ -27,13 +27,39 @@ export function stripe(): Stripe {
   return client;
 }
 
-/** Cents. Env overrides exist so pricing can move without a deploy. */
+/**
+ * Cents. Env overrides exist so pricing can move without a deploy.
+ *
+ * The extra-copy price was A$79, set on the assumption that a second copy in
+ * the same print run costs us very little. It does not: print-on-demand
+ * hardcover pricing barely scales with quantity — there is no plate, no
+ * make-ready and therefore no economy to pass on. The saving on a second
+ * copy is the shipping, because today every copy goes to one address.
+ *
+ * So A$99: a real discount against A$199, honestly grounded in the one cost
+ * that genuinely does fall. It is deliberately not lower. A copy sold at
+ * A$79 against a print cost that does not scale is a copy sold at a margin
+ * thin enough that selling more of them makes the business worse.
+ *
+ * If copies are ever posted directly to each grandparent — see
+ * MAX_EXTRA_COPIES below — this should rise again to cover the second
+ * shipment, and would be defensible at A$129 because "printed and posted to
+ * them" is a service rather than a duplicate.
+ */
 export const PRICES = {
   bookAud: () => Number(process.env.BOOK_PRICE_AUD ?? 19900),
-  extraCopyAud: () => Number(process.env.EXTRA_COPY_PRICE_AUD ?? 7900),
+  extraCopyAud: () => Number(process.env.EXTRA_COPY_PRICE_AUD ?? 9900),
 };
 
-/** Extra copies beyond the first, per transaction. */
+/**
+ * Extra copies beyond the first, per transaction.
+ *
+ * All of them arrive at the buyer's address: print_orders carries one
+ * recipient and a copy count, so the parent re-posts to the grandparents
+ * themselves. That is stated at checkout rather than discovered on delivery.
+ * Shipping each copy to its own address is a schema change (many recipients
+ * per order) and the reason the price note above leaves room for it.
+ */
 export const MAX_EXTRA_COPIES = 4;
 
 /**

@@ -87,8 +87,8 @@ export default async function CheckoutPage({
             </label>
             <p className="mb-2 text-xs text-stone">
               For grandparents. Ordered now they ride along on the same print
-              run; ordered later they cost full price.
-            </p>
+              run &mdash; and all of them come to your address, so you can
+              write in them before you pass them on.</p>
             <select className="input" id="extra_copies" name="extra_copies" defaultValue="0">
               {Array.from({ length: MAX_EXTRA_COPIES + 1 }, (_, n) => (
                 <option key={n} value={n}>

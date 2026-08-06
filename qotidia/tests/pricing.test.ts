@@ -190,3 +190,29 @@ describe("the landing page and the plans on offer", () => {
     expect(layout).toContain('href="/pricing"');
   });
 });
+
+describe("the extra-copy price", () => {
+  // Both prices are env-overridable, which is the point — and also means a
+  // misconfiguration can put a physical object on sale below what it costs
+  // to make. These bounds are not a pricing opinion; they are the range
+  // outside which something has gone wrong.
+
+  it("is a discount, but not one that sells a hardcover at a loss", () => {
+    const ratio = PRICES.extraCopyAud() / PRICES.bookAud();
+    // Below about 40% of the book price, an extra copy stops covering a
+    // print cost that — unlike an offset run — barely scales with quantity.
+    expect(ratio).toBeGreaterThanOrEqual(0.4);
+    // Above about 80% it is not a discount and nobody buys a second one.
+    expect(ratio).toBeLessThanOrEqual(0.8);
+  });
+
+  it("tells the buyer where the extra copies actually go", () => {
+    // One recipient, N copies: they all arrive at the buyer's address and
+    // the parent re-posts. Discovering that on delivery is a support email.
+    const checkout = readFileSync(
+      new URL("../src/app/books/[bookId]/checkout/page.tsx", import.meta.url),
+      "utf8"
+    );
+    expect(checkout).toMatch(/come to your address/);
+  });
+});
