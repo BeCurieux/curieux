@@ -68,11 +68,17 @@ function setSessionCookies(accessToken: string, refreshToken: string) {
 export async function signUp(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  // Which plan they came in on. Carried through onboarding rather than acted
+  // on here: nobody should be charged before they have told us a child's
+  // name, and a monthly plan started against an empty archive is a
+  // subscription to nothing.
+  const plan = String(formData.get("plan") ?? "") === "monthly" ? "monthly" : "one_off";
+
   const { data, error } = await anonAuthClient().auth.signUp({ email, password });
-  if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+  if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}&plan=${plan}`);
   if (data.session) {
     setSessionCookies(data.session.access_token, data.session.refresh_token);
-    redirect("/onboarding");
+    redirect(`/onboarding?plan=${plan}`);
   }
   redirect("/login?message=Check your email to confirm your account");
 }

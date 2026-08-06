@@ -15,6 +15,7 @@ import Link from "next/link";
 import { Shelf } from "./shelf";
 import { colourForAge } from "@/lib/book/colours";
 import { PRICES } from "@/lib/stripe";
+import { PLAN_PRICES } from "@/lib/billing/plans";
 
 const aud = (cents: number) => `A$${Math.round(cents / 100)}`;
 
@@ -167,8 +168,9 @@ export default function LandingPage() {
         {/* price */}
         <section className="border-t border-rule py-16 md:py-20">
           <h2 className="text-title lowercase">what it costs</h2>
-          <p className="mt-4 text-stone">
-            You pay for a book. You get a book. No subscription, nothing to cancel.
+          <p className="mt-4 max-w-[52ch] text-stone">
+            Two ways, and they&rsquo;re different things. Buy the book once, or
+            keep the year and the book comes with it.
           </p>
 
           <div className="card mt-8 max-w-lg border-clay">
@@ -191,8 +193,33 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="btn mt-6">start your year</Link>
+            <Link href="/signup?plan=one_off" className="btn mt-6">just the book</Link>
           </div>
+
+          {/* The second plan, stated rather than hidden behind a link. The
+              page said "no subscription, nothing to cancel" while a monthly
+              plan existed — the same landing-page-contradicts-the-checkout
+              failure this project started by fixing. */}
+          <div className="card mt-4 max-w-lg">
+            <div className="font-display text-5xl leading-none">
+              {aud(PLAN_PRICES.monthlyAud())}
+              <span className="ml-2 align-middle font-body text-sm text-stone">
+                a month, book included
+              </span>
+            </div>
+            <p className="mt-4 max-w-[42ch] text-sm leading-relaxed text-stone">
+              The archive stays open all year and each year&rsquo;s book is
+              included. Stop whenever you like &mdash; everything you&rsquo;ve
+              kept stays yours to read and download, always.
+            </p>
+            <Link href="/signup?plan=monthly" className="btn-secondary mt-6">keep the year</Link>
+          </div>
+
+          <p className="mt-6 text-sm">
+            <Link href="/pricing" className="text-ochre">
+              The two side by side
+            </Link>
+          </p>
 
           <p className="mt-6 max-w-[48ch] text-sm leading-relaxed text-stone">
             Extra copies for grandparents are {aud(PRICES.extraCopyAud())} each when ordered

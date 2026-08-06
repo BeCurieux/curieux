@@ -13,6 +13,7 @@ import {
   instalmentsOffered, orderTotalAud,
 } from "@/lib/stripe";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
+import { planCopy } from "@/lib/billing/plans";
 
 const landingSource = readFileSync(
   new URL("../src/app/page.tsx", import.meta.url),
@@ -20,6 +21,20 @@ const landingSource = readFileSync(
 );
 
 const aud = (cents: number) => `A$${cents / 100}`;
+
+/**
+ * The landing page with its comments removed, for assertions about what the
+ * page *claims*. Twice now a test like this has failed on a comment
+ * describing the very bug it was written to catch.
+ *
+ * Only whole-line // comments are stripped, never mid-line: a regex that
+ * eats from the first // onwards also eats every https:// URL on the page.
+ */
+const landingClaims = landingSource
+  .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/^\s*\/\/.*$/gm, "");
+
 
 describe("the price we advertise is the price we charge", () => {
   // Originally these asserted the literal "A$199" appeared in the page
@@ -140,5 +155,40 @@ describe("the auto-renewal terms", () => {
 
   it("states the price that will actually be charged", () => {
     expect(AUTORENEW_TERMS).toContain(`A$${PRICES.bookAud() / 100}`);
+  });
+});
+
+describe("the landing page and the plans on offer", () => {
+  // This project began by fixing a landing page that said A$199 while the
+  // checkout charged A$129. The same failure came back in a new shape: the
+  // page asserted "No subscription, nothing to cancel" for two commits
+  // after a monthly subscription shipped. A price that drifts is caught by
+  // the tests above; a *claim* that drifts was not caught by anything.
+
+  it("does not deny the existence of a plan that exists", () => {
+    expect(landingClaims).not.toMatch(/no subscription/i);
+    expect(landingClaims).not.toMatch(/nothing to cancel/i);
+  });
+
+  it("mentions every plan that can actually be bought", () => {
+    for (const plan of planCopy()) {
+      const shown =
+        landingSource.includes(`plan=${plan.id}`) ||
+        landingSource.includes(plan.name);
+      expect(shown, `the landing page never mentions the ${plan.id} plan`).toBe(true);
+    }
+  });
+
+  it("takes the monthly price from the same place the charge does", () => {
+    expect(landingSource).toContain("PLAN_PRICES.monthlyAud()");
+  });
+
+  it("is reachable from somewhere other than the landing page", () => {
+    // A pricing page nothing links to is a pricing page nobody reads.
+    const layout = readFileSync(
+      new URL("../src/app/layout.tsx", import.meta.url),
+      "utf8"
+    );
+    expect(layout).toContain('href="/pricing"');
   });
 });

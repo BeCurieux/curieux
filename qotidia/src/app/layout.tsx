@@ -39,6 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </>
             ) : (
               <>
+                <Link href="/pricing" className="hover:text-ochre">What it costs</Link>
                 <Link href="/login" className="hover:text-ochre">Log in</Link>
                 <Link href="/signup" className="btn !px-5 !py-2">Make their year</Link>
               </>
