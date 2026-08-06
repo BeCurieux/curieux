@@ -2,7 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverComponentsExternalPackages: ["playwright-core"],
+    // Both are Node-only and neither survives bundling: Playwright needs its
+    // own browser resolution, and archiver's dependency chain ships an
+    // exports map webpack rejects ("default condition should be last").
+    serverComponentsExternalPackages: ["playwright-core", "archiver"],
   },
 };
 

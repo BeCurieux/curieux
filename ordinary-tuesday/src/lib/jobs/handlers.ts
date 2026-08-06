@@ -17,6 +17,8 @@ import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
 import { announceRenewals, collectRenewals } from "@/lib/renewal/run";
+import { buildExport } from "@/lib/privacy/build-export";
+import { eraseFamily } from "@/lib/privacy/erase";
 import {
   bookReady as bookReadyEmail,
   orderShipped as orderShippedEmail,
@@ -34,7 +36,47 @@ export const handlers: Record<string, Handler> = {
   submit_print: submitPrint,
   poll_print_status: pollPrintStatus,
   notify_digest: notifyDigest,
+  build_export: buildExportJob,
+  erase_family: eraseFamilyJob,
 };
+
+/** Assemble a family's whole archive into one downloadable file. */
+async function buildExportJob(db: SupabaseClient, payload: Record<string, unknown>) {
+  const exportId = payload.export_id as string;
+  const familyId = payload.family_id as string;
+  try {
+    const built = await buildExport(db, familyId, exportId);
+    await db
+      .from("archive_exports")
+      .update({
+        status: "ready",
+        storage_path: built.storagePath,
+        size_bytes: built.sizeBytes,
+        item_count: built.itemCount,
+      })
+      .eq("id", exportId);
+  } catch (err) {
+    await db.from("archive_exports").update({ status: "failed" }).eq("id", exportId);
+    throw err;
+  }
+}
+
+/**
+ * Erase a family, irreversibly. Runs as a job rather than inline because a
+ * decade of photographs takes minutes to remove, and a request that times
+ * out halfway is the worst possible outcome for a deletion.
+ */
+async function eraseFamilyJob(db: SupabaseClient, payload: Record<string, unknown>) {
+  const familyId = payload.family_id as string;
+  const requestId = payload.request_id as string;
+  await eraseFamily(db, familyId);
+  // The deletion record survives the cascade deliberately: we must be able to
+  // show that we did this, and a receipt that deletes itself proves nothing.
+  await db
+    .from("deletion_requests")
+    .update({ status: "completed", completed_at: new Date().toISOString() })
+    .eq("id", requestId);
+}
 
 export async function runJob(db: SupabaseClient, job: Job): Promise<void> {
   const handler = handlers[job.type];

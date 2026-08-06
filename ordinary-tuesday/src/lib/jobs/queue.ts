@@ -14,7 +14,11 @@ export type JobType =
   | "submit_print"
   | "poll_print_status"
   /** Daily sweep: tells parents what is waiting, and warns of a closing year. */
-  | "notify_digest";
+  | "notify_digest"
+  /** Assemble a family's whole archive into one downloadable file. */
+  | "build_export"
+  /** Erase a family's archive, irreversibly, after they asked. */
+  | "erase_family";
 
 export interface Job {
   id: string;

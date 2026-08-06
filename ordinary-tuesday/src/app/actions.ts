@@ -19,8 +19,9 @@ import { sha256 } from "@/lib/media";
 import { randomBytes } from "node:crypto";
 import { roleForSubject, roleInFamily } from "@/lib/family/membership";
 import {
-  canComment, canManageAccess, canModerate, statusForNewMemory,
+  canComment, canEdit, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
+import { record, safeDetail } from "@/lib/privacy/activity";
 import { sendOnce } from "@/lib/email/send";
 import { invitation as invitationEmail } from "@/lib/email/messages";
 
@@ -778,6 +779,116 @@ export async function updateNotificationPreferences(formData: FormData) {
     .from("email_preferences")
     .upsert({ user_id: user.id, ...prefs }, { onConflict: "user_id" });
   redirect("/settings/notifications?saved=1");
+}
+
+// --------------------------------------------------------------- privacy
+
+/** Ask for a copy of everything. Anyone who can edit may take one. */
+export async function requestExport(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+
+  const role = await roleInFamily(db, familyId, user.id);
+  if (!canEdit(role)) throw new Error("not allowed to export this archive");
+
+  const { data: created, error } = await db
+    .from("archive_exports")
+    .insert({ family_id: familyId, requested_by: user.id })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  const admin = adminClient();
+  await enqueue(admin, "build_export", { export_id: created.id, family_id: familyId }, `export-${created.id}`);
+  await record(admin, {
+    familyId,
+    actorId: user.id,
+    actorLabel: user.email?.split("@")[0] ?? "Someone",
+    kind: "exported_archive",
+  });
+
+  revalidatePath(`/settings/privacy`);
+  redirect("/settings/privacy?export=preparing");
+}
+
+/**
+ * Delete everything. Irreversible, and treated as such: the owner must type
+ * the child's name, which is not friction for its own sake — it is the
+ * difference between a decision and a misclick on a phone.
+ */
+export async function deleteEverything(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  const typed = String(formData.get("confirmation") ?? "").trim();
+
+  const role = await roleInFamily(db, familyId, user.id);
+  if (!canManageAccess(role)) throw new Error("only the owner can delete this archive");
+
+  const { data: subjects } = await db
+    .from("subjects")
+    .select("display_name")
+    .eq("family_id", familyId)
+    .limit(1);
+  const expected = subjects?.[0]?.display_name ?? "";
+
+  if (!expected || typed.toLowerCase() !== expected.toLowerCase()) {
+    redirect(`/settings/privacy?error=${encodeURIComponent(`Type ${expected} exactly to confirm`)}`);
+  }
+
+  const { data: request, error } = await db
+    .from("deletion_requests")
+    .insert({ family_id: familyId, requested_by: user.id, confirmation: typed })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  const admin = adminClient();
+  await enqueue(admin, "erase_family", { family_id: familyId, request_id: request.id }, `erase-${request.id}`);
+  redirect("/settings/privacy?deleted=1");
+}
+
+/**
+ * Let support look, for a fixed period, because the family asked. Nobody
+ * here browses a family's memories otherwise.
+ */
+export async function grantSupportAccess(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  const reason = String(formData.get("reason") ?? "").trim() || "support request";
+
+  const role = await roleInFamily(db, familyId, user.id);
+  if (!canManageAccess(role)) throw new Error("only the owner can grant access");
+
+  const expires = new Date();
+  expires.setHours(expires.getHours() + 48);
+
+  await db.from("support_grants").insert({
+    family_id: familyId,
+    granted_by: user.id,
+    reason,
+    expires_at: expires.toISOString(),
+  });
+  await record(adminClient(), {
+    familyId,
+    actorId: user.id,
+    actorLabel: user.email?.split("@")[0] ?? "Someone",
+    kind: "support_access_granted",
+    detail: safeDetail(reason),
+  });
+  revalidatePath("/settings/privacy");
+}
+
+export async function revokeSupportAccess(formData: FormData) {
+  await requireUser();
+  const db = userClient();
+  await db
+    .from("support_grants")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", String(formData.get("grant_id")));
+  revalidatePath("/settings/privacy");
 }
 
 // ----------------------------------------------------------------- admin
