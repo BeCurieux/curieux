@@ -13,6 +13,7 @@ import { yearWord } from "@/lib/book/structure";
 import { FORMAT, imageTier } from "@/lib/book/format";
 import { colourForAge } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
+import { ghostscriptAvailable, toPressReady } from "@/lib/pdf/pdfx";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
@@ -593,7 +594,29 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
     target
   );
 
+  // What actually gets uploaded. For print this is replaced by the press
+  // pass below; for a digital copy Chromium's own output is what we want.
+  let bytes = result.pdf;
+
   if (target === "print") {
+    // The press pass runs before preflight, not after, for two reasons: the
+    // file preflight examines should be the file the printer receives, and
+    // reading the fonts back out of the produced PDF turns "fonts are
+    // embedded" from something we asserted into something we measured.
+    //
+    // Missing Ghostscript fails the job. A print file that silently skipped
+    // this step would still look fine here and arrive at Prodigi as PDF 1.4
+    // with no output intent — exactly the class of quiet wrongness the whole
+    // preflight discipline exists to catch.
+    if (!(await ghostscriptAvailable())) {
+      throw new Error("Ghostscript is unavailable; refusing to produce a print PDF without the press pass");
+    }
+    // Name and title, which is what the cover says — nothing in the document
+    // properties that isn't already printed on the outside of the book.
+    const docTitle = [subject?.display_name, book.title].filter(Boolean).join(" — ");
+    const press = await toPressReady(result.pdf, docTitle);
+    bytes = press.bytes;
+
     const placed: PlacedImage[] = [];
     for (const page of pageRows ?? []) {
       for (const b of page.book_content_blocks ?? []) {
@@ -629,7 +652,8 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
       bleedAdded: false,
       cropMarksAdded: false,
       images: placed,
-      fontsEmbedded: true,
+      // Counted in the produced file, not assumed of the renderer.
+      fontsEmbedded: press.embeddedFonts > 0,
       colourSpace: FORMAT.colourSpace,
       transparencyFlattened: true,
       overflowPages: result.overflowPages,
@@ -657,10 +681,10 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
     }
   }
 
-  const path = `books/${bookId}/${target}-${sha256(result.pdf).slice(0, 12)}.pdf`;
+  const path = `books/${bookId}/${target}-${sha256(bytes).slice(0, 12)}.pdf`;
   const { error: upErr } = await db.storage
     .from("renders")
-    .upload(path, result.pdf, { contentType: "application/pdf", upsert: true });
+    .upload(path, bytes, { contentType: "application/pdf", upsert: true });
   if (upErr) throw new Error(upErr.message);
 
   const column = target === "digital" ? "digital_pdf_path" : "print_pdf_path";

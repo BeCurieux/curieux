@@ -17,8 +17,17 @@ family memory.**
   implementation + deterministic mock for dev/tests
 - **Print** — provider-agnostic adapter (`src/lib/print/provider.ts`);
   Prodigi implementation + mock, white-label to customers
-- **PDF** — HTML template → headless Chromium → press-ready PDF, with
+- **PDF** — HTML template → headless Chromium → Ghostscript press pass →
   automated preflight (DPI, bleed, fonts, page count, overflow)
+
+  Print renders require **Ghostscript** on the host (`gs`). Chromium emits
+  PDF 1.4 with no output intent; the press pass lifts it to 1.6, attaches an
+  sRGB output intent, embeds every font and writes a real document title.
+  If `gs` is missing the render job fails rather than uploading a file that
+  quietly skipped the step. Digital copies do not need it.
+
+  Note the file is **not** PDF/X — Ghostscript cannot write an RGB PDF/X at
+  all, and Prodigi accepts RGB at trim size. See `src/lib/pdf/pdfx.ts`.
 
 ## Architecture map
 

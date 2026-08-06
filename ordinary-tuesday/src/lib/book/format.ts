@@ -44,7 +44,22 @@ export const FORMAT = {
 
   dpi: 300,
   colourSpace: "RGB" as const,
-  pdfStandard: "PDF/X-4" as const,
+
+  /**
+   * What the pipeline actually produces.
+   *
+   * This said "PDF/X-4" for a long time and was not true — the renderer
+   * emitted PDF 1.4. Trying to make it true turned up why it never could
+   * be: Ghostscript refuses to write a PDF/X file in anything but DeviceGray
+   * or DeviceCMYK, so RGB PDF/X-4 is not producible with this toolchain.
+   *
+   * Converting the book to CMYK to satisfy the standard would mean redoing a
+   * palette whose nineteen colours were each contrast-validated in RGB, to
+   * meet a requirement the printer does not impose — Prodigi accepts RGB at
+   * trim size. So the claim was corrected rather than the colour space.
+   * See lib/pdf/pdfx.ts for what is actually done instead.
+   */
+  pdfStandard: "PDF 1.6, RGB, sRGB output intent" as const,
 
   paper: "Mohawk Superfine Eggshell Ultrawhite 120gsm, uncoated",
   cover: "Matte laminated hardcover, printable spine",
