@@ -300,3 +300,28 @@ export async function createMembershipCheckout(opts: {
 export async function endMembership(subscriptionId: string) {
   return stripe().subscriptions.update(subscriptionId, { cancel_at_period_end: true });
 }
+
+/**
+ * Undo a cancellation that has not taken effect yet.
+ *
+ * Only meaningful between clicking cancel and the period actually ending.
+ * Worth having because that window is exactly when someone changes their
+ * mind, and the alternative is making them re-subscribe — which loses the
+ * months already counted toward this year's book and reads as a punishment
+ * for hesitating.
+ */
+export async function resumeMembership(subscriptionId: string) {
+  return stripe().subscriptions.update(subscriptionId, { cancel_at_period_end: false });
+}
+
+/** What Stripe currently believes about a subscription. Read, never assumed. */
+export async function membershipState(subscriptionId: string) {
+  const sub = await stripe().subscriptions.retrieve(subscriptionId);
+  return {
+    status: sub.status,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    currentPeriodEnd: sub.current_period_end
+      ? new Date(sub.current_period_end * 1000).toISOString()
+      : null,
+  };
+}

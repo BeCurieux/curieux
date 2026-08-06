@@ -92,6 +92,10 @@ export default async function PrivacyPage({
         <Link href="/settings/security" className="text-ochre">
           Getting in &mdash; passkeys and second factors
         </Link>
+        {" · "}
+        <Link href="/settings/billing" className="text-ochre">
+          What you&rsquo;re paying
+        </Link>
       </p>
 
       {searchParams.error && (

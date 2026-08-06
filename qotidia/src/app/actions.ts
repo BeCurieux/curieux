@@ -13,7 +13,10 @@ import {
   ACCESS_COOKIE, REFRESH_COOKIE, adminClient, requireAdmin, requireUser, userClient,
 } from "@/lib/supabase/server";
 import { enqueue, retry } from "@/lib/jobs/queue";
-import { AUTORENEW_TERMS, PRICES, clampExtraCopies, createBookCheckout } from "@/lib/stripe";
+import {
+  AUTORENEW_TERMS, PRICES, clampExtraCopies, createBookCheckout,
+  createMembershipCheckout, endMembership, resumeMembership,
+} from "@/lib/stripe";
 import { bookPriceFor } from "@/lib/billing/price";
 import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
@@ -1171,4 +1174,93 @@ export async function setCoverColourForAll(formData: FormData) {
   // by hand keeps what they chose — the standing preference is the rule
   // underneath, not a bulk overwrite of decisions already made.
   revalidatePath(`/subjects/${subjectId}`);
+}
+
+// -------------------------------------------------------------- membership
+
+/**
+ * Where a family's membership actions live.
+ *
+ * Cancelling is one click and needs no reason. There is no "are you sure",
+ * no offer, no survey and no retention flow — a product whose whole claim is
+ * that a family's memories are theirs cannot make leaving harder than
+ * joining, and the pricing page already promises everything stays readable.
+ */
+async function ownedFamily(db: ReturnType<typeof userClient>, familyId: string, userId: string) {
+  const role = await roleInFamily(db, familyId, userId);
+  if (!canManageAccess(role)) throw new Error("only the owner can change the plan");
+  const { data: family } = await db
+    .from("families")
+    .select("id, plan, membership_state, stripe_subscription_id, paid_until, months_paid_this_year")
+    .eq("id", familyId)
+    .single();
+  if (!family) throw new Error("family not found");
+  return family;
+}
+
+export async function cancelMembership(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  const family = await ownedFamily(db, familyId, user.id);
+
+  if (!family.stripe_subscription_id) {
+    redirect("/settings/billing?error=There%20is%20no%20membership%20to%20stop.");
+  }
+
+  // At the end of the period they have already paid for, not immediately.
+  // Taking away the month they just bought is both mean and a refund request.
+  await endMembership(family.stripe_subscription_id);
+
+  await adminClient().from("billing_events").insert({
+    family_id: familyId,
+    kind: "cancel_requested",
+    plan: family.plan,
+    state: family.membership_state,
+    note: "asked to stop at the end of the paid period",
+  });
+
+  revalidatePath("/settings/billing");
+  redirect("/settings/billing?stopped=1");
+}
+
+export async function resumeMembershipAction(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  const family = await ownedFamily(db, familyId, user.id);
+
+  if (!family.stripe_subscription_id) {
+    redirect("/settings/billing?error=There%20is%20no%20membership%20to%20restart.");
+  }
+
+  await resumeMembership(family.stripe_subscription_id);
+
+  await adminClient().from("billing_events").insert({
+    family_id: familyId,
+    kind: "cancel_withdrawn",
+    plan: family.plan,
+    state: family.membership_state,
+    note: "changed their mind before it ended",
+  });
+
+  revalidatePath("/settings/billing");
+  redirect("/settings/billing?resumed=1");
+}
+
+/** Start a membership from inside the product, for a one-off family. */
+export async function startMembership(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  await ownedFamily(db, familyId, user.id);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const session = await createMembershipCheckout({
+    familyId,
+    email: user.email!,
+    successUrl: `${appUrl}/settings/billing?started=1`,
+    cancelUrl: `${appUrl}/settings/billing`,
+  });
+  redirect(session.url!);
 }

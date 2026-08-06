@@ -259,7 +259,15 @@ function buildTables(): Record<string, Row[]> {
       { id: DEMO_USER.id, email: DEMO_USER.email, is_admin: true, subscription_status: "none", stripe_customer_id: null, created_at: day(0) },
       { id: "demo-grandpa", email: "grandpa@example.com", is_admin: false, subscription_status: "none", stripe_customer_id: null, created_at: day(30) },
     ],
-    families: [{ id: familyId, owner_user_id: DEMO_USER.id, family_name: "Demo family", created_at: day(0) }],
+    families: [{
+      id: familyId, owner_user_id: DEMO_USER.id, family_name: "Demo family", created_at: day(0),
+      // A monthly member eight months in: past the threshold, so this
+      // year's book is included and the billing page shows the state that
+      // most needs to read correctly.
+      plan: "monthly", membership_state: "active",
+      stripe_subscription_id: "sub_demo", paid_until: day(365),
+      months_paid_total: 8, months_paid_this_year: 8,
+    }],
     family_members: members,
     subjects: [{
       id: subjectId, family_id: familyId, subject_type: "child",
@@ -272,6 +280,14 @@ function buildTables(): Record<string, Row[]> {
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: [],
     memory_clusters: clusters, cluster_memories: clusterMembers,
+    billing_events: [
+      { family_id: familyId, kind: "invoice.paid", plan: "monthly", state: "active",
+        amount_aud: 1900, note: null, created_at: day(300) },
+      { family_id: familyId, kind: "invoice.paid", plan: "monthly", state: "active",
+        amount_aud: 1900, note: null, created_at: day(330) },
+      { family_id: familyId, kind: "subscription.active", plan: "monthly", state: "active",
+        amount_aud: null, note: null, created_at: day(120) },
+    ],
     follow_up_questions: [
       { id: "q-0", subject_id: subjectId, cluster_id: "cluster-0", status: "pending", answer: null, created_at: day(0),
         question: "I noticed the same blue rabbit appears in quite a few photos. Does it have a name?",
