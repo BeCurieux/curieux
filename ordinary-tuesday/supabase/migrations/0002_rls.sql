@@ -1,4 +1,4 @@
--- Ordinary Tuesday — Row Level Security.
+-- Qotidia — Row Level Security.
 -- Rule (brief §4): a user must never access another user's children,
 -- memories or generated books. Everything is scoped through family ownership.
 

@@ -20,26 +20,35 @@ export interface AgeColour {
   inkHex: string;
 }
 
+// The Qotidia spectrum. Warmer and softer than what preceded it, taken from
+// the design mockups: terracotta, mustard, dusty blue, olive, oatmeal, with
+// the remaining ages built out in the same family so a shelf of eighteen
+// still reads as one set rather than a paint chart.
+//
+// Every value is validated by coverContrastOk() — several here are a shade
+// or two deeper than the mockup, because a white name on a pale oatmeal
+// spine is unreadable across the room and worse on uncoated stock, which
+// flattens contrast further.
 export const AGE_COLOURS: AgeColour[] = [
-  { age: 0,  name: "warm parchment",     hex: "#E4DCC8", inkHex: "#26241D" },
-  { age: 1,  name: "dusty clay",         hex: "#A0603F", inkHex: "#FBF7F0" },
-  { age: 2,  name: "faded butter",       hex: "#DEC474", inkHex: "#2A2618" },
-  { age: 3,  name: "chalky blue",        hex: "#93A9B6", inkHex: "#1B2228" },
-  { age: 4,  name: "muted tomato",       hex: "#B05341", inkHex: "#FBF5F0" },
-  { age: 5,  name: "sage",               hex: "#8C9A7E", inkHex: "#1E2419" },
-  { age: 6,  name: "tobacco",            hex: "#6F5335", inkHex: "#FAF4EA" },
-  { age: 7,  name: "washed ultramarine", hex: "#5A6B96", inkHex: "#F6F5F2" },
-  { age: 8,  name: "ochre",              hex: "#C2913C", inkHex: "#2A2416" },
-  { age: 9,  name: "slate green",        hex: "#5E7169", inkHex: "#F4F4EE" },
-  { age: 10, name: "oxblood",            hex: "#7E3F42", inkHex: "#F7F0EC" },
-  { age: 11, name: "pale eucalypt",      hex: "#B7C0A8", inkHex: "#23281D" },
-  { age: 12, name: "indigo",             hex: "#414B69", inkHex: "#F2F3F1" },
-  { age: 13, name: "terracotta",         hex: "#8F4A2C", inkHex: "#FBF4EC" },
-  { age: 14, name: "stone",              hex: "#A9A69A", inkHex: "#22221C" },
-  { age: 15, name: "deep teal",          hex: "#3F5D5E", inkHex: "#F1F4F2" },
-  { age: 16, name: "mustard",            hex: "#B79433", inkHex: "#28230F" },
-  { age: 17, name: "plum",               hex: "#6A4A63", inkHex: "#F5F0F3" },
-  { age: 18, name: "graphite",           hex: "#4A4A48", inkHex: "#F2F2EE" },
+  { age: 0,  name: "oat",            hex: "#D9CFBE", inkHex: "#2B2721" },
+  { age: 1,  name: "eucalypt",       hex: "#63746B", inkHex: "#F7F8F4" },
+  { age: 2,  name: "terracotta",     hex: "#A95C3C", inkHex: "#FDF8F2" },
+  { age: 3,  name: "amber",          hex: "#C08A2E", inkHex: "#2A2210" },
+  { age: 4,  name: "dusty blue",     hex: "#577388", inkHex: "#F7F6F2" },
+  { age: 5,  name: "olive",          hex: "#6B7455", inkHex: "#FAF8F1" },
+  { age: 6,  name: "linen",          hex: "#CFC3AE", inkHex: "#2A261F" },
+  { age: 7,  name: "russet",         hex: "#95462E", inkHex: "#FBF4EC" },
+  { age: 8,  name: "wheat",          hex: "#C6A455", inkHex: "#2A2413" },
+  { age: 9,  name: "slate blue",     hex: "#4E6474", inkHex: "#F5F5F1" },
+  { age: 10, name: "moss",           hex: "#69744A", inkHex: "#F7F6EE" },
+  { age: 11, name: "shell",          hex: "#DBCFC4", inkHex: "#2C2721" },
+  { age: 12, name: "rust",           hex: "#9C5334", inkHex: "#FCF6EE" },
+  { age: 13, name: "ochre",          hex: "#B08430", inkHex: "#282111" },
+  { age: 14, name: "harbour",        hex: "#42596B", inkHex: "#F4F4F0" },
+  { age: 15, name: "fern",           hex: "#3F5A3E", inkHex: "#F6F6EE" },
+  { age: 16, name: "sand",           hex: "#C9B79A", inkHex: "#2A251D" },
+  { age: 17, name: "brick",          hex: "#8E4535", inkHex: "#FBF3EC" },
+  { age: 18, name: "walnut",         hex: "#5A4634", inkHex: "#F8F3EA" },
 ];
 
 export function colourForAge(age: number): AgeColour {

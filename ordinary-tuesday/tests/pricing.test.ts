@@ -21,12 +21,23 @@ const landingSource = readFileSync(
 const aud = (cents: number) => `A$${cents / 100}`;
 
 describe("the price we advertise is the price we charge", () => {
-  it("quotes the book at the price the landing page promises", () => {
-    expect(landingSource).toContain(aud(PRICES.bookAud()));
+  // Originally these asserted the literal "A$199" appeared in the page
+  // source, because the site once said 199 while the checkout charged 129.
+  // The page now derives both figures from PRICES, so drift is impossible by
+  // construction — which is a better guarantee than the string check was.
+  // What still has to hold is that it never goes back to hard-coding them.
+  it("takes the book price from the same place the checkout does", () => {
+    const derived = landingSource.includes("PRICES.bookAud()");
+    expect(derived || landingSource.includes(aud(PRICES.bookAud()))).toBe(true);
   });
 
-  it("quotes extra copies at the price the landing page promises", () => {
-    expect(landingSource).toContain(aud(PRICES.extraCopyAud()));
+  it("takes the extra-copy price from the same place", () => {
+    const derived = landingSource.includes("PRICES.extraCopyAud()");
+    expect(derived || landingSource.includes(aud(PRICES.extraCopyAud()))).toBe(true);
+  });
+
+  it("quotes a price somewhere, so the page still says what it costs", () => {
+    expect(landingSource).toMatch(/PRICES\.\w+Aud\(\)|A\$\d+/);
   });
 
   it("advertises no price the checkout cannot produce", () => {

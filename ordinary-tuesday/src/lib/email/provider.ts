@@ -63,6 +63,6 @@ export function setEmailProvider(provider: EmailProvider | null): void {
 }
 
 export const FROM = {
-  address: process.env.EMAIL_FROM ?? "hello@ordinarytuesday.com",
-  name: "Ordinary Tuesday",
+  address: process.env.EMAIL_FROM ?? "hello@qotidia.com",
+  name: "Qotidia",
 };

@@ -19,9 +19,9 @@ import { countOf } from "@/lib/words";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
 import type { OutboundEmail } from "./provider";
 
-const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? "https://ordinarytuesday.com";
+const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";
 
-const SIGNOFF = "\n\nOrdinary Tuesday\nYou live it. We help you keep it.";
+const SIGNOFF = "\n\nQotidia\nYou live it. We help you keep it.";
 
 /** Appended to anything that is not strictly transactional. */
 const optOut = (token: string) =>

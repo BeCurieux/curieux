@@ -103,7 +103,7 @@ export function Uploader({ subjectId }: { subjectId: string }) {
         onDrop={(e) => { e.preventDefault(); setDragOver(false); void handleFiles(e.dataTransfer.files); }}
         onClick={() => inputRef.current?.click()}
         className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition ${
-          dragOver ? "border-boot bg-rule/40" : "border-rule bg-white"
+          dragOver ? "border-clay bg-rule/40" : "border-rule bg-white"
         }`}
       >
         <p className="font-display text-lg">Drop photos here</p>

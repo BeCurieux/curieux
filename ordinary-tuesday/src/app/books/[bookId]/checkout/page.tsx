@@ -40,7 +40,7 @@ export default async function CheckoutPage({
         </p>
       )}
 
-      <div className="card mt-8 border-boot">
+      <div className="card mt-8 border-clay">
         <div className="flex items-baseline justify-between">
           <h2 className="text-xl">The printed hardcover</h2>
           <span className="font-display text-3xl">{aud(bookPrice)}</span>

@@ -132,7 +132,7 @@ const PAGES: Omit<RenderPage, "pageNumber">[] = [
     T("text", "Favourite person: Grandpa, on Thursdays."),
     T("text", "Current project: Whistling.")] },
   { archetype: "ordinary_days", blocks: [
-    T("heading", "Ordinary Tuesdays"),
+    T("heading", "Ordinary days"),
     T("photo", photo(12, 1400, 1400)), T("photo", photo(13, 1400, 1400)),
     T("photo", photo(14, 1400, 1400)), T("photo", photo(15, 1400, 1400)),
     T("caption", "Breakfast · the walk · the kitchen bench · bath")] },
@@ -152,7 +152,7 @@ const pages: RenderPage[] = PAGES.map((p, i) => ({ ...p, pageNumber: i + 1 }));
 const book = {
   cover: {
     childName: "Florence", ageWord: "TWO", year: "2028",
-    imprint: "Ordinary Tuesday", colour: colourForAge(2), spineWidthMm: 12.8,
+    imprint: "Qotidia", colour: colourForAge(2), spineWidthMm: 12.8,
   },
   pages,
 };

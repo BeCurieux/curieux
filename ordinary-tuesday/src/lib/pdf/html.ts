@@ -205,20 +205,40 @@ ${renderBackCover(book.cover)}
  */
 function renderFrontCover(c: RenderCover): string {
   const m = FORMAT.outerMarginMm;
+  // Centred, lowercase, and quiet. The name is the largest thing on it but
+  // it is set at reading weight rather than shouted — the cover is meant to
+  // sit on a shelf for eighteen years, not to be seen once across a shop.
+  // The rules above and below the age do the work a heavier weight would.
   return `<div class="page" data-cover="front"
     style="background:${c.colour.hex};color:${c.colour.inkHex}">
-  <div class="content" style="inset:${m + 8}mm ${m}mm ${m}mm ${m}mm">
-    <div style="font-size:46pt;line-height:1;letter-spacing:0.01em;text-transform:uppercase">
-      ${esc(c.childName)}
+  <div class="content" style="inset:${m}mm;text-align:center">
+    <!-- The cluster centres inside its own flexible box. Centring it on the
+         parent instead fights .bottom's margin-top:auto, which absorbs the
+         free space and pushes everything to the top of the cover. -->
+    <div style="flex:1;display:flex;flex-direction:column;
+                align-items:center;justify-content:center">
+      <div style="font-size:36pt;line-height:1.1;letter-spacing:0.005em">
+        ${esc(c.childName.toLowerCase())}
+      </div>
+
+      <div style="width:${mm(18)}in;height:0.6pt;background:currentColor;
+                  opacity:0.5;margin:${mm(10)}in 0"></div>
+
+      <div style="font-size:20pt;line-height:1.2;letter-spacing:0.04em">
+        ${esc(c.ageWord.toLowerCase())}
+      </div>
+
+      <div style="width:${mm(18)}in;height:0.6pt;background:currentColor;
+                  opacity:0.5;margin:${mm(10)}in 0"></div>
+
+      <div style="font-family:${SANS};font-size:9.5pt;letter-spacing:0.2em;opacity:0.75">
+        ${esc(c.year)}
+      </div>
     </div>
-    <div style="margin-top:${mm(14)}in;font-size:96pt;line-height:0.86;
-                letter-spacing:-0.02em;text-transform:uppercase">
-      ${esc(c.ageWord)}
-    </div>
-    <div class="bottom" style="display:flex;justify-content:space-between;align-items:flex-end">
-      <span style="font-family:${SANS};font-size:9pt;letter-spacing:0.24em">${esc(c.year)}</span>
-      <span style="font-family:${SANS};font-size:7.5pt;letter-spacing:0.3em;text-transform:uppercase;opacity:0.7">
-        ${esc(c.imprint)}
+
+    <div class="bottom">
+      <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.26em;opacity:0.7">
+        ${esc(c.imprint.toLowerCase())}
       </span>
     </div>
   </div>
@@ -231,11 +251,11 @@ function renderBackCover(c: RenderCover): string {
     style="background:${c.colour.hex};color:${c.colour.inkHex}">
   <div class="content" style="inset:${m}mm">
     <div class="bottom" style="display:flex;justify-content:space-between;align-items:flex-end">
-      <span style="font-family:${SANS};font-size:7.5pt;letter-spacing:0.3em;text-transform:uppercase;opacity:0.7">
-        ${esc(c.imprint)}
+      <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.26em;opacity:0.7">
+        ${esc(c.imprint.toLowerCase())}
       </span>
-      <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.1em;opacity:0.55">
-        A year of ${esc(c.childName)}
+      <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.08em;opacity:0.55">
+        a year of ${esc(c.childName.toLowerCase())}
       </span>
     </div>
   </div>

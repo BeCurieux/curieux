@@ -67,7 +67,7 @@ export default async function OrderPage({ params }: { params: { orderId: string 
               <span
                 aria-hidden
                 className={`mt-1.5 h-2.5 w-2.5 flex-none rounded-full ${
-                  current ? "bg-boot ring-4 ring-boot/20" : done ? "bg-ink" : "border border-rule"
+                  current ? "bg-clay ring-4 ring-clay/20" : done ? "bg-ink" : "border border-rule"
                 }`}
               />
               <div>

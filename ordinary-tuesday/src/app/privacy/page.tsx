@@ -13,7 +13,7 @@ import Link from "next/link";
 import { BACKUP_EXPIRY_DAYS } from "@/lib/privacy/erase";
 
 export const metadata = {
-  title: "How we keep your family private — Ordinary Tuesday",
+  title: "How we keep your family private — Qotidia",
   description:
     "Private by default. No ads, no data sales, no AI training on your photographs. Export anytime, delete anytime.",
 };

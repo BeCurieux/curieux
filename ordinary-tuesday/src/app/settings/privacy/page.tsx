@@ -172,7 +172,7 @@ export default async function PrivacyPage({
           </p>
 
           {activeGrant ? (
-            <div className="card mt-4 flex flex-wrap items-center justify-between gap-3 border-boot !p-4 text-sm">
+            <div className="card mt-4 flex flex-wrap items-center justify-between gap-3 border-clay !p-4 text-sm">
               <div>
                 <div>Access granted until {friendlyDate(activeGrant.expires_at)}</div>
                 <div className="text-xs text-stone">{activeGrant.reason}</div>

@@ -59,6 +59,26 @@ describe("the annual colour system (§5)", () => {
     }
   });
 
+  it("keeps neighbouring years apart enough to tell on a shelf", () => {
+    // The shelf is the product, so two consecutive volumes must not look like
+    // the same book. Ages one and two once sat 6 apart in RGB — visually
+    // identical — which every contrast check passed happily.
+    const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const distance = (a: string, b: string) => {
+      const [x, y, z] = rgb(a);
+      const [p, q, r] = rgb(b);
+      return Math.hypot(x - p, y - q, z - r);
+    };
+    for (let i = 1; i < AGE_COLOURS.length; i++) {
+      const prev = AGE_COLOURS[i - 1];
+      const cur = AGE_COLOURS[i];
+      expect(
+        distance(prev.hex, cur.hex),
+        `${prev.name} and ${cur.name} are too alike`
+      ).toBeGreaterThan(45);
+    }
+  });
+
   it("cycles rather than failing past the designed range", () => {
     expect(colourForAge(25).hex).toBeTruthy();
   });

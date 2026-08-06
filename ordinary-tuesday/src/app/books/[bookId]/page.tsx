@@ -88,7 +88,7 @@ export default async function BookOverview({ params }: { params: { bookId: strin
             <div key={page.id} className="group relative">
               <Link
                 href={`/books/pages/${page.id}`}
-                className="card block aspect-[1/1.41] overflow-hidden !p-4 transition hover:border-boot"
+                className="card block aspect-[1/1.41] overflow-hidden !p-4 transition hover:border-clay"
               >
                 {/* The template id is ours, not theirs. A parent looking at
                     their child's book should see the chapter it belongs to —

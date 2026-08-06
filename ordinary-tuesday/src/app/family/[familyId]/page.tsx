@@ -56,7 +56,7 @@ export default async function FamilyAccessPage({
       )}
 
       {searchParams.invited && (
-        <div className="card mt-6 border-boot">
+        <div className="card mt-6 border-clay">
           <p className="text-sm">
             Invitation ready. Send them this link &mdash; it works once, and
             only for them.

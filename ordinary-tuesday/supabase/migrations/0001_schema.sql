@@ -1,4 +1,4 @@
--- Ordinary Tuesday — core schema.
+-- Qotidia — core schema.
 -- Every user-owned table gets RLS in 0002_rls.sql. Storage policies in 0003_storage.sql.
 
 create extension if not exists pgcrypto;

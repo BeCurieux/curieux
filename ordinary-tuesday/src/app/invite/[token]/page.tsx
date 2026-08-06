@@ -52,7 +52,7 @@ export default async function InvitePage({ params }: { params: { token: string }
 
   return (
     <div className="mx-auto max-w-md py-20">
-      <p className="text-xs uppercase tracking-[0.2em] text-stone">Ordinary Tuesday</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-stone">Qotidia</p>
       <h1 className="mt-3 text-title">You&rsquo;ve been asked to help keep {who}&rsquo;s year.</h1>
       <p className="mt-4 text-sm leading-relaxed text-stone">
         A private archive of one childhood, kept by the family and printed once

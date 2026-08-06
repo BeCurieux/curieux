@@ -6,7 +6,7 @@ import { currentUser } from "@/lib/supabase/server";
 import { signOut } from "./actions";
 
 export const metadata: Metadata = {
-  title: "Ordinary Tuesday — You live it. We help you keep it.",
+  title: "Qotidia — You live it. We help you keep it.",
   description:
     "The year is already in your camera roll. We turn it into one beautiful hardcover book of their year.",
 };
@@ -23,9 +23,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
           <Link
             href={signedIn ? "/home" : "/"}
-            className="text-sm uppercase tracking-[0.3em]"
+            className="font-display text-xl lowercase tracking-tight"
           >
-            Ordinary Tuesday
+            Qotidia
           </Link>
           <nav className="flex items-center gap-5 text-sm">
             {signedIn ? (

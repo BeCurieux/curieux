@@ -70,7 +70,7 @@ const sheet = `<html><head><style>
                text-transform:uppercase; }
 </style></head><body>
   <h1>The Year You Were Two — Florence</h1>
-  <div class="sub">Ordinary Tuesday · A4 portrait · ${names.length - 2} interior pages</div>
+  <div class="sub">Qotidia · A4 portrait · ${names.length - 2} interior pages</div>
   <div class="grid">${thumbs}</div>
 </body></html>`;
 

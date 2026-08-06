@@ -41,7 +41,7 @@ export default async function PageEditor({ params }: { params: { pageId: string 
                 <input type="hidden" name="template_id" value={t.id} />
                 <button
                   className={`rounded-full px-4 py-1.5 text-xs ${
-                    t.id === page.template_id ? "bg-ink text-paper" : "border border-rule hover:border-boot"
+                    t.id === page.template_id ? "bg-ink text-paper" : "border border-rule hover:border-clay"
                   }`}
                 >
                   {t.name}

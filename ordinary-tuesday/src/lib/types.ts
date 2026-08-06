@@ -1,4 +1,4 @@
-// Ordinary Tuesday — shared domain types.
+// Qotidia — shared domain types.
 
 export type MemoryType =
   | "photo" | "video" | "quote" | "voice" | "text" | "artwork" | "milestone";

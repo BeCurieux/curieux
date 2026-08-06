@@ -1,4 +1,4 @@
--- Ordinary Tuesday — complete database setup.
+-- Qotidia — complete database setup.
 -- Paste this entire file into the Supabase SQL Editor and press Run.
 -- Schema, Row Level Security, private storage, subject types, and the
 -- token-gated listen layer for printed QR codes.
@@ -8,7 +8,7 @@
 -- 0001_schema.sql
 -- ============================================================
 
--- Ordinary Tuesday — core schema.
+-- Qotidia — core schema.
 -- Every user-owned table gets RLS in 0002_rls.sql. Storage policies in 0003_storage.sql.
 
 create extension if not exists pgcrypto;
@@ -326,7 +326,7 @@ $$;
 -- 0002_rls.sql
 -- ============================================================
 
--- Ordinary Tuesday — Row Level Security.
+-- Qotidia — Row Level Security.
 -- Rule (brief §4): a user must never access another user's children,
 -- memories or generated books. Everything is scoped through family ownership.
 
@@ -448,7 +448,7 @@ create policy "print_orders read" on print_orders for select using (owns_book(bo
 -- 0003_storage.sql
 -- ============================================================
 
--- Ordinary Tuesday — private storage buckets.
+-- Qotidia — private storage buckets.
 -- All child media is private by default (brief §4). No public buckets.
 -- Print PDFs are shared with the printer only via short-lived signed URLs.
 

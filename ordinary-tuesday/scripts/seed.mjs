@@ -15,7 +15,7 @@ if (!url || !key) {
 }
 const db = createClient(url, key, { auth: { persistSession: false } });
 
-const SEED_EMAIL = "demo@ordinarytuesday.test";
+const SEED_EMAIL = "demo@qotidia.test";
 const SEED_PASSWORD = "tuesday-demo-password";
 
 // Florence turned 2 a year ago; the book year is age 2→3.
@@ -67,7 +67,7 @@ const MEMORIES = [
   [224, "photo", "Swimming with Dad — 'under under' achieved, twice.", ["swimming"], ["Dad"]],
   [231, "quote", "Three songs, then one more three songs.", ["bedtime", "quote"], []],
   [238, "photo", "Strawberry-picking round two. She 'checked' every berry personally.", ["strawberries", "trip"], []],
-  [245, "photo", "Ordinary Tuesday: boots, Bun Bun, footpath, one hour.", ["ordinary_day", "yellow_boots", "bun_bun"], []],
+  [245, "photo", "Qotidia: boots, Bun Bun, footpath, one hour.", ["ordinary_day", "yellow_boots", "bun_bun"], []],
   [252, "photo", "Grandpa taught her to whistle. It's more of a hiss, but she's committed.", ["grandpa"], ["Grandpa"]],
   [259, "photo", "Last swimming lesson of the term — swam a metre to Mum.", ["swimming"], ["Mum"]],
   [266, "text",  "She told the checkout lady, very seriously: 'I do it my byself.'", ["phrase"], []],

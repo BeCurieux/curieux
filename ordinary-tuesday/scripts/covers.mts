@@ -35,7 +35,7 @@ for (const { age } of AGE_COLOURS) {
       childName: CHILD,
       ageWord: yearWord(age).toUpperCase(),
       year: String(FIRST_YEAR + age),
-      imprint: "Ordinary Tuesday",
+      imprint: "Qotidia",
       colour,
       spineWidthMm: 12.8,
     },
@@ -61,16 +61,16 @@ for (const { age } of AGE_COLOURS) {
 }
 
 // Contact sheet — the whole sequence at once, which is the actual argument.
-const sheetHtml = `<html><body style="margin:0;background:#E4E4DC;
+const sheetHtml = `<html><body style="margin:0;background:#ECE3D5;
   font-family:-apple-system,system-ui,sans-serif;padding:44px">
-  <div style="font-size:26px;letter-spacing:.28em;text-transform:uppercase;color:#191A17">Ordinary Tuesday</div>
-  <div style="font-size:15px;color:#5F635E;margin:10px 0 30px">
+  <div style="font-size:30px;color:#2B2620">qotidia</div>
+  <div style="font-size:15px;color:#6B6157;margin:10px 0 30px">
     Nineteen covers, one per age, each colour fixed for good.</div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:22px">
   ${files.map((f) => `<div>
       <img src="data:image/png;base64,${readFileSync(f.file).toString("base64")}"
            style="width:100%;display:block;box-shadow:0 3px 14px rgba(0,0,0,.16)"/>
-      <div style="font-size:12px;color:#5F635E;margin-top:7px">
+      <div style="font-size:12px;color:#6B6157;margin-top:7px">
         ${yearWord(f.age)} &middot; ${f.colour}</div>
     </div>`).join("")}
   </div></body></html>`;
@@ -81,16 +81,16 @@ await sheetPage.screenshot({ path: `${OUT}/all-covers.png`, fullPage: true });
 await sheetPage.close();
 
 // Shelf view — spines together, which is how a family actually sees them.
-const shelfHtml = `<html><body style="margin:0;background:#E4E4DC;
+const shelfHtml = `<html><body style="margin:0;background:#ECE3D5;
   font-family:-apple-system,system-ui,sans-serif;padding:56px 44px">
-  <div style="font-size:15px;color:#5F635E;margin-bottom:26px">
+  <div style="font-size:15px;color:#6B6157;margin-bottom:26px">
     Eighteen years on a shelf. The gap is the one you haven&rsquo;t made yet.</div>
-  <div style="display:flex;align-items:flex-end;gap:7px;border-bottom:5px solid #BEBEB3;padding-bottom:16px">
+  <div style="display:flex;align-items:flex-end;gap:7px;border-bottom:5px solid #D4C8B6;padding-bottom:16px">
   ${AGE_COLOURS.filter((c) => c.age >= 1 && c.age <= 12).map((c, i) => {
     const missing = c.age === 7;
     const h = 330 + (i % 4) * 13;
     return `<div style="height:${h}px;width:62px;border-radius:3px 3px 0 0;
-      ${missing ? "border:2px dashed #BEBEB3" : `background:${c.hex};color:${c.inkHex};box-shadow:0 2px 9px rgba(0,0,0,.14)`};
+      ${missing ? "border:2px dashed #D4C8B6" : `background:${c.hex};color:${c.inkHex};box-shadow:0 2px 9px rgba(0,0,0,.14)`};
       display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:15px 6px">
       <span style="writing-mode:vertical-rl;white-space:nowrap;font-size:15px;
         ${missing ? "color:#8A8D86" : ""}">

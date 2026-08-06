@@ -515,7 +515,7 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
         childName: subject?.display_name ?? "",
         ageWord: yearWord(age).toUpperCase(),
         year: String(new Date(book.end_date).getFullYear()),
-        imprint: "Ordinary Tuesday",
+        imprint: "Qotidia",
         colour,
         spineWidthMm: spine.widthMm,
       },

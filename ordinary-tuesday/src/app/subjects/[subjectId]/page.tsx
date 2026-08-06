@@ -112,13 +112,13 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       </div>
 
       <div className="mt-10 grid gap-4 md:grid-cols-3">
-        <Link href={`/subjects/${child.id}/upload`} className="card hover:border-boot">
+        <Link href={`/subjects/${child.id}/upload`} className="card hover:border-clay">
           <h2 className="text-lg">Add to {first}&rsquo;s year</h2>
           <p className="mt-1 text-sm text-stone">
             Photos, something {subject} said, a day you don&rsquo;t want to lose.
           </p>
         </Link>
-        <Link href={`/subjects/${child.id}/little-things`} className="card hover:border-boot">
+        <Link href={`/subjects/${child.id}/little-things`} className="card hover:border-clay">
           <h2 className="text-lg">The little things</h2>
           <p className="mt-1 text-sm text-stone">
             {littleThings && littleThings.length > 0
@@ -126,7 +126,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
               : `Right now — what ${verb} ${subject} obsessed with?`}
           </p>
         </Link>
-        <Link href={`/subjects/${child.id}/questions`} className="card hover:border-boot">
+        <Link href={`/subjects/${child.id}/questions`} className="card hover:border-clay">
           <h2 className="text-lg">
             {questionCount
               ? <>We wondered {countOf(questionCount, "thing")}</>
@@ -187,7 +187,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           into a dispute. It sits on the dashboard, with the date, the amount
           and the way out, for everyone in the family to see. */}
       {renewal && (
-        <div className="card mt-12 border-boot">
+        <div className="card mt-12 border-clay">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h2 className="text-lg">
@@ -211,7 +211,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       {pendingCount > 0 && canModerate(role) && (
         <Link
           href={`/subjects/${child.id}/review`}
-          className="card mt-12 flex items-center justify-between border-boot hover:border-ink"
+          className="card mt-12 flex items-center justify-between border-clay hover:border-ink"
         >
           <div>
             <h2 className="text-lg">{countOf(pendingCount, "thing")} waiting on you</h2>

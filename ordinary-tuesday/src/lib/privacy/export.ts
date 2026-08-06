@@ -83,7 +83,7 @@ export const extensionFor = (mime: string | null): string =>
   (mime && EXTENSIONS[mime]) || "bin";
 
 export const EXPORT_NOTE =
-  `This is everything your family kept, exported from Ordinary Tuesday.\n\n` +
+  `This is everything your family kept, exported from Qotidia.\n\n` +
   `The folders are arranged by child and by year, and the filenames describe ` +
   `what is in them, so you can browse this on any computer without our software ` +
   `and without us. manifest.json holds the same information in a structured ` +

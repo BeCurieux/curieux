@@ -12,7 +12,7 @@
 
 export const DEMO_USER = {
   id: "demo-user",
-  email: "demo@ordinarytuesday.test",
+  email: "demo@qotidia.test",
 };
 
 type Row = Record<string, any>;
@@ -70,7 +70,7 @@ const MEMORY_SEED: [number, string, string, string[]][] = [
   [196, "photo", "Thursday at Grandpa's: first time she 'drove' the mower.", ["grandpa"]],
   [210, "photo", "Yellow boots at the museum.", ["yellow_boots"]],
   [231, "quote", "Three songs, then one more three songs.", ["bedtime"]],
-  [245, "photo", "Ordinary Tuesday: boots, Bun Bun, footpath, one hour.", ["ordinary_day", "bun_bun"]],
+  [245, "photo", "An ordinary Tuesday: boots, Bun Bun, footpath, one hour.", ["ordinary_day", "bun_bun"]],
   [259, "photo", "Last swimming lesson of the term — swam a metre to Mum.", ["swimming"]],
   [273, "photo", "Bun Bun went through the wash. Emotional afternoon.", ["bun_bun"]],
   [280, "photo", "An ordinary morning: boots on the wrong feet, refused all help.", ["ordinary_day"]],

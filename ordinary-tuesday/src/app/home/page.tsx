@@ -22,7 +22,7 @@ export default async function HomePage() {
       <h1 className="text-3xl">Your children</h1>
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {children.map((c) => (
-          <Link key={c.id} href={`/subjects/${c.id}`} className="card hover:border-boot">
+          <Link key={c.id} href={`/subjects/${c.id}`} className="card hover:border-clay">
             <div className="font-display text-2xl">{c.display_name}</div>
             <div className="mt-1 text-sm text-stone">Born {c.date_of_birth}</div>
           </Link>

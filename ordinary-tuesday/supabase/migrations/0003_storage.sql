@@ -1,4 +1,4 @@
--- Ordinary Tuesday — private storage buckets.
+-- Qotidia — private storage buckets.
 -- All child media is private by default (brief §4). No public buckets.
 -- Print PDFs are shared with the printer only via short-lived signed URLs.
 

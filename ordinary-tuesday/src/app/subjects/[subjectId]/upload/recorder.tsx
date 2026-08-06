@@ -128,7 +128,7 @@ export function Recorder({ subjectId }: { subjectId: string }) {
       {phase === "recording" && (
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 font-display text-3xl tabular-nums">
-            <span className="h-3 w-3 animate-pulse rounded-full bg-boot" aria-hidden="true" />
+            <span className="h-3 w-3 animate-pulse rounded-full bg-clay" aria-hidden="true" />
             {mmss}
           </div>
           <button onClick={stop} className="btn mt-4">Stop</button>

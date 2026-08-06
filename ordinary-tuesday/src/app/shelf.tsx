@@ -59,7 +59,7 @@ export function Shelf({
               style={{ height: `${height}rem` }}
             >
               <span className="[writing-mode:vertical-rl] whitespace-nowrap text-xs text-stone">
-                {yearWord(age)}
+                {yearWord(age).toLowerCase()}
               </span>
             </div>
           );
@@ -79,7 +79,7 @@ export function Shelf({
             title={`${yearWord(age)} — ${colour.name}`}
           >
             <span className="[writing-mode:vertical-rl] whitespace-nowrap text-sm">
-              The Year You Were {yearWord(age)}
+              {yearWord(age).toLowerCase()}
             </span>
             <span className="text-[0.6rem] tracking-widest opacity-70">{age}</span>
           </div>
