@@ -17,6 +17,7 @@
 // timestamps. What went in is what comes out.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { SERVABLE_VERDICT } from "@/lib/media/verify";
 
 export interface ExportEntry {
   /** Path inside the archive, e.g. "2027/03-March/14-yellow-boots.jpg". */
@@ -40,6 +41,8 @@ export interface ExportManifest {
       text: string | null;
       transcript: string | null;
       file: string | null;
+      /** Why the file is absent, when it is. null when nothing is missing. */
+      fileMissing: string | null;
       addedBy: string;
       status: string;
     }[];
@@ -116,7 +119,7 @@ export async function collectArchive(
   for (const s of subjects ?? []) {
     const { data: memories } = await db
       .from("memories")
-      .select("id, type, raw_text, transcript, memory_date, created_at, created_by, contribution_status, media_assets(storage_path, mime_type)")
+      .select("id, type, raw_text, transcript, memory_date, created_at, created_by, contribution_status, media_assets(storage_path, mime_type, scan_verdict, scan_reason)")
       .eq("subject_id", s.id)
       .order("memory_date");
 
@@ -125,10 +128,19 @@ export async function collectArchive(
     for (const m of (memories ?? []) as any[]) {
       const asset = m.media_assets?.[0];
       let filePath: string | null = null;
+      let missing: string | null = null;
 
-      if (asset?.storage_path) {
+      if (asset?.storage_path && asset.scan_verdict === SERVABLE_VERDICT) {
         filePath = pathForMemory(m, extensionFor(asset.mime_type), s.display_name);
         entries.push({ path: filePath, storagePath: asset.storage_path });
+      } else if (asset) {
+        // An export that quietly skipped a file would be the worst kind of
+        // omission — the whole promise of this feature is that what comes
+        // out is everything. So the manifest says the file is absent and
+        // why, rather than the row simply having no file against it.
+        missing = asset.scan_verdict === "pending"
+          ? "This file had not finished being checked when the export was built."
+          : asset.scan_reason ?? "This file was refused and is no longer stored.";
       }
 
       // Written text is also written out as a plain file beside the photo, so
@@ -148,6 +160,7 @@ export async function collectArchive(
         text: m.raw_text,
         transcript: m.transcript,
         file: filePath,
+        fileMissing: missing,
         addedBy: m.created_by,
         status: m.contribution_status ?? "approved",
       });

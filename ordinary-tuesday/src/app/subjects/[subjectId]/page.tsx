@@ -6,7 +6,7 @@ import { cancelRenewal, createBook } from "@/app/actions";
 import { yearWord } from "@/lib/book/structure";
 import { ageInYears } from "@/lib/book/format";
 import { countOf, friendlyDate } from "@/lib/words";
-import { resolvePhotoUrls } from "@/lib/book/photos";
+import { countAwaitingCheck, resolvePhotoUrls } from "@/lib/book/photos";
 import { Shelf } from "@/app/shelf";
 import { roleForSubject } from "@/lib/family/membership";
 import { canModerate } from "@/lib/family/roles";
@@ -92,10 +92,12 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       ? subject === "they" ? "were" : "was"
       : verb;
 
-  const recentPhotos = await resolvePhotoUrls(
-    db,
-    (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id)
-  );
+  const recentPhotoIds = (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id);
+  const recentPhotos = await resolvePhotoUrls(db, recentPhotoIds);
+  // Photographs are withheld until they have been read server-side. That is
+  // right, but silent — and a parent who has just uploaded and sees nothing
+  // would reasonably think it failed.
+  const awaitingCheck = await countAwaitingCheck(db, recentPhotoIds);
 
   return (
     <div className="py-10">
@@ -267,6 +269,13 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
             All of {first}&rsquo;s years
           </Link>
         </div>
+        {awaitingCheck > 0 && (
+          <p className="mt-2 text-sm text-stone">
+            {countOf(awaitingCheck, "photograph", "photographs")} still being
+            checked &mdash; they&rsquo;ll appear here on their own. We read
+            every file before showing it to anyone.
+          </p>
+        )}
         {recent && recent.length > 0 ? (
           <ul className="mt-4 space-y-2">
             {/* No type badges. A quote is shown as a quote and a photo says so

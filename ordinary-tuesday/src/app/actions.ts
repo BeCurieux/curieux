@@ -169,22 +169,35 @@ export async function registerUploadedPhoto(input: {
     .single();
   if (error) throw new Error(error.message);
 
-  const { error: assetErr } = await db.from("media_assets").insert({
-    memory_id: memory.id,
-    storage_path: input.storagePath,
-    mime_type: input.mimeType,
-    width: input.width,
-    height: input.height,
-    capture_timestamp: input.captureTimestamp,
-    checksum: input.checksum,
-    processing_status: "pending",
-  });
-  if (assetErr) throw new Error(assetErr.message);
+  // Everything the browser said about this file is written down as a claim,
+  // not as fact — the scan job reads the bytes and corrects all of it. Until
+  // then scan_verdict is 'pending', which is what keeps the file from being
+  // served, laid out or printed.
+  const { data: asset, error: assetErr } = await db
+    .from("media_assets")
+    .insert({
+      memory_id: memory.id,
+      storage_path: input.storagePath,
+      mime_type: input.mimeType,
+      width: input.width,
+      height: input.height,
+      capture_timestamp: input.captureTimestamp,
+      checksum: input.checksum,
+      processing_status: "pending",
+    })
+    .select("id")
+    .single();
+  if (assetErr || !asset) throw new Error(assetErr?.message ?? "could not record that file");
+
+  // One job per file, and deliberately not batched the way analysis is: this
+  // one gates whether the photograph is ever shown, so a parent watching an
+  // upload finish should not wait on an hour window to see it.
+  await enqueue(adminClient(), "scan_asset", { asset_id: asset.id }, `scan-${asset.id}`);
 
   // Queue analysis in batches — one job per child per hour window.
   const window = Math.floor(Date.now() / (60 * 60 * 1000));
   await enqueue(adminClient(), "analyse_memories", { subject_id: input.subjectId }, `analyse-${input.subjectId}-${window}`);
-  return { duplicate: false as const, memoryId: memory.id };
+  return { duplicate: false as const, memoryId: memory.id, assetId: asset.id };
 }
 
 /** Voice memory: recording already uploaded to private storage by the client. */
@@ -220,18 +233,27 @@ export async function registerVoiceMemory(input: {
     .single();
   if (error) throw new Error(error.message);
 
-  const { error: assetErr } = await db.from("media_assets").insert({
-    memory_id: memory.id,
-    storage_path: input.storagePath,
-    mime_type: input.mimeType,
-    duration_seconds: input.durationSeconds,
-    checksum: input.checksum,
-    processing_status: "complete",
-  });
-  if (assetErr) throw new Error(assetErr.message);
+  // A recording made in the browser is still an upload, and gets the same
+  // treatment: the recorder is our code but the bytes arriving at storage
+  // are not something the server watched happen.
+  const { data: asset, error: assetErr } = await db
+    .from("media_assets")
+    .insert({
+      memory_id: memory.id,
+      storage_path: input.storagePath,
+      mime_type: input.mimeType,
+      duration_seconds: input.durationSeconds,
+      checksum: input.checksum,
+      processing_status: "complete",
+    })
+    .select("id")
+    .single();
+  if (assetErr || !asset) throw new Error(assetErr?.message ?? "could not record that recording");
+
+  await enqueue(adminClient(), "scan_asset", { asset_id: asset.id }, `scan-${asset.id}`);
 
   revalidatePath(`/subjects/${input.subjectId}`);
-  return { memoryId: memory.id };
+  return { memoryId: memory.id, assetId: asset.id };
 }
 
 export async function addTextMemory(formData: FormData) {

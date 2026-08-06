@@ -10,6 +10,10 @@
 // let you leave with everything.
 
 import Link from "next/link";
+// The malware sentence prints only when a real engine is configured. A
+// privacy claim backed by the mock scanner would be exactly the kind of
+// thing this page exists to not do.
+import { scannerIsReal } from "@/lib/media/scanner";
 import { BACKUP_EXPIRY_DAYS } from "@/lib/privacy/erase";
 
 export const metadata = {
@@ -102,6 +106,7 @@ export default function PrivacyExplainerPage() {
             {[
               ["Your phone", "The photograph and what you wrote about it.", true],
               ["Encrypted on the way", "Nothing travels in the clear.", true],
+              ["Read before it is stored", `Every file is opened server-side and checked that it is the kind of file it says it is. Anything that isn't is refused and never shown to anyone, including you.${scannerIsReal() ? " It is scanned for malware in the same pass." : ""}`, true],
               ["Your family's private archive", "Only people you invited can reach it. Images are served as links that expire in minutes.", true],
               ["What the AI sees", "The words, dates and tags only — never the photograph, never your address, never anything it doesn't need for the question being asked.", false],
               ["The result comes back", "A suggested grouping, or a question for you to answer. You decide what's true.", true],

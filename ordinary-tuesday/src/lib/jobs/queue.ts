@@ -18,7 +18,9 @@ export type JobType =
   /** Assemble a family's whole archive into one downloadable file. */
   | "build_export"
   /** Erase a family's archive, irreversibly, after they asked. */
-  | "erase_family";
+  | "erase_family"
+  /** Read an upload's bytes and decide whether it may ever be served. */
+  | "scan_asset";
 
 export interface Job {
   id: string;

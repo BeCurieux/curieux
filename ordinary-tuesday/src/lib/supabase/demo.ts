@@ -121,9 +121,14 @@ function buildTables(): Record<string, Row[]> {
       tags.push({ id: `tag-${i}-${t}`, memory_id: id, tag, source: "parent" }));
     if (type === "photo") {
       assets.push({
-        id: `asset-${i}`, memory_id: id, storage_path: `demo/${i}.svg`,
-        mime_type: "image/svg+xml", width: 1600, height: 2100,
+        id: `asset-${i}`, memory_id: id, storage_path: `demo/${i}.png`,
+        // Not image/svg+xml, which real uploads are refused for — a fixture
+        // carrying a type the product rejects reads as a bug in the product.
+        mime_type: "image/png", width: 1600, height: 2100,
         checksum: `demo-${i}`, processing_status: "complete",
+        // The demo's photographs are generated, so they are the one case
+        // where "clean" is true without a scan having run.
+        scan_verdict: "clean", scan_reason: null, scanned_by: "fixture",
         capture_timestamp: day(offset), duration_seconds: null, thumbnail_path: null,
       });
     }

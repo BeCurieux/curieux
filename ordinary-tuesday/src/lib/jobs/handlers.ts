@@ -14,6 +14,9 @@ import { FORMAT, imageTier } from "@/lib/book/format";
 import { colourForAge } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
 import { ghostscriptAvailable, toPressReady } from "@/lib/pdf/pdfx";
+import { SERVABLE_VERDICT, verifyUpload } from "@/lib/media/verify";
+import { getScanner } from "@/lib/media/scanner";
+import { record } from "@/lib/privacy/activity";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
@@ -40,7 +43,107 @@ export const handlers: Record<string, Handler> = {
   notify_digest: notifyDigest,
   build_export: buildExportJob,
   erase_family: eraseFamilyJob,
+  scan_asset: scanAsset,
 };
+
+/**
+ * Read an upload's bytes and decide whether it may ever be served.
+ *
+ * Runs as a job rather than inline for a plain reason: the client uploads
+ * straight to storage and only then tells the server, so by the time any of
+ * our code could look at the file it is already in the bucket. What we
+ * control is whether anything ever hands it back out — and that is what the
+ * verdict gates.
+ *
+ * Two checks, answering different questions. verifyUpload asks whether the
+ * file is the kind of thing it claims to be, which is the one that matters
+ * here: our files return to browsers through signed URLs, and a text/html
+ * upload served from the storage origin is a script. The scanner asks
+ * whether the file is one someone will be harmed by — a genuine JPEG with a
+ * genuine payload passes every structural check and still should not sit in
+ * a family's archive for a decade.
+ */
+async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
+  const assetId = payload.asset_id as string;
+  const { data: asset } = await db.from("media_assets").select("*").eq("id", assetId).single();
+  if (!asset) return; // deleted before we got to it — nothing to gate
+  if (asset.scan_verdict === "clean" || asset.scan_verdict === "quarantined") return;
+
+  const scanner = getScanner();
+  const stamp = { scanned_at: new Date().toISOString(), scanned_by: scanner.name };
+
+  const { data: file, error: dlErr } = await db.storage.from("media").download(asset.storage_path);
+  if (dlErr || !file) {
+    // 'failed' rather than 'quarantined': we did not find a problem with the
+    // file, we failed to look. Those must not read the same afterwards.
+    await db.from("media_assets").update({
+      scan_verdict: "failed",
+      scan_reason: "We could not read that file back to check it.",
+      ...stamp,
+    }).eq("id", assetId);
+    throw new Error(dlErr?.message ?? "could not download asset for scanning");
+  }
+
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const checked = verifyUpload(bytes, {
+    mimeType: asset.mime_type,
+    checksum: asset.checksum,
+    width: asset.width,
+    height: asset.height,
+  });
+
+  let verdict = checked.verdict;
+  let reason = checked.reason;
+  if (verdict === "clean") {
+    const found = await scanner.scan(bytes);
+    if (found.infected) {
+      verdict = "quarantined";
+      // The signature is recorded, not shown. It names malware, not the
+      // parent's file, and a parent reading their own activity log should
+      // not have to parse "Win.Trojan.Agent-1234567".
+      reason = "That file was refused by the virus scanner.";
+      await db.from("media_assets").update({ scan_signature: found.signature }).eq("id", assetId);
+    }
+  }
+
+  await db.from("media_assets").update({
+    scan_verdict: verdict,
+    scan_reason: reason,
+    declared_mime: asset.mime_type,
+    // Written from the bytes, whatever the browser said. The dimensions in
+    // particular decide the print tier — a lie there is a full-page
+    // photograph printed at 30 DPI in a book someone paid for.
+    mime_type: checked.mimeType ?? asset.mime_type,
+    width: checked.width,
+    height: checked.height,
+    checksum: checked.checksum,
+    ...stamp,
+  }).eq("id", assetId);
+
+  if (verdict === "quarantined") {
+    // The bytes go. Keeping a refused file costs storage, keeps a hazard in
+    // the bucket, and protects nobody — the row and its reason are the part
+    // worth keeping, so the parent can be told what happened and why.
+    await db.storage.from("media").remove([asset.storage_path]);
+
+    const { data: memory } = await db
+      .from("memories")
+      .select("subject_id, created_by, subjects(family_id)")
+      .eq("id", asset.memory_id)
+      .single();
+    if (memory) {
+      await record(db, {
+        familyId: (memory as any).subjects?.family_id,
+        subjectId: memory.subject_id,
+        actorId: null,
+        actorLabel: "Qotidia",
+        kind: "upload_refused",
+        // The reason describes the file's type. Never its contents.
+        detail: reason,
+      });
+    }
+  }
+}
 
 /** Assemble a family's whole archive into one downloadable file. */
 async function buildExportJob(db: SupabaseClient, payload: Record<string, unknown>) {
@@ -289,11 +392,14 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
     );
   }
 
-  // Photo assets for pagination.
+  // Photo assets for pagination. Gated: a photograph that has not been read
+  // server-side and found to be what it claimed must not be laid out, let
+  // alone printed and posted.
   const { data: assets } = await db
     .from("media_assets")
     .select("*")
-    .in("memory_id", memories.length ? memories.map((m) => m.id) : ["-"]);
+    .in("memory_id", memories.length ? memories.map((m) => m.id) : ["-"])
+    .eq("scan_verdict", SERVABLE_VERDICT);
   const assetsByMemory = new Map<string, MediaAsset>(
     (assets ?? []).map((a: any) => [a.memory_id, a])
   );
@@ -530,10 +636,14 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
       if (b.type === "photo") memoryIds.add(b.content);
     }
   }
+  // Gated again at render. Pagination already excluded anything unverified,
+  // but a book can sit approved for days and this is the last read before a
+  // file is handed to a printer.
   const { data: assets } = await db
     .from("media_assets")
     .select("*")
-    .in("memory_id", memoryIds.size ? [...memoryIds] : ["-"]);
+    .in("memory_id", memoryIds.size ? [...memoryIds] : ["-"])
+    .eq("scan_verdict", SERVABLE_VERDICT);
   const assetByMemory = new Map<string, MediaAsset>((assets ?? []).map((a: any) => [a.memory_id, a]));
 
   const urlByMemory = new Map<string, string>();

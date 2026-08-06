@@ -30,7 +30,8 @@ export type ActivityKind =
   | "ordered_book"
   | "cancelled_renewal"
   | "support_access_granted"
-  | "support_access_used";
+  | "support_access_used"
+  | "upload_refused";
 
 /** How each event reads to a family. Second person for your own actions. */
 export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
@@ -49,6 +50,7 @@ export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
   cancelled_renewal: "stopped a scheduled printing",
   support_access_granted: "gave our support team temporary access",
   support_access_used: "— our support team looked, with your permission",
+  upload_refused: "— a file was refused before it was stored",
 };
 
 /**
