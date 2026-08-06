@@ -83,9 +83,11 @@ const MEMORY_SEED: [number, string, string, string[]][] = [
   [84, "photo", "Picking strawberries at the farm with Mum.", ["strawberries"]],
   [98, "photo", "Beach morning. The bucket was for shells; the shells were for Bun Bun.", ["beach"]],
   [105, "photo", "Beach again — chasing the water back and forth for an hour.", ["beach"]],
+  [112, "photo", "Last morning at the beach. Would not put shoes on.", ["beach"]],
   [119, "photo", "Thursday at Grandpa's again. Same routine: pots, then biscuits.", ["grandpa"]],
   [126, "photo", "New swimming pool. She asked to go 'under under'.", ["swimming"]],
   [133, "quote", "I do it my byself.", ["phrase"]],
+  [140, "quote", "I do it! I do it!", ["phrase"]],
   [147, "photo", "Yellow boots, no rain in sight. Non-negotiable.", ["yellow_boots"]],
   [161, "photo", "Grandma's birthday lunch.", ["grandma"]],
   [168, "photo", "Bun Bun in the trolley seat, seatbelt done up over him.", ["bun_bun"]],
@@ -124,6 +126,7 @@ function buildTables(): Record<string, Row[]> {
   const memories: Row[] = [];
   const tags: Row[] = [];
   const assets: Row[] = [];
+  const people: Row[] = [];
 
   // The recent weeks. The seed above stops 85 days ago, which is a lapsed
   // family — a real state the product handles, and a useless one for showing
@@ -151,6 +154,47 @@ function buildTables(): Record<string, Row[]> {
       reviewed_by: null, reviewed_at: null,
     });
     tags.push({ id: `tag-recent-${i}`, memory_id: id, tag, source: "parent" });
+  });
+
+  // Thursdays at Grandpa's, on actual Thursdays.
+  //
+  // The observation this exists to demonstrate — "Tom turns up most
+  // Thursdays" — is arithmetic over weekdays, so a fixture whose Thursdays
+  // are not Thursdays proves nothing and would have quietly shown the
+  // fallback line instead. Photographs with almost nothing written about
+  // them, on purpose: this is also the shape gap detection looks for, and
+  // Wednesday at Grandpa's is exactly the thing nobody writes down because
+  // everybody involved already knows it.
+  const onWeekday = (iso: string, weekday: number) => {
+    const d = new Date(Date.parse(`${iso}T00:00:00Z`)).getUTCDay();
+    return shiftDays(iso, -((d - weekday + 7) % 7));
+  };
+  const THURSDAY = 4;
+  [
+    [40, null],
+    [61, null],
+    [82, "Thursday at Grandpa's. They watered every single pot plant."],
+    [110, null],
+    [145, null],
+    [187, null],
+  ].forEach(([offset, text], i) => {
+    const id = `mem-thursday-${i}`;
+    const date = onWeekday(day(offset as number), THURSDAY);
+    memories.push({
+      id, subject_id: subjectId, created_by: DEMO_USER.id, type: "photo",
+      raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: date, created_at: date,
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+    people.push({ memory_id: id, family_member_id: "member-3" });
+    assets.push({
+      id: `asset-thursday-${i}`, memory_id: id, storage_path: `demo/${40 + i}.png`,
+      mime_type: "image/png", width: 1600, height: 2100,
+      checksum: `demo-thursday-${i}`, processing_status: "complete",
+      scan_verdict: "clean", scan_reason: null, scanned_by: "fixture",
+      capture_timestamp: date, duration_seconds: null, thumbnail_path: null,
+    });
   });
 
   // Last year's few. The seed above all falls inside the year being
@@ -307,7 +351,7 @@ function buildTables(): Record<string, Row[]> {
       cover_colour: null,
       photo_path: null, created_at: day(0),
     }],
-    memories, memory_tags: tags, media_assets: assets, memory_people: [],
+    memories, memory_tags: tags, media_assets: assets, memory_people: people,
     memory_clusters: clusters, cluster_memories: clusterMembers,
     // The weekly note's record. Empty, so the demo shows a first week
     // rather than a fourth — which is the state most worth getting right.
@@ -406,11 +450,58 @@ const PARENTS: Record<string, { table: string; fk: string; as: string }[]> = {
   renewals: [{ table: "subjects", fk: "subject_id", as: "subjects" }],
 };
 
-const NESTED: Record<string, { table: string; fk: string; as: string }[]> = {
+interface Nested {
+  table: string;
+  fk: string;
+  as: string;
+  /** A join table's own parent, for `memory_people(family_members(name))`. */
+  through?: { table: string; fk: string; as: string };
+}
+
+const NESTED: Record<string, Nested[]> = {
   book_pages: [{ table: "book_content_blocks", fk: "page_id", as: "book_content_blocks" }],
   memory_clusters: [{ table: "cluster_memories", fk: "cluster_id", as: "cluster_memories" }],
-  memories: [{ table: "memory_tags", fk: "memory_id", as: "memory_tags" }],
+  memories: [
+    { table: "memory_tags", fk: "memory_id", as: "memory_tags" },
+    {
+      table: "memory_people",
+      fk: "memory_id",
+      as: "memory_people",
+      through: { table: "family_members", fk: "family_member_id", as: "family_members" },
+    },
+  ],
 };
+
+/**
+ * The relations a select asks for, ignoring anything nested inside them.
+ *
+ * Used to fail loudly on a relation this client does not implement. The file
+ * promises that a page growing a new query cannot silently render empty, and
+ * for the operators that was true — .not() and .gte() threw. Relations were
+ * the hole: memory_people(...) simply came back undefined, so the entire
+ * person half of the memory graph was missing from the demo and nothing
+ * anywhere said so.
+ */
+function relationsIn(select: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let word = "";
+
+  for (const ch of select) {
+    if (ch === "(") {
+      if (depth === 0 && word.trim()) out.push(word.trim().replace(/^.*[,\s]/, ""));
+      depth++;
+      word = "";
+    } else if (ch === ")") {
+      depth--;
+      word = "";
+    } else if (depth === 0) {
+      word += ch;
+    }
+  }
+
+  return out;
+}
 
 class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
   private rows: Row[];
@@ -421,16 +512,31 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
 
   constructor(private db: Record<string, Row[]>, private table: string, private select = "*") {
     this.rows = [...(db[table] ?? [])];
+
     // Attach the nested relations the pages ask for. Only the shapes actually
-    // used are supported — anything else should fail loudly, not quietly.
+    // used are supported — anything else fails loudly below, not quietly.
+    const attached = new Set<string>();
+
     for (const rel of NESTED[table] ?? []) {
       if (!select.includes(rel.as)) continue;
+      attached.add(rel.as);
       this.rows = this.rows.map((r) => ({
         ...r,
-        [rel.as]: (db[rel.table] ?? []).filter((c) => c[rel.fk] === r.id),
+        [rel.as]: (db[rel.table] ?? [])
+          .filter((c) => c[rel.fk] === r.id)
+          .map((c) =>
+            rel.through
+              ? {
+                  ...c,
+                  [rel.through.as]:
+                    (db[rel.through.table] ?? []).find((p) => p.id === c[rel.through!.fk]) ?? null,
+                }
+              : c
+          ),
       }));
     }
     if (table === "book_pages" && select.includes("books(")) {
+      attached.add("books");
       this.rows = this.rows.map((r) => ({ ...r, books: db.books.find((b) => b.id === r.book_id) }));
     }
     // Parent lookups, as opposed to the child collections above. The book
@@ -438,13 +544,22 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
     // this the demo shows the fallback and hides whether the real path works.
     for (const parent of PARENTS[table] ?? []) {
       if (!select.includes(`${parent.as}(`)) continue;
+      attached.add(parent.as);
       this.rows = this.rows.map((r) => ({
         ...r,
         [parent.as]: (db[parent.table] ?? []).find((p) => p.id === r[parent.fk]) ?? null,
       }));
     }
     if (table === "print_orders" && select.includes("books(")) {
+      attached.add("books");
       this.rows = this.rows.map((r) => ({ ...r, books: db.books.find((b) => b.id === r.book_id) }));
+    }
+
+    for (const wanted of relationsIn(select)) {
+      if (attached.has(wanted)) continue;
+      throw new Error(
+        `demo client does not implement ${table}.${wanted}(...) — add it to NESTED or PARENTS`
+      );
     }
   }
 

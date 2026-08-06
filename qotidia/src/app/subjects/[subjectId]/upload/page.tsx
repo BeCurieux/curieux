@@ -8,6 +8,7 @@ import { userClient } from "@/lib/supabase/server";
 import { createBook } from "@/app/actions";
 import { backfillProgress } from "@/lib/onboarding/start";
 import { MIN_MEMORIES_FOR_A_BOOK } from "@/lib/renewal/policy";
+import { ENOUGH_TO_NOTICE } from "@/lib/graph/first-look";
 
 export default async function UploadPage({
   params,
@@ -167,6 +168,25 @@ export default async function UploadPage({
       {backfill && !hasBook && (
         <section className="mt-14 rounded-lg border border-clay bg-card p-6">
           <p className="text-sm leading-relaxed">{backfillProgress(kept, first)}</p>
+
+          {/* The payoff, and it comes before the book. Somebody who has just
+              spent ten minutes uploading has earned something back in this
+              session — being told what is already in there is the only thing
+              the product can give them today, and the book is months of
+              waiting away. Offering the book first asks for more patience
+              from the person who has just been most patient. */}
+          {kept >= ENOUGH_TO_NOTICE && (
+            <div className="mt-5">
+              <Link className="btn" href={`/subjects/${params.subjectId}/noticed`}>
+                See what we noticed
+              </Link>
+              <p className="mt-3 max-w-[48ch] text-xs leading-relaxed text-stone">
+                We&rsquo;ve read the year. Three things that keep turning up,
+                and a couple of questions only you can answer.
+              </p>
+            </div>
+          )}
+
           {kept >= MIN_MEMORIES_FOR_A_BOOK && (
             <form action={createBook} className="mt-5">
               <input type="hidden" name="subject_id" value={params.subjectId} />

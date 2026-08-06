@@ -72,7 +72,7 @@ const MONTHS = [
  * remember April, and the month is as precise as this observation can
  * honestly be anyway.
  */
-const monthOf = (iso: string, today: string) => {
+export const monthOf = (iso: string, today: string) => {
   const [y, m] = iso.split("-");
   const month = MONTHS[Number(m) - 1] ?? iso;
   return y === today.slice(0, 4) ? month : `${month} ${y}`;
@@ -131,6 +131,14 @@ function lineFor(entity: Entity, shape: Shape, today: string, windowDays: number
         ? `“${said}” came up ${times(p.recent)} this week.`
         : `${label}, ${times(p.recent)} this week.`;
     case "faded":
+      // The phrase that stopped. Nobody writes down the day a child stops
+      // saying "nanas", because nobody notices it changing — which is
+      // exactly why an archive that counts is worth having.
+      if (entity.kind === "phrase") {
+        return p.last
+          ? `“${said}” — not since ${monthOf(p.last, today)}.`
+          : `“${said}” hasn't come up in a while.`;
+      }
       return p.last
         ? `${label} hasn't appeared since ${monthOf(p.last, today)}.`
         : `${label} hasn't appeared in a while.`;
@@ -196,7 +204,39 @@ export function noticeThisWeek(input: NoticeInput): Observation[] {
     }
   }
 
-  return [...spread, ...rest].slice(0, max);
+  return distinct([...spread, ...rest], max);
+}
+
+/**
+ * How much two observations are about the same photographs.
+ *
+ * Different threads genuinely share memories — the rabbit is in the beach
+ * photographs — so this is about proportion, not contact.
+ */
+const SAME_PHOTOGRAPHS = 0.7;
+
+/**
+ * At most `max` lines, and never two about the same photographs.
+ *
+ * A phrase produces a run of overlapping candidates, and a tag can sit on
+ * exactly the memories a cluster covers. Both are real entities and both
+ * belong in the graph; saying two of them in one note is the product
+ * describing the same afternoon twice and sounding like it is padding.
+ */
+function distinct(ranked: Observation[], max: number): Observation[] {
+  const out: Observation[] = [];
+
+  for (const o of ranked) {
+    if (out.length >= max) break;
+    const ids = new Set(o.memoryIds);
+    const echo = out.some((k) => {
+      const shared = k.memoryIds.filter((id) => ids.has(id)).length;
+      return shared / Math.min(k.memoryIds.length, o.memoryIds.length || 1) >= SAME_PHOTOGRAPHS;
+    });
+    if (!echo) out.push(o);
+  }
+
+  return out;
 }
 
 /** Whether a week is worth sending at all. */

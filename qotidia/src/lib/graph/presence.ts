@@ -205,6 +205,40 @@ export function peakYear(entity: Entity, dateOfBirth: string): YearPresence | nu
 }
 
 /**
+ * How old the child was, in a form a parent would use.
+ *
+ * Months up to two, years after — because "he was 14 months old" is how
+ * everybody says it and "he was 1.2" is how nobody does. Under a month is
+ * left vague on purpose: precision there implies a confidence about a
+ * newborn's dates that an archive assembled from photographs does not have.
+ */
+export function ageWhen(dateOfBirth: string, on: string): string | null {
+  const days = daysBetween(on, dateOfBirth);
+  if (days < 0) return null; // before they were born; a wrong date, not a memory
+  if (days < 31) return "a few weeks old";
+
+  const months = Math.round(days / 30.44);
+  if (months < 24) return `${months} months old`;
+
+  const years = Math.floor(days / 365.25);
+  return `${years} years old`;
+}
+
+/**
+ * The first time an entity appeared, as an age.
+ *
+ * This is the sentence a camera roll cannot produce. It needs the archive to
+ * have understood that a rabbit in a photograph two years ago and a rabbit
+ * in one last week are the same rabbit, and that is the whole point of
+ * keeping a graph rather than a folder.
+ */
+export function firstAppearedAt(entity: Entity, dateOfBirth: string): string | null {
+  const ms = sorted(entity.mentions);
+  if (ms.length === 0) return null;
+  return ageWhen(dateOfBirth, ms[0].date);
+}
+
+/**
  * The silence immediately before an entity came back.
  *
  * Not the same as the span from first to last mention, which is what a first

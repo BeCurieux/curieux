@@ -12,6 +12,8 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Entity, EntityKind, Mention } from "./presence";
+import { asSaid, runsIn } from "./phrases";
+import { firstLook, type FirstLook } from "./first-look";
 
 export interface RawMention {
   memoryId: string;
@@ -70,7 +72,7 @@ function mergeDuplicates(entities: Entity[]): Entity[] {
   const kept: Entity[] = [];
 
   for (const candidate of entities) {
-    const twin = kept.find((k) => k.kind !== candidate.kind && overlap(k, candidate) >= SAME_THREAD);
+    const twin = kept.find((k) => sameThread(k, candidate));
     if (!twin) {
       kept.push(candidate);
       continue;
@@ -80,7 +82,7 @@ function mergeDuplicates(entities: Entity[]): Entity[] {
     for (const m of candidate.mentions) byId.set(m.memoryId, m);
     twin.mentions = [...byId.values()];
 
-    if (RANK[candidate.kind] > RANK[twin.kind]) {
+    if (winner(candidate, twin)) {
       twin.id = candidate.id;
       twin.kind = candidate.kind;
       twin.label = candidate.label;
@@ -88,6 +90,30 @@ function mergeDuplicates(entities: Entity[]): Entity[] {
   }
 
   return kept;
+}
+
+/**
+ * Whether two entities are the same thread under two names.
+ *
+ * Across kinds, near-total overlap is enough — a cluster and the tag it was
+ * built over. Within a kind the bar is exact, because "beach" and "summer"
+ * on eight of the same nine photographs are two real threads that happen to
+ * travel together, and only an identical set makes them one thing. That
+ * exactness is what collapses the runs of words a phrase produces: "I do
+ * it", "do it" and "I do" come out of the same three quotes and nothing
+ * else, so they are one phrase.
+ */
+function sameThread(a: Entity, b: Entity): boolean {
+  if (a.kind !== b.kind) return overlap(a, b) >= SAME_THREAD;
+  return a.mentions.length === b.mentions.length && overlap(a, b) === 1;
+}
+
+/** Whose name the merged entity takes. */
+function winner(candidate: Entity, incumbent: Entity): boolean {
+  if (candidate.kind !== incumbent.kind) return RANK[candidate.kind] > RANK[incumbent.kind];
+  // Same kind, same memories: the fuller phrase. "I do it my byself" is the
+  // thing the family would recognise; "do it" is a fragment of it.
+  return candidate.label.length > incumbent.label.length;
 }
 
 /**
@@ -137,7 +163,9 @@ export function buildEntities(rows: RawMention[]): Entity[] {
 export async function loadEntities(db: SupabaseClient, subjectId: string): Promise<Entity[]> {
   const { data: memories } = await db
     .from("memories")
-    .select("id, memory_date, raw_text, memory_tags(tag), memory_people(family_members(name))")
+    .select(
+      "id, type, memory_date, raw_text, transcript, location, memory_tags(tag), memory_people(family_members(name, nickname_used_by_child))"
+    )
     .eq("subject_id", subjectId)
     .eq("contribution_status", "approved")
     .eq("visibility", "family")
@@ -153,18 +181,57 @@ export async function loadEntities(db: SupabaseClient, subjectId: string): Promi
         memoryId: m.id,
         date: m.memory_date,
         // Tags carry no type, so they are things. A tag that is really a
-        // place or a ritual is still a thread worth following; miscalling it
-        // costs a slightly odd noun in one sentence, and pretending to know
-        // would cost more.
+        // ritual is still a thread worth following; miscalling it costs a
+        // slightly odd noun in one sentence, and pretending to know would
+        // cost more.
         kind: "thing",
         key: t.tag,
         label: String(t.tag).replace(/_/g, " "),
       });
     }
+
     for (const p of m.memory_people ?? []) {
       const name = p.family_members?.name;
       if (!name) continue;
-      rows.push({ memoryId: m.id, date: m.memory_date, kind: "person", key: name, label: name });
+      rows.push({
+        memoryId: m.id,
+        date: m.memory_date,
+        kind: "person",
+        // Keyed on the name, which is stable, and shown as whatever the
+        // child calls them, which is the archive's whole point of view. A
+        // line about this family's year should say Grandpa, not Margaret.
+        key: name,
+        label: p.family_members?.nickname_used_by_child?.trim() || name,
+      });
+    }
+
+    // Places are the one kind we do not have to infer: the parent typed it
+    // into a field called location.
+    if (typeof m.location === "string" && m.location.trim()) {
+      rows.push({
+        memoryId: m.id,
+        date: m.memory_date,
+        kind: "place",
+        key: m.location,
+        label: m.location.trim(),
+      });
+    }
+
+    // Phrases, and only from things the child was recorded as saying. A
+    // parent's note about a phrase is the parent's sentence — putting it in
+    // quotation marks and attributing it to a three-year-old would be the
+    // product inventing a memory, which is the one thing it may never do.
+    if (m.type === "quote" || m.type === "voice") {
+      const said = (m.transcript ?? m.raw_text ?? "") as string;
+      for (const run of runsIn(said)) {
+        rows.push({
+          memoryId: m.id,
+          date: m.memory_date,
+          kind: "phrase",
+          key: run,
+          label: asSaid(run, said),
+        });
+      }
     }
   }
 
@@ -198,6 +265,48 @@ export async function loadEntities(db: SupabaseClient, subjectId: string): Promi
  * is the case worth asking about, and it cannot be spotted without knowing
  * which memories were written on.
  */
+/**
+ * What we noticed, on first sight of this archive.
+ *
+ * One function so the screen is four lines: everything it needs comes from
+ * the same three reads the weekly note already does.
+ */
+export async function loadFirstLook(
+  db: SupabaseClient,
+  subjectId: string
+): Promise<FirstLook> {
+  const [entities, words, { count }, { data: subject }, { data: earliest }] = await Promise.all([
+    loadEntities(db, subjectId),
+    memoriesWithWords(db, subjectId),
+    db
+      .from("memories")
+      .select("id", { count: "exact", head: true })
+      .eq("subject_id", subjectId)
+      .eq("contribution_status", "approved"),
+    db.from("subjects").select("date_of_birth, pronouns").eq("id", subjectId).maybeSingle(),
+    // Where our records start, which is not where anything started. The
+    // difference decides whether a line may say "beginning when she was
+    // fourteen months old" or has to say what it actually saw.
+    db
+      .from("memories")
+      .select("memory_date")
+      .eq("subject_id", subjectId)
+      .eq("contribution_status", "approved")
+      .not("memory_date", "is", null)
+      .order("memory_date", { ascending: true })
+      .limit(1),
+  ]);
+
+  return firstLook({
+    entities,
+    memoriesWithWords: words,
+    memoryCount: count ?? 0,
+    dateOfBirth: subject?.date_of_birth ?? null,
+    pronouns: subject?.pronouns ?? null,
+    archiveStart: ((earliest ?? []) as any[])[0]?.memory_date ?? null,
+  });
+}
+
 export async function memoriesWithWords(db: SupabaseClient, subjectId: string): Promise<Set<string>> {
   const { data } = await db
     .from("memories")
