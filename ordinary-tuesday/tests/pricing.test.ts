@@ -9,7 +9,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  MAX_EXTRA_COPIES, PRICES, clampExtraCopies, orderTotalAud,
+  MAX_EXTRA_COPIES, PRICES, clampExtraCopies, instalmentMethods,
+  instalmentsOffered, orderTotalAud,
 } from "@/lib/stripe";
 
 const landingSource = readFileSync(
@@ -52,6 +53,42 @@ describe("order totals", () => {
 
   it("prices extra copies below the book, or there is no reason to order together", () => {
     expect(PRICES.extraCopyAud()).toBeLessThan(PRICES.bookAud());
+  });
+});
+
+describe("paying in instalments", () => {
+  const withEnv = (value: string | undefined, fn: () => void) => {
+    const prev = process.env.STRIPE_PAYMENT_METHODS;
+    if (value === undefined) delete process.env.STRIPE_PAYMENT_METHODS;
+    else process.env.STRIPE_PAYMENT_METHODS = value;
+    try { fn(); } finally {
+      if (prev === undefined) delete process.env.STRIPE_PAYMENT_METHODS;
+      else process.env.STRIPE_PAYMENT_METHODS = prev;
+    }
+  };
+
+  it("defers to the Stripe Dashboard when unset, rather than guessing", () => {
+    // Naming a method the account has not enabled fails the session, so the
+    // safe default is to name none at all.
+    withEnv(undefined, () => {
+      expect(instalmentMethods()).toEqual([]);
+      expect(instalmentsOffered()).toBe(false);
+    });
+  });
+
+  it("reads a configured list", () => {
+    withEnv("card, afterpay_clearpay , zip", () => {
+      expect(instalmentMethods()).toEqual(["card", "afterpay_clearpay", "zip"]);
+      expect(instalmentsOffered()).toBe(true);
+    });
+  });
+
+  it("does not claim instalments when only cards are enabled", () => {
+    withEnv("card", () => expect(instalmentsOffered()).toBe(false));
+  });
+
+  it("ignores empty entries from a trailing comma", () => {
+    withEnv("card,,", () => expect(instalmentMethods()).toEqual(["card"]));
   });
 });
 

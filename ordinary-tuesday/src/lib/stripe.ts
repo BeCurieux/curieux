@@ -28,6 +28,30 @@ export const PRICES = {
 /** Extra copies beyond the first, per transaction. */
 export const MAX_EXTRA_COPIES = 4;
 
+/**
+ * Paying in instalments.
+ *
+ * A$199 in one go is the friction at the moment of decision, and the fix is
+ * buy-now-pay-later rather than a subscription: the customer pays over
+ * several weeks, we are paid in full immediately, and "you pay for a book,
+ * you get a book" stays true — which matters, because it is the claim that
+ * separates this from Storyworth, Chatbooks and Qeepsake.
+ *
+ * Comma-separated, because which methods an account may offer depends on
+ * what has been enabled in the Stripe Dashboard — naming one that has not
+ * been enabled fails the session outright. Left empty, Stripe applies the
+ * Dashboard's own settings, which is the safe default.
+ */
+export const instalmentMethods = (): string[] =>
+  (process.env.STRIPE_PAYMENT_METHODS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+/** Whether to tell the customer instalments are available. */
+export const instalmentsOffered = (): boolean =>
+  instalmentMethods().some((m) => m !== "card");
+
 export function clampExtraCopies(n: unknown): number {
   const v = Math.floor(Number(n));
   if (!Number.isFinite(v) || v < 0) return 0;
@@ -63,6 +87,11 @@ export async function createBookCheckout(opts: {
 }): Promise<Stripe.Checkout.Session> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const extras = clampExtraCopies(opts.extraCopies);
+  // Only a card can be kept and charged next year. Someone who asks for both
+  // instalments and a renewal would otherwise pay by Afterpay, leave no card
+  // behind, and have next year's renewal silently do nothing — so asking to
+  // renew narrows this purchase to cards.
+  const methods = opts.saveCardForRenewal ? ["card"] : instalmentMethods();
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
     {
@@ -95,6 +124,9 @@ export async function createBookCheckout(opts: {
         ? { customer: opts.stripeCustomerId }
         : { customer_email: opts.customerEmail }),
       line_items: lineItems,
+      // Instalments, where the account offers them. Omitted entirely when
+      // unset so Stripe falls back to the Dashboard's configuration.
+      ...(methods.length ? { payment_method_types: methods as any } : {}),
       // Keeping the card is a separate decision from this purchase, so it is
       // only ever requested when the customer explicitly asked for it.
       ...(opts.saveCardForRenewal

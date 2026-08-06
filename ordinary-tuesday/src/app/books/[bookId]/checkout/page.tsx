@@ -7,7 +7,7 @@
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { startCheckout } from "@/app/actions";
-import { AUTORENEW_TERMS, MAX_EXTRA_COPIES, PRICES } from "@/lib/stripe";
+import { AUTORENEW_TERMS, MAX_EXTRA_COPIES, PRICES, instalmentsOffered } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
@@ -113,6 +113,12 @@ export default async function CheckoutPage({
           </label>
 
           <button className="btn mt-2 w-full">Order the book</button>
+          {instalmentsOffered() && (
+            <p className="text-center text-xs text-stone">
+              Pay in instalments if you&rsquo;d rather &mdash; choose it on the
+              next screen. Still one book, still no subscription.
+            </p>
+          )}
           <p className="text-center text-xs text-stone">
             Payment is taken now. Nothing goes to print until it is paid, and
             the book you approved is the book that prints.
