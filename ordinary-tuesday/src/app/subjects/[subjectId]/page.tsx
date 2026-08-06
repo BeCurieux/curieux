@@ -10,6 +10,7 @@ import { resolvePhotoUrls } from "@/lib/book/photos";
 import { Shelf } from "@/app/shelf";
 import { roleForSubject } from "@/lib/family/membership";
 import { canModerate } from "@/lib/family/roles";
+import { bestPrompt } from "@/lib/prompts/engine";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +38,10 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   const [{ count: memoryCount }, { data: recent }, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }, { count: pending }] =
     await Promise.all([
       db.from("memories").select("id", { count: "exact", head: true }).eq("subject_id", child.id),
-      db.from("memories").select("id, type, raw_text, memory_date").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(5),
+      db.from("memories").select("id, type, raw_text, memory_date, created_at").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(5),
       db.from("memory_clusters").select("id, title, status").eq("subject_id", child.id).eq("status", "suggested").limit(5),
       db.from("follow_up_questions").select("id", { count: "exact", head: true }).eq("subject_id", child.id).eq("status", "pending"),
-      db.from("little_things").select("id, category, value").eq("subject_id", child.id).order("recorded_date", { ascending: false }).limit(3),
+      db.from("little_things").select("id, category, value, recorded_date").eq("subject_id", child.id).order("recorded_date", { ascending: false }).limit(3),
       db.from("books").select("id, title, status, year_number").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
       db.from("memories").select("id", { count: "exact", head: true })
         .eq("subject_id", child.id).eq("contribution_status", "pending"),
@@ -48,6 +49,26 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
 
   const role = (await roleForSubject(db, child.id, user.id))?.role ?? null;
   const pendingCount = pending ?? 0;
+
+  // One question, built from this archive rather than from a template.
+  const lastMemoryAt = recent?.[0]?.created_at ?? null;
+  const daysSince = (from: string | null) =>
+    from ? Math.floor((Date.now() - new Date(from).getTime()) / 86_400_000) : null;
+  const lastQuote = (recent ?? []).find((m) => m.type === "quote");
+  const prompt = bestPrompt({
+    childName: first,
+    daysSinceLastMemory: daysSince(lastMemoryAt),
+    recentThreads: (clusters ?? []).map((c: any) => c.title).filter(Boolean),
+    littleThings: (littleThings ?? []).map((lt: any) => ({
+      category: lt.category,
+      value: lt.value,
+      daysOld: daysSince(lt.recorded_date) ?? 0,
+    })),
+    emptyMonths: [],
+    hasVoiceRecording: (recent ?? []).some((m) => m.type === "voice"),
+    daysSinceLastQuote: daysSince(lastQuote?.memory_date ?? lastQuote?.created_at ?? null),
+    yearProgress: (new Date().getMonth() + new Date().getDate() / 31) / 12,
+  });
 
   const { data: renewal } = await db
     .from("renewals")
@@ -139,6 +160,21 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           </p>
         </Link>
       </div>
+
+      {prompt && (
+        <Link
+          href={`/subjects/${child.id}/upload`}
+          className="card mt-10 block hover:border-clay"
+        >
+          <p className="text-xs uppercase tracking-[0.18em] text-ochre">A small question</p>
+          <p className="mt-2 max-w-[46ch] font-display text-xl leading-snug">
+            {prompt.question}
+          </p>
+          {/* Why this one, so it reads as somebody having looked rather than
+              a reminder on a timer. */}
+          <p className="mt-2 max-w-[48ch] text-sm text-stone">{prompt.because}</p>
+        </Link>
+      )}
 
       {clusters && clusters.length > 0 && (
         <section className="mt-10">

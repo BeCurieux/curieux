@@ -15,6 +15,21 @@ export type FamilyRole = "owner" | "editor" | "contributor";
 
 export type ContributionStatus = "approved" | "pending" | "declined";
 
+/**
+ * Who a memory is for.
+ *
+ * `family` — everyone with access, once approved. The normal case.
+ * `private` — only whoever wrote it. Not the other parent, not the owner.
+ *             A privacy control that the account holder can read through is
+ *             not a privacy control.
+ */
+export type MemoryVisibility = "family" | "private";
+
+/** Said at the moment of choosing, because the consequence is not obvious. */
+export const PRIVATE_BLURB =
+  "Only you can see this. It stays out of the book and nobody else in the " +
+  "family will ever see it — you can share it later if you change your mind.";
+
 export const ROLE_LABEL: Record<FamilyRole, string> = {
   owner: "Keeps the archive",
   editor: "Adds anything",
@@ -76,10 +91,21 @@ export function statusForNewMemory(role: FamilyRole | null): ContributionStatus 
  */
 export function canSeeMemory(
   role: FamilyRole | null,
-  memory: { contributionStatus: ContributionStatus; createdBy: string },
+  memory: {
+    contributionStatus: ContributionStatus;
+    createdBy: string;
+    visibility?: MemoryVisibility;
+  },
   viewerUserId: string
 ): boolean {
   if (role === null) return false;
+
+  // Private wins over everything, including moderation rights. Checked first
+  // so no later branch can hand a private note to somebody else.
+  if ((memory.visibility ?? "family") === "private") {
+    return memory.createdBy === viewerUserId;
+  }
+
   if (memory.contributionStatus === "approved") return true;
   if (memory.createdBy === viewerUserId) return true;
   return canModerate(role);
@@ -92,17 +118,37 @@ export function canSeeMemory(
  */
 export function canEditMemory(
   role: FamilyRole | null,
-  memory: { contributionStatus: ContributionStatus; createdBy: string },
+  memory: {
+    contributionStatus: ContributionStatus;
+    createdBy: string;
+    visibility?: MemoryVisibility;
+  },
   viewerUserId: string
 ): boolean {
   if (role === null) return false;
+  // Nobody edits what they cannot see.
+  if ((memory.visibility ?? "family") === "private") {
+    return memory.createdBy === viewerUserId;
+  }
   if (canEdit(role)) return true;
   return memory.createdBy === viewerUserId && memory.contributionStatus === "pending";
 }
 
-/** Only approved memories are ever eligible for the printed page. */
-export function eligibleForBook<T extends { contribution_status?: ContributionStatus }>(
-  memories: T[]
-): T[] {
-  return memories.filter((m) => (m.contribution_status ?? "approved") === "approved");
+/**
+ * Everything eligible for the printed page.
+ *
+ * Two filters, and both matter. Unapproved contributions are held back
+ * because the parent is answerable for the book. Private notes are held back
+ * because the book is *shared* — the family reads it and extra copies go to
+ * grandparents, so a private note on page forty would be the most complete
+ * failure this feature could have.
+ */
+export function eligibleForBook<
+  T extends { contribution_status?: ContributionStatus; visibility?: MemoryVisibility }
+>(memories: T[]): T[] {
+  return memories.filter(
+    (m) =>
+      (m.contribution_status ?? "approved") === "approved" &&
+      (m.visibility ?? "family") === "family"
+  );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Uploader } from "./uploader";
 import { Recorder } from "./recorder";
 import { addTextMemory } from "@/app/actions";
+import { PRIVATE_BLURB } from "@/lib/family/roles";
 
 export default function UploadPage({
   params,
@@ -57,6 +58,17 @@ export default function UploadPage({
             <input type="hidden" name="type" value="text" />
             <textarea className="input h-24" name="text" placeholder="A moment you don't want to lose. A sentence is plenty." />
             <input className="input" type="date" name="memory_date" />
+            {/* Some things belong in a childhood record and not in the
+                conversation with your mother-in-law. */}
+            <label className="flex gap-2.5 text-sm">
+              <input type="checkbox" name="private" className="mt-1" />
+              <span>
+                Keep this to myself
+                <span className="mt-0.5 block text-xs leading-relaxed text-stone">
+                  {PRIVATE_BLURB}
+                </span>
+              </span>
+            </label>
             <button className="btn-secondary">Keep this memory</button>
           </form>
         </div>

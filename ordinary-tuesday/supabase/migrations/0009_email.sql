@@ -18,6 +18,7 @@ create type email_kind as enum (
   'order_placed',
   'order_shipped',
   'year_closing',
+  'one_question',
   'renewal_scheduled',
   'renewal_reminder',
   'renewal_skipped',

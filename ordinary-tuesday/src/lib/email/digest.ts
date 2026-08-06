@@ -12,8 +12,9 @@
 // enough that no habit forms — so this is the beat that has to land.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { contributionsWaiting, yearClosing } from "./messages";
+import { contributionsWaiting, oneQuestion, yearClosing } from "./messages";
 import { dailyKey, optOutToken, sendOnce } from "./send";
+import { bestPrompt, type ArchiveState } from "@/lib/prompts/engine";
 
 /** How far ahead of the birthday the year-closing note goes out. */
 export const CLOSING_WEEKS = 3;
@@ -49,7 +50,12 @@ export interface DigestSubject {
   familyId: string;
   pendingCount: number;
   owner: { userId: string; email: string } | null;
+  /** Everything the prompt engine needs. Absent means don't ask anything. */
+  archive?: ArchiveState;
 }
+
+/** How rarely a family is asked a question. Once a fortnight, at most. */
+export const PROMPT_EVERY_DAYS = 14;
 
 /**
  * Send what today calls for, for one archive. Split out from the job handler
@@ -59,8 +65,8 @@ export async function runDigestFor(
   db: SupabaseClient,
   subject: DigestSubject,
   now: Date
-): Promise<{ waiting: boolean; closing: boolean }> {
-  const out = { waiting: false, closing: false };
+): Promise<{ waiting: boolean; closing: boolean; asked: boolean }> {
+  const out = { waiting: false, closing: false, asked: false };
   if (!subject.owner) return out;
 
   const token = await optOutToken(db, subject.owner.userId);
@@ -98,6 +104,32 @@ export async function runDigestFor(
       }),
     });
     out.closing = result.sent;
+  }
+
+  // One question, at most once a fortnight, and never on a day we have
+  // already written to them about something else. A nudge that arrives
+  // beside a "three things are waiting" is two emails, and two emails is how
+  // this becomes something people filter.
+  if (subject.archive && !out.waiting && !out.closing) {
+    const prompt = bestPrompt(subject.archive);
+    if (prompt) {
+      const fortnight = Math.floor(now.getTime() / (PROMPT_EVERY_DAYS * 24 * 60 * 60 * 1000));
+      const result = await sendOnce(db, {
+        kind: "one_question",
+        dedupeKey: `one_question-${subject.id}-${fortnight}`,
+        userId: subject.owner.userId,
+        subjectId: subject.id,
+        message: oneQuestion({
+          to: { email: subject.owner.email },
+          childName: subject.displayName,
+          question: prompt.emailQuestion,
+          because: prompt.emailBecause,
+          subjectId: subject.id,
+          optOutToken: token,
+        }),
+      });
+      out.asked = result.sent;
+    }
   }
 
   return out;

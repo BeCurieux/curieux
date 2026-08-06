@@ -253,8 +253,40 @@ export async function addTextMemory(formData: FormData) {
     raw_text: text,
     memory_date: String(formData.get("memory_date") ?? "") || null,
     contribution_status: statusForNewMemory(membership.role),
+    visibility: formData.get("private") === "on" ? "private" : "family",
   });
   revalidatePath(`/subjects/${subjectId}`);
+}
+
+/**
+ * Change who a memory is for, after the fact.
+ *
+ * Only the person who wrote it. An owner who could un-private somebody
+ * else's note would make the word meaningless — and the other direction is
+ * no better, since hiding another parent's memory from them is not privacy,
+ * it is removal.
+ */
+export async function setMemoryVisibility(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const memoryId = String(formData.get("memory_id"));
+  const subjectId = String(formData.get("subject_id"));
+  const visibility = String(formData.get("visibility")) === "private" ? "private" : "family";
+
+  await db
+    .from("memories")
+    .update({ visibility })
+    .eq("id", memoryId)
+    .eq("created_by", user.id);
+
+  // Sharing something previously private makes it new material for the book,
+  // so the patterns are read again. Making something private does not — the
+  // next generation simply stops seeing it.
+  if (visibility === "family") {
+    const window = Math.floor(Date.now() / (60 * 60 * 1000));
+    await enqueue(adminClient(), "analyse_memories", { subject_id: subjectId }, `analyse-${subjectId}-${window}`);
+  }
+  revalidatePath(`/subjects/${subjectId}/years`);
 }
 
 export async function addLittleThing(formData: FormData) {

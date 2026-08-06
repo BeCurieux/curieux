@@ -161,6 +161,33 @@ export function yearClosing(opts: {
   };
 }
 
+/**
+ * One question, built from their own archive.
+ *
+ * Replaces the generic nudge nobody answers. The question names something
+ * they wrote — never something we imagined — and says why it's being asked,
+ * so it reads as somebody having looked rather than a scheduled reminder.
+ */
+export function oneQuestion(opts: {
+  to: Recipient;
+  childName: string;
+  question: string;
+  because: string;
+  subjectId: string;
+  optOutToken: string;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    subject: `A small question about ${opts.childName}`,
+    text:
+      `${opts.question}\n\n` +
+      `${opts.because}\n\n` +
+      `Answering takes a sentence, and a sentence is plenty:\n` +
+      `${appUrl()}/subjects/${opts.subjectId}/upload` +
+      optOut(opts.optOutToken) + SIGNOFF,
+  };
+}
+
 // ------------------------------------------------------------- renewals
 
 /**

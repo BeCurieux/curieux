@@ -131,6 +131,45 @@ describe("correcting what you added", () => {
   });
 });
 
+describe("keeping something to yourself", () => {
+  const mine = {
+    contributionStatus: "approved" as const,
+    createdBy: GRAN,
+    visibility: "private" as const,
+  };
+
+  it("shows a private memory to whoever wrote it", () => {
+    expect(canSeeMemory("contributor", mine, GRAN)).toBe(true);
+  });
+
+  it("hides it from everyone else in the family", () => {
+    expect(canSeeMemory("contributor", mine, "user-other")).toBe(false);
+    expect(canSeeMemory("editor", mine, EDITOR)).toBe(false);
+  });
+
+  it("hides it from the owner too", () => {
+    // The account holder being able to read through it would make the word
+    // meaningless. Private has to mean private or it should not be offered.
+    expect(canSeeMemory("owner", mine, OWNER)).toBe(false);
+  });
+
+  it("beats approval — approved does not mean shared", () => {
+    expect(mine.contributionStatus).toBe("approved");
+    expect(canSeeMemory("owner", mine, OWNER)).toBe(false);
+  });
+
+  it("lets nobody but the author edit it", () => {
+    expect(canEditMemory("owner", mine, OWNER)).toBe(false);
+    expect(canEditMemory("editor", mine, EDITOR)).toBe(false);
+    expect(canEditMemory("contributor", mine, GRAN)).toBe(true);
+  });
+
+  it("treats a memory with no visibility set as shared, so old archives still work", () => {
+    const legacy = { contributionStatus: "approved" as const, createdBy: OWNER };
+    expect(canSeeMemory("contributor", legacy, GRAN)).toBe(true);
+  });
+});
+
 describe("nothing unapproved reaches the printed page", () => {
   const archive = [
     { id: "a", contribution_status: "approved" as const },
@@ -152,6 +191,16 @@ describe("nothing unapproved reaches the printed page", () => {
     expect(eligibleForBook(allPending)).toHaveLength(0);
   });
 
+  it("never prints a private note", () => {
+    // The book is shared and extra copies go to grandparents, so a private
+    // note on page forty would be the worst failure this feature could have.
+    const withPrivate = [
+      { id: "shared", contribution_status: "approved" as const, visibility: "family" as const },
+      { id: "secret", contribution_status: "approved" as const, visibility: "private" as const },
+    ];
+    expect(eligibleForBook(withPrivate).map((m) => m.id)).toEqual(["shared"]);
+  });
+
   it("filters at the source the book is actually built from", () => {
     // The generation jobs run as the service role and so are not covered by
     // RLS. loadMemories() is the only thing between a pending contribution
@@ -165,5 +214,6 @@ describe("nothing unapproved reaches the printed page", () => {
       handlers.indexOf("// ------------------------------------------------------------- handlers")
     );
     expect(loader).toContain('.eq("contribution_status", "approved")');
+    expect(loader).toContain('.eq("visibility", "family")');
   });
 });

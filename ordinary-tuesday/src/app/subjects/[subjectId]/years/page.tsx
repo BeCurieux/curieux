@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
-import { addComment } from "@/app/actions";
+import { addComment, setMemoryVisibility } from "@/app/actions";
 import { roleForSubject, membersOfFamily, memberLabel } from "@/lib/family/membership";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { friendlyDate, monthName } from "@/lib/words";
@@ -40,7 +40,7 @@ export default async function YearsPage({
 
   const { data: memories } = await db
     .from("memories")
-    .select("id, type, raw_text, memory_date, created_at, created_by, contribution_status")
+    .select("id, type, raw_text, memory_date, created_at, created_by, contribution_status, visibility")
     .eq("subject_id", subject.id)
     .order("memory_date", { ascending: false })
     .limit(400);
@@ -146,11 +146,18 @@ export default async function YearsPage({
                 {entries.map((m) => {
                   const mine = m.created_by === user.id;
                   const waiting = m.contribution_status === "pending";
+                  const isPrivate = m.visibility === "private";
                   return (
                     <li key={m.id} className="card">
                       {waiting && (
                         <p className="mb-3 text-xs text-ochre">
                           {mine ? "Waiting for approval" : "Waiting on you"}
+                        </p>
+                      )}
+                      {isPrivate && (
+                        <p className="mb-3 text-xs text-stone">
+                          Private &mdash; only you can see this, and it stays
+                          out of the book.
                         </p>
                       )}
                       <div className="flex gap-4">
@@ -187,6 +194,21 @@ export default async function YearsPage({
                             </li>
                           ))}
                         </ul>
+                      )}
+
+                      {mine && (
+                        <form action={setMemoryVisibility} className="mt-3">
+                          <input type="hidden" name="memory_id" value={m.id} />
+                          <input type="hidden" name="subject_id" value={subject.id} />
+                          <input
+                            type="hidden"
+                            name="visibility"
+                            value={isPrivate ? "family" : "private"}
+                          />
+                          <button className="text-xs text-stone hover:text-ink">
+                            {isPrivate ? "Share with the family" : "Keep this to myself"}
+                          </button>
+                        </form>
                       )}
 
                       <form action={addComment} className="mt-3 flex gap-2">

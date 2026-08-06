@@ -22,6 +22,7 @@ export type EmailKind =
   | "order_placed"
   | "order_shipped"
   | "year_closing"
+  | "one_question"
   | "renewal_scheduled"
   | "renewal_reminder"
   | "renewal_skipped"
@@ -35,6 +36,8 @@ const OPTIONAL: Record<EmailKind, string | null> = {
   order_shipped: null,
   contributions_waiting: "contributions_waiting",
   year_closing: "year_closing",
+  // A nudge, so it is switched off by the same preference as the others.
+  one_question: "year_closing",
   // Never optional. Telling someone you are about to charge them is not a
   // marketing preference, and an unsubscribe must not be able to silence it.
   renewal_scheduled: null,

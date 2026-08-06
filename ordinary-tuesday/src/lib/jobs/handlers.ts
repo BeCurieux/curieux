@@ -16,6 +16,7 @@ import { sha256 } from "@/lib/media";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
+import type { ArchiveState } from "@/lib/prompts/engine";
 import { announceRenewals, collectRenewals } from "@/lib/renewal/run";
 import { buildExport } from "@/lib/privacy/build-export";
 import { eraseFamily } from "@/lib/privacy/erase";
@@ -89,18 +90,24 @@ export async function runJob(db: SupabaseClient, job: Job): Promise<void> {
 /**
  * Every memory that is allowed to shape the book.
  *
- * The filter is the whole point of moderation: a grandparent can add to the
- * archive, but nothing they add reaches a printed page — or even the pattern
- * finding that decides what the year was about — until the parent has said
- * yes. These jobs run as the service role and so are not covered by RLS;
- * this is the only thing standing between a pending contribution and print.
+ * Two filters, and these jobs run as the service role — so RLS does not cover
+ * them and these two lines are the only thing standing between the archive
+ * and a printed page.
+ *
+ * Approved only: a grandparent can add to the archive, but nothing they add
+ * reaches the book — or even the pattern finding that decides what the year
+ * was about — until the parent has said yes.
+ *
+ * Shared only: a private note is written for one person, and the book is read
+ * by the whole family with extra copies posted to grandparents.
  */
 async function loadMemories(db: SupabaseClient, subjectId: string): Promise<Memory[]> {
   const { data, error } = await db
     .from("memories")
     .select("*, memory_tags(tag), memory_people(family_members(name))")
     .eq("subject_id", subjectId)
-    .eq("contribution_status", "approved");
+    .eq("contribution_status", "approved")
+    .eq("visibility", "family");
   if (error) throw new Error(error.message);
   return (data ?? []).map((m: any) => ({
     ...m,
@@ -406,6 +413,7 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
         familyId: s.family_id,
         pendingCount: count ?? 0,
         owner,
+        archive: await archiveStateFor(db, s.id, s.display_name, now),
       },
       now
     );
@@ -415,6 +423,67 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
   // never precede the notice that promised it.
   await announceRenewals(db, now, (familyId) => familyOwner(db, familyId));
   await collectRenewals(db, now, (familyId) => familyOwner(db, familyId));
+}
+
+/**
+ * What the prompt engine needs, read out of the archive.
+ *
+ * Every field here is a fact — when they last added something, which months
+ * are empty, how old a little thing is. Nothing is inferred, because a
+ * prompt built on a guess is the nudge equivalent of inventing a memory.
+ */
+async function archiveStateFor(
+  db: SupabaseClient,
+  subjectId: string,
+  displayName: string,
+  now: Date
+): Promise<ArchiveState> {
+  const [{ data: latest }, { data: threads }, { data: littleThings }, { data: voice }, { data: lastQuote }, { data: thisYear }] =
+    await Promise.all([
+      db.from("memories").select("created_at").eq("subject_id", subjectId)
+        .eq("visibility", "family").order("created_at", { ascending: false }).limit(1),
+      db.from("memory_clusters").select("title").eq("subject_id", subjectId)
+        .eq("status", "confirmed").order("created_at", { ascending: false }).limit(3),
+      db.from("little_things").select("category, value, recorded_date")
+        .eq("subject_id", subjectId).order("recorded_date", { ascending: false }).limit(12),
+      db.from("memories").select("id").eq("subject_id", subjectId).eq("type", "voice").limit(1),
+      db.from("memories").select("memory_date, created_at").eq("subject_id", subjectId)
+        .eq("type", "quote").order("created_at", { ascending: false }).limit(1),
+      db.from("memories").select("memory_date, created_at").eq("subject_id", subjectId)
+        .eq("visibility", "family").limit(500),
+    ]);
+
+  const days = (from: string | null | undefined) =>
+    from ? Math.floor((now.getTime() - new Date(from).getTime()) / (24 * 60 * 60 * 1000)) : null;
+
+  // Months of the current year with nothing in them — but only those that
+  // have already happened. A month still ahead is not "empty", it is future.
+  const MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  const seen = new Set<number>();
+  for (const m of thisYear ?? []) {
+    const d = new Date(m.memory_date ?? m.created_at);
+    if (d.getFullYear() === now.getFullYear()) seen.add(d.getMonth());
+  }
+  const emptyMonths = MONTHS.filter((_, i) => i < now.getMonth() && !seen.has(i));
+
+  return {
+    childName: displayName.split(" ")[0] ?? displayName,
+    daysSinceLastMemory: days(latest?.[0]?.created_at),
+    recentThreads: (threads ?? []).map((t: any) => t.title).filter(Boolean),
+    littleThings: (littleThings ?? []).map((lt: any) => ({
+      category: lt.category,
+      value: lt.value,
+      daysOld: days(lt.recorded_date) ?? 0,
+    })),
+    emptyMonths,
+    hasVoiceRecording: (voice ?? []).length > 0,
+    daysSinceLastQuote: days(lastQuote?.[0]?.memory_date ?? lastQuote?.[0]?.created_at),
+    // How far through the calendar year we are.
+    yearProgress: (now.getMonth() + now.getDate() / 31) / 12,
+  };
 }
 
 /** The owner of a family, with the address to write to. */
