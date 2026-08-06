@@ -103,9 +103,12 @@ export function renderBookHtml(book: RenderBook, target: RenderTarget): string {
      A chapter title and its label differ by an order of magnitude. */
   /* Tight leading is what display type wants, but line boxes shorter than
      the glyphs clip descenders — so the box carries the overhang. */
-  h1 { font-size:82pt; font-weight:400; line-height:0.92; letter-spacing:-0.035em;
+  /* Brought down from 82/46pt. That scale belonged to the earlier, louder
+     identity; Qotidia's is quiet, and a headline three times the size of the
+     photograph's caption already does everything scale contrast needs to. */
+  h1 { font-size:48pt; font-weight:400; line-height:1.04; letter-spacing:-0.018em;
        padding-bottom:0.1em; overflow-wrap:break-word; }
-  h2 { font-size:46pt; font-weight:400; line-height:0.98; letter-spacing:-0.028em;
+  h2 { font-size:30pt; font-weight:400; line-height:1.1; letter-spacing:-0.012em;
        padding-bottom:0.08em; overflow-wrap:break-word; }
   h3 { font-size:19pt; font-weight:400; line-height:1.2; letter-spacing:-0.012em; }
   p  { font-size:11.5pt; line-height:1.78; }
@@ -120,11 +123,16 @@ export function renderBookHtml(book: RenderBook, target: RenderTarget): string {
   .annotation { font-family:${SANS}; font-size:8pt; letter-spacing:0.02em; color:#7A7D77; }
 
   /* A quote page is meant to stop you. It carries the page alone. */
-  .quote { font-size:54pt; line-height:1.12; letter-spacing:-0.03em;
-           font-style:normal; max-width:11em; padding-bottom:0.06em;
+  .quote { font-size:34pt; line-height:1.28; letter-spacing:-0.008em;
+           font-style:normal; max-width:16em; padding-bottom:0.06em;
            overflow-wrap:break-word; }
-  .opener-note { margin-top:${mm(8)}in; max-width:26em; font-size:11.5pt;
-                 line-height:1.7; color:#4E5558; }
+  /* The opener sets its own scale: quiet and centred, not the 82pt h1 the
+     interior pages use for a headline sitting beside a photograph. */
+  .opener-title { font-size:40pt; font-weight:400; line-height:1.12;
+                  letter-spacing:-0.005em; padding-bottom:0.08em; max-width:14em; }
+  .opener-rule { width:${mm(20)}in; height:0.6pt; background:currentColor;
+                 opacity:0.45; margin:${mm(9)}in 0; }
+  .opener-note { max-width:24em; font-size:11pt; line-height:1.7; }
 
   .centered { display:flex; flex-direction:column; justify-content:center;
               align-items:center; height:100%; text-align:center; }
@@ -203,6 +211,19 @@ ${renderBackCover(book.cover)}
  * a restrained mark — celebrating what matte lamination genuinely does well
  * rather than imitating foil and embossing it cannot do.
  */
+/**
+ * House style: our own typography is set lowercase — the wordmark, the cover,
+ * chapter titles and section headings.
+ *
+ * It is applied ONLY to type we wrote. A quotation, a parent's note and any
+ * transcript are left exactly as they were given to us: those are somebody's
+ * words, and a house style that quietly rewrites what a two-year-old said
+ * would be the same failure as inventing it.
+ */
+function houseCase(s: string): string {
+  return s.toLowerCase();
+}
+
 function renderFrontCover(c: RenderCover): string {
   const m = FORMAT.outerMarginMm;
   // Centred, lowercase, and quiet. The name is the largest thing on it but
@@ -218,14 +239,14 @@ function renderFrontCover(c: RenderCover): string {
     <div style="flex:1;display:flex;flex-direction:column;
                 align-items:center;justify-content:center">
       <div style="font-size:36pt;line-height:1.1;letter-spacing:0.005em">
-        ${esc(c.childName.toLowerCase())}
+        ${esc(houseCase(c.childName))}
       </div>
 
       <div style="width:${mm(18)}in;height:0.6pt;background:currentColor;
                   opacity:0.5;margin:${mm(10)}in 0"></div>
 
       <div style="font-size:20pt;line-height:1.2;letter-spacing:0.04em">
-        ${esc(c.ageWord.toLowerCase())}
+        ${esc(houseCase(c.ageWord))}
       </div>
 
       <div style="width:${mm(18)}in;height:0.6pt;background:currentColor;
@@ -238,7 +259,7 @@ function renderFrontCover(c: RenderCover): string {
 
     <div class="bottom">
       <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.26em;opacity:0.7">
-        ${esc(c.imprint.toLowerCase())}
+        ${esc(houseCase(c.imprint))}
       </span>
     </div>
   </div>
@@ -252,10 +273,10 @@ function renderBackCover(c: RenderCover): string {
   <div class="content" style="inset:${m}mm">
     <div class="bottom" style="display:flex;justify-content:space-between;align-items:flex-end">
       <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.26em;opacity:0.7">
-        ${esc(c.imprint.toLowerCase())}
+        ${esc(houseCase(c.imprint))}
       </span>
       <span style="font-family:${SANS};font-size:8pt;letter-spacing:0.08em;opacity:0.55">
-        a year of ${esc(c.childName.toLowerCase())}
+        a year of ${esc(houseCase(c.childName))}
       </span>
     </div>
   </div>
@@ -288,30 +309,39 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
       break;
 
     case "chapter_opener":
-      // Reversed out of the volume colour, title enormous, hung low. The
-      // drama is scale and space — nothing is added to decorate it.
-      // Label at the head, title block on the optical centre, imprint at the
-      // foot so the composition closes instead of trailing off.
-      inner = `<div class="content" style="inset:${inset}">
-        ${labels[0] ? `<div class="label">${esc(labels[0].content)}</div>` : ""}
-        <div style="margin:auto 0">
-          ${heading ? `<h1>${esc(heading.content)}</h1>` : ""}
-          ${texts[0] ? `<p class="opener-note hang">${esc(texts[0].content)}</p>` : ""}
+      // Reversed out of the volume colour and centred, quiet rather than
+      // enormous: the small label above, the title lowercase beneath it, a
+      // short rule, then the note. The colour field is doing the work, so
+      // the type does not also need to shout — which is the difference
+      // between a book you keep and a poster.
+      inner = `<div class="content" style="inset:${inset};text-align:center">
+        <div style="flex:1;display:flex;flex-direction:column;
+                    align-items:center;justify-content:center">
+          ${labels[0] ? `<div class="label">${esc(labels[0].content)}</div>` : ""}
+          ${heading ? `<h1 class="opener-title">${esc(houseCase(heading.content))}</h1>` : ""}
+          <div class="opener-rule"></div>
+          ${texts[0] ? `<p class="opener-note">${esc(texts[0].content)}</p>` : ""}
         </div>
-        <div class="label" style="opacity:0.55">${esc(imprintFoot)}</div>
+        <div class="label" style="opacity:0.5">${esc(imprintFoot)}</div>
       </div>`;
       break;
 
     case "quote_page":
-      // Set large and hung off the top third, not centred. Centring makes a
-      // quote look like a greetings card; hanging it makes it a statement.
-      inner = `<div class="content" style="inset:${inset}">
-        <div style="margin-top:22%">
+      // Centred, with a rule and the attribution beneath.
+      //
+      // This used to be hung off the top third at 54pt, on the argument that
+      // centring makes a quote look like a greetings card. That held for the
+      // louder typography it was written for; against a quiet lowercase book
+      // the hung version reads as a pull quote from a magazine. What a
+      // two-year-old actually said wants the page's full silence around it,
+      // and the restraint is what stops it becoming a card.
+      inner = `<div class="content" style="inset:${inset};text-align:center">
+        <div style="flex:1;display:flex;flex-direction:column;
+                    align-items:center;justify-content:center">
           ${quotes.map((q) => `<div class="quote">${esc(q.content)}</div>`).join("")}
           ${annotations[0]
-            ? `<div style="margin-top:${mm(14)}in">` +
-              `<div class="rule" style="margin-bottom:${mm(4)}in"></div>` +
-              `<div class="annotation">${esc(annotations[0].content)}</div></div>`
+            ? `<div class="opener-rule" style="opacity:0.35"></div>` +
+              `<div class="annotation">${esc(annotations[0].content)}</div>`
             : ""}
         </div>
       </div>`;
@@ -383,7 +413,7 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
 
     case "ordinary_days":
       inner = `<div class="content" style="inset:${inset}">
-        ${heading ? `<h2 style="margin-bottom:${mm(6)}in">${esc(heading.content)}</h2>` : ""}
+        ${heading ? `<h2 style="margin-bottom:${mm(6)}in">${esc(houseCase(heading.content))}</h2>` : ""}
         <div class="grid-4">${photos.slice(0, 4).map((p) => img(p)).join("")}</div>
         ${cap(captions)}
       </div>`;
@@ -392,7 +422,7 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
     case "people_page":
       inner = `<div class="content" style="inset:${inset}">
         ${labels[0] ? `<div class="label">${esc(labels[0].content)}</div>` : ""}
-        ${heading ? `<h2 style="margin-top:${mm(4)}in">${esc(heading.content)}</h2>` : ""}
+        ${heading ? `<h2 style="margin-top:${mm(4)}in">${esc(houseCase(heading.content))}</h2>` : ""}
         ${photos[0] ? `<div style="height:46%;margin-top:${mm(10)}in">${img(photos[0])}</div>` : ""}
         ${cap(captions)}
         <div class="hang" style="padding-top:${mm(12)}in">
@@ -403,7 +433,7 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
 
     case "little_things":
       inner = `<div class="content" style="inset:${inset}">
-        ${heading ? `<h2 style="margin-bottom:${mm(16)}in">${esc(heading.content)}</h2>` : ""}
+        ${heading ? `<h2 style="margin-bottom:${mm(16)}in">${esc(houseCase(heading.content))}</h2>` : ""}
         <div class="lt-grid">${texts.map((t) => {
           const [label, ...rest] = t.content.split(":");
           const value = rest.join(":").trim();
@@ -417,7 +447,7 @@ function renderInterior(page: RenderPage, target: RenderTarget, imprintFoot = ""
       inner = `<div class="content" style="inset:${inset}">
         ${photos[0] ? `<div style="height:44%">${img(photos[0])}</div>` : ""}
         <div style="margin-top:${mm(14)}in">
-          ${heading ? `<h2 style="margin-bottom:${mm(7)}in">${esc(heading.content)}</h2>` : ""}
+          ${heading ? `<h2 style="margin-bottom:${mm(7)}in">${esc(houseCase(heading.content))}</h2>` : ""}
           <div class="hang">${texts.map((t) => `<p>${esc(t.content)}</p>`).join("")}</div>
         </div>
         ${annotations[0] ? `<div class="annotation bottom">${esc(annotations[0].content)}</div>` : ""}

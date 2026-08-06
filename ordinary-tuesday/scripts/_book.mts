@@ -106,7 +106,7 @@ const PAGES: Omit<RenderPage, "pageNumber">[] = [
     T("text", "Favourite person: Grandpa, on Thursdays."),
     T("text", "Current project: Whistling.")] },
   { archetype: "ordinary_days", blocks: [
-    T("heading", "Qotidias"),
+    T("heading", "Ordinary days"),
     T("photo", photo(12, 1400, 1400)), T("photo", photo(13, 1400, 1400)),
     T("photo", photo(14, 1400, 1400)), T("photo", photo(15, 1400, 1400)),
     T("caption", "Breakfast · the walk · the kitchen bench · bath")] },

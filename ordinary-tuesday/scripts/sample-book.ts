@@ -193,7 +193,7 @@ const audit = await page.evaluate((safeMm: number) => {
 }, FORMAT.safeMarginMm);
 
 const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true, scale: 1 });
-writeFileSync(`${outDir}/ordinary-tuesday-sample.pdf`, pdf);
+writeFileSync(`${outDir}/qotidia-sample.pdf`, pdf);
 await browser.close();
 
 const result = runPreflight({
@@ -214,6 +214,6 @@ const result = runPreflight({
   cover: { colour: book.cover.colour, spineWidthMm: 12.8, spineAuthoritative: true },
 });
 
-console.log(`Rendered ${pages.length} interior pages + 2 covers -> ${outDir}/ordinary-tuesday-sample.pdf`);
+console.log(`Rendered ${pages.length} interior pages + 2 covers -> ${outDir}/qotidia-sample.pdf`);
 console.log(result.passed ? "Preflight: PASS" : "Preflight: FAIL");
 for (const i of result.issues) console.log(`  [${i.severity}] ${i.code}: ${i.message}`);
