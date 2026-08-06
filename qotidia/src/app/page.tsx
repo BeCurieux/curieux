@@ -27,6 +27,7 @@ import Link from "next/link";
 import { PRICES } from "@/lib/stripe";
 import { PLAN_PRICES } from "@/lib/billing/plans";
 import { TAGLINE } from "@/lib/brand";
+import { MARKETING } from "@/lib/marketing/imagery";
 
 const aud = (cents: number) => `A$${Math.round(cents / 100)}`;
 
@@ -59,6 +60,10 @@ const PROMPTS = [
 ];
 
 export default function LandingPage() {
+  const hero = MARKETING.hero();
+  const dark = MARKETING.dark();
+  const shelf = MARKETING.shelf();
+
   return (
     <div className="grain">
       {/* ------------------------------------------------------------ hero
@@ -97,15 +102,22 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* The object. Real render, not a div painted terracotta. */}
+            {/* The object. A photograph already has its own light, shadow and
+                perspective, so the CSS book treatment is applied only to the
+                flat cover render — doing both would be a fake shadow under a
+                real one. */}
             <div className="rise flex justify-center md:justify-end" style={{ ["--d" as string]: "320ms" }}>
-              <div className="volume w-[16rem] rounded-sm md:w-[21rem]">
+              {hero.isPhoto ? (
                 <img
-                  src="/sample/age-02.png"
-                  alt="A Qotidia volume — the year you were two, in terracotta"
-                  className="block w-full rounded-sm"
+                  src={hero.src}
+                  alt={hero.alt}
+                  className="w-[19rem] rounded-sm object-cover shadow-[0_30px_60px_-24px_rgba(43,38,32,0.35)] md:w-[26rem]"
                 />
-              </div>
+              ) : (
+                <div className="volume w-[16rem] rounded-sm md:w-[21rem]">
+                  <img src={hero.src} alt={hero.alt} className="block w-full rounded-sm" />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -176,14 +188,23 @@ export default function LandingPage() {
           the brand is actually built around. */}
       <section className="bleed band-ink py-24 md:py-32">
         <div className="mx-auto max-w-6xl px-6">
-          <h2 className="font-display lowercase" style={{ fontSize: "clamp(2.25rem, 5vw, 4rem)" }}>
-            private. personal. yours.
-          </h2>
-          <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-paper/70">
-            Their childhood isn&rsquo;t content. Some memories are meant to be
-            shared &mdash; not with everyone.
-          </p>
-          <div className="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr]">
+            <div>
+              <h2 className="font-display lowercase" style={{ fontSize: "clamp(2.25rem, 5vw, 4rem)" }}>
+                private. personal. yours.
+              </h2>
+              <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-paper/70">
+                Their childhood isn&rsquo;t content. Some memories are meant to
+                be shared &mdash; not with everyone.
+              </p>
+            </div>
+            {/* Only shown when there is an actual dark-ground photograph. The
+                cover render is bright and would punch a hole in this band. */}
+            {dark.isPhoto && (
+              <img src={dark.src} alt={dark.alt} className="w-full rounded-sm object-cover" />
+            )}
+          </div>
+          <div className="mt-16 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {PILLARS.map(([title, body]) => (
               <div key={title} className="border-t border-paper/25 pt-5">
                 <h3 className="font-display text-xl lowercase text-paper">{title}</h3>
@@ -281,6 +302,12 @@ export default function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------- close */}
+      {shelf.isPhoto && (
+        <section className="bleed">
+          <img src={shelf.src} alt={shelf.alt} className="h-[26rem] w-full object-cover md:h-[34rem]" />
+        </section>
+      )}
+
       <section className="bleed bg-paper py-28 text-center md:py-36">
         <p className="mx-auto max-w-[16ch] font-display lowercase leading-[1.05]" style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}>
           {TAGLINE}

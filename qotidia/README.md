@@ -125,3 +125,27 @@ npm test         # editorial, provenance, structure, preflight, print adapter,
 - `recipient_json` is stored in Postgres (RLS-protected, service-role
   writes); move to column-level encryption before production.
 - Admin is intentionally minimal and can never bypass parent approval.
+
+## Marketing photographs
+
+The landing page has four image slots. Each uses a photograph if the file
+exists and a rendered cover if it does not, checked on the server at render
+time — so the page is never broken while they are missing, and nothing needs
+redeploying when they arrive. Drop files into `public/sample/`:
+
+| File | Where it goes | What it wants |
+|---|---|---|
+| `book-hero.*` | Top of the landing page | The object alone in daylight. Minimal props, visible page block, plenty of air. It should not look styled. |
+| `book-dark.*` | Inside the dark privacy band | A **dark-ground** photograph. A bright one punches a hole in that section. |
+| `book-shelf.*` | Full-bleed before the closing line | The book somewhere domestic. Warm, a real surface. |
+| `book-flat.*` | Spare, for wide crops | Overhead. |
+
+Any of `.jpg` `.jpeg` `.png` `.webp` `.avif` — the extension does not
+matter, only the name. See `src/lib/marketing/imagery.ts`.
+
+**What these images may not imply.** Rendered mockups are a normal way to
+show a product that has not been manufactured yet, and nothing on the site
+captions them as photographs of a printed copy. What they must not do is
+suggest a material nobody has confirmed — no foil, no cloth, no deboss, no
+edge staining. Until a Prodigi sample comes back, the finish in any image is
+a proposal, and the copy says nothing about it either way.
