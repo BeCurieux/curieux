@@ -1268,3 +1268,54 @@ export async function startMembership(formData: FormData) {
   });
   redirect(session.url!);
 }
+
+// ---------------------------------------------------------------- noticing
+
+/**
+ * What a family says about something we noticed.
+ *
+ * Three answers and they mean different things. "Keep" says this thread
+ * matters and should reach the book. "Tell me more" turns an observation
+ * into a question, which is the whole notice → ask → remember loop running
+ * in one tap. "Ignore" says we were wrong, and it is permanent — being told
+ * so and saying the same thing next month is worse than never asking.
+ */
+export async function answerNoticed(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const noticedId = String(formData.get("noticed_id"));
+  const subjectId = String(formData.get("subject_id"));
+  const verdict = String(formData.get("verdict"));
+
+  if (!["kept", "more", "ignored"].includes(verdict)) return;
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change what this archive keeps");
+  }
+
+  const { data: row } = await db
+    .from("noticed")
+    .select("entity_id, line")
+    .eq("id", noticedId)
+    .single();
+
+  await db
+    .from("noticed")
+    .update({ verdict, answered_at: new Date().toISOString() })
+    .eq("id", noticedId);
+
+  // "Tell me more" becomes a real question in the queue, carrying the
+  // observation as its reason — so the answer, when it comes, is a memory
+  // that knows what prompted it.
+  if (verdict === "more" && row) {
+    await db.from("follow_up_questions").insert({
+      subject_id: subjectId,
+      question: `${row.line} Anything you want to say about that?`,
+      reason: "You asked to hear more about this.",
+      status: "pending",
+    });
+  }
+
+  revalidatePath(`/subjects/${subjectId}`);
+}

@@ -10,9 +10,12 @@ import { countAwaitingCheck, resolvePhotoUrls } from "@/lib/book/photos";
 import { loadLookBack } from "@/lib/lookback/load";
 import { bookPriceFor } from "@/lib/billing/price";
 import { LookBackPanel } from "./look-back";
+import { Weekly } from "./weekly";
+import { weeklyNoteFor } from "@/lib/weekly/build";
+import { adminClient } from "@/lib/supabase/server";
 import { Shelf } from "@/app/shelf";
 import { roleForSubject } from "@/lib/family/membership";
-import { canModerate } from "@/lib/family/roles";
+import { canEdit, canModerate } from "@/lib/family/roles";
 import { bestPrompt } from "@/lib/prompts/engine";
 
 export const dynamic = "force-dynamic";
@@ -100,6 +103,13 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   const look = await loadLookBack(db, child.id, { userId: user.id, role });
   const renewalPrice = await bookPriceFor(db, child.family_id);
 
+  // This week's noticing. Written the first time somebody who can answer it
+  // opens the page, and read from then on — so the sentence holds still for
+  // the week and the Keep/Ignore buttons have a row to point at.
+  const weekly = await weeklyNoteFor(db, child.id, {
+    write: canEdit(role) ? adminClient() : null,
+  });
+
   const recentPhotoIds = (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id);
   const recentPhotos = await resolvePhotoUrls(db, recentPhotoIds);
   // Photographs are withheld until they have been read server-side. That is
@@ -145,7 +155,8 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       {/* Above everything that asks the parent to do something. This is the
           only part of the page that gives without wanting, and it is the
           reason to open the app on the days when there is no book to make. */}
-      <div className="mt-8">
+      <div className="mt-8 space-y-4">
+        <Weekly note={weekly} subjectId={child.id} />
         <LookBackPanel look={look} subjectId={child.id} first={first} />
       </div>
 

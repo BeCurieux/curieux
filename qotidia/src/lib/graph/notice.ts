@@ -60,6 +60,24 @@ const WORTH_SAYING: Shape[] = ["faded", "returned", "arrived", "surging"];
 const times = (n: number) =>
   n === 1 ? "once" : n === 2 ? "twice" : `${n} times`;
 
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/**
+ * A date, as a person would say it.
+ *
+ * "since 2026-04-08" is a log line. Nobody remembers the eighth; they
+ * remember April, and the month is as precise as this observation can
+ * honestly be anyway.
+ */
+const monthOf = (iso: string, today: string) => {
+  const [y, m] = iso.split("-");
+  const month = MONTHS[Number(m) - 1] ?? iso;
+  return y === today.slice(0, 4) ? month : `${month} ${y}`;
+};
+
 const monthsAgo = (days: number) => {
   const months = Math.round(days / 30);
   if (months <= 1) return "a month ago";
@@ -67,6 +85,21 @@ const monthsAgo = (days: number) => {
   const years = Math.round(months / 12);
   return years === 1 ? "a year ago" : `${years} years ago`;
 };
+
+/**
+ * A label starting a sentence.
+ *
+ * Tags are typed as filing labels — "the dinosaur hat" — and putting one at
+ * the front of a sentence unedited gives you "the dinosaur hat, 4 times this
+ * week", which looks like a bug rather than a voice. Only lifted when the
+ * first word is entirely lowercase, so "iPad" and "mrs Wiggles" are left as
+ * the family wrote them: this is capitalisation, not correction.
+ */
+function opening(label: string): string {
+  const first = label.split(/\s/)[0] ?? "";
+  if (first !== first.toLowerCase()) return label;
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
 
 /**
  * The sentence for one entity.
@@ -77,12 +110,15 @@ const monthsAgo = (days: number) => {
  */
 function lineFor(entity: Entity, shape: Shape, today: string, windowDays: number): string {
   const p = presenceOf(entity, today, windowDays);
-  const label = entity.label;
+  // A quoted phrase is inside quotation marks and is the child's own
+  // sentence, so it is never lifted — that one is a transcript.
+  const said = entity.label;
+  const label = opening(entity.label);
 
   switch (shape) {
     case "arrived":
       return entity.kind === "phrase"
-        ? `“${label}” — that's new this week.`
+        ? `“${said}” — that's new this week.`
         : `${label} turned up for the first time.`;
     case "returned": {
       const gap = gapBeforeReturn(entity, today, windowDays);
@@ -92,10 +128,12 @@ function lineFor(entity: Entity, shape: Shape, today: string, windowDays: number
     }
     case "surging":
       return entity.kind === "phrase"
-        ? `“${label}” came up ${times(p.recent)} this week.`
+        ? `“${said}” came up ${times(p.recent)} this week.`
         : `${label}, ${times(p.recent)} this week.`;
     case "faded":
-      return `${label} hasn't appeared since ${p.last}.`;
+      return p.last
+        ? `${label} hasn't appeared since ${monthOf(p.last, today)}.`
+        : `${label} hasn't appeared in a while.`;
     default:
       return `${label}, ${times(p.recent)} this week.`;
   }

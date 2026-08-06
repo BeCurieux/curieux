@@ -132,6 +132,25 @@ describe("the week's three things", () => {
     expect(out[0].line).toContain("Bun Bun");
   });
 
+  it("says the month rather than printing a date", () => {
+    // "hasn't appeared since 2026-04-08" is a log line. The eighth is not
+    // what anyone remembers, and the month is as precise as an observation
+    // about something fading can honestly be.
+    const out = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "bun", days: [120, 130, 140, 150, 160, 170] }), label: "Bun Bun" }],
+    });
+    expect(out[0].line).toBe("Bun Bun hasn't appeared since April.");
+  });
+
+  it("includes the year when the thing stopped in a different one", () => {
+    const out = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "bun", days: [300, 320, 340, 360, 380, 400] }), label: "Bun Bun" }],
+    });
+    expect(out[0].line).toBe("Bun Bun hasn't appeared since October 2025.");
+  });
+
   it("quotes the silence in the line, not the whole span", () => {
     // The gap here is about 126 days (four months); the span from first to
     // last mention is 149 (five). Testing gapBeforeReturn directly is not
@@ -144,6 +163,38 @@ describe("the week's three things", () => {
     expect(out[0].shape).toBe("returned");
     expect(out[0].line).toContain("4 months ago");
     expect(out[0].line).not.toContain("5 months ago");
+  });
+
+  it("starts the sentence with a capital without rewriting the family's word", () => {
+    // Tags are typed as filing labels. "the dinosaur hat, 4 times this week"
+    // reads as a bug; "The dinosaur hat" reads as a voice.
+    const out = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "hat", days: [1, 2, 4, 6, 30, 38] }), label: "the dinosaur hat" }],
+    });
+    expect(out[0].line).toBe("The dinosaur hat, 4 times this week.");
+  });
+
+  it("leaves a name the family capitalised oddly exactly as they typed it", () => {
+    const out = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "pad", days: [1, 2, 4, 6, 30, 38] }), label: "iPad time" }],
+    });
+    expect(out[0].line).toBe("iPad time, 4 times this week.");
+  });
+
+  it("quotes a child's own sentence without tidying it", () => {
+    // The one case where lifting a letter would be a correction rather than
+    // a capitalisation: what the child said is a transcript.
+    const out = noticeThisWeek({
+      today: TODAY,
+      entities: [{
+        ...entity({ id: "p", days: [1, 2, 4, 6, 30, 38] }),
+        kind: "phrase",
+        label: "i do it my byself",
+      }],
+    });
+    expect(out[0].line).toContain("“i do it my byself”");
   });
 
   it("says nothing at all in a week where nothing changed", () => {

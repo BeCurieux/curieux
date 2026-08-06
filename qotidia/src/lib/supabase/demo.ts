@@ -86,6 +86,7 @@ const MEMORY_SEED: [number, string, string, string[]][] = [
   [133, "quote", "I do it my byself.", ["phrase"]],
   [147, "photo", "Yellow boots, no rain in sight. Non-negotiable.", ["yellow_boots"]],
   [161, "photo", "Grandma's birthday lunch.", ["grandma"]],
+  [168, "photo", "Bun Bun in the trolley seat, seatbelt done up over him.", ["bun_bun"]],
   [182, "quote", "Garbage truck says bye bye.", ["garbage_trucks"]],
   [196, "photo", "Thursday at Grandpa's: first time she 'drove' the mower.", ["grandpa"]],
   [210, "photo", "Yellow boots at the museum.", ["yellow_boots"]],
@@ -123,6 +124,38 @@ function buildTables(): Record<string, Row[]> {
   const memories: Row[] = [];
   const tags: Row[] = [];
   const assets: Row[] = [];
+
+  // The recent weeks. The seed above stops 85 days ago, which is a lapsed
+  // family — a real state the product handles, and a useless one for showing
+  // what the weekly note does. These give it something true to notice.
+  //
+  // Two of the hats are a month old on purpose. Four mentions and nothing
+  // before them is a first appearance, not a surge, and the shape code says
+  // so correctly; a fixture that wants to demonstrate a surge has to contain
+  // one rather than rely on the sentence sounding right.
+  const recently = (offsetDays: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() - offsetDays);
+    return d.toISOString().slice(0, 10);
+  };
+  [
+    [1, "the dinosaur hat", "Wore the dinosaur hat to the shops. Again."],
+    [2, "the dinosaur hat", "Dinosaur hat at breakfast."],
+    [4, "the dinosaur hat", "Would not take the hat off for the bath."],
+    [6, "the dinosaur hat", "Hat, park, hat."],
+    [30, "the dinosaur hat", "Wore the hat to the park. Twice around the pond."],
+    [38, "the dinosaur hat", "The dinosaur hat, a present from Aunty Kate."],
+  ].forEach(([offset, tag, text], i) => {
+    const id = `mem-recent-${i}`;
+    memories.push({
+      id, subject_id: subjectId, created_by: DEMO_USER.id, type: "text",
+      raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: recently(offset as number), created_at: recently(offset as number),
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+    tags.push({ id: `tag-recent-${i}`, memory_id: id, tag, source: "parent" });
+  });
 
   // Last year's few. The seed above all falls inside the year being
   // collected, and a look-back needs something older than that — so without
@@ -162,6 +195,11 @@ function buildTables(): Record<string, Row[]> {
       raw_text: text, transcript: null, location: null, metadata: {},
       memory_date: day(offset), created_at: day(offset),
       contribution_status: fromGrandpa ? "pending" : "approved",
+      // Spelled out because the fake client has no column defaults. The real
+      // table defaults this to 'family'; the fixture left it undefined, so
+      // every query filtering on visibility silently matched nothing and the
+      // whole year of memories was invisible to the graph.
+      visibility: "family",
       reviewed_by: null, reviewed_at: null,
     });
     tagList.forEach((tag, t) =>
@@ -280,6 +318,9 @@ function buildTables(): Record<string, Row[]> {
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: [],
     memory_clusters: clusters, cluster_memories: clusterMembers,
+    // The weekly note's record. Empty, so the demo shows a first week
+    // rather than a fourth — which is the state most worth getting right.
+    noticed: [],
     billing_events: [
       { family_id: familyId, kind: "invoice.paid", plan: "monthly", state: "active",
         amount_aud: 1900, note: null, created_at: day(300) },
@@ -434,6 +475,18 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
     return this;
   }
   in(col: string, vals: any[]) { this.rows = this.rows.filter((r) => vals.includes(r[col])); return this; }
+  /**
+   * Range filters.
+   *
+   * Added after .gte() produced a 500 that existed only in demo mode — the
+   * second operator to do that, after .not(). String comparison is correct
+   * for the ISO dates and timestamps these are used on, and wrong for
+   * nothing this fixture holds.
+   */
+  gte(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] >= val); return this; }
+  lte(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] <= val); return this; }
+  gt(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] > val); return this; }
+  lt(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] < val); return this; }
   order(col: string, opts?: { ascending?: boolean }) {
     const dir = opts?.ascending === false ? -1 : 1;
     this.rows.sort((a, b) => (a[col] > b[col] ? dir : a[col] < b[col] ? -dir : 0));
@@ -463,29 +516,79 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
   }
 }
 
-/** Writes are accepted and discarded: demo mode never persists. */
+/**
+ * Writes, applied to the in-memory tables for the life of the process.
+ *
+ * They were accepted and discarded, which was fine while every demo screen
+ * was read-only and stopped being fine the moment one had buttons on it.
+ * "Ignore" that visibly does nothing is a worse demonstration of the product
+ * than no button at all — and, in the same way the collapsed-array bug did,
+ * it makes a working feature look broken in the only place anybody looks at
+ * it first.
+ *
+ * Nothing here survives a restart, which is the right amount of persistence:
+ * enough to try the product, not enough to have to reset it.
+ */
 class Mutation implements PromiseLike<{ data: any; error: any }> {
-  private returning: any = null;
-  constructor(row?: any) {
-    // Echo back what was written, with an id, so a caller doing
-    // .insert(...).select("id").single() gets a row rather than null.
-    // Returning null here made every such call look like a silent failure
-    // in demo mode — and hid a real 500 in the route that did it.
-    if (row) {
-      const first = Array.isArray(row) ? row[0] : row;
-      this.returning = { id: `demo-${Math.abs(hashish(JSON.stringify(first)))}`, ...first };
-    }
-  }
-  select() { return this; }
-  single() { return this; }
-  maybeSingle() { return this; }
-  eq() { return this; }
+  private filters: [string, any][] = [];
+  private wanted = false;
+  private one = false;
+
+  constructor(
+    private store: Record<string, Row[]>,
+    private table: string,
+    private mode: "insert" | "update" | "delete",
+    private payload?: any
+  ) {}
+
+  /** Callers ask for the written rows back; without this they get null. */
+  select() { this.wanted = true; return this; }
+  single() { this.one = true; return this; }
+  maybeSingle() { this.one = true; return this; }
+  eq(column: string, value: any) { this.filters.push([column, value]); return this; }
   in() { return this; }
+
+  private matches(row: Row): boolean {
+    return this.filters.every(([c, v]) => (row as any)[c] === v);
+  }
+
+  private apply(): any {
+    const rows = (this.store[this.table] ??= []);
+
+    if (this.mode === "insert") {
+      // Shape follows the input, as real Supabase does: insert one row and
+      // .select() gives one row, insert an array and it gives an array. An
+      // earlier version collapsed an array to its first element, so any
+      // caller inserting several and mapping the result crashed — in demo
+      // mode only, which is the worst place for it to be true.
+      const list = (Array.isArray(this.payload) ? this.payload : [this.payload]).filter(Boolean);
+      const written = list.map((r: any) => ({
+        id: `demo-${Math.abs(hashish(JSON.stringify(r)))}`,
+        ...r,
+      }));
+      rows.push(...written);
+      return Array.isArray(this.payload) ? written : (written[0] ?? null);
+    }
+
+    if (this.mode === "update") {
+      const hit = rows.filter((r) => this.matches(r));
+      for (const r of hit) Object.assign(r, this.payload);
+      return hit;
+    }
+
+    const kept = rows.filter((r) => !this.matches(r));
+    const gone = rows.filter((r) => this.matches(r));
+    this.store[this.table] = kept;
+    return gone;
+  }
+
   then<R1 = any, R2 = never>(
     resolve?: ((v: { data: any; error: any }) => R1 | PromiseLike<R1>) | null,
     reject?: ((r: any) => R2 | PromiseLike<R2>) | null
   ): PromiseLike<R1 | R2> {
-    return Promise.resolve({ data: this.returning, error: null }).then(resolve, reject);
+    const written = this.apply();
+    const data = this.one && Array.isArray(written) ? (written[0] ?? null) : written;
+    return Promise.resolve({ data: this.wanted ? data : null, error: null }).then(resolve, reject);
   }
 }
 
@@ -496,8 +599,25 @@ function hashish(s: string): number {
   return h;
 }
 
+/**
+ * One set of tables for the process.
+ *
+ * Built per client until writes started landing, at which point every
+ * userClient() and adminClient() call was handing out its own private copy of
+ * the archive — so a server action wrote to a store that the page render then
+ * never read from, and every button in the demo silently did nothing.
+ */
+// On globalThis rather than in a module variable because a module variable is
+// not one variable: Next builds separate module graphs for rendering and for
+// server actions, so a page and the action its button calls each got their
+// own tables. The write landed; the read looked somewhere else; the button
+// did nothing and said nothing. Same reason the Prisma client lives here.
+const STORE = Symbol.for("qotidia.demo.tables");
+type Global = typeof globalThis & { [STORE]?: Record<string, Row[]> };
+
 export function demoClient(): any {
-  const db = buildTables();
+  const g = globalThis as Global;
+  const db = (g[STORE] ??= buildTables());
   return {
     from(table: string) {
       return {
@@ -505,10 +625,10 @@ export function demoClient(): any {
           const q = new Query(db, table, cols);
           return (q as any).selectAgain(cols, opts);
         },
-        insert(row?: any) { return new Mutation(row); },
-        update() { return new Mutation(); },
-        upsert() { return new Mutation(); },
-        delete() { return new Mutation(); },
+        insert(row?: any) { return new Mutation(db, table, "insert", row); },
+        update(patch?: any) { return new Mutation(db, table, "update", patch ?? {}); },
+        upsert(row?: any) { return new Mutation(db, table, "insert", row); },
+        delete() { return new Mutation(db, table, "delete"); },
       };
     },
     rpc(fn: string) {
