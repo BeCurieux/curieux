@@ -339,9 +339,15 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
   const subjectId = book.subject_id;
   const { data: subject } = await db.from("subjects").select("*").eq("id", subjectId).single();
   const allMemories = await loadMemories(db, subjectId);
-  const memories = allMemories.filter(
-    (m) => !m.memory_date || (m.memory_date >= book.start_date && m.memory_date <= book.end_date)
-  );
+  const memories = allMemories
+    .filter((m) => !m.memory_date || (m.memory_date >= book.start_date && m.memory_date <= book.end_date))
+    // Answers to our own questions are memories everywhere else in the
+    // system — that is the point of them being memories — but they reach the
+    // book separately, as `answers`, further down. Without this filter the
+    // same sentence is handed to the drafting twice and can be printed
+    // twice, on different pages, as though the parent said it on two
+    // occasions.
+    .filter((m) => !(m.metadata as any)?.from_question_id);
   const { data: clusterRows } = await db
     .from("memory_clusters")
     .select("*, cluster_memories(memory_id)")

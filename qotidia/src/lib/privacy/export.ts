@@ -167,6 +167,25 @@ export async function collectArchive(
       });
     }
 
+    // Questions we asked and the answers they wrote. Omitted until now, in
+    // an export whose whole promise is "everything your family kept" — and
+    // these are the sentences a parent sat and composed because we asked.
+    const { data: asked } = await db
+      .from("follow_up_questions")
+      .select("question, answer, created_at")
+      .eq("subject_id", s.id)
+      .eq("status", "answered")
+      .order("created_at");
+
+    if ((asked ?? []).length > 0) {
+      entries.push({
+        path: `${slug(s.display_name)}/questions-we-asked.txt`,
+        contents: (asked ?? [])
+          .map((q: any) => `${q.question}\n\n${q.answer}\n`)
+          .join("\n---\n\n"),
+      });
+    }
+
     const { data: littleThings } = await db
       .from("little_things")
       .select("category, value, recorded_date")

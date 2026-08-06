@@ -15,7 +15,8 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { BRAND, IMPRINT, SENDER, WORDMARK } from "@/lib/brand";
+import { BRAND, IMPRINT, ONE_LINER, SENDER, TAGLINE, WORDMARK } from "@/lib/brand";
+import { codeOnly } from "./helpers/source";
 
 const root = join(__dirname, "..");
 const src = join(root, "src");
@@ -60,5 +61,32 @@ describe("the name", () => {
     const html = readFileSync(join(src, "lib/pdf/html.ts"), "utf8");
     expect(html).toMatch(/function houseCase/);
     expect(html).toMatch(/quotation|transcript/i);
+  });
+});
+
+describe("the line", () => {
+  it("is set lowercase, like the wordmark", () => {
+    // House style applies to type we wrote. The tagline is ours.
+    expect(TAGLINE).toBe(TAGLINE.toLowerCase());
+  });
+
+  it("has replaced the one that described a service everywhere", () => {
+    const offenders = walk(src)
+      .filter((f) => /You live it/.test(codeOnly(readFileSync(f, "utf8"))))
+      .map((f) => f.replace(root + "/", ""));
+    expect(offenders).toEqual([]);
+  });
+
+  it("names the engine in the order it runs", () => {
+    // notice -> ask -> remember. If the sentence ever stops saying this, the
+    // product has stopped being about the thing that makes it different.
+    const notices = ONE_LINER.indexOf("notices");
+    const remembers = ONE_LINER.indexOf("remembers");
+    const book = ONE_LINER.indexOf("book");
+    expect(notices).toBeGreaterThan(-1);
+    expect(remembers).toBeGreaterThan(notices);
+    // The book is last, because it is what a year of noticing produces
+    // rather than the product itself.
+    expect(book).toBeGreaterThan(remembers);
   });
 });

@@ -26,3 +26,23 @@ export const IMPRINT = BRAND;
 
 /** The sender name on email, and the actor in the activity log. */
 export const SENDER = BRAND;
+
+/**
+ * The line, set lowercase like the wordmark.
+ *
+ * It was "You live it. We help you keep it." — which described a service.
+ * This describes the thing itself, which is what a parent is actually
+ * deciding about.
+ */
+export const TAGLINE = "the everyday, kept." as const;
+
+/**
+ * One sentence, for when the tagline is too short to explain anything.
+ *
+ * The three verbs are the product's actual engine and are in the order it
+ * runs in: notice, ask, remember. See lib/prompts/engine.ts for the asking
+ * and answerQuestion() for the remembering that closes the loop.
+ */
+export const ONE_LINER =
+  "A private place that notices, remembers and preserves the little things " +
+  "that make up a life — then turns each year into a beautiful book.";

@@ -14,6 +14,7 @@ import {
 } from "@/lib/stripe";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
 import { planCopy } from "@/lib/billing/plans";
+import { codeOnly } from "./helpers/source";
 
 const landingSource = readFileSync(
   new URL("../src/app/page.tsx", import.meta.url),
@@ -30,10 +31,7 @@ const aud = (cents: number) => `A$${cents / 100}`;
  * Only whole-line // comments are stripped, never mid-line: a regex that
  * eats from the first // onwards also eats every https:// URL on the page.
  */
-const landingClaims = landingSource
-  .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
-  .replace(/\/\*[\s\S]*?\*\//g, "")
-  .replace(/^\s*\/\/.*$/gm, "");
+const landingClaims = codeOnly(landingSource);
 
 
 describe("the price we advertise is the price we charge", () => {

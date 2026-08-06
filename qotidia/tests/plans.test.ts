@@ -20,6 +20,7 @@ import {
   planCopy,
   yearOfMonthly,
 } from "@/lib/billing/plans";
+import { codeOnly } from "./helpers/source";
 
 const root = join(__dirname, "..");
 
@@ -45,7 +46,7 @@ describe("leaving", () => {
     // Comments stripped first. The first version of this test failed on a
     // comment that said "nothing touches subjects, memories or storage" —
     // it was reading the promise rather than checking it.
-    const code = webhook.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const code = codeOnly(webhook);
     const start = code.indexOf("customer.subscription.deleted");
     const rest = code.slice(start);
     const end = rest.indexOf('event.type === "invoice.paid"');

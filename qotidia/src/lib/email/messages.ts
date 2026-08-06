@@ -18,11 +18,11 @@
 import { countOf } from "@/lib/words";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
 import type { OutboundEmail } from "./provider";
-import { BRAND } from "@/lib/brand";
+import { BRAND, TAGLINE } from "@/lib/brand";
 
 const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";
 
-const SIGNOFF = `\n\n${BRAND}\nYou live it. We help you keep it.`;
+const SIGNOFF = `\n\n${BRAND}\n${TAGLINE}`;
 
 /** Appended to anything that is not strictly transactional. */
 const optOut = (token: string) =>

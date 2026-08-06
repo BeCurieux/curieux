@@ -383,20 +383,91 @@ export async function updateCluster(formData: FormData) {
 
 // -------------------------------------------------------------- questions
 
+/**
+ * Answering one of the questions the archive asked.
+ *
+ * The answer is written twice, deliberately, and the second write is the
+ * important one.
+ *
+ * Notice → Ask → Remember only closes if the *remembering* puts the answer
+ * back where the noticing can find it. An answer stored on the question row
+ * alone is read once, by the book generator, and is invisible to everything
+ * else: the analysis never sees it, the clustering cannot group it, the
+ * look-back can never show it back, next year's questions do not know it was
+ * ever said, and the export — which promises everything a family kept —
+ * silently omits it.
+ *
+ * Which would make the most considered sentences in the whole archive the
+ * only second-class ones. A parent writes "Bun Bun. He came from Nana and he
+ * goes everywhere" precisely because we asked; that is not a footnote to a
+ * memory, it *is* a memory, and it should be one.
+ */
 export async function answerQuestion(formData: FormData) {
-  await requireUser();
+  const user = await requireUser();
   const db = userClient();
   const id = String(formData.get("question_id"));
   const subjectId = String(formData.get("subject_id"));
   const action = String(formData.get("action"));
+
   if (action === "dismiss") {
     await db.from("follow_up_questions").update({ status: "dismissed" }).eq("id", id);
-  } else {
-    const answer = String(formData.get("answer") ?? "").trim();
-    if (answer) {
-      await db.from("follow_up_questions").update({ status: "answered", answer }).eq("id", id);
-    }
+    revalidatePath(`/subjects/${subjectId}/questions`);
+    return;
   }
+
+  const answer = String(formData.get("answer") ?? "").trim();
+  if (!answer) {
+    revalidatePath(`/subjects/${subjectId}/questions`);
+    return;
+  }
+
+  // Read the question first: an answer without the question it answered is
+  // a sentence with the subject removed. "Bun Bun" means nothing on its own.
+  const { data: question } = await db
+    .from("follow_up_questions")
+    .select("question, status, answer_memory_id")
+    .eq("id", id)
+    .single();
+
+  await db.from("follow_up_questions").update({ status: "answered", answer }).eq("id", id);
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+
+  // Editing an answer updates the memory rather than adding a second one.
+  if (question?.answer_memory_id) {
+    await db
+      .from("memories")
+      .update({ raw_text: answer })
+      .eq("id", question.answer_memory_id);
+    revalidatePath(`/subjects/${subjectId}/questions`);
+    return;
+  }
+
+  const { data: memory } = await db
+    .from("memories")
+    .insert({
+      subject_id: subjectId,
+      created_by: user.id,
+      type: "text",
+      raw_text: answer,
+      // Dated today, because today is when they wrote it. The thing it is
+      // *about* is undated by nature — "he goes everywhere" has no day.
+      memory_date: new Date().toISOString().slice(0, 10),
+      metadata: { from_question_id: id, question: question?.question ?? null },
+      contribution_status: statusForNewMemory(membership.role),
+      visibility: "family",
+    })
+    .select("id")
+    .single();
+
+  if (memory) {
+    await db.from("follow_up_questions").update({ answer_memory_id: memory.id }).eq("id", id);
+    // Same batching as every other capture path.
+    const window = Math.floor(Date.now() / (60 * 60 * 1000));
+    await enqueue(adminClient(), "analyse_memories", { subject_id: subjectId }, `analyse-${subjectId}-${window}`);
+  }
+
   revalidatePath(`/subjects/${subjectId}/questions`);
 }
 

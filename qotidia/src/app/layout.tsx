@@ -4,12 +4,14 @@ import "./globals.css";
 import { charter } from "./fonts";
 import { currentUser } from "@/lib/supabase/server";
 import { signOut } from "./actions";
-import { BRAND } from "@/lib/brand";
+import { BRAND, ONE_LINER, TAGLINE } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `${BRAND} — You live it. We help you keep it.`,
-  description:
-    "The year is already in your camera roll. We turn it into one beautiful hardcover book of their year.",
+  title: `${BRAND} — ${TAGLINE}`,
+  // The one-liner leads with what the product does all year, not with the
+  // book. The book is the last clause for the same reason it is the last
+  // step: it is what a year of noticing produces, not the thing itself.
+  description: ONE_LINER,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
