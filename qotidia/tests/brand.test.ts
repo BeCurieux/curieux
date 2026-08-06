@@ -71,10 +71,22 @@ describe("the line", () => {
   });
 
   it("has replaced the one that described a service everywhere", () => {
+    // Case-insensitive. The first version of this test matched /You live it/
+    // and passed while the landing page's closing line — set lowercase, like
+    // everything else in our own typography — still read "you live it. we
+    // help you keep it." in type the size of a headline. It was found by
+    // looking at a screenshot, not by the suite.
     const offenders = walk(src)
-      .filter((f) => /You live it/.test(codeOnly(readFileSync(f, "utf8"))))
+      .filter((f) => /you live it/i.test(codeOnly(readFileSync(f, "utf8"))))
       .map((f) => f.replace(root + "/", ""));
     expect(offenders).toEqual([]);
+  });
+
+  it("is set from TAGLINE wherever it is displayed, not typed out", () => {
+    // The drift above was possible because the line existed as literal text
+    // in one place and as a constant everywhere else.
+    const landing = readFileSync(join(src, "app/page.tsx"), "utf8");
+    expect(landing).toContain("{TAGLINE}");
   });
 
   it("names the engine in the order it runs", () => {

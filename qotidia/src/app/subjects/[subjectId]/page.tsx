@@ -8,6 +8,7 @@ import { ageInYears } from "@/lib/book/format";
 import { countOf, friendlyDate } from "@/lib/words";
 import { countAwaitingCheck, resolvePhotoUrls } from "@/lib/book/photos";
 import { loadLookBack } from "@/lib/lookback/load";
+import { bookPriceFor } from "@/lib/billing/price";
 import { LookBackPanel } from "./look-back";
 import { Shelf } from "@/app/shelf";
 import { roleForSubject } from "@/lib/family/membership";
@@ -97,6 +98,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   // Today's look-back. Loaded here rather than in a client component so the
   // privacy filtering happens server-side, where the viewer's role is known.
   const look = await loadLookBack(db, child.id, { userId: user.id, role });
+  const renewalPrice = await bookPriceFor(db, child.family_id);
 
   const recentPhotoIds = (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id);
   const recentPhotos = await resolvePhotoUrls(db, recentPhotoIds);
@@ -244,10 +246,26 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
               <h2 className="text-lg">
                 Printing on {friendlyDate(renewal.scheduled_for)}
               </h2>
+              {/* The amount comes from the family's plan, not from the
+                  renewal row. This card quoted renewal.amount_aud, which is
+                  the full price — so a monthly member whose book is already
+                  included was told on their own dashboard that we would
+                  charge them A$199 for it. */}
               <p className="mt-1 max-w-[46ch] text-sm leading-relaxed text-stone">
-                We&rsquo;ll charge A${Math.round(renewal.amount_aud / 100)} that day and
-                send {first}&rsquo;s book to print. Read it through before then and change
-                anything you like.
+                {renewalPrice.amountAud === 0 ? (
+                  <>
+                    We&rsquo;ll send {first}&rsquo;s book to print that day.
+                    Nothing to pay &mdash; it&rsquo;s included in your
+                    membership. Read it through before then and change
+                    anything you like.
+                  </>
+                ) : (
+                  <>
+                    We&rsquo;ll charge A${Math.round(renewalPrice.amountAud / 100)} that day and
+                    send {first}&rsquo;s book to print. Read it through before then and change
+                    anything you like.
+                  </>
+                )}
               </p>
             </div>
             <form action={cancelRenewal}>

@@ -5,7 +5,7 @@
 // bug where a paying customer gets what they paid for, and everybody ships
 // the one where a lapsed customer quietly loses something.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -23,6 +23,17 @@ import {
 import { codeOnly } from "./helpers/source";
 
 const root = join(__dirname, "..");
+
+/** Every page and action file, for checks about what a surface may display. */
+function walkApp(dir = join(root, "src/app"), out: string[] = []): string[] {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) walkApp(path, out);
+    else if (/\.tsx?$/.test(entry.name)) out.push(path);
+  }
+  return out;
+}
+
 
 describe("leaving", () => {
   it("never costs a family their memories", () => {
@@ -133,6 +144,25 @@ describe("when a year closes", () => {
     // The book line item takes the amount it was given.
     expect(checkout).toContain("unit_amount: opts.bookAmountAud");
     expect(checkout).not.toMatch(/unit_amount:\s*PRICES\.bookAud\(\)/);
+  });
+
+  it("never quotes a future charge from the renewal row", () => {
+    // renewal.amount_aud is the full price, fixed when the renewal was
+    // scheduled. Rendering it tells a monthly member we will charge them
+    // A$199 for a book already included — which is what the dashboard did,
+    // and what the screenshot showed. Anything quoting what a family *will*
+    // pay reads it from bookPriceFor; billing history, which is what they
+    // *did* pay, is a different question and legitimately stored.
+    const pages = walkApp();
+    const offenders = pages.filter((f) =>
+      /renewal[^\n]*\.amount_aud/.test(codeOnly(readFileSync(f, "utf8")))
+    );
+    expect(offenders.map((f) => f.replace(root + "/", ""))).toEqual([]);
+  });
+
+  it("prices the renewal notice on the dashboard from the plan", () => {
+    const subject = readFileSync(join(root, "src/app/subjects/[subjectId]/page.tsx"), "utf8");
+    expect(subject).toContain("bookPriceFor");
   });
 
   it("does not send someone to a checkout for nothing", () => {

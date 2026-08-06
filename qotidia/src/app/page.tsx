@@ -16,6 +16,7 @@ import { Shelf } from "./shelf";
 import { colourForAge } from "@/lib/book/colours";
 import { PRICES } from "@/lib/stripe";
 import { PLAN_PRICES } from "@/lib/billing/plans";
+import { TAGLINE } from "@/lib/brand";
 
 const aud = (cents: number) => `A$${Math.round(cents / 100)}`;
 
@@ -229,8 +230,11 @@ export default function LandingPage() {
         </section>
 
         <section className="border-t border-rule py-16 text-center md:py-20">
+          {/* From TAGLINE rather than typed, so the closing line of the page
+              cannot drift from the one in the emails and the browser tab —
+              which is exactly what it had done. */}
           <p className="mx-auto max-w-[22ch] font-display text-title lowercase">
-            you live it. we help you keep it.
+            {TAGLINE}
           </p>
           <Link href="/signup" className="btn mt-8">start your year</Link>
         </section>

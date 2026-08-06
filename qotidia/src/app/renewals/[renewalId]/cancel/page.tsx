@@ -13,6 +13,7 @@ import { redirect } from "next/navigation";
 import { adminClient } from "@/lib/supabase/server";
 import { stopRenewalByLink } from "@/app/actions";
 import { friendlyDate } from "@/lib/words";
+import { bookPriceFor } from "@/lib/billing/price";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function CancelRenewalPage({
   const admin = adminClient();
   const { data: renewal } = await admin
     .from("renewals")
-    .select("id, status, scheduled_for, amount_aud, subjects(display_name)")
+    .select("id, status, scheduled_for, amount_aud, subject_id, subjects(display_name, family_id)")
     .eq("id", params.renewalId)
     .maybeSingle();
 
@@ -63,13 +64,29 @@ export default async function CancelRenewalPage({
     );
   }
 
+  const price = await bookPriceFor(admin, (renewal as any).subjects?.family_id ?? "");
+
   return (
     <div className="mx-auto max-w-md py-20">
       <h1 className="text-3xl">Don&rsquo;t print {childName}&rsquo;s book this year?</h1>
       <p className="mt-4 text-sm leading-relaxed text-stone">
-        We were going to charge A${Math.round(renewal.amount_aud / 100)} on{" "}
-        {friendlyDate(renewal.scheduled_for)} and send it to print. Stopping it
-        takes one tap, and nothing in the archive is deleted or changed.
+        {/* From the plan, not from renewal.amount_aud, which is the full
+            price fixed when the renewal was scheduled. This page is reached
+            from an email link by someone who may well be a monthly member
+            with the book already included. */}
+        {price.amountAud === 0 ? (
+          <>
+            We were going to send it to print on {friendlyDate(renewal.scheduled_for)}
+            {" "}&mdash; included in your membership, nothing to pay. Stopping it
+            takes one tap, and nothing in the archive is deleted or changed.
+          </>
+        ) : (
+          <>
+            We were going to charge A${Math.round(price.amountAud / 100)} on{" "}
+            {friendlyDate(renewal.scheduled_for)} and send it to print. Stopping it
+            takes one tap, and nothing in the archive is deleted or changed.
+          </>
+        )}
       </p>
 
       <form action={stopRenewalByLink} className="mt-8">
