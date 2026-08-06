@@ -20,10 +20,36 @@ import {
   REMINDER_DAYS, daysUntil, decideRenewal, isReminderDay,
 } from "./policy";
 import { friendlyDate } from "@/lib/words";
+import { bookIncluded, bookPriceAfterCancelling } from "@/lib/billing/plans";
 
 interface Owner { userId: string; email: string }
 
 /** Announce a scheduled renewal, and remind once as the date approaches. */
+/**
+ * What this renewal will actually cost, given the family's plan.
+ *
+ * Shared by the announcement and the charge deliberately. They were briefly
+ * two separate calculations, which is how a customer gets told A$199 and
+ * charged A$104 — or told A$0 and charged A$199. Whatever this returns is
+ * both what the email says and what the card sees.
+ */
+async function amountDueFor(
+  db: SupabaseClient,
+  familyId: string,
+  renewalAmountAud: number
+): Promise<{ amount: number; plan: string; monthsThisYear: number }> {
+  const { data: family } = await db
+    .from("families")
+    .select("plan, months_paid_this_year")
+    .eq("id", familyId)
+    .maybeSingle();
+
+  const months = family?.months_paid_this_year ?? 0;
+  if (family?.plan !== "monthly") return { amount: renewalAmountAud, plan: "one_off", monthsThisYear: months };
+  if (bookIncluded(months)) return { amount: 0, plan: "monthly", monthsThisYear: months };
+  return { amount: bookPriceAfterCancelling(months), plan: "monthly", monthsThisYear: months };
+}
+
 export async function announceRenewals(
   db: SupabaseClient,
   now: Date,
@@ -41,6 +67,8 @@ export async function announceRenewals(
 
     const owner = await ownerOf(subject.family_id);
     if (!owner) continue;
+
+    const due = await amountDueFor(db, subject.family_id, r.amount_aud);
 
     const { data: profile } = await db
       .from("profiles")
@@ -60,7 +88,7 @@ export async function announceRenewals(
           bookTitle: book.title,
           bookId: book.id,
           renewalId: r.id,
-          amountAud: r.amount_aud,
+          amountAud: due.amount,
           chargeOn: friendlyDate(r.scheduled_for, now),
           cardLast4: profile?.card_last4,
         }),
@@ -84,7 +112,7 @@ export async function announceRenewals(
           bookTitle: book.title,
           bookId: book.id,
           renewalId: r.id,
-          amountAud: r.amount_aud,
+          amountAud: due.amount,
           days: Math.max(1, daysUntil(new Date(r.scheduled_for), now) || REMINDER_DAYS),
         }),
       });
@@ -162,10 +190,38 @@ export async function collectRenewals(
       continue;
     }
 
+    // A monthly member has already paid for this book across the year.
+    // The year still closes and the book still goes to print — no card is
+    // touched, and months_paid_this_year resets so the next year is judged
+    // on its own months rather than on a total that only ever grows.
+    const due = await amountDueFor(db, subject.family_id, r.amount_aud);
+
+    if (due.plan === "monthly" && due.amount === 0) {
+      await db
+        .from("renewals")
+        .update({ status: "included", charged_at: now.toISOString(), amount_aud: 0 })
+        .eq("id", r.id);
+      await db
+        .from("families")
+        .update({ months_paid_this_year: 0 })
+        .eq("id", subject.family_id);
+
+      const { data: includedOrder } = await db
+        .from("print_orders")
+        .select("id")
+        .eq("book_id", book.id)
+        .eq("status", "draft")
+        .maybeSingle();
+      if (includedOrder) {
+        await enqueue(db, "submit_print", { print_order_id: includedOrder.id }, `submit-${includedOrder.id}`);
+      }
+      continue;
+    }
+
     const result = await chargeSavedCard({
       customerId: profile!.stripe_customer_id!,
       paymentMethodId: profile!.default_payment_method_id!,
-      amountAud: r.amount_aud,
+      amountAud: due.amount,
       description: `${book.title} — annual volume`,
       // The renewal id, so a retried job cannot charge twice.
       idempotencyKey: `renewal-${r.id}`,
@@ -178,6 +234,7 @@ export async function collectRenewals(
         .update({
           status: "charged",
           charged_at: now.toISOString(),
+          amount_aud: due.amount,
           payment_intent_id: result.paymentIntentId,
         })
         .eq("id", r.id);

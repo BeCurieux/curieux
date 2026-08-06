@@ -209,15 +209,25 @@ export function renewalScheduled(opts: {
   cardLast4?: string | null;
 }): OutboundEmail {
   const money = `A$${Math.round(opts.amountAud / 100)}`;
+  // A monthly member has already paid for this book across the year. Telling
+  // them we are about to charge them for it — or worse, "we'll charge A$0" —
+  // is the kind of email that produces a cancellation by return.
+  const included = opts.amountAud <= 0;
   return {
     to: opts.to,
-    subject: `${opts.bookTitle} is ready — we'll charge ${money} on ${opts.chargeOn}`,
+    subject: included
+      ? `${opts.bookTitle} is ready — it's included in your membership`
+      : `${opts.bookTitle} is ready — we'll charge ${money} on ${opts.chargeOn}`,
     text:
       `${opts.childName}'s year is made and waiting for you to read.\n\n` +
-      `On ${opts.chargeOn} we will charge ${money}` +
-      (opts.cardLast4 ? ` to the card ending ${opts.cardLast4}` : "") +
-      ` and send it to print. That is ${NOTICE_DAYS} days from now, so there is time to ` +
-      `read it through, change anything, or stop it.\n\n` +
+      (included
+        ? `On ${opts.chargeOn} we will send it to print. Nothing to pay — ` +
+          `it's included in your membership. That is ${NOTICE_DAYS} days from now, ` +
+          `so there is time to read it through, change anything, or stop it.\n\n`
+        : `On ${opts.chargeOn} we will charge ${money}` +
+          (opts.cardLast4 ? ` to the card ending ${opts.cardLast4}` : "") +
+          ` and send it to print. That is ${NOTICE_DAYS} days from now, so there is time to ` +
+          `read it through, change anything, or stop it.\n\n`) +
       `Read it:\n${appUrl()}/books/${opts.bookId}/preview\n\n` +
       `Don't print it this year:\n${appUrl()}/renewals/${opts.renewalId}/cancel\n\n` +
       `One click, no reason needed, and we will not ask again unless you turn it ` +

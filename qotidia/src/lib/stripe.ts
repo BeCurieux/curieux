@@ -1,17 +1,24 @@
 // Stripe integration (brief §22).
 //
-// One price, one transaction: A$199 buys the printed hardcover, and the
-// digital copy comes with it. There is no digital-only tier and no
-// subscription — the promise on the landing page is "you pay for a book, you
-// get a book", and the charge has to match the promise exactly. Additional
-// copies (grandparents) are A$79 each and must be ordered in the same
-// transaction, because they ride along on one print run.
+// This said "there is no subscription" for a long time, and the reasoning
+// was sound: the promise was "you pay for a book, you get a book", and the
+// charge had to match the promise exactly. What that got right is the
+// danger — a subscription that delivers nothing is precisely what this
+// product exists not to be. What it got wrong is that A$199 up front for an
+// object arriving in twelve months makes the eleven months in between feel
+// like waiting rather than keeping.
 //
-// Customer ids are stored on profiles so subscriptions could be added later
-// without restructuring.
+// So there are now two ways to pay, and they are different products rather
+// than two prices for the same one. See lib/billing/plans.ts, which holds
+// the three rules that keep the monthly one honest — chiefly that leaving
+// never costs a family their memories.
+//
+// Additional copies (grandparents) are A$79 each and must be ordered in the
+// same transaction, because they ride along on one print run.
 
 import Stripe from "stripe";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
+import { PLAN_PRICES } from "@/lib/billing/plans";
 
 let client: Stripe | null = null;
 
@@ -203,4 +210,61 @@ export async function chargeSavedCard(opts: {
     }
     return { ok: false, reason: "declined", message: e.message ?? "card declined" };
   }
+}
+
+// ------------------------------------------------------------ membership
+
+/**
+ * Start a monthly membership.
+ *
+ * The price is built inline rather than referencing a Price object created
+ * in the Dashboard. One less thing to keep in step across test and live
+ * accounts, and it means PLAN_PRICES is the only place the number exists —
+ * a Dashboard price that drifts from the number on the pricing page is a
+ * discrepancy nobody notices until a customer does.
+ */
+export async function createMembershipCheckout(opts: {
+  familyId: string;
+  email: string;
+  successUrl: string;
+  cancelUrl: string;
+}) {
+  return stripe().checkout.sessions.create({
+    mode: "subscription",
+    customer_email: opts.email,
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: "aud",
+          unit_amount: PLAN_PRICES.monthlyAud(),
+          recurring: { interval: "month" },
+          product_data: {
+            name: "Qotidia — keep the year",
+            description:
+              "The archive open all year, everyone you invite able to add to it, " +
+              "and each year's book printed and posted.",
+          },
+        },
+      },
+    ],
+    // On the subscription itself, not only the session: the session is gone
+    // in a day and every later webhook — renewals, failures, cancellation —
+    // arrives carrying the subscription.
+    subscription_data: { metadata: { family_id: opts.familyId, kind: "membership" } },
+    metadata: { family_id: opts.familyId, kind: "membership" },
+    success_url: opts.successUrl,
+    cancel_url: opts.cancelUrl,
+  });
+}
+
+/**
+ * Stop a membership at the end of the period already paid for.
+ *
+ * `cancel_at_period_end` rather than an immediate cancellation, because they
+ * have paid for this month and taking it away the moment they click is
+ * both mean and a refund request waiting to happen.
+ */
+export async function endMembership(subscriptionId: string) {
+  return stripe().subscriptions.update(subscriptionId, { cancel_at_period_end: true });
 }
