@@ -4,40 +4,107 @@ import { Recorder } from "./recorder";
 import { addTextMemory } from "@/app/actions";
 import { PRIVATE_BLURB } from "@/lib/family/roles";
 import { QuickAdd } from "./quick-add";
+import { userClient } from "@/lib/supabase/server";
+import { createBook } from "@/app/actions";
+import { backfillProgress } from "@/lib/onboarding/start";
+import { MIN_MEMORIES_FOR_A_BOOK } from "@/lib/renewal/policy";
 
-export default function UploadPage({
+export default async function UploadPage({
   params,
   searchParams,
 }: {
   params: { subjectId: string };
-  searchParams: { welcome?: string };
+  searchParams: { welcome?: string; backfill?: string };
 }) {
+  const backfill = searchParams.backfill === "1";
+
+  // How far a backfill has got, and whether there is a book to make. Only
+  // fetched in backfill mode — the ordinary upload page is a form and should
+  // not become a dashboard.
+  let kept = 0;
+  let first = "them";
+  let hasBook = false;
+  if (backfill) {
+    const db = userClient();
+    const { count } = await db
+      .from("memories")
+      .select("id", { count: "exact", head: true })
+      .eq("subject_id", params.subjectId);
+    kept = count ?? 0;
+    const { data: subject } = await db
+      .from("subjects")
+      .select("display_name")
+      .eq("id", params.subjectId)
+      .maybeSingle();
+    first = subject?.display_name?.split(" ")[0] ?? "them";
+    const { data: book } = await db
+      .from("books")
+      .select("id")
+      .eq("subject_id", params.subjectId)
+      .maybeSingle();
+    hasBook = !!book;
+  }
+
   return (
     <div className="py-10">
-      {searchParams.welcome && (
+      {searchParams.welcome && !backfill && (
         <p className="mb-6 max-w-[52ch] rounded-lg bg-rule/50 p-4 text-sm leading-relaxed">
           Start with photos &mdash; they do most of the work. Everything else
           on this page can wait until something occurs to you.
         </p>
       )}
-      <h1 className="text-title">Whatever you&rsquo;ve got.</h1>
-
-      {/* One thing, quickly — the 360 days that aren't the big upload day. */}
-      <section className="mt-8">
-        <QuickAdd subjectId={params.subjectId} />
-      </section>
-
-      <section className="mt-12">
-        <h2 className="text-lg">Photographs</h2>
-        <p className="mt-1 max-w-[54ch] text-sm leading-relaxed text-stone">
-          Drag in a few hundred at once &mdash; the blurry ones and the near
-          duplicates too. Sorting them is our job, not yours. You can close
-          this and come back; nothing needs watching.
+      {/* A backfill is a different job from keeping a year as it happens, and
+          the page should ask for it differently. "Add a memory" invites one
+          thing; this invites an afternoon. */}
+      {backfill && (
+        <p className="mb-6 max-w-[54ch] rounded-lg border border-clay bg-card p-5 text-sm leading-relaxed">
+          Open your photos, select the whole year, and drop them in. Hundreds
+          at a time is fine &mdash; the blurry ones and the near duplicates
+          too. Sorting them is our job. You can close this and come back;
+          nothing needs watching.
         </p>
-        <div className="mt-4">
+      )}
+      <h1 className="text-title">
+        {backfill ? "Empty the year in here." : "Whatever you\u2019ve got."}
+      </h1>
+
+      {/* Order follows the job. Emptying a year is one action — the
+          dropzone — and everything else on this page is a distraction from
+          it. On an ordinary day it is the reverse: one small thing, quickly,
+          and the dropzone can wait. Same components, opposite priority. */}
+      {backfill ? (
+        <section className="mt-8">
           <Uploader subjectId={params.subjectId} />
-        </div>
-      </section>
+          <p className="mt-4 max-w-[54ch] text-sm leading-relaxed text-stone">
+            Photographs do most of the work. The words can come later &mdash;
+            we&rsquo;ll ask you about the things a photo can&rsquo;t answer
+            once we&rsquo;ve read the year.
+          </p>
+        </section>
+      ) : (
+        <>
+          {/* One thing, quickly — the 360 days that aren't the big upload day. */}
+          <section className="mt-8">
+            <QuickAdd subjectId={params.subjectId} />
+          </section>
+
+          <section className="mt-12">
+            <h2 className="text-lg">Photographs</h2>
+            <p className="mt-1 max-w-[54ch] text-sm leading-relaxed text-stone">
+              Drag in a few hundred at once &mdash; the blurry ones and the near
+              duplicates too. Sorting them is our job, not yours. You can close
+              this and come back; nothing needs watching.
+            </p>
+            <div className="mt-4">
+              <Uploader subjectId={params.subjectId} />
+            </div>
+          </section>
+        </>
+      )}
+
+      {backfill && (
+        <h2 className="mt-14 text-lg">Anything you already remember</h2>
+      )}
 
       <section className="mt-12 grid gap-8 md:grid-cols-2">
         <div>
@@ -94,10 +161,35 @@ export default function UploadPage({
         </div>
       </section>
 
+      {/* The finish line. Without it a backfill has no end — someone empties
+          a year into a form and is left on the same form, with the thing
+          they came for still hypothetical. */}
+      {backfill && !hasBook && (
+        <section className="mt-14 rounded-lg border border-clay bg-card p-6">
+          <p className="text-sm leading-relaxed">{backfillProgress(kept, first)}</p>
+          {kept >= MIN_MEMORIES_FOR_A_BOOK && (
+            <form action={createBook} className="mt-5">
+              <input type="hidden" name="subject_id" value={params.subjectId} />
+              <button className="btn">Make {first}&rsquo;s book</button>
+              <p className="mt-3 max-w-[48ch] text-xs leading-relaxed text-stone">
+                You&rsquo;ll read it through before anything prints, and you can
+                keep adding to the year until you do.
+              </p>
+            </form>
+          )}
+        </section>
+      )}
+
       <p className="mt-12 text-sm text-stone">
         That&rsquo;s plenty for now.{" "}
         <Link className="text-ochre" href={`/subjects/${params.subjectId}`}>
           Back to their year
+        </Link>
+        {" · "}
+        {/* Not orphaned. The people step no longer blocks the way in, so it
+            has to be reachable from the place people actually land. */}
+        <Link className="text-ochre" href={`/onboarding/people?child=${params.subjectId}`}>
+          Who&rsquo;s in their life
         </Link>
       </p>
     </div>

@@ -137,7 +137,11 @@ export async function createChild(formData: FormData) {
     .select("id")
     .single();
   if (childErr) throw new Error(childErr.message);
-  redirect(`/onboarding/people?child=${child.id}`);
+  // Straight to the choice of which year to start with. The people step
+  // follows from the upload screen rather than blocking it: naming
+  // grandparents is useful and is not what anyone came here to do, and it
+  // was standing between a new family and the first useful thing.
+  redirect(`/onboarding/start?child=${child.id}`);
 }
 
 export async function addFamilyMembers(formData: FormData) {
