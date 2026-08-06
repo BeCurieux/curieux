@@ -11,6 +11,7 @@
 // without restructuring.
 
 import Stripe from "stripe";
+import { NOTICE_DAYS } from "@/lib/renewal/policy";
 
 let client: Stripe | null = null;
 
@@ -71,10 +72,15 @@ export function orderTotalAud(extraCopies: number): number {
  */
 export const AUTORENEW_TERMS =
   `Each year, around their birthday, we close the year and make the book. ` +
-  `We'll email you when it's ready, then charge A$${PRICES.bookAud() / 100} a fortnight ` +
-  `later and send it to print. You can stop it in one click any time before ` +
-  `that, and if there isn't enough in the archive to make a book worth ` +
-  `printing, we won't charge you at all.`;
+  // "a fortnight later" was the wording here, and it can be read as
+  // "A$199 a fortnight" — a recurring charge — which is the one thing this
+  // paragraph exists to be unambiguous about. The number of days is taken
+  // from NOTICE_DAYS rather than written out, so the promise and the
+  // scheduler cannot drift apart.
+  `We'll email you when it's ready. ${NOTICE_DAYS} days after that email we ` +
+  `charge A$${PRICES.bookAud() / 100} once, and send it to print. You can stop ` +
+  `it in one click any time before then, and if there isn't enough in the ` +
+  `archive to make a book worth printing, we won't charge you at all.`;
 
 export async function createBookCheckout(opts: {
   bookId: string;

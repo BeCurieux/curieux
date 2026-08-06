@@ -9,9 +9,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  MAX_EXTRA_COPIES, PRICES, clampExtraCopies, instalmentMethods,
+  AUTORENEW_TERMS, MAX_EXTRA_COPIES, PRICES, clampExtraCopies, instalmentMethods,
   instalmentsOffered, orderTotalAud,
 } from "@/lib/stripe";
+import { NOTICE_DAYS } from "@/lib/renewal/policy";
 
 const landingSource = readFileSync(
   new URL("../src/app/page.tsx", import.meta.url),
@@ -120,5 +121,24 @@ describe("copy count is bounded before it reaches Stripe or the printer", () => 
 
   it("never yields a fractional print run", () => {
     expect(Number.isInteger(clampExtraCopies("2.7"))).toBe(true);
+  });
+});
+
+describe("the auto-renewal terms", () => {
+  it("cannot be read as a recurring charge", () => {
+    // The comment above AUTORENEW_TERMS says the whole defence against a
+    // dispute a year later is that they read this paragraph. "A$199 a
+    // fortnight later" parses two ways and one of them is a subscription.
+    expect(AUTORENEW_TERMS).not.toMatch(/a fortnight|per fortnight|a month/);
+    expect(AUTORENEW_TERMS).toMatch(/once/);
+  });
+
+  it("quotes the same notice period the scheduler actually uses", () => {
+    // A promise of 14 days and a job that charges after 7 is a chargeback.
+    expect(AUTORENEW_TERMS).toContain(`${NOTICE_DAYS} days`);
+  });
+
+  it("states the price that will actually be charged", () => {
+    expect(AUTORENEW_TERMS).toContain(`A$${PRICES.bookAud() / 100}`);
   });
 });
