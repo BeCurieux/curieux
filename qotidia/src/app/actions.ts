@@ -528,7 +528,13 @@ export async function approveBook(formData: FormData) {
     book_id: bookId,
     approved_by: user.id,
     approved_at: approvedAt,
-    pdf_checksum: sha256(Buffer.from(`${bookId}:${approvedAt}`)), // placeholder until render completes
+    // Not the PDF's checksum — the file does not exist yet, and rendering is
+    // enqueued four lines below. renderPdf writes the real one onto this row
+    // once the bytes exist. Until then this is explicitly marked as pending
+    // rather than filled with a plausible-looking hash: the point of the
+    // field is to prove what was approved, and a fabricated hex string is
+    // evidence-shaped and evidentially empty.
+    pdf_checksum: "pending-render",
     page_count: book.page_count ?? 0,
     provider_sku: process.env.PRODIGI_BOOK_SKU ?? "BOOK-A4-HARD-M",
   });

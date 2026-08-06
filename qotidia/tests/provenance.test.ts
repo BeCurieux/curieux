@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { enforceProvenance, validateBlock, validateSourcesExist } from "@/lib/book/provenance";
 import type { ContentBlockDraft } from "@/lib/types";
@@ -64,5 +66,31 @@ describe("provenance (§14)", () => {
     const { kept, rejected } = enforceProvenance(blocks, known);
     expect(kept.map((b) => b.content)).toEqual(["supported statement"]);
     expect(rejected).toHaveLength(2);
+  });
+});
+
+describe("what a parent actually approved", () => {
+  // The approval record exists to answer one question in a dispute: is the
+  // book that arrived the book that was approved? The pdf_checksum column is
+  // the entire answer, and it was being filled at approval time with
+  // sha256(bookId + timestamp) — computed before the file existed, never
+  // replaced, and indistinguishable at a glance from a real digest.
+
+  const actions = readFileSync(join(__dirname, "..", "src/app/actions.ts"), "utf8");
+  const handlers = readFileSync(join(__dirname, "..", "src/lib/jobs/handlers.ts"), "utf8");
+
+  it("does not fabricate a checksum before the file exists", () => {
+    const approval = actions.slice(actions.indexOf("book_approvals"));
+    expect(approval).not.toMatch(/pdf_checksum:\s*sha256\(/);
+  });
+
+  it("records the checksum of the bytes that were actually rendered", () => {
+    expect(handlers).toMatch(/pdf_checksum:\s*sha256\(bytes\)/);
+  });
+
+  it("writes it against the approval the print belongs to", () => {
+    const region = handlers.slice(handlers.indexOf("pdf_checksum: sha256(bytes)") - 800);
+    expect(region).toContain('from("book_approvals")');
+    expect(region).toContain('.eq("book_id", bookId)');
   });
 });

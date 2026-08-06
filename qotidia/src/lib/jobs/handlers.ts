@@ -810,6 +810,30 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
     .upload(path, bytes, { contentType: "application/pdf", upsert: true });
   if (upErr) throw new Error(upErr.message);
 
+  // The approval record's whole purpose is to be able to say "this is
+  // exactly what was approved, and this is exactly what was printed". It was
+  // written at approval time with sha256(bookId + timestamp) — a value that
+  // is checksum-shaped and proves nothing, because the file did not exist
+  // yet. The real one only exists here, and this is where it goes.
+  //
+  // Evidence-shaped and evidentially empty is worse than absent: nobody
+  // audits a blank field, and everybody trusts a hex string.
+  if (target === "print") {
+    const { data: approval } = await db
+      .from("book_approvals")
+      .select("id")
+      .eq("book_id", bookId)
+      .order("approved_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (approval) {
+      await db
+        .from("book_approvals")
+        .update({ pdf_checksum: sha256(bytes) })
+        .eq("id", approval.id);
+    }
+  }
+
   const column = target === "digital" ? "digital_pdf_path" : "print_pdf_path";
   const update: Record<string, unknown> = { [column]: path };
   if (target === "print") {
