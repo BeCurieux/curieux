@@ -22,6 +22,7 @@ import { compatibleArchetypes, type ArchetypeId } from "@/lib/book/templates";
 import { sha256 } from "@/lib/media";
 import { randomBytes } from "node:crypto";
 import { roleForSubject, roleInFamily } from "@/lib/family/membership";
+import { keepMemory, linkMemoryToSubjects, storySubject } from "@/lib/memories/scope";
 import {
   canComment, canEdit, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
@@ -183,29 +184,40 @@ export async function registerUploadedPhoto(input: {
   const db = userClient();
 
   // Exact-duplicate detection (§7): same checksum for this child is skipped.
-  const { data: dupes } = await db
-    .from("media_assets")
-    .select("id, memories!inner(subject_id)")
-    .eq("checksum", input.checksum)
-    .eq("memories.subject_id", input.subjectId);
-  if (dupes && dupes.length > 0) return { duplicate: true as const };
-
   const membership = await roleForSubject(db, input.subjectId, user.id);
   if (!membership) throw new Error("not a member of this family");
+  const story = await storySubject(db, input.subjectId);
+  if (!story) throw new Error("no such subject");
 
-  const { data: memory, error } = await db
-    .from("memories")
-    .insert({
-      subject_id: input.subjectId,
+  // Duplicate detection is now per archive rather than per subject. The same
+  // photograph dropped in twice — once on Florence's page, once on Theo's —
+  // is one photograph in one family's archive that is about both of them,
+  // and keeping two copies would double it in every count.
+  const { data: dupes } = await db
+    .from("media_assets")
+    .select("id, memory_id, memories!inner(family_id)")
+    .eq("checksum", input.checksum)
+    .eq("memories.family_id", story.family_id);
+  if (dupes && dupes.length > 0) {
+    // Still say it is about this subject: the second upload was somebody
+    // telling us something true that we did not already know.
+    await linkMemoryToSubjects(db, (dupes[0] as any).memory_id, [input.subjectId]);
+    return { duplicate: true as const };
+  }
+
+  const memoryId = await keepMemory(db, {
+    familyId: story.family_id,
+    about: [input.subjectId],
+    memory: {
       created_by: user.id,
       type: "photo",
       memory_date: input.memoryDate,
       metadata: {},
       contribution_status: statusForNewMemory(membership.role),
-    })
-    .select("id")
-    .single();
-  if (error) throw new Error(error.message);
+    },
+  });
+  if (!memoryId) throw new Error("could not keep that");
+  const memory = { id: memoryId };
 
   // Everything the browser said about this file is written down as a claim,
   // not as fact — the scan job reads the bytes and corrects all of it. Until
@@ -253,11 +265,13 @@ export async function registerVoiceMemory(input: {
 
   const membership = await roleForSubject(db, input.subjectId, user.id);
   if (!membership) throw new Error("not a member of this family");
+  const story = await storySubject(db, input.subjectId);
+  if (!story) throw new Error("no such subject");
 
-  const { data: memory, error } = await db
-    .from("memories")
-    .insert({
-      subject_id: input.subjectId,
+  const memoryId = await keepMemory(db, {
+    familyId: story.family_id,
+    about: [input.subjectId],
+    memory: {
       created_by: user.id,
       type: "voice",
       // The parent's own transcription — never a machine guess (§29).
@@ -266,10 +280,10 @@ export async function registerVoiceMemory(input: {
       memory_date: input.memoryDate,
       metadata: {},
       contribution_status: statusForNewMemory(membership.role),
-    })
-    .select("id")
-    .single();
-  if (error) throw new Error(error.message);
+    },
+  });
+  if (!memoryId) throw new Error("could not keep that recording");
+  const memory = { id: memoryId };
 
   // A recording made in the browser is still an upload, and gets the same
   // treatment: the recorder is our code but the bytes arriving at storage
@@ -306,14 +320,20 @@ export async function addTextMemory(formData: FormData) {
   const membership = await roleForSubject(db, subjectId, user.id);
   if (!membership) throw new Error("not a member of this family");
 
-  await db.from("memories").insert({
-    subject_id: subjectId,
-    created_by: user.id,
-    type,
-    raw_text: text,
-    memory_date: String(formData.get("memory_date") ?? "") || null,
-    contribution_status: statusForNewMemory(membership.role),
-    visibility: formData.get("private") === "on" ? "private" : "family",
+  const story = await storySubject(db, subjectId);
+  if (!story) throw new Error("no such subject");
+
+  await keepMemory(db, {
+    familyId: story.family_id,
+    about: [subjectId],
+    memory: {
+      created_by: user.id,
+      type,
+      raw_text: text,
+      memory_date: String(formData.get("memory_date") ?? "") || null,
+      contribution_status: statusForNewMemory(membership.role),
+      visibility: formData.get("private") === "on" ? "private" : "family",
+    },
   });
   revalidatePath(`/subjects/${subjectId}`);
 }
@@ -452,22 +472,25 @@ export async function answerQuestion(formData: FormData) {
     return;
   }
 
-  const { data: memory } = await db
-    .from("memories")
-    .insert({
-      subject_id: subjectId,
-      created_by: user.id,
-      type: "text",
-      raw_text: answer,
-      // Dated today, because today is when they wrote it. The thing it is
-      // *about* is undated by nature — "he goes everywhere" has no day.
-      memory_date: new Date().toISOString().slice(0, 10),
-      metadata: { from_question_id: id, question: question?.question ?? null },
-      contribution_status: statusForNewMemory(membership.role),
-      visibility: "family",
-    })
-    .select("id")
-    .single();
+  const story = await storySubject(db, subjectId);
+  const answerMemoryId = story
+    ? await keepMemory(db, {
+        familyId: story.family_id,
+        about: [subjectId],
+        memory: {
+          created_by: user.id,
+          type: "text",
+          raw_text: answer,
+          // Dated today, because today is when they wrote it. The thing it
+          // is *about* is undated by nature — "he goes everywhere" has no day.
+          memory_date: new Date().toISOString().slice(0, 10),
+          metadata: { from_question_id: id, question: question?.question ?? null },
+          contribution_status: statusForNewMemory(membership.role),
+          visibility: "family",
+        },
+      })
+    : null;
+  const memory = answerMemoryId ? { id: answerMemoryId } : null;
 
   if (memory) {
     await db.from("follow_up_questions").update({ answer_memory_id: memory.id }).eq("id", id);
@@ -1348,6 +1371,12 @@ export async function fileArrivalAction(formData: FormData) {
     throw new Error("not allowed to change this archive");
   }
 
+  // Constrained by the archive rather than by the subject. A memory no
+  // longer belongs to one child, so the old `.eq("subject_id", …)` here
+  // matched nothing and filing an arrival silently did nothing at all.
+  const story = await storySubject(db, subjectId);
+  if (!story) throw new Error("no such subject");
+
   await db
     .from("memories")
     .update({
@@ -1355,7 +1384,7 @@ export async function fileArrivalAction(formData: FormData) {
       ...(date ? { memory_date: date } : {}),
     })
     .eq("id", memoryId)
-    .eq("subject_id", subjectId);
+    .eq("family_id", story.family_id);
 
   revalidatePath(`/subjects/${subjectId}/inbox`);
 }
@@ -1382,11 +1411,22 @@ export async function moveArrival(formData: FormData) {
     }
   }
 
+  // Re-tagging, not moving. The memory stays exactly where it was — in the
+  // family's archive — and what changes is which story it belongs to. Under
+  // the old model this was an UPDATE that carried the photograph out of one
+  // child's year and into another's; now it is one link removed and one
+  // added, and the household's year never notices.
+  await db
+    .from("memory_subjects")
+    .delete()
+    .eq("memory_id", memoryId)
+    .eq("subject_id", fromSubject);
+
+  await linkMemoryToSubjects(db, memoryId, [toSubject]);
   await db
     .from("memories")
-    .update({ subject_id: toSubject, filed_at: new Date().toISOString() })
-    .eq("id", memoryId)
-    .eq("subject_id", fromSubject);
+    .update({ filed_at: new Date().toISOString() })
+    .eq("id", memoryId);
 
   revalidatePath(`/subjects/${fromSubject}/inbox`);
   revalidatePath(`/subjects/${toSubject}/inbox`);

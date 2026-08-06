@@ -16,6 +16,7 @@ import { canEdit } from "@/lib/family/roles";
 import { addressFor, newToken } from "@/lib/inbox/address";
 import { fileArrivalAction, moveArrival, rotateInboxAddress, setInboxOpenness } from "@/app/actions";
 import { friendlyDate } from "@/lib/words";
+import { storyMemoryQuery } from "@/lib/memories/scope";
 
 export const dynamic = "force-dynamic";
 
@@ -52,14 +53,18 @@ export default async function InboxPage({ params }: { params: { subjectId: strin
     inbox = made;
   }
 
-  const { data: waiting } = await db
-    .from("memories")
-    .select("id, type, raw_text, arrival_note, arrived_via, created_at")
-    .eq("subject_id", child.id)
-    .is("filed_at", null)
-    .not("arrived_via", "is", null)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const scoped = await storyMemoryQuery(
+    db,
+    child.id,
+    "id, type, raw_text, arrival_note, arrived_via, created_at"
+  );
+  const { data: waiting } = scoped
+    ? await scoped.query
+        .is("filed_at", null)
+        .not("arrived_via", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(50)
+    : { data: [] };
 
   // Somewhere to move a misfiled arrival to. Only fetched because the share
   // sheet cannot ask whose photograph it is, so our guess has to be one tap

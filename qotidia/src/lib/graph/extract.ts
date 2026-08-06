@@ -14,6 +14,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Entity, EntityKind, Mention } from "./presence";
 import { asSaid, runsIn } from "./phrases";
 import { firstLook, type FirstLook } from "./first-look";
+import { countStoryMemories, earliestMemoryDate, storyMemoryQuery } from "@/lib/memories/scope";
 
 export interface RawMention {
   memoryId: string;
@@ -161,16 +162,18 @@ export function buildEntities(rows: RawMention[]): Entity[] {
  * everyone in the family reads on a Sunday morning.
  */
 export async function loadEntities(db: SupabaseClient, subjectId: string): Promise<Entity[]> {
-  const { data: memories } = await db
-    .from("memories")
-    .select(
-      "id, type, memory_date, raw_text, transcript, location, memory_tags(tag), memory_people(family_members(name, nickname_used_by_child))"
-    )
-    .eq("subject_id", subjectId)
-    .eq("contribution_status", "approved")
-    .eq("visibility", "family")
-    .not("memory_date", "is", null)
-    .limit(4000);
+  const scoped = await storyMemoryQuery(
+    db,
+    subjectId,
+    "id, type, memory_date, raw_text, transcript, location, memory_tags(tag), memory_people(family_members(name, nickname_used_by_child))"
+  );
+  const { data: memories } = scoped
+    ? await scoped.query
+        .eq("contribution_status", "approved")
+        .eq("visibility", "family")
+        .not("memory_date", "is", null)
+        .limit(4000)
+    : { data: [] };
 
   const rows: RawMention[] = [];
 
@@ -275,45 +278,32 @@ export async function loadFirstLook(
   db: SupabaseClient,
   subjectId: string
 ): Promise<FirstLook> {
-  const [entities, words, { count }, { data: subject }, { data: earliest }] = await Promise.all([
+  const [entities, words, count, { data: subject }, earliest] = await Promise.all([
     loadEntities(db, subjectId),
     memoriesWithWords(db, subjectId),
-    db
-      .from("memories")
-      .select("id", { count: "exact", head: true })
-      .eq("subject_id", subjectId)
-      .eq("contribution_status", "approved"),
+    countStoryMemories(db, subjectId, { approvedOnly: true }),
     db.from("subjects").select("date_of_birth, pronouns").eq("id", subjectId).maybeSingle(),
     // Where our records start, which is not where anything started. The
     // difference decides whether a line may say "beginning when she was
     // fourteen months old" or has to say what it actually saw.
-    db
-      .from("memories")
-      .select("memory_date")
-      .eq("subject_id", subjectId)
-      .eq("contribution_status", "approved")
-      .not("memory_date", "is", null)
-      .order("memory_date", { ascending: true })
-      .limit(1),
+    earliestMemoryDate(db, subjectId),
   ]);
 
   return firstLook({
     entities,
     memoriesWithWords: words,
-    memoryCount: count ?? 0,
+    memoryCount: count,
     dateOfBirth: subject?.date_of_birth ?? null,
     pronouns: subject?.pronouns ?? null,
-    archiveStart: ((earliest ?? []) as any[])[0]?.memory_date ?? null,
+    archiveStart: earliest,
   });
 }
 
 export async function memoriesWithWords(db: SupabaseClient, subjectId: string): Promise<Set<string>> {
-  const { data } = await db
-    .from("memories")
-    .select("id, raw_text, transcript")
-    .eq("subject_id", subjectId)
-    .eq("contribution_status", "approved")
-    .limit(4000);
+  const scoped = await storyMemoryQuery(db, subjectId, "id, raw_text, transcript");
+  const { data } = scoped
+    ? await scoped.query.eq("contribution_status", "approved").limit(4000)
+    : { data: [] };
 
   return new Set(
     ((data ?? []) as any[])

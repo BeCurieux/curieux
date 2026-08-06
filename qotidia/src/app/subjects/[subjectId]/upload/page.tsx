@@ -9,6 +9,7 @@ import { createBook } from "@/app/actions";
 import { backfillProgress } from "@/lib/onboarding/start";
 import { MIN_MEMORIES_FOR_A_BOOK } from "@/lib/renewal/policy";
 import { ENOUGH_TO_NOTICE } from "@/lib/graph/first-look";
+import { countStoryMemories } from "@/lib/memories/scope";
 
 export default async function UploadPage({
   params,
@@ -27,11 +28,7 @@ export default async function UploadPage({
   let hasBook = false;
   if (backfill) {
     const db = userClient();
-    const { count } = await db
-      .from("memories")
-      .select("id", { count: "exact", head: true })
-      .eq("subject_id", params.subjectId);
-    kept = count ?? 0;
+    kept = await countStoryMemories(db, params.subjectId);
     const { data: subject } = await db
       .from("subjects")
       .select("display_name")

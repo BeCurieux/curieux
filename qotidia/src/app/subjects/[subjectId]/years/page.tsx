@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
 import { addComment, setMemoryVisibility } from "@/app/actions";
 import { roleForSubject, membersOfFamily, memberLabel } from "@/lib/family/membership";
+import { storyMemoryQuery } from "@/lib/memories/scope";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { friendlyDate, monthName } from "@/lib/words";
 import { ageInYears } from "@/lib/book/format";
@@ -38,14 +39,16 @@ export default async function YearsPage({
   const membership = await roleForSubject(db, params.subjectId, user.id);
   if (!membership) redirect("/home");
 
-  const { data: memories } = await db
-    .from("memories")
-    .select("id, type, raw_text, memory_date, created_at, created_by, contribution_status, visibility")
-    .eq("subject_id", subject.id)
-    .order("memory_date", { ascending: false })
-    .limit(400);
+  const scoped = await storyMemoryQuery(
+    db,
+    subject.id,
+    "id, type, raw_text, memory_date, created_at, created_by, contribution_status, visibility"
+  );
+  const { data: memories } = scoped
+    ? await scoped.query.order("memory_date", { ascending: false }).limit(400)
+    : { data: [] };
 
-  const rows = memories ?? [];
+  const rows = (memories ?? []) as any[];
 
   // Group by the calendar year the thing happened in, then by month within
   // it — the way anyone actually looks back at a life.

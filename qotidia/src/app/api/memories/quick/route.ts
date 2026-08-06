@@ -14,6 +14,7 @@ import { currentUser, adminClient, userClient } from "@/lib/supabase/server";
 import { roleForSubject } from "@/lib/family/membership";
 import { statusForNewMemory } from "@/lib/family/roles";
 import { enqueue } from "@/lib/jobs/queue";
+import { keepMemory, storySubject } from "@/lib/memories/scope";
 
 export async function POST(req: NextRequest) {
   const user = await currentUser();
@@ -31,29 +32,31 @@ export async function POST(req: NextRequest) {
   const membership = await roleForSubject(db, subjectId, user.id);
   if (!membership) return NextResponse.json({ error: "not your family" }, { status: 403 });
 
-  const { data: memory, error } = await db
-    .from("memories")
-    .insert({
-      subject_id: subjectId,
+  const story = await storySubject(db, subjectId);
+  if (!story) return NextResponse.json({ error: "no such subject" }, { status: 404 });
+
+  const memoryId = await keepMemory(db, {
+    familyId: story.family_id,
+    about: [subjectId],
+    memory: {
       created_by: user.id,
       type,
       raw_text: text.slice(0, 4000),
       memory_date: new Date().toISOString().slice(0, 10),
+      arrived_via: "quick",
+      filed_at: new Date().toISOString(),
       contribution_status: statusForNewMemory(membership.role),
       visibility: form.get("private") === "on" ? "private" : "family",
-    })
-    .select("id")
-    .single();
+    },
+  });
 
-  // Checking `error` alone is not enough: an insert can succeed while the
-  // returned row comes back empty, and reading .id off null is a 500 rather
-  // than the honest 400 the caller can act on.
-  if (error || !memory) {
-    return NextResponse.json(
-      { error: error?.message ?? "could not keep that" },
-      { status: 400 }
-    );
+  // An insert can succeed while the returned row comes back empty, so this
+  // checks the row rather than only the error — reading .id off null is a
+  // 500 where the caller deserves an honest 400.
+  if (!memoryId) {
+    return NextResponse.json({ error: "could not keep that" }, { status: 400 });
   }
+  const memory = { id: memoryId };
 
   // Same hourly batching as the other capture paths, so three things added
   // in a row produce one analysis job rather than three.

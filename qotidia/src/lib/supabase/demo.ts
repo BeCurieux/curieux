@@ -147,7 +147,7 @@ function buildTables(): Record<string, Row[]> {
   ].forEach(([offset, tag, text], i) => {
     const id = `mem-recent-${i}`;
     memories.push({
-      id, subject_id: subjectId, created_by: DEMO_USER.id, type: "text",
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "text",
       raw_text: text, transcript: null, location: null, metadata: {},
       memory_date: recently(offset as number), created_at: recently(offset as number),
       contribution_status: "approved", visibility: "family",
@@ -181,7 +181,7 @@ function buildTables(): Record<string, Row[]> {
     const id = `mem-thursday-${i}`;
     const date = onWeekday(day(offset as number), THURSDAY);
     memories.push({
-      id, subject_id: subjectId, created_by: DEMO_USER.id, type: "photo",
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "photo",
       raw_text: text, transcript: null, location: null, metadata: {},
       memory_date: date, created_at: date,
       contribution_status: "approved", visibility: "family",
@@ -206,7 +206,7 @@ function buildTables(): Record<string, Row[]> {
   ].forEach(([text, note], i) => {
     const id = `mem-inbox-${i}`;
     memories.push({
-      id, subject_id: subjectId, created_by: DEMO_USER.id, type: "photo",
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "photo",
       raw_text: text, transcript: null, location: null, metadata: {},
       memory_date: null, created_at: recently(i + 1),
       contribution_status: "approved", visibility: "family",
@@ -229,7 +229,7 @@ function buildTables(): Record<string, Row[]> {
     [-19, "text", "First time she said her own name. It came out 'Florrie'."],
   ].forEach(([offset, type, text], i) => {
     memories.push({
-      id: `mem-prior-${i}`, subject_id: subjectId, created_by: DEMO_USER.id,
+      id: `mem-prior-${i}`, family_id: familyId, created_by: DEMO_USER.id,
       type, raw_text: text, transcript: null, location: null, metadata: {},
       memory_date: yearBefore(offset as number), created_at: yearBefore(offset as number),
       contribution_status: "approved", visibility: "family",
@@ -242,7 +242,7 @@ function buildTables(): Record<string, Row[]> {
     // something in it and the dashboard shows the prompt.
     const fromGrandpa = i >= MEMORY_SEED.length - 2;
     memories.push({
-      id, subject_id: subjectId,
+      id, family_id: familyId,
       created_by: fromGrandpa ? "demo-grandpa" : DEMO_USER.id,
       type,
       raw_text: text, transcript: null, location: null, metadata: {},
@@ -370,6 +370,9 @@ function buildTables(): Record<string, Row[]> {
       photo_path: null, created_at: day(0),
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: people,
+    // Every memory in the fixture is about Florence. A second child would
+    // have its own links, and the Cornwall morning would carry both.
+    memory_subjects: memories.map((m) => ({ memory_id: m.id, subject_id: subjectId })),
     subject_inboxes: [
       { subject_id: subjectId, token: "k3mfwqbtsxnhjdrv2p8c6zgy", accept_from_anyone: false,
         rotated_at: null, created_at: day(0) },

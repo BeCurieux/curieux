@@ -213,7 +213,18 @@ describe("nothing unapproved reaches the printed page", () => {
       handlers.indexOf("async function loadMemories"),
       handlers.indexOf("// ------------------------------------------------------------- handlers")
     );
-    expect(loader).toContain('.eq("contribution_status", "approved")');
-    expect(loader).toContain('.eq("visibility", "family")');
+    // The filter moved into loadStoryMemories when memories stopped
+    // belonging to a subject, so the assertion follows it rather than
+    // relaxing. The gate is still one gate; it is just no longer written out
+    // at each of the places that needs it.
+    expect(loader).toContain("approvedOnly: true");
+    expect(loader).toContain("familyVisibleOnly: true");
+
+    const scope = readFileSync(
+      new URL("../src/lib/memories/scope.ts", import.meta.url), "utf8"
+    );
+    expect(scope).toContain('options.approvedOnly) scoped = scoped.eq("contribution_status", "approved")');
+    expect(scope).toContain('options.approvedOnly) q = q.eq("contribution_status", "approved")');
+    expect(scope).toContain('options.familyVisibleOnly) q = q.eq("visibility", "family")');
   });
 });

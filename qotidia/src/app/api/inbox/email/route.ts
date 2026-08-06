@@ -90,7 +90,8 @@ export async function POST(req: NextRequest) {
   // memory created by Grandpa's account, so the moderation rules that
   // already exist apply unchanged — a contributor's mail waits for a parent
   // exactly as a contributor's upload does.
-  const family = await familyFor(db, inbox.subject_id);
+  const { familyId, members: family } = await familyFor(db, inbox.subject_id);
+  if (!familyId) return done();
   const addresses = family.map((m) => m.email).filter(Boolean) as string[];
 
   const verdict = verdictForSender(from, {
@@ -123,6 +124,7 @@ export async function POST(req: NextRequest) {
 
   await receive(db, {
     subjectId: inbox.subject_id,
+    familyId,
     createdBy,
     via: "email",
     note: subject,
@@ -144,16 +146,19 @@ async function familyFor(db: ReturnType<typeof adminClient>, subjectId: string) 
     .select("family_id")
     .eq("id", subjectId)
     .single();
-  if (!subject) return [];
+  if (!subject) return { familyId: null, members: [] };
 
   const { data: rows } = await db
     .from("family_memberships")
     .select("user_id, role, profiles(email)")
     .eq("family_id", subject.family_id);
 
-  return ((rows ?? []) as any[]).map((r) => ({
-    userId: r.user_id as string,
-    role: r.role as string,
-    email: (r.profiles?.email ?? null) as string | null,
-  }));
+  return {
+    familyId: subject.family_id as string,
+    members: ((rows ?? []) as any[]).map((r) => ({
+      userId: r.user_id as string,
+      role: r.role as string,
+      email: (r.profiles?.email ?? null) as string | null,
+    })),
+  };
 }

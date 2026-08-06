@@ -18,6 +18,7 @@ import type { FamilyRole } from "@/lib/family/roles";
 // implementation lives in lib/time so things underneath the database layer
 // can reach it too.
 import { todayIso } from "@/lib/time";
+import { storyMemoryQuery } from "@/lib/memories/scope";
 export { todayIso };
 
 export interface LoadedLookBack extends LookBack {
@@ -31,16 +32,20 @@ export async function loadLookBack(
   viewer: { userId: string; role: FamilyRole | null },
   today = todayIso()
 ): Promise<LoadedLookBack> {
-  const { data: rows } = await db
-    .from("memories")
-    .select("id, memory_date, type, raw_text, transcript, contribution_status, created_by, visibility")
-    .eq("subject_id", subjectId)
+  const scoped = await storyMemoryQuery(
+    db,
+    subjectId,
+    "id, memory_date, type, raw_text, transcript, contribution_status, created_by, visibility"
+  );
+  const { data: rows } = scoped
+    ? await scoped.query
     .not("memory_date", "is", null)
     // Bounded so a ten-year archive does not pull everything on every page
     // load. Ordered by date so what comes back is the recent decade, which
     // is where a look-back is going to land anyway.
     .order("memory_date", { ascending: false })
-    .limit(4000);
+    .limit(4000)
+    : { data: [] };
 
   const candidates: LookBackCandidate[] = (rows ?? []).map((m: any) => ({
     id: m.id,

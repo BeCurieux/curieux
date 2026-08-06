@@ -31,22 +31,30 @@ export const dynamic = "force-dynamic";
 async function likeliestSubject(db: ReturnType<typeof userClient>, userId: string) {
   const { data: subjects } = await db
     .from("subjects")
-    .select("id, display_name")
+    .select("id, display_name, family_id")
     .order("created_at", { ascending: false });
 
-  const editable: { id: string; display_name: string }[] = [];
+  const editable: { id: string; display_name: string; family_id: string }[] = [];
   for (const s of (subjects ?? []) as any[]) {
     const membership = await roleForSubject(db, s.id, userId);
     if (membership && canEdit(membership.role)) editable.push(s);
   }
   if (editable.length === 0) return { subject: null, ambiguous: false, others: [] };
 
-  const { data: recent } = await db
+  // Which archive was added to most recently. Two plain reads rather than a
+  // join with an ordering on the embedded table: the shape is easier to
+  // follow, and it is one guess on a page that must not stop to ask.
+  const { data: newest } = await db
     .from("memories")
-    .select("subject_id")
-    .in("subject_id", editable.map((s) => s.id))
+    .select("id")
+    .eq("family_id", editable[0].family_id)
     .order("created_at", { ascending: false })
     .limit(1);
+
+  const newestId = ((newest ?? []) as any[])[0]?.id;
+  const { data: recent } = newestId
+    ? await db.from("memory_subjects").select("subject_id").eq("memory_id", newestId)
+    : { data: [] };
 
   const lastTouched = ((recent ?? []) as any[])[0]?.subject_id;
   const chosen = editable.find((s) => s.id === lastTouched) ?? editable[0];
@@ -96,6 +104,7 @@ export async function POST(req: NextRequest) {
 
   const received = await receive(db, {
     subjectId: subject.id,
+    familyId: subject.family_id,
     createdBy: user.id,
     via: "share",
     note: title,

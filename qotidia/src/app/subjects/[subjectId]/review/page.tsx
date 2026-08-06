@@ -13,6 +13,7 @@ import { reviewContribution } from "@/app/actions";
 import { memberLabel, membersOfFamily, roleForSubject } from "@/lib/family/membership";
 import { canModerate } from "@/lib/family/roles";
 import { resolvePhotoUrls } from "@/lib/book/photos";
+import { storyMemoryQuery } from "@/lib/memories/scope";
 import { friendlyDate } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
@@ -32,14 +33,16 @@ export default async function ReviewPage({ params }: { params: { subjectId: stri
   const membership = await roleForSubject(db, params.subjectId, user.id);
   if (!canModerate(membership?.role ?? null)) redirect(`/subjects/${params.subjectId}`);
 
-  const { data: pending } = await db
-    .from("memories")
-    .select("id, type, raw_text, memory_date, created_at, created_by")
-    .eq("subject_id", params.subjectId)
-    .eq("contribution_status", "pending")
-    .order("created_at", { ascending: false });
+  const scoped = await storyMemoryQuery(
+    db,
+    params.subjectId,
+    "id, type, raw_text, memory_date, created_at, created_by"
+  );
+  const { data: pending } = scoped
+    ? await scoped.query.eq("contribution_status", "pending").order("created_at", { ascending: false })
+    : { data: [] };
 
-  const rows = pending ?? [];
+  const rows = (pending ?? []) as any[];
   const photos = await resolvePhotoUrls(db, rows.filter((m) => m.type === "photo").map((m) => m.id));
 
   const members = await membersOfFamily(db, subject.family_id);

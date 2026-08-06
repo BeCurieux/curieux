@@ -18,6 +18,7 @@ import { SERVABLE_VERDICT, verifyUpload } from "@/lib/media/verify";
 import { takenOn } from "@/lib/media/taken";
 import { getScanner } from "@/lib/media/scanner";
 import { record } from "@/lib/privacy/activity";
+import { countStoryMemories, loadStoryMemories, storyMemoryQuery, storySubject } from "@/lib/memories/scope";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
@@ -150,13 +151,15 @@ async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
 
     const { data: memory } = await db
       .from("memories")
-      .select("subject_id, created_by, subjects(family_id)")
+      .select("family_id, created_by, memory_subjects(subject_id)")
       .eq("id", asset.memory_id)
       .single();
     if (memory) {
       await record(db, {
-        familyId: (memory as any).subjects?.family_id,
-        subjectId: memory.subject_id,
+        familyId: (memory as any).family_id,
+        // A refused file belongs to the archive; naming a subject is only
+        // possible when somebody had said who it was about.
+        subjectId: (memory as any).memory_subjects?.[0]?.subject_id ?? null,
         actorId: null,
         actorLabel: SENDER,
         kind: "upload_refused",
@@ -228,20 +231,12 @@ export async function runJob(db: SupabaseClient, job: Job): Promise<void> {
  * by the whole family with extra copies posted to grandparents.
  */
 async function loadMemories(db: SupabaseClient, subjectId: string): Promise<Memory[]> {
-  const { data, error } = await db
-    .from("memories")
-    .select("*, memory_tags(tag), memory_people(family_members(name))")
-    .eq("subject_id", subjectId)
-    .eq("contribution_status", "approved")
-    .eq("visibility", "family");
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((m: any) => ({
-    ...m,
-    tags: (m.memory_tags ?? []).map((t: any) => t.tag),
-    people: (m.memory_people ?? [])
-      .map((p: any) => p.family_members?.name)
-      .filter(Boolean),
-  }));
+  const story = await storySubject(db, subjectId);
+  if (!story) return [];
+  return (await loadStoryMemories(db, story, {
+    approvedOnly: true,
+    familyVisibleOnly: true,
+  })) as Memory[];
 }
 
 // ------------------------------------------------------------- handlers
@@ -531,11 +526,7 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
     .select("id, display_name, date_of_birth, family_id");
 
   for (const s of subjects ?? []) {
-    const { count } = await db
-      .from("memories")
-      .select("id", { count: "exact", head: true })
-      .eq("subject_id", s.id)
-      .eq("contribution_status", "pending");
+    const count = await countStoryMemories(db, s.id, { pendingOnly: true });
 
     const owner = await familyOwner(db, s.family_id);
 
@@ -573,19 +564,26 @@ async function archiveStateFor(
   displayName: string,
   now: Date
 ): Promise<ArchiveState> {
+  // One scoped query builder per read. They cannot be shared: a PostgREST
+  // builder accumulates its filters, so reusing one would quietly apply the
+  // previous read's conditions to the next.
+  const scoped = (select: string) => storyMemoryQuery(db, subjectId, select);
   const [{ data: latest }, { data: threads }, { data: littleThings }, { data: voice }, { data: lastQuote }, { data: thisYear }] =
     await Promise.all([
-      db.from("memories").select("created_at").eq("subject_id", subjectId)
-        .eq("visibility", "family").order("created_at", { ascending: false }).limit(1),
+      scoped("created_at").then((q) =>
+        q ? q.query.eq("visibility", "family").order("created_at", { ascending: false }).limit(1) : { data: [] }
+      ),
       db.from("memory_clusters").select("title").eq("subject_id", subjectId)
         .eq("status", "confirmed").order("created_at", { ascending: false }).limit(3),
       db.from("little_things").select("category, value, recorded_date")
         .eq("subject_id", subjectId).order("recorded_date", { ascending: false }).limit(12),
-      db.from("memories").select("id").eq("subject_id", subjectId).eq("type", "voice").limit(1),
-      db.from("memories").select("memory_date, created_at").eq("subject_id", subjectId)
-        .eq("type", "quote").order("created_at", { ascending: false }).limit(1),
-      db.from("memories").select("memory_date, created_at").eq("subject_id", subjectId)
-        .eq("visibility", "family").limit(500),
+      scoped("id").then((q) => (q ? q.query.eq("type", "voice").limit(1) : { data: [] })),
+      scoped("memory_date, created_at").then((q) =>
+        q ? q.query.eq("type", "quote").order("created_at", { ascending: false }).limit(1) : { data: [] }
+      ),
+      scoped("memory_date, created_at").then((q) =>
+        q ? q.query.eq("visibility", "family").limit(500) : { data: [] }
+      ),
     ]);
 
   const days = (from: string | null | undefined) =>

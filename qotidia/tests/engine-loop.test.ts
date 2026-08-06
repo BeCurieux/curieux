@@ -26,7 +26,10 @@ const answerFn = actions.slice(
 
 describe("an answer becomes a memory", () => {
   it("is written into the archive, not only onto the question", () => {
-    expect(answerFn).toMatch(/from\("memories"\)\s*\n?\s*\.insert/);
+    // Written through keepMemory(), which is now the only thing that inserts
+    // a memory — every capture path shares it so that none of them can
+    // forget the archive it belongs to.
+    expect(answerFn).toMatch(/keepMemory\(/);
   });
 
   it("keeps the question with it", () => {

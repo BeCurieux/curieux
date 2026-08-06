@@ -105,10 +105,36 @@ export async function collectArchive(
 ): Promise<{ entries: ExportEntry[]; manifest: ExportManifest }> {
   const entries: ExportEntry[] = [];
 
-  const { data: subjects } = await db
+  const { data: subjectRows } = await db
     .from("subjects")
     .select("id, display_name, date_of_birth")
     .eq("family_id", familyId);
+
+  // Who each memory is about, read once. The export walks the archive rather
+  // than each subject's slice of it, because a memory tagged with nobody
+  // belongs to the household and belongs to no subject — and under a
+  // per-subject walk it would be silently absent from the one file that is
+  // supposed to contain everything. An export with holes in it is worse than
+  // no export, because the family has no way to know.
+  const subjectIds = ((subjectRows ?? []) as any[]).map((s) => s.id);
+  const { data: links } = subjectIds.length
+    ? await db
+        .from("memory_subjects")
+        .select("memory_id, subject_id")
+        .in("subject_id", subjectIds)
+        .limit(50000)
+    : { data: [] };
+
+  const aboutMemory = new Map<string, string[]>();
+  for (const l of ((links ?? []) as any[])) {
+    aboutMemory.set(l.memory_id, [...(aboutMemory.get(l.memory_id) ?? []), l.subject_id]);
+  }
+
+  // A folder for things that are the household's rather than any one
+  // person's: the Sunday nobody was tagged in. Real families have a lot of
+  // these and they are exactly the ones a per-subject export drops.
+  const HOUSEHOLD = { id: `${familyId}-household`, display_name: "The household", date_of_birth: null };
+  const subjects = [...((subjectRows ?? []) as any[]), HOUSEHOLD];
 
   const manifest: ExportManifest = {
     exportedAt: new Date().toISOString(),
@@ -117,16 +143,22 @@ export async function collectArchive(
     note: EXPORT_NOTE,
   };
 
-  for (const s of subjects ?? []) {
-    const { data: memories } = await db
-      .from("memories")
-      .select("id, type, raw_text, transcript, memory_date, created_at, created_by, contribution_status, media_assets(storage_path, mime_type, scan_verdict, scan_reason)")
-      .eq("subject_id", s.id)
-      .order("memory_date");
+  const { data: allMemories } = await db
+    .from("memories")
+    .select("id, type, raw_text, transcript, memory_date, created_at, created_by, contribution_status, media_assets(storage_path, mime_type, scan_verdict, scan_reason)")
+    .eq("family_id", familyId)
+    .order("memory_date")
+    .limit(50000);
+
+  for (const s of subjects) {
+    const memories = ((allMemories ?? []) as any[]).filter((m) => {
+      const about = aboutMemory.get(m.id) ?? [];
+      return s.id === HOUSEHOLD.id ? about.length === 0 : about.includes(s.id);
+    });
 
     const memoryRows: ExportManifest["subjects"][number]["memories"] = [];
 
-    for (const m of (memories ?? []) as any[]) {
+    for (const m of memories) {
       const asset = m.media_assets?.[0];
       let filePath: string | null = null;
       let missing: string | null = null;

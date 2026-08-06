@@ -10,6 +10,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { bookSoFar, type BookSoFar } from "./forming";
 import { startingYear } from "@/lib/onboarding/start";
 import { todayIso } from "@/lib/time";
+import { loadStoryMemories } from "@/lib/memories/scope";
 
 export async function loadBookSoFar(
   db: SupabaseClient,
@@ -18,7 +19,7 @@ export async function loadBookSoFar(
 ): Promise<BookSoFar | null> {
   const { data: subject } = await db
     .from("subjects")
-    .select("id, display_name, subject_type, date_of_birth")
+    .select("id, family_id, display_name, subject_type, date_of_birth")
     .eq("id", subjectId)
     .single();
   if (!subject) return null;
@@ -39,23 +40,14 @@ export async function loadBookSoFar(
     ? { start: book.start_date, end: book.end_date, yearNumber: book.year_number }
     : fallbackPeriod(subject, today);
 
-  const { data: rows } = await db
-    .from("memories")
-    .select("*, memory_tags(tag), memory_people(family_members(name))")
-    .eq("subject_id", subjectId)
-    .eq("contribution_status", "approved")
-    .eq("visibility", "family")
-    .limit(4000);
-
-  const memories = ((rows ?? []) as any[])
-    .map((m) => ({
-      ...m,
-      tags: (m.memory_tags ?? []).map((t: any) => t.tag),
-      people: (m.memory_people ?? []).map((p: any) => p.family_members?.name).filter(Boolean),
-    }))
+  const memories = await loadStoryMemories(db, subject as any, {
+    approvedOnly: true,
+    familyVisibleOnly: true,
     // Undated memories count towards the archive but cannot be placed in a
     // period, and the real generator keeps them for the same reason.
-    .filter((m) => !m.memory_date || (m.memory_date >= period.start && m.memory_date <= period.end));
+    from: period.start,
+    to: period.end,
+  });
 
   const { data: clusterRows } = await db
     .from("memory_clusters")

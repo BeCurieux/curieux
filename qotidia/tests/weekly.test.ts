@@ -44,16 +44,26 @@ const note = (over: Partial<WeeklyNote> = {}): WeeklyNote => ({
  */
 function fakeDb(rows: any[] = [], memories: any[] = []) {
   const writes: any[][] = [];
+  // The archive owns the memories now, so anything reading them first asks
+  // which family and which subjects — a fake that stops at `memories` no
+  // longer reaches the code under test.
+  const subject = { id: "s1", family_id: "f1", subject_type: "child" };
+  const links = () => memories.map((m) => ({ memory_id: m.id, subject_id: "s1" }));
 
   const client: any = {
     rows,
     writes,
     from(table: string) {
       const q: any = {
-        _rows: table === "noticed" ? rows : memories,
+        _rows:
+          table === "noticed" ? rows
+          : table === "subjects" ? [subject]
+          : table === "memory_subjects" ? links()
+          : memories,
         select(_cols?: string) { return q; },
         eq(col: string, val: any) { q._rows = q._rows.filter((r: any) => r[col] === val); return q; },
         gte() { return q; },
+        in(col: string, vals: any[]) { q._rows = q._rows.filter((r: any) => vals.includes(r[col])); return q; },
         not() { return q; },
         order() { return q; },
         limit() { return q; },
@@ -63,6 +73,7 @@ function fakeDb(rows: any[] = [], memories: any[] = []) {
           rows.push(...written);
           return { select: () => Promise.resolve({ data: written, error: null }) };
         },
+        maybeSingle: () => Promise.resolve({ data: q._rows[0] ?? null, error: null }),
         then: (res: any) => Promise.resolve({ data: q._rows, error: null }).then(res),
       };
       return q;
@@ -78,7 +89,7 @@ const ago = (days: number) =>
 const hatArchive = () =>
   [1, 2, 4, 6, 30, 38].map((d, i) => ({
     id: `m${i}`,
-    subject_id: "s1",
+    family_id: "f1",
     memory_date: ago(d),
     raw_text: "Hat, park, hat.",
     contribution_status: "approved",

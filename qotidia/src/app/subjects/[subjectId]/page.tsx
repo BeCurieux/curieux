@@ -17,6 +17,7 @@ import { Shelf } from "@/app/shelf";
 import { roleForSubject } from "@/lib/family/membership";
 import { canEdit, canModerate } from "@/lib/family/roles";
 import { bestPrompt } from "@/lib/prompts/engine";
+import { countStoryMemories, countUnfiled, recentStoryMemories } from "@/lib/memories/scope";
 
 export const dynamic = "force-dynamic";
 
@@ -41,20 +42,19 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       : "they";
   const verb = subject === "they" ? "are" : "is";
 
-  const [{ count: memoryCount }, { data: recent }, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }, { count: pending }] =
+  const [memoryCount, recent, { data: clusters }, { count: questionCount }, { data: littleThings }, { data: book }, pending] =
     await Promise.all([
-      db.from("memories").select("id", { count: "exact", head: true }).eq("subject_id", child.id),
-      db.from("memories").select("id, type, raw_text, memory_date, created_at").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(5),
+      countStoryMemories(db, child.id),
+      recentStoryMemories(db, child.id),
       db.from("memory_clusters").select("id, title, status").eq("subject_id", child.id).eq("status", "suggested").limit(5),
       db.from("follow_up_questions").select("id", { count: "exact", head: true }).eq("subject_id", child.id).eq("status", "pending"),
       db.from("little_things").select("id, category, value, recorded_date").eq("subject_id", child.id).order("recorded_date", { ascending: false }).limit(3),
       db.from("books").select("id, title, status, year_number").eq("subject_id", child.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-      db.from("memories").select("id", { count: "exact", head: true })
-        .eq("subject_id", child.id).eq("contribution_status", "pending"),
+      countStoryMemories(db, child.id, { pendingOnly: true }),
     ]);
 
   const role = (await roleForSubject(db, child.id, user.id))?.role ?? null;
-  const pendingCount = pending ?? 0;
+  const pendingCount = pending;
 
   // One question, built from this archive rather than from a template.
   const lastMemoryAt = recent?.[0]?.created_at ?? null;
@@ -83,7 +83,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
     .eq("status", "scheduled")
     .maybeSingle();
 
-  const kept = memoryCount ?? 0;
+  const kept = memoryCount;
 
   // The year on the dashboard has to be the year in the book, or the two
   // disagree the moment a birthday passes: she turns three while the book
@@ -105,12 +105,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
 
   // How much is sitting in the inbox. Almost always zero — arrivals file
   // themselves — so the link reads as an offer rather than a chore queue.
-  const { count: waitingToFile } = await db
-    .from("memories")
-    .select("id", { count: "exact", head: true })
-    .eq("subject_id", child.id)
-    .is("filed_at", null)
-    .not("arrived_via", "is", null);
+  const waitingToFile = await countUnfiled(db, child.id);
 
   // This week's noticing. Written the first time somebody who can answer it
   // opens the page, and read from then on — so the sentence holds still for
@@ -206,8 +201,8 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           See the book so far
         </Link>
         <Link href={`/subjects/${child.id}/inbox`} className="text-ochre hover:underline">
-          {(waitingToFile ?? 0) > 0
-            ? `${countOf(waitingToFile ?? 0, "thing")} we couldn’t place`
+          {waitingToFile > 0
+            ? `${countOf(waitingToFile, "thing")} we couldn’t place`
             : `Send things in without opening this`}
         </Link>
       </p>

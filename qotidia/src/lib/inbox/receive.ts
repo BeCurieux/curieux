@@ -15,6 +15,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createHash } from "node:crypto";
 import { enqueue } from "@/lib/jobs/queue";
 import { fileArrival, type ArrivedVia } from "./triage";
+import { keepMemory } from "@/lib/memories/scope";
 
 export interface IncomingFile {
   bytes: Buffer;
@@ -24,7 +25,10 @@ export interface IncomingFile {
 }
 
 export interface Incoming {
+  /** Which story this was captured under. It becomes the memory's tag. */
   subjectId: string;
+  /** The archive it belongs to, which is what actually owns it. */
+  familyId: string;
   /** Whose archive entry this becomes. For mail, the family member's user. */
   createdBy: string;
   via: ArrivedVia;
@@ -97,10 +101,10 @@ export async function receive(db: SupabaseClient, incoming: Incoming): Promise<R
     const filed = fileArrival({ type, arrivedAt, via: incoming.via });
     const settled = filed.question === null && !incoming.guessedSubject;
 
-    const { data: memory, error } = await db
-      .from("memories")
-      .insert({
-        subject_id: incoming.subjectId,
+    const memoryId = await keepMemory(db, {
+      familyId: incoming.familyId,
+      about: [incoming.subjectId],
+      memory: {
         created_by: incoming.createdBy,
         type,
         raw_text: carriesText,
@@ -113,11 +117,11 @@ export async function receive(db: SupabaseClient, incoming: Incoming): Promise<R
         // Filed on arrival unless something is genuinely unanswerable. The
         // inbox is the residue, not the pile.
         filed_at: settled ? arrivedAt : null,
-      })
-      .select("id")
-      .single();
+      },
+    });
 
-    if (error || !memory) throw new Error(error?.message ?? "could not keep that");
+    if (!memoryId) throw new Error("could not keep that");
+    const memory = { id: memoryId };
     memoryIds.push(memory.id);
     if (!settled) unfiled++;
 

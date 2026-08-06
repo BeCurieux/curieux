@@ -12,6 +12,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { chargeSavedCard, PRICES } from "@/lib/stripe";
 import { enqueue } from "@/lib/jobs/queue";
+import { countStoryMemories } from "@/lib/memories/scope";
 import { sendOnce } from "@/lib/email/send";
 import {
   renewalPaymentFailed, renewalReminder, renewalScheduled, renewalSkipped,
@@ -124,11 +125,7 @@ export async function collectRenewals(
       .eq("id", owner.userId)
       .maybeSingle();
 
-    const { count: approved } = await db
-      .from("memories")
-      .select("id", { count: "exact", head: true })
-      .eq("subject_id", r.subject_id)
-      .eq("contribution_status", "approved");
+    const approved = await countStoryMemories(db, r.subject_id, { approvedOnly: true });
 
     const decision = decideRenewal(
       {
