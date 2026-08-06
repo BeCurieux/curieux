@@ -123,6 +123,33 @@ function buildTables(): Record<string, Row[]> {
   const memories: Row[] = [];
   const tags: Row[] = [];
   const assets: Row[] = [];
+
+  // Last year's few. The seed above all falls inside the year being
+  // collected, and a look-back needs something older than that — so without
+  // these the demo shows the feature's empty state, which is honest for a
+  // family in their first year and useless for showing what it does.
+  //
+  // One of them is dated exactly a year before today, so "a year ago today"
+  // fires whenever the demo is opened rather than one day in six.
+  const yearBefore = (offsetDays: number) => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 1);
+    d.setDate(d.getDate() + offsetDays);
+    return d.toISOString().slice(0, 10);
+  };
+  [
+    [0, "quote", "Bun Bun tired now. Bun Bun go bed."],
+    [-2, "text", "Slept through for the first time. We didn't."],
+    [-19, "text", "First time she said her own name. It came out 'Florrie'."],
+  ].forEach(([offset, type, text], i) => {
+    memories.push({
+      id: `mem-prior-${i}`, subject_id: subjectId, created_by: DEMO_USER.id,
+      type, raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: yearBefore(offset as number), created_at: yearBefore(offset as number),
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+  });
   MEMORY_SEED.forEach(([offset, type, text, tagList], i) => {
     const id = `mem-${i}`;
     // The last two are Grandpa's, and are waiting — so the review queue has
@@ -377,6 +404,19 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
   neq(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] !== val); return this; }
   /** Only the null/not-null forms are used, which is all this supports. */
   is(col: string, val: null) { this.rows = this.rows.filter((r) => (r[col] ?? null) === val); return this; }
+  /**
+   * PostgREST's negation, as `.not(col, "is", null)`.
+   *
+   * Added because its absence was a 500 that appeared only in demo mode —
+   * the app typechecked, the production client had the method, and the fake
+   * one silently did not. A demo client missing an operator does not fail
+   * loudly at build time; it fails on the page.
+   */
+  not(col: string, op: string, val: any) {
+    if (op !== "is") throw new Error(`demo client does not implement .not(_, "${op}", _)`);
+    this.rows = this.rows.filter((r) => (r[col] ?? null) !== val);
+    return this;
+  }
   in(col: string, vals: any[]) { this.rows = this.rows.filter((r) => vals.includes(r[col])); return this; }
   order(col: string, opts?: { ascending?: boolean }) {
     const dir = opts?.ascending === false ? -1 : 1;
