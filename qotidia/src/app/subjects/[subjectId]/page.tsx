@@ -198,15 +198,17 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
         </Link>
       </div>
 
-      {/* The cards above are about coming here to add something. This is
-          about not having to — which is the version people are still doing in
-          March, and therefore the one worth a line on the page rather than a
-          setting nobody opens. */}
-      <p className="mt-4 text-sm">
+      {/* Two lines rather than two more cards. The grid above is the four
+          things to do; these are the two things to look at, and a page where
+          everything is a card is a page with no hierarchy at all. */}
+      <p className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        <Link href={`/subjects/${child.id}/so-far`} className="text-ochre hover:underline">
+          See the book so far
+        </Link>
         <Link href={`/subjects/${child.id}/inbox`} className="text-ochre hover:underline">
           {(waitingToFile ?? 0) > 0
             ? `${countOf(waitingToFile ?? 0, "thing")} we couldn’t place`
-            : `Send things to ${first}’s archive without opening this`}
+            : `Send things in without opening this`}
         </Link>
       </p>
 
