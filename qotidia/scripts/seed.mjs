@@ -145,16 +145,21 @@ async function main() {
   // 4. Memories
   let count = 0;
   for (const [offset, type, text, tags, people] of MEMORIES) {
+    // The archive owns the memory; a link says who it is about. Writing
+    // subject_id here was left behind by 0019 and would have failed on the
+    // first insert, on somebody's first real run of the product.
     const { data: memory } = await db
       .from("memories")
       .insert({
-        subject_id: subject.id,
+        family_id: family.id,
         created_by: userId,
         type,
         raw_text: text,
         memory_date: day(offset),
       })
       .select("id").single();
+
+    await db.from("memory_subjects").insert({ memory_id: memory.id, subject_id: subject.id });
     for (const tag of tags) {
       await db.from("memory_tags").insert({ memory_id: memory.id, tag, source: "parent" });
     }

@@ -17,7 +17,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { loadStoryMemories, memoryIdsForStory } from "@/lib/memories/scope";
 
-const src = join(__dirname, "..", "src");
+const root = join(__dirname, "..");
+const src = join(root, "src");
 
 /** Just enough Supabase to answer the scoping questions. */
 function fakeDb(rows: {
@@ -125,10 +126,16 @@ describe("no query still believes a memory belongs to a subject", () => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) walk(path);
-      else if (/\.tsx?$/.test(entry.name)) files.push(path);
+      // scripts/ as well as src/, and .mjs as well as .ts. The seed script
+      // still wrote memories.subject_id long after the column was dropped,
+      // and this check walked neither the folder nor the extension — so it
+      // would have failed on the first real run of the product, which is
+      // exactly the run this was written to protect.
+      else if (/\.(tsx?|mjs)$/.test(entry.name)) files.push(path);
     }
   };
   walk(src);
+  walk(join(root, "scripts"));
 
   /**
    * Each `from("memories")` chain, ending where the statement does.
@@ -150,14 +157,25 @@ describe("no query still believes a memory belongs to a subject", () => {
     return out;
   };
 
-  it("filters no memory query on subject_id", () => {
+  it("names subject_id nowhere in a memory query, quoted or not", () => {
     // The column is gone. A query that still names it typechecks perfectly
     // and returns nothing, which on a dashboard reads as an empty archive
     // rather than as a bug.
+    //
+    // Unquoted as well as quoted, which is the version that got through: the
+    // seed script wrote `subject_id: subject.id` as an object key in an
+    // insert, and a check looking only for `"subject_id"` in a filter walked
+    // straight past it. It would have failed on the first real run of the
+    // product — the exact run this exists to protect.
     const offenders: string[] = [];
     for (const file of files) {
       for (const chain of memoryChains(readFileSync(file, "utf8"))) {
-        if (/["']subject_id["']/.test(chain)) offenders.push(file.replace(src, "src"));
+        // Reading it *through* the link is the correct way and has to
+        // survive: `select("family_id, memory_subjects(subject_id)")` asks
+        // who a memory is about, which is the whole point of the table.
+        // Anything else naming the column is reaching for one that is gone.
+        const direct = chain.replace(/memory_subjects\s*\([^)]*\)/g, "");
+        if (/\bsubject_id\b/.test(direct)) offenders.push(file.replace(root, "."));
       }
     }
     expect([...new Set(offenders)]).toEqual([]);
@@ -171,6 +189,10 @@ describe("no query still believes a memory belongs to a subject", () => {
     const offenders: string[] = [];
     for (const file of files) {
       if (file.endsWith(join("memories", "scope.ts"))) continue;
+      // The seed builds a fixture family from nothing and is the one place
+      // that legitimately inserts memories without going through keepMemory,
+      // which needs a session.
+      if (file.endsWith(join("scripts", "seed.mjs"))) continue;
       const code = readFileSync(file, "utf8");
       for (const chain of memoryChains(code)) {
         if (/\.insert\(/.test(chain)) offenders.push(file.replace(src, "src"));
