@@ -41,5 +41,15 @@ const body = files
   })
   .join("");
 
-writeFileSync(join(root, "supabase", "setup.sql"), `${header}${body}`);
-console.log(`supabase/setup.sql — ${files.length} migrations, ${body.split("\n").length} lines`);
+const out = `${header}${body}`;
+writeFileSync(join(root, "supabase", "setup.sql"), out);
+
+// The whole file, not just the part this script assembled. It reported the
+// body only, so the number here and the number GitHub shows disagreed by the
+// length of the header — and that number was being used to tell somebody
+// whether they were looking at a stale copy.
+// Counted the way wc and GitHub count: newlines, not fragments. Splitting
+// on "\n" yields one extra for the empty string after the final newline,
+// which put this one line above what a person reading the file is shown.
+const lines = out.split("\n").length - (out.endsWith("\n") ? 1 : 0);
+console.log(`supabase/setup.sql — ${files.length} migrations, ${lines} lines`);
