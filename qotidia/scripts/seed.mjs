@@ -3,16 +3,15 @@
 // garbage trucks, swimming, "I do it", exactly three bedtime songs.
 // ~40 mock memories spanning one year. No real child data anywhere.
 //
-// Usage: SUPABASE_SERVICE_ROLE_KEY=... NEXT_PUBLIC_SUPABASE_URL=... npm run seed
+// Usage: npm run seed — settings come from .env.local, as everywhere else.
 
 import { createClient } from "@supabase/supabase-js";
+import { requireSupabase } from "./env.mjs";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !key) {
-  console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
-  process.exit(1);
-}
+// The secret key: seeding writes as the archive's owner before anybody has
+// signed in, so it is one of the few things that legitimately bypasses
+// row-level security.
+const { url, key } = requireSupabase({ needSecret: true });
 const db = createClient(url, key, { auth: { persistSession: false } });
 
 const SEED_EMAIL = "demo@qotidia.test";
