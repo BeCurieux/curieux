@@ -30,3 +30,13 @@ create schema public;
 -- deployment rather than a missing grant.
 grant usage on schema public to postgres, anon, authenticated, service_role;
 grant all   on schema public to postgres, anon, authenticated, service_role;
+
+-- Storage keeps its policies in its own schema, so the drop above does not
+-- reach them and they would still be there on the next run. The migration
+-- that creates them now drops them first, which makes this belt and braces
+-- rather than load-bearing — but a reset that leaves half the rules standing
+-- is not a reset.
+drop policy if exists "media owner select" on storage.objects;
+drop policy if exists "media owner insert" on storage.objects;
+drop policy if exists "media owner update" on storage.objects;
+drop policy if exists "media owner delete" on storage.objects;

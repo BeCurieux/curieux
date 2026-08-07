@@ -12,6 +12,17 @@ on conflict (id) do nothing;
 
 -- media/: user uploads, path convention  <user_id>/<child_id>/<filename>
 -- Users can only touch objects under their own user id folder.
+--
+-- Dropped first so this file can be re-run. The buckets above were already
+-- written that way; the policies were not, and they are the part that
+-- survives starting over — storage lives in its own schema, so dropping and
+-- recreating `public` leaves them behind. Re-running the schema then failed
+-- on "policy already exists" after appearing to get all the way through.
+drop policy if exists "media owner select" on storage.objects;
+drop policy if exists "media owner insert" on storage.objects;
+drop policy if exists "media owner update" on storage.objects;
+drop policy if exists "media owner delete" on storage.objects;
+
 create policy "media owner select" on storage.objects for select
   using (bucket_id = 'media' and (storage.foldername(name))[1] = auth.uid()::text);
 
