@@ -23,10 +23,24 @@ import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 // .env.local, without adding a dependency for it.
+//
+// Split on \r?\n rather than \n. Git for Windows converts line endings on
+// checkout by default, so a .env.local copied from .env.example there ends
+// every line with a carriage return — and JS regex `.` does not match \r,
+// so `(.*)$` failed on every single line. This reported "NEXT_PUBLIC_
+// SUPABASE_URL is not set" to somebody who had just set it, which is the
+// worst thing a diagnostic can do: send you to fix something that was
+// already right.
+//
+// Next itself reads .env.local correctly, so only this script was wrong.
 try {
-  for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8").split("\n")) {
-    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/);
-    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
+  const raw = readFileSync(new URL("../.env.local", import.meta.url), "utf8").replace(/^\uFEFF/, "");
+  for (const line of raw.split(/\r?\n/)) {
+    const m = line.match(/^\s*(?:export\s+)?([A-Z0-9_]+)\s*=\s*(.*)$/);
+    if (!m || process.env[m[1]]) continue;
+    // Values are sometimes quoted, and a key that arrives wrapped in quotes
+    // fails against the API with an error that says nothing about quotes.
+    process.env[m[1]] = m[2].trim().replace(/^(['"])(.*)\1$/, "$2");
   }
 } catch {
   // No .env.local is a legitimate state; the checks below say so plainly.
