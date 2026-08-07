@@ -85,6 +85,25 @@ policies=$(psql -tAc "select count(*) from pg_policies where schemaname='public'
 # and compared. It had fallen four migrations behind without anything
 # noticing, which meant following the instructions exactly produced a schema
 # the application cannot run against.
+# Starting over and building again has to leave a working database. It did
+# not: dropping the public schema takes its default privileges with it, so
+# every table setup.sql then created was unreachable by the API's own roles.
+# Nothing about that is visible — the tables, the policies and the dashboard
+# all look right, and every request fails with "permission denied".
+echo
+echo "After starting over"
+psql -tAc "drop database if exists ${DB}_reset" postgres >/dev/null
+psql -tAc "create database ${DB}_reset" postgres >/dev/null
+psql -q -v ON_ERROR_STOP=1 -d "${DB}_reset" -f "$HERE/supabase/harness/00_supabase_primitives.sql"
+psql -q -v ON_ERROR_STOP=1 -d "${DB}_reset" -f "$HERE/supabase/reset.sql" >/dev/null
+psql -q -v ON_ERROR_STOP=1 -d "${DB}_reset" -f "$HERE/supabase/setup.sql" >/dev/null
+if psql -tAc "set role service_role; select count(*) from families" -d "${DB}_reset" >/dev/null 2>&1; then
+  echo "  ok   reset.sql then setup.sql leaves the roles able to reach the tables"
+else
+  echo "  FAIL after a reset the API roles cannot reach the tables — check default privileges"
+  exit 1
+fi
+
 echo
 echo "The one-paste setup file"
 node "$HERE/scripts/build-setup-sql.mjs" | sed 's/^/  /'

@@ -31,6 +31,22 @@ create schema public;
 grant usage on schema public to postgres, anon, authenticated, service_role;
 grant all   on schema public to postgres, anon, authenticated, service_role;
 
+-- And the default privileges, which are the part this originally missed.
+--
+-- A schema carries the rules for what *newly created* tables are readable
+-- by, and Supabase sets those up when it builds a project. Dropping the
+-- schema takes them with it, so setup.sql then built thirty-three perfectly
+-- good tables that the API's own roles were not allowed to touch — and
+-- nothing said so. The tables were there, the policies were there, the
+-- dashboard looked right, and every single request failed with
+-- "permission denied for table families".
+alter default privileges in schema public
+  grant all on tables to postgres, anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on sequences to postgres, anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on functions to postgres, anon, authenticated, service_role;
+
 -- Storage keeps its policies in its own schema, so the drop above does not
 -- reach them and they would still be there on the next run. The migration
 -- that creates them now drops them first, which makes this belt and braces
