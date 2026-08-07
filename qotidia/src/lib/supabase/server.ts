@@ -8,9 +8,10 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { DEMO_USER, demoClient, isDemoMode } from "./demo";
+import { publishableKey, projectUrl, secretKey, whatIsMissing } from "./keys";
 
-const url = () => process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anonKey = () => process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const url = () => projectUrl()!;
+const anonKey = () => publishableKey()!;
 
 export const ACCESS_COOKIE = "kp-access-token";
 export const REFRESH_COOKIE = "kp-refresh-token";
@@ -45,7 +46,13 @@ export async function requireUser() {
 /** Service-role client. RLS bypassed — jobs/webhooks/admin only. */
 export function adminClient(): SupabaseClient {
   if (isDemoMode()) return demoClient();
-  return createClient(url(), process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+  // Named rather than asserted: a missing key here produced a fetch to
+  // "undefined/auth/v1/token", which names neither the setting nor the file
+  // it belongs in — and whoever hits it is setting the product up for the
+  // first time, which is the worst moment to be handed that.
+  const missing = whatIsMissing();
+  if (missing) throw new Error(missing);
+  return createClient(url(), secretKey()!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

@@ -85,15 +85,36 @@ all.
 In Supabase, go to **Project Settings** (gear icon) → **API**. You need
 three values from that page:
 
-| On the Supabase page | What it's called |
+Supabase has renamed these. Both the old and new names work in this app, so
+copy whichever your dashboard shows:
+
+| On the Supabase page | Put it in `.env.local` as |
 |---|---|
 | Project URL | `NEXT_PUBLIC_SUPABASE_URL` |
-| `anon` `public` key | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
-| `service_role` `secret` key | `SUPABASE_SERVICE_ROLE_KEY` |
+| **publishable** key (`sb_publishable_…`), formerly `anon` `public` | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
+| **secret** key (`sb_secret_…`), formerly `service_role` | `SUPABASE_SECRET_KEY` |
 
-The `service_role` key is hidden behind a **Reveal** button. Treat it like a
-password — it bypasses all security rules. It only ever lives on your own
-machine in the file you're about to create.
+The publishable key is **not a secret**. It is sent to every browser that
+loads the site, by design — everything it can reach is protected by
+row-level security rather than by the key being hidden.
+
+The secret key is the opposite. It bypasses every security rule and is the
+one credential that can read every family's archive at once. It belongs only
+in `.env.local` on your own machine and in your host's environment settings.
+Never paste it into a message, a screenshot, a ticket or a chat — including
+to whoever is helping you set this up. If it ever does leave your machine,
+click **Reset** on that key in the dashboard; it takes a few seconds and
+invalidates the old one.
+
+Once the file exists, confirm it all works:
+
+```powershell
+npm run check:supabase
+```
+
+It tells you whether the settings are present, whether the project can be
+reached, and whether the whole schema was applied — naming the migration if
+any of it is missing.
 
 ---
 
