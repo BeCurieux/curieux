@@ -68,7 +68,15 @@ You should see "Success. No rows returned." That's correct — it built the
 tables rather than fetching data.
 
 To check: click **Table Editor** in the sidebar. You should see tables like
-`children`, `memories`, `books`, and `little_things`.
+`subjects`, `memories`, `books`, and `little_things`. There should be 33 in
+all.
+
+> `setup.sql` is generated from `supabase/migrations/`, so it is always the
+> whole schema and never a stale copy of part of it. If you are changing the
+> database rather than setting it up, run `npm run verify:schema` — it
+> applies every migration to a throwaway PostgreSQL, checks that one family
+> genuinely cannot read another's archive, and confirms this one-paste file
+> still matches the migrations. It needs no Supabase account and no network.
 
 ---
 

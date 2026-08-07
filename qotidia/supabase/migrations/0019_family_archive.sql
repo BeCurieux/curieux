@@ -62,17 +62,19 @@ insert into memory_subjects (memory_id, subject_id)
 select id, subject_id from memories where subject_id is not null
 on conflict do nothing;
 
--- The old column goes rather than staying as a hint. Two places recording
--- which subject a memory belongs to is two places to disagree, and this
--- codebase has paid for that mistake more than once — a price in five
--- places, a tagline in two.
-alter table memories drop column if exists subject_id;
-
 -- ---------------------------------------------------------------- access
+--
+-- Order matters here, and not in the way it reads. The column cannot be
+-- dropped while anything still depends on it, and the policies on this table
+-- do — so the helpers are replaced and the policies removed *first*, and the
+-- column goes afterwards. Written the other way round, this migration
+-- aborted on a real PostgreSQL with "cannot drop column subject_id because
+-- other objects depend on it", which is a far better place to find out than
+-- against a production archive.
 
 -- Rewritten to read family_id off the memory directly. It used to reach
--- through the subject, which no longer exists here and was always a hop
--- longer than it needed to be.
+-- through the subject, which is about to stop existing here and was always a
+-- hop longer than it needed to be.
 create or replace function can_see_memory(mid uuid)
 returns boolean language sql stable security definer set search_path = public as
 $$ select exists (
@@ -91,16 +93,40 @@ $$ select exists (
        and (can_edit_family(m.family_id)
             or (m.created_by = auth.uid() and m.contribution_status = 'pending'))) $$;
 
--- Memories were reachable through owns_subject(subject_id). That column is
--- gone, so every policy on the table is restated against the family.
-drop policy if exists "memories readable by family" on memories;
-drop policy if exists "memories insertable by family" on memories;
-drop policy if exists "memories updatable by family" on memories;
-drop policy if exists "memories deletable by family" on memories;
-drop policy if exists "memories read" on memories;
-drop policy if exists "memories insert" on memories;
-drop policy if exists "memories update" on memories;
-drop policy if exists "memories delete" on memories;
+-- Memories were reachable through owns_subject(subject_id), so every policy
+-- on the table has to go before the column can.
+--
+-- Dropped by enumeration rather than by name. The names have changed once
+-- already across 0002 and 0008, and a `drop policy if exists` list that has
+-- fallen out of date fails silently — it drops nothing, and then the column
+-- drop fails with an error naming a policy nobody remembered writing.
+do $$
+declare p record;
+begin
+  for p in select policyname from pg_policies
+            where schemaname = 'public' and tablename = 'memories'
+  loop
+    execute format('drop policy %I on memories', p.policyname);
+  end loop;
+end $$;
+
+-- And one policy on another table reaches into this column: a comment may be
+-- deleted by whoever can edit the family the memory belongs to, which it
+-- worked out by way of the subject. Restated against the memory's own
+-- family, which is what it meant all along and one hop shorter.
+drop policy if exists "comments delete" on memory_comments;
+
+-- Now nothing depends on it. Two places recording which subject a memory
+-- belongs to is two places to disagree, and this codebase has paid for that
+-- mistake more than once — a price in five places, a tagline in two.
+alter table memories drop column if exists subject_id;
+
+create policy "comments delete" on memory_comments for delete
+  using (
+    author_user_id = auth.uid()
+    or exists (select 1 from memories m
+               where m.id = memory_id and can_edit_family(m.family_id))
+  );
 
 create policy "memories read" on memories for select
   using (is_family_member(family_id)

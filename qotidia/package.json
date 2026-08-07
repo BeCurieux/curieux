@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "build:setup": "node scripts/build-setup-sql.mjs",
+    "verify:schema": "./scripts/verify-schema.sh",
     "seed": "node scripts/seed.mjs",
     "jobs": "node scripts/run-jobs.mjs",
     "sample": "CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome tsx scripts/sample-book.ts",
