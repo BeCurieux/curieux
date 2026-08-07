@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
-import { cancelRenewal, createBook } from "@/app/actions";
+import { cancelRenewal } from "@/app/actions";
 import { yearWord } from "@/lib/book/structure";
 import { ageInYears } from "@/lib/book/format";
 import { countOf, friendlyDate } from "@/lib/words";
@@ -156,10 +156,9 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
                 : `${first}’s book`}
           </Link>
         ) : (
-          <form action={createBook}>
-            <input type="hidden" name="subject_id" value={child.id} />
-            <button className="btn">Make {first}&rsquo;s book</button>
-          </form>
+          <Link href="/books/new" className="btn">
+            Make a book
+          </Link>
         )}
       </div>
 

@@ -11,6 +11,7 @@
 // a new query cannot silently render empty.
 
 import { shiftDays, todayIso } from "@/lib/time";
+import { periodFor } from "@/lib/book/period";
 
 export const DEMO_USER = {
   id: "demo-user",
@@ -112,6 +113,14 @@ function buildTables(): Record<string, Row[]> {
 
   // Florence is two, turning three — so the dashboard and her book agree.
   const dobIso = shiftDays(start, -730);
+
+  // The book's period, from the same function the product uses. Written by
+  // hand it drifted a day from what createBook would produce, and the story
+  // picker duly offered to make a book that already existed.
+  const florencesYear = periodFor(
+    { display_name: "Florence", subject_type: "child", date_of_birth: dobIso },
+    { today }
+  );
 
   const familyId = "demo-family";
   const subjectId = "demo-subject";
@@ -435,8 +444,10 @@ function buildTables(): Record<string, Row[]> {
       recorded_date: day(120), source_memory_id: null, created_at: day(120),
     })),
     books: [{
-      id: bookId, subject_id: subjectId, year_number: 2, title: "The Year You Were Two",
-      subtitle: "Florence", start_date: day(0), end_date: day(365), status: "review",
+      id: bookId, subject_id: subjectId, year_number: florencesYear.yearNumber,
+      title: florencesYear.title,
+      subtitle: "Florence", start_date: florencesYear.start, end_date: florencesYear.end,
+      status: "review",
       cover_theme: null, cover_colour: null, page_count: pages.length, digital_pdf_path: null,
       print_pdf_path: null, cover_pdf_path: null, approved_at: null,
       listen_token: null, created_at: day(0),

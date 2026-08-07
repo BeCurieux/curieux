@@ -24,6 +24,7 @@ import { randomBytes } from "node:crypto";
 import { roleForSubject, roleInFamily } from "@/lib/family/membership";
 import { keepMemory, linkMemoryToSubjects, storySubject } from "@/lib/memories/scope";
 import { parseKey, toggleWho } from "@/lib/memories/who";
+import { periodFor } from "@/lib/book/period";
 import {
   canComment, canEdit, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
@@ -512,24 +513,16 @@ export async function createBook(formData: FormData) {
   const { data: child } = await db.from("subjects").select("*").eq("id", subjectId).single();
   if (!child) throw new Error("child not found");
 
-  // "The year you were N": the most recently completed year of life.
-  const dob = new Date(child.date_of_birth);
-  const now = new Date();
-  let age = now.getFullYear() - dob.getFullYear();
-  const birthdayThisYear = new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
-  if (now < birthdayThisYear) age -= 1;
-  const yearNumber = Math.max(1, age);
-  const start = new Date(dob);
-  start.setFullYear(dob.getFullYear() + yearNumber - 1);
-  const end = new Date(dob);
-  end.setFullYear(dob.getFullYear() + yearNumber);
-  end.setDate(end.getDate() - 1);
+  // The period, from the one place that knows how each kind of book is
+  // bounded. This used to work it out from a date of birth inline, which
+  // meant a household book made here would have been given a child's year.
+  const period = periodFor(child as any);
 
   const { data: existing } = await db
     .from("books")
     .select("id")
     .eq("subject_id", subjectId)
-    .eq("year_number", yearNumber)
+    .eq("start_date", period.start)
     .maybeSingle();
   if (existing) redirect(`/books/${existing.id}`);
 
@@ -537,10 +530,10 @@ export async function createBook(formData: FormData) {
     .from("books")
     .insert({
       subject_id: subjectId,
-      year_number: yearNumber,
-      title: `The Year You Were ${yearNumber}`,
-      start_date: start.toISOString().slice(0, 10),
-      end_date: end.toISOString().slice(0, 10),
+      year_number: period.yearNumber,
+      title: period.title,
+      start_date: period.start,
+      end_date: period.end,
       status: "collecting",
     })
     .select("id")
@@ -1577,4 +1570,110 @@ export async function tagManyAction(formData: FormData) {
   await enqueue(adminClient(), "analyse_memories", { subject_id: subjectId }, `analyse-${subjectId}-${window}`);
 
   redirect(`/subjects/${subjectId}/tag`);
+}
+
+// ------------------------------------------------------------ the stories
+
+/**
+ * Open a book for a story the family chose.
+ *
+ * Replaces the child-shaped createBook path for everything that is not a
+ * child: the period, the title and the year number all come from periodFor(),
+ * which is the one place that knows a household's year runs January to
+ * December and a child's runs birthday to birthday.
+ */
+export async function startStory(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const calendarYear = Number(formData.get("calendar_year")) || null;
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to make a book for this family");
+  }
+
+  const { data: subject } = await db
+    .from("subjects")
+    .select("display_name, subject_type, date_of_birth")
+    .eq("id", subjectId)
+    .single();
+  if (!subject) throw new Error("no such subject");
+
+  const period = periodFor(subject as any, { calendarYear });
+
+  // Keyed on the period rather than on the year number, because a household's
+  // year_number is null and two family annuals would collide on it.
+  const { data: existing } = await db
+    .from("books")
+    .select("id")
+    .eq("subject_id", subjectId)
+    .eq("start_date", period.start)
+    .maybeSingle();
+  if (existing) redirect(`/books/${existing.id}`);
+
+  const { data: book, error } = await db
+    .from("books")
+    .insert({
+      subject_id: subjectId,
+      year_number: period.yearNumber,
+      title: period.title,
+      start_date: period.start,
+      end_date: period.end,
+      status: "collecting",
+    })
+    .select("id")
+    .single();
+  if (error || !book) throw new Error(error?.message ?? "could not start that book");
+
+  await enqueue(adminClient(), "generate_book", { book_id: book.id }, `generate-${book.id}`);
+  redirect(`/books/${book.id}`);
+}
+
+/**
+ * Create the household as a subject, the first time somebody asks for a
+ * family annual.
+ *
+ * Not made at signup. A subject that exists before anybody wants it shows up
+ * in every list, every picker and every count as a book nobody asked for —
+ * and a family with one child would spend a year looking at an empty second
+ * volume beside a full one.
+ */
+export async function startHousehold(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+
+  const role = await roleInFamily(db, familyId, user.id);
+  if (!role || !canEdit(role)) throw new Error("not allowed to change this family");
+
+  const { data: existing } = await db
+    .from("subjects")
+    .select("id")
+    .eq("family_id", familyId)
+    .eq("subject_type", "family")
+    .maybeSingle();
+  if (existing) redirect(`/books/new?story=${existing.id}`);
+
+  const { data: family } = await db
+    .from("families")
+    .select("family_name")
+    .eq("id", familyId)
+    .maybeSingle();
+
+  const { data: subject, error } = await db
+    .from("subjects")
+    .insert({
+      family_id: familyId,
+      subject_type: "family",
+      // Their own name for themselves when they gave one. "Our family" is a
+      // poor cover, but a wrong surname printed on a hardcover is worse.
+      display_name: family?.family_name?.trim() || "Our family",
+      date_of_birth: null,
+    })
+    .select("id")
+    .single();
+  if (error || !subject) throw new Error(error?.message ?? "could not start that");
+
+  redirect(`/books/new?story=${subject.id}`);
 }

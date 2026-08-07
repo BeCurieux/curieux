@@ -20,6 +20,11 @@ export default async function HomePage() {
   return (
     <div className="py-16">
       <h1 className="text-3xl">Your children</h1>
+      <p className="mt-2 text-sm">
+        <Link href="/books/new" className="text-ochre hover:underline">
+          Make a book from the archive
+        </Link>
+      </p>
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {children.map((c) => (
           <Link key={c.id} href={`/subjects/${c.id}`} className="card hover:border-clay">
