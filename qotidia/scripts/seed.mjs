@@ -14,6 +14,30 @@ import { requireSupabase } from "./env.mjs";
 const { url, key } = requireSupabase({ needSecret: true });
 const db = createClient(url, key, { auth: { persistSession: false } });
 
+/**
+ * One row, or stop and say why.
+ *
+ * Every insert here used to destructure `{ data }` alone, so a rejected
+ * write became null and the next line read `.id` off it — a TypeError
+ * pointing at a line twenty away from the thing that actually failed, with
+ * the database's own explanation thrown away. Postgres is good at saying
+ * what is wrong; this now lets it.
+ */
+async function one(query, what) {
+  const { data, error } = await query;
+  if (error) {
+    console.error(`\nCould not create ${what}:\n  ${error.message}`);
+    if (error.hint) console.error(`  hint: ${error.hint}`);
+    if (error.code) console.error(`  code: ${error.code}`);
+    process.exit(1);
+  }
+  if (!data) {
+    console.error(`\nCould not create ${what}: the insert returned no row.`);
+    process.exit(1);
+  }
+  return data;
+}
+
 const SEED_EMAIL = "demo@qotidia.test";
 const SEED_PASSWORD = "tuesday-demo-password";
 
@@ -108,10 +132,22 @@ async function main() {
   for (const f of oldFamilies ?? []) await db.from("families").delete().eq("id", f.id);
 
   // 2. Family + people
-  const { data: family } = await db
-    .from("families")
-    .insert({ owner_user_id: userId, family_name: "Demo family" })
-    .select("id").single();
+  const family = await one(
+    db.from("families")
+      .insert({ owner_user_id: userId, family_name: "Demo family" })
+      .select("id").single(),
+    "the family"
+  );
+
+  // The owner's membership. Everything the app reads goes through
+  // row-level security keyed on this row, so a family without one is an
+  // archive its own owner cannot open.
+  await one(
+    db.from("family_memberships")
+      .insert({ family_id: family.id, user_id: userId, role: "owner" })
+      .select("family_id").single(),
+    "the owner's membership"
+  );
 
   const memberRows = [
     ["Sarah", "Mum", null],
@@ -121,16 +157,18 @@ async function main() {
   ];
   const memberIdByNickname = {};
   for (const [name, relationship, nickname] of memberRows) {
-    const { data: m } = await db
-      .from("family_members")
-      .insert({ family_id: family.id, name, relationship, nickname_used_by_child: nickname })
-      .select("id").single();
+    const m = await one(
+      db.from("family_members")
+        .insert({ family_id: family.id, name, relationship, nickname_used_by_child: nickname })
+        .select("id").single(),
+      `${name} (${relationship})`
+    );
     memberIdByNickname[relationship] = m.id;
   }
 
   // 3. Florence
-  const { data: subject } = await db
-    .from("subjects")
+  const subject = await one(
+    db.from("subjects")
     .insert({
       family_id: family.id,
       display_name: "Florence",
@@ -138,7 +176,9 @@ async function main() {
       date_of_birth: dob.toISOString().slice(0, 10),
       pronouns: "she/her",
     })
-    .select("id").single();
+    .select("id").single(),
+    "Florence"
+  );
   console.log("Created Florence", subject.id);
 
   // 4. Memories
@@ -147,16 +187,18 @@ async function main() {
     // The archive owns the memory; a link says who it is about. Writing
     // subject_id here was left behind by 0019 and would have failed on the
     // first insert, on somebody's first real run of the product.
-    const { data: memory } = await db
-      .from("memories")
-      .insert({
-        family_id: family.id,
-        created_by: userId,
-        type,
-        raw_text: text,
-        memory_date: day(offset),
-      })
-      .select("id").single();
+    const memory = await one(
+      db.from("memories")
+        .insert({
+          family_id: family.id,
+          created_by: userId,
+          type,
+          raw_text: text,
+          memory_date: day(offset),
+        })
+        .select("id").single(),
+      `a memory (${type})`
+    );
 
     await db.from("memory_subjects").insert({ memory_id: memory.id, subject_id: subject.id });
     for (const tag of tags) {
