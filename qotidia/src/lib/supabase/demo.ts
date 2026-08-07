@@ -361,6 +361,14 @@ function buildTables(): Record<string, Row[]> {
     }],
     family_members: members,
     subjects: [{
+      id: "demo-theo", family_id: familyId, subject_type: "child",
+      display_name: "Theo", date_of_birth: shiftDays(start, -1830), pronouns: "he/him",
+      cover_colour: null, created_at: day(1),
+    }, {
+      id: "demo-household", family_id: familyId, subject_type: "family",
+      display_name: "The Wilsons", date_of_birth: null, pronouns: null,
+      cover_colour: null, created_at: day(2),
+    }, {
       id: subjectId, family_id: familyId, subject_type: "child",
       display_name: "Florence", date_of_birth: dobIso, pronouns: "she/her",
       // Null: the demo shelf shows the age spectrum, which is the default a
@@ -372,7 +380,21 @@ function buildTables(): Record<string, Row[]> {
     memories, memory_tags: tags, media_assets: assets, memory_people: people,
     // Every memory in the fixture is about Florence. A second child would
     // have its own links, and the Cornwall morning would carry both.
-    memory_subjects: memories.map((m) => ({ memory_id: m.id, subject_id: subjectId })),
+    memory_subjects: memories.flatMap((m, i) => {
+      // Three of the beach mornings have both children in them: one morning,
+      // two books, kept once. That is the whole architecture in three rows.
+      const bothOfThem = /beach/i.test(String(m.raw_text ?? ""));
+      // And a few carry nobody's name, which is not a gap — they are the
+      // household's year, and they are what the tagging screen is for.
+      const nobody = i % 9 === 4;
+      if (nobody) return [];
+      return bothOfThem
+        ? [
+            { memory_id: m.id, subject_id: subjectId },
+            { memory_id: m.id, subject_id: "demo-theo" },
+          ]
+        : [{ memory_id: m.id, subject_id: subjectId }];
+    }),
     subject_inboxes: [
       { subject_id: subjectId, token: "k3mfwqbtsxnhjdrv2p8c6zgy", accept_from_anyone: false,
         rotated_at: null, created_at: day(0) },
@@ -493,6 +515,12 @@ const NESTED: Record<string, Nested[]> = {
       fk: "memory_id",
       as: "memory_people",
       through: { table: "family_members", fk: "family_member_id", as: "family_members" },
+    },
+    {
+      table: "memory_subjects",
+      fk: "memory_id",
+      as: "memory_subjects",
+      through: { table: "subjects", fk: "subject_id", as: "subjects" },
     },
   ],
 };

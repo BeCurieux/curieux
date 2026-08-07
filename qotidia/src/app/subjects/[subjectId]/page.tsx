@@ -18,6 +18,7 @@ import { roleForSubject } from "@/lib/family/membership";
 import { canEdit, canModerate } from "@/lib/family/roles";
 import { bestPrompt } from "@/lib/prompts/engine";
 import { countStoryMemories, countUnfiled, recentStoryMemories } from "@/lib/memories/scope";
+import { countUntagged } from "@/lib/memories/who";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +107,12 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   // How much is sitting in the inbox. Almost always zero — arrivals file
   // themselves — so the link reads as an offer rather than a chore queue.
   const waitingToFile = await countUnfiled(db, child.id);
+
+  // How much of the archive has nobody's name on it. Untagged is a real
+  // answer — those memories are in the household's year — but it is also the
+  // one thing standing between this family and a second book, so it is worth
+  // a line rather than a settings page.
+  const untagged = await countUntagged(db, child.family_id);
 
   // This week's noticing. Written the first time somebody who can answer it
   // opens the page, and read from then on — so the sentence holds still for
@@ -199,6 +206,11 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
       <p className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm">
         <Link href={`/subjects/${child.id}/so-far`} className="text-ochre hover:underline">
           See the book so far
+        </Link>
+        <Link href={`/subjects/${child.id}/tag`} className="text-ochre hover:underline">
+          {untagged > 0
+            ? `Say who's in ${countOf(untagged, "thing")}`
+            : "Say who's in things"}
         </Link>
         <Link href={`/subjects/${child.id}/inbox`} className="text-ochre hover:underline">
           {waitingToFile > 0

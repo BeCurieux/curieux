@@ -23,6 +23,7 @@ import { sha256 } from "@/lib/media";
 import { randomBytes } from "node:crypto";
 import { roleForSubject, roleInFamily } from "@/lib/family/membership";
 import { keepMemory, linkMemoryToSubjects, storySubject } from "@/lib/memories/scope";
+import { parseKey, toggleWho } from "@/lib/memories/who";
 import {
   canComment, canEdit, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
@@ -1494,4 +1495,86 @@ export async function setInboxOpenness(formData: FormData) {
     .eq("subject_id", subjectId);
 
   revalidatePath(`/subjects/${subjectId}/inbox`);
+}
+
+// ------------------------------------------------------------- who is in it
+
+/**
+ * Add or remove one person from one memory.
+ *
+ * A toggle with no save button, because tagging is dozens of small decisions
+ * and anything that asks for confirmation on each is something people do six
+ * times and abandon.
+ */
+export async function toggleWhoAction(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const memoryId = String(formData.get("memory_id"));
+  const subjectId = String(formData.get("subject_id"));
+  const key = String(formData.get("who"));
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change this archive");
+  }
+
+  await toggleWho(db, memoryId, key);
+  revalidatePath(`/subjects/${subjectId}/years`);
+  revalidatePath(`/subjects/${subjectId}/tag`);
+}
+
+/**
+ * Say who is in a batch of photographs at once.
+ *
+ * The one that matters after a backfill. Somebody who has just emptied a
+ * year in has two hundred photographs and no patience, and the difference
+ * between "tap forty times" and "select forty, tap twice" is the difference
+ * between an archive that can produce a second book and one that cannot.
+ *
+ * Adds only. Removing in bulk is a way to undo an afternoon's work with one
+ * mis-tap, and the single toggle is right there for corrections.
+ */
+export async function tagManyAction(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const keys = formData.getAll("who").map(String).filter(Boolean);
+  const memoryIds = formData.getAll("memory_id").map(String).filter(Boolean);
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to change this archive");
+  }
+  if (keys.length === 0 || memoryIds.length === 0) {
+    redirect(`/subjects/${subjectId}/tag`);
+  }
+
+  const subjectKeys = keys.map(parseKey).filter((w) => w?.kind === "subject");
+  const memberKeys = keys.map(parseKey).filter((w) => w?.kind === "member");
+
+  // Upserted rather than inserted so re-tagging a photograph that was already
+  // tagged is a no-op instead of an error that loses the whole batch.
+  if (subjectKeys.length > 0) {
+    await db.from("memory_subjects").upsert(
+      memoryIds.flatMap((memory_id) =>
+        subjectKeys.map((w) => ({ memory_id, subject_id: w!.id }))
+      ),
+      { onConflict: "memory_id,subject_id" }
+    );
+  }
+  if (memberKeys.length > 0) {
+    await db.from("memory_people").upsert(
+      memoryIds.flatMap((memory_id) =>
+        memberKeys.map((w) => ({ memory_id, family_member_id: w!.id }))
+      ),
+      { onConflict: "memory_id,family_member_id" }
+    );
+  }
+
+  // The graph reads people and subjects, so a tagging pass genuinely changes
+  // what the product can notice. Batched by the hour like every other path.
+  const window = Math.floor(Date.now() / (60 * 60 * 1000));
+  await enqueue(adminClient(), "analyse_memories", { subject_id: subjectId }, `analyse-${subjectId}-${window}`);
+
+  redirect(`/subjects/${subjectId}/tag`);
 }

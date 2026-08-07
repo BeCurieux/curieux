@@ -165,7 +165,7 @@ export async function loadEntities(db: SupabaseClient, subjectId: string): Promi
   const scoped = await storyMemoryQuery(
     db,
     subjectId,
-    "id, type, memory_date, raw_text, transcript, location, memory_tags(tag), memory_people(family_members(name, nickname_used_by_child))"
+    "id, type, memory_date, raw_text, transcript, location, memory_tags(tag), memory_people(family_members(name, nickname_used_by_child)), memory_subjects(subjects(id, display_name))"
   );
   const { data: memories } = scoped
     ? await scoped.query
@@ -205,6 +205,23 @@ export async function loadEntities(db: SupabaseClient, subjectId: string): Promi
         // line about this family's year should say Grandpa, not Margaret.
         key: name,
         label: p.family_members?.nickname_used_by_child?.trim() || name,
+      });
+    }
+
+    // Siblings. A brother in half your photographs is a person in your life,
+    // and until the archive belonged to the family there was no way for the
+    // graph to know that — a second child was a separate archive. Skipping
+    // the subject whose story this is, because "Florence turns up most
+    // Thursdays" in Florence's own book is not an observation.
+    for (const link of m.memory_subjects ?? []) {
+      const sibling = link.subjects;
+      if (!sibling?.display_name || sibling.id === subjectId) continue;
+      rows.push({
+        memoryId: m.id,
+        date: m.memory_date,
+        kind: "person",
+        key: sibling.display_name,
+        label: sibling.display_name,
       });
     }
 
