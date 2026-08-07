@@ -17,6 +17,25 @@
 //
 // The sans is kept for functional micro-type only — form fields, buttons,
 // small labels — the same division the printed page makes.
+//
+// One thing to know before replacing any of these files. An OpenType font
+// with CFF outlines states each letter's width twice — once in the `hmtx`
+// table and once inside the glyph's own charstring — and nothing requires
+// the two to agree. The files first shipped here had correct widths in
+// `hmtx` and zero in all 229 charstrings, which is what a conversion tool
+// produces when it writes the shapes and forgets the spacing.
+//
+// It renders perfectly on Linux and macOS, which read `hmtx`. Chrome on
+// Windows hands the font to DirectWrite, which reads the charstring, and
+// every letter of every word lands on the same point. The site looked
+// destroyed on one machine and flawless on another, from the same commit.
+//
+// The books are set in these same files, so a rasteriser at a print house
+// could have made the same choice DirectWrite did.
+//
+// `python3 scripts/fix-cff-widths.py` reports and repairs it. Run it after
+// touching anything in ../fonts — this is not a fault you will see on the
+// machine you are working on.
 
 import localFont from "next/font/local";
 

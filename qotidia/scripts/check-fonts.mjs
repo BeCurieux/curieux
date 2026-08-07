@@ -80,3 +80,10 @@ if (broken > 0) {
 }
 
 console.log(`\nAll ${files.length} font files are intact.`);
+console.log(
+  `\nThis checks that the files arrived whole. It does not check that what is` +
+    ` inside them is right — a font can be perfectly intact and still declare` +
+    ` every letter's width as zero, which is a real bug this project has had` +
+    ` and which only showed on Windows. For that, see` +
+    ` scripts/fix-cff-widths.py.`
+);
