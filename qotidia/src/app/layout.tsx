@@ -5,6 +5,7 @@ import { charter } from "./fonts";
 import { currentUser } from "@/lib/supabase/server";
 import { signOut } from "./actions";
 import { BRAND, ONE_LINER, TAGLINE } from "@/lib/brand";
+import { PRICING } from "@/lib/nav";
 
 export const metadata: Metadata = {
   title: `${BRAND} — ${TAGLINE}`,
@@ -41,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </>
             ) : (
               <>
-                <Link href="/pricing" className="hover:text-ochre">What it costs</Link>
+                <Link href="/pricing" className="hover:text-ochre">{PRICING}</Link>
                 <Link href="/login" className="hover:text-ochre">Log in</Link>
                 <Link href="/signup" className="btn !px-5 !py-2">Make their year</Link>
               </>

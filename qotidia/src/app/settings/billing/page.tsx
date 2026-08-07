@@ -23,12 +23,11 @@ import {
   PLAN_PRICES,
   bookIncluded,
 } from "@/lib/billing/plans";
+import { aud } from "@/lib/billing/money";
 import { cancelMembership, resumeMembershipAction, startMembership } from "@/app/actions";
 import { friendlyDate } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
-
-const aud = (cents: number) => `A$${Math.round(cents / 100)}`;
 
 const STATE_LABEL: Record<string, string> = {
   active: "Running",

@@ -9,10 +9,9 @@ import { currentUser, userClient } from "@/lib/supabase/server";
 import { startCheckout } from "@/app/actions";
 import { AUTORENEW_TERMS, MAX_EXTRA_COPIES, PRICES, instalmentsOffered } from "@/lib/stripe";
 import { bookPriceFor } from "@/lib/billing/price";
+import { aud } from "@/lib/billing/money";
 
 export const dynamic = "force-dynamic";
-
-const aud = (cents: number) => `A$${(cents / 100).toFixed(0)}`;
 
 export default async function CheckoutPage({
   params,

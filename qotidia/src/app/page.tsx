@@ -28,8 +28,8 @@ import { PRICES } from "@/lib/stripe";
 import { PLAN_PRICES } from "@/lib/billing/plans";
 import { TAGLINE } from "@/lib/brand";
 import { MARKETING } from "@/lib/marketing/imagery";
-
-const aud = (cents: number) => `A$${Math.round(cents / 100)}`;
+import { PRICING, PRICING_LOWER } from "@/lib/nav";
+import { aud } from "@/lib/billing/money";
 
 const STEPS = [
   {
@@ -97,7 +97,7 @@ export default function LandingPage() {
                   start your year
                 </Link>
                 <Link href="/pricing" className="text-sm text-ink/70 underline underline-offset-4 hover:text-clay">
-                  what it costs
+                  {PRICING_LOWER}
                 </Link>
               </div>
             </div>
@@ -251,12 +251,15 @@ export default function LandingPage() {
       {/* --------------------------------------------------------- price */}
       <section className="bleed band-card py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-6">
+          {/* Not the pricing page's own name. This page already has a section
+              called "a book for every year", and two headings that close a
+              reader's eyes are worse than a plain one. */}
           <h2 className="font-display lowercase" style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)" }}>
-            what it costs
+            two ways
           </h2>
           <p className="mt-4 max-w-[46ch] leading-relaxed text-stone">
-            Two ways, and they&rsquo;re different things. Buy the book once, or
-            keep the year and the book comes with it.
+            And they&rsquo;re different things. Buy the book once, or keep the
+            year and the book comes with it.
           </p>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
@@ -319,7 +322,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-rule px-6 py-10">
           <span className="font-display text-lg lowercase">qotidia</span>
           <nav className="flex gap-6 text-xs text-stone">
-            <Link href="/pricing" className="hover:text-ink">What it costs</Link>
+            <Link href="/pricing" className="hover:text-ink">{PRICING}</Link>
             <Link href="/privacy" className="hover:text-ink">Privacy</Link>
             <Link href="/login" className="hover:text-ink">Log in</Link>
           </nav>
