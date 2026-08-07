@@ -216,6 +216,15 @@ every minute.
 **"npm is not recognized"** — Node.js isn't installed, or PowerShell was
 open before you installed it. Close PowerShell, open it again, retry.
 
+**`ERROR: 42710: type "memory_type" already exists`** when running
+`setup.sql` — the database is not empty, so the paste stopped at the first
+thing it recognised. A previous attempt got partway in. Open
+`qotidia/supabase/reset.sql`, paste and run *that* first, then run
+`setup.sql` again. It clears the tables and starts over. **It deletes
+everything in the database**, so only do this on a project with nothing in
+it worth keeping. Accounts and uploaded files are untouched — Supabase keeps
+those in separate schemas.
+
 **Landing page loads but signup fails** — the Supabase keys in `.env.local`
 are wrong or have stray spaces. Check them, then stop (`Ctrl+C`) and restart
 `npm run dev`. Changes to `.env.local` only apply on restart.
