@@ -110,6 +110,14 @@ export const CONTRACTS: Contract[] = [
     because: "AA for large text. Only ever used above about 24px.",
   },
   {
+    what: "type on the terracotta band",
+    fg: PALETTE.paper, bg: PALETTE.ochre, min: 4.5,
+    because:
+      "The 'not a photobook' section is a full ground of ochre carrying real " +
+      "reading, not just a headline. Clay would have been the obvious choice " +
+      "and reaches about 3.2:1 with paper on it.",
+  },
+  {
     what: "the recessed band against the paper",
     fg: PALETTE.card, bg: PALETTE.paper, min: 1.08,
     because:

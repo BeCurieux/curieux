@@ -76,8 +76,16 @@ describe("the line", () => {
     // everything else in our own typography — still read "you live it. we
     // help you keep it." in type the size of a headline. It was found by
     // looking at a screenshot, not by the suite.
+    //
+    // Narrowed from /you live it/ to the half that was actually wrong. The
+    // retired line's fault was never the first clause; it was "we help you
+    // keep it", which describes a service standing next to the customer
+    // rather than a thing they own. "You live it. Qotidia keeps it." makes
+    // the opposite claim with the same rhythm, and is on the homepage by
+    // design. A guard that also forbade that would be enforcing a phrase
+    // rather than the reason it was dropped.
     const offenders = walk(src)
-      .filter((f) => /you live it/i.test(codeOnly(readFileSync(f, "utf8"))))
+      .filter((f) => /we help you keep it/i.test(codeOnly(readFileSync(f, "utf8"))))
       .map((f) => f.replace(root + "/", ""));
     expect(offenders).toEqual([]);
   });

@@ -43,7 +43,20 @@ const SCENES: Scene[] = [
   { sky: "#DAD6CC", mid: "#B3ADA1", ground: "#78716A", subject: "#C8C1B4", warmth: 0.5 },
 ];
 
-function photo(seed: number, w = 2400, h = 3200): string {
+/**
+ * A stand-in photograph.
+ *
+ * Exported because the website needs the same thing the book does. The
+ * homepage shows a camera roll of nine frames, and its first version used
+ * flat blocks of the annual colours — which read as a paint chart rather
+ * than as somebody's photographs, and made the strongest section on the page
+ * look like a design system. These at least have a tonal range, a subject
+ * separated from its ground and a vignette, which is the minimum for a
+ * rectangle to read as a photograph at thumbnail size.
+ *
+ * They are still stand-ins, and the page says so.
+ */
+export function photo(seed: number, w = 2400, h = 3200): string {
   const s = SCENES[seed % SCENES.length];
   const portrait = h >= w;
   // Subject sits off-centre, alternating side, the way real photographs do.

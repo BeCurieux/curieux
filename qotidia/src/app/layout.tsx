@@ -22,16 +22,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={charter.variable}>
       <body>
-        {/* On the landing page the wordmark sits inside the dark hero, so the
-            header goes transparent and lets it through. */}
-        <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+        {/* Unusually small on purpose. Features / Solutions / Resources /
+            About is what makes a site feel like software, and this one is
+            meant to feel like a publishing house. Three destinations and a
+            way in — pricing is reached through the CTA flow and the foot of
+            the homepage rather than announced in the bar. */}
+        <header className="mx-auto flex max-w-page items-center justify-between px-[5vw] py-7">
           <Link
             href={signedIn ? "/home" : "/"}
             className="font-display text-xl lowercase tracking-tight"
           >
             {BRAND}
           </Link>
-          <nav className="flex items-center gap-5 text-sm">
+          <nav className="flex items-center gap-7 text-sm">
             {signedIn ? (
               <>
                 <Link href="/home" className="hover:text-ochre">Home</Link>
@@ -42,14 +45,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </>
             ) : (
               <>
-                <Link href="/pricing" className="hover:text-ochre">{PRICING}</Link>
-                <Link href="/login" className="hover:text-ochre">Log in</Link>
-                <Link href="/signup" className="btn !px-5 !py-2">Make their year</Link>
+                <Link href="/#how" className="hidden hover:text-ochre sm:inline">How it works</Link>
+                <Link href="/pricing" className="hidden hover:text-ochre sm:inline">The book</Link>
+                <Link href="/privacy" className="hidden hover:text-ochre sm:inline">Privacy</Link>
+                <Link href="/login" className="text-stone hover:text-ochre">Sign in</Link>
+                <Link href="/signup" className="btn !px-5 !py-2">Start your year</Link>
               </>
             )}
           </nav>
         </header>
-        <main className="mx-auto max-w-5xl px-6 pb-24">{children}</main>
+        {/* The homepage manages its own width, section by section. Every
+            other page still wants a reading column. */}
+        <main className="[&>*:not(.grain)]:mx-auto [&>*:not(.grain)]:max-w-5xl [&>*:not(.grain)]:px-6 [&>*:not(.grain)]:pb-24">
+          {children}
+        </main>
       </body>
     </html>
   );
