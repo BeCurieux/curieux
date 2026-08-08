@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Fraunces and Inter are loaded by next/font in layout.tsx, which self-hosts
+ * them — no request leaves the page for a font, and the stack in the Tailwind
+ * config degrades to system faces if that ever fails.
+ */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    /* Respects the iPhone home indicator; the app is used one-handed. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Numbers in a timeline must line up, or the plan reads as a mess. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+    /* Fraunces has an optical size axis; larger text wants a lower weight. */
+    font-variation-settings: "SOFT" 20, "WONK" 0;
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-forest ring-offset-2 ring-offset-paper;
+  }
+
+  ::selection {
+    @apply bg-sage text-ink;
+  }
+}
+
+@layer components {
+  /**
+   * The editorial rule used between timeline stops and section breaks. A
+   * hairline rather than a border so it reads as typography, not as chrome.
+   */
+  .rule {
+    @apply border-t border-rule;
+  }
+}
+
+@layer utilities {
+  /* Horizontal chip rows scroll rather than wrap on a phone. */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

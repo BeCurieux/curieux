@@ -1,0 +1,51 @@
+{
+  "name": "weekend-autopilot",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Weekend autopilot (working brand '52 Weekends', TBD) — one personalised, verified, executable weekend plan delivered every Thursday. Brand strings live in src/config/brand.ts.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:evals": "vitest run tests/evals",
+    "test:e2e": "playwright test",
+    "jobs": "tsx scripts/run-jobs.ts",
+    "seed": "tsx scripts/seed.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.58.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "next": "^14.2.35",
+    "posthog-js": "^1.194.0",
+    "posthog-node": "^4.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "resend": "^4.0.1",
+    "stripe": "^17.3.0",
+    "tailwind-merge": "^2.5.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.7.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "^8.4.47",
+    "prettier": "^3.3.3",
+    "tailwindcss": "^3.4.14",
+    "tsx": "^4.23.6",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}
