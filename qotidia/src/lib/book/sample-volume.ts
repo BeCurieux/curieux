@@ -98,69 +98,156 @@ export function photo(seed: number, w = 2400, h = 3200): string {
 type B = RenderPage["blocks"][number];
 const T = (type: B["type"], content: string): B => ({ type, content });
 
-// A volume built to the brief's architecture (§10), paced to §11.
-export const PAGES: Omit<RenderPage, "pageNumber">[] = [
-  { archetype: "chapter_opener", hideFolio: true, blocks: [
+export interface Leaf {
+  page: Omit<RenderPage, "pageNumber">;
+  /**
+   * True when this page carries a photograph that would, in a real copy, be
+   * a photograph of the child.
+   *
+   * This is the whole point of the flag. Qotidia's promise is that a child's
+   * photographs stay private and are never the product, so a marketing site
+   * carrying a child's face contradicts itself in the one place everybody
+   * looks — and stock photography is worse, because it is a stranger's child
+   * impersonating a customer's.
+   *
+   * The book still has photographs of the child, obviously. It is a book
+   * about a child. What this marks is which pages can be *photographed for
+   * the website*, and the volume is arranged so that enough of those pages
+   * face each other to make real spreads.
+   */
+  showsAChild: boolean;
+  /** What the page is, for whoever is choosing what to shoot. */
+  note: string;
+}
+
+const child = (note: string, page: Leaf["page"]): Leaf => ({ page, showsAChild: true, note });
+const safe = (note: string, page: Leaf["page"]): Leaf => ({ page, showsAChild: false, note });
+
+/**
+ * The volume, in order.
+ *
+ * Re-cut for photography. The pages that carry no child — the quotes, the
+ * chapter openers, the object portraits and the list of little things — are
+ * arranged so that four of them fall as facing pairs: an even page and the
+ * odd page after it, which is what a spread actually is. Those four are what
+ * the website shows, and what a printed sample should be opened to.
+ *
+ * It is also better bookmaking. An object portrait of the boots opposite the
+ * list of little things is a stronger spread than another photograph of a
+ * toddler, and the objects are the part of a childhood nobody thinks to
+ * keep — which is the argument the whole product is making.
+ */
+export const VOLUME: Leaf[] = [
+  safe("Chapter one opens.", { archetype: "chapter_opener", hideFolio: true, blocks: [
     T("label", "One"), T("heading", "This was you at two"),
-    T("text", "You lived in the grey house with the broken gate. You were two in April. By June you had opinions about boots.")] },
-  { archetype: "hero_photograph", hideFolio: true, blocks: [T("photo", photo(1))] },
-  { archetype: "portrait_plus_story", blocks: [
+    T("text", "You lived in the grey house with the broken gate. You were two in April. By June you had opinions about boots.")] }),
+  child("Full-bleed portrait.", { archetype: "hero_photograph", hideFolio: true, blocks: [T("photo", photo(1))] }),
+  child("At the front window, waiting for the truck.", { archetype: "portrait_plus_story", blocks: [
     T("photo", photo(2, 2400, 1800)), T("caption", "The front window, most mornings"),
-    T("text", "You could hear the truck three streets away. You would stop whatever you were doing and stand at the window, completely still, until it had gone past.")] },
-  { archetype: "quote_page", blocks: [
-    T("quote", "I do it my byself."), T("annotation", "Florence, 2 years 4 months")] },
-  { archetype: "chapter_opener", hideFolio: true, blocks: [
+    T("text", "You could hear the truck three streets away. You would stop whatever you were doing and stand at the window, completely still, until it had gone past.")] }),
+
+  // ── spread 4|5 ─ a sentence alone, facing a chapter opening.
+  safe("A quote given a whole page.", { archetype: "quote_page", blocks: [
+    T("quote", "I do it my byself."), T("annotation", "Florence, 2 years 4 months")] }),
+  safe("Chapter two opens, on terracotta.", { archetype: "chapter_opener", hideFolio: true, blocks: [
     T("label", "Two"), T("heading", "The year of Bun Bun"),
-    T("text", "A blue rabbit, one ear longer than the other, in roughly a third of every photograph taken this year.")] },
-  { archetype: "object_portrait", blocks: [
+    T("text", "A blue rabbit, one ear longer than the other, in roughly a third of every photograph taken this year.")] }),
+
+  // ── spread 6|7 ─ the rabbit, facing what she said about the moon.
+  safe("The rabbit, photographed as an object.", { archetype: "object_portrait", blocks: [
     T("photo", photo(3, 900, 1200)), T("caption", "Bun Bun, after the wash"),
-    T("text", "He went through the machine in August. It was an emotional afternoon. He came back slightly paler and has been favoured ever since.")] },
-  { archetype: "three_photo_sequence", blocks: [
+    T("text", "He went through the machine in August. It was an emotional afternoon. He came back slightly paler and has been favoured ever since.")] }),
+  safe("A quote given a whole page.", { archetype: "quote_page", blocks: [
+    T("quote", "Moon gone to work."), T("annotation", "Florence, 2 years 7 months")] }),
+
+  child("Three frames from a week at the beach.", { archetype: "three_photo_sequence", blocks: [
     T("photo", photo(4, 1600, 1600)), T("photo", photo(5, 1600, 1600)), T("photo", photo(6, 1600, 1600)),
-    T("caption", "Beach week — the bucket was for shells; the shells were for Bun Bun")] },
-  { archetype: "quote_page", blocks: [
-    T("quote", "Moon gone to work."), T("annotation", "Florence, 2 years 7 months")] },
-  { archetype: "people_page", blocks: [
+    T("caption", "Beach week — the bucket was for shells; the shells were for Bun Bun")] }),
+  child("Grandpa, and Thursdays.", { archetype: "people_page", blocks: [
     T("label", "Your people"), T("heading", "Grandpa"),
     T("photo", photo(7, 2000, 1500)), T("caption", "Thursday, most weeks"),
-    T("text", "Thursdays were his. You watered every pot on the back step, in order, and then you had a biscuit. He taught you to whistle in September. It is more of a hiss, but you are committed.")] },
-  { archetype: "two_photo_sequence", blocks: [
+    T("text", "Thursdays were his. You watered every pot on the back step, in order, and then you had a biscuit. He taught you to whistle in September. It is more of a hiss, but you are committed.")] }),
+  child("The same spot, eight months apart.", { archetype: "two_photo_sequence", blocks: [
     T("photo", photo(8, 1800, 2400)), T("photo", photo(9, 1800, 2400)),
-    T("caption", "March, and again in November")] },
-  { archetype: "chapter_opener", hideFolio: true, blocks: [
-    T("label", "Three"), T("heading", "The yellow boots")] },
-  { archetype: "hero_photograph", hideFolio: true, blocks: [T("photo", photo(10))] },
-  { archetype: "portrait_plus_story", blocks: [
-    T("photo", photo(11, 2400, 1800)), T("caption", "Not raining. Not once."),
-    T("text", "For four months, only the yellow boots would do. Sandpit, supermarket, dinner at Grandma's — and once, unsuccessfully, bed.")] },
-  { archetype: "little_things", blocks: [
+    T("caption", "March, and again in November")] }),
+  safe("Chapter three opens.", { archetype: "chapter_opener", hideFolio: true, blocks: [
+    T("label", "Three"), T("heading", "The yellow boots")] }),
+
+  // ── spread 12|13 ─ the boots themselves, facing the little things.
+  //    The best spread in the book and the one with no child in it.
+  safe("The boots, photographed as an object.", { archetype: "object_portrait", blocks: [
+    T("photo", photo(0, 900, 1200)), T("caption", "The boots, in the hall, where they lived"),
+    T("text", "Bought a size too big in March. Worn to the sandpit, the supermarket, dinner at Grandma's — and once, unsuccessfully, to bed.")] }),
+  safe("The list nobody thinks to write down.", { archetype: "little_things", blocks: [
     T("heading", "The little things"),
     T("text", "Currently eating: Strawberries. Constantly."),
-    T("text", "Currently saying: “I do it.”"),
+    T("text", "Currently saying: \u201cI do it.\u201d"),
     T("text", "Currently carrying: Bun Bun."),
     T("text", "Currently avoiding: Any shoe that is not yellow."),
     T("text", "Bedtime requirement: Exactly three songs."),
     T("text", "Currently believes: The moon has gone to work."),
     T("text", "Favourite person: Grandpa, on Thursdays."),
-    T("text", "Current project: Whistling.")] },
-  { archetype: "ordinary_days", blocks: [
+    T("text", "Current project: Whistling.")] }),
+
+  child("Full-bleed portrait, boots on.", { archetype: "hero_photograph", hideFolio: true, blocks: [T("photo", photo(10))] }),
+  child("Wearing them somewhere they were not needed.", { archetype: "portrait_plus_story", blocks: [
+    T("photo", photo(11, 2400, 1800)), T("caption", "Not raining. Not once."),
+    T("text", "For four months, only the yellow boots would do. Sandpit, supermarket, dinner at Grandma\u2019s \u2014 and once, unsuccessfully, bed.")] }),
+
+  // ── spread 16|17 ─ the bedtime rule, facing the cup she demanded.
+  safe("A quote given a whole page.", { archetype: "quote_page", blocks: [
+    T("quote", "Three songs. Then one more three songs."), T("annotation", "Florence, 2 years 11 months")] }),
+  safe("The breakfast cup, photographed as an object.", { archetype: "object_portrait", blocks: [
+    T("photo", photo(5, 900, 1200)), T("caption", "The blue cup. Only the blue cup."),
+    T("text", "There were four cups in the house. Three of them were wrong, and nobody was ever able to establish why.")] }),
+
+  child("Four ordinary days.", { archetype: "ordinary_days", blocks: [
     T("heading", "Ordinary days"),
     T("photo", photo(12, 1400, 1400)), T("photo", photo(13, 1400, 1400)),
     T("photo", photo(14, 1400, 1400)), T("photo", photo(15, 1400, 1400)),
-    T("caption", "Breakfast · the walk · the kitchen bench · bath")] },
-  { archetype: "then_now", blocks: [
+    T("caption", "Breakfast \u00b7 the walk \u00b7 the kitchen bench \u00b7 bath")] }),
+  child("January against December.", { archetype: "then_now", blocks: [
     T("photo", photo(16, 1800, 2400)), T("photo", photo(17, 1800, 2400)),
-    T("annotation", "January"), T("annotation", "December")] },
-  { archetype: "quote_page", blocks: [
-    T("quote", "Three songs. Then one more three songs."), T("annotation", "Florence, 2 years 11 months")] },
-  { archetype: "closing_page", blocks: [
+    T("annotation", "January"), T("annotation", "December")] }),
+  child("The last page.", { archetype: "closing_page", blocks: [
     T("photo", photo(18, 2000, 1500)), T("heading", "At the end of two"),
     T("text", "You are two and eleven months. You can nearly whistle. You still will not wear the blue boots, and nobody has tried to make you in some time."),
-    T("annotation", "This volume was closed in April.")] },
+    T("annotation", "This volume was closed in April.")] }),
 ];
+
+export const PAGES: Omit<RenderPage, "pageNumber">[] = VOLUME.map((leaf) => leaf.page);
 
 /** The volume, page-numbered, ready for renderBookHtml(). */
 export const SAMPLE_PAGES: RenderPage[] = PAGES.map((p, i) => ({ ...p, pageNumber: i + 1 }));
+
+export interface Spreadable {
+  /** Interior page numbers. Always an even page facing the odd one after it. */
+  left: number;
+  right: number;
+  /** What the pair is, joined. */
+  what: string;
+}
+
+/**
+ * Every facing pair with no child on either page.
+ *
+ * A spread is a verso and the recto after it — an even page and the odd one
+ * following. Pairing 3 with 4 is two pages that never face each other, and
+ * would show a relationship the printed book does not have.
+ *
+ * This is the list the website chooses from, and the list to open a printed
+ * sample to when photographing it.
+ */
+export function photographableSpreads(): Spreadable[] {
+  const out: Spreadable[] = [];
+  for (let left = 2; left < VOLUME.length; left += 2) {
+    const a = VOLUME[left - 1];
+    const b = VOLUME[left];
+    if (!a || !b || a.showsAChild || b.showsAChild) continue;
+    out.push({ left, right: left + 1, what: `${a.note} ${b.note}` });
+  }
+  return out;
+}
 
 export const SAMPLE_BOOK = {
   cover: {

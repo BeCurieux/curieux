@@ -7,9 +7,18 @@
 // see.
 //
 // Three, chosen to show that the book has more than one idea in it. A reader
-// deciding whether to spend A$199 is trying to work out whether this is a
-// designed object or a photo dump with a hard cover, and three near-identical
-// grids of photographs answers that question the wrong way.
+// deciding whether to buy is working out whether this is a designed object or
+// a photo dump with a hard cover, and three near-identical grids of
+// photographs answers that question the wrong way.
+//
+// Every one of them is a spread with no child on either page, and that is not
+// a compromise — it is the position. This product's promise is that a child's
+// photographs stay private and are never the product, so a website carrying a
+// child's face contradicts itself where everybody looks. The pages that are
+// safe to show also happen to be the pages that separate this from a photo
+// book: the things she said, the list of small facts, and the objects. See
+// photographableSpreads() in lib/book/sample-volume.ts, which is what these
+// are checked against.
 
 export interface Spread {
   /** File name under public/sample/spreads, and the React key. */
@@ -33,11 +42,19 @@ export interface Spread {
 export const SPREADS: Spread[] = [
   {
     id: "the-little-things",
-    left: 14,
-    right: 15,
+    left: 12,
+    right: 13,
     caption:
-      "The list nobody thinks to write down, opposite an ordinary week.",
-    alt: "An open book: on the left, a list headed The little things — currently eating, currently saying, bedtime requirement. On the right, four photographs of ordinary days.",
+      "The boots themselves, opposite the list nobody thinks to write down.",
+    alt: "An open book: on the left a photograph of a pair of small boots in a hallway, on the right a list headed The little things — currently eating, currently saying, bedtime requirement.",
+  },
+  {
+    id: "an-object-kept",
+    left: 6,
+    right: 7,
+    caption:
+      "A rabbit, given the same care as a person. Facing something she said about the moon.",
+    alt: "An open book: on the left a photograph of a well-worn toy rabbit with a short piece of writing about it, on the right a single sentence a two-year-old said, set large.",
   },
   {
     id: "a-quote-alone",
@@ -45,14 +62,7 @@ export const SPREADS: Spread[] = [
     right: 5,
     caption:
       "Something she said, given a page of its own. Nothing is corrected — “byself” is how she says it.",
-    alt: "An open book: on the left, a single sentence a two-year-old said, set large with her age beneath it. On the right, a chapter opening titled The year of Bun Bun.",
-  },
-  {
-    id: "photo-and-story",
-    left: 2,
-    right: 3,
-    caption: "A photograph given the whole page, opposite the story it belongs to.",
-    alt: "An open book: a full-page photograph on the left, and on the right a smaller photograph above a short piece of writing about watching for the rubbish truck.",
+    alt: "An open book: on the left a single sentence a two-year-old said, set large with her age beneath it. On the right, a chapter opening titled The year of Bun Bun.",
   },
 ];
 

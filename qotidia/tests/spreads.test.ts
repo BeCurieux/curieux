@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { SPREADS, SPREADS_DISCLOSURE, spreadSrc } from "@/lib/marketing/spreads";
-import { SAMPLE_PAGES } from "@/lib/book/sample-volume";
+import { SAMPLE_PAGES, VOLUME, photographableSpreads } from "@/lib/book/sample-volume";
 
 const publicPath = (src: string) =>
   fileURLToPath(new URL(`../public${src}`, import.meta.url));
@@ -40,6 +40,30 @@ describe("the spreads the page shows", () => {
       expect(s.right).toBe(s.left + 1);
       expect(s.right, `spread ${s.id} runs past the end of the book`).toBeLessThanOrEqual(last);
     }
+  });
+
+  it("shows no child on any page of any spread", () => {
+    // The position, enforced. A page selling privacy cannot carry a child's
+    // face, and the moment somebody re-cuts the volume the safe pairs move —
+    // so the website is checked against the book rather than against a
+    // remembered page number.
+    const safe = photographableSpreads();
+    for (const s of SPREADS) {
+      expect(
+        safe.some((p) => p.left === s.left && p.right === s.right),
+        `spread ${s.id} (${s.left}|${s.right}) is not one of the pairs without a child: ` +
+          safe.map((p) => `${p.left}|${p.right}`).join(", ")
+      ).toBe(true);
+      expect(VOLUME[s.left - 1].showsAChild).toBe(false);
+      expect(VOLUME[s.right - 1].showsAChild).toBe(false);
+    }
+  });
+
+  it("leaves the book itself with photographs in it", () => {
+    // The flag marks what may be *photographed for the site*, not an
+    // instruction to make a childhood book with no child in it. If this ever
+    // reaches zero, somebody has misread what the constraint was for.
+    expect(VOLUME.filter((l) => l.showsAChild).length).toBeGreaterThan(6);
   });
 
   it("puts the verso on the left, the way a book opens", () => {
