@@ -1,23 +1,19 @@
 // Render the sample volume to PNGs — every page, plus a contact sheet.
 // Same renderer as the print PDF, so what you see is what would print.
 import { chromium } from "playwright-core";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import sharp from "sharp";
-import { execSync } from "node:child_process";
+import { renderBookHtml } from "../src/lib/pdf/html";
+import { SAMPLE_BOOK } from "../src/lib/book/sample-volume";
 
 mkdirSync("./sample/png", { recursive: true });
 
-// Reuse the sample book definition by importing the script's page data.
-const src = readFileSync("./scripts/sample-book.ts", "utf8");
-const body = src.slice(src.indexOf("const PAGES"), src.indexOf("const browser"));
-const mod = `import { renderBookHtml } from "../src/lib/pdf/html";
-import { colourForAge } from "../src/lib/book/colours";
-${src.slice(src.indexOf("interface Scene"), src.indexOf("type B = RenderPage"))}
-${src.slice(src.indexOf("type B = RenderPage"), src.indexOf("const browser"))}
-export const html = renderBookHtml(book as any, "print");`;
-writeFileSync("./scripts/_book.mts", mod.replace(/import type { RenderPage[^\n]*\n/g, ""));
-
-const { html } = await import("./_book.mts");
+// The volume comes from the shared module now. This used to read
+// scripts/sample-book.ts as *text*, slice it between two hard-coded
+// landmarks, and write the result out as a generated .mts file to import —
+// which worked until somebody moved a line, and left a stale _book.mts in
+// the repository either way.
+const html = renderBookHtml(SAMPLE_BOOK, "print");
 
 // A4 at 300dpi is 2480x3508px. One CSS pixel is 1/96in, so an A4 page is
 // 793.7 x 1122.5 CSS px and the device scale factor that lands exactly on

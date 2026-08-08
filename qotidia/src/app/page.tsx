@@ -29,6 +29,7 @@ import { PLAN_PRICES } from "@/lib/billing/plans";
 import { TAGLINE } from "@/lib/brand";
 import { MARKETING } from "@/lib/marketing/imagery";
 import { NOTICING_CAPTION, whatItNoticed } from "@/lib/marketing/noticing";
+import { SPREADS, SPREADS_DISCLOSURE, spreadSrc } from "@/lib/marketing/spreads";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
 import { aud } from "@/lib/billing/money";
 
@@ -232,6 +233,61 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------- inside
+          Every image on this page was a cover. A site selling a book that
+          never shows a page is asking for a lot of trust, and the objection
+          it leaves unanswered — is this a designed object or a photo dump
+          with a hard cover — is the one that decides the sale.
+
+          Spreads rather than single pages, because a book is read two pages
+          at a time and the facing-page relationship is most of what the
+          design does. Rendered by scripts/sample-spreads.mts through the
+          production renderer, so these cannot drift from the printed
+          article: change the book's typography and re-run, and the website
+          is correct again. */}
+      <section className="bleed band-card py-20 md:py-28">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="font-display lowercase" style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)" }}>
+            inside one of them
+          </h2>
+          <p className="mt-4 max-w-[46ch] leading-relaxed text-stone">
+            One idea to a page, room around it, and the things they said set
+            large enough to stop you turning past.
+          </p>
+
+          <figure className="mt-14">
+            <img
+              src={spreadSrc(SPREADS[0].id)}
+              alt={SPREADS[0].alt}
+              className="block w-full rounded-sm shadow-[0_28px_60px_-24px_rgba(43,38,32,0.42)]"
+            />
+            <figcaption className="mt-5 max-w-[52ch] leading-relaxed text-stone">
+              {SPREADS[0].caption}
+            </figcaption>
+          </figure>
+
+          <div className="mt-14 grid gap-12 md:grid-cols-2">
+            {SPREADS.slice(1).map((s) => (
+              <figure key={s.id}>
+                <img
+                  src={spreadSrc(s.id)}
+                  alt={s.alt}
+                  className="block w-full rounded-sm shadow-[0_20px_44px_-20px_rgba(43,38,32,0.38)]"
+                />
+                <figcaption className="mt-5 max-w-[42ch] text-sm leading-relaxed text-stone">
+                  {s.caption}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+
+          {/* Beside the images, not in a policy. See SPREADS_DISCLOSURE. */}
+          <p className="mt-16 max-w-[54ch] text-sm leading-relaxed text-stone">
+            {SPREADS_DISCLOSURE}
+          </p>
         </div>
       </section>
 

@@ -1,5 +1,31 @@
-import { renderBookHtml } from "../src/lib/pdf/html";
-import { colourForAge } from "../src/lib/book/colours";
+// The sample volume.
+//
+// One volume definition, imported by everything that renders it: the press
+// PDF, the page PNGs, and the spreads the landing page shows. It used to
+// live inside scripts/sample-book.ts, and the PNG renderer got at it by
+// slicing that file's *source text* between two hard-coded landmarks and
+// writing the result out as a generated module. That worked until somebody
+// moved a line.
+//
+// The content is fiction. Florence is invented, her rabbit is invented, and
+// the photographs are generated — no real child's imagery is used anywhere
+// in this project. What is real is the path: these pages go through the
+// production renderer, the real archetypes, the real colour system and the
+// real preflight, so a spread on the website is a spread off the press.
+
+import type { RenderPage } from "../pdf/html";
+import { colourForAge } from "./colours";
+
+// Stand-in photographs.
+//
+// No real child's imagery is used anywhere in this project (brief §32), and
+// outbound image hosts are blocked, so these are generated. They are built to
+// have the things that actually matter for judging a layout: a real tonal
+// range, a subject mass separated from its ground, and a vignette. Grain is
+// deliberately omitted — an SVG noise filter rasterises at full page size and
+// pushed the sample PDF to 91MB.
+// Flat grey rectangles cannot tell you whether a page works; these can.
+
 interface Scene { sky: string; mid: string; ground: string; subject: string; warmth: number; }
 
 const SCENES: Scene[] = [
@@ -56,12 +82,11 @@ function photo(seed: number, w = 2400, h = 3200): string {
   return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 }
 
-
 type B = RenderPage["blocks"][number];
 const T = (type: B["type"], content: string): B => ({ type, content });
 
 // A volume built to the brief's architecture (§10), paced to §11.
-const PAGES: Omit<RenderPage, "pageNumber">[] = [
+export const PAGES: Omit<RenderPage, "pageNumber">[] = [
   { archetype: "chapter_opener", hideFolio: true, blocks: [
     T("label", "One"), T("heading", "This was you at two"),
     T("text", "You lived in the grey house with the broken gate. You were two in April. By June you had opinions about boots.")] },
@@ -121,15 +146,17 @@ const PAGES: Omit<RenderPage, "pageNumber">[] = [
     T("annotation", "This volume was closed in April.")] },
 ];
 
-const pages: RenderPage[] = PAGES.map((p, i) => ({ ...p, pageNumber: i + 1 }));
+/** The volume, page-numbered, ready for renderBookHtml(). */
+export const SAMPLE_PAGES: RenderPage[] = PAGES.map((p, i) => ({ ...p, pageNumber: i + 1 }));
 
-const book = {
+export const SAMPLE_BOOK = {
   cover: {
-    childName: "Florence", ageWord: "TWO", year: "2028",
-    imprint: "Qotidia", colour: colourForAge(2), spineWidthMm: 12.8,
+    childName: "Florence",
+    ageWord: "TWO",
+    year: "2028",
+    imprint: "Qotidia",
+    colour: colourForAge(2),
+    spineWidthMm: 12.8,
   },
-  pages,
+  pages: SAMPLE_PAGES,
 };
-
-
-export const html = renderBookHtml(book as any, "print");
