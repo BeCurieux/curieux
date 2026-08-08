@@ -16,8 +16,7 @@
 // one-line call at a use site would reasonably assume otherwise.
 
 import { cookies } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
-import { ACCESS_COOKIE } from "@/lib/supabase/server";
+import { ACCESS_COOKIE, authClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/supabase/demo";
 import {
   asAssuranceLevel,
@@ -53,12 +52,8 @@ export async function currentAssurance(): Promise<Assurance> {
   const token = cookies().get(ACCESS_COOKIE)?.value;
   if (!token) return { currentLevel: null, nextLevel: null };
 
-  const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } }
-  );
-  const { data, error } = await client.auth.mfa.getAuthenticatorAssuranceLevel(token);
+  const { data, error } =
+    await authClient().auth.mfa.getAuthenticatorAssuranceLevel(token);
   // An error here means the token did not check out. Treat it as proving
   // nothing rather than as an outage to be waved through.
   if (error || !data) return { currentLevel: null, nextLevel: null };

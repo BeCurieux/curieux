@@ -21,9 +21,34 @@ export function userClient(): SupabaseClient {
   // Demo mode runs the whole interface against an in-memory fixture so the
   // product can be walked end to end without provisioning anything.
   if (isDemoMode()) return demoClient();
+  const missing = whatIsMissing();
+  if (missing) throw new Error(missing);
   const token = cookies().get(ACCESS_COOKIE)?.value;
   return createClient(url(), anonKey(), {
     global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/**
+ * A client for the calls that happen before there is a user: signing up,
+ * signing in, exchanging a token, asking what a session has proved.
+ *
+ * This existed three times — in actions.ts, in the session route and in the
+ * step-up check — each reading `NEXT_PUBLIC_SUPABASE_ANON_KEY` out of the
+ * environment directly and asserting it non-null. That is the one key
+ * Supabase renamed, so a project set up from today's dashboard, with the
+ * publishable key under the name the dashboard gives it, ran perfectly
+ * everywhere except sign-in, which failed with `supabaseKey is required`
+ * pointing at a line of framework code.
+ *
+ * keys.ts was written to take either name. Nothing may reach past it.
+ */
+export function authClient(): SupabaseClient {
+  if (isDemoMode()) return demoClient();
+  const missing = whatIsMissing();
+  if (missing) throw new Error(missing);
+  return createClient(url(), anonKey(), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

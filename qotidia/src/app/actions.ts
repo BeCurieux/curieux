@@ -8,9 +8,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@supabase/supabase-js";
 import {
-  ACCESS_COOKIE, REFRESH_COOKIE, adminClient, requireAdmin, requireUser, userClient,
+  ACCESS_COOKIE, REFRESH_COOKIE, adminClient, authClient, requireAdmin, requireUser,
+  userClient,
 } from "@/lib/supabase/server";
 import { enqueue, retry } from "@/lib/jobs/queue";
 import {
@@ -35,13 +35,6 @@ import { colourById } from "@/lib/book/colours";
 import { sendOnce } from "@/lib/email/send";
 import { invitation as invitationEmail } from "@/lib/email/messages";
 
-function anonAuthClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  );
-}
 
 /**
  * Stop an irreversible action until this session has proved itself again.
@@ -81,7 +74,7 @@ export async function signUp(formData: FormData) {
   // subscription to nothing.
   const plan = String(formData.get("plan") ?? "") === "monthly" ? "monthly" : "one_off";
 
-  const { data, error } = await anonAuthClient().auth.signUp({ email, password });
+  const { data, error } = await authClient().auth.signUp({ email, password });
   if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}&plan=${plan}`);
   if (data.session) {
     setSessionCookies(data.session.access_token, data.session.refresh_token);
@@ -93,7 +86,7 @@ export async function signUp(formData: FormData) {
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
-  const { data, error } = await anonAuthClient().auth.signInWithPassword({ email, password });
+  const { data, error } = await authClient().auth.signInWithPassword({ email, password });
   if (error || !data.session) redirect(`/login?error=${encodeURIComponent(error?.message ?? "Sign in failed")}`);
   setSessionCookies(data.session.access_token, data.session.refresh_token);
   redirect("/home");

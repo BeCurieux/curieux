@@ -10,9 +10,8 @@
 // endpoint would be a way to hand the server any token at all.
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/supabase/server";
+import { ACCESS_COOKIE, REFRESH_COOKIE, authClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -22,15 +21,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "tokens required" }, { status: 400 });
   }
 
-  const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } }
-  );
-
   // The round trip that makes this safe: a forged or expired token fails
   // here and never reaches a cookie.
-  const { data, error } = await client.auth.getUser(accessToken);
+  const { data, error } = await authClient().auth.getUser(accessToken);
   if (error || !data.user) {
     return NextResponse.json({ error: "that token is not valid" }, { status: 401 });
   }
