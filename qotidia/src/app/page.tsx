@@ -26,10 +26,11 @@
 import Link from "next/link";
 import { PRICES } from "@/lib/stripe";
 import { PLAN_PRICES } from "@/lib/billing/plans";
-import { TAGLINE } from "@/lib/brand";
+import { BRAND, TAGLINE } from "@/lib/brand";
 import { MARKETING } from "@/lib/marketing/imagery";
 import { NOTICING_CAPTION, whatItNoticed } from "@/lib/marketing/noticing";
 import { SPREADS, SPREADS_DISCLOSURE, spreadSrc } from "@/lib/marketing/spreads";
+import { questions } from "@/lib/marketing/questions";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
 import { aud } from "@/lib/billing/money";
 
@@ -78,34 +79,52 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-6 pb-24 pt-16 md:pb-32 md:pt-24">
           <div className="grid items-center gap-12 md:grid-cols-[1.15fr_0.85fr] md:gap-8">
             <div>
-              <p className="rise text-xs uppercase tracking-[0.32em] text-clay" style={{ ["--d" as string]: "0ms" }}>
-                {TAGLINE}
+              {/* The one line a stranger needs before anything else.
+                  "keep the everyday" is the brand and it is a good line, but
+                  it is a feeling, not an explanation — and it was the first
+                  and only thing this page said. Somebody who has never heard
+                  of us could read the whole hero and still not know whether
+                  this was an app, a photo book, or a diary. That is not a
+                  design problem you can style your way out of, so the
+                  sentence goes first. */}
+              <p className="rise pill" style={{ ["--d" as string]: "0ms" }}>
+                <span aria-hidden className="pill-dot" />
+                A private archive, and one printed book a year
               </p>
               <h1
-                className="rise mt-6 font-display lowercase leading-[0.92] tracking-tight"
-                style={{ ["--d" as string]: "80ms", fontSize: "clamp(3.25rem, 9vw, 7rem)" }}
+                className="rise mt-7 font-display lowercase leading-[0.92] tracking-tight"
+                style={{ ["--d" as string]: "80ms", fontSize: "clamp(3rem, 8vw, 6.25rem)" }}
               >
                 keep the
                 <br />
                 everyday
               </h1>
               <p
-                className="rise mt-8 max-w-[38ch] text-lg leading-relaxed text-stone"
+                className="rise mt-7 max-w-[42ch] text-xl leading-relaxed text-stone"
                 style={{ ["--d" as string]: "160ms" }}
               >
-                The photographs, the things they say, the small stuff you
-                swear you&rsquo;ll remember. Once a year it becomes one
-                hardcover book &mdash; the one still on the shelf when
-                they&rsquo;re thirty.
+                {BRAND} keeps your child&rsquo;s photographs, the funny things
+                they say, and the days that felt like nothing at the time.
+                Every year it becomes one hardcover book &mdash; the one still
+                on the shelf when they&rsquo;re thirty.
               </p>
-              <div className="rise mt-10 flex flex-wrap items-center gap-4" style={{ ["--d" as string]: "240ms" }}>
+              <div className="rise mt-9 flex flex-wrap items-center gap-3" style={{ ["--d" as string]: "240ms" }}>
                 <Link href="/signup?plan=monthly" className="btn !px-8 !py-4 !text-base">
                   start your year
                 </Link>
-                <Link href="/pricing" className="text-sm text-ink/70 underline underline-offset-4 hover:text-clay">
-                  {PRICING_LOWER}
+                <Link href="#inside" className="btn-secondary !px-8 !py-4 !text-base">
+                  see inside the book
                 </Link>
               </div>
+              {/* The price, once, small, where a person looks for it — rather
+                  than made them hunt or hit a wall of cards later. */}
+              <p className="rise mt-6 text-sm text-stone" style={{ ["--d" as string]: "300ms" }}>
+                {aud(PLAN_PRICES.monthlyAud())} a month with the book included,
+                or {aud(PRICES.bookAud())} for the book on its own.{" "}
+                <Link href="/pricing" className="text-ochre underline underline-offset-4">
+                  {PRICING_LOWER}
+                </Link>
+              </p>
             </div>
 
             {/* The object. A photograph already has its own light, shadow and
@@ -125,6 +144,32 @@ export default function LandingPage() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------- how
+          Moved up from fourth. These three steps are the answer to "what is
+          this", and they were sitting below two sections that only make
+          sense once you already knew — the proof of what it notices, and a
+          shelf of books for a product the reader had not yet understood
+          produces books. A page can be beautifully paced and still put the
+          explanation after the argument. */}
+      <section className="bleed band-card py-20 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="font-display lowercase" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)" }}>
+            how it works
+          </h2>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <div key={step.title} className="panel-raised">
+                <span className="block font-display text-5xl leading-none text-clay/30">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-5 font-display text-2xl lowercase">{step.title}</h3>
+                <p className="mt-3 leading-relaxed text-stone">{step.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -217,25 +262,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --------------------------------------------------------- how
-          Numbers set large enough to be a graphic element rather than a
-          caption above a paragraph. */}
-      <section className="bleed bg-paper py-20 md:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid gap-14 md:grid-cols-3 md:gap-10">
-            {STEPS.map((step, i) => (
-              <div key={step.title}>
-                <span className="block font-display text-6xl leading-none text-clay/25">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="mt-4 font-display text-2xl lowercase">{step.title}</h3>
-                <p className="mt-3 max-w-[34ch] leading-relaxed text-stone">{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* --------------------------------------------------------- inside
           Every image on this page was a cover. A site selling a book that
           never shows a page is asking for a lot of trust, and the objection
@@ -248,7 +274,7 @@ export default function LandingPage() {
           production renderer, so these cannot drift from the printed
           article: change the book's typography and re-run, and the website
           is correct again. */}
-      <section className="bleed band-card py-20 md:py-28">
+      <section id="inside" className="bleed band-card scroll-mt-4 py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="font-display lowercase" style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)" }}>
             inside one of them
@@ -356,22 +382,34 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --------------------------------------------------------- price
-          One line. This was two priced cards, four bullets and a paragraph
-          about grandparent copies — a third of the page spent arguing about
-          money before anyone had seen what the product does. The argument is
-          worth having, but it belongs on the page built for it, where it can
-          be made properly. Here it just needs answering: what does it cost,
-          and where do I read more. */}
-      <section className="bleed band-card py-14">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-baseline gap-x-6 gap-y-3 px-6">
-          <p className="text-lg leading-relaxed">
-            {aud(PRICES.bookAud())} for the book, once. Or {aud(PLAN_PRICES.monthlyAud())} a
-            month with every year&rsquo;s book included.
-          </p>
-          <Link href="/pricing" className="text-ochre underline underline-offset-4">
-            {PRICING_LOWER}
-          </Link>
+      {/* ----------------------------------------------------- questions
+          The objections, in the order they occur to somebody deciding. This
+          page had none — it made its case and then stopped, leaving "what
+          happens if I stop paying" and "does an AI write it" to be worried
+          about privately, which is where a sale goes to die.
+
+          Native <details>, so it works before hydration and is keyboard- and
+          screen-reader-correct without anybody maintaining aria-expanded. */}
+      <section className="bleed band-card py-20 md:py-28">
+        <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-[0.8fr_1.2fr] md:gap-16">
+          <div>
+            <h2 className="font-display lowercase" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+              questions
+              <br />
+              worth asking
+            </h2>
+            <p className="mt-5 max-w-[32ch] leading-relaxed text-stone">
+              And if yours isn&rsquo;t here, a person answers the email.
+            </p>
+          </div>
+          <div>
+            {questions().map((item) => (
+              <details key={item.q} className="qa">
+                <summary>{item.q}</summary>
+                <div>{item.a}</div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -382,11 +420,34 @@ export default function LandingPage() {
         </section>
       )}
 
-      <section className="bleed bg-paper py-28 text-center md:py-36">
-        <p className="mx-auto max-w-[16ch] font-display lowercase leading-[1.05]" style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}>
+      {/* The last thing on the page used to be the tagline and a button —
+          a beautiful full stop that asked somebody to commit having just
+          been told nothing new. It now closes the way the page opened: what
+          this is, what it costs, and the two things that stop people. */}
+      <section className="bleed bg-paper py-24 text-center md:py-32">
+        <p
+          className="mx-auto max-w-[16ch] font-display lowercase leading-[1.05]"
+          style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
+        >
           {TAGLINE}
         </p>
-        <Link href="/signup" className="btn mt-10 !px-8 !py-4 !text-base">start your year</Link>
+        <p className="mx-auto mt-6 max-w-[44ch] px-6 text-lg leading-relaxed text-stone">
+          Start today and this year is already being kept. The book comes at
+          the end of it, and you read every page before it prints.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3 px-6">
+          <Link href="/signup?plan=monthly" className="btn !px-8 !py-4 !text-base">
+            start your year
+          </Link>
+          <Link href="/pricing" className="btn-secondary !px-8 !py-4 !text-base">
+            {PRICING_LOWER}
+          </Link>
+        </div>
+        <p className="mt-6 text-sm text-stone">
+          {aud(PLAN_PRICES.monthlyAud())} a month, or {aud(PRICES.bookAud())} for
+          the book on its own. Stop any time &mdash; what you&rsquo;ve kept stays
+          yours.
+        </p>
       </section>
 
       <footer className="bleed bg-paper">

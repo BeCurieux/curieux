@@ -1,11 +1,20 @@
 // A book a year.
 //
-// It was called "What it costs", which is an accountant's question asked on
-// the customer's behalf. This page is where somebody decides whether their
-// child gets a shelf, and the old title made that decision sound like an
-// expense claim. The name now says what they get; the numbers are all still
-// here, unhidden, because the other way to lose this sale is to look coy
-// about the price.
+// Rebuilt after "pricing is a bit weird". It was: a headline, two flat
+// cards, and then a full-bleed ink band carrying three enormous numbers —
+// 62c, A$6.63, A$0 — followed by a paragraph explaining why the cheapest
+// number was also the most expensive plan. Every sentence in it was true and
+// the whole thing was hard work. A page that makes a reader do arithmetic to
+// find out whether they can afford something has failed at the one job it
+// has.
+//
+// So the two ways to pay are now two proper panels, side by side, each
+// answering the same four questions in the same order: what it costs, what
+// you get, what it is worse at, and what happens if you stop. The per-day
+// figure survives as one quiet line under the monthly price — it is genuinely
+// useful there and unbearable at 60px.
+//
+// What has not changed, because it is the point:
 //
 // Written as a choice rather than a ladder. There is no "Pro", nothing is
 // greyed out, and neither column is called "best value" — the two are
@@ -16,25 +25,14 @@
 // good at. A comparison table where one column has no downside is an advert,
 // and everyone can tell.
 //
-// The band near the foot divides the price — per day, per year of keeping —
-// which is a device with a bad reputation, and deservedly. It is honest here
-// only because of three rules it is held to. Every figure is arithmetic the
-// reader can do (see lib/billing/money.ts, which is tested). Nothing is
-// compared to a competitor or to a coffee. And the same band states the
-// counterweight in the same size type: a year of monthly costs A$29 more
-// than buying the book once. A page that only divides is an advert too.
+// And the counterweight is still on the page: a year of monthly costs more
+// than buying the book once, said plainly, near the prices rather than in a
+// footnote. See lib/billing/money.ts, which computes both and is tested.
 
 import Link from "next/link";
 import { CANCELLATION_PROMISE, PLAN_PRICES, planCopy } from "@/lib/billing/plans";
-import {
-  aDay,
-  aud,
-  audExact,
-  aYearOfKeeping,
-  moreThanBuyingOnce,
-  small,
-  YEARS_A_BOOK_IS_KEPT,
-} from "@/lib/billing/money";
+import { aDay, aud, moreThanBuyingOnce, small } from "@/lib/billing/money";
+import { moneyQuestions } from "@/lib/marketing/questions";
 import { BRAND } from "@/lib/brand";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
 
@@ -44,136 +42,130 @@ export default function PricingPage() {
   const plans = planCopy();
   const monthly = PLAN_PRICES.monthlyAud();
   const oneOff = PLAN_PRICES.oneOffAud();
-
-  // The second way of counting, computed rather than typed. Written into a
-  // page once, these become three numbers nobody re-derives when a price
-  // changes — and a marketing page quietly quoting last year's price is a
-  // worse failure than a broken one, because it still looks fine.
-  const daily = small(aDay(monthly));
-  const perYearKept = audExact(aYearOfKeeping(oneOff));
   const extra = aud(moreThanBuyingOnce(monthly, oneOff));
 
   return (
-    <div className="py-16">
-      <h1 className="font-display lowercase" style={{ fontSize: "clamp(2.5rem, 7vw, 5rem)", lineHeight: 0.95 }}>
-        {PRICING_LOWER}
-      </h1>
-      <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-stone">
-        One of these is a book. The other is the year that makes it.
-      </p>
-
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
-        {plans.map((plan) => (
-          <div key={plan.id} className="card flex flex-col !p-8">
-            <h2 className="font-display text-2xl">{plan.name}</h2>
-            <p className="mt-3">
-              <span className="font-display text-4xl">{plan.price}</span>{" "}
-              <span className="text-stone">{plan.cadence}</span>
-            </p>
-            {/* The same money, said the other way. Directly under the price
-                rather than in a band of its own, because a figure that has
-                to be scrolled to is a figure nobody weighs against the one
-                they have already reacted to. */}
-            <p className="mt-1.5 text-sm text-stone">
-              {plan.id === "monthly"
-                ? `${daily} a day`
-                : `${perYearKept} a year, if it is still on a shelf when they are ${YEARS_A_BOOK_IS_KEPT}`}
-            </p>
-            <p className="mt-4 max-w-[38ch] leading-relaxed text-stone">{plan.blurb}</p>
-
-            <ul className="mt-6 space-y-2 text-sm">
-              {plan.includes.map((line) => (
-                <li key={line} className="flex gap-2.5">
-                  <span aria-hidden className="text-clay">&middot;</span>
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* Same size as everything above it. A caveat in 10px grey is a
-                caveat written to be skipped, which is worse than none. */}
-            <p className="mt-6 max-w-[38ch] text-sm leading-relaxed text-stone">
-              {plan.caveat}
-            </p>
-
-            <div className="mt-8 pt-2">
-              <Link
-                href={plan.id === "monthly" ? "/signup?plan=monthly" : "/signup?plan=one_off"}
-                className={plan.id === "monthly" ? "btn" : "btn-secondary"}
-              >
-                {plan.id === "monthly" ? "Start keeping the year" : "Just the book"}
-              </Link>
-            </div>
-          </div>
-        ))}
+    <div className="py-12 md:py-16">
+      {/* ------------------------------------------------------------ head */}
+      <div className="max-w-[46ch]">
+        <p className="pill">
+          <span aria-hidden className="pill-dot" />
+          One hardcover book, printed and posted
+        </p>
+        <h1
+          className="mt-7 font-display lowercase"
+          style={{ fontSize: "clamp(2.5rem, 6vw, 4.25rem)", lineHeight: 0.98 }}
+        >
+          {PRICING_LOWER}
+        </h1>
+        <p className="mt-6 text-lg leading-relaxed text-stone">
+          Two ways to pay, and they are genuinely different things. One of
+          them is a book. The other is the year that makes it.
+        </p>
       </div>
 
-      {/* ------------------------------------------- another way to count it
-          On the ink ground, full bleed, so it reads as the page changing its
-          mind about how to talk rather than as another card. */}
-      <section className="bleed band-ink mt-20 py-16 md:py-20">
-        <div className="mx-auto max-w-5xl px-6">
-          <h2 className="font-display lowercase" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)" }}>
-            another way to count it
-          </h2>
+      {/* ----------------------------------------------------------- plans */}
+      <div className="mt-14 grid gap-6 md:grid-cols-2">
+        {plans.map((plan) => {
+          const isMonthly = plan.id === "monthly";
+          return (
+            <div
+              key={plan.id}
+              // Equal height, actions on the same line, whatever the copy
+              // does. Two cards whose buttons sit at different heights read
+              // as one being an afterthought.
+              className={`flex h-full flex-col !p-8 md:!p-10 ${
+                isMonthly ? "panel-raised" : "panel"
+              }`}
+            >
+              <h2 className="font-display text-2xl lowercase">{plan.name}</h2>
 
-          <div className="mt-10 grid gap-10 md:grid-cols-3">
-            <div>
-              <div className="font-display leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)" }}>
-                {daily}
-              </div>
-              <p className="mt-3 max-w-[26ch] leading-relaxed text-paper/70">
-                A day, on the monthly plan. The archive stays open, everyone
-                you invited can add to it, and the book is included.
+              <p className="mt-5 flex items-baseline gap-2">
+                <span className="font-display leading-none" style={{ fontSize: "clamp(2.75rem, 6vw, 3.75rem)" }}>
+                  {plan.price}
+                </span>
+                <span className="text-stone">{plan.cadence}</span>
               </p>
-            </div>
 
-            <div>
-              <div className="font-display leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)" }}>
-                {perYearKept}
+              {/* The one place dividing the price earns its keep: small,
+                  beside the number it divides, not set at 60px on a dark
+                  band as though it were an argument. */}
+              {isMonthly && (
+                <p className="mt-2 text-sm text-stone">
+                  About {small(aDay(monthly))} a day.
+                </p>
+              )}
+
+              <p className="mt-6 leading-relaxed text-stone">{plan.blurb}</p>
+
+              <ul className="mt-7 space-y-2.5">
+                {plan.includes.map((line) => (
+                  <li key={line} className="flex gap-3">
+                    <span aria-hidden className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-clay" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Same size as everything above it. A caveat in 10px grey is a
+                  caveat written to be skipped, which is worse than none. */}
+              <div className="mt-7 rounded-2xl bg-paper/70 p-5 md:mt-auto">
+                <p className="text-sm font-semibold">What this one is worse at</p>
+                <p className="mt-1.5 leading-relaxed text-stone">{plan.caveat}</p>
               </div>
-              <p className="mt-3 max-w-[26ch] leading-relaxed text-paper/70">
-                A year, if the book is still on a shelf when they are{" "}
-                {YEARS_A_BOOK_IS_KEPT}. It is the one thing in the house that
-                cannot be bought again.
-              </p>
-            </div>
 
-            <div>
-              <div className="font-display leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)" }}>
-                {aud(0)}
-              </div>
-              <p className="mt-3 max-w-[26ch] leading-relaxed text-paper/70">
-                To keep everything you have already saved if you stop paying.
-                We have never deleted a family&rsquo;s archive for money and
-                we are not going to start.
-              </p>
+              <Link
+                href={isMonthly ? "/signup?plan=monthly" : "/signup?plan=one_off"}
+                className={`${isMonthly ? "btn" : "btn-secondary"} mt-8 w-full !py-3.5 text-center`}
+              >
+                {isMonthly ? "Start keeping the year" : "Just the book"}
+              </Link>
             </div>
-          </div>
+          );
+        })}
+      </div>
 
-          {/* The counterweight, in the same type as the figures above it.
-              Dividing a price is only honest next to the number the division
-              is hiding. */}
-          <p className="mt-12 max-w-[54ch] leading-relaxed text-paper/70">
-            None of which makes {aud(oneOff)} a small amount of money on the
-            day you spend it, and the plan with the smallest daily figure is
-            the more expensive one: twelve months at {aud(monthly)} comes to{" "}
-            {extra} more than buying the book once. We would rather you decided
-            on the arithmetic than on a discount.
-          </p>
+      {/* The counterweight, on the same ground as the prices rather than
+          three sections away. Whichever way a reader jumps, they have seen
+          the number that makes the cheaper-sounding plan the dearer one. */}
+      <p className="mt-8 max-w-[62ch] leading-relaxed text-stone">
+        Twelve months of the monthly plan comes to {extra} more than buying the
+        book once &mdash; it is a way to spread the cost and to have the
+        archive open all year, not a discount. Extra copies for grandparents
+        are ordered with the book and come to you, so you can write in them
+        before you pass them on.
+      </p>
+
+      {/* ------------------------------------------------------- questions */}
+      <section className="mt-20">
+        <h2 className="font-display lowercase" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}>
+          before you decide
+        </h2>
+        <div className="mt-8 max-w-[70ch]">
+          {moneyQuestions().map((item) => (
+            <details key={item.q} className="qa">
+              <summary>{item.q}</summary>
+              <div>{item.a}</div>
+            </details>
+          ))}
         </div>
       </section>
 
-      <section className="mt-16 border-t border-rule pt-10">
-        <h2 className="text-title">If you stop</h2>
-        <p className="mt-3 max-w-[54ch] leading-relaxed text-stone">{CANCELLATION_PROMISE}</p>
-        <p className="mt-4 max-w-[54ch] leading-relaxed text-stone">
-          And the months you&rsquo;ve already paid aren&rsquo;t lost &mdash; they
-          come off the price of that year&rsquo;s book if you decide you want it
-          after all.
+      {/* ---------------------------------------------------------- if you stop
+          Kept as its own block rather than folded into the questions. It is
+          the single most reassuring thing this company can say, and burying
+          the strongest promise inside an accordion nobody opens would be a
+          strange way to treat it. */}
+      <section className="panel mt-16 md:!p-10">
+        <h2 className="font-display text-2xl lowercase">if you stop</h2>
+        <p className="mt-4 max-w-[56ch] leading-relaxed text-stone">{CANCELLATION_PROMISE}</p>
+        <p className="mt-4 max-w-[56ch] leading-relaxed text-stone">
+          And the months you&rsquo;ve already paid aren&rsquo;t lost &mdash;
+          they come off the price of that year&rsquo;s book if you decide you
+          want it after all.
         </p>
-        <p className="mt-6 text-sm">
-          <Link href="/privacy" className="text-ochre">
+        <p className="mt-6">
+          <Link href="/privacy" className="text-ochre underline underline-offset-4">
             How we keep your family private
           </Link>
         </p>

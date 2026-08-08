@@ -32,10 +32,10 @@
     @apply inline-block rounded-full border border-ink/20 px-6 py-3 text-sm text-ink transition hover:border-ink;
   }
   .card {
-    @apply rounded-md border border-rule bg-card p-6;
+    @apply rounded-2xl border border-rule bg-card p-6;
   }
   .input {
-    @apply w-full rounded border border-rule bg-white px-4 py-2.5 text-sm outline-none focus:border-slate;
+    @apply w-full rounded-xl border border-rule bg-white px-4 py-2.5 text-sm outline-none focus:border-slate;
   }
   /* The annual colour system, on screen. Nineteen fixed colours, one per age,
      is the strongest thing this brand owns — and until now it existed only
@@ -49,6 +49,59 @@
      makes the app sound like a form at a clinic rather than a person asking. */
   .label {
     @apply mb-1.5 block text-sm text-ink/80;
+  }
+
+  /* ------------------------------------------------------------- surfaces
+   *
+   * Added when the site read as a well-set document rather than a product.
+   * The corners were 6px and the shadows were absent, which is correct for
+   * something printed and wrong for something you tap. These are the two
+   * borrowings from the current idiom worth taking: a generous radius, and
+   * a shadow soft enough to read as paper lifted rather than as a drop
+   * shadow. Everything else about the brand — Charter, the warm ground, the
+   * single terracotta — stays exactly as it was, because the alternative is
+   * a product about a child's first three years that looks like every
+   * developer tool released this year.
+   */
+  .panel {
+    @apply rounded-3xl border border-rule/70 bg-card p-8;
+  }
+  .panel-raised {
+    @apply rounded-3xl border border-rule/70 bg-white p-8;
+    box-shadow: 0 1px 2px rgb(43 38 32 / 0.04), 0 12px 32px -16px rgb(43 38 32 / 0.22);
+  }
+
+  /* A small stated fact above a headline. Not a "New!" badge — this project
+     has nothing to announce. It is used to put the one thing a stranger
+     needs to know where they will read it first. */
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-rule bg-card/80 px-4 py-1.5 text-xs text-stone;
+  }
+  .pill-dot {
+    @apply inline-block h-1.5 w-1.5 flex-none rounded-full bg-clay;
+  }
+
+  /* A question and its answer, as a native <details>. No JavaScript, works
+     before hydration, and is keyboard-operable and screen-reader-correct
+     without anybody having to remember aria-expanded. */
+  .qa {
+    @apply border-b border-rule py-5;
+  }
+  .qa > summary {
+    @apply flex cursor-pointer list-none items-center justify-between gap-6 font-display text-lg;
+  }
+  .qa > summary::-webkit-details-marker {
+    display: none;
+  }
+  .qa > summary::after {
+    content: "+";
+    @apply flex-none text-xl text-clay transition-transform;
+  }
+  .qa[open] > summary::after {
+    content: "−";
+  }
+  .qa > div {
+    @apply mt-3 max-w-[58ch] leading-relaxed text-stone;
   }
 }
 
