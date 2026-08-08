@@ -45,7 +45,16 @@ describe("the price we advertise is the price we charge", () => {
     expect(derived || landingSource.includes(aud(PRICES.bookAud()))).toBe(true);
   });
 
-  it("takes the extra-copy price from the same place", () => {
+  it("takes the extra-copy price from the same place, when it quotes one", () => {
+    // The landing page no longer sells grandparent copies — that argument
+    // moved to the pricing page and the checkout, where it can be made
+    // properly. So the rule is conditional, and the condition is the point:
+    // the page is free not to mention a price, and not free to invent one.
+    const mentions = /extra cop(y|ies)/i.test(landingClaims);
+    if (!mentions) {
+      expect(landingSource).not.toContain(aud(PRICES.extraCopyAud()));
+      return;
+    }
     const derived = landingSource.includes("PRICES.extraCopyAud()");
     expect(derived || landingSource.includes(aud(PRICES.extraCopyAud()))).toBe(true);
   });
@@ -168,12 +177,34 @@ describe("the landing page and the plans on offer", () => {
     expect(landingClaims).not.toMatch(/nothing to cancel/i);
   });
 
-  it("mentions every plan that can actually be bought", () => {
+  it("leaves no plan a secret", () => {
+    // This used to require the landing page itself to name or link every
+    // plan, which was the right rule while the landing page carried two
+    // priced cards. It no longer does — the money argument moved to the page
+    // built for it — so requiring the old shape would have forced the sales
+    // pitch back onto a page it had deliberately been taken off.
+    //
+    // What must still hold is the thing that rule was protecting: a plan
+    // somebody can be charged for is never invisible. Either the landing
+    // page offers it directly, or the landing page sends them somewhere that
+    // does. Both ends are checked, so "we link to /pricing" cannot become
+    // true while /pricing has quietly stopped listing a plan.
+    expect(landingSource).toContain('href="/pricing"');
+
+    const pricingSource = readFileSync(
+      new URL("../src/app/pricing/page.tsx", import.meta.url),
+      "utf8"
+    );
     for (const plan of planCopy()) {
-      const shown =
-        landingSource.includes(`plan=${plan.id}`) ||
-        landingSource.includes(plan.name);
-      expect(shown, `the landing page never mentions the ${plan.id} plan`).toBe(true);
+      const onLanding =
+        landingSource.includes(`plan=${plan.id}`) || landingSource.includes(plan.name);
+      // The pricing page builds its buttons from plan.id, so this is the
+      // link a reader would actually click.
+      const onPricing = pricingSource.includes("plan=") && pricingSource.includes("planCopy");
+      expect(
+        onLanding || onPricing,
+        `the ${plan.id} plan cannot be reached from the landing page`
+      ).toBe(true);
     }
   });
 

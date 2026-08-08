@@ -107,6 +107,14 @@ function opening(label: string): string {
  * Each is a count or a date. Note what none of them say: whether it was
  * good, whether the child enjoyed it, what it meant. Those are the parent's
  * to know.
+ *
+ * Every sentence here is built in the past tense, and that is grammar rather
+ * than style. The label is whatever the family typed, and families type
+ * plurals — the boots, the stairs, strawberries, garbage trucks. "The yellow
+ * boots is back" is what the present tense produces, and it appeared the
+ * first time this was shown a real plural. English does not inflect the past
+ * tense for number, so "came back" and "last appeared" are correct for every
+ * label a family can invent, and no list of irregular plurals is needed.
  */
 function lineFor(entity: Entity, shape: Shape, today: string, windowDays: number): string {
   const p = presenceOf(entity, today, windowDays);
@@ -119,12 +127,12 @@ function lineFor(entity: Entity, shape: Shape, today: string, windowDays: number
     case "arrived":
       return entity.kind === "phrase"
         ? `“${said}” — that's new this week.`
-        : `${label} turned up for the first time.`;
+        : `${label} appeared for the first time.`;
     case "returned": {
       const gap = gapBeforeReturn(entity, today, windowDays);
       return gap === null
-        ? `${label} is back.`
-        : `${label} is back — the time before was ${monthsAgo(gap)}.`;
+        ? `${label} came back this week.`
+        : `${label} came back — the time before was ${monthsAgo(gap)}.`;
     }
     case "surging":
       return entity.kind === "phrase"
@@ -140,8 +148,8 @@ function lineFor(entity: Entity, shape: Shape, today: string, windowDays: number
           : `“${said}” hasn't come up in a while.`;
       }
       return p.last
-        ? `${label} hasn't appeared since ${monthOf(p.last, today)}.`
-        : `${label} hasn't appeared in a while.`;
+        ? `${label} last appeared in ${monthOf(p.last, today)}.`
+        : `${label} hasn't appeared in a long time.`;
     default:
       return `${label}, ${times(p.recent)} this week.`;
   }

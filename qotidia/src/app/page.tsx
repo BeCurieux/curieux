@@ -28,21 +28,22 @@ import { PRICES } from "@/lib/stripe";
 import { PLAN_PRICES } from "@/lib/billing/plans";
 import { TAGLINE } from "@/lib/brand";
 import { MARKETING } from "@/lib/marketing/imagery";
+import { NOTICING_CAPTION, whatItNoticed } from "@/lib/marketing/noticing";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
 import { aud } from "@/lib/billing/money";
 
 const STEPS = [
   {
-    title: "save",
-    body: "Photos, the things they say, a line about a Tuesday. Add them as you go, or empty a year of camera roll in one afternoon.",
+    title: "keep",
+    body: "A photograph, something they said, one line about a Wednesday. Add them as you go — or empty a year of camera roll in an evening.",
   },
   {
     title: "notice",
-    body: "We find the shape of the year — the swimming, the yellow boots, Thursdays at Grandpa's — and ask you the few things a photograph can't answer.",
+    body: "We find the shape of the year: the swimming, the yellow boots, Thursdays at Grandpa's. And we ask the few things a photograph can't answer.",
   },
   {
     title: "print",
-    body: "At the end of the year it becomes one hardcover book. You read it first. Nothing prints until you say so.",
+    body: "In December it becomes one hardcover book. You read every page first. Nothing goes to a printer until you say so.",
   },
 ];
 
@@ -63,6 +64,9 @@ export default function LandingPage() {
   const hero = MARKETING.hero();
   const dark = MARKETING.dark();
   const shelf = MARKETING.shelf();
+  // Computed here, on the server, by the product's own engine. See
+  // lib/marketing/noticing.ts for why this is not three strings.
+  const noticed = whatItNoticed();
 
   return (
     <div className="grain">
@@ -88,9 +92,10 @@ export default function LandingPage() {
                 className="rise mt-8 max-w-[38ch] text-lg leading-relaxed text-stone"
                 style={{ ["--d" as string]: "160ms" }}
               >
-                Qotidia keeps your photographs, notes, sayings and voice
-                recordings &mdash; then turns each year into one book
-                you&rsquo;ll still have when they&rsquo;re thirty.
+                The photographs, the things they say, the small stuff you
+                swear you&rsquo;ll remember. Once a year it becomes one
+                hardcover book &mdash; the one still on the shelf when
+                they&rsquo;re thirty.
               </p>
               <div className="rise mt-10 flex flex-wrap items-center gap-4" style={{ ["--d" as string]: "240ms" }}>
                 <Link href="/signup?plan=monthly" className="btn !px-8 !py-4 !text-base">
@@ -120,6 +125,53 @@ export default function LandingPage() {
               )}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------- noticing
+          The proof, immediately after the promise, before anything asks for
+          money. Every other section on this page describes the product; this
+          one runs it. The lines are generated at render time by the same
+          function the weekly note calls — see lib/marketing/noticing.ts.
+
+          The second dark band on the page. The privacy band used to be the
+          only inversion and that was a good rule, but these two are the
+          things worth inverting for: what it does, and what it promises. */}
+      <section className="bleed band-ink py-24 md:py-32">
+        <div className="mx-auto max-w-6xl px-6">
+          <p className="text-xs uppercase tracking-[0.32em] text-paper/50">
+            one week, from one archive
+          </p>
+          <h2
+            className="mt-6 font-display lowercase"
+            style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)" }}
+          >
+            nobody writes this down
+          </h2>
+
+          <ul className="mt-14 space-y-10">
+            {noticed.map((o) => (
+              <li key={o.entityId} className="border-t border-paper/15 pt-6">
+                <p
+                  className="font-display leading-[1.15]"
+                  style={{ fontSize: "clamp(1.55rem, 3.6vw, 2.85rem)" }}
+                >
+                  {o.line}
+                </p>
+                {/* The provenance rule, on the marketing page. Every line
+                    this product says can be traced to the memories it was
+                    counted from, and saying so is more persuasive than any
+                    adjective available here. */}
+                <p className="mt-3 text-sm text-paper/45">
+                  counted from {o.memoryIds.length} memories
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-14 max-w-[54ch] text-sm leading-relaxed text-paper/55">
+            {NOTICING_CAPTION}
+          </p>
         </div>
       </section>
 
@@ -248,59 +300,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --------------------------------------------------------- price */}
-      <section className="bleed band-card py-20 md:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          {/* Not the pricing page's own name. This page already has a section
-              called "a book for every year", and two headings that close a
-              reader's eyes are worse than a plain one. */}
-          <h2 className="font-display lowercase" style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)" }}>
-            two ways
-          </h2>
-          <p className="mt-4 max-w-[46ch] leading-relaxed text-stone">
-            And they&rsquo;re different things. Buy the book once, or keep the
-            year and the book comes with it.
+      {/* --------------------------------------------------------- price
+          One line. This was two priced cards, four bullets and a paragraph
+          about grandparent copies — a third of the page spent arguing about
+          money before anyone had seen what the product does. The argument is
+          worth having, but it belongs on the page built for it, where it can
+          be made properly. Here it just needs answering: what does it cost,
+          and where do I read more. */}
+      <section className="bleed band-card py-14">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-baseline gap-x-6 gap-y-3 px-6">
+          <p className="text-lg leading-relaxed">
+            {aud(PRICES.bookAud())} for the book, once. Or {aud(PLAN_PRICES.monthlyAud())} a
+            month with every year&rsquo;s book included.
           </p>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <div className="rounded-lg border border-clay bg-white p-8">
-              <div className="font-display text-5xl leading-none">{aud(PRICES.bookAud())}</div>
-              <p className="mt-2 text-sm text-stone">one book, delivered</p>
-              <ul className="mt-6 space-y-2 text-sm">
-                {[
-                  "The printed hardcover, to your door",
-                  "The digital copy, to keep and to share",
-                  "Your private archive — unlimited photos, quotes and voices",
-                  "Unlimited family contributors, free",
-                ].map((item) => (
-                  <li key={item} className="flex gap-2.5">
-                    <span className="text-clay">&mdash;</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/signup?plan=one_off" className="btn mt-8">just the book</Link>
-            </div>
-
-            <div className="rounded-lg border border-rule bg-white p-8">
-              <div className="font-display text-5xl leading-none">{aud(PLAN_PRICES.monthlyAud())}</div>
-              <p className="mt-2 text-sm text-stone">a month, book included</p>
-              <p className="mt-6 max-w-[36ch] text-sm leading-relaxed text-stone">
-                The archive stays open all year and each year&rsquo;s book is
-                included. Stop whenever you like &mdash; everything you&rsquo;ve
-                kept stays yours to read and download, always.
-              </p>
-              <Link href="/signup?plan=monthly" className="btn-secondary mt-8">keep the year</Link>
-            </div>
-          </div>
-
-          <p className="mt-8 max-w-[52ch] text-sm leading-relaxed text-stone">
-            Extra copies for grandparents are {aud(PRICES.extraCopyAud())} each when
-            ordered together, and come to you to pass on. Free to build &mdash;
-            you pay once you&rsquo;ve read it through and you&rsquo;re happy to
-            print.{" "}
-            <Link href="/pricing" className="text-ochre">The two side by side</Link>
-          </p>
+          <Link href="/pricing" className="text-ochre underline underline-offset-4">
+            {PRICING_LOWER}
+          </Link>
         </div>
       </section>
 

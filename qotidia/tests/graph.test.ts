@@ -140,7 +140,7 @@ describe("the week's three things", () => {
       today: TODAY,
       entities: [{ ...entity({ id: "bun", days: [120, 130, 140, 150, 160, 170] }), label: "Bun Bun" }],
     });
-    expect(out[0].line).toBe("Bun Bun hasn't appeared since April.");
+    expect(out[0].line).toBe("Bun Bun last appeared in April.");
   });
 
   it("includes the year when the thing stopped in a different one", () => {
@@ -148,7 +148,7 @@ describe("the week's three things", () => {
       today: TODAY,
       entities: [{ ...entity({ id: "bun", days: [300, 320, 340, 360, 380, 400] }), label: "Bun Bun" }],
     });
-    expect(out[0].line).toBe("Bun Bun hasn't appeared since October 2025.");
+    expect(out[0].line).toBe("Bun Bun last appeared in October 2025.");
   });
 
   it("quotes the silence in the line, not the whole span", () => {
@@ -181,6 +181,49 @@ describe("the week's three things", () => {
       entities: [{ ...entity({ id: "pad", days: [1, 2, 4, 6, 30, 38] }), label: "iPad time" }],
     });
     expect(out[0].line).toBe("iPad time, 4 times this week.");
+  });
+
+  it("says a plural label without breaking the grammar", () => {
+    // Found by showing the engine a real fixture for the first time: it
+    // produced "The yellow boots is back", because the sentence was built in
+    // the present tense and the label is whatever the family typed. Families
+    // type plurals constantly — the boots, the stairs, strawberries, garbage
+    // trucks — so this is not an edge case, it is most of a house.
+    //
+    // Every shape is checked, because fixing one sentence and leaving the
+    // other three is how this survives a second time.
+    const plural = { label: "the yellow boots" };
+
+    const back = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "b", days: [1, 4, 130, 140, 150] }), ...plural }],
+    });
+    expect(back[0].line).toBe(
+      "The yellow boots came back — the time before was 4 months ago."
+    );
+
+    const gone = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "g", days: [120, 130, 140, 150, 160, 170] }), ...plural }],
+    });
+    expect(gone[0].line).toBe("The yellow boots last appeared in April.");
+
+    const isNew = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "n", days: [1, 3] }), ...plural }],
+    });
+    expect(isNew[0].line).toBe("The yellow boots appeared for the first time.");
+
+    const lots = noticeThisWeek({
+      today: TODAY,
+      entities: [{ ...entity({ id: "l", days: [1, 2, 4, 6, 30, 38] }), ...plural }],
+    });
+    expect(lots[0].line).toBe("The yellow boots, 4 times this week.");
+
+    // The failing constructions, named so a rewrite cannot reintroduce them.
+    for (const out of [back, gone, isNew, lots]) {
+      expect(out[0].line).not.toMatch(/boots (is|has|was|hasn't)\b/);
+    }
   });
 
   it("quotes a child's own sentence without tidying it", () => {
