@@ -1,102 +1,79 @@
 // A book a year.
 //
-// Rebuilt after "pricing is a bit weird". It was: a headline, two flat
-// cards, and then a full-bleed ink band carrying three enormous numbers —
-// 62c, A$6.63, A$0 — followed by a paragraph explaining why the cheapest
-// number was also the most expensive plan. Every sentence in it was true and
-// the whole thing was hard work. A page that makes a reader do arithmetic to
-// find out whether they can afford something has failed at the one job it
-// has.
+// Cut back, hard. The previous version argued about money four separate
+// times: a per-day figure under the monthly price, a boxed panel headed
+// "What this one is worse at" on each plan, a paragraph explaining that
+// twelve months costs A$29 more than buying once, and then a set of
+// questions about money underneath. Every sentence was true. Together they
+// read as a company that is anxious about its own price, which is the one
+// impression that makes a reader anxious too.
 //
-// So the two ways to pay are now two proper panels, side by side, each
-// answering the same four questions in the same order: what it costs, what
-// you get, what it is worse at, and what happens if you stop. The per-day
-// figure survives as one quiet line under the monthly price — it is genuinely
-// useful there and unbearable at 60px.
+// What is left: two options, what each costs, what you get, one plain line
+// naming the trade-off, and a button. Then what happens if you stop, because
+// that is reassurance rather than argument.
 //
-// What has not changed, because it is the point:
+// Cut and why:
 //
-// Written as a choice rather than a ladder. There is no "Pro", nothing is
-// greyed out, and neither column is called "best value" — the two are
-// genuinely different products and a parent who wants the object without a
-// relationship is not a lesser customer.
+//   The per-day figure. 62c a day is arithmetic nobody asked for, and the
+//   only reason to print it is to make A$19 feel smaller.
 //
-// Each plan states what it is worse at, in the same size type as what it is
-// good at. A comparison table where one column has no downside is an advert,
-// and everyone can tell.
+//   The A$29 paragraph. The same fact already appears once, in the monthly
+//   option's own trade-off line, computed from the real prices in plans.ts.
+//   Saying it twice is not twice as honest.
 //
-// And the counterweight is still on the page: a year of monthly costs more
-// than buying the book once, said plainly, near the prices rather than in a
-// footnote. See lib/billing/money.ts, which computes both and is tested.
+//   The boxed caveat. The rule that each option names what it is worse at
+//   is a good one and it stays — but as a sentence in the same type as
+//   everything else, not in a highlighted panel with a heading, which draws
+//   more attention to the downside than the thing being sold.
+//
+// Option A and Option B, rather than "Keep the year" and "Just the book" as
+// headings. The names still appear — they are what the plan is called in
+// billing and in the account — but a reader arriving here wants to know
+// which of two things to pick, and two labels they have to decode first is
+// friction dressed as voice.
 
 import Link from "next/link";
-import { CANCELLATION_PROMISE, PLAN_PRICES, planCopy } from "@/lib/billing/plans";
-import { aDay, aud, moreThanBuyingOnce, small } from "@/lib/billing/money";
-import { moneyQuestions } from "@/lib/marketing/questions";
+import { CANCELLATION_PROMISE, planCopy } from "@/lib/billing/plans";
 import { BRAND } from "@/lib/brand";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
 
 export const metadata = { title: `${PRICING} — ${BRAND}` };
 
+const LABELS = ["Option A", "Option B"];
+
 export default function PricingPage() {
   const plans = planCopy();
-  const monthly = PLAN_PRICES.monthlyAud();
-  const oneOff = PLAN_PRICES.oneOffAud();
-  const extra = aud(moreThanBuyingOnce(monthly, oneOff));
 
   return (
-    <div className="py-12 md:py-16">
-      {/* ------------------------------------------------------------ head */}
-      <div className="max-w-[46ch]">
-        <p className="pill">
-          <span aria-hidden className="pill-dot" />
-          One hardcover book, printed and posted
-        </p>
-        <h1
-          className="mt-7 font-display lowercase"
-          style={{ fontSize: "clamp(2.5rem, 6vw, 4.25rem)", lineHeight: 0.98 }}
-        >
-          {PRICING_LOWER}
-        </h1>
-        <p className="mt-6 text-lg leading-relaxed text-stone">
-          Two ways to pay, and they are genuinely different things. One of
-          them is a book. The other is the year that makes it.
+    <div className="py-12 md:py-20">
+      <div>
+        <h1 className="text-display font-display lowercase">{PRICING_LOWER}</h1>
+        <p className="mt-7 max-w-[40ch] text-lede text-stone">
+          Two ways to pay. One of them is a book; the other is the year that
+          makes it.
         </p>
       </div>
 
-      {/* ----------------------------------------------------------- plans */}
-      <div className="mt-14 grid gap-6 md:grid-cols-2">
-        {plans.map((plan) => {
+      <div className="mt-16 grid gap-6 md:grid-cols-2">
+        {plans.map((plan, i) => {
           const isMonthly = plan.id === "monthly";
           return (
             <div
               key={plan.id}
-              // Equal height, actions on the same line, whatever the copy
-              // does. Two cards whose buttons sit at different heights read
-              // as one being an afterthought.
-              className={`flex h-full flex-col !p-8 md:!p-10 ${
-                isMonthly ? "panel-raised" : "panel"
-              }`}
+              className={`flex h-full flex-col !p-8 md:!p-10 ${isMonthly ? "panel-raised" : "panel"}`}
             >
-              <h2 className="font-display text-2xl lowercase">{plan.name}</h2>
+              <p className="text-sm uppercase tracking-[0.2em] text-clay">{LABELS[i]}</p>
 
-              <p className="mt-5 flex items-baseline gap-2">
-                <span className="font-display leading-none" style={{ fontSize: "clamp(2.75rem, 6vw, 3.75rem)" }}>
+              <p className="mt-6 flex items-baseline gap-2">
+                <span className="font-display leading-none" style={{ fontSize: "clamp(3rem, 6vw, 4rem)" }}>
                   {plan.price}
                 </span>
                 <span className="text-stone">{plan.cadence}</span>
               </p>
 
-              {/* The one place dividing the price earns its keep: small,
-                  beside the number it divides, not set at 60px on a dark
-                  band as though it were an argument. */}
-              {isMonthly && (
-                <p className="mt-2 text-sm text-stone">
-                  About {small(aDay(monthly))} a day.
-                </p>
-              )}
+              <p className="mt-2 text-stone">{plan.name}</p>
 
-              <p className="mt-6 leading-relaxed text-stone">{plan.blurb}</p>
+              <p className="mt-7 leading-relaxed">{plan.blurb}</p>
 
               <ul className="mt-7 space-y-2.5">
                 {plan.includes.map((line) => (
@@ -107,16 +84,14 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              {/* Same size as everything above it. A caveat in 10px grey is a
-                  caveat written to be skipped, which is worse than none. */}
-              <div className="mt-7 rounded-2xl bg-paper/70 p-5 md:mt-auto">
-                <p className="text-sm font-semibold">What this one is worse at</p>
-                <p className="mt-1.5 leading-relaxed text-stone">{plan.caveat}</p>
-              </div>
+              {/* The trade-off, in the same type as everything above it. A
+                  caveat set small and grey is a caveat written to be
+                  skipped, which is worse than not printing one. */}
+              <p className="mt-7 leading-relaxed text-stone md:mt-auto md:pt-7">{plan.caveat}</p>
 
               <Link
                 href={isMonthly ? "/signup?plan=monthly" : "/signup?plan=one_off"}
-                className={`${isMonthly ? "btn" : "btn-secondary"} mt-8 w-full !py-3.5 text-center`}
+                className={`${isMonthly ? "btn" : "btn-secondary"} mt-9 w-full !py-3.5 text-center`}
               >
                 {isMonthly ? "Start keeping the year" : "Just the book"}
               </Link>
@@ -125,46 +100,17 @@ export default function PricingPage() {
         })}
       </div>
 
-      {/* The counterweight, on the same ground as the prices rather than
-          three sections away. Whichever way a reader jumps, they have seen
-          the number that makes the cheaper-sounding plan the dearer one. */}
-      <p className="mt-8 max-w-[62ch] leading-relaxed text-stone">
-        Twelve months of the monthly plan comes to {extra} more than buying the
-        book once &mdash; it is a way to spread the cost and to have the
-        archive open all year, not a discount. Extra copies for grandparents
-        are ordered with the book and come to you, so you can write in them
-        before you pass them on.
-      </p>
-
-      {/* ------------------------------------------------------- questions */}
-      <section className="mt-20">
-        <h2 className="font-display lowercase" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}>
-          before you decide
-        </h2>
-        <div className="mt-8 max-w-[70ch]">
-          {moneyQuestions().map((item) => (
-            <details key={item.q} className="qa">
-              <summary>{item.q}</summary>
-              <div>{item.a}</div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------- if you stop
-          Kept as its own block rather than folded into the questions. It is
-          the single most reassuring thing this company can say, and burying
-          the strongest promise inside an accordion nobody opens would be a
-          strange way to treat it. */}
+      {/* Reassurance, not argument. The strongest thing this company can say
+          and the reason it is not folded into a list of questions. */}
       <section className="panel mt-16 md:!p-10">
         <h2 className="font-display text-2xl lowercase">if you stop</h2>
-        <p className="mt-4 max-w-[56ch] leading-relaxed text-stone">{CANCELLATION_PROMISE}</p>
+        <p className="mt-5 max-w-[56ch] leading-relaxed">{CANCELLATION_PROMISE}</p>
         <p className="mt-4 max-w-[56ch] leading-relaxed text-stone">
           And the months you&rsquo;ve already paid aren&rsquo;t lost &mdash;
           they come off the price of that year&rsquo;s book if you decide you
           want it after all.
         </p>
-        <p className="mt-6">
+        <p className="mt-7">
           <Link href="/privacy" className="text-ochre underline underline-offset-4">
             How we keep your family private
           </Link>
