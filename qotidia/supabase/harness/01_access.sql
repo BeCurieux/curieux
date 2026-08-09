@@ -264,3 +264,60 @@ begin
 end $$;
 
 reset role;
+
+-- ================================================================== storage
+--
+-- The running total is maintained by a trigger, which means it can drift
+-- silently — the whole point of a maintained total is that nothing reads the
+-- source. So every assertion here ends by recomputing from the assets and
+-- checking nothing moved.
+
+reset role;
+
+insert into memories (id, family_id, created_by, type, memory_date, contribution_status, visibility)
+values ('eeee0000-0000-0000-0000-00000000aa01', 'aaaaaaaa-0000-0000-0000-000000000001',
+        '11111111-1111-1111-1111-111111111111', 'photo', '2026-05-01', 'approved', 'family');
+
+insert into media_assets (id, memory_id, storage_path, mime_type, checksum, bytes) values
+  ('cafe0000-0000-0000-0000-0000000000a1', 'eeee0000-0000-0000-0000-00000000aa01',
+   'demo/a1.jpg', 'image/jpeg', 'sum-a1', 3000000),
+  ('cafe0000-0000-0000-0000-0000000000a2', 'eeee0000-0000-0000-0000-00000000aa01',
+   'demo/a2.mp4', 'video/mp4', 'sum-a2', 7000000);
+
+select harness_expect('uploading counts towards the family total',
+  (select storage_bytes::int from families where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
+  10000000);
+
+update media_assets set bytes = 5000000
+  where id = 'cafe0000-0000-0000-0000-0000000000a2';
+select harness_expect('correcting a size corrects the total',
+  (select storage_bytes::int from families where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
+  8000000);
+
+delete from media_assets where id = 'cafe0000-0000-0000-0000-0000000000a1';
+select harness_expect('deleting a file gives the space back',
+  (select storage_bytes::int from families where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
+  5000000);
+
+-- Deleting the memory cascades to its assets, and the total has to follow.
+-- This is the case a trigger written only for direct deletes gets wrong.
+delete from memories where id = 'eeee0000-0000-0000-0000-00000000aa01';
+select harness_expect('deleting a memory releases its files too',
+  (select storage_bytes::int from families where id = 'aaaaaaaa-0000-0000-0000-000000000001'), 0);
+
+-- The other family never moved.
+select harness_expect('one family''s uploads never touch another''s total',
+  (select storage_bytes::int from families where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 0);
+
+-- And the maintained total agrees with the source of truth.
+do $$
+declare before bigint; after bigint;
+begin
+  select sum(storage_bytes) into before from families;
+  perform recount_storage();
+  select sum(storage_bytes) into after from families;
+  if before is distinct from after then
+    raise exception 'FAILED: the running total had drifted (% vs %)', before, after;
+  end if;
+  raise notice 'ok   the running total agrees with a recount';
+end $$;
