@@ -7,7 +7,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { browserClient } from "@/lib/supabase/client";
-import { registerUploadedPhoto } from "@/app/actions";
+import { registerUploadedPhoto, roomForBatch } from "@/app/actions";
 
 type FileState = "hashing" | "uploading" | "checking" | "done" | "duplicate" | "refused" | "error";
 
@@ -48,6 +48,10 @@ export function Uploader({ subjectId }: { subjectId: string }) {
   const itemsRef = useRef<Item[]>([]);
   itemsRef.current = items;
   const [dragOver, setDragOver] = useState(false);
+  // Shown once, at the top, rather than as a failure state on two hundred
+  // rows. Running out of room is one fact about the archive, not two hundred
+  // separate errors about files.
+  const [full, setFull] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const setItem = (name: string, patch: Partial<Item>) =>
@@ -99,6 +103,29 @@ export function Uploader({ subjectId }: { subjectId: string }) {
       const images = [...files].filter((f) => f.type.startsWith("image/"));
       setItems((prev) => [...prev, ...images.map((f) => ({ name: f.name, state: "hashing" as FileState }))]);
 
+      // Asked once for the whole batch, before a single byte is uploaded.
+      // The authoritative check is per file on the server; this exists so a
+      // family is told there is no room *before* three hundred photographs
+      // are pushed into a bucket, rather than after.
+      const batchBytes = images.reduce((n, f) => n + f.size, 0);
+      const room = await roomForBatch(subjectId, batchBytes);
+      if (!room.ok) {
+        setFull(room.message ?? "There's no room left.");
+        // Only this batch. Files kept earlier in the same session are still
+        // kept, and telling somebody their last hundred photographs were
+        // "not kept" because the next hundred did not fit would be a lie
+        // about the archive.
+        const inThisBatch = new Set(images.map((f) => f.name));
+        setItems((prev) =>
+          prev.map((i) =>
+            inThisBatch.has(i.name) && i.state === "hashing"
+              ? { ...i, state: "refused" as FileState }
+              : i
+          )
+        );
+        return;
+      }
+
       const supabase = browserClient();
       const { data: auth } = await supabase.auth.getUser();
 
@@ -130,7 +157,20 @@ export function Uploader({ subjectId }: { subjectId: string }) {
               height,
               captureTimestamp: file.lastModified ? new Date(file.lastModified).toISOString() : null,
               memoryDate: file.lastModified ? new Date(file.lastModified).toISOString().slice(0, 10) : null,
+              bytes: file.size,
             });
+
+            // The server refused it. Stop the whole queue rather than
+            // grinding through another two hundred files that will each be
+            // refused in turn, and take the orphaned object back out of the
+            // bucket — it was uploaded before the answer came back.
+            if ("full" in result && result.full) {
+              queue.length = 0;
+              setFull(result.message);
+              await supabase.storage.from("media").remove([path]);
+              setItem(file.name, { state: "refused" });
+              return;
+            }
             // Not "done" yet. The file is in storage but the server has not
             // read it — and until it has, it will not be shown anywhere.
             // Saying "added" here would be claiming something we do not know.
@@ -157,6 +197,15 @@ export function Uploader({ subjectId }: { subjectId: string }) {
 
   return (
     <div>
+      {full && (
+        <div className="mb-5 rounded-2xl border border-clay bg-card p-5">
+          <p className="font-display text-lg">There&rsquo;s no room for more just now.</p>
+          <p className="mt-2 max-w-[52ch] leading-relaxed text-stone">{full}</p>
+          <a href="/settings/billing" className="btn mt-5 !px-5 !py-2 text-sm">
+            Add more space
+          </a>
+        </div>
+      )}
       <div
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}

@@ -37,6 +37,7 @@ import { invitation as invitationEmail } from "@/lib/email/messages";
 import { recordAnswer } from "@/lib/graph/identity-store";
 import { loadEntities } from "@/lib/graph/extract";
 import { peopleBooksFor } from "@/lib/book/people-books";
+import { roomToAdd } from "@/lib/storage/usage";
 
 
 /**
@@ -177,6 +178,8 @@ export async function registerUploadedPhoto(input: {
   height: number | null;
   captureTimestamp: string | null;
   memoryDate: string | null;
+  /** What the browser says the file weighs. Corrected by the scan job. */
+  bytes: number;
 }) {
   const user = await requireUser();
   const db = userClient();
@@ -201,6 +204,15 @@ export async function registerUploadedPhoto(input: {
     // telling us something true that we did not already know.
     await linkMemoryToSubjects(db, (dupes[0] as any).memory_id, [input.subjectId]);
     return { duplicate: true as const };
+  }
+
+  // The authoritative check, after the duplicate test — a file the archive
+  // already holds costs nothing and must not be refused for space. Checked
+  // per file rather than only per batch, because a batch estimate made on
+  // the client is a number anybody can send.
+  const room = await roomToAdd(db, story.family_id, input.bytes);
+  if (!room.ok) {
+    return { full: true as const, message: room.message ?? "There's no room left." };
   }
 
   const memoryId = await keepMemory(db, {
@@ -231,6 +243,7 @@ export async function registerUploadedPhoto(input: {
       height: input.height,
       capture_timestamp: input.captureTimestamp,
       checksum: input.checksum,
+      bytes: Math.max(0, Math.round(input.bytes)),
       processing_status: "pending",
     })
     .select("id")
@@ -1797,4 +1810,25 @@ export async function startPersonBook(formData: FormData) {
 
   revalidatePath("/books/new");
   redirect(`/books/${book.id}`);
+}
+
+
+/**
+ * Whether a batch of files would fit, asked before any of them are uploaded.
+ *
+ * One round trip for a whole camera roll rather than one per file. The
+ * per-file check in registerUploadedPhoto is still the authoritative one —
+ * this exists so a family is told before three hundred files are pushed into
+ * a bucket, not after.
+ */
+export async function roomForBatch(subjectId: string, bytes: number) {
+  const user = await requireUser();
+  const db = userClient();
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+  const story = await storySubject(db, subjectId);
+  if (!story) throw new Error("no such subject");
+
+  const room = await roomToAdd(db, story.family_id, bytes);
+  return { ok: room.ok, message: room.message };
 }

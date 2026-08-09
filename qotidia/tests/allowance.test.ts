@@ -6,7 +6,9 @@
 // deciding to break it, but by somebody implementing a quota the ordinary
 // way.
 
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { PLAN_PRICES } from "@/lib/billing/plans";
 import {
   ADD_ON,
   allowanceFor,
@@ -122,5 +124,28 @@ describe("sizes a person can read", () => {
 
   it("treats a negative total as empty rather than as a negative size", () => {
     expect(allowanceFor({ usedBytes: -5, plan: "monthly" }).usedBytes).toBe(0);
+  });
+});
+
+describe("the price of more space", () => {
+  it("is a real price, above what the space costs us", () => {
+    // At current object-store rates a hundred gigabytes is roughly A$27 a
+    // year before replicas and backups, and a family buying more space is
+    // buying the second copy in another region too. A block priced at or
+    // below cost is a block that loses money on every sale.
+    const block = PLAN_PRICES.storageBlockAud();
+    expect(block).toBeGreaterThan(3000);
+    expect(ADD_ON).toBe(100 * GB);
+  });
+
+  it("is quoted from the module that owns prices, not typed into a page", () => {
+    const billing = readFileSync(
+      new URL("../src/app/settings/billing/page.tsx", import.meta.url),
+      "utf8"
+    );
+    expect(billing).toContain("PLAN_PRICES.storageBlockAud()");
+    // The literal that was there first. This project has had a price drift
+    // between a page and the charge more than once.
+    expect(billing).not.toMatch(/aud\(\d{3,}\)/);
   });
 });

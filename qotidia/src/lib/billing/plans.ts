@@ -31,6 +31,16 @@ export const PLAN_PRICES = {
   oneOffAud: () => Number(process.env.BOOK_PRICE_AUD ?? 19900),
   /** Charged monthly. Includes each year's book while a member. */
   monthlyAud: () => Number(process.env.MONTHLY_PRICE_AUD ?? 1900),
+  /**
+   * A block of extra storage, per year. See lib/storage/allowance.ts for
+   * how big a block is.
+   *
+   * Priced above cost rather than at it. At current object-store rates a
+   * hundred gigabytes costs us something like A$27 a year before replicas
+   * and backups, and a family buying more space is buying the second copy
+   * in another region as well as the first.
+   */
+  storageBlockAud: () => Number(process.env.STORAGE_BLOCK_PRICE_AUD ?? 4900),
 };
 
 export type PlanId = "one_off" | "monthly";

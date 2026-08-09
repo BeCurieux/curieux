@@ -24,6 +24,8 @@ import {
   bookIncluded,
 } from "@/lib/billing/plans";
 import { aud } from "@/lib/billing/money";
+import { allowanceForFamily } from "@/lib/storage/usage";
+import { ADD_ON, asSize } from "@/lib/storage/allowance";
 import { cancelMembership, resumeMembershipAction, startMembership } from "@/app/actions";
 import { friendlyDate } from "@/lib/words";
 
@@ -57,6 +59,8 @@ export default async function BillingPage({
   const price = await bookPriceFor(db, family.id);
   const monthly = family.plan === "monthly";
   const monthsThisYear = family.months_paid_this_year ?? 0;
+
+  const storage = await allowanceForFamily(db, family.id);
 
   const { data: events } = await db
     .from("billing_events")
@@ -125,6 +129,40 @@ export default async function BillingPage({
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-stone">
             You pay for each book when you order it. Nothing recurring, and no
             card kept on file unless you asked us to keep one for next year.
+          </p>
+        )}
+      </section>
+
+      {/* ---------------------------------------------------------- space
+          Shown whether or not it matters yet, because the first time a
+          family hears about a storage limit should not be the day they hit
+          it in the middle of an import. */}
+      <section className="card mt-8">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="text-xl">Space</h2>
+          <span className="text-sm text-stone">
+            {asSize(storage.usedBytes)} of {asSize(storage.totalBytes)}
+          </span>
+        </div>
+
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-rule">
+          <div
+            className={storage.warn ? "h-full bg-clay" : "h-full bg-slate"}
+            style={{ width: `${Math.min(100, Math.round(storage.fraction * 100))}%` }}
+          />
+        </div>
+
+        <p className="mt-4 max-w-[54ch] text-sm leading-relaxed text-stone">
+          {storage.full
+            ? "There's no room for anything new. Everything you've kept stays exactly where it is and still works — we just can't take more until there's space."
+            : storage.warn
+              ? "Getting full. Nothing stops working when you reach the end — we just can't take anything new until there's room."
+              : "Photographs and video you've added. Thumbnails and the previews we make don't count towards it."}
+        </p>
+
+        {(storage.warn || storage.full) && canManage && (
+          <p className="mt-4 text-sm text-stone">
+            Another {asSize(ADD_ON)} is {aud(PLAN_PRICES.storageBlockAud())} a year.
           </p>
         )}
       </section>
