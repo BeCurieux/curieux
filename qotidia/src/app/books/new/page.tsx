@@ -11,6 +11,15 @@
 //   One person   Florence at two
 //   Our family   The Wilsons in 2026
 //
+// And a third that only exists once an archive is deep enough to have one:
+//
+//   Two people   Nanna & Me
+//
+// That one is not offered on a schedule. It appears when a relationship has
+// crossed years and somebody has told us who the person is — which is why it
+// is at the foot of the page rather than beside the annual books. A family in
+// their first year should not be shown a book they cannot have.
+//
 // Each option says how much is in it, because that is the honest thing to
 // lead with and because it is also the persuasive one: a family looking at
 // "142 things" understands what they have without being told.
@@ -23,7 +32,8 @@ import { canEdit } from "@/lib/family/roles";
 import { buildStories, EVERYTHING_UNDER_WAY, nothingReadyYet, type StoryInput } from "@/lib/book/stories";
 import { countStoryMemories } from "@/lib/memories/scope";
 import { periodFor } from "@/lib/book/period";
-import { startHousehold, startStory } from "@/app/actions";
+import { startHousehold, startPersonBook, startStory } from "@/app/actions";
+import { peopleBooksFor } from "@/lib/book/people-books";
 import { countOf } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
@@ -76,6 +86,18 @@ export default async function NewBookPage() {
   }
 
   const { options, suggested, because, allStarted } = buildStories(inputs);
+
+  // People who are, or are nearly, a book. Computed for the children only —
+  // "Nanna & The Wilsons" is not a book anybody wants.
+  const children = rows.filter((s) => s.subject_type === "child");
+  const peopleBooks = (
+    await Promise.all(
+      children.map(async (child) => ({
+        child,
+        stories: await peopleBooksFor(db, child.id),
+      }))
+    )
+  ).filter((p) => p.stories.length > 0);
   const household = options.find((o) => o.kind === "household");
   const fullest = [...options].sort((a, b) => b.material - a.material)[0];
 
@@ -172,14 +194,70 @@ export default async function NewBookPage() {
         </div>
       )}
 
+      {/* ─────────────────────────────────────────────── two people
+          The first book that is not a year, and the only one on this page
+          that has to be earned rather than scheduled. It appears when a
+          relationship has crossed years and somebody has told us who the
+          person is — see lib/book/person-story.ts for the three refusals.
+
+          The nearly-ready ones are shown with their reason rather than
+          hidden. "One more year and this is a book" is a reason to keep
+          going; hiding it is how a feature stays invisible. */}
+      {peopleBooks.length > 0 && (
+        <section className="mt-16">
+          <h2 className="text-xs uppercase tracking-[0.18em] text-clay">
+            Two people
+          </h2>
+          <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-stone">
+            One person and one child, across every year they have been in
+            together. Made from memories that are already in the annual books
+            &mdash; the same Thursday can be a page in both.
+          </p>
+
+          {peopleBooks.map(({ child, stories }) => (
+            <ul key={child.id} className="mt-6 max-w-[38rem] space-y-3">
+              {stories.map((story) => (
+                <li key={story.entityId} className="card">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="font-display text-xl leading-snug">
+                        {story.title}
+                      </p>
+                      <p className="mt-0.5 text-sm text-stone">
+                        {child.display_name} &middot; {story.subtitle}
+                      </p>
+                    </div>
+
+                    {story.ready ? (
+                      <form action={startPersonBook}>
+                        <input type="hidden" name="subject_id" value={child.id} />
+                        <input type="hidden" name="entity_id" value={story.entityId} />
+                        <button className="btn !px-4 !py-2 text-xs">
+                          Make {story.title}
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
+
+                  {story.notYet && (
+                    <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-stone">
+                      {story.notYet}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ))}
+        </section>
+      )}
+
       {/* Said plainly rather than shown as greyed-out options nobody can
           click. A menu of things you cannot have is a worse first impression
           than a short menu. */}
-      <p className="mt-12 max-w-[52ch] text-sm leading-relaxed text-stone">
-        Books about two people &mdash; Florence &amp; Grandma, the two of them
-        together &mdash; and books about one chapter of a life are coming.
-        They&rsquo;ll be made from this same archive, so nothing you keep now
-        is wasted on them.
+      <p className="mt-14 max-w-[52ch] text-sm leading-relaxed text-stone">
+        Books about one chapter of a life &mdash; a house you left, a year
+        abroad &mdash; are coming. They&rsquo;ll be made from this same
+        archive, so nothing you keep now is wasted on them.
       </p>
     </div>
   );

@@ -36,6 +36,7 @@ import { sendOnce } from "@/lib/email/send";
 import { invitation as invitationEmail } from "@/lib/email/messages";
 import { recordAnswer } from "@/lib/graph/identity-store";
 import { loadEntities } from "@/lib/graph/extract";
+import { peopleBooksFor } from "@/lib/book/people-books";
 
 
 /**
@@ -1740,4 +1741,60 @@ export async function resolveIdentity(formData: FormData) {
 
   revalidatePath(`/subjects/${subjectId}/who`);
   revalidatePath(`/subjects/${subjectId}/noticed`);
+}
+
+/**
+ * Start a book about one person and the child.
+ *
+ * Nanna & Me: the first book that is not a year. It is the child's book —
+ * subject_id is theirs, and the cover addresses them — with no year number,
+ * because it is not one. Keyed on the title so a second attempt opens the
+ * one that exists rather than making a duplicate; the period is a span
+ * rather than a book year, so start_date is not the unique thing it is for
+ * an annual volume.
+ */
+export async function startPersonBook(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const entityId = String(formData.get("entity_id"));
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) {
+    throw new Error("not allowed to make a book for this family");
+  }
+
+  // Recomputed here rather than trusted from the form. The title, the dates
+  // and whether it is ready at all are decisions this product makes, and a
+  // form is a place anybody can type.
+  const stories = await peopleBooksFor(db, subjectId);
+  const story = stories.find((s) => s.entityId === entityId);
+  if (!story) throw new Error("no such person in this archive");
+  if (!story.ready) throw new Error(story.notYet ?? "not ready yet");
+
+  const { data: existing } = await db
+    .from("books")
+    .select("id")
+    .eq("subject_id", subjectId)
+    .eq("title", story.title)
+    .maybeSingle();
+  if (existing) redirect(`/books/${existing.id}`);
+
+  const { data: book, error } = await db
+    .from("books")
+    .insert({
+      subject_id: subjectId,
+      year_number: null,
+      title: story.title,
+      subtitle: story.subtitle,
+      start_date: story.firstDate,
+      end_date: story.lastDate,
+      status: "collecting",
+    })
+    .select("id")
+    .single();
+  if (error || !book) throw new Error(error?.message ?? "could not start the book");
+
+  revalidatePath("/books/new");
+  redirect(`/books/${book.id}`);
 }

@@ -257,6 +257,42 @@ function buildTables(): Record<string, Row[]> {
     people.push({ memory_id: id, family_member_id: "member-4" });
   });
 
+  // Nanna, going back before this year's book.
+  //
+  // An archive is deeper than the volume being made from it, and this is the
+  // fixture that says so: fourteen more afternoons stretching back two and a
+  // half years, none of them inside Florence's current book year. They are
+  // what makes "Nanna & Me" a book rather than a chapter — a relationship
+  // that has crossed years is the whole distinguishing claim, and a demo
+  // that cannot show one is demonstrating the refusal instead of the thing.
+  [
+    [240, "Nanna at the school gate, in the rain, delighted about it."],
+    [275, "Nanna taught her the card game with the made-up rules."],
+    [310, "Two hours at Nanna's kitchen table with the good scissors."],
+    [355, "Nanna's, the day the washing machine broke."],
+    [400, "Nanna brought soup. Nobody had asked for soup."],
+    [455, "Fell asleep on Nanna halfway through the film."],
+    [500, "Nanna let her ice the whole cake herself. It showed."],
+    [560, "Walked to the postbox with Nanna, very slowly."],
+    [615, "Nanna's, sorting the button tin. An entire afternoon."],
+    [680, "Nanna sang the song about the donkey again."],
+    [730, "First sleepover at Nanna's. One phone call home."],
+    [790, "Nanna in the garden, being told the names of everything."],
+    [850, "Nanna's birthday. Florence made the card, mostly."],
+    [905, "Nanna held her while she cried about the wrong cup."],
+  ].forEach(([offset, text], i) => {
+    const id = `mem-nanna-back-${i}`;
+    const date = day(offset as number);
+    memories.push({
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "text",
+      raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: date, created_at: date,
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+    people.push({ memory_id: id, family_member_id: "member-4" });
+  });
+
   // Two arrivals the archive could not place. Both are photographs shared
   // from a phone with the EXIF stripped, which is the one case the inbox
   // exists for — everything else files itself and never appears there.
