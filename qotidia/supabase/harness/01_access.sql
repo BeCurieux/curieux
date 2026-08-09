@@ -141,3 +141,126 @@ select harness_expect('memories no longer carry a subject',
 select harness_expect('and every memory has a family',
   (select count(*)::int from information_schema.columns
     where table_name = 'memories' and column_name = 'family_id' and is_nullable = 'NO'), 1);
+
+-- ================================================== the family memory graph
+--
+-- Four new tables carrying the thing the whole product compounds on: who is
+-- who, and what a family has already told us. Every one of them is checked
+-- here rather than trusted, because a new table behind row-level security
+-- that nobody has tried to read across a family boundary is a table nobody
+-- has checked.
+
+reset role;
+
+insert into entities (id, family_id, kind, label) values
+  ('11110000-0000-0000-0000-00000000000a', 'aaaaaaaa-0000-0000-0000-000000000001', 'person', 'Mimi'),
+  ('11110000-0000-0000-0000-00000000000b', 'aaaaaaaa-0000-0000-0000-000000000001', 'person', 'Grandma Sue'),
+  ('22220000-0000-0000-0000-00000000000c', 'bbbbbbbb-0000-0000-0000-000000000002', 'person', 'Someone Else''s Nan');
+
+insert into entity_aliases (entity_id, label, key) values
+  ('11110000-0000-0000-0000-00000000000a', 'Mimi', 'mimi'),
+  ('11110000-0000-0000-0000-00000000000b', 'Grandma Sue', 'grandma sue');
+
+insert into entity_memories (entity_id, memory_id) values
+  ('11110000-0000-0000-0000-00000000000a', 'eeee0000-0000-0000-0000-000000000001');
+
+-- ------------------------------------------- a link may never cross families
+
+do $$
+declare crossed boolean := false;
+begin
+  begin
+    insert into entity_memories (entity_id, memory_id)
+    values ('22220000-0000-0000-0000-00000000000c', 'eeee0000-0000-0000-0000-000000000001');
+    crossed := true;
+  exception when others then
+    raise notice 'ok   an entity cannot be linked to another family''s memory (%)', left(sqlerrm, 60);
+  end;
+  if crossed then
+    raise exception 'FAILED: an entity was linked to another family''s memory';
+  end if;
+end $$;
+
+-- ------------------------------------------ a merge may never cross families
+
+do $$
+declare crossed boolean := false;
+begin
+  begin
+    perform merge_entities(
+      '11110000-0000-0000-0000-00000000000a',
+      '22220000-0000-0000-0000-00000000000c');
+    crossed := true;
+  exception when others then
+    raise notice 'ok   two families'' entities cannot be merged (%)', left(sqlerrm, 60);
+  end;
+  if crossed then
+    raise exception 'FAILED: entities from two families were merged';
+  end if;
+end $$;
+
+-- And a merge inside one family works, so the guard refuses the right thing
+-- rather than everything.
+select merge_entities(
+  '11110000-0000-0000-0000-00000000000b',
+  '11110000-0000-0000-0000-00000000000a');
+
+select harness_expect('a merge inside the family folds one into the other',
+  (select count(*)::int from entities
+    where id = '11110000-0000-0000-0000-00000000000a'
+      and merged_into = '11110000-0000-0000-0000-00000000000b'), 1);
+
+select harness_expect('and keeps the name the family used',
+  (select count(*)::int from entity_aliases
+    where entity_id = '11110000-0000-0000-0000-00000000000b' and key = 'mimi'), 1);
+
+select harness_expect('and moves the memories across',
+  (select count(*)::int from entity_memories
+    where entity_id = '11110000-0000-0000-0000-00000000000b'), 1);
+
+-- ---------------------------------------------- one family's graph, and only
+
+set role authenticated;
+select harness_become('11111111-1111-1111-1111-111111111111');
+
+select harness_expect('owner sees their own entities',
+  (select count(*)::int from entities), 2);
+
+select harness_expect('owner sees nothing of another family''s graph',
+  (select count(*)::int from entities
+    where family_id = 'bbbbbbbb-0000-0000-0000-000000000002'), 0);
+
+select harness_expect('owner sees their own aliases and no others',
+  (select count(*)::int from entity_aliases), 2);
+
+reset role;
+insert into entity_resolutions (family_id, pair_key, same) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'x|y', false),
+  ('bbbbbbbb-0000-0000-0000-000000000002', 'p|q', true);
+
+set role authenticated;
+select harness_become('11111111-1111-1111-1111-111111111111');
+
+select harness_expect('a family sees only what it has been asked',
+  (select count(*)::int from entity_resolutions), 1);
+
+-- The same question can only be answered once, whichever order it arrives in
+-- — pairKey() sorts the ids before joining, so this is the database half of
+-- that rule.
+reset role;
+do $$
+declare twice boolean := false;
+begin
+  begin
+    insert into entity_resolutions (family_id, pair_key, same)
+    values ('aaaaaaaa-0000-0000-0000-000000000001', 'x|y', true);
+    twice := true;
+  exception when unique_violation then
+    raise notice 'ok   the same pair cannot be settled twice';
+  end;
+  if twice then
+    raise exception 'FAILED: a pair was settled twice';
+  end if;
+end $$;
+
+reset role;
