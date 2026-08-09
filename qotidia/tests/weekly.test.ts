@@ -57,6 +57,8 @@ function fakeDb(rows: any[] = [], memories: any[] = []) {
       const q: any = {
         _rows:
           table === "noticed" ? rows
+          : table === "entities" ? []
+          : table === "entity_resolutions" ? []
           : table === "subjects" ? [subject]
           : table === "memory_subjects" ? links()
           : memories,
@@ -65,6 +67,11 @@ function fakeDb(rows: any[] = [], memories: any[] = []) {
         gte() { return q; },
         in(col: string, vals: any[]) { q._rows = q._rows.filter((r: any) => vals.includes(r[col])); return q; },
         not() { return q; },
+        // The graph now reads the family's resolutions on its way out, and
+        // that query filters on `merged_into is null`. A fake that stops
+        // short of the real client's surface fails the caller rather than
+        // the thing under test.
+        is(col: string, val: any) { q._rows = q._rows.filter((r: any) => (r[col] ?? null) === val); return q; },
         order() { return q; },
         limit() { return q; },
         insert(payload: any[]) {

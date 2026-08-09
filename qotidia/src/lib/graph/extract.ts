@@ -15,6 +15,8 @@ import type { Entity, EntityKind, Mention } from "./presence";
 import { asSaid, runsIn } from "./phrases";
 import { firstLook, type FirstLook } from "./first-look";
 import { countStoryMemories, earliestMemoryDate, storyMemoryQuery } from "@/lib/memories/scope";
+import { applyResolutions } from "./resolve";
+import { loadResolutions } from "./identity-store";
 
 export interface RawMention {
   memoryId: string;
@@ -275,7 +277,11 @@ export async function loadEntities(db: SupabaseClient, subjectId: string): Promi
     }
   }
 
-  return buildEntities(rows);
+  // The last step, and the only one that consults something a person told
+  // us rather than something they tagged. Two names for one grandmother stop
+  // being two threads here — see lib/graph/resolve.ts.
+  const built = buildEntities(rows);
+  return applyResolutions(built, await loadResolutions(db, subjectId));
 }
 
 /**
