@@ -309,6 +309,57 @@ select harness_expect('deleting a memory releases its files too',
 select harness_expect('one family''s uploads never touch another''s total',
   (select storage_bytes::int from families where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 0);
 
+-- ================================================== who the archive asks about
+--
+-- Every policy above learns who is making the request from one function, so
+-- that the identity provider is a thing this codebase depends on in exactly
+-- one place. That is only true while it stays true — the next policy anybody
+-- writes will reach for auth.uid() out of habit, because that is what every
+-- Supabase example on the internet says. These two assertions are what stops
+-- the seam being quietly unpicked one policy at a time.
+
+set role authenticated;
+select harness_become('11111111-1111-1111-1111-111111111111');
+
+select harness_expect('the archive knows who is asking',
+  (select signed_in_user()), '11111111-1111-1111-1111-111111111111'::uuid);
+
+select harness_become('22222222-2222-2222-2222-222222222222');
+select harness_expect('and notices when that changes',
+  (select signed_in_user()), '22222222-2222-2222-2222-222222222222'::uuid);
+
+reset role;
+
+-- Nobody signed in at all is null, not a blank uuid and not an error. Every
+-- policy compares against it, and `something = null` is false — so the
+-- failure mode of an unauthenticated request is seeing nothing, which is the
+-- right way round.
+select set_config('request.jwt.claim.sub', '', false);
+select harness_expect('and nobody is nobody, rather than an error',
+  (select signed_in_user()), null::uuid);
+
+do $$
+declare stragglers text;
+begin
+  select string_agg(what, ', ') into stragglers from (
+    select 'function ' || p.proname as what
+      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'public' and p.prokind = 'f'
+       and p.proname <> 'signed_in_user'
+       and coalesce(p.prosrc, '') like '%auth.uid()%'
+    union all
+    select 'policy "' || policyname || '" on ' || schemaname || '.' || tablename
+      from pg_policies
+     where schemaname in ('public', 'storage')
+       and coalesce(qual, '') || coalesce(with_check, '') like '%uid()%'
+  ) s;
+
+  if stragglers is not null then
+    raise exception 'FAILED: these still ask Supabase directly instead of signed_in_user() — %', stragglers;
+  end if;
+  raise notice 'ok   nothing but signed_in_user() asks Supabase who the user is';
+end $$;
+
 -- And the maintained total agrees with the source of truth.
 do $$
 declare before bigint; after bigint;
