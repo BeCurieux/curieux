@@ -125,8 +125,17 @@ function buildTables(): Record<string, Row[]> {
   const familyId = "demo-family";
   const subjectId = "demo-subject";
 
+  // Maggie is Margaret. She is in this fixture twice on purpose.
+  //
+  // It is the most ordinary duplicate a family archive collects: one parent
+  // entered her mother as Margaret, the other entered her as Maggie, and the
+  // child calls her Nanna. Two people, two spellings, one grandmother — and
+  // nothing the product can work out on its own, because the two names never
+  // appear in the same photograph. It is what the resolution question exists
+  // for, and the demo should contain the thing it demonstrates.
   const members = [
     ["Sarah", "Mum"], ["James", "Dad"], ["Margaret", "Grandma"], ["Tom", "Grandpa"],
+    ["Maggie", "Nanna"],
   ].map(([name, relationship], i) => ({
     id: `member-${i}`, family_id: familyId, name, relationship,
     nickname_used_by_child: relationship, created_at: day(0),
@@ -204,6 +213,48 @@ function buildTables(): Record<string, Row[]> {
       scan_verdict: "clean", scan_reason: null, scanned_by: "fixture",
       capture_timestamp: date, duration_seconds: null, thumbnail_path: null,
     });
+  });
+
+  // Grandma, who is Maggie under her other name. Four of her own, so both
+  // halves of the duplicate clear the bar and the demo actually contains the
+  // situation the who's-who page exists for.
+  [
+    [12, "Grandma took her to the duck pond and reported full compliance."],
+    [38, "Grandma stayed for tea. Two puddings were negotiated."],
+    [64, "Grandma's, while the car was in."],
+    [88, "Grandma read the duck book four times without complaint."],
+  ].forEach(([offset, text], i) => {
+    const id = `mem-grandma-${i}`;
+    const date = day(offset as number);
+    memories.push({
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "text",
+      raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: date, created_at: date,
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+    people.push({ memory_id: id, family_member_id: "member-2" });
+  });
+
+  // Nanna, on days of her own. No photograph has both names on it, which is
+  // exactly why the archive cannot resolve this by itself.
+  [
+    [17, "Nanna came for lunch and stayed until bath time."],
+    [24, "Baking with Nanna. Most of it ended up on the floor."],
+    [45, "Nanna's, after nursery."],
+    [73, "Nanna brought the yellow boots back from the car."],
+    [96, "A whole afternoon at Nanna's."],
+  ].forEach(([offset, text], i) => {
+    const id = `mem-nanna-${i}`;
+    const date = day(offset as number);
+    memories.push({
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "text",
+      raw_text: text, transcript: null, location: null, metadata: {},
+      memory_date: date, created_at: date,
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+    people.push({ memory_id: id, family_member_id: "member-4" });
   });
 
   // Two arrivals the archive could not place. Both are photographs shared
@@ -412,6 +463,12 @@ function buildTables(): Record<string, Row[]> {
     // The weekly note's record. Empty, so the demo shows a first week
     // rather than a fourth — which is the state most worth getting right.
     noticed: [],
+    // The graph's memory, empty on purpose: the demo shows the question
+    // being asked rather than an archive where somebody already answered it.
+    entities: [],
+    entity_aliases: [],
+    entity_memories: [],
+    entity_resolutions: [],
     billing_events: [
       { family_id: familyId, kind: "invoice.paid", plan: "monthly", state: "active",
         amount_aud: 1900, note: null, created_at: day(300) },
@@ -519,6 +576,9 @@ interface Nested {
 const NESTED: Record<string, Nested[]> = {
   book_pages: [{ table: "book_content_blocks", fk: "page_id", as: "book_content_blocks" }],
   memory_clusters: [{ table: "cluster_memories", fk: "cluster_id", as: "cluster_memories" }],
+  // The graph reads an entity together with every name the family has used
+  // for it, so the fake client has to know that relation exists too.
+  entities: [{ table: "entity_aliases", fk: "entity_id", as: "entity_aliases" }],
   memories: [
     { table: "memory_tags", fk: "memory_id", as: "memory_tags" },
     {

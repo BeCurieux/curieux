@@ -111,7 +111,13 @@ create table if not exists entity_resolutions (
 --
 -- Deliberately not a trigger. This runs because a person answered a
 -- question, and something that rearranges a family's graph should be called
--- on purpose and appear in the activity log at the call site.
+-- on purpose rather than happening as a side effect of a write.
+--
+-- Not in the activity log, and that is a decision rather than an omission:
+-- the log is deliberately short — the events involving another person or a
+-- copy of the archive leaving — and a log of everything is a log nobody
+-- reads. Resolutions are visible where they matter, on the who's-who page,
+-- with the name and the date attached.
 
 create or replace function merge_entities(winner uuid, loser uuid)
 returns void language plpgsql security definer set search_path = public as $$

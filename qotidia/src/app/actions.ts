@@ -34,6 +34,8 @@ import type { ProtectedAction } from "@/lib/auth/mfa";
 import { colourById } from "@/lib/book/colours";
 import { sendOnce } from "@/lib/email/send";
 import { invitation as invitationEmail } from "@/lib/email/messages";
+import { recordAnswer } from "@/lib/graph/identity-store";
+import { loadEntities } from "@/lib/graph/extract";
 
 
 /**
@@ -1669,4 +1671,73 @@ export async function startHousehold(formData: FormData) {
   if (error || !subject) throw new Error(error?.message ?? "could not start that");
 
   redirect(`/books/new?story=${subject.id}`);
+}
+
+// ------------------------------------------------------- who's who
+
+/**
+ * Record whether two names are one person.
+ *
+ * The whole of the answer's meaning is in identity-store.recordAnswer, which
+ * writes the resolution and builds the entity together — this is the form
+ * boundary and nothing else. A "no" is stored as carefully as a "yes",
+ * because the point of asking is that the question then goes away for good.
+ */
+export async function resolveIdentity(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const familyId = String(formData.get("family_id"));
+  const same = String(formData.get("answer")) === "same";
+
+  // Two ways in. The question posts the pair it asked about; the picker
+  // posts two entity ids the family chose, with the labels read back from
+  // the graph rather than trusted from the form — a label arriving from a
+  // browser is a label anybody can type.
+  const pickedA = String(formData.get("pick_a") ?? "");
+  const pickedB = String(formData.get("pick_b") ?? "");
+  if (pickedA && pickedB) {
+    if (pickedA === pickedB) {
+      revalidatePath(`/subjects/${subjectId}/who`);
+      return;
+    }
+    const chosen = await loadEntities(db, subjectId);
+    const a = chosen.find((e) => e.id === pickedA);
+    const b = chosen.find((e) => e.id === pickedB);
+    if (!a || !b || a.kind !== b.kind) {
+      revalidatePath(`/subjects/${subjectId}/who`);
+      return;
+    }
+    await recordAnswer(db, {
+      familyId,
+      keyA: a.id,
+      keyB: b.id,
+      labelA: a.label,
+      labelB: b.label,
+      kind: a.kind,
+      same: true,
+      keep: a.mentions.length >= b.mentions.length ? a.label : b.label,
+      decidedBy: user.id,
+    });
+    revalidatePath(`/subjects/${subjectId}/who`);
+    revalidatePath(`/subjects/${subjectId}/noticed`);
+    return;
+  }
+
+  await recordAnswer(db, {
+    familyId,
+    keyA: String(formData.get("key_a")),
+    keyB: String(formData.get("key_b")),
+    labelA: String(formData.get("label_a")),
+    labelB: String(formData.get("label_b")),
+    kind: String(formData.get("kind")),
+    same,
+    // Which name to keep. Defaults to the one they use more, which is what
+    // the page offers first — but it is their choice, not a majority vote.
+    keep: same ? String(formData.get("keep") ?? formData.get("label_a")) : undefined,
+    decidedBy: user.id,
+  });
+
+  revalidatePath(`/subjects/${subjectId}/who`);
+  revalidatePath(`/subjects/${subjectId}/noticed`);
 }

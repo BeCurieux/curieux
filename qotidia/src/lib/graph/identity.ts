@@ -117,20 +117,51 @@ function tokens(label: string): Set<string> {
 }
 
 /**
- * How much two labels look like the same name.
+ * The identity-bearing half of an entity id.
  *
- * A shared word — "Grandma Sue" and "Grandma" — is a strong hint and makes a
- * cheap question with a likely yes. No shared word is not evidence of
- * anything, which is exactly why "Mimi" and "Grandma Sue" need a person to
- * answer; those pairs still get asked, just below the easy ones.
+ * Ids are `kind:key`, and the key is what the family typed as the *name* —
+ * Margaret, Tom, Maggie. The label is often a nickname the child uses, so
+ * comparing labels compares "Grandma" with "Grandpa", which share five
+ * letters and nothing else. The key is the thing worth comparing.
+ */
+const keyOf = (id: string) => (id.includes(":") ? id.slice(id.indexOf(":") + 1) : id);
+
+/** Letters two names begin with in common. */
+function sharedPrefix(a: string, b: string): number {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return i;
+}
+
+/**
+ * How much two names look like the same name.
+ *
+ * Two signals, and the second was added after watching the product ask
+ * whether Grandpa and Nanna were the same person. A shared word — "Grandma
+ * Sue" and "Grandma" — is the obvious one. A shared beginning is the other:
+ * Margaret and Maggie have no word in common and are obviously worth asking
+ * about, and no amount of tokenising finds that.
+ *
+ * Zero means the two names have nothing to do with each other, which is
+ * different from "we are not sure" — see the gate in pairsWorthAsking.
  */
 function nameOverlap(a: string, b: string): number {
   const ta = tokens(a);
   const tb = tokens(b);
   if (ta.size === 0 || tb.size === 0) return 0;
+
   let shared = 0;
   for (const w of ta) if (tb.has(w)) shared++;
-  return shared / Math.min(ta.size, tb.size);
+  const byWord = shared / Math.min(ta.size, tb.size);
+
+  const la = a.toLowerCase().trim();
+  const lb = b.toLowerCase().trim();
+  const prefix = sharedPrefix(la, lb);
+  // Three letters, and a real share of the shorter name. Two is every second
+  // pair of names in English.
+  const byPrefix = prefix >= 3 ? prefix / Math.min(la.length, lb.length) : 0;
+
+  return Math.max(byWord, byPrefix);
 }
 
 /**
@@ -161,7 +192,20 @@ export function pairsWorthAsking(input: AskInput): Pair[] {
       const overlap = shared.length / Math.min(ma.size, mb.size);
       if (overlap >= ALREADY_MERGED_ABOVE) continue; // buildEntities has this
 
-      const name = nameOverlap(a.label, b.label);
+      // Compared on the key rather than the label: see keyOf().
+      const name = nameOverlap(keyOf(a.id), keyOf(b.id));
+
+      // The gate, and the thing that keeps this from being absurd. An
+      // archive with twelve people has sixty-six pairs, and asking about all
+      // of them is not thoroughness — it is a product with no idea, spending
+      // the family's attention to find out what it could not have guessed.
+      //
+      // So a pair has to be *connected* by something: two names that look
+      // alike, or a photograph carrying both. Two names with nothing in
+      // common are two people until somebody says otherwise, and that is the
+      // right default — the cost of not asking is a graph that stays split,
+      // and the cost of asking is the family concluding nobody is home.
+      if (name === 0 && shared.length === 0) continue;
 
       // Kind first — a grandmother resolved is worth more than a toy — then
       // how likely the answer is to be yes, then how much of the archive it
