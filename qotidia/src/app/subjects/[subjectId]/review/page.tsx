@@ -9,12 +9,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
-import { reviewContribution } from "@/app/actions";
+import { judgeContribution, reviewContribution } from "@/app/actions";
 import { memberLabel, membersOfFamily, roleForSubject } from "@/lib/family/membership";
 import { canModerate } from "@/lib/family/roles";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { storyMemoryQuery } from "@/lib/memories/scope";
-import { friendlyDate } from "@/lib/words";
+import { countOf, friendlyDate } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +53,18 @@ export default async function ReviewPage({ params }: { params: { subjectId: stri
 
   const first = subject.display_name?.split(" ")[0] ?? subject.display_name;
 
+  // What came back from links the family sent. These arrive from people
+  // with no account, so they are not memories yet and cannot be — there is
+  // no created_by to point at. They wait here alongside everything else
+  // waiting, which is the right place: the decision is identical.
+  const { data: fromLinks } = await db
+    .from("story_contributions")
+    .select("id, said_by, body, created_at")
+    .eq("family_id", subject.family_id)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+  const contributions = (fromLinks ?? []) as any[];
+
   return (
     <div className="mx-auto !max-w-2xl py-10">
       <Link href={`/subjects/${subject.id}`} className="text-sm text-ochre">
@@ -65,7 +77,48 @@ export default async function ReviewPage({ params }: { params: { subjectId: stri
         isn&rsquo;t &mdash; no one is told what you declined.
       </p>
 
-      {rows.length === 0 ? (
+      {/* ------------------------------------------- sent back through a link
+          Above the ordinary queue. Somebody without an account went to the
+          trouble of typing this, and they are the least likely person to be
+          asked again if it is missed. */}
+      {contributions.length > 0 && (
+        <section className="mt-10">
+          <h2 className="font-display text-xl">
+            {countOf(contributions.length, "person", "people")} answered a story you sent
+          </h2>
+          <ul className="mt-5 space-y-4">
+            {contributions.map((c) => (
+              <li key={c.id} className="panel md:!p-7">
+                <p className="reading text-lg">{c.body}</p>
+                <p className="mt-3 text-sm text-stone">
+                  {c.said_by} &middot; {friendlyDate(c.created_at)}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  {[
+                    ["keep", "Keep this"],
+                    ["decline", "Leave it out"],
+                  ].map(([verdict, label]) => (
+                    <form action={judgeContribution} key={verdict}>
+                      <input type="hidden" name="contribution_id" value={c.id} />
+                      <input type="hidden" name="subject_id" value={subject.id} />
+                      <input type="hidden" name="verdict" value={verdict} />
+                      <button className={verdict === "keep" ? "btn !px-5 !py-2 text-sm" : "btn-secondary !px-5 !py-2 text-sm"}>
+                        {label}
+                      </button>
+                    </form>
+                  ))}
+                </div>
+                <p className="mt-4 max-w-[48ch] text-xs leading-relaxed text-stone">
+                  Kept, it goes into the archive with {c.said_by}&rsquo;s name on it.
+                  They are not told either way.
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {rows.length === 0 && contributions.length === 0 ? (
         <p className="mt-10 max-w-[46ch] text-sm leading-relaxed text-stone">
           Nothing waiting. When a grandparent adds a photograph or something
           they remember, it will appear here first.

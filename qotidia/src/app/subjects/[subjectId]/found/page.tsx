@@ -19,18 +19,24 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser, userClient } from "@/lib/supabase/server";
-import { answerDiscovery } from "@/app/actions";
+import { answerDiscovery, revokeShare, shareStory } from "@/app/actions";
 import { discoveries, type Shot } from "@/lib/onboarding/discover";
 import { storyFrom } from "@/lib/onboarding/story";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { SERVABLE_VERDICT } from "@/lib/media/verify";
-import { dateRange } from "@/lib/words";
+import { countOf, dateRange, friendlyDate } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
 
 const dayOf = (iso: string) => iso.slice(0, 10);
 
-export default async function FoundPage({ params }: { params: { subjectId: string } }) {
+export default async function FoundPage({
+  params,
+  searchParams,
+}: {
+  params: { subjectId: string };
+  searchParams: { shared?: string };
+}) {
   const user = await currentUser();
   if (!user) redirect("/login");
   const db = userClient();
@@ -113,6 +119,23 @@ export default async function FoundPage({ params }: { params: { subjectId: strin
   }
 
   const story = lead ? storyFrom({ discovery: lead, answer: alreadySaid }) : null;
+
+  // Links already out there for this family, so the page can show what has
+  // been sent and let it be stopped.
+  const { data: shares } = await db
+    .from("shared_stories")
+    .select("id, created_at, expires_at, revoked_at, view_count")
+    .eq("family_id", subject.family_id)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: false })
+    .limit(5);
+  const live = (shares ?? []).filter(
+    (sh: any) => Date.parse(sh.expires_at) > Date.now()
+  );
+
+  const sent = searchParams.shared
+    ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/m/${searchParams.shared}`
+    : null;
   const photos = story ? await resolvePhotoUrls(db, story.shotIds) : new Map();
 
   if (!lead) {
@@ -208,6 +231,66 @@ export default async function FoundPage({ params }: { params: { subjectId: strin
             Whatever you write becomes the name of this, and goes into
             {" "}{first}&rsquo;s book as an ordinary note on that day.
           </p>
+        </section>
+      )}
+
+      {/* ------------------------------------------------------- send it
+          Only once the family has named it. A link titled "One Saturday in
+          February" is a link to a date; the reason to send it to a
+          grandmother is that somebody called it something. */}
+      {story && alreadySaid && (
+        <section className="mt-14 border-t border-rule pt-8">
+          <h2 className="font-display text-2xl">Send it to someone</h2>
+          <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-stone">
+            One link, to this one story. It stops working after a month, you can
+            stop it sooner, and whoever opens it can tell you what they remember
+            without making an account.
+          </p>
+
+          {sent && (
+            <div className="mt-5 rounded-2xl bg-card p-5">
+              <p className="text-sm text-stone">Ready to send:</p>
+              <p className="mt-1 break-all font-display text-lg">{sent}</p>
+            </div>
+          )}
+
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <form action={shareStory}>
+              <input type="hidden" name="subject_id" value={subject.id} />
+              <input type="hidden" name="kind" value="found" />
+              <input
+                type="hidden"
+                name="payload"
+                value={JSON.stringify({
+                  title: story.title,
+                  subtitle: story.subtitle,
+                  shotIds: story.shotIds,
+                  from: story.from,
+                  to: story.to,
+                })}
+              />
+              <button className="btn">Make a link</button>
+            </form>
+          </div>
+
+          {live.length > 0 && (
+            <ul className="mt-6 space-y-2 text-sm">
+              {live.map((sh: any) => (
+                <li key={sh.id} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <span className="text-stone">
+                    Sent {friendlyDate(sh.created_at)} &middot; opened{" "}
+                    {countOf(sh.view_count ?? 0, "time")} &middot; stops{" "}
+                    {friendlyDate(sh.expires_at)}
+                  </span>
+                  <form action={revokeShare}>
+                    <input type="hidden" name="share_id" value={sh.id} />
+                    <input type="hidden" name="subject_id" value={subject.id} />
+                    <button className="text-ochre underline underline-offset-2">Stop it</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
 

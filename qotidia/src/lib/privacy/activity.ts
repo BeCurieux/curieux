@@ -37,7 +37,10 @@ export type ActivityKind =
   | "removed_keeper"
   | "succession_claimed"
   | "succession_refused"
-  | "succession_completed";
+  | "succession_completed"
+  | "shared_story"
+  | "revoked_share"
+  | "story_contribution";
 
 /** How each event reads to a family. Second person for your own actions. */
 export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
@@ -66,6 +69,11 @@ export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
   succession_claimed: "— asked to take over this archive",
   succession_refused: "— a request to take over this archive was stopped",
   succession_completed: "— this archive changed hands",
+  shared_story: "sent a story to someone",
+  revoked_share: "stopped a link that had been sent",
+  // Third person, and it names them: whoever this was has no account, so
+  // the label is a name they typed rather than a member of the family.
+  story_contribution: "— added something to a story they were sent",
 };
 
 /**

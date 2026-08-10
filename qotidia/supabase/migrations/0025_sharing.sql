@@ -152,6 +152,20 @@ comment on function open_shared_story(text) is
 -- row, only with a token they were given.
 grant execute on function open_shared_story(text) to anon, authenticated;
 
+-- ------------------------------------------------ who remembered it
+--
+-- A contribution kept by the family becomes an ordinary memory. The person
+-- who wrote it has no account, so created_by cannot point at them — it
+-- points at the owner who kept it, which is accurate about who put the row
+-- there and wrong about whose memory it is.
+--
+-- So the name travels with the words. It matters in the book: "That was the
+-- morning we drove to the coast — Gran" is a different sentence from the
+-- same words unattributed, and the difference is the whole reason to have
+-- asked her.
+
+alter table memories add column if not exists contributed_by_name text;
+
 -- ------------------------------------------------------------ what to record
 
 alter type activity_kind add value if not exists 'shared_story';

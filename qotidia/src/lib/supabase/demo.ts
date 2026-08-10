@@ -509,6 +509,10 @@ function buildTables(): Record<string, Row[]> {
       photo_path: null, created_at: day(0),
     }],
     memories, memory_tags: tags, media_assets: assets, memory_people: people,
+    // Empty, and present. A table the fixture never seeds still has to exist
+    // or the first insert throws — and these two are written by the share
+    // flow, which is walkable in demo precisely so it can be looked at.
+    shared_stories: [], story_contributions: [], entity_context: [],
     // Every memory in the fixture is about Florence. A second child would
     // have its own links, and the Cornwall morning would carry both.
     memory_subjects: memories.flatMap((m, i) => {
@@ -899,6 +903,12 @@ class Mutation implements PromiseLike<{ data: any; error: any }> {
       const list = (Array.isArray(this.payload) ? this.payload : [this.payload]).filter(Boolean);
       const written = list.map((r: any) => ({
         id: `demo-${Math.abs(hashish(JSON.stringify(r)))}`,
+        // Stamped when the caller did not, because every table in this
+        // schema has `created_at timestamptz not null default now()` and
+        // code that reads the value back is entitled to find it. Without
+        // this a freshly-written row rendered as "Gran · " with an empty
+        // date — a demo-only failure, which is the worst kind.
+        created_at: new Date().toISOString(),
         ...r,
       }));
       rows.push(...written);
@@ -966,8 +976,39 @@ export function demoClient(): any {
         delete() { return new Mutation(db, table, "delete"); },
       };
     },
-    rpc(fn: string) {
+    rpc(fn: string, args?: any) {
       if (fn === "book_listenable") return Promise.resolve({ data: [], error: null });
+
+      // Opening a share link. Implemented here because the whole flow —
+      // send, open, answer — is otherwise unwalkable in demo mode, and this
+      // is the one flow in the product a stranger sees.
+      //
+      // What it cannot demonstrate is the access boundary: demo mode signs
+      // everybody in as the same user, so "a stranger cannot reach the
+      // archive" is untestable here. That is asserted against a real
+      // PostgreSQL as the anon role in supabase/harness/01_access.sql, which
+      // is where it belongs.
+      if (fn === "open_shared_story") {
+        const share = (db.shared_stories ?? []).find((r: Row) => r.token === args?.t);
+        if (!share) return Promise.resolve({ data: [], error: null });
+        share.view_count = (share.view_count ?? 0) + 1;
+        return Promise.resolve({
+          data: [{
+            id: share.id,
+            family_id: share.family_id,
+            subject_id: share.subject_id,
+            kind: share.kind,
+            payload: share.payload,
+            expires_at: share.expires_at,
+            revoked_at: share.revoked_at,
+            allow_contributions: share.allow_contributions,
+            contribution_count: (db.story_contributions ?? [])
+              .filter((c: Row) => c.share_id === share.id).length,
+          }],
+          error: null,
+        });
+      }
+
       return Promise.resolve({ data: null, error: null });
     },
     // No storage stub. Files go through lib/storage/provider.ts, which hands

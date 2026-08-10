@@ -43,6 +43,9 @@ import { keeperNamed as keeperNamedEmail } from "@/lib/email/messages";
 import { SETTLING_DAYS, mayClaim } from "@/lib/succession/policy";
 import { openClaim } from "@/lib/succession/run";
 import { recordContext } from "@/lib/graph/context-store";
+import {
+  TOKEN_SHAPE, accept, expiresAtFrom, newToken, reachable,
+} from "@/lib/share/policy";
 import type { Wondering } from "@/lib/graph/context";
 
 
@@ -2238,4 +2241,223 @@ export async function answerDiscovery(formData: FormData) {
 
   revalidatePath(`/subjects/${subjectId}/found`);
   redirect(`/subjects/${subjectId}/found`);
+}
+
+
+// -------------------------------------------------------------- sharing
+//
+// Sending one story to one person. Why this is not the "public share link"
+// the original brief refused is argued in lib/share/policy.ts.
+
+/**
+ * Freeze a story and mint a link for it.
+ *
+ * The payload is written now, not resolved on open. What a grandmother sees
+ * next week has to be what was sent this week, and the archive underneath
+ * changes constantly.
+ */
+export async function shareStory(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const kind = String(formData.get("kind"));
+  if (kind !== "found" && kind !== "film") throw new Error("nothing to share");
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) throw new Error("not yours to share");
+  const story = await storySubject(db, subjectId);
+  if (!story) throw new Error("no such subject");
+
+  // Whatever the page was showing, passed through rather than recomputed —
+  // the two must not be able to disagree.
+  const payload = JSON.parse(String(formData.get("payload") ?? "null"));
+  if (!payload?.title || !Array.isArray(payload?.shotIds) || payload.shotIds.length === 0) {
+    throw new Error("there is nothing to send yet");
+  }
+
+  const now = new Date().toISOString();
+  const admin = adminClient();
+  const token = newToken();
+  const { error } = await admin.from("shared_stories").insert({
+    family_id: story.family_id,
+    subject_id: subjectId,
+    token,
+    kind,
+    payload,
+    shared_by: user.id,
+    expires_at: expiresAtFrom(now),
+    // Written out rather than left to the column default. Anything that
+    // reads the row back — including the page that renders the link — needs
+    // the value to be *in* it, and a default only exists in the database.
+    allow_contributions: true,
+  });
+  if (error) throw new Error(error.message);
+
+  await record(admin, {
+    familyId: story.family_id,
+    subjectId,
+    actorId: user.id,
+    actorLabel: user.email?.split("@")[0] ?? "Someone",
+    kind: "shared_story",
+    // The title, never the contents. It is going in a log the whole family
+    // reads.
+    detail: `shared “${String(payload.title).slice(0, 60)}”`,
+  });
+
+  revalidatePath(`/subjects/${subjectId}/found`);
+  redirect(`/subjects/${subjectId}/found?shared=${token}`);
+}
+
+/** Pull a link back. Everything it reached stays exactly where it is. */
+export async function revokeShare(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const shareId = String(formData.get("share_id"));
+  const subjectId = String(formData.get("subject_id"));
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canEdit(membership.role)) throw new Error("not yours to revoke");
+
+  const admin = adminClient();
+  const { data: share } = await admin
+    .from("shared_stories")
+    .select("id, family_id, payload")
+    .eq("id", shareId)
+    .maybeSingle();
+  if (!share) redirect(`/subjects/${subjectId}/found`);
+
+  await admin
+    .from("shared_stories")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", shareId)
+    .is("revoked_at", null);
+
+  await record(admin, {
+    familyId: (share as any).family_id,
+    subjectId,
+    actorId: user.id,
+    actorLabel: user.email?.split("@")[0] ?? "Someone",
+    kind: "revoked_share",
+    detail: "stopped a link that had been sent",
+  });
+
+  revalidatePath(`/subjects/${subjectId}/found`);
+  redirect(`/subjects/${subjectId}/found`);
+}
+
+/**
+ * Somebody with no account says what they remember.
+ *
+ * The only write in the product that happens without a session. Every check
+ * that matters — is the link live, has it had too many, is the text within
+ * length — happens here, because none of them is expressible as a policy
+ * and the table refuses direct writes outright.
+ */
+export async function contributeToStory(formData: FormData) {
+  const token = String(formData.get("token") ?? "");
+  if (!TOKEN_SHAPE.test(token)) throw new Error("no such link");
+
+  const admin = adminClient();
+  const { data: rows } = await admin.rpc("open_shared_story", { t: token });
+  const share = Array.isArray(rows) ? rows[0] : null;
+
+  const state = reachable(
+    share
+      ? {
+          expiresAt: share.expires_at,
+          revokedAt: share.revoked_at,
+          allowContributions: share.allow_contributions,
+          contributionCount: share.contribution_count ?? 0,
+        }
+      : null,
+    new Date().toISOString()
+  );
+  if (!state.ok || !state.mayContribute) {
+    redirect(`/m/${token}?full=1`);
+  }
+
+  const checked = accept(
+    { name: String(formData.get("name") ?? ""), body: String(formData.get("body") ?? "") },
+    share.contribution_count ?? 0
+  );
+  if (!checked.ok) {
+    redirect(`/m/${token}?error=${encodeURIComponent(checked.because)}`);
+  }
+
+  await admin.from("story_contributions").insert({
+    share_id: share.id,
+    family_id: share.family_id,
+    said_by: checked.name,
+    body: checked.body,
+    email: String(formData.get("email") ?? "").trim() || null,
+    // Explicit, like allow_contributions above. Twice in this one feature a
+    // value was left to a column default and then filtered on — and a row
+    // whose status only exists in the database is a row the code that just
+    // wrote it cannot find.
+    status: "pending",
+  });
+
+  await record(admin, {
+    familyId: share.family_id,
+    subjectId: share.subject_id ?? null,
+    actorId: null,
+    actorLabel: checked.name,
+    kind: "story_contribution",
+    // The name, never what they wrote. The family reads the words
+    // themselves, in the place where they can keep or decline them.
+    detail: "added something to a story they were sent",
+  });
+
+  redirect(`/m/${token}?thanks=1`);
+}
+
+/** The family keeps what came back, or does not. */
+export async function judgeContribution(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const contributionId = String(formData.get("contribution_id"));
+  const subjectId = String(formData.get("subject_id"));
+  const keep = String(formData.get("verdict")) === "keep";
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership || !canModerate(membership.role)) throw new Error("not yours to decide");
+
+  const admin = adminClient();
+  const { data: contribution } = await admin
+    .from("story_contributions")
+    .select("id, family_id, said_by, body, status")
+    .eq("id", contributionId)
+    .maybeSingle();
+  if (!contribution || (contribution as any).status !== "pending") {
+    redirect(`/subjects/${subjectId}/review`);
+  }
+
+  let memoryId: string | null = null;
+  if (keep) {
+    // Becomes an ordinary memory, with the name of whoever remembered it
+    // kept alongside their words. They have no account, so there is no
+    // created_by to point at them — the sentence carries the attribution.
+    memoryId = await keepMemory(admin, {
+      familyId: (contribution as any).family_id,
+      about: [subjectId],
+      memory: {
+        created_by: user.id,
+        type: "text",
+        raw_text: (contribution as any).body,
+        contributed_by_name: (contribution as any).said_by,
+        memory_date: null,
+        contribution_status: "approved",
+        visibility: "family",
+      },
+    });
+  }
+
+  await admin
+    .from("story_contributions")
+    .update({ status: keep ? "kept" : "declined", memory_id: memoryId })
+    .eq("id", contributionId)
+    .eq("status", "pending");
+
+  revalidatePath(`/subjects/${subjectId}/review`);
+  redirect(`/subjects/${subjectId}/review`);
 }
