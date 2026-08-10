@@ -17,6 +17,7 @@ import { currentUser, userClient, adminClient } from "@/lib/supabase/server";
 import { answerQuestion } from "@/app/actions";
 import { loadFirstLook } from "@/lib/graph/extract";
 import { ENOUGH_TO_NOTICE } from "@/lib/graph/first-look";
+import { note } from "@/lib/analytics/record";
 import { roleForSubject } from "@/lib/family/membership";
 import { canEdit } from "@/lib/family/roles";
 
@@ -71,6 +72,10 @@ export default async function NoticedPage({ params }: { params: { subjectId: str
     .limit(3);
 
   const enough = look.memoryCount >= ENOUGH_TO_NOTICE;
+  // Recorded here rather than in an action, because this is the only place
+  // it happens: the moment the archive has enough to say something back is a
+  // render, not a button. Fire and forget — see lib/analytics/record.ts.
+  if (enough) void note(adminClient(), user.id, { name: "noticing_shown", count: look.memoryCount });
 
   return (
     <div className="py-10">

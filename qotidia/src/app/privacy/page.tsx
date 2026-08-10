@@ -18,6 +18,8 @@ import { BACKUP_EXPIRY_DAYS } from "@/lib/privacy/erase";
 import { BRAND } from "@/lib/brand";
 import { CLAIMS } from "@/lib/trust/claims";
 import { SUPPORT_ACCESS_HOURS } from "@/lib/family/support";
+import { KEEP_FOR_DAYS, WINDOW_DAYS } from "@/lib/analytics/events";
+import { countOf } from "@/lib/words";
 
 export const metadata = {
   title: `How we keep your family private — ${BRAND}`,
@@ -174,6 +176,23 @@ export default function PrivacyExplainerPage() {
             location, or anything medical &mdash; and we don&rsquo;t build a
             face profile of your child or anyone else. Where a photograph needs
             a name attached, you attach it.
+          </p>
+
+          {/* Added when analytics were built, because a page headed "what we
+              deliberately don't collect" that quietly omitted the one thing
+              we had started collecting would be the exact failure it exists
+              to prevent. */}
+          <p className="mt-5 max-w-[56ch] text-stone">
+            We do measure how the product is used, in our own database and
+            nowhere else &mdash; no Google Analytics, no advertising network,
+            no third party of any kind. It records that something happened,
+            never what: a photograph was added, never which one; a story was
+            shared, never with whom. There is no user id, family id, email,
+            name, file name, IP address or device in it, and people are
+            counted through a token that changes every{" "}
+            {countOf(WINDOW_DAYS, "day")}, so nobody can be followed from one
+            window to the next. All of it is deleted after{" "}
+            {countOf(KEEP_FOR_DAYS, "day")}.
           </p>
         </section>
 

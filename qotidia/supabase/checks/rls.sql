@@ -9,16 +9,23 @@
 -- after any change to the schema. It lists only what is wrong, so a short
 -- answer is a good answer.
 --
--- Expect exactly one row:
+-- Expect exactly two rows:
 --
---     jobs | on | 0
+--     analytics_events | on | 0
+--     jobs             | on | 0
 --
--- which is correct and deliberate. The jobs table is the background queue.
--- It is touched only by the service role, which bypasses row-level security
--- entirely, so it has protection switched on and no policies at all — the
--- effect is that nothing reachable from a browser can see it. Zero policies
--- is listed here rather than hidden because on any *other* table it would
--- mean the opposite: locked so tight the feature is quietly broken.
+-- Both are correct and deliberate, and for the same reason. The jobs table
+-- is the background queue and analytics_events is usage measurement; both
+-- are touched only by the service role, which bypasses row-level security
+-- entirely, so both have protection switched on and no policies at all — the
+-- effect is that nothing reachable from a browser can see either. Zero
+-- policies is listed here rather than hidden because on any *other* table it
+-- would mean the opposite: locked so tight the feature is quietly broken.
+--
+-- analytics_events has no policy for families either. There is nothing in it
+-- about any particular family to show them, and a policy that returned rows
+-- matching their own pseudonym would be a way to confirm which pseudonym is
+-- theirs.
 --
 -- Anything reading "OFF" is serious. Do not put a real family's archive in a
 -- project that reports one.

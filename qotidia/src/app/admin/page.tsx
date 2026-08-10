@@ -44,6 +44,8 @@ export default async function AdminPage() {
           only where a family has said so. Linked from here rather than
           discovered, so that opening it is a deliberate act. */}
       <p className="mt-8 text-sm">
+        <Link href="/admin/funnel" className="text-ochre">Is it working</Link>
+        {" \u00b7 "}
         <Link href="/admin/support" className="text-ochre">
           Families who have asked us to look
         </Link>

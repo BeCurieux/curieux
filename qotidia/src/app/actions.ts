@@ -40,6 +40,7 @@ import { loadEntities } from "@/lib/graph/extract";
 import { peopleBooksFor } from "@/lib/book/people-books";
 import { roomToAdd } from "@/lib/storage/usage";
 import { mayKeepMore } from "@/lib/billing/standing";
+import { note } from "@/lib/analytics/record";
 import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { keeperNamed as keeperNamedEmail } from "@/lib/email/messages";
 import { SETTLING_DAYS, mayClaim } from "@/lib/succession/policy";
@@ -93,6 +94,7 @@ export async function signUp(formData: FormData) {
   if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}&plan=${plan}`);
   if (data.session) {
     setSessionCookies(data.session.access_token, data.session.refresh_token);
+    void note(adminClient(), data.session.user.id, { name: "signed_up" });
     redirect(`/onboarding?plan=${plan}`);
   }
   redirect("/login?message=Check your email to confirm your account");
@@ -148,6 +150,7 @@ export async function createChild(formData: FormData) {
     .select("id")
     .single();
   if (childErr) throw new Error(childErr.message);
+  void note(db, user.id, { name: "subject_created" });
   // Straight to the choice of which year to start with. The people step
   // follows from the upload screen rather than blocking it: naming
   // grandparents is useful and is not what anyone came here to do, and it
@@ -344,6 +347,7 @@ export async function registerUploadedPhoto(input: {
   // space would send them to the wrong page.
   const kept = await mayKeepMore(db, story.family_id, 1);
   if (!kept.ok) {
+    void note(db, user.id, { name: "free_cap_reached" });
     return { full: true as const, message: kept.message ?? "There's no room left." };
   }
 
@@ -359,6 +363,7 @@ export async function registerUploadedPhoto(input: {
     },
   });
   if (!memoryId) throw new Error("could not keep that");
+  void note(db, user.id, { name: "upload_finished", count: 1 });
   const memory = { id: memoryId };
 
   // Everything the browser said about this file is written down as a claim,
@@ -426,6 +431,7 @@ export async function registerVoiceMemory(input: {
     },
   });
   if (!memoryId) throw new Error("could not keep that recording");
+  void note(db, user.id, { name: "memory_written" });
   const memory = { id: memoryId };
 
   // A recording made in the browser is still an upload, and gets the same
@@ -478,6 +484,7 @@ export async function addTextMemory(formData: FormData) {
       visibility: formData.get("private") === "on" ? "private" : "family",
     },
   });
+  void note(db, user.id, { name: "memory_written" });
   revalidatePath(`/subjects/${subjectId}`);
 }
 
@@ -606,6 +613,8 @@ export async function answerQuestion(formData: FormData) {
   if (!membership) throw new Error("not a member of this family");
 
   // Editing an answer updates the memory rather than adding a second one.
+  void note(db, user.id, { name: "question_answered" });
+
   if (question?.answer_memory_id) {
     await db
       .from("memories")
@@ -782,6 +791,7 @@ export async function approveBook(formData: FormData) {
 
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "print" }, `render-print-${bookId}-${approvedAt}`);
   await enqueue(admin, "render_pdf", { book_id: bookId, target: "digital" }, `render-digital-${bookId}-${approvedAt}`);
+  void note(admin, user.id, { name: "book_approved" });
   redirect(`/books/${bookId}/checkout`);
 }
 
@@ -1168,6 +1178,7 @@ export async function requestExport(formData: FormData) {
     actorLabel: user.email?.split("@")[0] ?? "Someone",
     kind: "exported_archive",
   });
+  void note(admin, user.id, { name: "archive_exported" });
 
   revalidatePath(`/settings/privacy`);
   redirect("/settings/privacy?export=preparing");
@@ -1207,6 +1218,10 @@ export async function deleteEverything(formData: FormData) {
   if (error) throw new Error(error.message);
 
   const admin = adminClient();
+  // Measured, and deliberately so. A number that only ever goes up when
+  // something is going wrong is the number most worth being unable to hide
+  // from ourselves.
+  void note(admin, user.id, { name: "archive_deleted" });
   await enqueue(admin, "erase_family", { family_id: familyId, request_id: request.id }, `erase-${request.id}`);
   redirect("/settings/privacy?deleted=1");
 }
@@ -1381,6 +1396,7 @@ export async function cancelMembership(formData: FormData) {
     state: family.membership_state,
     note: "asked to stop at the end of the paid period",
   });
+  void note(adminClient(), user.id, { name: "stopped_paying" });
 
   revalidatePath("/settings/billing");
   redirect("/settings/billing?stopped=1");
@@ -2329,6 +2345,7 @@ export async function shareStory(formData: FormData) {
     // reads.
     detail: `shared “${String(payload.title).slice(0, 60)}”`,
   });
+  void note(db, user.id, { name: "story_shared" });
 
   revalidatePath(`/subjects/${subjectId}/found`);
   redirect(`/subjects/${subjectId}/found?shared=${token}`);
@@ -2433,6 +2450,15 @@ export async function contributeToStory(formData: FormData) {
     // themselves, in the place where they can keep or decline them.
     detail: "added something to a story they were sent",
   });
+
+  // Attributed to whoever *sent* the story, not to the person replying —
+  // who has no account, and whom we are not going to give a pseudonym to
+  // for the privilege of doing a family a favour. The funnel step being
+  // measured is "the story I shared came back with something in it", and
+  // that belongs to the sharer.
+  if (share.shared_by) {
+    void note(admin, String(share.shared_by), { name: "contribution_received" });
+  }
 
   redirect(`/m/${token}?thanks=1`);
 }

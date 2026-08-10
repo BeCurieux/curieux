@@ -18,10 +18,11 @@
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { currentUser, userClient } from "@/lib/supabase/server";
+import { adminClient, currentUser, userClient } from "@/lib/supabase/server";
 import { answerDiscovery, revokeShare, shareStory } from "@/app/actions";
 import { discoveries, type Shot } from "@/lib/onboarding/discover";
 import { storyFrom } from "@/lib/onboarding/story";
+import { note } from "@/lib/analytics/record";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { SERVABLE_VERDICT } from "@/lib/media/verify";
 import { countOf, dateRange, friendlyDate } from "@/lib/words";
@@ -119,6 +120,9 @@ export default async function FoundPage({
   }
 
   const story = lead ? storyFrom({ discovery: lead, answer: alreadySaid }) : null;
+  // The moment the product becomes itself, and the step in the funnel that
+  // everything before it exists to reach.
+  if (story) void note(adminClient(), user.id, { name: "story_made" });
 
   // Links already out there for this family, so the page can show what has
   // been sent and let it be stopped.

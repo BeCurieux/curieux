@@ -524,6 +524,16 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
   // the batching window can be tested.
   const now = payload.day ? new Date(String(payload.day)) : new Date();
 
+  // Retention, on the one job that already runs daily. A promise to keep
+  // analytics for half a year that nothing executes is a comment, and this
+  // is the cheapest possible place for it to be true instead — it is one
+  // indexed delete, and if it fails the digest still goes out.
+  try {
+    await db.rpc("purge_old_analytics");
+  } catch {
+    // Never let housekeeping stop a family being told what is waiting.
+  }
+
   const { data: subjects } = await db
     .from("subjects")
     .select("id, display_name, date_of_birth, family_id");
