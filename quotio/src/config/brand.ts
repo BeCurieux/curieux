@@ -1,0 +1,50 @@
+// Single source of truth for every brand string in the product (brief §1).
+//
+// "Quotio" is a development codename. When the real name is chosen, change it
+// here — nothing else in the codebase hardcodes it. If you add a user-visible
+// string containing the product name, it belongs in this file.
+
+export const brand = {
+  /** Product name, as shown in the header, titles and the "Made with" badge. */
+  name: "Quotio",
+
+  /** One-line positioning, used in metadata and the footer. */
+  tagline: "Make your website do things.",
+
+  /** Hero headline, split so one half can be coloured (§6). */
+  heroHeadline: { lead: "Tiny interactive tools,", accent: "beautifully made." },
+
+  heroSupport:
+    "Create calculators, estimators and recommendations your customers will actually enjoy using.",
+
+  /** The three promises under the hero CTA. */
+  heroProofPoints: ["No code", "Beautiful by default", "Embed anywhere"],
+
+  /** Shown on free-plan widgets; the top of the growth loop (§22). */
+  badgeLabel: "Made with",
+
+  /** Marketing site domain, used in copy only. */
+  domain: "quotio.app",
+
+  /** Support address shown on billing/settings screens. */
+  supportEmail: "hello@quotio.app",
+} as const;
+
+/**
+ * Absolute origin for hosted pages and embed snippets.
+ * Set NEXT_PUBLIC_APP_URL in production; localhost is a sane dev default.
+ */
+export function appUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  return raw.replace(/\/$/, "");
+}
+
+/** Public URL of a published widget's hosted page (§21). */
+export function hostedUrl(slug: string): string {
+  return `${appUrl()}/w/${slug}`;
+}
+
+/** Public URL of the bare, frameable widget (§21). */
+export function embedUrl(slug: string): string {
+  return `${appUrl()}/embed/${slug}`;
+}
