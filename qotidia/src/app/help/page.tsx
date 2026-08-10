@@ -120,6 +120,8 @@ export default function HelpPage() {
 
       <p className="mt-16 border-t border-rule pt-8 text-sm leading-relaxed text-stone">
         The other things we&rsquo;ve written down:{" "}
+        <Link href="/about" className="text-ochre">who makes this</Link>
+        {" \u00b7 "}
         <Link href="/promise" className="text-ochre">the nine privacy promises</Link>
         {" · "}
         <Link href="/privacy" className="text-ochre">how the whole thing works</Link>
