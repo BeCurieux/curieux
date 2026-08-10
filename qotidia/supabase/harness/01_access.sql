@@ -434,6 +434,108 @@ select harness_expect('and there is still exactly one owner',
   (select count(*)::int from family_memberships
     where family_id = 'aaaaaaaa-0000-0000-0000-000000000001' and role = 'owner'), 1);
 
+-- ============================================== a link somebody was sent
+--
+-- This is the only door in the product that opens without an account, so
+-- the questions are all about what is behind it. A token reaches one frozen
+-- story. It must not reach the archive, the other family, or a second story
+-- — and a token-guessing loop must get nothing.
+
+reset role;
+
+insert into shared_stories (id, family_id, subject_id, token, kind, payload, shared_by, expires_at)
+values
+  ('5a4e0000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
+   'cccccccc-0000-0000-0000-000000000001', 'AAAAAAAAAAAAAAAAAAAAAA', 'found',
+   '{"title":"One Saturday in February"}'::jsonb,
+   '11111111-1111-1111-1111-111111111111', now() + interval '30 days'),
+  ('5a4e0000-0000-0000-0000-000000000002', 'bbbbbbbb-0000-0000-0000-000000000002',
+   'dddddddd-0000-0000-0000-000000000003', 'BBBBBBBBBBBBBBBBBBBBBB', 'found',
+   '{"title":"Another family"}'::jsonb,
+   '33333333-3333-3333-3333-333333333333', now() + interval '30 days');
+
+-- A recipient has no session at all. This is the anon role, which is what a
+-- browser opening the link actually is.
+--
+-- The claim has to be cleared as well as the role. request.jwt.claim.sub is
+-- a session setting and survives `set role` — so without this the
+-- "anonymous visitor" is still carrying whichever user the previous block
+-- became, and every assertion below passes for the wrong reason. It did:
+-- the first run of this reported that a recipient could list the family's
+-- shares, which was true only because the recipient was the owner.
+select set_config('request.jwt.claim.sub', '', false);
+set role anon;
+
+do $$
+declare n int;
+begin
+  select count(*) into n from open_shared_story('AAAAAAAAAAAAAAAAAAAAAA');
+  if n <> 1 then raise exception 'FAILED: a valid token returned % rows', n; end if;
+  raise notice 'ok   a token opens the story it was made for';
+end $$;
+
+do $$
+declare n int;
+begin
+  select count(*) into n from open_shared_story('ZZZZZZZZZZZZZZZZZZZZZZ');
+  if n <> 0 then raise exception 'FAILED: an unknown token returned a story'; end if;
+  -- Shape-checked before the lookup, so a guessing loop never reaches the
+  -- table at all.
+  select count(*) into n from open_shared_story('short');
+  if n <> 0 then raise exception 'FAILED: a malformed token was looked up'; end if;
+  raise notice 'ok   a guessed token gets nothing';
+end $$;
+
+-- The link is the *only* thing it reaches. Everything else stays shut.
+select harness_expect('a recipient cannot list what has been shared',
+  (select count(*)::int from shared_stories), 0);
+select harness_expect('a recipient cannot read the archive',
+  (select count(*)::int from memories), 0);
+select harness_expect('a recipient cannot read any subjects',
+  (select count(*)::int from subjects), 0);
+
+-- Nor write a contribution straight into the table. Whether the link is
+-- live, and whether it has had too many already, are not things a policy
+-- can check — so the table refuses everything and the server does it.
+do $$
+begin
+  begin
+    insert into story_contributions (share_id, family_id, said_by, body)
+    values ('5a4e0000-0000-0000-0000-000000000001',
+            'aaaaaaaa-0000-0000-0000-000000000001', 'Nobody', 'let me in');
+    raise exception 'FAILED: a contribution was written directly by an anonymous caller';
+  exception
+    when insufficient_privilege or check_violation then
+      raise notice 'ok   a contribution cannot be written straight into the table';
+  end;
+end $$;
+
+-- The family sees its own shares and no others.
+set role authenticated;
+select harness_become('11111111-1111-1111-1111-111111111111');
+select harness_expect('the family sees what it has sent',
+  (select count(*)::int from shared_stories), 1);
+
+select harness_become('33333333-3333-3333-3333-333333333333');
+select harness_expect('and never what another family has sent',
+  (select count(*)::int from shared_stories
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001'), 0);
+
+-- Contributions belong to the family they were sent to.
+reset role;
+insert into story_contributions (share_id, family_id, said_by, body)
+values ('5a4e0000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
+        'Gran', 'That was the morning we drove to the coast.');
+
+set role authenticated;
+select harness_become('11111111-1111-1111-1111-111111111111');
+select harness_expect('the family reads what came back',
+  (select count(*)::int from story_contributions), 1);
+
+select harness_become('33333333-3333-3333-3333-333333333333');
+select harness_expect('and another family reads none of it',
+  (select count(*)::int from story_contributions), 0);
+
 -- ================================================== who the archive asks about
 --
 -- Every policy above learns who is making the request from one function, so

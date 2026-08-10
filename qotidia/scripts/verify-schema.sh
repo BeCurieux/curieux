@@ -75,8 +75,25 @@ done
 echo
 echo "Access"
 # Notices carry the assertions; an exception anywhere aborts the whole file.
-psql -q -v ON_ERROR_STOP=1 -d "$DB" -f "$HERE/supabase/harness/01_access.sql" 2>&1 \
-  | sed -n 's/^psql.*NOTICE:  /  /p'
+# Captured to a file rather than piped straight into sed.
+#
+# It used to be `psql ... | sed -n 's/NOTICE/…/p'`, and that swallowed every
+# failure: the pipeline's exit status is sed's, sed always succeeds, and
+# `set -e` therefore saw nothing. A raised assertion printed an ERROR line
+# that matched no pattern, vanished, and the script went on to print "Schema
+# verified". Every access assertion in this file could have been failing for
+# as long as it has existed and nothing would have said so — which is
+# exactly the class of thing the harness was written to prevent, one level
+# up.
+if ! psql -q -v ON_ERROR_STOP=1 -d "$DB" -f "$HERE/supabase/harness/01_access.sql" \
+     > /tmp/qotidia-access.log 2>&1; then
+  sed -n 's/^psql.*NOTICE:  /  /p' /tmp/qotidia-access.log
+  echo
+  echo "  FAIL an access assertion did not hold:"
+  grep -E "ERROR|FAILED" /tmp/qotidia-access.log | head -5 | sed 's/^/       /'
+  exit 1
+fi
+sed -n 's/^psql.*NOTICE:  /  /p' /tmp/qotidia-access.log
 
 tables=$(psql -tAc "select count(*) from information_schema.tables where table_schema='public'" -d "$DB")
 policies=$(psql -tAc "select count(*) from pg_policies where schemaname='public'" -d "$DB")
