@@ -17,6 +17,7 @@ import { currentUser, userClient } from "@/lib/supabase/server";
 import { roleInFamily } from "@/lib/family/membership";
 import { canManageAccess } from "@/lib/family/roles";
 import { bookPriceFor } from "@/lib/billing/price";
+import { SHORT as FIRST_STORY_SHORT } from "@/lib/trust/first-story";
 import {
   CANCELLATION_PROMISE,
   MONTHS_FOR_INCLUDED_BOOK,
@@ -199,7 +200,7 @@ export default async function BillingPage({
               <button className="btn">Switch to monthly</button>
               <p className="mt-3 max-w-[54ch] text-sm leading-relaxed text-stone">
                 {aud(PLAN_PRICES.monthlyAud())} a month, each year&rsquo;s book
-                included.{" "}
+                included. {FIRST_STORY_SHORT}{" "}
                 <Link href="/pricing" className="text-ochre">The two side by side</Link>
               </p>
             </form>

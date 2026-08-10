@@ -34,6 +34,9 @@
 
 import Link from "next/link";
 import { CANCELLATION_PROMISE, planCopy } from "@/lib/billing/plans";
+import {
+  HEADLINE, STATUTORY as FIRST_STORY_STATUTORY, TERMS,
+} from "@/lib/trust/first-story";
 import { BRAND } from "@/lib/brand";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
 
@@ -99,6 +102,36 @@ export default function PricingPage() {
           );
         })}
       </div>
+
+      {/* ---------------------------------------------- the first story promise
+          Above "if you stop", because it answers the earlier question. The
+          hardest thing about this sale is being asked to pay before seeing
+          anything only your own family could have produced; "if you stop" is
+          about month nine, and this is about the decision being made on this
+          page right now. */}
+      <section className="mt-16 border-t border-rule pt-12">
+        <p className="text-xs uppercase tracking-[0.28em] text-clay">
+          The First Story Promise
+        </p>
+        <h2 className="mt-4 max-w-[20ch] font-display text-3xl leading-tight md:text-4xl">
+          {HEADLINE}
+        </h2>
+
+        <dl className="mt-10 grid gap-7 sm:grid-cols-2">
+          {TERMS().map((t) => (
+            <div key={t.what}>
+              <dt className="text-sm">{t.what}</dt>
+              <dd className="reading mt-1.5 max-w-[42ch] text-sm leading-relaxed text-stone">
+                {t.detail}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <p className="reading mt-9 max-w-[56ch] text-sm leading-relaxed text-stone">
+          {FIRST_STORY_STATUTORY}
+        </p>
+      </section>
 
       {/* Reassurance, not argument. The strongest thing this company can say
           and the reason it is not folded into a list of questions. */}
