@@ -268,6 +268,28 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
         )}
       </section>
 
+      {/* --------------------------------------------------- what we found
+          Offered rather than automatic. The first-run story is the strongest
+          thing the product does before a family has typed anything, and it
+          stays worth opening afterwards — the day it picks changes as more
+          goes in. */}
+      {kept > 0 && (
+        <section className="mt-14 border-t border-rule pt-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="font-display text-2xl">A story we found</h2>
+              <p className="mt-1 max-w-[46ch] text-sm leading-relaxed text-stone">
+                One day out of everything you&rsquo;ve added, picked by how much
+                of it there is. Counted from when the photographs were taken.
+              </p>
+            </div>
+            <Link href={`/subjects/${child.id}/found`} className="btn-secondary">
+              Show me
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* ------------------------------------------------- the people in it
           From the graph rather than the family list, because a membership
           row is an intention and a mention is a fact. */}

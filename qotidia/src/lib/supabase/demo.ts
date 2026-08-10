@@ -215,6 +215,41 @@ function buildTables(): Record<string, Row[]> {
     });
   });
 
+  // One day with a lot in it, on a real Saturday.
+  //
+  // The first-run story page picks the busiest single day out of a camera
+  // roll and asks what was happening — the strongest thing the product does
+  // before a family has typed anything. Without a day like this the fixture
+  // only produces the span, which asks nothing, so the demo could not show
+  // the loop the page exists for. Same reasoning as the Thursdays above and
+  // the Maggie duplicate below: the demo has to contain the thing it
+  // demonstrates.
+  //
+  // No text on any of them. That is the point — nine photographs and not one
+  // word is exactly what a real afternoon looks like in a camera roll.
+  const SATURDAY = 6;
+  const bigDay = onWeekday(day(196), SATURDAY);
+  for (let i = 0; i < 9; i++) {
+    const id = `mem-bigday-${i}`;
+    memories.push({
+      id, family_id: familyId, created_by: DEMO_USER.id, type: "photo",
+      raw_text: null, transcript: null, location: null, metadata: {},
+      memory_date: bigDay, created_at: bigDay,
+      contribution_status: "approved", visibility: "family",
+      reviewed_by: null, reviewed_at: null,
+    });
+    assets.push({
+      id: `asset-bigday-${i}`, memory_id: id, storage_path: `demo/${60 + i}.png`,
+      mime_type: "image/png", width: 1600, height: 2100,
+      checksum: `demo-bigday-${i}`, processing_status: "complete",
+      scan_verdict: "clean", scan_reason: null, scanned_by: "fixture",
+      // A real clock, an hour apart through the afternoon, so the page can
+      // say how long the day lasted rather than falling back to the date.
+      capture_timestamp: `${bigDay}T${String(11 + i).padStart(2, "0")}:20:00.000Z`,
+      duration_seconds: null, thumbnail_path: null,
+    });
+  }
+
   // Grandma, who is Maggie under her other name. Four of her own, so both
   // halves of the duplicate clear the bar and the demo actually contains the
   // situation the who's-who page exists for.

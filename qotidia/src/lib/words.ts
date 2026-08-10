@@ -26,6 +26,33 @@ export function friendlyDate(value: string | Date | null | undefined, now: Date 
     : `${day} ${month} ${d.getFullYear()}`;
 }
 
+/**
+ * Two dates as one range.
+ *
+ * Exists because friendlyDate drops the year for the current one, and a
+ * range that crosses new year therefore printed "19 August 2025 – 17 May" —
+ * two different formats in a single line. Either both ends carry a year or
+ * neither does, decided by whether they share one.
+ */
+export function dateRange(
+  from: string | Date,
+  to: string | Date,
+  now: Date = new Date()
+): string {
+  const a = from instanceof Date ? from : new Date(from);
+  const b = to instanceof Date ? to : new Date(to);
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return "";
+
+  const sameDay = a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
+  if (sameDay) return friendlyDate(a, now);
+
+  // A range spanning two calendar years needs the year on both ends. Forcing
+  // `now` to a year neither end shares is how both get one.
+  const straddles = a.getFullYear() !== b.getFullYear();
+  const clock = straddles ? new Date(Date.UTC(a.getFullYear() - 1, 0, 1)) : now;
+  return `${friendlyDate(a, clock)} \u2013 ${friendlyDate(b, clock)}`;
+}
+
 /** Just the month, for grouping. */
 export function monthName(value: string | Date): string {
   const d = value instanceof Date ? value : new Date(value);

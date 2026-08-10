@@ -2192,3 +2192,50 @@ export async function answerAboutThing(formData: FormData) {
   revalidatePath(`/subjects/${subjectId}/about`);
   revalidatePath(`/subjects/${subjectId}`);
 }
+
+
+/**
+ * What was happening that day.
+ *
+ * The first thing most families will ever type into Qotidia, answered
+ * against a day the product found in their camera roll rather than against
+ * a blank box.
+ *
+ * It becomes an ordinary memory, dated to that day. No new table, and more
+ * importantly no separate holding pen for onboarding answers: the first
+ * sentence somebody writes is archive content immediately, goes into the
+ * book, and is the title of the story on the way out.
+ */
+export async function answerDiscovery(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const day = String(formData.get("day"));
+  const said = String(formData.get("answer") ?? "").trim();
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+  const story = await storySubject(db, subjectId);
+  if (!story) throw new Error("no such subject");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new Error("bad day");
+  if (!said) redirect(`/subjects/${subjectId}/found`);
+
+  await keepMemory(db, {
+    familyId: story.family_id,
+    about: [subjectId],
+    memory: {
+      created_by: user.id,
+      type: "text",
+      raw_text: said,
+      memory_date: day,
+      filed_at: new Date().toISOString(),
+      // Approved on arrival: the person who owns the archive wrote it. The
+      // moderation queue exists for contributions from other people.
+      contribution_status: canModerate(membership.role) ? "approved" : "pending",
+      visibility: "family",
+    },
+  });
+
+  revalidatePath(`/subjects/${subjectId}/found`);
+  redirect(`/subjects/${subjectId}/found`);
+}
