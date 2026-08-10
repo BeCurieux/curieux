@@ -42,6 +42,15 @@ export interface MarketingImage {
  */
 const ACCEPTED = ["jpg", "jpeg", "png", "webp", "avif"];
 
+/**
+ * How far the hero's cover must sit from the accent, in degrees of hue.
+ *
+ * Sixty. Terracotta at 24 read as a mistake; olive at 84 and dusty blue at
+ * 148 read as a choice. Somewhere in between is the line, and this is a
+ * comfortable side of it.
+ */
+export const HERO_HUES_APART = 60;
+
 /** Resolve a slot against what is actually on disk right now. */
 function slot(name: string, fallback: string, alt: string): MarketingImage {
   for (const ext of ACCEPTED) {
@@ -62,8 +71,21 @@ function slot(name: string, fallback: string, alt: string): MarketingImage {
  */
 export const MARKETING = {
   /** Hero. An open book, held or resting, in ordinary daylight. */
+  /**
+   * The hero, which sits directly beside the one oxblood button on the site.
+   *
+   * Age four — dusty blue — rather than age two. The fallback was terracotta,
+   * which is 24 degrees from the accent on the colour wheel: close enough
+   * that the button and the book read as a failed attempt at the same
+   * colour rather than as two deliberate ones. Nothing was wrong with either
+   * on its own, and no contrast check can see it. HERO_HUES_APART below is
+   * the rule; imagery.test.ts holds this slot to it.
+   *
+   * A real photograph replaces this the moment one is dropped in, and a
+   * photograph is not held to the rule — it carries its own colour.
+   */
   hero: () =>
-    slot("book-hero", "/sample/age-02.png", "An open Qotidia volume — the year you were two"),
+    slot("book-hero", "/sample/age-04.png", "An open Qotidia volume — the year you were four"),
   /** The shelf. Several years together, in a real room. */
   shelf: () =>
     slot("book-shelf", "/sample/age-02.png", "A row of Qotidia volumes on a shelf at home"),

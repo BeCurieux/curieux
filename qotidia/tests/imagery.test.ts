@@ -9,7 +9,9 @@
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { AVOID, MARKETING, SHOT_LIST, type SlotName } from "@/lib/marketing/imagery";
+import { AVOID, HERO_HUES_APART, MARKETING, SHOT_LIST, type SlotName } from "@/lib/marketing/imagery";
+import { AGE_COLOURS, huesApart } from "@/lib/book/colours";
+import { PALETTE } from "@/lib/palette";
 
 const inPublic = (src: string) => fileURLToPath(new URL(`../public${src}`, import.meta.url));
 const slots = Object.keys(MARKETING) as SlotName[];
@@ -55,5 +57,39 @@ describe("marketing photography", () => {
 
   it("keeps the list of what to avoid, which is half the brief", () => {
     expect(AVOID.length).toBeGreaterThan(4);
+  });
+});
+
+describe("the hero cover and the accent are two decisions, not one", () => {
+  // Terracotta sat 24 degrees from oxblood on the colour wheel. Both were
+  // fine on their own and the pair read as a failed attempt at one colour —
+  // the button and the book, side by side in the hero, almost matching.
+  //
+  // Contrast checks cannot see this. They ask whether something is legible,
+  // and both were.
+  const ageFromPath = (src: string) => Number(src.match(/age-(\d+)/)?.[1] ?? -1);
+
+  it("keeps the hero's fallback cover away from the accent", () => {
+    const age = ageFromPath(MARKETING.hero().src);
+    const cover = AGE_COLOURS.find((c) => c.age === age);
+    expect(cover, `no annual colour for age ${age}`).toBeTruthy();
+    const apart = huesApart(cover!.hex, PALETTE.clay);
+    expect(
+      apart,
+      `${cover!.name} (${cover!.hex}) is ${Math.round(apart)}° from the accent ${PALETTE.clay}; needs ${HERO_HUES_APART}°`
+    ).toBeGreaterThanOrEqual(HERO_HUES_APART);
+  });
+
+  it("would have caught the terracotta pairing", () => {
+    // The guard checked in both directions: the colour that was there fails.
+    const terracotta = AGE_COLOURS.find((c) => c.age === 2)!;
+    expect(huesApart(terracotta.hex, PALETTE.clay)).toBeLessThan(HERO_HUES_APART);
+  });
+
+  it("does not hold a real photograph to the rule", () => {
+    // A photograph carries its own colour and is not the brand asserting
+    // one. The rule is about generated cover artwork standing in.
+    const hero = MARKETING.hero();
+    if (hero.isPhoto) expect(ageFromPath(hero.src)).toBe(-1);
   });
 });

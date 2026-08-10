@@ -73,6 +73,31 @@ export function luminance(hex: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
+/**
+ * Where a colour sits on the wheel, 0–360.
+ *
+ * Contrast answers "can this be read"; hue answers "do these two look like
+ * the same decision". Two warm reds a few degrees apart read as a mistake
+ * even when both are perfectly legible, which is a thing no contrast check
+ * can catch.
+ */
+export function hueOf(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const chroma = max - min;
+  if (chroma === 0) return 0;
+  const h =
+    max === r ? ((g - b) / chroma) % 6 : max === g ? (b - r) / chroma + 2 : (r - g) / chroma + 4;
+  return (h * 60 + 360) % 360;
+}
+
+/** The shorter way round the wheel between two colours, in degrees. */
+export function huesApart(a: string, b: string): number {
+  const d = Math.abs(hueOf(a) - hueOf(b)) % 360;
+  return Math.min(d, 360 - d);
+}
+
 export function contrastRatio(a: string, b: string): number {
   const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
   return (l1 + 0.05) / (l2 + 0.05);
