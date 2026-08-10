@@ -39,6 +39,8 @@ import {
 } from "@/lib/trust/first-story";
 import { BRAND } from "@/lib/brand";
 import { PRICING, PRICING_LOWER } from "@/lib/nav";
+import { FREE_MEMORIES, WHAT_PAYING_ADDS } from "@/lib/billing/free";
+import { countOf } from "@/lib/words";
 
 export const metadata = { title: `${PRICING} — ${BRAND}` };
 
@@ -52,12 +54,51 @@ export default function PricingPage() {
       <div>
         <h1 className="text-display font-display lowercase">{PRICING_LOWER}</h1>
         <p className="mt-7 max-w-[40ch] text-lede text-stone">
-          Two ways to pay. One of them is a book; the other is the year that
-          makes it.
+          Start free. Two ways to pay when you want the year kept and the book
+          it makes.
         </p>
       </div>
 
-      <div className="mt-16 grid gap-6 md:grid-cols-2">
+      {/* ------------------------------------------------------------- free
+          First, and not as a locked version of the paid thing. Everything
+          that makes this product worth having happens well inside the first
+          hundred — the noticing, the questions, the first story — and a
+          parent who never pays a cent should get it. lib/billing/free.ts
+          argues why the wall is where it is. */}
+      <section className="mt-14 rounded-2xl bg-card p-8 md:p-10">
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <h2 className="font-display text-2xl lowercase">start free</h2>
+          <p className="text-sm text-stone">
+            {countOf(FREE_MEMORIES, "memory", "memories")}, no card
+          </p>
+        </div>
+        <p className="reading mt-4 max-w-[54ch] leading-relaxed">
+          Drop in a few dozen photographs and the archive reads them: what
+          keeps turning up, which day of the week it happens on, the thing
+          that stopped in March. You get your first story out of it, and you
+          can send it to somebody. None of that needs a card.
+        </p>
+        <p className="reading mt-4 max-w-[54ch] text-sm leading-relaxed text-stone">
+          The wall is only ever on adding. Everything you keep stays readable
+          and downloadable for as long as you want it, whether you ever pay or
+          not &mdash; we never delete a family&rsquo;s archive.
+        </p>
+        <p className="mt-7">
+          <Link href="/signup" className="btn !px-7 !py-3">Start with a few photos</Link>
+        </p>
+      </section>
+
+      <h2 className="mt-16 font-display text-2xl lowercase">when you want the year</h2>
+      <ul className="mt-5 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+        {WHAT_PAYING_ADDS.map((line) => (
+          <li key={line} className="flex gap-3 leading-relaxed">
+            <span aria-hidden className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-clay" />
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-12 grid gap-6 md:grid-cols-2">
         {plans.map((plan, i) => {
           const isMonthly = plan.id === "monthly";
           return (

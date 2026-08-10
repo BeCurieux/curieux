@@ -780,3 +780,133 @@ select harness_expect('a grant does nothing for a stranger who is not staff',
 
 reset role;
 select set_config('request.jwt.claim.sub', '', false);
+
+-- ------------------------------------------------------------- the free cap
+--
+-- Migration 0028. The rule is enforced here rather than in the application
+-- because an application check can be missed by a new code path and costs
+-- two round trips per row; a trigger cannot and does not.
+--
+-- Both directions, as always: a free family is stopped at the cap, and a
+-- paying one is not stopped at all.
+
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+
+-- A family of their own, so the fixtures above are not disturbed.
+insert into auth.users (id, email) values
+  ('77777777-7777-7777-7777-777777777777', 'thrifty@example.test');
+insert into families (id, owner_user_id, family_name, membership_state) values
+  ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+   'The Thriftys', 'none');
+insert into family_memberships (family_id, user_id, role) values
+  ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777', 'owner');
+
+-- Fill it to one short of the cap.
+insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+select '7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+       'photo', '2026-04-01', 'approved', 'family'
+  from generate_series(1, free_memory_cap() - 1);
+
+select harness_expect('a free family may fill up to the cap',
+  (select count(*)::int from memories where family_id = '7f000000-0000-0000-0000-000000000007'),
+  free_memory_cap() - 1);
+
+-- The last one fits.
+insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+        'photo', '2026-04-02', 'approved', 'family');
+
+-- The next does not, whoever is inserting it — this block runs as the owner
+-- of the database, so it is not row-level security doing the work.
+do $$
+begin
+  insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+  values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+          'photo', '2026-04-03', 'approved', 'family');
+  raise exception 'FAILED: a free family was allowed past the cap';
+exception when check_violation then
+  raise notice 'ok   a free family is stopped at the cap';
+end $$;
+
+-- A text memory is a memory. The application only ever counted bytes, so
+-- this is the path a quote or an answered question would have walked through.
+do $$
+begin
+  insert into memories (family_id, created_by, type, raw_text, contribution_status, visibility)
+  values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+          'text', 'Something she said.', 'approved', 'family');
+  raise exception 'FAILED: a quote got past the free cap';
+exception when check_violation then
+  raise notice 'ok   a written memory counts against the cap too';
+end $$;
+
+-- Paying lifts it, immediately and without anything being migrated.
+update families set membership_state = 'active'
+ where id = '7f000000-0000-0000-0000-000000000007';
+
+insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+        'photo', '2026-04-04', 'approved', 'family');
+
+select harness_expect('paying lifts the cap at once',
+  (select count(*)::int from memories where family_id = '7f000000-0000-0000-0000-000000000007'),
+  free_memory_cap() + 1);
+
+-- A failed card is a card problem, not a reason to refuse a parent's
+-- photographs. This is the clause most likely to be "tidied up" later.
+update families set membership_state = 'past_due'
+ where id = '7f000000-0000-0000-0000-000000000007';
+insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+        'photo', '2026-04-05', 'approved', 'family');
+select harness_expect('a failed card still keeps the archive open',
+  (select count(*)::int from memories where family_id = '7f000000-0000-0000-0000-000000000007'),
+  free_memory_cap() + 2);
+
+-- A one-off purchase, which leaves no membership behind, counts for the year
+-- it bought and stops counting afterwards.
+update families set membership_state = 'none', paid_until = now() + interval '30 days'
+ where id = '7f000000-0000-0000-0000-000000000007';
+insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+        'photo', '2026-04-06', 'approved', 'family');
+select harness_expect('a one-off purchase counts as paying',
+  (select count(*)::int from memories where family_id = '7f000000-0000-0000-0000-000000000007'),
+  free_memory_cap() + 3);
+
+update families set paid_until = now() - interval '1 day'
+ where id = '7f000000-0000-0000-0000-000000000007';
+do $$
+begin
+  insert into memories (family_id, created_by, type, memory_date, contribution_status, visibility)
+  values ('7f000000-0000-0000-0000-000000000007', '77777777-7777-7777-7777-777777777777',
+          'photo', '2026-04-07', 'approved', 'family');
+  raise exception 'FAILED: a lapsed family was allowed past the cap';
+exception when check_violation then
+  raise notice 'ok   a lapsed family falls back to free, not to nothing';
+end $$;
+
+-- And the thing the whole design rests on: the wall is on adding only.
+-- Reading, exporting and deleting are untouched by any of the above.
+select harness_become('77777777-7777-7777-7777-777777777777');
+set role authenticated;
+select harness_expect('a lapsed family still reads every one of theirs',
+  (select count(*)::int from memories where family_id = '7f000000-0000-0000-0000-000000000007'),
+  free_memory_cap() + 3);
+
+do $$
+declare gone int;
+begin
+  delete from memories
+   where family_id = '7f000000-0000-0000-0000-000000000007'
+     and memory_date = '2026-04-06';
+  get diagnostics gone = row_count;
+  if gone = 0 then
+    raise exception 'FAILED: a free family could not delete their own memory';
+  end if;
+  raise notice 'ok   and can still delete their own';
+end $$;
+
+reset role;
+select set_config('request.jwt.claim.sub', '', false);

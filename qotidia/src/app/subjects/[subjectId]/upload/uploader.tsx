@@ -51,6 +51,8 @@ export function Uploader({ subjectId }: { subjectId: string }) {
   // rows. Running out of room is one fact about the archive, not two hundred
   // separate errors about files.
   const [full, setFull] = useState<string | null>(null);
+  // Which wall it was, so the button goes to the right place.
+  const [wall, setWall] = useState<"space" | "plan">("space");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const setItem = (name: string, patch: Partial<Item>) =>
@@ -107,9 +109,10 @@ export function Uploader({ subjectId }: { subjectId: string }) {
       // family is told there is no room *before* three hundred photographs
       // are pushed into a bucket, rather than after.
       const batchBytes = images.reduce((n, f) => n + f.size, 0);
-      const room = await roomForBatch(subjectId, batchBytes);
+      const room = await roomForBatch(subjectId, batchBytes, images.length);
       if (!room.ok) {
         setFull(room.message ?? "There's no room left.");
+        setWall(room.why ?? "space");
         // Only this batch. Files kept earlier in the same session are still
         // kept, and telling somebody their last hundred photographs were
         // "not kept" because the next hundred did not fit would be a lie
@@ -218,10 +221,14 @@ export function Uploader({ subjectId }: { subjectId: string }) {
     <div>
       {full && (
         <div className="mb-5 rounded-2xl border border-clay bg-card p-5">
-          <p className="font-display text-lg">There&rsquo;s no room for more just now.</p>
+          <p className="font-display text-lg">
+            {wall === "plan"
+              ? "That\u2019s the free archive full."
+              : "There\u2019s no room for more just now."}
+          </p>
           <p className="mt-2 max-w-[52ch] leading-relaxed text-stone">{full}</p>
           <a href="/settings/billing" className="btn mt-5 !px-5 !py-2 text-sm">
-            Add more space
+            {wall === "plan" ? "What a membership adds" : "Add more space"}
           </a>
         </div>
       )}

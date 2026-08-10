@@ -212,6 +212,16 @@ export async function keepMemory(
   db: SupabaseClient,
   input: { familyId: string; about?: string[]; memory: Record<string, any> }
 ): Promise<string | null> {
+  // The free cap is not checked here. It is a trigger on this insert —
+  // migration 0028 — which cannot be bypassed by a new code path and costs
+  // one indexed count instead of two round trips per row. An earlier version
+  // checked it here and added six hundred queries to a three-hundred-photo
+  // upload for a rule the database can answer for nothing.
+  //
+  // A refusal arrives as an error and returns null, like any other failed
+  // insert. Callers who want to say something better than "that didn't
+  // save" ask lib/billing/standing.ts first: the database refuses and the
+  // application explains.
   const { data, error } = await db
     .from("memories")
     .insert({ ...input.memory, family_id: input.familyId })

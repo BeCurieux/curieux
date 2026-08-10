@@ -39,6 +39,7 @@ import { recordAnswer } from "@/lib/graph/identity-store";
 import { loadEntities } from "@/lib/graph/extract";
 import { peopleBooksFor } from "@/lib/book/people-books";
 import { roomToAdd } from "@/lib/storage/usage";
+import { mayKeepMore } from "@/lib/billing/standing";
 import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { keeperNamed as keeperNamedEmail } from "@/lib/email/messages";
 import { SETTLING_DAYS, mayClaim } from "@/lib/succession/policy";
@@ -335,6 +336,15 @@ export async function registerUploadedPhoto(input: {
   const room = await roomToAdd(db, story.family_id, input.bytes);
   if (!room.ok) {
     return { full: true as const, message: room.message ?? "There's no room left." };
+  }
+
+  // Two different limits with two different sentences. Bytes is a storage
+  // question with an answer you can buy more of; the free cap is a question
+  // about the plan. Telling a family on the free tier that they are out of
+  // space would send them to the wrong page.
+  const kept = await mayKeepMore(db, story.family_id, 1);
+  if (!kept.ok) {
+    return { full: true as const, message: kept.message ?? "There's no room left." };
   }
 
   const memoryId = await keepMemory(db, {
@@ -1943,7 +1953,7 @@ export async function startPersonBook(formData: FormData) {
  * this exists so a family is told before three hundred files are pushed into
  * a bucket, not after.
  */
-export async function roomForBatch(subjectId: string, bytes: number) {
+export async function roomForBatch(subjectId: string, bytes: number, count = 1) {
   const user = await requireUser();
   const db = userClient();
   const membership = await roleForSubject(db, subjectId, user.id);
@@ -1951,8 +1961,23 @@ export async function roomForBatch(subjectId: string, bytes: number) {
   const story = await storySubject(db, subjectId);
   if (!story) throw new Error("no such subject");
 
+  // Which wall, as well as whether. They need different sentences and
+  // different buttons: running out of space is something you can buy more
+  // of, and reaching the free cap is a question about the plan. Sending a
+  // family on the free tier to "add more space" would be sending them to
+  // buy the wrong thing.
   const room = await roomToAdd(db, story.family_id, bytes);
-  return { ok: room.ok, message: room.message };
+  if (!room.ok) return { ok: false, why: "space" as const, message: room.message };
+
+  // How many of this batch fit under the free cap. Reported before three
+  // hundred files are pushed at a bucket, for the same reason the byte
+  // check is: being told after is the same as not being told.
+  const kept = await mayKeepMore(db, story.family_id, count);
+  return {
+    ok: kept.ok,
+    why: "plan" as const,
+    message: kept.message ?? room.message,
+  };
 }
 
 
