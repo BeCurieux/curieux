@@ -287,6 +287,11 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
               Show me
             </Link>
           </div>
+          <p className="mt-5 text-sm">
+            <Link href={`/subjects/${child.id}/film`} className="text-ochre">
+              Or the whole year, in a minute
+            </Link>
+          </p>
         </section>
       )}
 
