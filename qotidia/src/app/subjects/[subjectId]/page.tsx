@@ -24,6 +24,8 @@ import { loadEntities } from "@/lib/graph/extract";
 import { settledFor } from "@/lib/graph/identity-store";
 import { knownContext, settledContext } from "@/lib/graph/context-store";
 import { whatToAsk } from "@/lib/home/asking";
+import { evidenceFor, worthShowing, type Evidence } from "@/lib/graph/evidence";
+import { Why } from "@/app/why";
 
 export const dynamic = "force-dynamic";
 
@@ -154,6 +156,26 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   // photographs, but what the photographs were of.
   const told = (await knownContext(db, child.family_id)).slice(0, 3);
 
+  // The memories behind each thing this page says, so every line can be
+  // opened and checked. Bounded and concurrent: the note is three
+  // observations at most and the list three questions, so this is six small
+  // queries at worst — but six *sequential* round trips on the page a parent
+  // opens most often is the kind of thing that quietly makes a product feel
+  // slow, and there is no reason for them to wait on each other.
+  const receipts = async (of: { key: string; memoryIds: string[] }[]) =>
+    Object.fromEntries(
+      await Promise.all(
+        of
+          .filter((x) => worthShowing(x.memoryIds))
+          .map(async (x) => [x.key, await evidenceFor(db, x.memoryIds)] as const)
+      )
+    ) as Record<string, Evidence[]>;
+
+  const [weeklyEvidence, askEvidence] = await Promise.all([
+    receipts(weekly.observations.map((o) => ({ key: o.entityId, memoryIds: o.memoryIds }))),
+    receipts(asks.map((a) => ({ key: a.id, memoryIds: a.memoryIds }))),
+  ]);
+
   const recentPhotoIds = (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id);
   const recentPhotos = await resolvePhotoUrls(db, recentPhotoIds);
   // Photographs are withheld until they have been read server-side. That is
@@ -206,7 +228,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
           below it, which made the one genuinely alive thing on the screen
           look like another module. Now it is the page's opening sentence. */}
       <div className="mt-12">
-        <Weekly note={weekly} subjectId={child.id} />
+        <Weekly note={weekly} subjectId={child.id} evidence={weeklyEvidence} />
       </div>
 
       <div className="mt-8">
@@ -236,6 +258,11 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
                     {ask.question}
                   </p>
                 </Link>
+                <Why
+                  evidence={askEvidence[ask.id] ?? []}
+                  total={ask.memoryIds.length}
+                  what="we asked"
+                />
               </li>
             ))}
           </ul>

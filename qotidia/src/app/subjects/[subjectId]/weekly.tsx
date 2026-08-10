@@ -11,8 +11,19 @@
 
 import type { ShownNote } from "@/lib/weekly/build";
 import { answerNoticed } from "@/app/actions";
+import { Why } from "@/app/why";
+import type { Evidence } from "@/lib/graph/evidence";
 
-export function Weekly({ note, subjectId }: { note: ShownNote; subjectId: string }) {
+export function Weekly({
+  note,
+  subjectId,
+  evidence = {},
+}: {
+  note: ShownNote;
+  subjectId: string;
+  /** Memories behind each observation, keyed by entity id. */
+  evidence?: Record<string, Evidence[]>;
+}) {
   if (!note.worthShowing) return null;
   const { shownIds } = note;
 
@@ -37,6 +48,14 @@ export function Weekly({ note, subjectId }: { note: ShownNote; subjectId: string
             >
               {o.line}
             </p>
+
+            {/* The receipt, under the claim it belongs to and above the
+                buttons that answer it. Every one of these lines already
+                carried the memory ids it was counted from; until now nothing
+                showed them to anybody — and an observation a family can
+                check is one they can correct, which is worth more than the
+                observation was. */}
+            <Why evidence={evidence[o.entityId] ?? []} total={o.memoryIds.length} />
 
             {/* Three answers, all one tap, none of them dismissive of the
                 others. "Ignore" is offered as plainly as "keep" — a product

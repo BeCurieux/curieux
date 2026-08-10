@@ -53,6 +53,37 @@ export function dateRange(
   return `${friendlyDate(a, clock)} \u2013 ${friendlyDate(b, clock)}`;
 }
 
+/**
+ * A set of dates shown side by side, formatted consistently.
+ *
+ * The same fault dateRange exists to fix, one dimension further out. A grid
+ * of thumbnails under an observation printed "27 November 2025", "1 January",
+ * "12 February" — three captions in a row, two of them missing the year,
+ * because friendlyDate drops it for the current one and half the evidence
+ * happened to fall this side of new year. Read as a set, it looks like a
+ * formatting bug rather than a list of days.
+ *
+ * So: either they all carry a year or none do, decided by whether they all
+ * fall in the same one — and if that year is this year, none do.
+ */
+export function dateList(
+  values: (string | Date | null | undefined)[],
+  now: Date = new Date()
+): string[] {
+  const years = new Set<number>();
+  for (const v of values) {
+    if (!v) continue;
+    const d = v instanceof Date ? v : new Date(v);
+    if (!Number.isNaN(d.getTime())) years.add(d.getFullYear());
+  }
+
+  // More than one year in the set means every caption needs one. Forcing the
+  // clock to a year none of them shares is how they all get it — the same
+  // trick as dateRange, for the same reason.
+  const clock = years.size > 1 ? new Date(Date.UTC(Math.min(...years) - 1, 0, 1)) : now;
+  return values.map((v) => friendlyDate(v, clock));
+}
+
 /** Just the month, for grouping. */
 export function monthName(value: string | Date): string {
   const d = value instanceof Date ? value : new Date(value);

@@ -150,7 +150,11 @@ describe("each one carries why it was asked", () => {
   it("points somewhere it can actually be answered", () => {
     const asks = whatToAsk(
       input({
-        entities: [faded("thing:a", "bun_bun"), person("person:n", "Nanna", 9), person("person:nj", "Nanna Jean", 7)],
+        entities: [
+          faded("thing:a", "bun_bun"),
+          person("person:nanna", "Nanna", 9),
+          person("person:nanna jean", "Nanna Jean", 7),
+        ],
         prompt: { question: "Is that still true?", because: "Recorded 8 months ago." },
       })
     );
@@ -184,5 +188,42 @@ describe("chores are not questions", () => {
     for (const chore of ["untagged", "unfiled", "pendingCount", "review"]) {
       expect(source).not.toContain(chore);
     }
+  });
+});
+
+describe("every question can be checked", () => {
+  // A question is a claim about a family too. "Bun Bun is in four memories
+  // and hasn't appeared for seven months" is arithmetic somebody is entitled
+  // to look at before they answer it — and an observation a family can check
+  // is one they can correct, which is worth more than the observation was.
+  it("carries the memories behind a context question", () => {
+    const asks = whatToAsk(input({ entities: [faded("thing:bun_bun", "bun_bun")] }));
+    const context = asks.find((a) => a.kind === "context")!;
+    expect(context.memoryIds.length).toBeGreaterThan(1);
+  });
+
+  it("carries the shared memories behind an identity question", () => {
+    // Two names with nothing in common, connected only by a photograph
+    // carrying both — so the receipt is the whole reason the question was
+    // asked, and showing it is showing the family exactly why.
+    const gran = person("person:gran", "Gran", 9);
+    const nanna = person("person:nanna jean", "Nanna Jean", 7);
+    nanna.mentions[0] = { ...nanna.mentions[0], memoryId: gran.mentions[0].memoryId };
+
+    const asks = whatToAsk(input({ entities: [gran, nanna] }));
+    const identity = asks.find((a) => a.kind === "identity");
+    expect(identity).toBeTruthy();
+    expect(identity!.memoryIds).toEqual([gran.mentions[0].memoryId]);
+    // And it says so in words as well, for anyone who does not open it.
+    expect(identity!.because).toMatch(/One memory has both names/);
+  });
+
+  it("offers no receipt where there is genuinely nothing to show", () => {
+    // The prompt engine reasons over little things and clusters rather than
+    // a memory set. An empty list is better than a misleading one.
+    const asks = whatToAsk(
+      input({ prompt: { question: "Is that still true?", because: "Recorded 8 months ago." } })
+    );
+    expect(asks[0].memoryIds).toEqual([]);
   });
 });

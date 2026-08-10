@@ -52,6 +52,15 @@ export interface Ask {
   /** Why we are asking — the arithmetic, where there is any. */
   because: string | null;
   href: string;
+  /**
+   * The memories behind it.
+   *
+   * Carried so the home screen can offer "why this?" on a question the same
+   * way the weekly note does. A question is a claim about a family too —
+   * "Bun Bun is in four memories and hasn't appeared for seven months" is
+   * arithmetic somebody is entitled to check before answering it.
+   */
+  memoryIds: string[];
   weight: number;
 }
 
@@ -102,6 +111,10 @@ export function whatToAsk(input: AskingInput): Ask[] {
       question: input.prompt.question,
       because: input.prompt.because,
       href: `/subjects/${input.subjectId}/upload`,
+      // The prompt engine reasons over little things and clusters rather
+      // than a memory set, so there is nothing to show. Better an absent
+      // receipt than a misleading one.
+      memoryIds: [],
       weight: BASE.prompt,
     });
   }
@@ -119,6 +132,7 @@ export function whatToAsk(input: AskingInput): Ask[] {
           : `There are ${countOf(input.followUps, "thing")} the photographs couldn't tell us.`,
       because: null,
       href: `/subjects/${input.subjectId}/questions`,
+      memoryIds: [],
       // Below its base, so a bundle of questions on another page never
       // outranks a specific one that can be answered here.
       weight: BASE.followup,
@@ -135,6 +149,7 @@ function fromContext(q: ContextQuestion, subjectId: string): Ask {
     question: q.ask,
     because: q.because,
     href: `/subjects/${subjectId}/about`,
+    memoryIds: q.memoryIds,
     // The engine's own ranking rides on top, so "what happened to the thing
     // that stopped" stays ahead of "what is this tag" within the source too.
     weight: BASE.context + q.weight,
@@ -153,6 +168,7 @@ function fromIdentity(pair: Pair, subjectId: string): Ask {
           : `${pair.sharedMemoryIds.length} memories have both names on them.`
         : null,
     href: `/subjects/${subjectId}/who`,
+    memoryIds: pair.sharedMemoryIds,
     weight: BASE.identity,
   };
 }

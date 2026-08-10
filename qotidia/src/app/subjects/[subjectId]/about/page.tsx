@@ -23,6 +23,8 @@ import { knownContext, settledContext } from "@/lib/graph/context-store";
 import { answerAboutThing } from "@/app/actions";
 import { todayIso } from "@/lib/time";
 import { countOf, friendlyDate } from "@/lib/words";
+import { evidenceFor, worthShowing } from "@/lib/graph/evidence";
+import { Why } from "@/app/why";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,9 @@ export default async function AboutPage({ params }: { params: { subjectId: strin
   const question = nextQuestion(entities, today, settled);
   const waiting = contextQuestions(entities, today, settled).length;
   const known = await knownContext(db, subject.family_id);
+  const askedFrom = question && worthShowing(question.memoryIds)
+    ? await evidenceFor(db, question.memoryIds)
+    : [];
 
   const labelOf = (key: string) =>
     entities.find((e) => e.id === key)?.label ?? key.split(":").slice(1).join(":");
@@ -75,6 +80,11 @@ export default async function AboutPage({ params }: { params: { subjectId: strin
               are saying it is in twenty-three memories and asking. */}
           <p className="mt-5 max-w-[46ch] text-subhead leading-snug">{question.because}</p>
           <p className="mt-4 max-w-[46ch] text-lg leading-snug">{question.ask}</p>
+
+          {/* Before the box, not after it. Somebody is about to write down
+              something they will not be asked about again; they should be
+              able to see what prompted it first. */}
+          <Why evidence={askedFrom} total={question.memoryIds.length} what="we asked" />
 
           <form action={answerAboutThing} className="mt-7">
             <input type="hidden" name="subject_id" value={subject.id} />

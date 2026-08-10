@@ -7,7 +7,7 @@
 // years. Most of these tests are about staying quiet.
 
 import { readFileSync } from "node:fs";
-import { dateRange } from "@/lib/words";
+import { dateList, dateRange } from "@/lib/words";
 import { describe, expect, it } from "vitest";
 import {
   discoveries, hasClockTimes, looksFake, type Shot,
@@ -298,5 +298,34 @@ describe("one date format per line", () => {
   it("collapses a single day to one date", () => {
     expect(dateRange("2026-03-01", "2026-03-01", new Date("2026-06-01")))
       .toBe("1 March");
+  });
+
+  it("puts a year on every caption in a set that crosses one", () => {
+    // The same fault one dimension out. The evidence grid under an
+    // observation printed "27 November 2025", "1 January", "12 February" —
+    // three captions in a row, two of them missing the year.
+    const said = dateList(
+      ["2025-11-27", "2026-01-01", "2026-02-12"],
+      new Date("2026-06-01")
+    );
+    expect(said).toEqual(["27 November 2025", "1 January 2026", "12 February 2026"]);
+  });
+
+  it("puts a year on none of them when they all fall in this one", () => {
+    const said = dateList(["2026-03-01", "2026-05-17"], new Date("2026-06-01"));
+    expect(said).toEqual(["1 March", "17 May"]);
+  });
+
+  it("still dates a set that is all in one past year", () => {
+    // Consistent is not the same as bare. A grid entirely from last year
+    // needs the year, or it reads as this one.
+    const said = dateList(["2025-03-01", "2025-05-17"], new Date("2026-06-01"));
+    expect(said).toEqual(["1 March 2025", "17 May 2025"]);
+  });
+
+  it("keeps the places of anything undated", () => {
+    // The captions are positional — they sit under their own thumbnail.
+    expect(dateList(["2026-03-01", null, "2026-05-17"], new Date("2026-06-01")))
+      .toEqual(["1 March", "", "17 May"]);
   });
 });
