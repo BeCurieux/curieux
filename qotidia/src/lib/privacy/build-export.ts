@@ -14,6 +14,7 @@ import { ZipArchive } from "archiver";
 import { Readable } from "node:stream";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { collectArchive } from "./export";
+import { getObjectStore } from "@/lib/storage/provider";
 
 export interface BuiltExport {
   storagePath: string;
@@ -63,8 +64,10 @@ export async function buildExport(
     }
     if (!entry.storagePath) continue;
 
-    const { data, error } = await db.storage.from("media").download(entry.storagePath);
-    if (error || !data) {
+    let contents: Buffer;
+    try {
+      contents = await getObjectStore().get("media", entry.storagePath);
+    } catch {
       // A missing file must not lose the whole export. Note it and continue —
       // an archive with one gap and a note is far better than no archive.
       zip.append(
@@ -74,20 +77,14 @@ export async function buildExport(
       );
       continue;
     }
-    zip.append(Readable.fromWeb(data.stream() as any), { name: entry.path });
+    zip.append(contents, { name: entry.path });
   }
 
   await zip.finalize();
   await finished;
 
   const storagePath = `exports/${familyId}/${exportId}.zip`;
-  const { error: upErr } = await db.storage
-    .from("renders")
-    .upload(storagePath, Buffer.concat(chunks), {
-      contentType: "application/zip",
-      upsert: true,
-    });
-  if (upErr) throw new Error(upErr.message);
+  await getObjectStore().put("renders", storagePath, Buffer.concat(chunks), "application/zip");
 
   return { storagePath, sizeBytes: size, itemCount: entries.length };
 }

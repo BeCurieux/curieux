@@ -15,6 +15,7 @@ import { colourForBook } from "@/lib/book/colours";
 import { sha256 } from "@/lib/media";
 import { ghostscriptAvailable, toPressReady } from "@/lib/pdf/pdfx";
 import { SERVABLE_VERDICT, verifyUpload } from "@/lib/media/verify";
+import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { takenOn } from "@/lib/media/taken";
 import { getScanner } from "@/lib/media/scanner";
 import { record } from "@/lib/privacy/activity";
@@ -75,8 +76,10 @@ async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
   const scanner = getScanner();
   const stamp = { scanned_at: new Date().toISOString(), scanned_by: scanner.name };
 
-  const { data: file, error: dlErr } = await db.storage.from("media").download(asset.storage_path);
-  if (dlErr || !file) {
+  let bytes: Buffer;
+  try {
+    bytes = await getObjectStore().get("media", asset.storage_path);
+  } catch (dlErr) {
     // 'failed' rather than 'quarantined': we did not find a problem with the
     // file, we failed to look. Those must not read the same afterwards.
     await db.from("media_assets").update({
@@ -84,10 +87,9 @@ async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
       scan_reason: "We could not read that file back to check it.",
       ...stamp,
     }).eq("id", assetId);
-    throw new Error(dlErr?.message ?? "could not download asset for scanning");
+    throw new Error(dlErr instanceof Error ? dlErr.message : "could not download asset for scanning");
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer());
   const checked = verifyUpload(bytes, {
     mimeType: asset.mime_type,
     checksum: asset.checksum,
@@ -147,7 +149,7 @@ async function scanAsset(db: SupabaseClient, payload: Record<string, unknown>) {
     // The bytes go. Keeping a refused file costs storage, keeps a hazard in
     // the bucket, and protects nobody — the row and its reason are the part
     // worth keeping, so the parent can be told what happened and why.
-    await db.storage.from("media").remove([asset.storage_path]);
+    await getObjectStore().remove("media", [asset.storage_path]);
 
     const { data: memory } = await db
       .from("memories")
@@ -672,10 +674,16 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
     .eq("scan_verdict", SERVABLE_VERDICT);
   const assetByMemory = new Map<string, MediaAsset>((assets ?? []).map((a: any) => [a.memory_id, a]));
 
+  const store = getObjectStore();
   const urlByMemory = new Map<string, string>();
   for (const [mid, asset] of assetByMemory) {
-    const { data: signed } = await db.storage.from("media").createSignedUrl(asset.storage_path, 900);
-    if (signed?.signedUrl) urlByMemory.set(mid, signed.signedUrl);
+    // A file we cannot reach must not fail the whole render. Preflight
+    // below is what decides whether a book is missing too much to print.
+    try {
+      urlByMemory.set(mid, await store.readUrl("media", asset.storage_path, TTL.render));
+    } catch {
+      continue;
+    }
   }
 
   // Listen marks — only resolvable once the book is approved and tokenised.
@@ -830,10 +838,7 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
   }
 
   const path = `books/${bookId}/${target}-${sha256(bytes).slice(0, 12)}.pdf`;
-  const { error: upErr } = await db.storage
-    .from("renders")
-    .upload(path, bytes, { contentType: "application/pdf", upsert: true });
-  if (upErr) throw new Error(upErr.message);
+  await getObjectStore().put("renders", path, Buffer.from(bytes), "application/pdf");
 
   // The approval record's whole purpose is to be able to say "this is
   // exactly what was approved, and this is exactly what was printed". It was
@@ -882,15 +887,12 @@ async function submitPrint(db: SupabaseClient, payload: Record<string, unknown>)
 
   // §20: short-lived signed URLs, handed to the provider, then left to expire.
   const provider = getPrintProvider();
-  const { data: interior } = await db.storage
-    .from("renders")
-    .createSignedUrl(book.print_pdf_path, 3600);
+  const store = getObjectStore();
+  const interiorUrl = await store.readUrl("renders", book.print_pdf_path, TTL.print);
   // A real cover is now required: falling back to the interior would print a
   // book with a page where its front should be.
   if (!book.cover_pdf_path) throw new Error("cover PDF not rendered");
-  const coverPath = book.cover_pdf_path;
-  const { data: cover } = await db.storage.from("renders").createSignedUrl(coverPath, 3600);
-  if (!interior?.signedUrl || !cover?.signedUrl) throw new Error("could not sign print assets");
+  const coverUrl = await store.readUrl("renders", book.cover_pdf_path, TTL.print);
 
   const providerOrder = await provider.createOrder({
     idempotencyKey: order.idempotency_key,
@@ -900,8 +902,8 @@ async function submitPrint(db: SupabaseClient, payload: Record<string, unknown>)
     // single book to someone who bought copies for both sets of grandparents.
     copies: order.copies ?? 1,
     recipient: order.recipient_json,
-    interiorPdfUrl: interior.signedUrl,
-    coverPdfUrl: cover.signedUrl,
+    interiorPdfUrl: interiorUrl,
+    coverPdfUrl: coverUrl,
   });
 
   await db

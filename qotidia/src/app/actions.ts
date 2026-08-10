@@ -38,6 +38,7 @@ import { recordAnswer } from "@/lib/graph/identity-store";
 import { loadEntities } from "@/lib/graph/extract";
 import { peopleBooksFor } from "@/lib/book/people-books";
 import { roomToAdd } from "@/lib/storage/usage";
+import { getObjectStore, TTL } from "@/lib/storage/provider";
 
 
 /**
@@ -167,6 +168,118 @@ export async function addFamilyMembers(formData: FormData) {
 }
 
 // -------------------------------------------------------------- memories
+
+/**
+ * What a browser is allowed to store.
+ *
+ * The type here becomes the Content-Type the file is served back with, so
+ * this is not a convenience list — it is the reason a signed URL cannot
+ * return text/html from our own origin. The scan job checks the actual bytes
+ * afterwards and refuses anything that is not what it claimed; this stops
+ * the claim itself from being dangerous in the meantime.
+ */
+const STORABLE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "image/gif": "gif",
+  "audio/webm": "webm",
+  "audio/mp4": "m4a",
+  "audio/mpeg": "mp3",
+  "audio/ogg": "ogg",
+  "audio/wav": "wav",
+};
+
+/**
+ * Permission to put one file in one place.
+ *
+ * Browsers used to upload straight to Supabase with row-level security on
+ * the bucket deciding whether they were allowed. That check cannot move to
+ * an object store that has no such thing, so it moves here, where it is the
+ * same check under every provider: are you in this family, and is there
+ * room.
+ *
+ * **The path is computed here, not accepted from the caller.** It is built
+ * from the authenticated user's own id, so there is no request a client can
+ * send that writes into somebody else's prefix. That used to be true only
+ * because a storage policy said so.
+ */
+export async function uploadTicket(input: {
+  subjectId: string;
+  checksum: string;
+  contentType: string;
+  bytes: number;
+}) {
+  const user = await requireUser();
+  const db = userClient();
+  const membership = await roleForSubject(db, input.subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+  const story = await storySubject(db, input.subjectId);
+  if (!story) throw new Error("no such subject");
+
+  // MediaRecorder reports "audio/webm;codecs=opus", and the parameters are
+  // not part of what we are deciding about. Stripped before the lookup and
+  // the stripped value is what gets signed and stored, so the Content-Type
+  // a file is served with is one from the list above rather than a string
+  // the browser composed.
+  const contentType = input.contentType.split(";")[0].trim().toLowerCase();
+  const extension = STORABLE[contentType];
+  if (!extension) throw new Error(`we cannot keep ${contentType || "that kind of file"}`);
+
+  // Checked before the bytes move rather than after, so a family that is out
+  // of room is told instead of spending their upload allowance discovering
+  // it. registerUploadedPhoto checks again — this is the polite version, not
+  // the authoritative one.
+  const bytes = Math.max(0, Math.round(input.bytes));
+  const room = await roomToAdd(db, story.family_id, bytes);
+  if (!room.ok) {
+    return { ok: false as const, message: room.message ?? "There's no room left." };
+  }
+
+  // Unchanged from what the browser used to build, so nothing already stored
+  // has to move. The checksum makes it idempotent: the same photograph
+  // uploaded twice lands on itself rather than accumulating copies.
+  const safeChecksum = /^[a-f0-9]{64}$/.test(input.checksum) ? input.checksum : null;
+  if (!safeChecksum) throw new Error("bad checksum");
+  const storagePath = `${user.id}/${input.subjectId}/${safeChecksum}.${extension}`;
+
+  const ticket = await getObjectStore().writeTicket("media", storagePath, TTL.upload, {
+    contentType,
+    contentLength: bytes,
+  });
+
+  return { ok: true as const, storagePath, contentType, ...ticket };
+}
+
+/**
+ * Take back a file whose row was never written.
+ *
+ * The browser cannot delete from the store directly any more — there is no
+ * client credential to do it with — so the one case that needs it, an upload
+ * accepted by the bucket and then refused by the quota, comes back here.
+ * Scoped to the caller's own prefix, which is the same rule the ticket
+ * above enforces on the way in.
+ */
+export async function discardUpload(storagePath: string) {
+  const user = await requireUser();
+  if (!storagePath.startsWith(`${user.id}/`)) throw new Error("not yours to remove");
+
+  // Refuse if anything actually references it. A path is reused across
+  // subjects by design — the same checksum is the same file — so a stale
+  // "clean up after yourself" call must never take a live photograph with
+  // it.
+  const { data: existing } = await adminClient()
+    .from("media_assets")
+    .select("id")
+    .eq("storage_path", storagePath)
+    .limit(1);
+  if (existing?.length) return { removed: false as const };
+
+  await getObjectStore().remove("media", [storagePath]);
+  return { removed: true as const };
+}
 
 /** Called after the client has uploaded bytes directly to private storage. */
 export async function registerUploadedPhoto(input: {

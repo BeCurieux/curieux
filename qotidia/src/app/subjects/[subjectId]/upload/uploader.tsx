@@ -6,8 +6,7 @@
 // the page never blocks on processing.
 
 import { useCallback, useRef, useState } from "react";
-import { browserClient } from "@/lib/supabase/client";
-import { registerUploadedPhoto, roomForBatch } from "@/app/actions";
+import { discardUpload, registerUploadedPhoto, roomForBatch, uploadTicket } from "@/app/actions";
 
 type FileState = "hashing" | "uploading" | "checking" | "done" | "duplicate" | "refused" | "error";
 
@@ -126,9 +125,6 @@ export function Uploader({ subjectId }: { subjectId: string }) {
         return;
       }
 
-      const supabase = browserClient();
-      const { data: auth } = await supabase.auth.getUser();
-
       // Small concurrency pool so 150 files don't fire at once.
       const queue = [...images];
       const workers = Array.from({ length: 4 }, async () => {
@@ -141,12 +137,35 @@ export function Uploader({ subjectId }: { subjectId: string }) {
             const { width, height } = await imageDimensions(file);
             setItem(file.name, { state: "uploading" });
 
-            const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-            const path = `${auth.user?.id}/${subjectId}/${checksum}.${ext}`;
-            const { error: upErr } = await supabase.storage
-              .from("media")
-              .upload(path, file, { contentType: file.type, upsert: true });
-            if (upErr && !upErr.message.includes("already exists")) throw upErr;
+            // The server decides where this goes and whether it may go at
+            // all. The browser no longer holds a storage credential, and no
+            // longer chooses its own path.
+            const ticket = await uploadTicket({
+              subjectId,
+              checksum,
+              contentType: file.type,
+              bytes: file.size,
+            });
+            if (!ticket.ok) {
+              queue.length = 0;
+              setFull(ticket.message);
+              setItem(file.name, { state: "refused" });
+              return;
+            }
+
+            const path = ticket.storagePath;
+            // content-length is in ticket.headers and a browser will drop it
+            // — it is a forbidden header name — and set its own from the
+            // body. That is fine, and is the point: the value it sets is
+            // file.size, which is the number the ticket was signed for. A
+            // client that tries to send a different amount gets a signature
+            // that does not match the request.
+            const sent = await fetch(ticket.url, {
+              method: ticket.method,
+              headers: ticket.headers,
+              body: file,
+            });
+            if (!sent.ok) throw new Error(`upload failed (${sent.status})`);
 
             const result = await registerUploadedPhoto({
               subjectId,
@@ -167,7 +186,7 @@ export function Uploader({ subjectId }: { subjectId: string }) {
             if ("full" in result && result.full) {
               queue.length = 0;
               setFull(result.message);
-              await supabase.storage.from("media").remove([path]);
+              await discardUpload(path);
               setItem(file.name, { state: "refused" });
               return;
             }

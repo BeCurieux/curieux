@@ -598,6 +598,9 @@ function buildTables(): Record<string, Row[]> {
 const PARENTS: Record<string, { table: string; fk: string; as: string }[]> = {
   book_pages: [{ table: "book_sections", fk: "section_id", as: "book_sections" }],
   family_memberships: [{ table: "profiles", fk: "user_id", as: "profiles" }],
+  // Duplicate detection reads an asset with its memory's family, to answer
+  // "does this archive already hold this photograph".
+  media_assets: [{ table: "memories", fk: "memory_id", as: "memories" }],
   renewals: [{ table: "subjects", fk: "subject_id", as: "subjects" }],
 };
 
@@ -703,12 +706,25 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
     // overview labels each page with the chapter it belongs to, so without
     // this the demo shows the fallback and hides whether the real path works.
     for (const parent of PARENTS[table] ?? []) {
-      if (!select.includes(`${parent.as}(`)) continue;
-      attached.add(parent.as);
+      // `memories(...)` and `memories!inner(...)` name the same relation. The
+      // modifier changes what PostgREST does with a row that has no parent,
+      // not which parent it is — and matching only the bare form meant the
+      // duplicate check in registerUploadedPhoto threw here, so no file could
+      // be uploaded in demo mode at all.
+      const inner = `${parent.as}!inner`;
+      const wanted = select.includes(`${parent.as}(`)
+        ? parent.as
+        : select.includes(`${inner}(`)
+          ? inner
+          : null;
+      if (!wanted) continue;
+      attached.add(wanted);
       this.rows = this.rows.map((r) => ({
         ...r,
         [parent.as]: (db[parent.table] ?? []).find((p) => p.id === r[parent.fk]) ?? null,
       }));
+      // !inner means a row without a parent is not returned.
+      if (wanted === inner) this.rows = this.rows.filter((r) => r[parent.as]);
     }
     if (table === "print_orders" && select.includes("books(")) {
       attached.add("books");
@@ -901,18 +917,9 @@ export function demoClient(): any {
       if (fn === "book_listenable") return Promise.resolve({ data: [], error: null });
       return Promise.resolve({ data: null, error: null });
     },
-    storage: {
-      from() {
-        return {
-          // Photographs are generated, so a "signed URL" is just the image.
-          createSignedUrl(path: string) {
-            const n = Number(path.match(/(\d+)/)?.[1] ?? 0);
-            return Promise.resolve({ data: { signedUrl: demoPhoto(n) }, error: null });
-          },
-          upload() { return Promise.resolve({ data: { path: "demo" }, error: null }); },
-        };
-      },
-    },
+    // No storage stub. Files go through lib/storage/provider.ts, which hands
+    // demo mode the in-memory store — and that is where the generated
+    // photographs now come from.
     auth: {
       getUser() { return Promise.resolve({ data: { user: DEMO_USER }, error: null }); },
     },

@@ -10,6 +10,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SERVABLE_VERDICT } from "@/lib/media/verify";
+import { getObjectStore } from "@/lib/storage/provider";
 
 /** Signed URLs keyed by memory id. Expire quickly; regenerated per request. */
 export async function resolvePhotoUrls(
@@ -30,11 +31,17 @@ export async function resolvePhotoUrls(
     // not in the editor, not anywhere.
     .eq("scan_verdict", SERVABLE_VERDICT);
 
+  const store = getObjectStore();
   for (const asset of assets ?? []) {
-    const { data } = await db.storage
-      .from("media")
-      .createSignedUrl(asset.storage_path, ttlSeconds);
-    if (data?.signedUrl) out.set(asset.memory_id, data.signedUrl);
+    // One missing file must not blank a whole page of a book. The gate above
+    // already decided this asset is servable; if the object is nonetheless
+    // unreachable, the right outcome is this photograph missing rather than
+    // the preview failing and the parent being asked to approve nothing.
+    try {
+      out.set(asset.memory_id, await store.readUrl("media", asset.storage_path, ttlSeconds));
+    } catch {
+      continue;
+    }
   }
   return out;
 }

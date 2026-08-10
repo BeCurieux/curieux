@@ -3,7 +3,8 @@
 // owner; no permanent public URLs are ever issued (brief §4).
 
 import { NextRequest, NextResponse } from "next/server";
-import { adminClient, currentUser, userClient } from "@/lib/supabase/server";
+import { currentUser, userClient } from "@/lib/supabase/server";
+import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { SERVABLE_VERDICT } from "@/lib/media/verify";
 
 export async function GET(req: NextRequest) {
@@ -40,10 +41,10 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const { data: signed, error } = await adminClient()
-    .storage.from("media")
-    .createSignedUrl(asset.storage_path, 300);
-  if (error || !signed) return NextResponse.json({ error: "sign failed" }, { status: 500 });
-
-  return NextResponse.json({ url: signed.signedUrl, expiresIn: 300 });
+  try {
+    const url = await getObjectStore().readUrl("media", asset.storage_path, TTL.view);
+    return NextResponse.json({ url, expiresIn: TTL.view });
+  } catch {
+    return NextResponse.json({ error: "sign failed" }, { status: 500 });
+  }
 }

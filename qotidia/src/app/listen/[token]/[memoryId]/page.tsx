@@ -7,6 +7,7 @@
 
 import { notFound } from "next/navigation";
 import { adminClient } from "@/lib/supabase/server";
+import { getObjectStore, TTL } from "@/lib/storage/provider";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +27,12 @@ export default async function ListenPage({
   const row = Array.isArray(data) ? data[0] : null;
   if (error || !row) notFound();
 
-  const { data: signed } = await db.storage
-    .from("media")
-    .createSignedUrl(row.storage_path, 600);
-  if (!signed?.signedUrl) notFound();
+  let audioUrl: string;
+  try {
+    audioUrl = await getObjectStore().readUrl("media", row.storage_path, TTL.listen);
+  } catch {
+    notFound();
+  }
 
   return (
     <div className="mx-auto max-w-md py-20 text-center">
@@ -54,7 +57,7 @@ export default async function ListenPage({
       <audio
         controls
         autoPlay
-        src={signed.signedUrl}
+        src={audioUrl}
         className="mt-10 w-full"
         aria-label={`Recording of ${row.subject_name}`}
       />

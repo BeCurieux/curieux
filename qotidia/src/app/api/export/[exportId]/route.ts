@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { adminClient, currentUser, userClient } from "@/lib/supabase/server";
+import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { record } from "@/lib/privacy/activity";
 
 export async function GET(
@@ -33,11 +34,12 @@ export async function GET(
   }
 
   const admin = adminClient();
-  const { data: signed } = await admin.storage
-    .from("renders")
-    .createSignedUrl(exp.storage_path, 300, { download: "your-archive.zip" });
-
-  if (!signed?.signedUrl) {
+  let downloadUrl: string;
+  try {
+    downloadUrl = await getObjectStore().readUrl("renders", exp.storage_path, TTL.download, {
+      downloadAs: "your-archive.zip",
+    });
+  } catch {
     return NextResponse.json({ error: "could not prepare the download" }, { status: 500 });
   }
 
@@ -49,5 +51,5 @@ export async function GET(
     detail: "downloaded the copy",
   });
 
-  return NextResponse.redirect(signed.signedUrl);
+  return NextResponse.redirect(downloadUrl);
 }

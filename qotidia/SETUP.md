@@ -137,12 +137,15 @@ SUPABASE_SERVICE_ROLE_KEY=paste-the-service-role-key-here
 
 AI_PROVIDER=mock
 PRINT_PROVIDER=mock
+STORAGE_PROVIDER=supabase
 JOBS_SECRET=any-random-text-you-like
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 Save and close. `AI_PROVIDER=mock` and `PRINT_PROVIDER=mock` are what let
-the app run without AI or printing accounts.
+the app run without AI or printing accounts. `STORAGE_PROVIDER=supabase`
+keeps photographs in the Supabase project you just made — see "Moving photo
+storage to Cloudflare R2" at the end if you'd rather not.
 
 ---
 
@@ -255,3 +258,58 @@ When you're ready to move past the stand-ins, in `.env.local`:
 
 Each can be switched on independently — the app doesn't care which
 combination you run.
+
+## Moving photo storage to Cloudflare R2
+
+Photographs and videos live in Supabase Storage by default and nothing
+needs changing to keep it that way. R2 is worth moving to before there is
+much in there, for one reason: **egress**. Storing a gigabyte costs about
+the same wherever you put it, but *serving* it back is metered almost
+everywhere and free on R2 — and this product serves the same photographs
+back every time a family opens their archive, renders a book, or takes an
+export. On a metered store that is a bill that grows the more people use
+what they paid for.
+
+Roughly, at a thousand families averaging 60GB:
+
+| | Storage | Egress |
+|---|---|---|
+| Supabase | ~US$1,260/month | charged per GB |
+| Cloudflare R2 | ~US$900/month | free |
+
+**To switch:**
+
+1. In the Cloudflare dashboard, create two buckets — `qotidia-media` and
+   `qotidia-renders`. Leave both **private**. Do not attach a public
+   `r2.dev` URL or a custom domain to either; every read this app does is
+   through a signed link that expires, and a public URL would undo that
+   permanently for every file in the bucket.
+2. Create an R2 API token with **Object Read & Write** on those two buckets
+   only.
+3. Add to `.env.local`:
+
+   ```
+   STORAGE_PROVIDER=r2
+   R2_ACCOUNT_ID=your-account-id
+   R2_ACCESS_KEY_ID=...
+   R2_SECRET_ACCESS_KEY=...
+   ```
+
+   `R2_SECRET_ACCESS_KEY` is a real secret — the same rule as the Supabase
+   secret key. It belongs in `.env.local` and in your host's environment
+   settings, and nowhere else. Never in a chat, a screenshot or a support
+   ticket, including to me.
+
+4. Restart `npm run dev`.
+
+**Existing files do not move by themselves.** Everything already uploaded
+stays in Supabase Storage, and after the switch the app will look for it in
+R2 and not find it. If you have real archives, copy the two buckets across
+first (`rclone` handles Supabase → R2 directly); if it is only test data,
+switch and re-upload.
+
+**Checking it works before you trust it:** `./scripts/verify-storage.sh`
+drives the R2 code against a local server that validates every signature
+with Amazon's own library, including the check that stops a browser
+uploading more than it declared. It needs `pip install botocore` and no
+Cloudflare account.

@@ -12,6 +12,7 @@
 // difference between deleted and merely invisible.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getObjectStore } from "@/lib/storage/provider";
 
 /** How long encrypted backups take to roll off, stated honestly. */
 export const BACKUP_EXPIRY_DAYS = 30;
@@ -40,12 +41,9 @@ export async function eraseFamily(
       .in("memories.subject_id", subjectIds);
     for (const a of (assets ?? []) as any[]) if (a.storage_path) paths.push(a.storage_path);
   }
-  if (paths.length) {
-    // In batches; a decade of photographs is more than one call should carry.
-    for (let i = 0; i < paths.length; i += 100) {
-      await db.storage.from("media").remove(paths.slice(i, i + 100));
-    }
-  }
+  // Batching is the store's problem now — it knows what its own API can
+  // carry, and a decade of photographs is more than one call should.
+  if (paths.length) await getObjectStore().remove("media", paths);
 
   const renders: string[] = [];
   if (subjectIds.length) {
@@ -66,9 +64,7 @@ export async function eraseFamily(
     .eq("family_id", familyId);
   for (const e of exports_ ?? []) if (e.storage_path) renders.push(e.storage_path);
 
-  for (let i = 0; i < renders.length; i += 100) {
-    await db.storage.from("renders").remove(renders.slice(i, i + 100));
-  }
+  if (renders.length) await getObjectStore().remove("renders", renders);
 
   // 2. The rows. Every table cascades from families, so one delete is enough
   //    — but the cascade is asserted in tests rather than assumed here.

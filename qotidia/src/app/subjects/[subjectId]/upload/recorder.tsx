@@ -6,8 +6,7 @@
 // what gets printed; the recording is what gets heard.
 
 import { useCallback, useRef, useState } from "react";
-import { browserClient } from "@/lib/supabase/client";
-import { registerVoiceMemory } from "@/app/actions";
+import { registerVoiceMemory, uploadTicket } from "@/app/actions";
 
 type Phase = "idle" | "recording" | "review" | "saving" | "saved";
 
@@ -76,23 +75,31 @@ export function Recorder({ subjectId }: { subjectId: string }) {
       setPhase("saving");
       setError(null);
       try {
-        const supabase = browserClient();
-        const { data: auth } = await supabase.auth.getUser();
         const buf = await blob.arrayBuffer();
         const checksum = await sha256Hex(buf);
-        const ext = blob.type.includes("mp4") ? "m4a" : "webm";
-        const path = `${auth.user?.id}/${subjectId}/${checksum}.${ext}`;
 
-        const { error: upErr } = await supabase.storage
-          .from("media")
-          .upload(path, blob, { contentType: blob.type, upsert: true });
-        if (upErr && !upErr.message.includes("already exists")) throw upErr;
+        // Same route as a photograph: the server decides the path, checks
+        // the family has room, and hands back a URL good for this one file.
+        const ticket = await uploadTicket({
+          subjectId,
+          checksum,
+          contentType: blob.type,
+          bytes: blob.size,
+        });
+        if (!ticket.ok) throw new Error(ticket.message);
+
+        const sent = await fetch(ticket.url, {
+          method: ticket.method,
+          headers: ticket.headers,
+          body: blob,
+        });
+        if (!sent.ok) throw new Error(`that didn't save (${sent.status})`);
 
         await registerVoiceMemory({
           subjectId,
-          storagePath: path,
+          storagePath: ticket.storagePath,
           checksum,
-          mimeType: blob.type,
+          mimeType: ticket.contentType,
           durationSeconds: seconds,
           transcript: String(formData.get("transcript") ?? "").trim(),
           memoryDate: String(formData.get("memory_date") ?? "") || null,

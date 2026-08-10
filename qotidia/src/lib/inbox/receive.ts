@@ -16,6 +16,7 @@ import { createHash } from "node:crypto";
 import { enqueue } from "@/lib/jobs/queue";
 import { fileArrival, type ArrivedVia } from "./triage";
 import { keepMemory } from "@/lib/memories/scope";
+import { getObjectStore } from "@/lib/storage/provider";
 
 export interface IncomingFile {
   bytes: Buffer;
@@ -130,10 +131,11 @@ export async function receive(db: SupabaseClient, incoming: Incoming): Promise<R
     const checksum = createHash("sha256").update(file.bytes).digest("hex");
     const path = `${incoming.createdBy}/${incoming.subjectId}/${checksum}.${extensionOf(file.filename, file.mimeType)}`;
 
-    const { error: upErr } = await db.storage
-      .from("media")
-      .upload(path, file.bytes, { contentType: file.mimeType, upsert: true });
-    if (upErr) throw new Error(`could not store that file: ${upErr.message}`);
+    try {
+      await getObjectStore().put("media", path, Buffer.from(file.bytes), file.mimeType);
+    } catch (err) {
+      throw new Error(`could not store that file: ${err instanceof Error ? err.message : String(err)}`);
+    }
 
     const { data: asset, error: assetErr } = await db
       .from("media_assets")
