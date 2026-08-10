@@ -9,11 +9,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminClient, currentUser, userClient } from "@/lib/supabase/server";
 import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { record } from "@/lib/privacy/activity";
+import { homeUrl } from "@/lib/brand";
 
 export async function GET(_req: NextRequest, props: { params: Promise<{ exportId: string }> }) {
   const params = await props.params;
   const user = await currentUser();
-  if (!user) return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL));
+  // `new URL(path, undefined)` throws, so an unset host turned a redirect to
+  // the login page into a 500 on the download route.
+  if (!user) return NextResponse.redirect(new URL("/login", homeUrl()));
 
   // RLS decides this: the select returns nothing unless the caller is in the
   // family the export belongs to.

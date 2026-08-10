@@ -19,6 +19,7 @@
 import Stripe from "stripe";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
 import { PLAN_PRICES } from "@/lib/billing/plans";
+import { homeUrl } from "@/lib/brand";
 
 let client: Stripe | null = null;
 
@@ -130,7 +131,7 @@ export async function createBookCheckout(opts: {
   /** Keep the card for next year's book. Only ever set from an explicit tick. */
   saveCardForRenewal?: boolean;
 }): Promise<Stripe.Checkout.Session> {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = homeUrl();
   const extras = clampExtraCopies(opts.extraCopies);
   // Only a card can be kept and charged next year. Someone who asks for both
   // instalments and a renewal would otherwise pay by Afterpay, leave no card

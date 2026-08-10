@@ -50,6 +50,7 @@ import {
   TOKEN_SHAPE, accept, expiresAtFrom, newToken, reachable,
 } from "@/lib/share/policy";
 import type { Wondering } from "@/lib/graph/context";
+import { homeUrl } from "@/lib/brand";
 
 
 /**
@@ -1436,7 +1437,7 @@ export async function startMembership(formData: FormData) {
   const familyId = String(formData.get("family_id"));
   await ownedFamily(db, familyId, user.id);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = homeUrl();
   const session = await createMembershipCheckout({
     familyId,
     email: user.email!,

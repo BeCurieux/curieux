@@ -18,9 +18,9 @@
 import { countOf } from "@/lib/words";
 import { NOTICE_DAYS } from "@/lib/renewal/policy";
 import type { OutboundEmail } from "./provider";
-import { BRAND, TAGLINE } from "@/lib/brand";
+import { BRAND, TAGLINE, homeUrl } from "@/lib/brand";
 
-const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";
+const appUrl = homeUrl;
 
 const SIGNOFF = `\n\n${BRAND}\n${TAGLINE}`;
 

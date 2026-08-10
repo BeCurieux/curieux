@@ -6,7 +6,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { MIN_QR_INCHES, listenUrl, qrDataUri, qrIsScannable } from "@/lib/listen/qr";
 import { renderBookHtml } from "@/lib/pdf/html";
 import { colourForAge } from "@/lib/book/colours";
@@ -23,6 +23,32 @@ const listenSql = readFileSync(
 );
 
 describe("listen URLs and codes", () => {
+  // These URLs go into ink, so listenUrl() refuses to guess a host. The
+  // suite has to say where the codes point, exactly as a real print run
+  // must — see the refusal test at the end of this block.
+  const HOST = "https://example.test";
+  let saved: string | undefined;
+  beforeAll(() => {
+    saved = process.env.NEXT_PUBLIC_APP_URL;
+    process.env.NEXT_PUBLIC_APP_URL = HOST;
+  });
+  afterAll(() => {
+    if (saved === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = saved;
+  });
+
+  it("refuses to build a printable URL without a host", () => {
+    // The old fallback was localhost:3000. A build with the variable unset
+    // would have bound a book full of codes resolving to nothing, silently.
+    const host = process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    try {
+      expect(() => listenUrl("tok", "mem")).toThrow(/NEXT_PUBLIC_APP_URL/);
+    } finally {
+      process.env.NEXT_PUBLIC_APP_URL = host;
+    }
+  });
+
   it("builds a token-scoped URL per memory", () => {
     const url = listenUrl("tok-123", "mem-456");
     expect(url).toMatch(/\/listen\/tok-123\/mem-456$/);

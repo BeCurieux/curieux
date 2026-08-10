@@ -46,3 +46,24 @@ export const TAGLINE = "the everyday, kept." as const;
 export const ONE_LINER =
   "A private place that notices, remembers and preserves the little things " +
   "that make up a life — then turns each year into a beautiful book.";
+
+/**
+ * Where this app is served from.
+ *
+ * Here for the same reason the name is: it was written out twice, in
+ * robots.ts and in the email templates, each with its own fallback. Two
+ * copies of a host is two answers to the same question, and the one that
+ * gets it wrong is invisible — a canonical URL pointing somewhere else, or
+ * an email whose links go to a domain we do not own.
+ *
+ * It matters more than most settings because of what reads it. Stripe's
+ * return URLs, every link in every email, the sitemap and the canonicals —
+ * and the QR code in lib/listen/qr.ts, which is *printed into the hardcover*.
+ * A wrong host there is not a deploy away from fixed; it is on paper, on a
+ * shelf, for twenty years.
+ *
+ * A function rather than a constant so it is read when it is used: a build
+ * that inlines the wrong value at import time is the failure this guards.
+ */
+export const homeUrl = (): string =>
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";

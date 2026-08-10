@@ -11,9 +11,10 @@
 // independent mechanisms, both cheap.
 
 import type { MetadataRoute } from "next";
+import { homeUrl } from "@/lib/brand";
 
-/** Where the app is served from. */
-export const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";
+/** Where the app is served from. One answer, in lib/brand.ts. */
+export const BASE = homeUrl();
 
 /**
  * Everything a crawler must not touch.

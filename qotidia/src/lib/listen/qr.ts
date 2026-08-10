@@ -6,9 +6,27 @@
 
 import QRCode from "qrcode";
 
-/** The URL a printed code resolves to. Token-gated, no account required. */
+/**
+ * The URL a printed code resolves to. Token-gated, no account required.
+ *
+ * This refuses rather than falls back, which is the opposite of everywhere
+ * else that reads the host. Everywhere else, a wrong URL is a bad link
+ * somebody reports and we fix in a deploy. Here it is ink: the code is
+ * rendered into a PDF, printed, laminated and bound, and it will be scanned
+ * by a grandparent in nine years. It used to default to localhost:3000 —
+ * meaning a build with the variable unset would have produced a book full of
+ * codes that resolve to nothing, and nothing anywhere would have said so.
+ *
+ * Failing the print run is recoverable. A shelf of dead QR codes is not.
+ */
 export function listenUrl(token: string, memoryId: string): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_APP_URL;
+  if (!base) {
+    throw new Error(
+      "NEXT_PUBLIC_APP_URL is not set, and this URL is about to be printed " +
+        "into a book. Set it to the host the codes should resolve to."
+    );
+  }
   return `${base}/listen/${token}/${memoryId}`;
 }
 

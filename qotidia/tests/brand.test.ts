@@ -109,4 +109,23 @@ describe("the line", () => {
     // rather than the product itself.
     expect(book).toBeGreaterThan(remembers);
   });
+
+  it("has one answer for where the app lives", () => {
+    // The host was written out seven times with four different fallbacks:
+    // https://qotidia.com, http://localhost:3000, "" and — in the export
+    // download route — nothing at all, which made `new URL("/login",
+    // undefined)` throw and turned a redirect into a 500.
+    //
+    // Same failure as the imprint, and worse in one place: lib/listen/qr.ts
+    // puts this host into a QR code that gets printed into a hardcover. It
+    // reads the variable directly on purpose, to refuse rather than fall
+    // back, so it is the one file allowed past homeUrl().
+    const allowed = ["lib/brand.ts", "lib/listen/qr.ts"];
+    const offenders = walk(src)
+      .filter((f) => [".ts", ".tsx"].includes(extname(f)))
+      .filter((f) => !allowed.some((a) => f.endsWith(a)))
+      .filter((f) => codeOnly(readFileSync(f, "utf8")).includes("NEXT_PUBLIC_APP_URL"))
+      .map((f) => f.slice(f.indexOf("/src/") + 1));
+    expect(offenders, "read the host through homeUrl() from lib/brand.ts").toEqual([]);
+  });
 });

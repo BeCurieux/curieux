@@ -12,6 +12,7 @@ import {
   INVITABLE_ROLES, ROLE_BLURB, ROLE_LABEL, canManageAccess,
 } from "@/lib/family/roles";
 import { friendlyDate } from "@/lib/words";
+import { homeUrl } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,9 @@ export default async function FamilyAccessPage(
     .is("accepted_at", null)
     .order("created_at", { ascending: false });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  // Absolute: this is built to be copied into a message. A relative link
+  // pasted into a text is not a link.
+  const appUrl = homeUrl();
 
   return (
     <div className="mx-auto !max-w-2xl py-10">

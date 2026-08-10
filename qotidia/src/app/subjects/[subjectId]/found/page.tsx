@@ -26,6 +26,7 @@ import { note } from "@/lib/analytics/record";
 import { resolvePhotoUrls } from "@/lib/book/photos";
 import { SERVABLE_VERDICT } from "@/lib/media/verify";
 import { countOf, dateRange, friendlyDate } from "@/lib/words";
+import { homeUrl } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -145,7 +146,7 @@ export default async function FoundPage(
   );
 
   const sent = searchParams.shared
-    ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/m/${searchParams.shared}`
+    ? `${homeUrl()}/m/${searchParams.shared}`
     : null;
   const photos = story ? await resolvePhotoUrls(db, story.shotIds) : new Map();
 
