@@ -40,7 +40,7 @@ export default async function CheckoutPage({
   const extraPrice = PRICES.extraCopyAud();
 
   return (
-    <div className="mx-auto max-w-xl py-16">
+    <div className="mx-auto !max-w-xl py-16">
       <p className="text-xs uppercase tracking-[0.2em] text-stone">Last step</p>
       <h1 className="mt-2 text-3xl">{book.title}</h1>
 

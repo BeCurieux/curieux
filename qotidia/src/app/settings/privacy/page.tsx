@@ -65,7 +65,7 @@ export default async function PrivacyPage({
 
   if (searchParams.deleted) {
     return (
-      <div className="mx-auto max-w-lg py-20">
+      <div className="mx-auto !max-w-lg py-20">
         <h1 className="text-3xl">It&rsquo;s being deleted.</h1>
         <p className="mt-4 text-sm leading-relaxed text-stone">{DELETION_TERMS}</p>
         <p className="mt-6 text-sm text-stone">
@@ -77,7 +77,7 @@ export default async function PrivacyPage({
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-10">
+    <div className="mx-auto !max-w-2xl py-10">
       <h1 className="text-title">Your archive</h1>
       <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-stone">
         What you keep here belongs to your family. This page is how you check

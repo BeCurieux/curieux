@@ -470,7 +470,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
                   {m.type === "quote" && m.raw_text ? (
                     <span className="font-display text-base">&ldquo;{m.raw_text}&rdquo;</span>
                   ) : m.raw_text ? (
-                    <span>{m.raw_text}</span>
+                    <span className="reading">{m.raw_text}</span>
                   ) : (
                     <span className="text-stone">A photograph</span>
                   )}

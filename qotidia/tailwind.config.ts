@@ -36,11 +36,30 @@ const config: Config = {
       // measured minimum. See src/lib/palette.ts.
       colors: PALETTE,
       fontFamily: {
-        // Charter for everything anyone reads; the sans is for micro-labels
-        // and form furniture only, exactly as the printed page divides them.
+        /**
+         * Two typefaces, and the line between them is not decorative.
+         *
+         *   **The serif is the family.** Anything the archive is *about* —
+         *   a memory, a quote, a question we are asking about their child,
+         *   the name of a story, a heading. Charter, the same face the books
+         *   are set in, so the screen and the object are the same product.
+         *
+         *   **The sans is us.** Everything that is the product talking about
+         *   itself: navigation, buttons, labels, counts, dates, statuses,
+         *   the arithmetic under an observation. Interface furniture.
+         *
+         * Charter used to set both, which sounds like restraint and read as
+         * a document — a settings page and a child's first sentence in the
+         * same voice, so neither was distinguished.
+         *
+         * The sans is the system stack rather than a webfont. Inter or Geist
+         * would be another binary to serve, another thing to get wrong, and
+         * on the three platforms that matter this resolves to SF Pro, Segoe
+         * UI and Roboto — which is what those faces are imitating.
+         */
         display: ["var(--font-charter)", "Georgia", "serif"],
-        body: ["var(--font-charter)", "Georgia", "serif"],
         ui: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
+        body: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
       },
       // The old scale ran 36→12px in six near-equal steps, all at one weight:
       // nothing was big and nothing was small. The book runs 82pt against

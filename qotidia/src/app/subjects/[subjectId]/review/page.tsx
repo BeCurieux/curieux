@@ -54,7 +54,7 @@ export default async function ReviewPage({ params }: { params: { subjectId: stri
   const first = subject.display_name?.split(" ")[0] ?? subject.display_name;
 
   return (
-    <div className="mx-auto max-w-2xl py-10">
+    <div className="mx-auto !max-w-2xl py-10">
       <Link href={`/subjects/${subject.id}`} className="text-sm text-ochre">
         &larr; {first}
       </Link>
@@ -86,7 +86,7 @@ export default async function ReviewPage({ params }: { params: { subjectId: stri
                   {m.type === "quote" && m.raw_text ? (
                     <p className="font-display text-lg">&ldquo;{m.raw_text}&rdquo;</p>
                   ) : m.raw_text ? (
-                    <p className="leading-relaxed">{m.raw_text}</p>
+                    <p className="reading">{m.raw_text}</p>
                   ) : (
                     <p className="text-stone">A photograph</p>
                   )}

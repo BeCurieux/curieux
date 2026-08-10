@@ -21,7 +21,7 @@ export default async function ApprovePage({
   if (book.status !== "review") redirect(`/books/${book.id}`);
 
   return (
-    <div className="mx-auto max-w-lg py-16">
+    <div className="mx-auto !max-w-lg py-16">
       <h1 className="text-3xl">This is their year. Make sure it feels true.</h1>
       {searchParams.error && (
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{searchParams.error}</p>

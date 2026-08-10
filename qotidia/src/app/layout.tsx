@@ -55,7 +55,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </nav>
         </header>
         {/* The homepage manages its own width, section by section. Every
-            other page still wants a reading column. */}
+            other page still wants a reading column.
+​
+            Note the trap: this styles *direct children*, so a page setting
+            `max-w-2xl` on its own root gets max-w-5xl anyway — same element,
+            and the arbitrary variant wins. Several settings pages declared a
+            narrower column for years and silently rendered at 976px. A page
+            that genuinely wants to be narrower has to say `!max-w-2xl`, and
+            prose should cap its own measure rather than relying on the
+            container at all. */}
         <main className="[&>*:not(.grain)]:mx-auto [&>*:not(.grain)]:max-w-5xl [&>*:not(.grain)]:px-6 [&>*:not(.grain)]:pb-24">
           {children}
         </main>

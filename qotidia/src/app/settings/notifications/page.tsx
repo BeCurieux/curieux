@@ -63,7 +63,7 @@ export default async function NotificationsPage({
   const value = (key: string) => (prefs ? prefs[key] !== false : true);
 
   return (
-    <div className="mx-auto max-w-lg py-16">
+    <div className="mx-auto !max-w-lg py-16">
       <h1 className="text-3xl">What we write to you about</h1>
       <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-stone">
         We would rather send you four emails a year that you are glad of than

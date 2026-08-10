@@ -42,7 +42,7 @@ export default async function FamilyAccessPage({
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
 
   return (
-    <div className="mx-auto max-w-2xl py-10">
+    <div className="mx-auto !max-w-2xl py-10">
       <Link href="/home" className="text-sm text-ochre">&larr; Home</Link>
       <h1 className="mt-2 text-3xl">Who can see this</h1>
       <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-stone">

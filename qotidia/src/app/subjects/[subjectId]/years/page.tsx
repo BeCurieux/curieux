@@ -177,7 +177,7 @@ export default async function YearsPage({
                               &ldquo;{m.raw_text}&rdquo;
                             </p>
                           ) : m.raw_text ? (
-                            <p className="leading-relaxed">{m.raw_text}</p>
+                            <p className="reading">{m.raw_text}</p>
                           ) : (
                             <p className="text-stone">A photograph</p>
                           )}

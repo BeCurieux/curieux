@@ -25,7 +25,7 @@ export default async function AccountPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="mx-auto max-w-lg py-16">
+    <div className="mx-auto !max-w-lg py-16">
       <h1 className="text-title">Account</h1>
 
       <div className="card mt-8 text-sm">

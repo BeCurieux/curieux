@@ -6,7 +6,7 @@ import { addFamilyMembers } from "../../actions";
 export default function OnboardingPeoplePage({ searchParams }: { searchParams: { child?: string } }) {
   const subjectId = searchParams.child ?? "";
   return (
-    <div className="mx-auto max-w-md py-16">
+    <div className="mx-auto !max-w-md py-16">
       <h1 className="text-3xl">Who&rsquo;s in their world?</h1>
       <p className="mt-2 text-sm text-stone">
         Parents, grandparents, siblings, anyone important. One per line:

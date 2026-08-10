@@ -3,7 +3,7 @@ import { createChild } from "../actions";
 
 export default function OnboardingPage({ searchParams }: { searchParams: { error?: string } }) {
   return (
-    <div className="mx-auto max-w-md py-16">
+    <div className="mx-auto !max-w-md py-16">
       <h1 className="text-3xl">Whose childhood are we keeping?</h1>
       <p className="mt-3 text-sm leading-relaxed text-stone">
         Three things, and then we can get out of your way.

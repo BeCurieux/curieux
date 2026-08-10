@@ -9,22 +9,39 @@
        this, that 100vw is measured including the scrollbar and every page
        gains a horizontal scroll of a few pixels. */
     overflow-x: hidden;
-    /* Charter was drawn for print, where it is set solid. On screen it wants
-       a little more air between lines and a fraction less between letters. */
-    line-height: 1.6;
+    /* The interface baseline is the sans now — see the fontFamily comment in
+       tailwind.config.ts for the division. The sans is drawn for screens and
+       wants slightly less leading than Charter did. */
+    line-height: 1.55;
   }
   h1, h2, h3 {
     @apply font-display font-normal tracking-tight;
     line-height: 1.15;
   }
-  /* Form furniture and buttons stay in the sans — the same division the
-     printed page makes between what you read and what you operate. */
-  input, select, textarea, button {
-    @apply font-ui;
+  /* Quotes are the family's own words, so they are set in the family's
+     face wherever they appear. */
+  blockquote {
+    @apply font-display;
   }
 }
 
 @layer components {
+  /**
+   * Reading, as opposed to operating.
+   *
+   * Put this on prose the archive is *about* — a memory, a quote, an
+   * observation about a child, the marketing copy that is doing the same
+   * job. It buys back the serif and the leading Charter wants; everything
+   * without it is interface and stays in the sans.
+   *
+   * A class rather than a wrapper element, because the distinction is about
+   * what the words are, not where they sit in the tree.
+   */
+  .reading {
+    @apply font-display;
+    line-height: 1.6;
+  }
+
   .btn {
     @apply inline-block rounded-full bg-clay px-6 py-3 text-sm text-white transition hover:bg-ochre;
   }

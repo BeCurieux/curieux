@@ -62,7 +62,7 @@ export default function PrivacyExplainerPage() {
   return (
     <div className="-mx-6">
       <section className="bg-ink px-6 py-16 text-paper md:py-20">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto !max-w-3xl">
           <h1 className="max-w-[16ch] text-display">Their childhood isn&rsquo;t content.</h1>
           <p className="mt-8 max-w-[46ch] text-lg leading-relaxed text-paper/75">
             Some memories are meant to be shared. Not with everyone. This is a
@@ -72,7 +72,7 @@ export default function PrivacyExplainerPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-3xl px-6">
+      <div className="mx-auto !max-w-3xl px-6">
         <ul className="grid gap-4 py-12 sm:grid-cols-2 md:grid-cols-3">
           {PILLARS.map(([title, blurb]) => (
             <li key={title} className="card">

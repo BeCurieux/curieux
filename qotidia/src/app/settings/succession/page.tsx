@@ -80,7 +80,7 @@ export default async function SuccessionPage({
   ) as any;
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-16">
+    <div className="mx-auto !max-w-2xl px-6 py-16">
       <Link href="/settings/privacy" className="text-sm text-ochre">
         ← Archive settings
       </Link>

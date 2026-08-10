@@ -70,7 +70,7 @@ export default async function BillingPage({
     .limit(12);
 
   return (
-    <div className="mx-auto max-w-2xl py-10">
+    <div className="mx-auto !max-w-2xl py-10">
       <p className="text-sm text-stone">
         <Link href="/settings/privacy" className="text-ochre">Archive settings</Link>
       </p>

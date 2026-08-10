@@ -52,7 +52,7 @@ export default async function OrderPage({ params }: { params: { orderId: string 
   const activeIndex = STEPS.indexOf(order.status as (typeof STEPS)[number]);
 
   return (
-    <div className="mx-auto max-w-lg py-16">
+    <div className="mx-auto !max-w-lg py-16">
       <Link href={`/books/${book.id}`} className="text-sm text-ochre">&larr; {book.title}</Link>
       <h1 className="mt-2 text-3xl">{LABELS[order.status] ?? order.status}</h1>
 

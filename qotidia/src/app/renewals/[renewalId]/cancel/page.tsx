@@ -36,7 +36,7 @@ export default async function CancelRenewalPage({
 
   if (searchParams.done || renewal.status === "cancelled") {
     return (
-      <div className="mx-auto max-w-md py-20">
+      <div className="mx-auto !max-w-md py-20">
         <h1 className="text-3xl">Stopped.</h1>
         <p className="mt-4 text-sm leading-relaxed text-stone">
           Nothing will be charged and nothing will print. Everything in{" "}
@@ -53,7 +53,7 @@ export default async function CancelRenewalPage({
 
   if (renewal.status !== "scheduled") {
     return (
-      <div className="mx-auto max-w-md py-20">
+      <div className="mx-auto !max-w-md py-20">
         <h1 className="text-3xl">Nothing to stop</h1>
         <p className="mt-4 text-sm leading-relaxed text-stone">
           {renewal.status === "charged"
@@ -67,7 +67,7 @@ export default async function CancelRenewalPage({
   const price = await bookPriceFor(admin, (renewal as any).subjects?.family_id ?? "");
 
   return (
-    <div className="mx-auto max-w-md py-20">
+    <div className="mx-auto !max-w-md py-20">
       <h1 className="text-3xl">Don&rsquo;t print {childName}&rsquo;s book this year?</h1>
       <p className="mt-4 text-sm leading-relaxed text-stone">
         {/* From the plan, not from renewal.amount_aud, which is the full

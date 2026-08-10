@@ -44,7 +44,7 @@ export default async function StartPage({
   const copy = startCopy({ childName: first, year, ageWord });
 
   return (
-    <div className="mx-auto max-w-xl py-16">
+    <div className="mx-auto !max-w-xl py-16">
       <p className="text-xs uppercase tracking-[0.28em] text-clay">
         {year.complete ? "Where to start" : "First year"}
       </p>

@@ -26,7 +26,7 @@ export default async function InvitePage({ params }: { params: { token: string }
 
   if (!invite || invite.accepted_at || new Date(invite.expires_at) < new Date()) {
     return (
-      <div className="mx-auto max-w-md py-20 text-center">
+      <div className="mx-auto !max-w-md py-20 text-center">
         <h1 className="text-3xl">This link has expired</h1>
         <p className="mt-3 text-sm leading-relaxed text-stone">
           Invitations last thirty days and can only be used once. Ask whoever
@@ -52,7 +52,7 @@ export default async function InvitePage({ params }: { params: { token: string }
   const role = invite.role as FamilyRole;
 
   return (
-    <div className="mx-auto max-w-md py-20">
+    <div className="mx-auto !max-w-md py-20">
       <p className="text-xs uppercase tracking-[0.2em] text-stone">{BRAND}</p>
       <h1 className="mt-3 text-title">You&rsquo;ve been asked to help keep {who}&rsquo;s year.</h1>
       <p className="mt-4 text-sm leading-relaxed text-stone">
