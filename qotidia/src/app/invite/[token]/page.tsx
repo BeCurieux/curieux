@@ -12,7 +12,8 @@ import { BRAND } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
-export default async function InvitePage({ params }: { params: { token: string } }) {
+export default async function InvitePage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   // Read with the service role: the invitee is by definition not yet a member,
   // so RLS would hide the invitation from the very person it is addressed to.
   const admin = adminClient();

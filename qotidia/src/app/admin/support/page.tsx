@@ -27,7 +27,7 @@ export default async function SupportQueuePage() {
     .from("profiles").select("is_admin").eq("id", user.id).single();
   if (!profile?.is_admin) redirect("/home");
 
-  const grants = await openGrants(userClient());
+  const grants = await openGrants(await userClient());
 
   return (
     <div className="mx-auto !max-w-2xl py-10">

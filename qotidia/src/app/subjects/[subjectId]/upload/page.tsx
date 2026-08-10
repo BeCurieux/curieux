@@ -12,13 +12,14 @@ import { MIN_MEMORIES_FOR_A_BOOK } from "@/lib/renewal/policy";
 import { ENOUGH_TO_NOTICE } from "@/lib/graph/first-look";
 import { countStoryMemories } from "@/lib/memories/scope";
 
-export default async function UploadPage({
-  params,
-  searchParams,
-}: {
-  params: { subjectId: string };
-  searchParams: { welcome?: string; backfill?: string };
-}) {
+export default async function UploadPage(
+  props: {
+    params: Promise<{ subjectId: string }>;
+    searchParams: Promise<{ welcome?: string; backfill?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const backfill = searchParams.backfill === "1";
 
   // How far a backfill has got, and whether there is a book to make. Only
@@ -28,7 +29,7 @@ export default async function UploadPage({
   let first = "them";
   let hasBook = false;
   if (backfill) {
-    const db = userClient();
+    const db = await userClient();
     kept = await countStoryMemories(db, params.subjectId);
     const { data: subject } = await db
       .from("subjects")

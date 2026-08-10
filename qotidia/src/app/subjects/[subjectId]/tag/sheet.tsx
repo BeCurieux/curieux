@@ -66,7 +66,6 @@ export function TagSheet({
             >
               <span className="block aspect-[4/5] bg-rule/40">
                 {m.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={m.photo} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <span className="flex h-full items-center p-3 text-left font-display text-sm leading-snug text-stone">

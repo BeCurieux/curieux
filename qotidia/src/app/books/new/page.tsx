@@ -41,7 +41,7 @@ export const dynamic = "force-dynamic";
 export default async function NewBookPage() {
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: subjects } = await db
     .from("subjects")

@@ -149,7 +149,13 @@ describe("when we ask", () => {
     const calls = (bare(recorder).match(/getUserMedia/g) ?? []).length;
     expect(calls).toBe(1);
     const start = bare(recorder).slice(bare(recorder).indexOf("const start ="));
-    expect(start.slice(0, start.indexOf("getUserMedia"))).toContain("asksRef.current += 1");
+    // The attempt is counted *before* the prompt goes up, because that count
+    // is the only thing that tells a dismissed dialog from a blocked one on
+    // a browser that won't say. Held in state rather than a ref so the
+    // button's wording can change after a refusal.
+    const beforeTheAsk = start.slice(0, start.indexOf("getUserMedia"));
+    expect(beforeTheAsk).toContain("const asked = asks + 1");
+    expect(beforeTheAsk).toContain("setAsks(asked)");
   });
 });
 

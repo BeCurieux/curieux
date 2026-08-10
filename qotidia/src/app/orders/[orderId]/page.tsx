@@ -38,10 +38,11 @@ const STEP_COPY: Record<string, { label: string; detail: string }> = {
   },
 };
 
-export default async function OrderPage({ params }: { params: { orderId: string } }) {
+export default async function OrderPage(props: { params: Promise<{ orderId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
   const { data: order } = await db
     .from("print_orders")
     .select("*, books(id, title)")

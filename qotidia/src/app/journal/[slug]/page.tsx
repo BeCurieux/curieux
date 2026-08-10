@@ -33,7 +33,8 @@ export function generateStaticParams() {
   return published().map((e) => ({ slug: e.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const entry = entryBySlug(params.slug);
   if (!entry) return { title: BRAND };
   return {
@@ -53,7 +54,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function JournalEntryPage({ params }: { params: { slug: string } }) {
+export default async function JournalEntryPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const entry = entryBySlug(params.slug);
   if (!entry) notFound();
 

@@ -34,10 +34,11 @@ const LABEL_FOR: Record<string, string> = {
   was_it_a_ritual: "Same day, again",
 };
 
-export default async function AboutPage({ params }: { params: { subjectId: string } }) {
+export default async function AboutPage(props: { params: Promise<{ subjectId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: subject } = await db
     .from("subjects")

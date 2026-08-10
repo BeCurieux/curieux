@@ -16,14 +16,21 @@ const anonKey = () => publishableKey()!;
 export const ACCESS_COOKIE = "kp-access-token";
 export const REFRESH_COOKIE = "kp-refresh-token";
 
-/** RLS-enforced client authenticated as the current user (or anon). */
-export function userClient(): SupabaseClient {
+/**
+ * RLS-enforced client authenticated as the current user (or anon).
+ *
+ * Async since Next 16: reading the request's cookies is now an awaited
+ * operation. The codemod left a synchronous unwrap here, which compiles and
+ * works today and is exactly the kind of thing that stops working quietly
+ * later — so this awaits properly and every caller awaits it.
+ */
+export async function userClient(): Promise<SupabaseClient> {
   // Demo mode runs the whole interface against an in-memory fixture so the
   // product can be walked end to end without provisioning anything.
   if (isDemoMode()) return demoClient();
   const missing = whatIsMissing();
   if (missing) throw new Error(missing);
-  const token = cookies().get(ACCESS_COOKIE)?.value;
+  const token = (await cookies()).get(ACCESS_COOKIE)?.value;
   return createClient(url(), anonKey(), {
     global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
     auth: { persistSession: false, autoRefreshToken: false },
@@ -55,9 +62,9 @@ export function authClient(): SupabaseClient {
 
 export async function currentUser() {
   if (isDemoMode()) return DEMO_USER as any;
-  const token = cookies().get(ACCESS_COOKIE)?.value;
+  const token = (await cookies()).get(ACCESS_COOKIE)?.value;
   if (!token) return null;
-  const { data, error } = await userClient().auth.getUser(token);
+  const { data, error } = await (await userClient()).auth.getUser(token);
   if (error) return null;
   void touchLastSeen(data.user.id);
   return data.user;

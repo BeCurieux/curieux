@@ -1,11 +1,12 @@
 import { signUp } from "../actions";
 import { PLAN_PRICES } from "@/lib/billing/plans";
 
-export default function SignupPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; plan?: string };
-}) {
+export default async function SignupPage(
+  props: {
+    searchParams: Promise<{ error?: string; plan?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const monthly = searchParams.plan === "monthly";
   return (
     <div className="mx-auto max-w-sm py-16">

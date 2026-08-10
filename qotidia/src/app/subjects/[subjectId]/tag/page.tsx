@@ -31,16 +31,17 @@ export const dynamic = "force-dynamic";
 /** How many to work through at once. Enough to be worth it, few enough to end. */
 const BATCH = 60;
 
-export default async function TagPage({
-  params,
-  searchParams,
-}: {
-  params: { subjectId: string };
-  searchParams: { all?: string };
-}) {
+export default async function TagPage(
+  props: {
+    params: Promise<{ subjectId: string }>;
+    searchParams: Promise<{ all?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: child } = await db
     .from("subjects")

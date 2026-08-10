@@ -15,16 +15,17 @@ import { friendlyDate } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
 
-export default async function FamilyAccessPage({
-  params,
-  searchParams,
-}: {
-  params: { familyId: string };
-  searchParams: { invited?: string; error?: string };
-}) {
+export default async function FamilyAccessPage(
+  props: {
+    params: Promise<{ familyId: string }>;
+    searchParams: Promise<{ invited?: string; error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const role = await roleInFamily(db, params.familyId, user.id);
   if (!role) redirect("/home");

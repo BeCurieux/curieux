@@ -73,10 +73,13 @@ async function gateOn(action: ProtectedAction, back: string) {
   }
 }
 
-function setSessionCookies(accessToken: string, refreshToken: string) {
+async function setSessionCookies(accessToken: string, refreshToken: string) {
   const opts = { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" };
-  cookies().set(ACCESS_COOKIE, accessToken, { ...opts, maxAge: 60 * 60 });
-  cookies().set(REFRESH_COOKIE, refreshToken, { ...opts, maxAge: 60 * 60 * 24 * 30 });
+  // One await, one jar. The codemod's synchronous unwrap called cookies()
+  // twice and would have gone on working right up until it didn't.
+  const jar = await cookies();
+  jar.set(ACCESS_COOKIE, accessToken, { ...opts, maxAge: 60 * 60 });
+  jar.set(REFRESH_COOKIE, refreshToken, { ...opts, maxAge: 60 * 60 * 24 * 30 });
 }
 
 // ----------------------------------------------------------------- auth
@@ -93,7 +96,7 @@ export async function signUp(formData: FormData) {
   const { data, error } = await authClient().auth.signUp({ email, password });
   if (error) redirect(`/signup?error=${encodeURIComponent(error.message)}&plan=${plan}`);
   if (data.session) {
-    setSessionCookies(data.session.access_token, data.session.refresh_token);
+    await setSessionCookies(data.session.access_token, data.session.refresh_token);
     void note(adminClient(), data.session.user.id, { name: "signed_up" });
     redirect(`/onboarding?plan=${plan}`);
   }
@@ -105,13 +108,13 @@ export async function signIn(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const { data, error } = await authClient().auth.signInWithPassword({ email, password });
   if (error || !data.session) redirect(`/login?error=${encodeURIComponent(error?.message ?? "Sign in failed")}`);
-  setSessionCookies(data.session.access_token, data.session.refresh_token);
+  await setSessionCookies(data.session.access_token, data.session.refresh_token);
   redirect("/home");
 }
 
 export async function signOut() {
-  cookies().delete(ACCESS_COOKIE);
-  cookies().delete(REFRESH_COOKIE);
+  (await cookies()).delete(ACCESS_COOKIE);
+  (await cookies()).delete(REFRESH_COOKIE);
   redirect("/");
 }
 
@@ -119,7 +122,7 @@ export async function signOut() {
 
 export async function createChild(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const firstName = String(formData.get("display_name") ?? "").trim();
   const dob = String(formData.get("date_of_birth") ?? "");
   if (!firstName || !dob) redirect("/onboarding?error=Name and birthday are required");
@@ -160,7 +163,7 @@ export async function createChild(formData: FormData) {
 
 export async function addFamilyMembers(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const { data: child } = await db.from("subjects").select("family_id").eq("id", subjectId).single();
   if (!child) throw new Error("child not found");
@@ -226,7 +229,7 @@ export async function uploadTicket(input: {
   bytes: number;
 }) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const membership = await roleForSubject(db, input.subjectId, user.id);
   if (!membership) throw new Error("not a member of this family");
   const story = await storySubject(db, input.subjectId);
@@ -308,7 +311,7 @@ export async function registerUploadedPhoto(input: {
   bytes: number;
 }) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
 
   // Exact-duplicate detection (§7): same checksum for this child is skipped.
   const membership = await roleForSubject(db, input.subjectId, user.id);
@@ -409,7 +412,7 @@ export async function registerVoiceMemory(input: {
   memoryDate: string | null;
 }) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
 
   const membership = await roleForSubject(db, input.subjectId, user.id);
   if (!membership) throw new Error("not a member of this family");
@@ -459,7 +462,7 @@ export async function registerVoiceMemory(input: {
 
 export async function addTextMemory(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const type = String(formData.get("type")) === "quote" ? "quote" : "text";
   const text = String(formData.get("text") ?? "").trim();
@@ -498,7 +501,7 @@ export async function addTextMemory(formData: FormData) {
  */
 export async function setMemoryVisibility(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const memoryId = String(formData.get("memory_id"));
   const subjectId = String(formData.get("subject_id"));
   const visibility = String(formData.get("visibility")) === "private" ? "private" : "family";
@@ -521,7 +524,7 @@ export async function setMemoryVisibility(formData: FormData) {
 
 export async function addLittleThing(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const category = String(formData.get("category") ?? "");
   const value = String(formData.get("value") ?? "").trim();
@@ -534,7 +537,7 @@ export async function addLittleThing(formData: FormData) {
 
 export async function updateCluster(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const clusterId = String(formData.get("cluster_id"));
   const action = String(formData.get("action"));
   const subjectId = String(formData.get("subject_id"));
@@ -582,7 +585,7 @@ export async function updateCluster(formData: FormData) {
  */
 export async function answerQuestion(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const id = String(formData.get("question_id"));
   const subjectId = String(formData.get("subject_id"));
   const action = String(formData.get("action"));
@@ -658,7 +661,7 @@ export async function answerQuestion(formData: FormData) {
 
 export async function createBook(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const { data: child } = await db.from("subjects").select("*").eq("id", subjectId).single();
   if (!child) throw new Error("child not found");
@@ -696,7 +699,7 @@ export async function createBook(formData: FormData) {
 
 export async function updateBlock(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const blockId = String(formData.get("block_id"));
   const pageId = String(formData.get("page_id"));
   const content = String(formData.get("content") ?? "").trim();
@@ -710,14 +713,14 @@ export async function updateBlock(formData: FormData) {
 
 export async function removeBlock(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   await db.from("book_content_blocks").delete().eq("id", String(formData.get("block_id")));
   revalidatePath(`/books/pages/${String(formData.get("page_id"))}`);
 }
 
 export async function changeTemplate(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const pageId = String(formData.get("page_id"));
   const templateId = String(formData.get("template_id"));
   const { data: page } = await db.from("book_pages").select("template_id").eq("id", pageId).single();
@@ -732,7 +735,7 @@ export async function changeTemplate(formData: FormData) {
 
 export async function removePage(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const pageId = String(formData.get("page_id"));
   const bookId = String(formData.get("book_id"));
   await db.from("book_pages").delete().eq("id", pageId);
@@ -756,7 +759,7 @@ export async function removePage(formData: FormData) {
 
 export async function approveBook(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const bookId = String(formData.get("book_id"));
   const confirmed = formData.get("confirm") === "on";
   if (!confirmed) redirect(`/books/${bookId}/approve?error=Please confirm your review`);
@@ -799,7 +802,7 @@ export async function approveBook(formData: FormData) {
 
 export async function startCheckout(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const bookId = String(formData.get("book_id"));
   const { data: book } = await db.from("books").select("*").eq("id", bookId).single();
   if (!book) throw new Error("book not found");
@@ -921,7 +924,7 @@ export async function stopRenewalByLink(formData: FormData) {
 /** Stop a scheduled renewal. One click, no reason asked for. */
 export async function cancelRenewal(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const renewalId = String(formData.get("renewal_id"));
   const subjectId = String(formData.get("subject_id"));
 
@@ -951,7 +954,7 @@ export async function cancelRenewal(formData: FormData) {
 /** Invite someone to a family. Owner only; never as owner. */
 export async function inviteToFamily(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role")) === "editor" ? "editor" : "contributor";
@@ -1046,7 +1049,7 @@ export async function acceptInvitation(formData: FormData) {
 /** Change what someone may do, or remove their access entirely. */
 export async function updateMembership(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const membershipId = String(formData.get("membership_id"));
   const familyId = String(formData.get("family_id"));
   const action = String(formData.get("action"));
@@ -1069,7 +1072,7 @@ export async function updateMembership(formData: FormData) {
 /** Accept or decline something a contributor added. */
 export async function reviewContribution(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const memoryId = String(formData.get("memory_id"));
   const subjectId = String(formData.get("subject_id"));
   const decision = String(formData.get("decision")) === "approve" ? "approved" : "declined";
@@ -1099,7 +1102,7 @@ export async function reviewContribution(formData: FormData) {
 /** Say something about a memory. Conversation, never book content. */
 export async function addComment(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const memoryId = String(formData.get("memory_id"));
   const subjectId = String(formData.get("subject_id"));
   const body = String(formData.get("body") ?? "").trim();
@@ -1118,7 +1121,7 @@ export async function addComment(formData: FormData) {
 
 export async function deleteComment(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   await db.from("memory_comments").delete().eq("id", String(formData.get("comment_id")));
   revalidatePath(`/subjects/${String(formData.get("subject_id"))}/years`);
 }
@@ -1145,7 +1148,7 @@ export async function updateNotificationPreferences(formData: FormData) {
   }
 
   const user = await requireUser();
-  await userClient()
+  await (await userClient())
     .from("email_preferences")
     .upsert({ user_id: user.id, ...prefs }, { onConflict: "user_id" });
   redirect("/settings/notifications?saved=1");
@@ -1157,7 +1160,7 @@ export async function updateNotificationPreferences(formData: FormData) {
 export async function requestExport(formData: FormData) {
   const user = await requireUser();
   await gateOn("export_archive", `/settings/privacy`);
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
 
   const role = await roleInFamily(db, familyId, user.id);
@@ -1192,7 +1195,7 @@ export async function requestExport(formData: FormData) {
 export async function deleteEverything(formData: FormData) {
   const user = await requireUser();
   await gateOn("delete_everything", `/settings/privacy`);
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   const typed = String(formData.get("confirmation") ?? "").trim();
 
@@ -1233,7 +1236,7 @@ export async function deleteEverything(formData: FormData) {
 export async function grantSupportAccess(formData: FormData) {
   const user = await requireUser();
   await gateOn("grant_support_access", `/settings/privacy`);
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   const reason = String(formData.get("reason") ?? "").trim() || "support request";
 
@@ -1261,7 +1264,7 @@ export async function grantSupportAccess(formData: FormData) {
 
 export async function revokeSupportAccess(formData: FormData) {
   await requireUser();
-  const db = userClient();
+  const db = await userClient();
   await db
     .from("support_grants")
     .update({ revoked_at: new Date().toISOString() })
@@ -1289,7 +1292,7 @@ export async function adminRetryJob(formData: FormData) {
  */
 const COLOUR_LOCKED_AFTER = ["ordered", "in_production", "shipped", "delivered"];
 
-async function assertCanRestyle(db: ReturnType<typeof userClient>, bookId: string, userId: string) {
+async function assertCanRestyle(db: Awaited<ReturnType<typeof userClient>>, bookId: string, userId: string) {
   const { data: book } = await db
     .from("books")
     .select("id, subject_id, status")
@@ -1309,7 +1312,7 @@ async function assertCanRestyle(db: ReturnType<typeof userClient>, bookId: strin
 /** Set (or clear) the colour of one volume. */
 export async function setCoverColour(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const bookId = String(formData.get("book_id"));
   const raw = String(formData.get("colour") ?? "");
 
@@ -1334,7 +1337,7 @@ export async function setCoverColour(formData: FormData) {
 /** Set the standing preference: every volume this colour, unless set by hand. */
 export async function setCoverColourForAll(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const raw = String(formData.get("colour") ?? "");
 
@@ -1363,7 +1366,7 @@ export async function setCoverColourForAll(formData: FormData) {
  * that a family's memories are theirs cannot make leaving harder than
  * joining, and the pricing page already promises everything stays readable.
  */
-async function ownedFamily(db: ReturnType<typeof userClient>, familyId: string, userId: string) {
+async function ownedFamily(db: Awaited<ReturnType<typeof userClient>>, familyId: string, userId: string) {
   const role = await roleInFamily(db, familyId, userId);
   if (!canManageAccess(role)) throw new Error("only the owner can change the plan");
   const { data: family } = await db
@@ -1377,7 +1380,7 @@ async function ownedFamily(db: ReturnType<typeof userClient>, familyId: string, 
 
 export async function cancelMembership(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   const family = await ownedFamily(db, familyId, user.id);
 
@@ -1404,7 +1407,7 @@ export async function cancelMembership(formData: FormData) {
 
 export async function resumeMembershipAction(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   const family = await ownedFamily(db, familyId, user.id);
 
@@ -1429,7 +1432,7 @@ export async function resumeMembershipAction(formData: FormData) {
 /** Start a membership from inside the product, for a one-off family. */
 export async function startMembership(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   await ownedFamily(db, familyId, user.id);
 
@@ -1456,7 +1459,7 @@ export async function startMembership(formData: FormData) {
  */
 export async function answerNoticed(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const noticedId = String(formData.get("noticed_id"));
   const subjectId = String(formData.get("subject_id"));
   const verdict = String(formData.get("verdict"));
@@ -1507,7 +1510,7 @@ export async function answerNoticed(formData: FormData) {
  */
 export async function fileArrivalAction(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const memoryId = String(formData.get("memory_id"));
   const subjectId = String(formData.get("subject_id"));
   // Which button was pressed, not merely what is in the field. Someone who
@@ -1550,7 +1553,7 @@ export async function fileArrivalAction(formData: FormData) {
  */
 export async function moveArrival(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const memoryId = String(formData.get("memory_id"));
   const fromSubject = String(formData.get("subject_id"));
   const toSubject = String(formData.get("to_subject_id"));
@@ -1593,7 +1596,7 @@ export async function moveArrival(formData: FormData) {
  */
 export async function rotateInboxAddress(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
 
   const membership = await roleForSubject(db, subjectId, user.id);
@@ -1630,7 +1633,7 @@ export async function rotateInboxAddress(formData: FormData) {
 /** Whether mail from outside the family is reviewed or refused. */
 export async function setInboxOpenness(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const open = formData.get("accept_from_anyone") === "on";
 
@@ -1658,7 +1661,7 @@ export async function setInboxOpenness(formData: FormData) {
  */
 export async function toggleWhoAction(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const memoryId = String(formData.get("memory_id"));
   const subjectId = String(formData.get("subject_id"));
   const key = String(formData.get("who"));
@@ -1686,7 +1689,7 @@ export async function toggleWhoAction(formData: FormData) {
  */
 export async function tagManyAction(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const keys = formData.getAll("who").map(String).filter(Boolean);
   const memoryIds = formData.getAll("memory_id").map(String).filter(Boolean);
@@ -1741,7 +1744,7 @@ export async function tagManyAction(formData: FormData) {
  */
 export async function startStory(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const calendarYear = Number(formData.get("calendar_year")) || null;
 
@@ -1798,7 +1801,7 @@ export async function startStory(formData: FormData) {
  */
 export async function startHousehold(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
 
   const role = await roleInFamily(db, familyId, user.id);
@@ -1847,7 +1850,7 @@ export async function startHousehold(formData: FormData) {
  */
 export async function resolveIdentity(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const familyId = String(formData.get("family_id"));
   const same = String(formData.get("answer")) === "same";
@@ -1916,7 +1919,7 @@ export async function resolveIdentity(formData: FormData) {
  */
 export async function startPersonBook(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const entityId = String(formData.get("entity_id"));
 
@@ -1971,7 +1974,7 @@ export async function startPersonBook(formData: FormData) {
  */
 export async function roomForBatch(subjectId: string, bytes: number, count = 1) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const membership = await roleForSubject(db, subjectId, user.id);
   if (!membership) throw new Error("not a member of this family");
   const story = await storySubject(db, subjectId);
@@ -2004,7 +2007,7 @@ export async function roomForBatch(subjectId: string, bytes: number, count = 1) 
 // are the four things a person can do about it from a browser.
 
 /** The family this user owns, or an error naming why not. */
-async function ownedFamilyId(db: ReturnType<typeof userClient>, userId: string) {
+async function ownedFamilyId(db: Awaited<ReturnType<typeof userClient>>, userId: string) {
   const { data } = await db
     .from("families")
     .select("id, family_name")
@@ -2023,7 +2026,7 @@ async function ownedFamilyId(db: ReturnType<typeof userClient>, userId: string) 
  */
 export async function nameKeeper(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const family = await ownedFamilyId(db, user.id);
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -2073,7 +2076,7 @@ export async function nameKeeper(formData: FormData) {
 /** Change your mind about who keeps it. */
 export async function removeKeeper(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const family = await ownedFamilyId(db, user.id);
   const keeperId = String(formData.get("keeper_id"));
 
@@ -2105,7 +2108,7 @@ export async function removeKeeper(formData: FormData) {
  */
 export async function claimArchive(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const familyId = String(formData.get("family_id"));
   const email = (user.email ?? "").toLowerCase();
 
@@ -2154,7 +2157,7 @@ export async function claimArchive(formData: FormData) {
  */
 export async function refuseClaim(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const family = await ownedFamilyId(db, user.id);
   const claimId = String(formData.get("claim_id"));
 
@@ -2203,7 +2206,7 @@ export async function refuseClaim(formData: FormData) {
  */
 export async function answerAboutThing(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const familyId = String(formData.get("family_id"));
   const entityKey = String(formData.get("entity_key"));
@@ -2253,7 +2256,7 @@ export async function answerAboutThing(formData: FormData) {
  */
 export async function answerDiscovery(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const day = String(formData.get("day"));
   const said = String(formData.get("answer") ?? "").trim();
@@ -2300,7 +2303,7 @@ export async function answerDiscovery(formData: FormData) {
  */
 export async function shareStory(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const subjectId = String(formData.get("subject_id"));
   const kind = String(formData.get("kind"));
   if (kind !== "found" && kind !== "film") throw new Error("nothing to share");
@@ -2354,7 +2357,7 @@ export async function shareStory(formData: FormData) {
 /** Pull a link back. Everything it reached stays exactly where it is. */
 export async function revokeShare(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const shareId = String(formData.get("share_id"));
   const subjectId = String(formData.get("subject_id"));
 
@@ -2466,7 +2469,7 @@ export async function contributeToStory(formData: FormData) {
 /** The family keeps what came back, or does not. */
 export async function judgeContribution(formData: FormData) {
   const user = await requireUser();
-  const db = userClient();
+  const db = await userClient();
   const contributionId = String(formData.get("contribution_id"));
   const subjectId = String(formData.get("subject_id"));
   const keep = String(formData.get("verdict")) === "keep";

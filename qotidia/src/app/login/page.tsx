@@ -1,10 +1,11 @@
 import { signIn } from "../actions";
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; message?: string };
-}) {
+export default async function LoginPage(
+  props: {
+    searchParams: Promise<{ error?: string; message?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   return (
     <div className="mx-auto max-w-sm py-16">
       <h1 className="text-3xl">Welcome back</h1>

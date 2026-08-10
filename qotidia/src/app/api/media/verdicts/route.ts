@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     .slice(0, MAX_ASSETS);
   if (ids.length === 0) return NextResponse.json({ verdicts: {} });
 
-  const { data } = await userClient()
+  const { data } = await (await userClient())
     .from("media_assets")
     .select("id, scan_verdict, scan_reason")
     .in("id", ids);

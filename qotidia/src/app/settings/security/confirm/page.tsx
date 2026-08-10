@@ -31,11 +31,12 @@ function safeNext(next: string | undefined): string {
   return next;
 }
 
-export default async function ConfirmPage({
-  searchParams,
-}: {
-  searchParams: { action?: string; next?: string };
-}) {
+export default async function ConfirmPage(
+  props: {
+    searchParams: Promise<{ action?: string; next?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
   if (!user) redirect("/login");
 

@@ -13,16 +13,17 @@ import { aud } from "@/lib/billing/money";
 
 export const dynamic = "force-dynamic";
 
-export default async function CheckoutPage({
-  params,
-  searchParams,
-}: {
-  params: { bookId: string };
-  searchParams: { cancelled?: string };
-}) {
+export default async function CheckoutPage(
+  props: {
+    params: Promise<{ bookId: string }>;
+    searchParams: Promise<{ cancelled?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
   const { data: book } = await db.from("books").select("*").eq("id", params.bookId).single();
   if (!book) redirect("/home");
 

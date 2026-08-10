@@ -18,16 +18,17 @@ import { yearWord } from "@/lib/book/structure";
 
 export const dynamic = "force-dynamic";
 
-export default async function YearsPage({
-  params,
-  searchParams,
-}: {
-  params: { subjectId: string };
-  searchParams: { year?: string };
-}) {
+export default async function YearsPage(
+  props: {
+    params: Promise<{ subjectId: string }>;
+    searchParams: Promise<{ year?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: subject } = await db
     .from("subjects")

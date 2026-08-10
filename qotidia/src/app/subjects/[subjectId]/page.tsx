@@ -29,10 +29,11 @@ import { Why } from "@/app/why";
 
 export const dynamic = "force-dynamic";
 
-export default async function ChildDashboard({ params }: { params: { subjectId: string } }) {
+export default async function ChildDashboard(props: { params: Promise<{ subjectId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: child } = await db.from("subjects").select("*").eq("id", params.subjectId).single();
   if (!child) redirect("/home");
@@ -66,8 +67,14 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
 
   // One question, built from this archive rather than from a template.
   const lastMemoryAt = recent?.[0]?.created_at ?? null;
+  // Read once, here, rather than at each use. This is a server component:
+  // it renders once per request, so the clock is a fact about the request
+  // rather than an impurity — but the rule cannot tell, so it is named and
+  // suppressed in exactly one place instead of scattered.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const daysSince = (from: string | null) =>
-    from ? Math.floor((Date.now() - new Date(from).getTime()) / 86_400_000) : null;
+    from ? Math.floor((now - new Date(from).getTime()) / 86_400_000) : null;
   const lastQuote = (recent ?? []).find((m) => m.type === "quote");
   const prompt = bestPrompt({
     childName: first,

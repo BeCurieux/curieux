@@ -52,7 +52,7 @@ export function Recorder({ subjectId }: { subjectId: string }) {
   // What the browser already thinks, read without prompting.
   const [mic, setMic] = useState<MicState>("unasked");
   /** How many times we have prompted. Tells a closed dialog from a block. */
-  const asksRef = useRef(0);
+  const [asks, setAsks] = useState(0);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -77,8 +77,13 @@ export function Recorder({ subjectId }: { subjectId: string }) {
 
   const start = useCallback(async () => {
     setError(null);
+    // Counted in state, not a ref. The button's wording depends on whether
+    // we have asked before, and a ref does not re-render — so the label
+    // could still read "Start recording" after a refusal. The local `asked`
+    // is what this attempt is, which is what settle() has to judge.
+    const asked = asks + 1;
+    setAsks(asked);
     try {
-      asksRef.current += 1;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       chunksRef.current = [];
@@ -96,9 +101,9 @@ export function Recorder({ subjectId }: { subjectId: string }) {
       setPhase("recording");
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch (err) {
-      setMic(await settle(err, asksRef.current));
+      setMic(await settle(err, asked));
     }
-  }, []);
+  }, [asks]);
 
   const stop = useCallback(() => {
     stopTimer();
@@ -201,7 +206,7 @@ export function Recorder({ subjectId }: { subjectId: string }) {
 
           {(!said || said.retryable) && (
             <button onClick={start} className="btn mt-4">
-              {asksRef.current > 0 ? "Try the microphone again" : "Start recording"}
+              {asks > 0 ? "Try the microphone again" : "Start recording"}
             </button>
           )}
 

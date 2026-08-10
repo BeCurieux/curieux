@@ -17,10 +17,11 @@ import { countOf } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
 
-export default async function SoFarPage({ params }: { params: { subjectId: string } }) {
+export default async function SoFarPage(props: { params: Promise<{ subjectId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: child } = await db
     .from("subjects")

@@ -37,13 +37,14 @@ export const metadata: Metadata = {
   title: BRAND,
 };
 
-export default async function SharedStoryPage({
-  params,
-  searchParams,
-}: {
-  params: { token: string };
-  searchParams: { thanks?: string; error?: string; full?: string };
-}) {
+export default async function SharedStoryPage(
+  props: {
+    params: Promise<{ token: string }>;
+    searchParams: Promise<{ thanks?: string; error?: string; full?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const token = params.token;
 
   const admin = adminClient();

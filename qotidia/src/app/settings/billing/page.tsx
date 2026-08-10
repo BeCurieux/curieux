@@ -39,14 +39,15 @@ const STATE_LABEL: Record<string, string> = {
   none: "No membership",
 };
 
-export default async function BillingPage({
-  searchParams,
-}: {
-  searchParams: { stopped?: string; resumed?: string; started?: string; error?: string };
-}) {
+export default async function BillingPage(
+  props: {
+    searchParams: Promise<{ stopped?: string; resumed?: string; started?: string; error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: family } = await db
     .from("families")

@@ -33,11 +33,12 @@ const ALWAYS = [
   "Someone has invited you to an archive",
 ];
 
-export default async function NotificationsPage({
-  searchParams,
-}: {
-  searchParams: { t?: string; saved?: string };
-}) {
+export default async function NotificationsPage(
+  props: {
+    searchParams: Promise<{ t?: string; saved?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
 
   // The token from an email footer identifies the person without a login.
@@ -50,7 +51,7 @@ export default async function NotificationsPage({
       .maybeSingle();
     prefs = data;
   } else if (user) {
-    const { data } = await userClient()
+    const { data } = await (await userClient())
       .from("email_preferences")
       .select("*")
       .eq("user_id", user.id)

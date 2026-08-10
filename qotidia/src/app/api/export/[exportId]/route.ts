@@ -10,16 +10,14 @@ import { adminClient, currentUser, userClient } from "@/lib/supabase/server";
 import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { record } from "@/lib/privacy/activity";
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { exportId: string } }
-) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ exportId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL));
 
   // RLS decides this: the select returns nothing unless the caller is in the
   // family the export belongs to.
-  const db = userClient();
+  const db = await userClient();
   const { data: exp } = await db
     .from("archive_exports")
     .select("id, family_id, storage_path, status, expires_at")

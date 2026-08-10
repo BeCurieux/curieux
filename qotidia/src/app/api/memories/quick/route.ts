@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "nothing to keep" }, { status: 400 });
   }
 
-  const db = userClient();
+  const db = await userClient();
   const membership = await roleForSubject(db, subjectId, user.id);
   if (!membership) return NextResponse.json({ error: "not your family" }, { status: 403 });
 

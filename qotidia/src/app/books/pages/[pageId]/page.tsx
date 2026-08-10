@@ -10,10 +10,11 @@ import { WhyIsThisHere } from "./why";
 
 export const dynamic = "force-dynamic";
 
-export default async function PageEditor({ params }: { params: { pageId: string } }) {
+export default async function PageEditor(props: { params: Promise<{ pageId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: page } = await db
     .from("book_pages")

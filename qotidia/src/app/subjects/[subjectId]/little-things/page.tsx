@@ -9,10 +9,11 @@ import type { SubjectType } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function LittleThingsPage({ params }: { params: { subjectId: string } }) {
+export default async function LittleThingsPage(props: { params: Promise<{ subjectId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: subject } = await db
     .from("subjects")

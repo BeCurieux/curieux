@@ -36,22 +36,26 @@ export function FilmPlayer({
 
   useEffect(() => stop, [stop]);
 
+  const last = cut.frames.length - 1;
+
   useEffect(() => {
     if (!playing) return;
-    if (at >= cut.frames.length - 1) {
-      setPlaying(false);
-      return;
-    }
+    // At the end there is simply nothing left to schedule; the final frame
+    // stays up. Whether the film has finished is derived from `at` below
+    // rather than written back into state here — setting state synchronously
+    // inside an effect cascades an extra render on the last frame of every
+    // play, which is the one moment the picture should be holding still.
+    if (at >= last) return;
     timer.current = setTimeout(() => setAt((i) => i + 1), cut.frames[Math.max(0, at)].ms);
     return stop;
-  }, [playing, at, cut.frames, stop]);
+  }, [playing, at, last, cut.frames, stop]);
 
   const start = () => {
     setAt(0);
     setPlaying(true);
   };
 
-  const done = !playing && at >= cut.frames.length - 1;
+  const done = at >= 0 && at >= last;
   const frame: Frame | null = at >= 0 ? cut.frames[at] : null;
 
   // Every photograph is mounted from the start and faded, rather than

@@ -23,14 +23,15 @@ export const dynamic = "force-dynamic";
 
 const months = (days: number) => Math.round(days / 30);
 
-export default async function SuccessionPage({
-  searchParams,
-}: {
-  searchParams: { named?: string; removed?: string; asked?: string; stopped?: string; error?: string };
-}) {
+export default async function SuccessionPage(
+  props: {
+    searchParams: Promise<{ named?: string; removed?: string; asked?: string; stopped?: string; error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
   const now = new Date().toISOString();
 
   const { data: membership } = await db

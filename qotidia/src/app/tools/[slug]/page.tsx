@@ -17,7 +17,8 @@ export function generateStaticParams() {
   return publishedTools().map((t) => ({ slug: t.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const tool = toolBySlug(params.slug);
   if (!tool) return { title: BRAND };
   return {
@@ -27,7 +28,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function ToolPage({ params }: { params: { slug: string } }) {
+export default async function ToolPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const tool = toolBySlug(params.slug);
   if (!tool) notFound();
 

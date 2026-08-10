@@ -49,7 +49,7 @@ export async function currentAssurance(): Promise<Assurance> {
     return { currentLevel: "aal2", nextLevel: "aal2" };
   }
 
-  const token = cookies().get(ACCESS_COOKIE)?.value;
+  const token = (await cookies()).get(ACCESS_COOKIE)?.value;
   if (!token) return { currentLevel: null, nextLevel: null };
 
   const { data, error } =

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { addFamilyMembers } from "../../actions";
 
-export default function OnboardingPeoplePage({ searchParams }: { searchParams: { child?: string } }) {
+export default async function OnboardingPeoplePage(props: { searchParams: Promise<{ child?: string }> }) {
+  const searchParams = await props.searchParams;
   const subjectId = searchParams.child ?? "";
   return (
     <div className="mx-auto !max-w-md py-16">

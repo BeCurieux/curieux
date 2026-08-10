@@ -13,11 +13,12 @@ import { countOf, fullDate } from "@/lib/words";
 
 export const dynamic = "force-dynamic";
 
-export default async function AccountsPage({
-  searchParams,
-}: {
-  searchParams: { email?: string };
-}) {
+export default async function AccountsPage(
+  props: {
+    searchParams: Promise<{ email?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
   if (!user) redirect("/login");
 

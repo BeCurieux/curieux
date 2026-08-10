@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
   // Same options as the sign-in path. httpOnly so no script can read it back
   // out, and the access cookie stays short-lived.
   const opts = { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" };
-  cookies().set(ACCESS_COOKIE, accessToken, { ...opts, maxAge: 60 * 60 });
-  cookies().set(REFRESH_COOKIE, refreshToken, { ...opts, maxAge: 60 * 60 * 24 * 30 });
+  (await cookies()).set(ACCESS_COOKIE, accessToken, { ...opts, maxAge: 60 * 60 });
+  (await cookies()).set(REFRESH_COOKIE, refreshToken, { ...opts, maxAge: 60 * 60 * 24 * 30 });
 
   return NextResponse.json({ ok: true });
 }

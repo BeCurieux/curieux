@@ -11,11 +11,12 @@ import { getObjectStore, TTL } from "@/lib/storage/provider";
 
 export const dynamic = "force-dynamic";
 
-export default async function ListenPage({
-  params,
-}: {
-  params: { token: string; memoryId: string };
-}) {
+export default async function ListenPage(
+  props: {
+    params: Promise<{ token: string; memoryId: string }>;
+  }
+) {
+  const params = await props.params;
   const db = adminClient();
 
   // The security-definer function is the only door: it answers for this

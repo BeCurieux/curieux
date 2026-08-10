@@ -8,7 +8,7 @@ export default async function HomePage() {
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const db = userClient();
+  const db = await userClient();
   const { data: children } = await db
     .from("subjects")
     .select("id, display_name, date_of_birth")

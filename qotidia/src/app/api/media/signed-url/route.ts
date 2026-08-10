@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   // is served only when both are true — Supabase returns the stored
   // Content-Type with a signed URL, so an unverified upload is a header we
   // let the uploader choose.
-  const { data: asset } = await userClient()
+  const { data: asset } = await (await userClient())
     .from("media_assets")
     .select("storage_path, scan_verdict, scan_reason")
     .eq("id", assetId)

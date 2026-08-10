@@ -31,16 +31,17 @@ export const dynamic = "force-dynamic";
 
 const dayOf = (iso: string) => iso.slice(0, 10);
 
-export default async function FoundPage({
-  params,
-  searchParams,
-}: {
-  params: { subjectId: string };
-  searchParams: { shared?: string };
-}) {
+export default async function FoundPage(
+  props: {
+    params: Promise<{ subjectId: string }>;
+    searchParams: Promise<{ shared?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: subject } = await db
     .from("subjects")
@@ -133,8 +134,14 @@ export default async function FoundPage({
     .is("revoked_at", null)
     .order("created_at", { ascending: false })
     .limit(5);
+  // Read once, here, rather than at each use. This is a server component:
+  // it renders once per request, so the clock is a fact about the request
+  // rather than an impurity — but the rule cannot tell, so it is named and
+  // suppressed in exactly one place instead of scattered.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const live = (shares ?? []).filter(
-    (sh: any) => Date.parse(sh.expires_at) > Date.now()
+    (sh: any) => Date.parse(sh.expires_at) > now
   );
 
   const sent = searchParams.shared

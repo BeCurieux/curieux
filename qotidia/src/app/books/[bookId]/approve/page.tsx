@@ -6,16 +6,17 @@ import { approveBook } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function ApprovePage({
-  params,
-  searchParams,
-}: {
-  params: { bookId: string };
-  searchParams: { error?: string };
-}) {
+export default async function ApprovePage(
+  props: {
+    params: Promise<{ bookId: string }>;
+    searchParams: Promise<{ error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
   const { data: book } = await db.from("books").select("*").eq("id", params.bookId).single();
   if (!book) redirect("/home");
   if (book.status !== "review") redirect(`/books/${book.id}`);

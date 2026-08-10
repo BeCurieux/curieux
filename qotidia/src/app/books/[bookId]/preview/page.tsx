@@ -6,10 +6,11 @@ import { photoMemoryIds, resolvePhotoUrls } from "@/lib/book/photos";
 
 export const dynamic = "force-dynamic";
 
-export default async function PreviewPage({ params }: { params: { bookId: string } }) {
+export default async function PreviewPage(props: { params: Promise<{ bookId: string }> }) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: book } = await db.from("books").select("*").eq("id", params.bookId).single();
   if (!book) redirect("/home");

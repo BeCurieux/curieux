@@ -27,11 +27,12 @@ export const dynamic = "force-dynamic";
 
 const PERIODS = [7, 30, 90] as const;
 
-export default async function FunnelPage({
-  searchParams,
-}: {
-  searchParams: { days?: string };
-}) {
+export default async function FunnelPage(
+  props: {
+    searchParams: Promise<{ days?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
   if (!user) redirect("/login");
 
@@ -43,7 +44,13 @@ export default async function FunnelPage({
   const days = PERIODS.includes(Number(searchParams.days) as any)
     ? Number(searchParams.days)
     : 30;
-  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  // Read once, here, rather than at each use. This is a server component:
+  // it renders once per request, so the clock is a fact about the request
+  // rather than an impurity — but the rule cannot tell, so it is named and
+  // suppressed in exactly one place instead of scattered.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
+  const since = new Date(now - days * 86_400_000).toISOString();
   const counts = await tally(admin, since);
 
   const top = counts[FUNNEL[0].step] ?? 0;

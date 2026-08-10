@@ -28,7 +28,7 @@ export const dynamic = "force-dynamic";
  * photographed this month is overwhelmingly the child a photograph shared
  * this afternoon belongs to.
  */
-async function likeliestSubject(db: ReturnType<typeof userClient>, userId: string) {
+async function likeliestSubject(db: Awaited<ReturnType<typeof userClient>>, userId: string) {
   const { data: subjects } = await db
     .from("subjects")
     .select("id, display_name, family_id")
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.redirect(new URL("/login?from=share", req.url), 303);
 
   const form = await req.formData();
-  const db = userClient();
+  const db = await userClient();
 
   const { subject, ambiguous } = await likeliestSubject(db, user.id);
   if (!subject) return NextResponse.redirect(new URL("/home", req.url), 303);

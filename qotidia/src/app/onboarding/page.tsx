@@ -1,7 +1,8 @@
 // Onboarding screen 1 (brief §6): "Whose childhood are we keeping?"
 import { createChild } from "../actions";
 
-export default function OnboardingPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function OnboardingPage(props: { searchParams: Promise<{ error?: string }> }) {
+  const searchParams = await props.searchParams;
   return (
     <div className="mx-auto !max-w-md py-16">
       <h1 className="text-3xl">Whose childhood are we keeping?</h1>

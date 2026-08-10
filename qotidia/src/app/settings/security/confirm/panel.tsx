@@ -84,6 +84,12 @@ export function ConfirmPanel({ factors, next }: { factors: EnrolledFactor[]; nex
   // A passkey prompt is better offered immediately than behind a button:
   // the browser shows its own dialog, so there is no surprise in it.
   useEffect(() => {
+    // set-state-in-effect fires because withPasskey() flips the busy flag
+    // before it awaits. That is the intent: the browser dialog opens on
+    // arrival and the panel has to look busy while it is up. Restructuring a
+    // step-up confirmation to satisfy the rule would be changing an auth
+    // flow to quiet a linter.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (passkey && !app) void withPasskey();
     // Once, on arrival. Re-running would re-prompt on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps

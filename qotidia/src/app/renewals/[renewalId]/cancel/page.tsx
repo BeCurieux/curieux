@@ -17,13 +17,14 @@ import { bookPriceFor } from "@/lib/billing/price";
 
 export const dynamic = "force-dynamic";
 
-export default async function CancelRenewalPage({
-  params,
-  searchParams,
-}: {
-  params: { renewalId: string };
-  searchParams: { done?: string };
-}) {
+export default async function CancelRenewalPage(
+  props: {
+    params: Promise<{ renewalId: string }>;
+    searchParams: Promise<{ done?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const admin = adminClient();
   const { data: renewal } = await admin
     .from("renewals")

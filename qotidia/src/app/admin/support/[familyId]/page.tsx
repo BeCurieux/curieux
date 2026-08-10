@@ -21,11 +21,12 @@ import { SUPPORT_ACTOR } from "@/lib/privacy/activity";
 
 export const dynamic = "force-dynamic";
 
-export default async function SupportFamilyPage({
-  params,
-}: {
-  params: { familyId: string };
-}) {
+export default async function SupportFamilyPage(
+  props: {
+    params: Promise<{ familyId: string }>;
+  }
+) {
+  const params = await props.params;
   const user = await currentUser();
   if (!user) redirect("/login");
 
@@ -34,7 +35,7 @@ export default async function SupportFamilyPage({
     .from("profiles").select("is_admin").eq("id", user.id).single();
   if (!profile?.is_admin) redirect("/home");
 
-  const db = userClient();
+  const db = await userClient();
   const grant = await grantFor(db, params.familyId);
 
   // No grant, an expired one, or one that has been pulled back. All three

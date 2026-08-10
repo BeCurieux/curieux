@@ -24,14 +24,15 @@ export const dynamic = "force-dynamic";
 const mb = (bytes: number | null) =>
   bytes ? `${(bytes / 1024 / 1024).toFixed(0)} MB` : "";
 
-export default async function PrivacyPage({
-  searchParams,
-}: {
-  searchParams: { export?: string; deleted?: string; error?: string };
-}) {
+export default async function PrivacyPage(
+  props: {
+    searchParams: Promise<{ export?: string; deleted?: string; error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await currentUser();
   if (!user) redirect("/login");
-  const db = userClient();
+  const db = await userClient();
 
   const { data: membership } = await db
     .from("family_memberships")
