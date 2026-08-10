@@ -120,7 +120,11 @@ describe("the line", () => {
     // puts this host into a QR code that gets printed into a hardcover. It
     // reads the variable directly on purpose, to refuse rather than fall
     // back, so it is the one file allowed past homeUrl().
-    const allowed = ["lib/brand.ts", "lib/listen/qr.ts"];
+    // Two exceptions, both in the print path, both for the same reason: they
+    // must be able to tell "unset" from "set to the fallback". homeUrl()
+    // answers "where do we link to", where a default is a kindness; these
+    // answer "is it safe to print", where a default is the bug.
+    const allowed = ["lib/brand.ts", "lib/listen/qr.ts", "lib/listen/host.ts"];
     const offenders = walk(src)
       .filter((f) => [".ts", ".tsx"].includes(extname(f)))
       .filter((f) => !allowed.some((a) => f.endsWith(a)))

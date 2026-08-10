@@ -7,6 +7,7 @@
 
 import { FORMAT, TIER_MIN_DPI, type ImageTier } from "@/lib/book/format";
 import { coverContrastOk, type AgeColour } from "@/lib/book/colours";
+import type { HostVerdict } from "@/lib/listen/host";
 
 export interface PlacedImage {
   assetId: string;
@@ -55,6 +56,13 @@ export interface PreflightInput {
   blankPages: number[];
   /** AI-drafted blocks that arrived without provenance. */
   uncitedBlocks: number;
+  /**
+   * The verdict on the host the "Hear this moment" codes point at, when this
+   * book has any. Passed in rather than looked up, because that is a network
+   * call and everything else in here is arithmetic on a file. See
+   * lib/listen/host.ts for why a print path is worth asking the network.
+   */
+  listenHost?: HostVerdict;
   cover?: {
     colour: AgeColour;
     spineWidthMm: number;
@@ -155,6 +163,15 @@ export function runPreflight(input: PreflightInput): PreflightResult {
   if (input.uncitedBlocks > 0) {
     err("missing_provenance",
       `${input.uncitedBlocks} generated block(s) have no supporting memory`);
+  }
+
+  // --- what the printed codes point at -------------------------------------
+  // Only present when the book carries "Hear this moment" marks. Every other
+  // rule here protects the object; this one protects what the object promises
+  // — a code is the one thing on the page that has to keep working after the
+  // book leaves us, and it cannot be reprinted when it stops.
+  if (input.listenHost && !input.listenHost.ok) {
+    err(`listen_host_${input.listenHost.code}`, input.listenHost.message);
   }
 
   // --- cover ---------------------------------------------------------------

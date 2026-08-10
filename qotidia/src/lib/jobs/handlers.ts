@@ -22,6 +22,7 @@ import { getScanner } from "@/lib/media/scanner";
 import { record } from "@/lib/privacy/activity";
 import { countStoryMemories, loadStoryMemories, storyMemoryQuery, storySubject } from "@/lib/memories/scope";
 import { listenUrl, qrDataUri } from "@/lib/listen/qr";
+import { printableHostFromEnv, type HostVerdict } from "@/lib/listen/host";
 import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
 import type { ArchiveState } from "@/lib/prompts/engine";
@@ -733,8 +734,18 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
   }
 
   // Listen marks — only resolvable once the book is approved and tokenised.
+  //
+  // The host is checked before a single code is drawn, not after. Preflight
+  // examines the finished file, and by then the codes exist and look fine: a
+  // QR encoding a dead address is a valid QR. This is the one preflight
+  // question whose answer is not in the PDF.
   const listenByPage = new Map<number, { qrDataUri: string; label: string }>();
+  let listenHost: HostVerdict | undefined;
   if (book.listen_token) {
+    listenHost = await printableHostFromEnv();
+    // Fatal for a press file. A proof is allowed through so a layout can be
+    // reviewed on a laptop — it never reaches a printer, and nobody scans it.
+    if (!listenHost.ok && target === "print") throw new Error(listenHost.message);
     const { data: listenable } = await db.rpc("book_listenable", { bid: bookId });
     for (const row of (listenable ?? []) as { memory_id: string; page_number: number }[]) {
       if (listenByPage.has(row.page_number)) continue;
@@ -863,6 +874,7 @@ async function renderPdf(db: SupabaseClient, payload: Record<string, unknown>) {
       spreadPages: [],
       blankPages: result.blankPages,
       uncitedBlocks: uncited ?? 0,
+      listenHost,
       cover: {
         colour,
         spineWidthMm: spine.widthMm,
