@@ -109,19 +109,27 @@ export const SUPPORT_PROMISE: Undertaking[] = [
 ];
 
 /**
- * The bit that is a commitment rather than a control, said as one.
+ * Which of these the software enforces, and which are conduct.
  *
- * The consent record and the activity log are real and checkable. Whether
- * anybody here looks without one is, in the end, a promise — the service
- * credentials that run the product can read any row, as they can at every
- * company of this kind. Implying that the database prevents what is actually
+ * Rewritten when 0026 wired support_access_active() into row-level security.
+ * Before that, a grant was a consent record that unlocked nothing — the only
+ * way anybody here could read an archive was the service credential, which
+ * bypasses row-level security entirely. Three of the six are now mechanical
+ * and this paragraph says which.
+ *
+ * What it still refuses to say is that we cannot read your archive. The
+ * credential that runs the product can read any row, as it can at every
+ * company of this kind, and implying that the database prevents what is
  * prevented by conduct would be a more sophisticated version of the badge
  * row the trust strip refuses to be.
  */
 export const HONEST_LIMIT =
-  "Two of these are enforced by the software and the rest are promises kept " +
-  "by a person. Granting access is a real record you can read in your " +
-  "activity log, and the database will not hold a grant open longer than a " +
-  "week. That nobody looks without asking you first is a commitment, not a " +
-  "mechanism — anybody telling you their database prevents their own staff " +
-  "from reading it is telling you something else about themselves.";
+  "Three of these are enforced by the database rather than by good " +
+  "intentions: without a grant from you the supported way in returns " +
+  "nothing, a grant is read-only so support cannot alter your archive even " +
+  "while it is open, and no grant can be held open longer than a week. Your " +
+  "activity log records each one. The honest limit is that the credential " +
+  "which runs the service can still read any row — that is true of every " +
+  "company of this kind, and anybody telling you their database prevents " +
+  "their own staff from reading it is telling you something else about " +
+  "themselves.";

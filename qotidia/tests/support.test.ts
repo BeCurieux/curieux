@@ -141,8 +141,11 @@ describe("what it says about looking inside", () => {
     // product can read any row, as they can everywhere. Implying the
     // database prevents it would be a more sophisticated version of the
     // badge row the trust strip refuses to be.
-    expect(HONEST_LIMIT).toMatch(/commitment, not a mechanism/i);
+    expect(HONEST_LIMIT).toMatch(/enforced by the database/i);
     expect(HONEST_LIMIT).toMatch(/activity log/i);
+    // And still refuses the claim it would be easiest to make.
+    expect(HONEST_LIMIT).toMatch(/can still read any row/i);
+    expect(HONEST_LIMIT).not.toMatch(/we cannot (read|see|access) your/i);
     expect(page).toContain("HONEST_LIMIT");
   });
 

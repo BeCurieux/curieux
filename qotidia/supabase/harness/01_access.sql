@@ -599,3 +599,184 @@ begin
   end if;
   raise notice 'ok   the running total agrees with a recount';
 end $$;
+
+-- ------------------------------------------------- private means the file too
+--
+-- The bug 0026 was opened by. The private rule lived in two places — the
+-- `memories read` policy and can_see_memory() — and three migrations later
+-- only the policy still had it. The row was hidden and the photograph was
+-- not, because media_assets, memory_tags, memory_people, memory_subjects and
+-- memory_comments are all gated on the function.
+--
+-- Checked on every table that reads through it, not only the one that broke.
+
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+
+insert into media_assets (id, memory_id, storage_path, mime_type, checksum, bytes) values
+  ('cafe0000-0000-0000-0000-0000000000b1', 'eeee0000-0000-0000-0000-000000000002',
+   'fam-a/private.jpg', 'image/jpeg', 'sum-private', 1000);
+insert into memory_tags (memory_id, tag) values
+  ('eeee0000-0000-0000-0000-000000000002', 'a-private-tag');
+insert into memory_subjects (memory_id, subject_id) values
+  ('eeee0000-0000-0000-0000-000000000002', 'cccccccc-0000-0000-0000-000000000001');
+
+select harness_become('22222222-2222-2222-2222-222222222222');
+set role authenticated;
+
+select harness_expect('a private memory''s photograph is private too',
+  (select count(*)::int from media_assets
+    where memory_id = 'eeee0000-0000-0000-0000-000000000002'), 0);
+
+select harness_expect('and its tags',
+  (select count(*)::int from memory_tags
+    where memory_id = 'eeee0000-0000-0000-0000-000000000002'), 0);
+
+select harness_expect('and which child it is about',
+  (select count(*)::int from memory_subjects
+    where memory_id = 'eeee0000-0000-0000-0000-000000000002'), 0);
+
+-- The other direction: the person who wrote it still has all of it.
+reset role;
+select harness_become('11111111-1111-1111-1111-111111111111');
+set role authenticated;
+
+select harness_expect('the parent who wrote it still sees their own',
+  (select count(*)::int from memories
+    where id = 'eeee0000-0000-0000-0000-000000000002'), 1);
+
+select harness_expect('including its photograph',
+  (select count(*)::int from media_assets
+    where memory_id = 'eeee0000-0000-0000-0000-000000000002'), 1);
+
+-- And an ordinary family memory is still perfectly visible to the family, so
+-- the fix has not simply closed everything.
+select harness_expect('an ordinary memory is unaffected',
+  (select count(*)::int from memories
+    where id = 'eeee0000-0000-0000-0000-000000000001'), 1);
+
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+
+-- ------------------------------------------------------- the support grant
+--
+-- Until 0026, support_access_active() was referenced by no policy: a family
+-- could grant access, it was recorded and it expired, and it unlocked
+-- nothing. Both halves are checked here, in both directions, because a gate
+-- verified in one direction is not verified.
+
+-- Staff are an ordinary signed-in person with a flag, not a separate
+-- credential — which is the only reason row-level security can gate them
+-- at all. The service key, which cannot be gated, is a different problem
+-- and /help says so out loud.
+insert into auth.users (id, email) values
+  ('99999999-9999-9999-9999-999999999999', 'staff@qotidia.test');
+insert into profiles (id, email, is_admin) values
+  ('99999999-9999-9999-9999-999999999999', 'staff@qotidia.test', true)
+  on conflict (id) do update set is_admin = true;
+
+-- 1. Staff, no grant. Reads nothing.
+select harness_become('99999999-9999-9999-9999-999999999999');
+set role authenticated;
+
+select harness_expect('staff with no grant see no subjects',
+  (select count(*)::int from subjects), 0);
+select harness_expect('staff with no grant see no memories',
+  (select count(*)::int from memories), 0);
+
+-- 2. A grant appears.
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+insert into support_grants (family_id, granted_by, reason, expires_at) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
+   'the book is stuck', now() + interval '48 hours');
+
+select harness_become('99999999-9999-9999-9999-999999999999');
+set role authenticated;
+
+select harness_expect('a grant lets support see that family',
+  (select count(*)::int from subjects
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001'), 2);
+
+-- Only that family. A grant is not a master key.
+select harness_expect('and no other family',
+  (select count(*)::int from subjects
+    where family_id = 'bbbbbbbb-0000-0000-0000-000000000002'), 0);
+
+-- Never the private note, even with a live grant. Support reads strictly
+-- less than a family member does.
+select harness_expect('never a private memory',
+  (select count(*)::int from memories
+    where id = 'eeee0000-0000-0000-0000-000000000002'), 0);
+select harness_expect('never a private memory''s photograph',
+  (select count(*)::int from media_assets
+    where memory_id = 'eeee0000-0000-0000-0000-000000000002'), 0);
+
+-- Nor an unapproved contribution: it is not part of the archive yet.
+select harness_expect('never an unapproved contribution',
+  (select count(*)::int from memories
+    where id = 'eeee0000-0000-0000-0000-000000000003'), 0);
+
+-- Read only. "Support never edits your archive" is a fact about the
+-- database, not a promise on a page.
+do $$
+declare changed int;
+begin
+  update memories set memory_date = '1999-01-01'
+   where id = 'eeee0000-0000-0000-0000-000000000001';
+  get diagnostics changed = row_count;
+  if changed <> 0 then
+    raise exception 'FAILED: support changed % row(s) of a family archive', changed;
+  end if;
+  raise notice 'ok   support cannot edit a family archive, grant or no grant';
+end $$;
+
+do $$
+declare changed int;
+begin
+  delete from memories where id = 'eeee0000-0000-0000-0000-000000000001';
+  get diagnostics changed = row_count;
+  if changed <> 0 then
+    raise exception 'FAILED: support deleted % row(s) of a family archive', changed;
+  end if;
+  raise notice 'ok   support cannot delete from a family archive';
+end $$;
+
+-- 3. The grant is pulled back. The door shuts immediately.
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+update support_grants set revoked_at = now()
+ where family_id = 'aaaaaaaa-0000-0000-0000-000000000001';
+
+select harness_become('99999999-9999-9999-9999-999999999999');
+set role authenticated;
+select harness_expect('revoking shuts it at once',
+  (select count(*)::int from subjects), 0);
+
+-- 4. An expired grant is no grant. The 48 hours expiring is the whole
+--    mechanism; if this passes on time rather than on revocation, the
+--    promise that it "expires on its own" is the one that is false.
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+update support_grants set revoked_at = null, expires_at = now() - interval '1 minute'
+ where family_id = 'aaaaaaaa-0000-0000-0000-000000000001';
+
+select harness_become('99999999-9999-9999-9999-999999999999');
+set role authenticated;
+select harness_expect('an expired grant opens nothing',
+  (select count(*)::int from subjects), 0);
+
+-- 5. A grant is useless to somebody who is not staff. Both halves, always.
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+update support_grants set expires_at = now() + interval '48 hours'
+ where family_id = 'aaaaaaaa-0000-0000-0000-000000000001';
+
+select harness_become('33333333-3333-3333-3333-333333333333');
+set role authenticated;
+select harness_expect('a grant does nothing for a stranger who is not staff',
+  (select count(*)::int from subjects
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001'), 0);
+
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
