@@ -18,9 +18,9 @@
 
 export const PALETTE = {
   /** Warm near-black. Type, and the ground of the two dark bands. */
-  ink: "#25231F",
+  ink: "#24211D",
   /** The ground almost everything sits on — the colour of the stock. */
-  paper: "#F4EFE6",
+  paper: "#F6F2EA",
   /**
    * A recessed band, half a shade deeper than the paper.
    *
@@ -33,14 +33,37 @@ export const PALETTE = {
   card: "#EAE3D6",
   /** The one genuinely raised surface. Form fields, and very little else. */
   white: "#FFFDFA",
-  /** Terracotta. Buttons and marks. Never set as type on paper — see below. */
-  clay: "#A95C3C",
-  /** The same terracotta, deep enough to be read as type. Links. */
-  ochre: "#8A4327",
+  /**
+   * Oxblood. The one proprietary colour.
+   *
+   * Terracotta before this, and the change is not only a change of hue. The
+   * old accent could not be read as type on cream — it reached about 3.7:1,
+   * so the palette carried a second, deeper tone purely to make links
+   * legible, and a test asserted that the accent must never be set as type.
+   *
+   * That test was quietly wrong about the codebase: `text-clay` appears
+   * twenty-two times, on every micro-label on every page. Oxblood is dark
+   * enough that the rule can be inverted rather than patched — the accent is
+   * now legible as type everywhere, at 8.86:1 on paper, and the test asserts
+   * that instead.
+   *
+   * It also has to survive the company outgrowing young families. Terracotta
+   * is a nursery colour in a way this is not.
+   */
+  clay: "#6E2F36",
+  /** The lighter, warmer oxblood. Links, so they lift off the labels. */
+  ochre: "#8C4D54",
   /** Headings on a coloured ground. */
   slate: "#4A4139",
-  /** Secondary type. Deepened for the lighter paper. */
-  stone: "#635A50",
+  /**
+   * Secondary type. Most of the body copy on this site.
+   *
+   * The brief asked for #8A8278. That is 3.39:1 on this paper and 2.96:1 on
+   * the recessed band — it fails the pair it is used for most, which is not
+   * a judgement call. Deepened to the nearest tone that holds on *both*
+   * grounds; it is the same taupe, two steps down.
+   */
+  stone: "#685F56",
   /** Hairlines. Visible without shouting. */
   rule: "#DED3C2",
 } as const;
@@ -83,6 +106,21 @@ export const CONTRACTS: Contract[] = [
       "was the least legible text on the site.",
   },
   {
+    what: "micro-labels on paper",
+    fg: PALETTE.clay, bg: PALETTE.paper, min: 4.5,
+    because:
+      "`text-clay` sets every uppercase label in the product, twenty-two of " +
+      "them, at around 12px. Under terracotta that pair was 3.7:1 and the " +
+      "palette's answer was a test asserting the accent must never be type — " +
+      "a rule the codebase had already broken everywhere. Oxblood makes it " +
+      "legible, so this is a real contract instead.",
+  },
+  {
+    what: "micro-labels on the recessed band",
+    fg: PALETTE.clay, bg: PALETTE.card, min: 4.5,
+    because: "The same labels appear inside panels. Both grounds have to hold.",
+  },
+  {
     what: "secondary type on the recessed band",
     fg: PALETTE.stone, bg: PALETTE.card, min: 4.5,
     because: "Same copy, a different ground. Both have to hold.",
@@ -110,12 +148,11 @@ export const CONTRACTS: Contract[] = [
     because: "AA for large text. Only ever used above about 24px.",
   },
   {
-    what: "type on the terracotta band",
+    what: "type on the oxblood band",
     fg: PALETTE.paper, bg: PALETTE.ochre, min: 4.5,
     because:
-      "The 'not a photobook' section is a full ground of ochre carrying real " +
-      "reading, not just a headline. Clay would have been the obvious choice " +
-      "and reaches about 3.2:1 with paper on it.",
+      "The 'not a photobook' section is a full ground of the accent carrying " +
+      "real reading, not just a headline.",
   },
   {
     what: "the recessed band against the paper",

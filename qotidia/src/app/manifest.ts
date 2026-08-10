@@ -13,6 +13,7 @@
 // every phone ever made, and does not require installing anything.
 
 import type { MetadataRoute } from "next";
+import { PALETTE } from "@/lib/palette";
 import { BRAND, TAGLINE, WORDMARK } from "@/lib/brand";
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -22,8 +23,13 @@ export default function manifest(): MetadataRoute.Manifest {
     description: TAGLINE,
     start_url: "/home",
     display: "standalone",
-    background_color: "#F2E9DC",
-    theme_color: "#F2E9DC",
+    // From the palette, not typed here. This carried #F2E9DC — a third
+    // paper colour matching neither the one in the palette nor the one
+    // before it — and it is the colour the operating system paints behind
+    // the installed app, so the drift was visible on exactly the surface
+    // nobody checks.
+    background_color: PALETTE.paper,
+    theme_color: PALETTE.paper,
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
 
     // Not part of Next's Manifest type yet, hence the cast. Declared as a

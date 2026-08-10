@@ -19,6 +19,7 @@
 // about what the answer should be, because the point is to find out.
 
 import { useEffect, useState } from "react";
+import { PALETTE } from "@/lib/palette";
 
 const SPECIMEN = "keep the everyday";
 const RULER = "HAMBURGEFONTSIV hamburgefontsiv 0123456789";
@@ -228,7 +229,7 @@ export default function TypeDiagnostics() {
                 style={{
                   margin: 0,
                   wordBreak: "break-all",
-                  color: f.suspect ? "#8A4327" : undefined,
+                  color: f.suspect ? PALETTE.ochre : undefined,
                   fontWeight: f.suspect ? 700 : undefined,
                 }}
               >
