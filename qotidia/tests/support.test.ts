@@ -15,6 +15,7 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import {
   FOUNDER, HONEST_LIMIT, REPLY, SUPPORT_PROMISE, URGENT, signedBy, whoReads,
 } from "@/lib/trust/founder";
@@ -25,16 +26,6 @@ const src = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const page = src("../src/app/help/page.tsx");
 const module_ = src("../src/lib/trust/founder.ts");
 
-/**
- * Source with comments removed.
- *
- * A vocabulary guard read against raw source is broken by the sentence
- * explaining the rule — founder.ts names "our team" and "24/7" precisely to
- * say they are forbidden. Third time this trap has been walked into in this
- * codebase; the storage guard and the asking test got there first.
- */
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|\*).*$/gm, "");
 
 describe("the promise is one a single person can keep", () => {
   it("counts the working day in days, not hours", () => {

@@ -18,6 +18,7 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import { HOW_MANY, PEOPLE, WHERE, named } from "@/lib/trust/people";
 import { FOUNDER } from "@/lib/trust/founder";
 import { NOTICE_DAYS, SILENT_FOR_DAYS } from "@/lib/succession/policy";
@@ -25,8 +26,6 @@ import { PUBLIC_PAGES } from "@/app/sitemap";
 
 const src = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const page = src("../src/app/about/page.tsx");
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|\*).*$/gm, "");
 
 describe("a name has to be checkable", () => {
   it("names nobody who cannot be found off this website", () => {

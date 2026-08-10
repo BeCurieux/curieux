@@ -14,12 +14,11 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import { BEFORE_ASKING, SAYS, canRecord, currentState, readError } from "@/lib/media/microphone";
 
 const src = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const recorder = src("../src/app/subjects/[subjectId]/upload/recorder.tsx");
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|\*).*$/gm, "");
 
 const boom = (name: string) => Object.assign(new Error(name), { name });
 

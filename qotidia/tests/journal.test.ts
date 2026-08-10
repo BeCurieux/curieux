@@ -13,6 +13,7 @@
 
 import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import {
   ENTRIES, NOT_ABOUT, entryBySlug, lastPublished, published,
 } from "@/lib/journal/entries";
@@ -23,8 +24,6 @@ import { OFF_LIMITS } from "@/app/robots";
 const src = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const dir = new URL("../src/app/journal/entries/", import.meta.url).pathname;
 const prose = readdirSync(dir).map((f) => ({ file: f, body: readFileSync(dir + f, "utf8") }));
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|\*).*$/gm, "");
 
 describe("every entry answers a question somebody asked", () => {
   it("names the question, in a person's words", () => {

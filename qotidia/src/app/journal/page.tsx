@@ -80,6 +80,8 @@ export default function JournalPage() {
       </section>
 
       <p className="mt-12 text-sm">
+        <Link href="/tools" className="text-ochre">Free tools</Link>
+        {" · "}
         <Link href="/journal/feed.xml" className="text-ochre">Feed</Link>
         {" · "}
         <Link href="/about" className="text-ochre">Who writes this</Link>

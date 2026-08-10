@@ -15,6 +15,7 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import {
   EVERYBODY_DAILY, FAMILY_MONTHLY, NEVER_LOGGED, PER_DOLLAR, PRICES,
   UNKNOWN_MODEL, WARN_AT, asMoney, costOf, mayCall, priceOf,
@@ -25,8 +26,6 @@ import { PLAN_PRICES } from "@/lib/billing/plans";
 const src = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const migration = src("../supabase/migrations/0030_ai_cost.sql");
 const adapter = src("../src/lib/ai/anthropic.ts");
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|--|\*).*$/gm, "");
 
 /** A client that records what was written. */
 function fakeDb(existing: any[] = []) {

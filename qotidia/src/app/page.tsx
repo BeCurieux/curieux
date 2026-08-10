@@ -569,6 +569,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-4 border-t border-rule px-[5vw] py-12">
           <span className="font-display text-lg lowercase">{TAGLINE}</span>
           <nav className="flex gap-8 text-sm text-stone">
+            <Link href="/tools" className="hover:text-ink">Free tools</Link>
             <Link href="/journal" className="hover:text-ink">Journal</Link>
             <Link href="/about" className="hover:text-ink">Who makes this</Link>
             <Link href="/pricing" className="hover:text-ink">{PRICING_LOWER}</Link>

@@ -16,10 +16,11 @@
 import type { MetadataRoute } from "next";
 import { BASE, OFF_LIMITS } from "./robots";
 import { published } from "@/lib/journal/entries";
+import { publishedTools } from "@/lib/tools/list";
 
 /** Public pages, in rough order of how much we want them found. */
 export const PUBLIC_PAGES = [
-  "/", "/about", "/promise", "/privacy", "/pricing", "/help", "/journal",
+  "/", "/about", "/promise", "/privacy", "/pricing", "/help", "/journal", "/tools",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -45,5 +46,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...fixed, ...journal];
+  // Tools, from the same publishedTools() list the index reads. No
+  // lastModified: a tool changes when its code changes, and inventing a date
+  // for that would be the same lie the journal refuses to tell.
+  const tools = publishedTools().map((t) => ({
+    url: `${BASE}/tools/${t.slug}`,
+    changeFrequency: "yearly" as const,
+    priority: 0.6,
+  }));
+
+  return [...fixed, ...journal, ...tools];
 }

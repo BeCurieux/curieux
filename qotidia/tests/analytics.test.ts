@@ -14,6 +14,7 @@
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import {
   EVENTS, FUNNEL, KEEP_FOR_DAYS, NEVER_RECORDED, NORTH_STAR, WINDOW_DAYS, windowOf,
 } from "@/lib/analytics/events";
@@ -24,8 +25,6 @@ const src = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const events = src("../src/lib/analytics/events.ts");
 const writer = src("../src/lib/analytics/record.ts");
 const migration = src("../supabase/migrations/0029_analytics.sql");
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|--|\*).*$/gm, "");
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {

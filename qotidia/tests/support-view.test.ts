@@ -14,6 +14,7 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { codeOnly as bare } from "./helpers/source";
 import { QUIET_MINUTES, hoursLeft, noteSupportLook, openGrants, shapeOf } from "@/lib/family/support-view";
 import { SUPPORT_ACCESS_HOURS } from "@/lib/family/support";
 import { ACTIVITY_PHRASE, ACTOR_IS_US, SUPPORT_ACTOR } from "@/lib/privacy/activity";
@@ -23,8 +24,6 @@ const loader = src("../src/lib/family/support-view.ts");
 const queue = src("../src/app/admin/support/page.tsx");
 const detail = src("../src/app/admin/support/[familyId]/page.tsx");
 const migration = src("../supabase/migrations/0026_support_access.sql");
-const bare = (s: string) =>
-  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|--|\*).*$/gm, "");
 
 /** A client that records what was asked and answers with fixtures. */
 function fakeDb(tables: Record<string, any[]>) {

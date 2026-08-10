@@ -31,6 +31,9 @@
 // photographs agreeing before it will say anything, and a discovery is
 // suppressed entirely when the evidence looks synthetic — see `looksFake`.
 
+
+import { countOf } from "@/lib/words";
+
 /** One photograph, as far as this module is concerned. */
 export interface Shot {
   id: string;
@@ -219,7 +222,11 @@ export function discoveries(input: Shot[]): Discovery[] {
     );
     out.push({
       finding: "a_weekday",
-      because: `${tally[top]} of these days are a ${DAYS[top]}.`,
+      // "52 of these days are a Saturday" — the singular article after a
+      // plural subject, which is the same class of mistake as "the yellow
+      // boots is back". The count is of days, so the day name pluralises
+      // with it and the article goes.
+      because: `${countOf(tally[top], `${DAYS[top]}`)} in that stretch.`,
       ask: "Was that a regular thing?",
       shotIds: onThatDay.map((s) => s.id),
       from: onThatDay[0].at,
