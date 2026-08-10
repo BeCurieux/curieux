@@ -481,6 +481,14 @@ function buildTables(): Record<string, Row[]> {
       { id: DEMO_USER.id, email: DEMO_USER.email, is_admin: true, subscription_status: "none", stripe_customer_id: null, created_at: day(0) },
       { id: "demo-grandpa", email: "grandpa@example.com", is_admin: false, subscription_status: "none", stripe_customer_id: null, created_at: day(30) },
     ],
+    // A family who has asked for help, so the support view has something to
+    // show. Only reachable in demo mode; in production a grant exists only
+    // because a family made one.
+    support_grants: [{
+      id: "demo-grant", family_id: familyId, granted_by: DEMO_USER.id,
+      reason: "Florence's book has said \u201cpreparing\u201d for three days.",
+      expires_at: day(366), revoked_at: null, created_at: day(364),
+    }],
     families: [{
       id: familyId, owner_user_id: DEMO_USER.id, family_name: "Demo family", created_at: day(0),
       // A monthly member eight months in: past the threshold, so this

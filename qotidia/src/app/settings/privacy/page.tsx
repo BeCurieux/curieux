@@ -14,7 +14,7 @@ import {
 } from "@/app/actions";
 import { membersOfFamily, memberLabel, roleInFamily } from "@/lib/family/membership";
 import { canEdit, canManageAccess } from "@/lib/family/roles";
-import { ACTIVITY_PHRASE, type ActivityKind } from "@/lib/privacy/activity";
+import { ACTIVITY_PHRASE, type ActivityKind, ACTOR_IS_US } from "@/lib/privacy/activity";
 import { SUPPORT_ACCESS_HOURS } from "@/lib/family/support";
 import { DELETION_TERMS } from "@/lib/privacy/erase";
 import { friendlyDate } from "@/lib/words";
@@ -115,7 +115,13 @@ export default async function PrivacyPage({
             {activity.map((a) => (
               <li key={a.id} className="flex flex-wrap gap-x-2 border-b border-rule py-2">
                 <span>
-                  {a.actor_id === user.id ? "You" : a.actor_label}{" "}
+                  {/* Most entries are "Gran added something". A support
+                      visit is not somebody's action to the family — it is
+                      ours, and naming the individual would put a staff
+                      username in front of a customer to say so. */}
+                  {!ACTOR_IS_US.has(a.kind as ActivityKind) && (
+                    <>{a.actor_id === user.id ? "You" : a.actor_label}{" "}</>
+                  )}
                   <span className="text-stone">
                     {ACTIVITY_PHRASE[a.kind as ActivityKind] ?? a.kind}
                   </span>

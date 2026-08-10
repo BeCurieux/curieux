@@ -1,6 +1,7 @@
 // Minimal admin panel (brief §25). Read-mostly; retries for failed jobs.
 // Admin actions can never bypass parent approval — there is no approval
 // override here by design.
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { adminClient, currentUser } from "@/lib/supabase/server";
 import { adminRetryJob } from "@/app/actions";
@@ -38,6 +39,15 @@ export default async function AdminPage() {
           </div>
         ))}
       </div>
+
+      {/* The one place in the admin panel that can reach family content, and
+          only where a family has said so. Linked from here rather than
+          discovered, so that opening it is a deliberate act. */}
+      <p className="mt-8 text-sm">
+        <Link href="/admin/support" className="text-ochre">
+          Families who have asked us to look
+        </Link>
+      </p>
 
       <section className="mt-10">
         <h2 className="text-xl">Failed jobs</h2>

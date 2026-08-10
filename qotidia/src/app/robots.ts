@@ -36,6 +36,10 @@ export const OFF_LIMITS = [
   "/invite/",
   "/api/",
   "/home",
+  // The support view can reach a granting family's archive. It is behind a
+  // login and an is_admin check and a grant, and it still has no business
+  // in an index.
+  "/admin",
 ];
 
 export default function robots(): MetadataRoute.Robots {

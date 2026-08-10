@@ -255,6 +255,10 @@ describe("the serving gate", () => {
       "src/lib/privacy/erase.ts",              // a deletion — it wants the ungated rows
       "src/app/actions.ts",                    // checksums, for duplicate detection
       "src/app/api/media/verdicts/route.ts",   // returns the verdict itself, never a path
+      // Counts files still awaiting their check, for a support view. Asks
+      // for pending rows specifically, selects no storage_path, and returns
+      // a number — tests/support-view.test.ts holds it to all three.
+      "src/lib/family/support-view.ts",
     ];
     expect(offenders.filter((f) => !allowed.includes(f))).toEqual([]);
   });

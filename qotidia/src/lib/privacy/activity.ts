@@ -58,7 +58,7 @@ export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
   ordered_book: "ordered the book",
   cancelled_renewal: "stopped a scheduled printing",
   support_access_granted: "gave our support team temporary access",
-  support_access_used: "— our support team looked, with your permission",
+  support_access_used: "Our support team looked, with your permission",
   inbox_address_rotated: "changed the private address things can be sent to",
   upload_refused: "— a file was refused before it was stored",
   named_keeper: "named who would keep this archive",
@@ -75,6 +75,22 @@ export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
   // the label is a name they typed rather than a member of the family.
   story_contribution: "— added something to a story they were sent",
 };
+
+/**
+ * Kinds where the actor is us, not a person.
+ *
+ * The renderer prefixes every entry with who did it, which is right for
+ * "Gran added something" and wrong twice over for a support visit. It read
+ * as "sam — our support team looked, with your permission", and it put a
+ * staff member's username in front of a customer to say it. Neither the
+ * grammar nor the disclosure is necessary: the family needs to know that
+ * support looked, not which of us. The actor id is still recorded, because
+ * an internal audit trail does need to know.
+ */
+export const ACTOR_IS_US = new Set<ActivityKind>(["support_access_used"]);
+
+/** How support signs the family's log. Never an individual's name. */
+export const SUPPORT_ACTOR = "Support";
 
 /**
  * Events worth telling a family about. Deliberately short: a log of
