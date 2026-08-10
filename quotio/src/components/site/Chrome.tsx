@@ -76,6 +76,23 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-rule bg-lavender">
+      {/* The two promises, side by side, as in the reference. */}
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 border-b border-rule px-5 py-6">
+        <p className="flex items-center gap-2.5 text-sm font-semibold text-navy">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M12 20S3 14.5 3 9a4.5 4.5 0 0 1 9-1.5A4.5 4.5 0 0 1 21 9c0 5.5-9 11-9 11Z"
+              fill="#5B5FEF"
+            />
+          </svg>
+          Delightful for your audience. Powerful for your business.
+        </p>
+        <p className="flex items-center gap-2.5 text-sm font-semibold text-navy">
+          <Squiggle className="h-3 w-12 text-mint" />
+          Build once. Use anywhere.
+        </p>
+      </div>
+
       <div className="mx-auto max-w-6xl px-5 py-12">
         <div className="flex flex-wrap items-start justify-between gap-8">
           <div className="max-w-xs">

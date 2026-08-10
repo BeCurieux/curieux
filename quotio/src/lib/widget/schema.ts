@@ -236,6 +236,12 @@ export const resultConfigSchema = z.object({
   kind: z.enum(["value", "range", "recommendation", "score"]).default("value"),
   heading: z.string().min(1).max(200),
   description: z.string().max(600).optional(),
+  /**
+   * Art for the result card. A calculated number has no outcome to hang a
+   * picture on, and a bare figure on a white card is the thing §19 explicitly
+   * warns against — so the result screen can carry its own.
+   */
+  illustration: illustrationSchema.optional(),
   /** Starting total before any logic rules run. */
   baseValue: z.number().default(0),
   /**

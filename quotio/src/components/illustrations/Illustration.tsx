@@ -50,14 +50,22 @@ export function Illustration({ name, size = 44, className }: IllustrationProps) 
 const r = 4;
 
 const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
+  // A made bed with a plant beside it. The companion object is what stops
+  // these reading as icons: a bed is a symbol, a bed next to a houseplant is
+  // somebody's room.
   bed: (
     <g>
-      <rect x="5" y="17" width="38" height="16" rx={r} fill={C.purpleSoft} />
-      <rect x="5" y="26" width="38" height="7" rx="3" fill={C.purple} />
-      <rect x="9" y="20" width="12" height="6" rx="3" fill={C.white} />
-      <rect x="5" y="31" width="4" height="9" rx="2" fill={C.navy} />
-      <rect x="39" y="31" width="4" height="9" rx="2" fill={C.navy} />
-      <path d="M5 21c0-6 4-10 10-10h18c6 0 10 4 10 10" stroke={C.navy} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M4 38h8l-1 5.5a2 2 0 0 1-2 1.7H7a2 2 0 0 1-2-1.7L4 38Z" fill={C.coral} />
+      <path d="M8 38v-7" stroke={C.navy} strokeWidth="1.8" strokeLinecap="round" />
+      <ellipse cx="5.4" cy="31" rx="3.4" ry="2.3" transform="rotate(-28 5.4 31)" fill={C.mint} />
+      <ellipse cx="10.8" cy="32.5" rx="3" ry="2.1" transform="rotate(28 10.8 32.5)" fill={C.mint} />
+
+      <rect x="17" y="11" width="26" height="15" rx="5" fill={C.purpleSoft} stroke={C.navy} strokeWidth="2" />
+      <rect x="15" y="25" width="30" height="7" rx="3.5" fill={C.white} stroke={C.navy} strokeWidth="2" />
+      <path d="M15 32h30v4.5a3 3 0 0 1-3 3H18a3 3 0 0 1-3-3V32Z" fill={C.mint} />
+      <rect x="20" y="19" width="11" height="6.5" rx="3.2" fill={C.white} stroke={C.navy} strokeWidth="1.6" />
+      <rect x="16" y="39" width="3.2" height="5" rx="1.6" fill={C.navy} />
+      <rect x="40.5" y="39" width="3.2" height="5" rx="1.6" fill={C.navy} />
     </g>
   ),
   bath: (
@@ -72,23 +80,33 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   ),
   couch: (
     <g>
-      <rect x="6" y="20" width="36" height="14" rx={r} fill={C.coralSoft} />
-      <rect x="4" y="24" width="6" height="12" rx="3" fill={C.coral} />
-      <rect x="38" y="24" width="6" height="12" rx="3" fill={C.coral} />
-      <rect x="10" y="28" width="28" height="8" rx="3" fill={C.coral} />
-      <rect x="13" y="21" width="9" height="8" rx="3" fill={C.white} />
-      <rect x="26" y="21" width="9" height="8" rx="3" fill={C.white} />
-      <rect x="10" y="36" width="3" height="5" rx="1.5" fill={C.navy} />
-      <rect x="35" y="36" width="3" height="5" rx="1.5" fill={C.navy} />
+      <rect x="10" y="15" width="28" height="15" rx="6" fill={C.coralSoft} stroke={C.navy} strokeWidth="2" />
+      <rect x="17" y="18" width="14" height="9" rx="3.5" fill={C.yellow} />
+      <rect x="6" y="22" width="9" height="14" rx="4.5" fill={C.coral} stroke={C.navy} strokeWidth="2" />
+      <rect x="33" y="22" width="9" height="14" rx="4.5" fill={C.coral} stroke={C.navy} strokeWidth="2" />
+      <rect x="11" y="27" width="26" height="10" rx="4" fill={C.coral} stroke={C.navy} strokeWidth="2" />
+      <rect x="12" y="37" width="3.2" height="5" rx="1.6" fill={C.navy} />
+      <rect x="32.8" y="37" width="3.2" height="5" rx="1.6" fill={C.navy} />
     </g>
   ),
+  // The bucket has a face. It is the product's mascot-adjacent object and the
+  // one place a little character is worth the pixels.
   bucket: (
     <g>
-      <path d="M11 18h26l-3 20a4 4 0 0 1-4 3H18a4 4 0 0 1-4-3L11 18Z" fill={C.mint} />
-      <rect x="9" y="14" width="30" height="6" rx="3" fill={C.navy} />
-      <path d="M15 14a9 9 0 0 1 18 0" stroke={C.navy} strokeWidth="2.5" fill="none" />
-      <circle cx="21" cy="28" r="2.5" fill={C.white} />
-      <circle cx="28" cy="33" r="2" fill={C.white} />
+      <rect x="29" y="6" width="14" height="8" rx="3" fill={C.yellow} />
+      <rect x="29" y="6" width="14" height="3.5" rx="1.75" fill={C.coral} />
+      <path d="M11 19h26l-3 19a4 4 0 0 1-4 3.4H18a4 4 0 0 1-4-3.4L11 19Z" fill={C.mint} />
+      <rect x="9" y="15" width="30" height="6" rx="3" fill={C.mintSoft} stroke={C.navy} strokeWidth="2" />
+      <path d="M15 15a9 9 0 0 1 18 0" stroke={C.navy} strokeWidth="2.4" fill="none" />
+      <circle cx="19.5" cy="29" r="2.1" fill={C.navy} />
+      <circle cx="29.5" cy="29" r="2.1" fill={C.navy} />
+      <path
+        d="M20.5 34.5c1.6 1.9 3 2.7 4 2.7s2.4-.8 4-2.7"
+        stroke={C.navy}
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </g>
   ),
   sponge: (

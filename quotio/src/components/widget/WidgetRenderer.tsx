@@ -350,6 +350,7 @@ export function WidgetRenderer({
             <ResultView
               result={widget.result}
               evaluation={evaluation}
+              illustration={widget.intro?.illustration}
               onCtaClick={handleCta}
               onRestart={restart}
             >

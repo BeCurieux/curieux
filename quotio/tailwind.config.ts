@@ -32,8 +32,16 @@ const config: Config = {
         navy: "#1B1F3B", // headings and body type
         slate: "#4A5568", // secondary type
         muted: "#A3AED0", // tertiary type, icons at rest
-        lavender: "#F7F8FC", // panel backgrounds
+        lavender: "#F7F8FC", // cool panel backgrounds
         rule: "#E7EAF6", // every border in the product
+
+        // The page itself is a warm off-white, not white. It's the single
+        // biggest reason the reference reads as friendly rather than clinical:
+        // white cards lift off it, and the whole product feels lit rather than
+        // printed. Cards, inputs and the widget surface stay pure white.
+        canvas: "#FDFBF6",
+        cream: "#F9F5EC", // warmer band, for hero blobs and soft sections
+        peach: "#FDEBD8", // the blush behind illustrations
       },
       fontFamily: {
         sans: [

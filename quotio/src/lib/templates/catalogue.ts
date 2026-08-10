@@ -80,12 +80,14 @@ const cleaning = template(
         input: {
           kind: "choice",
           columns: 3,
+          // Label carries the count and description the unit, so the card
+          // reads as a big "2" over a small "Bedrooms".
           options: [
-            { id: "b1", label: "1 bedroom", value: 1, illustration: "bed" },
-            { id: "b2", label: "2 bedrooms", value: 2, illustration: "bed" },
-            { id: "b3", label: "3 bedrooms", value: 3, illustration: "bed" },
-            { id: "b4", label: "4 bedrooms", value: 4, illustration: "bed" },
-            { id: "b5", label: "5+ bedrooms", value: 5, illustration: "bed" },
+            { id: "b1", label: "1", description: "Bedroom", value: 1, illustration: "bed" },
+            { id: "b2", label: "2", description: "Bedrooms", value: 2, illustration: "bed" },
+            { id: "b3", label: "3", description: "Bedrooms", value: 3, illustration: "bed" },
+            { id: "b4", label: "4", description: "Bedrooms", value: 4, illustration: "bed" },
+            { id: "b5", label: "5+", description: "Bedrooms", value: 5, illustration: "bed" },
             { id: "b0", label: "Not sure", value: 2, illustration: "question" },
           ],
         },
@@ -97,10 +99,10 @@ const cleaning = template(
           kind: "choice",
           columns: 3,
           options: [
-            { id: "r1", label: "1", value: 1, illustration: "bath" },
-            { id: "r2", label: "2", value: 2, illustration: "bath" },
-            { id: "r3", label: "3", value: 3, illustration: "bath" },
-            { id: "r4", label: "4+", value: 4, illustration: "bath" },
+            { id: "r1", label: "1", description: "Bathroom", value: 1, illustration: "bath" },
+            { id: "r2", label: "2", description: "Bathrooms", value: 2, illustration: "bath" },
+            { id: "r3", label: "3", description: "Bathrooms", value: 3, illustration: "bath" },
+            { id: "r4", label: "4+", description: "Bathrooms", value: 4, illustration: "bath" },
           ],
         },
       },
@@ -147,6 +149,7 @@ const cleaning = template(
     result: {
       kind: "range",
       heading: "Your estimated price",
+      illustration: "bucket",
       description: "Every home is different. This is a ballpark based on what you told us.",
       expression: "total + home_type + bedrooms * 35 + bathrooms * 25 + extras + frequency",
       rangeSpread: 0.2,
@@ -239,6 +242,7 @@ const photography = template(
     result: {
       kind: "value",
       heading: "Your shoot, roughly",
+      illustration: "camera",
       description: "Includes editing and an online gallery you can share.",
       expression:
         "total + package + hours * 120 + second_photographer * 350 + engagement * 300 + travel * 2",
@@ -342,6 +346,7 @@ const website = template(
     result: {
       kind: "range",
       heading: "Your project estimate",
+      illustration: "browser",
       description: "Design, build, testing and launch. Hosting is separate.",
       expression: "total + project_type + pages * 180 + features + design + timeline",
       rangeSpread: 0.25,
@@ -401,6 +406,7 @@ const roi = template(
     result: {
       kind: "value",
       heading: "Your estimated 12-month return",
+      illustration: "graph",
       description:
         "That's lifetime revenue from a year of new customers, less what you'd spend to get them.",
       expression: "customers * 12 * deal_value * retention_months / 12 - monthly_spend * 12",
@@ -482,6 +488,7 @@ const eventBudget = template(
     result: {
       kind: "value",
       heading: "Your event budget",
+      illustration: "balloons",
       description: "Catering is per head, so guest count moves this number more than anything else.",
       expression: "total + venue + guests * catering + extras",
       bullets: ["Everything above included", "No booking fee", "Payment plans available"],
@@ -571,6 +578,7 @@ const moving = template(
     result: {
       kind: "range",
       heading: "Your move, estimated",
+      illustration: "truck",
       expression: "total + home_size + distance * 1.8 + floors + packing * 400 + move_day",
       rangeSpread: 0.15,
       bullets: ["Fully insured", "Blankets and straps included", "No hidden fuel charges"],

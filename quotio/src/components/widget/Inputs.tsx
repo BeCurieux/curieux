@@ -180,9 +180,14 @@ export function StepInput({ step, value, onChange, onCommit, namespace }: StepIn
 function chooseLayout(options: ChoiceOption[], columns: 2 | 3): { className: string; row: boolean } {
   const hasArt = options.some((option) => option.illustration);
   const longest = Math.max(...options.map((option) => option.label.length));
-  const hasDescriptions = options.some((option) => option.description);
+  // A short caption like "Bedrooms" sits happily under a number in a grid;
+  // only a real sentence needs a full-width row.
+  const longestDescription = Math.max(
+    0,
+    ...options.map((option) => option.description?.length ?? 0)
+  );
 
-  if (!hasArt && (longest > 24 || hasDescriptions)) {
+  if (!hasArt && (longest > 24 || longestDescription > 28)) {
     return { className: "qw-grid-1", row: true };
   }
   return { className: columns === 2 ? "qw-grid-2" : "qw-grid-3", row: false };
@@ -229,6 +234,27 @@ function ChoiceField({
     >
       {input.options.map((option) => {
         const isSelected = selected.has(option.value);
+        // A count reads best as a big numeral with its unit underneath —
+        // "2" over "Bedrooms" — with the picture below both.
+        const isCount = !layout.row && option.label.length <= 3;
+
+        const art = option.illustration ? (
+          <Illustration name={option.illustration} size={layout.row ? 32 : 44} />
+        ) : null;
+
+        const text = (
+          <span className={layout.row ? "flex-1" : ""}>
+            <span
+              className={`block font-bold leading-tight ${isCount ? "text-xl" : "text-sm font-semibold leading-snug"}`}
+            >
+              {option.label}
+            </span>
+            {option.description ? (
+              <span className="qw-muted mt-0.5 block text-xs leading-snug">{option.description}</span>
+            ) : null}
+          </span>
+        );
+
         return (
           <label
             key={option.id}
@@ -243,16 +269,19 @@ function ChoiceField({
               onChange={() => toggle(option)}
             />
 
-            {option.illustration ? (
-              <Illustration name={option.illustration} size={layout.row ? 32 : 44} />
-            ) : null}
-
-            <span className={layout.row ? "flex-1" : ""}>
-              <span className="block text-sm font-semibold leading-snug">{option.label}</span>
-              {option.description ? (
-                <span className="qw-muted mt-0.5 block text-xs leading-snug">{option.description}</span>
-              ) : null}
-            </span>
+            {/* Rows read left-to-right (picture, then words); grid cards read
+                top-to-bottom (words, then picture), as in the reference. */}
+            {layout.row ? (
+              <>
+                {art}
+                {text}
+              </>
+            ) : (
+              <>
+                {text}
+                {art}
+              </>
+            )}
 
             <span className="qw-tick">
               <CheckIcon size={12} strokeWidth={3} />

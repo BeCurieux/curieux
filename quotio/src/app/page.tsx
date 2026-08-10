@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PromptBox } from "@/components/create/PromptBox";
 import { Illustration } from "@/components/illustrations/Illustration";
+import { HeroArt } from "@/components/site/HeroArt";
 import { SiteFooter, SiteHeader, Sparkles, Squiggle } from "@/components/site/Chrome";
 import { ArrowRightIcon, ChartIcon, LinkIcon, SparkleIcon } from "@/components/ui/Icons";
 import { WidgetRenderer } from "@/components/widget/WidgetRenderer";
@@ -103,6 +104,8 @@ export default async function HomePage({
                   </li>
                 ))}
               </ul>
+
+              <HeroArt className="mt-10 hidden h-auto w-full max-w-md lg:block" />
             </div>
 
             <div className="relative">
@@ -266,7 +269,7 @@ function PromiseCard({
 
   return (
     <div className="card p-6">
-      <span className={`grid h-11 w-11 place-items-center rounded-btn ${tones[tone]}`}>{icon}</span>
+      <span className={`grid h-12 w-12 place-items-center rounded-full ${tones[tone]}`}>{icon}</span>
       <p className="mt-4 font-bold">{title}</p>
       <p className="mt-1.5 text-sm leading-relaxed text-slate">{body}</p>
     </div>
