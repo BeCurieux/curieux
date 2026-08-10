@@ -15,6 +15,8 @@ import { BRAND } from "@/lib/brand";
 import { NOT_ABOUT, published } from "@/lib/journal/entries";
 import { fullDate } from "@/lib/words";
 
+export const dynamic = "force-static";
+
 export const metadata = {
   title: `Journal — ${BRAND}`,
   description:

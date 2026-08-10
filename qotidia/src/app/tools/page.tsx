@@ -8,6 +8,8 @@ import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 import { NEVER, publishedTools } from "@/lib/tools/list";
 
+export const dynamic = "force-static";
+
 export const metadata = {
   title: `Free tools — ${BRAND}`,
   description:

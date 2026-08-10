@@ -17,6 +17,8 @@ import { BRAND, ONE_LINER } from "@/lib/brand";
 import { BASE } from "@/app/robots";
 import { lastPublished, published } from "@/lib/journal/entries";
 
+export const dynamic = "force-static";
+
 /** XML has five characters that must not appear raw. Prose has all of them. */
 function escape(text: string): string {
   return text

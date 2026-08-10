@@ -227,4 +227,26 @@ describe("it is reachable and readable", () => {
       }
     }
   });
+
+  it("serves the public pages as files, not as renders", () => {
+    // These are the pages a stranger or a crawler asks for, and they carry
+    // nothing that depends on who is asking. They were prerendered until the
+    // move to Next 16, when the session read in the root layout began
+    // tainting the whole tree — every route went dynamic at once and nothing
+    // failed, which is how a page quietly stops being a file.
+    //
+    // `force-static` is what pins it back. It also means the header renders
+    // signed-out into the HTML, which is the honest consequence of a cached
+    // page: a file cannot know who fetched it.
+    const publicRoutes = [
+      "../src/app/journal/page.tsx",
+      "../src/app/journal/[slug]/page.tsx",
+      "../src/app/journal/feed.xml/route.ts",
+      "../src/app/tools/page.tsx",
+      "../src/app/tools/[slug]/page.tsx",
+    ];
+    for (const route of publicRoutes) {
+      expect(bare(src(route)), route).toMatch(/export const dynamic = "force-static"/);
+    }
+  });
 });

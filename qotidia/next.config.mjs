@@ -15,12 +15,13 @@ const nextConfig = {
   // there is no resizing to exhaust. If this project ever adopts next/image
   // it should move to Next 15 in the same change rather than deleting this.
   images: { unoptimized: true },
-  experimental: {
-    // Both are Node-only and neither survives bundling: Playwright needs its
-    // own browser resolution, and archiver's dependency chain ships an
-    // exports map webpack rejects ("default condition should be last").
-    serverComponentsExternalPackages: ["playwright-core", "archiver"],
-  },
+  // Both are Node-only and neither survives bundling: Playwright needs its
+  // own browser resolution, and archiver's dependency chain ships an exports
+  // map webpack rejects ("default condition should be last"). Moved out of
+  // `experimental` in Next 15; the old spelling was being ignored with a
+  // warning, which means it had quietly stopped doing anything.
+  serverExternalPackages: ["playwright-core", "archiver"],
+
 };
 
 export default nextConfig;

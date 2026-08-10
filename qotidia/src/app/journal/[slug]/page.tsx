@@ -27,6 +27,7 @@ import { BASE } from "@/app/robots";
 import { fullDate } from "@/lib/words";
 import { signedBy } from "@/lib/trust/founder";
 
+export const dynamic = "force-static";
 export const dynamicParams = false;
 
 export function generateStaticParams() {

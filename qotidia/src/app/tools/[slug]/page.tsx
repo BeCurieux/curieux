@@ -11,6 +11,7 @@ import { BRAND } from "@/lib/brand";
 import { BASE } from "@/app/robots";
 import { NEVER, publishedTools, toolBySlug } from "@/lib/tools/list";
 
+export const dynamic = "force-static";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
