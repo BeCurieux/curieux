@@ -103,7 +103,7 @@ export default async function PrivacyPage({
       )}
 
       {/* ------------------------------------------------------- activity */}
-      <section className="mt-12">
+      <section id="activity" className="mt-12 scroll-mt-8">
         <h2 className="text-xl">What&rsquo;s happened</h2>
         <p className="mt-1 max-w-[48ch] text-sm leading-relaxed text-stone">
           Everyone in the family can see this. It records who did something,
@@ -131,7 +131,7 @@ export default async function PrivacyPage({
 
       {/* --------------------------------------------------------- export */}
       {canEdit(role) && (
-        <section className="mt-12 border-t border-rule pt-10">
+        <section id="export" className="mt-12 border-t border-rule pt-10 scroll-mt-8">
           <h2 className="text-xl">Take a copy</h2>
           <p className="mt-1 max-w-[50ch] text-sm leading-relaxed text-stone">
             Every photograph and recording at its original quality, every note
@@ -221,7 +221,7 @@ export default async function PrivacyPage({
 
       {/* --------------------------------------------------------- delete */}
       {canManageAccess(role) && (
-        <section className="mt-12 border-t border-rule pt-10">
+        <section id="delete" className="mt-12 border-t border-rule pt-10 scroll-mt-8">
           <h2 className="text-xl">Delete everything</h2>
           <p className="mt-1 max-w-[50ch] text-sm leading-relaxed text-stone">
             {DELETION_TERMS}

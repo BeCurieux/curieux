@@ -16,6 +16,7 @@ import Link from "next/link";
 import { scannerIsReal } from "@/lib/media/scanner";
 import { BACKUP_EXPIRY_DAYS } from "@/lib/privacy/erase";
 import { BRAND } from "@/lib/brand";
+import { CLAIMS } from "@/lib/trust/claims";
 
 export const metadata = {
   title: `How we keep your family private — ${BRAND}`,
@@ -50,13 +51,6 @@ const QUESTIONS = [
   },
 ];
 
-const PILLARS = [
-  ["Private by default", "Nothing is public. Ever."],
-  ["No ads", "You are the customer, not the product."],
-  ["No AI training", "Your photographs never leave for a model."],
-  ["Export anytime", "Everything, in one file, at full quality."],
-  ["Delete anytime", "Permanently, by yourself, in one place."],
-];
 
 export default function PrivacyExplainerPage() {
   return (
@@ -73,11 +67,15 @@ export default function PrivacyExplainerPage() {
       </section>
 
       <div className="mx-auto !max-w-3xl px-6">
+        {/* The same list the strip under the drop zone reads from. This grid
+            used to be written out separately here, which is how two lists of
+            privacy claims drift until one of them is describing a promise the
+            product stopped keeping. */}
         <ul className="grid gap-4 py-12 sm:grid-cols-2 md:grid-cols-3">
-          {PILLARS.map(([title, blurb]) => (
-            <li key={title} className="card">
-              <div className="text-sm">{title}</div>
-              <div className="mt-1 text-xs leading-relaxed text-stone">{blurb}</div>
+          {CLAIMS.map((c) => (
+            <li key={c.id} className="card">
+              <div className="text-sm">{c.title}</div>
+              <div className="mt-1 text-xs leading-relaxed text-stone">{c.blurb}</div>
             </li>
           ))}
         </ul>

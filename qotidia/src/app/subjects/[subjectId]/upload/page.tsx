@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Uploader } from "./uploader";
+import { TrustStrip } from "@/app/trust-strip";
 import { Recorder } from "./recorder";
 import { addTextMemory } from "@/app/actions";
 import { PRIVATE_BLURB } from "@/lib/family/roles";
@@ -78,6 +79,11 @@ export default async function UploadPage({
             we&rsquo;ll ask you about the things a photo can&rsquo;t answer
             once we&rsquo;ve read the year.
           </p>
+          {/* Under the drop zone, because that is where the decision is. A
+              backfill is somebody handing over their child's whole first
+              years in one afternoon; if the answer to "what happens to
+              these" is ever going to be needed, it is needed here. */}
+          <TrustStrip className="mt-10" />
         </section>
       ) : (
         <>
@@ -96,6 +102,7 @@ export default async function UploadPage({
             <div className="mt-4">
               <Uploader subjectId={params.subjectId} />
             </div>
+            <TrustStrip className="mt-10" />
           </section>
         </>
       )}
