@@ -204,6 +204,21 @@ export default async function PrivacyPage({
         </section>
       )}
 
+      {/* ----------------------------------------------------- succession */}
+      {canManageAccess(role) && (
+        <section className="mt-12 border-t border-rule pt-10">
+          <h2 className="text-xl">If you can&rsquo;t keep this</h2>
+          <p className="mt-1 max-w-[50ch] text-sm leading-relaxed text-stone">
+            An archive meant to last until your child is grown is meant to last
+            longer than some of the people who start one. You can name one person
+            who would take it over.
+          </p>
+          <Link href="/settings/succession" className="btn-secondary mt-4 inline-block">
+            Who keeps this
+          </Link>
+        </section>
+      )}
+
       {/* --------------------------------------------------------- delete */}
       {canManageAccess(role) && (
         <section className="mt-12 border-t border-rule pt-10">

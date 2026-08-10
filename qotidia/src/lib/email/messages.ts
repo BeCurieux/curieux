@@ -327,3 +327,103 @@ export function containsArchiveContent(message: OutboundEmail): boolean {
 
   return false;
 }
+
+// ------------------------------------------------------------- succession
+//
+// The hardest messages in the product to write. Two of the four arrive on
+// what may be the worst week of somebody's life, and one of them arrives
+// telling a living person that somebody has said they are dead.
+//
+// The rules above still hold — no archive content, nothing about the child
+// beyond their name — and one more applies here: **never speculate**. We do
+// not know whether the owner has died. We know somebody said so. Every
+// sentence has to be true of both cases.
+
+/** The owner has named somebody. Sent to the owner, not the keeper. */
+export function keeperNamed(opts: {
+  to: Recipient;
+  keeperEmail: string;
+  settlingDays: number;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    subject: `${opts.keeperEmail} is now your archive's keeper`,
+    text:
+      `You've named ${opts.keeperEmail} as the person who would take over your ` +
+      `archive if you couldn't keep it yourself.\n\n` +
+      `Nothing changes today. They can't see anything, and they can't ask for ` +
+      `anything for ${opts.settlingDays} days.\n\n` +
+      // This email exists almost entirely for the next sentence. Somebody who
+      // gets into an account and names themselves has to also stop this
+      // reaching the real owner's inbox.
+      `If you didn't do this, someone else has access to your account. Change ` +
+      `your password now and remove them:\n${appUrl()}/settings/succession` +
+      SIGNOFF,
+  };
+}
+
+/** Somebody has asked for the archive. Sent to the owner, repeatedly. */
+export function successionClaimed(opts: {
+  to: Recipient;
+  keeperEmail: string;
+  decidesOn: string;
+  daysLeft: number;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    // Plain and alarming on purpose. This is the one email in the product
+    // that should be impossible to mistake for routine.
+    subject:
+      opts.daysLeft <= 3
+        ? `Your archive transfers in ${countOf(opts.daysLeft, "day")} unless you sign in`
+        : `Someone has asked to take over your Qotidia archive`,
+    text:
+      `${opts.keeperEmail} has told us you've died, and asked to take over your ` +
+      `archive as the keeper you named.\n\n` +
+      `If that's wrong, you don't need to do anything except sign in. Opening ` +
+      `Qotidia is enough to stop this — there's no form to fill in.\n\n` +
+      `${appUrl()}\n\n` +
+      `If nobody signs in, the archive passes to them on ${opts.decidesOn} ` +
+      `(${countOf(opts.daysLeft, "day")} from now). Nothing is deleted either way.` +
+      SIGNOFF,
+  };
+}
+
+/** The owner turned up. Sent to the keeper, who may have been grieving. */
+export function successionRefused(opts: {
+  to: Recipient;
+  ownerLabel: string;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    subject: `The archive you asked about has stayed where it is`,
+    text:
+      `You asked to take over ${opts.ownerLabel}'s Qotidia archive. Since then ` +
+      `they've signed in, so we've stopped the transfer and left everything as ` +
+      `it was.\n\n` +
+      // No accusation and no apology. Either this was a misunderstanding, or
+      // it was not, and a message that assumes which is worse than one that
+      // states what happened.
+      `If you think something is wrong, the best thing is to talk to them.` +
+      SIGNOFF,
+  };
+}
+
+/** It has happened. Sent to the keeper. */
+export function successionCompleted(opts: {
+  to: Recipient;
+  familyLabel: string;
+}): OutboundEmail {
+  return {
+    to: opts.to,
+    subject: `${opts.familyLabel} is in your hands now`,
+    text:
+      `The archive has passed to you. Everything that was in it is still in it — ` +
+      `nothing was removed, and every photograph and note still carries the name ` +
+      `of whoever added it.\n\n` +
+      `You can read it, add to it, invite the rest of the family, and take a full ` +
+      `copy of everything at any time:\n${appUrl()}/settings/privacy\n\n` +
+      `There's no hurry to do any of it.` +
+      SIGNOFF,
+  };
+}

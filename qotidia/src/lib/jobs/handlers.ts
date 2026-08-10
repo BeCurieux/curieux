@@ -25,6 +25,7 @@ import { sendOnce } from "@/lib/email/send";
 import { runDigestFor } from "@/lib/email/digest";
 import type { ArchiveState } from "@/lib/prompts/engine";
 import { announceRenewals, collectRenewals } from "@/lib/renewal/run";
+import { listenForSilence, watchClaims } from "@/lib/succession/run";
 import { buildExport } from "@/lib/privacy/build-export";
 import { eraseFamily } from "@/lib/privacy/erase";
 import {
@@ -551,6 +552,12 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
   // never precede the notice that promised it.
   await announceRenewals(db, now, (familyId) => familyOwner(db, familyId));
   await collectRenewals(db, now, (familyId) => familyOwner(db, familyId));
+
+  // Succession last, and watch before listen. An archive whose owner has
+  // just signed in should have its open claim refused on this run, before
+  // anything considers opening another one about the same family.
+  await watchClaims(db, now.toISOString());
+  await listenForSilence(db, now.toISOString());
 }
 
 /**

@@ -32,7 +32,12 @@ export type ActivityKind =
   | "support_access_granted"
   | "support_access_used"
   | "upload_refused"
-  | "inbox_address_rotated";
+  | "inbox_address_rotated"
+  | "named_keeper"
+  | "removed_keeper"
+  | "succession_claimed"
+  | "succession_refused"
+  | "succession_completed";
 
 /** How each event reads to a family. Second person for your own actions. */
 export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
@@ -53,6 +58,14 @@ export const ACTIVITY_PHRASE: Record<ActivityKind, string> = {
   support_access_used: "— our support team looked, with your permission",
   inbox_address_rotated: "changed the private address things can be sent to",
   upload_refused: "— a file was refused before it was stored",
+  named_keeper: "named who would keep this archive",
+  removed_keeper: "changed who would keep this archive",
+  // Written in the third person and stated plainly. Whoever reads this line
+  // later needs to know exactly what was attempted and by whom, and a
+  // softened phrase would be the wrong kindness.
+  succession_claimed: "— asked to take over this archive",
+  succession_refused: "— a request to take over this archive was stopped",
+  succession_completed: "— this archive changed hands",
 };
 
 /**

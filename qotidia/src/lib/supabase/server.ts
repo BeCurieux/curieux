@@ -59,7 +59,31 @@ export async function currentUser() {
   if (!token) return null;
   const { data, error } = await userClient().auth.getUser(token);
   if (error) return null;
+  void touchLastSeen(data.user.id);
   return data.user;
+}
+
+/**
+ * Note that somebody is still here.
+ *
+ * This is what succession measures silence against, so it has to be a real
+ * signal rather than a login timestamp: a parent who uses the archive weekly
+ * without ever signing in again must not look dead to the sweep. It follows
+ * that it has to be cheap enough to do on every request.
+ *
+ * So it is one UPDATE with the throttle in its WHERE clause — no read first,
+ * no row touched unless the stored value is genuinely stale, and the primary
+ * key does the lookup. Fire-and-forget: a failure here must never break a
+ * page, and the worst case is a slightly old timestamp on a column whose
+ * threshold is eighteen months.
+ */
+const TOUCH_EVERY_HOURS = 6;
+async function touchLastSeen(userId: string): Promise<void> {
+  try {
+    await adminClient().rpc("touch_last_seen", { uid: userId, stale_hours: TOUCH_EVERY_HOURS });
+  } catch {
+    // Deliberately silent. See above.
+  }
 }
 
 export async function requireUser() {

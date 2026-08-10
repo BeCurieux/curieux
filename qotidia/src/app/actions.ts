@@ -39,6 +39,9 @@ import { loadEntities } from "@/lib/graph/extract";
 import { peopleBooksFor } from "@/lib/book/people-books";
 import { roomToAdd } from "@/lib/storage/usage";
 import { getObjectStore, TTL } from "@/lib/storage/provider";
+import { keeperNamed as keeperNamedEmail } from "@/lib/email/messages";
+import { SETTLING_DAYS, mayClaim } from "@/lib/succession/policy";
+import { openClaim } from "@/lib/succession/run";
 
 
 /**
@@ -1944,4 +1947,198 @@ export async function roomForBatch(subjectId: string, bytes: number) {
 
   const room = await roomToAdd(db, story.family_id, bytes);
   return { ok: room.ok, message: room.message };
+}
+
+
+// ----------------------------------------------------------- succession
+//
+// Naming somebody, and the two ways a claim ends. The rules are in
+// lib/succession/policy.ts and the sweep is in lib/succession/run.ts; these
+// are the four things a person can do about it from a browser.
+
+/** The family this user owns, or an error naming why not. */
+async function ownedFamilyId(db: ReturnType<typeof userClient>, userId: string) {
+  const { data } = await db
+    .from("families")
+    .select("id, family_name")
+    .eq("owner_user_id", userId)
+    .maybeSingle();
+  if (!data) throw new Error("only the owner of an archive can change who keeps it");
+  return data as { id: string; family_name: string | null };
+}
+
+/**
+ * Name the person who would take the archive over.
+ *
+ * The owner is emailed immediately, and that email is the security control
+ * rather than a courtesy: somebody who gets into an account and names
+ * themselves has to also stop the real owner reading their mail.
+ */
+export async function nameKeeper(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const family = await ownedFamilyId(db, user.id);
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const relationship = String(formData.get("relationship") ?? "").trim() || null;
+  if (!email.includes("@")) {
+    redirect("/settings/succession?error=" + encodeURIComponent("That doesn't look like an email address."));
+  }
+  if (email === (user.email ?? "").toLowerCase()) {
+    redirect("/settings/succession?error=" + encodeURIComponent("A keeper has to be somebody else."));
+  }
+
+  const { error } = await db
+    .from("family_keepers")
+    .upsert(
+      { family_id: family.id, email, relationship, named_by: user.id, declined_at: null },
+      { onConflict: "family_id,email" }
+    );
+  if (error) throw new Error(error.message);
+
+  await record(adminClient(), {
+    familyId: family.id,
+    actorId: user.id,
+    actorLabel: user.email?.split("@")[0] ?? "The owner",
+    kind: "named_keeper",
+    detail: `named ${email}`,
+  });
+
+  if (user.email) {
+    await sendOnce(adminClient(), {
+      kind: "keeper_named",
+      message: keeperNamedEmail({
+        to: { email: user.email },
+        keeperEmail: email,
+        settlingDays: SETTLING_DAYS,
+      }),
+      // Keyed on the pair, so re-naming the same person does not send again
+      // but naming somebody new always does.
+      dedupeKey: `keeper-named-${family.id}-${email}`,
+      userId: user.id,
+    });
+  }
+
+  revalidatePath("/settings/succession");
+  redirect("/settings/succession?named=1");
+}
+
+/** Change your mind about who keeps it. */
+export async function removeKeeper(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const family = await ownedFamilyId(db, user.id);
+  const keeperId = String(formData.get("keeper_id"));
+
+  const { data: keeper } = await db
+    .from("family_keepers")
+    .select("email")
+    .eq("id", keeperId)
+    .maybeSingle();
+
+  await db.from("family_keepers").delete().eq("id", keeperId).eq("family_id", family.id);
+
+  await record(adminClient(), {
+    familyId: family.id,
+    actorId: user.id,
+    actorLabel: user.email?.split("@")[0] ?? "The owner",
+    kind: "removed_keeper",
+    detail: keeper ? `removed ${(keeper as any).email}` : "removed a keeper",
+  });
+
+  revalidatePath("/settings/succession");
+  redirect("/settings/succession?removed=1");
+}
+
+/**
+ * A keeper says the owner has died.
+ *
+ * Nothing happens today. This opens the notice period, and the whole of the
+ * next month is spent trying to be told otherwise.
+ */
+export async function claimArchive(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const familyId = String(formData.get("family_id"));
+  const email = (user.email ?? "").toLowerCase();
+
+  // Read through the keeper's own row, which RLS only shows them if they
+  // are actually named on this family.
+  const { data: keeper } = await db
+    .from("family_keepers")
+    .select("id, named_at, declined_at, family_id")
+    .eq("family_id", familyId)
+    .ilike("email", email)
+    .maybeSingle();
+  if (!keeper) throw new Error("you are not named as this archive's keeper");
+
+  const admin = adminClient();
+  const { count } = await admin
+    .from("succession_claims")
+    .select("id", { count: "exact", head: true })
+    .eq("family_id", familyId)
+    .eq("status", "notice");
+
+  const allowed = mayClaim(
+    { namedAt: (keeper as any).named_at, declinedAt: (keeper as any).declined_at },
+    count ?? 0,
+    new Date().toISOString()
+  );
+  if (!allowed.ok) {
+    redirect("/settings/succession?error=" + encodeURIComponent(allowed.because));
+  }
+
+  await openClaim(admin, {
+    familyId,
+    keeperId: (keeper as any).id,
+    keeperEmail: email,
+    opening: "claimed",
+  });
+
+  revalidatePath("/settings/succession");
+  redirect("/settings/succession?asked=1");
+}
+
+/**
+ * The owner says no.
+ *
+ * Signing in already does this on the next sweep — this is the button for
+ * somebody who wants it stopped now, and who deserves to be told who asked.
+ */
+export async function refuseClaim(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const family = await ownedFamilyId(db, user.id);
+  const claimId = String(formData.get("claim_id"));
+
+  const admin = adminClient();
+  const { data: claim } = await admin
+    .from("succession_claims")
+    .select("id, keeper_email")
+    .eq("id", claimId)
+    .eq("family_id", family.id)
+    .eq("status", "notice")
+    .maybeSingle();
+  if (!claim) redirect("/settings/succession");
+
+  await admin
+    .from("succession_claims")
+    .update({
+      status: "refused",
+      settled_at: new Date().toISOString(),
+      settled_because: "the owner stopped it",
+    })
+    .eq("id", claimId)
+    .eq("status", "notice");
+
+  await record(admin, {
+    familyId: family.id,
+    actorId: user.id,
+    actorLabel: (claim as any).keeper_email,
+    kind: "succession_refused",
+    detail: "asked to take over the archive; the owner stopped it",
+  });
+
+  revalidatePath("/settings/succession");
+  redirect("/settings/succession?stopped=1");
 }

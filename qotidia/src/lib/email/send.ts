@@ -26,7 +26,11 @@ export type EmailKind =
   | "renewal_scheduled"
   | "renewal_reminder"
   | "renewal_skipped"
-  | "renewal_payment_failed";
+  | "renewal_payment_failed"
+  | "keeper_named"
+  | "succession_claimed"
+  | "succession_refused"
+  | "succession_completed";
 
 /** Kinds a person may switch off. Anything else was asked for by paying. */
 const OPTIONAL: Record<EmailKind, string | null> = {
@@ -44,6 +48,15 @@ const OPTIONAL: Record<EmailKind, string | null> = {
   renewal_reminder: null,
   renewal_skipped: null,
   renewal_payment_failed: null,
+  // Never optional, and this is the strongest case in the product for that.
+  // succession_claimed is the message telling a living person that somebody
+  // has said they are dead and is about to be given their archive. An
+  // unsubscribe must not be able to silence it, and neither must a spam
+  // filter rule somebody set up in 2027 to stop hearing about renewals.
+  keeper_named: null,
+  succession_claimed: null,
+  succession_refused: null,
+  succession_completed: null,
 };
 
 export const isTransactional = (kind: EmailKind) => OPTIONAL[kind] === null;

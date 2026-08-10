@@ -27,6 +27,21 @@ alter table profiles add column if not exists last_seen_at timestamptz;
 -- year and a half of silence has already elapsed.
 update profiles set last_seen_at = now() where last_seen_at is null;
 
+-- A function rather than an update from the application, so the throttle
+-- lives with the column. Called on every authenticated request: the where
+-- clause means almost all of those touch no row at all, and none of them
+-- read one first.
+create or replace function touch_last_seen(uid uuid, stale_hours int default 6)
+returns void language sql security definer set search_path = public as $$
+  update profiles
+     set last_seen_at = now()
+   where id = uid
+     and (last_seen_at is null or last_seen_at < now() - make_interval(hours => stale_hours));
+$$;
+
+comment on function touch_last_seen(uuid, int) is
+  'Record that a user is still around. What succession measures silence against.';
+
 -- ----------------------------------------------------------- what to record
 --
 -- Succession is exactly the class of event the activity log exists for: it

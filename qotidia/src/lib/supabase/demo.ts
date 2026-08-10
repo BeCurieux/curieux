@@ -601,6 +601,9 @@ const PARENTS: Record<string, { table: string; fk: string; as: string }[]> = {
   // Duplicate detection reads an asset with its memory's family, to answer
   // "does this archive already hold this photograph".
   media_assets: [{ table: "memories", fk: "memory_id", as: "memories" }],
+  // A keeper is shown which archive they were named on, and they are
+  // usually not a member of it — so the name has to come along with the row.
+  family_keepers: [{ table: "families", fk: "family_id", as: "families" }],
   renewals: [{ table: "subjects", fk: "subject_id", as: "subjects" }],
 };
 
@@ -741,6 +744,21 @@ class Query implements PromiseLike<{ data: any; error: any; count?: number }> {
 
   eq(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] === val); return this; }
   neq(col: string, val: any) { this.rows = this.rows.filter((r) => r[col] !== val); return this; }
+  /**
+   * Case-insensitive match, with PostgREST's % wildcards.
+   *
+   * Used wherever the product recognises somebody by email — succession
+   * names a keeper who may have no account yet, so the only handle is a
+   * string somebody typed, and "Ruth@..." must find "ruth@...".
+   */
+  ilike(col: string, pattern: string) {
+    const rx = new RegExp(
+      "^" + pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/%/g, ".*") + "$",
+      "i"
+    );
+    this.rows = this.rows.filter((r) => typeof r[col] === "string" && rx.test(r[col]));
+    return this;
+  }
   /** Only the null/not-null forms are used, which is all this supports. */
   is(col: string, val: null) { this.rows = this.rows.filter((r) => (r[col] ?? null) === val); return this; }
   /**
