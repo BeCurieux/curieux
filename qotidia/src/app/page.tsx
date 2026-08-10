@@ -571,6 +571,7 @@ export default function LandingPage() {
           <nav className="flex gap-8 text-sm text-stone">
             <Link href="/pricing" className="hover:text-ink">{PRICING_LOWER}</Link>
             <Link href="/privacy" className="hover:text-ink">Privacy</Link>
+            <Link href="/promise" className="hover:text-ink">Promise</Link>
             <Link href="/login" className="hover:text-ink">Sign in</Link>
           </nav>
         </div>

@@ -84,6 +84,24 @@ export function dateList(
   return values.map((v) => friendlyDate(v, clock));
 }
 
+/**
+ * A date with the year always on it.
+ *
+ * friendlyDate drops the year for the current one, which is right for "14
+ * March" in a child's year and wrong for anything meant to be read back
+ * later. The promise page rendered "Promised 10 August", which is a
+ * commitment with no date on it the moment the year turns — and a promise
+ * that cannot be shown to have been made is not one.
+ */
+export function fullDate(value: string | Date | null | undefined): string {
+  if (!value) return "";
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  // Forcing the clock to a year the date cannot share is how friendlyDate is
+  // made to print one. Same trick as dateRange, for the same reason.
+  return friendlyDate(d, new Date(Date.UTC(d.getFullYear() - 1, 0, 1)));
+}
+
 /** Just the month, for grouping. */
 export function monthName(value: string | Date): string {
   const d = value instanceof Date ? value : new Date(value);

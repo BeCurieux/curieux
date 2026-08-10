@@ -12,30 +12,35 @@
 
 import type { MetadataRoute } from "next";
 
-export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";
+/** Where the app is served from. */
+export const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://qotidia.com";
 
+/**
+ * Everything a crawler must not touch.
+ *
+ * Exported so sitemap.ts can be checked against it. One list, so a public
+ * page cannot be added to the sitemap that this file is simultaneously
+ * telling crawlers to stay out of — the two files disagreeing is precisely
+ * the mistake that puts a family's route in front of a search engine.
+ */
+export const OFF_LIMITS = [
+  // Shared stories. The reason this file exists.
+  "/m/",
+  // Everything else that is a family's, in case a route is ever
+  // reachable without a session by accident.
+  "/subjects/",
+  "/books/",
+  "/family/",
+  "/settings/",
+  "/listen/",
+  "/invite/",
+  "/api/",
+  "/home",
+];
+
+export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: ["/"],
-        disallow: [
-          // Shared stories. The reason this file exists.
-          "/m/",
-          // Everything else that is a family's, in case a route is ever
-          // reachable without a session by accident.
-          "/subjects/",
-          "/books/",
-          "/family/",
-          "/settings/",
-          "/listen/",
-          "/invite/",
-          "/api/",
-          "/home",
-        ],
-      },
-    ],
-    sitemap: `${base}/sitemap.xml`,
+    rules: [{ userAgent: "*", allow: ["/"], disallow: OFF_LIMITS }],
+    sitemap: `${BASE}/sitemap.xml`,
   };
 }

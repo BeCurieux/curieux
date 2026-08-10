@@ -28,6 +28,7 @@ import { periodFor } from "@/lib/book/period";
 import {
   canComment, canEdit, canManageAccess, canModerate, statusForNewMemory,
 } from "@/lib/family/roles";
+import { SUPPORT_ACCESS_HOURS } from "@/lib/family/support";
 import { record, safeDetail } from "@/lib/privacy/activity";
 import { requireSecondFactor, StepUpRequired, stepUpPath } from "@/lib/auth/step-up";
 import type { ProtectedAction } from "@/lib/auth/mfa";
@@ -1215,7 +1216,7 @@ export async function grantSupportAccess(formData: FormData) {
   if (!canManageAccess(role)) throw new Error("only the owner can grant access");
 
   const expires = new Date();
-  expires.setHours(expires.getHours() + 48);
+  expires.setHours(expires.getHours() + SUPPORT_ACCESS_HOURS);
 
   await db.from("support_grants").insert({
     family_id: familyId,

@@ -17,6 +17,7 @@ import { scannerIsReal } from "@/lib/media/scanner";
 import { BACKUP_EXPIRY_DAYS } from "@/lib/privacy/erase";
 import { BRAND } from "@/lib/brand";
 import { CLAIMS } from "@/lib/trust/claims";
+import { SUPPORT_ACCESS_HOURS } from "@/lib/family/support";
 
 export const metadata = {
   title: `How we keep your family private — ${BRAND}`,
@@ -39,7 +40,7 @@ const QUESTIONS = [
   },
   {
     q: "Can your staff see my photographs?",
-    a: "Not as part of ordinary work. Nobody here browses family archives. If you ask us for help with something we cannot solve without looking, you grant access deliberately from your settings, it lasts 48 hours, it expires on its own, and it appears in your activity log — which you can read and we cannot edit.",
+    a: `Not as part of ordinary work. Nobody here browses family archives. If you ask us for help with something we cannot solve without looking, you grant access deliberately from your settings, it lasts ${SUPPORT_ACCESS_HOURS} hours, it expires on its own, and it appears in your activity log — which you can read and we cannot edit.`,
   },
   {
     q: "What happens if I leave?",
@@ -62,6 +63,14 @@ export default function PrivacyExplainerPage() {
             Some memories are meant to be shared. Not with everyone. This is a
             private place for your family, and the rest of this page is how you
             can check that rather than take our word for it.
+          </p>
+          {/* The short document, offered before the long one. Somebody who
+              wants nine numbered undertakings rather than an explanation
+              should not have to read the explanation to find them. */}
+          <p className="mt-6 text-sm">
+            <Link href="/promise" className="text-paper underline underline-offset-4 hover:text-white">
+              Or read the nine promises, dated and never edited
+            </Link>
           </p>
         </div>
       </section>

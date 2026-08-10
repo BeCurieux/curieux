@@ -11,6 +11,8 @@ import {
   LIVES_FOR_DAYS, LONGEST_CONTRIBUTION, LONGEST_NAME, MOST_CONTRIBUTIONS,
   TOKEN_SHAPE, accept, expiresAtFrom, newToken, reachable, sayWhy,
 } from "@/lib/share/policy";
+import { BASE, OFF_LIMITS } from "@/app/robots";
+import sitemap, { PUBLIC_PAGES } from "@/app/sitemap";
 
 const NOW = "2027-06-01T12:00:00.000Z";
 const live = (patch = {}) => ({
@@ -181,6 +183,32 @@ describe("the page a stranger can reach", () => {
     // has made a family's private story public permanently, and there is no
     // version of "we noticed and took it down" that undoes it.
     expect(robots).toContain('"/m/"');
+  });
+
+  it("is not in the sitemap, and neither is anything else private", () => {
+    // robots.txt advertised /sitemap.xml for weeks before one existed. Now
+    // that it does, it is a machine telling every crawler in the world
+    // where to look — so the two files read from one list, and this checks
+    // they cannot disagree.
+    for (const path of PUBLIC_PAGES) {
+      expect(OFF_LIMITS.some((b) => path.startsWith(b)), path).toBe(false);
+    }
+    expect(sitemap().map((e) => e.url)).not.toContain(`${BASE}/m/`);
+  });
+
+  it("lists nothing behind a login", () => {
+    // Enumerated deliberately rather than generated from the route tree. A
+    // generator would publish /subjects/[subjectId] the day somebody made
+    // it statically renderable.
+    // Comments stripped, or the sentence explaining the rule breaks it —
+    // the same trap the storage guard and the asking test both fell into.
+    const source = readFileSync(new URL("../src/app/sitemap.ts", import.meta.url), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "");
+    expect(source).not.toMatch(/readdir|glob|walk/i);
+    for (const url of sitemap().map((e) => e.url)) {
+      expect(url, url).not.toMatch(/\/(subjects|books|family|settings|listen|invite|home|api)\b/);
+    }
   });
 
   it("puts no child's name in the page title", () => {

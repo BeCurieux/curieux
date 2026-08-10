@@ -7,7 +7,7 @@
 // years. Most of these tests are about staying quiet.
 
 import { readFileSync } from "node:fs";
-import { dateList, dateRange } from "@/lib/words";
+import { dateList, dateRange, fullDate } from "@/lib/words";
 import { describe, expect, it } from "vitest";
 import {
   discoveries, hasClockTimes, looksFake, type Shot,
@@ -321,6 +321,14 @@ describe("one date format per line", () => {
     // needs the year, or it reads as this one.
     const said = dateList(["2025-03-01", "2025-05-17"], new Date("2026-06-01"));
     expect(said).toEqual(["1 March 2025", "17 May 2025"]);
+  });
+
+  it("keeps the year on a date meant to be read back later", () => {
+    // The promise page rendered "Promised 10 August" — a commitment with no
+    // date on it the moment the year turns. friendlyDate is right for a
+    // child's year and wrong for a document.
+    expect(fullDate("2026-08-10")).toBe("10 August 2026");
+    expect(fullDate(null)).toBe("");
   });
 
   it("keeps the places of anything undated", () => {

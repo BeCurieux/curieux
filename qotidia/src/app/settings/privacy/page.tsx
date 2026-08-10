@@ -15,6 +15,7 @@ import {
 import { membersOfFamily, memberLabel, roleInFamily } from "@/lib/family/membership";
 import { canEdit, canManageAccess } from "@/lib/family/roles";
 import { ACTIVITY_PHRASE, type ActivityKind } from "@/lib/privacy/activity";
+import { SUPPORT_ACCESS_HOURS } from "@/lib/family/support";
 import { DELETION_TERMS } from "@/lib/privacy/erase";
 import { friendlyDate } from "@/lib/words";
 
@@ -83,7 +84,7 @@ export default async function PrivacyPage({
         What you keep here belongs to your family. This page is how you check
         that &mdash; who has looked, what we hold, and how to take it back or
         destroy it.{" "}
-        <Link href="/privacy" className="text-ochre">How we keep your family private</Link>
+        <Link href="/privacy" className="text-ochre">How we keep your family private</Link>{" \u00b7 "}<Link href="/promise" className="text-ochre">The nine promises</Link>
       </p>
 
       {/* Sits at the top rather than buried: it is the one thing on this page
@@ -198,7 +199,7 @@ export default async function PrivacyPage({
             <form action={grantSupportAccess} className="mt-4 flex flex-wrap gap-2">
               <input type="hidden" name="family_id" value={familyId} />
               <input className="input flex-1" name="reason" placeholder="What do you need help with?" />
-              <button className="btn-secondary !px-5">Allow for 48 hours</button>
+              <button className="btn-secondary !px-5">Allow for {SUPPORT_ACCESS_HOURS} hours</button>
             </form>
           )}
         </section>
