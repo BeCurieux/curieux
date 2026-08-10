@@ -309,6 +309,131 @@ select harness_expect('deleting a memory releases its files too',
 select harness_expect('one family''s uploads never touch another''s total',
   (select storage_bytes::int from families where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 0);
 
+-- ==================================================== keeping it after a death
+--
+-- Succession moves control of an entire archive, so the questions here are
+-- not "does it work" but "what can somebody else make it do". The one that
+-- matters most is the last: a stranger must not be able to see, or start,
+-- anything about a family they were never named in.
+
+reset role;
+
+insert into family_keepers (id, family_id, email, user_id, relationship, named_by)
+values ('c0ffee00-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
+        'gran@wilsons.test', '22222222-2222-2222-2222-222222222222', 'her grandmother',
+        '11111111-1111-1111-1111-111111111111');
+
+insert into succession_claims (id, family_id, keeper_id, opening, keeper_email, decides_at)
+values ('c1a10000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
+        'c0ffee00-0000-0000-0000-000000000001', 'claimed', 'gran@wilsons.test',
+        now() + interval '30 days');
+
+set role authenticated;
+
+select harness_become('11111111-1111-1111-1111-111111111111');
+select harness_expect('the owner sees who would keep the archive',
+  (select count(*)::int from family_keepers), 1);
+select harness_expect('and sees that somebody has asked for it',
+  (select count(*)::int from succession_claims), 1);
+
+-- The keeper is not a member of this family, and still has to be able to
+-- watch the thing they started. A process you cannot see is one you cannot
+-- trust, and the alternative is answering it over email.
+select harness_become('22222222-2222-2222-2222-222222222222');
+select harness_expect('the keeper can see the request they made',
+  (select count(*)::int from succession_claims), 1);
+
+-- The other family. Not a member, not named, no business here at all.
+select harness_become('33333333-3333-3333-3333-333333333333');
+select harness_expect('a stranger sees no keeper',
+  (select count(*)::int from family_keepers), 0);
+select harness_expect('and no claim',
+  (select count(*)::int from succession_claims), 0);
+
+-- Nobody writes a claim from a browser. Opening one has to check things no
+-- policy can express — how long ago the keeper was named, whether one is
+-- already open — so the table refuses writes outright and the server does
+-- it with the service role.
+do $$
+begin
+  begin
+    insert into succession_claims (family_id, opening, keeper_email, decides_at)
+    values ('bbbbbbbb-0000-0000-0000-000000000002', 'claimed', 'someone@else.test', now());
+    raise exception 'FAILED: a claim could be written directly from a session';
+  exception
+    when insufficient_privilege or check_violation then
+      raise notice 'ok   a claim cannot be opened from a browser';
+  end;
+end $$;
+
+-- And an owner cannot quietly settle one in their own favour by editing the
+-- row — refusing goes through the server too, so it gets logged.
+select harness_become('11111111-1111-1111-1111-111111111111');
+do $$
+declare changed int;
+begin
+  update succession_claims set status = 'refused' where status = 'notice';
+  get diagnostics changed = row_count;
+  if changed <> 0 then
+    raise exception 'FAILED: a claim was settled by updating the row directly';
+  end if;
+  raise notice 'ok   a claim cannot be settled by editing it';
+end $$;
+
+-- ------------------------------------------------------------- the handover
+
+reset role;
+
+-- Before: the mother owns it, the grandmother contributes.
+select harness_expect('before the handover, the owner is the owner',
+  (select role::text from family_memberships
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001'
+      and user_id = '11111111-1111-1111-1111-111111111111'), 'owner');
+
+select hand_over_family('aaaaaaaa-0000-0000-0000-000000000001',
+                        '22222222-2222-2222-2222-222222222222');
+
+select harness_expect('the keeper becomes the owner',
+  (select role::text from family_memberships
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001'
+      and user_id = '22222222-2222-2222-2222-222222222222'), 'owner');
+
+-- The person who died is not erased. Their memberships, and their name on
+-- everything they wrote, stay exactly where they are.
+select harness_expect('and the previous owner is kept, not removed',
+  (select role::text from family_memberships
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001'
+      and user_id = '11111111-1111-1111-1111-111111111111'), 'editor');
+
+select harness_expect('nothing they wrote changed hands',
+  (select count(*)::int from memories
+    where created_by = '11111111-1111-1111-1111-111111111111'), 2);
+
+select harness_expect('and the family points at its new owner',
+  (select owner_user_id from families where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
+  '22222222-2222-2222-2222-222222222222'::uuid);
+
+-- Running it again must be a no-op rather than an error: the sweep that
+-- calls this can be retried, and a job that fails on its second attempt is
+-- a job that pages somebody at 3am over nothing.
+do $$
+begin
+  perform hand_over_family('aaaaaaaa-0000-0000-0000-000000000001',
+                           '22222222-2222-2222-2222-222222222222');
+  raise notice 'ok   handing over twice is not an error';
+end $$;
+
+-- And it reverses, which is the whole reason nothing is deleted. A handover
+-- that should not have happened is undone by running it the other way.
+select hand_over_family('aaaaaaaa-0000-0000-0000-000000000001',
+                        '11111111-1111-1111-1111-111111111111');
+select harness_expect('a handover made in error can be undone',
+  (select owner_user_id from families where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
+  '11111111-1111-1111-1111-111111111111'::uuid);
+select harness_expect('and there is still exactly one owner',
+  (select count(*)::int from family_memberships
+    where family_id = 'aaaaaaaa-0000-0000-0000-000000000001' and role = 'owner'), 1);
+
 -- ================================================== who the archive asks about
 --
 -- Every policy above learns who is making the request from one function, so
