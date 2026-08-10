@@ -21,10 +21,9 @@ import { countStoryMemories, countUnfiled, recentStoryMemories } from "@/lib/mem
 import { countUntagged } from "@/lib/memories/who";
 import { todayIso } from "@/lib/time";
 import { loadEntities } from "@/lib/graph/extract";
-import { oneToAsk } from "@/lib/graph/identity";
 import { settledFor } from "@/lib/graph/identity-store";
-import { contextQuestions } from "@/lib/graph/context";
-import { settledContext } from "@/lib/graph/context-store";
+import { knownContext, settledContext } from "@/lib/graph/context-store";
+import { whatToAsk } from "@/lib/home/asking";
 
 export const dynamic = "force-dynamic";
 
@@ -132,13 +131,28 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
   // link at all — and a question nobody is offered is a question nobody
   // answers.
   const entities = await loadEntities(db, child.id);
-  const identitySettled = await settledFor(db, child.family_id);
-  const somebodyToAskAbout = Boolean(oneToAsk({ entities, settled: identitySettled }));
-  const thingsToAskAbout = contextQuestions(
+  const asks = whatToAsk({
+    subjectId: child.id,
     entities,
-    todayIso(),
-    await settledContext(db, child.family_id)
-  ).length;
+    today: todayIso(),
+    settledContext: await settledContext(db, child.family_id),
+    settledIdentity: await settledFor(db, child.family_id),
+    prompt,
+    followUps: questionCount ?? 0,
+  });
+
+  // The people this year has in it, most-present first. Read from the graph
+  // rather than from the family list, because the graph knows who actually
+  // turns up — a membership row is an intention and a mention is a fact.
+  const people = entities
+    .filter((e) => e.kind === "person")
+    .sort((a, b) => b.mentions.length - a.mentions.length)
+    .slice(0, 8);
+
+  // What the family has explained about their own archive. The only place in
+  // the product that shows the thing they are actually building: not
+  // photographs, but what the photographs were of.
+  const told = (await knownContext(db, child.family_id)).slice(0, 3);
 
   const recentPhotoIds = (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id);
   const recentPhotos = await resolvePhotoUrls(db, recentPhotoIds);
@@ -149,9 +163,14 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
 
   return (
     <div className="py-10">
+      {/* ------------------------------------------------------------ who */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl">{child.display_name}</h1>
+          {/* Not a count. "You've kept 63 things" is a progress bar with the
+              numbers spelled out, and this is not a productivity product —
+              a parent should not be able to be behind on their child's
+              childhood. */}
           <p className="mt-1 text-stone">
             {kept === 0 ? (
               <>
@@ -161,7 +180,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
             ) : (
               <>
                 The year {subject} {yearVerb} {yearWord(yearNumber).toLowerCase()} &middot;
-                you&rsquo;ve kept {countOf(kept, "thing")} of it so far
+                taking shape
               </>
             )}
           </p>
@@ -172,7 +191,7 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
               ? "Read it through"
               : book.status === "print_ready" || book.status === "approved"
                 ? "Ready to print"
-                : `${first}’s book`}
+                : `${first}\u2019s book`}
           </Link>
         ) : (
           <Link href="/books/new" className="btn">
@@ -181,93 +200,123 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
         )}
       </div>
 
-      {/* Above everything that asks the parent to do something. This is the
-          only part of the page that gives without wanting, and it is the
-          reason to open the app on the days when there is no book to make. */}
-      <div className="mt-8 space-y-4">
+      {/* ------------------------------------------------------- I noticed
+          The top of the page, and the only part of it that gives without
+          wanting. It used to sit in a beige panel identical to the seven
+          below it, which made the one genuinely alive thing on the screen
+          look like another module. Now it is the page's opening sentence. */}
+      <div className="mt-12">
         <Weekly note={weekly} subjectId={child.id} />
+      </div>
+
+      <div className="mt-8">
         <LookBackPanel look={look} subjectId={child.id} first={first} />
       </div>
 
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
-        <Link href={`/subjects/${child.id}/upload`} className="card hover:border-clay">
-          <h2 className="text-lg">Add to {first}&rsquo;s year</h2>
-          <p className="mt-1 text-sm text-stone">
-            Photos, something {subject} said, a day you don&rsquo;t want to lose.
-          </p>
-        </Link>
-        <Link href={`/subjects/${child.id}/little-things`} className="card hover:border-clay">
-          <h2 className="text-lg">The little things</h2>
-          <p className="mt-1 text-sm text-stone">
-            {littleThings && littleThings.length > 0
-              ? littleThings.map((lt) => lt.value).join(" · ")
-              : `Right now — what ${verb} ${subject} obsessed with?`}
-          </p>
-        </Link>
-        <Link href={`/subjects/${child.id}/questions`} className="card hover:border-clay">
-          <h2 className="text-lg">
-            {questionCount
-              ? <>We wondered {countOf(questionCount, "thing")}</>
-              : <>Nothing to ask, yet</>}
+      {/* --------------------------------------------- worth answering
+          One list, three at most, from every source that has a question.
+          There were four separate places asking for something; a parent
+          cannot tell the difference between four thoughtful questions and
+          a queue, and a queue is homework. */}
+      {asks.length > 0 && (
+        <section className="mt-14 border-t border-rule pt-8">
+          <h2 className="text-xs uppercase tracking-[0.18em] text-clay">
+            {asks.length === 1 ? "Worth answering" : "Worth answering"}
           </h2>
-          <p className="mt-1 text-sm text-stone">
-            {questionCount
-              ? `Only what ${first}’s photos couldn’t tell us.`
-              : "When the photos leave something out, we'll ask you here."}
-          </p>
-        </Link>
-      </div>
+          <ul className="mt-5 space-y-6">
+            {asks.map((ask) => (
+              <li key={ask.id}>
+                <Link href={ask.href} className="group block">
+                  {ask.because && (
+                    <p className="max-w-[54ch] text-sm leading-relaxed text-stone">
+                      {ask.because}
+                    </p>
+                  )}
+                  <p className="mt-1 max-w-[46ch] font-display text-xl leading-snug group-hover:text-ochre">
+                    {ask.question}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-      {/* Two lines rather than two more cards. The grid above is the four
-          things to do; these are the two things to look at, and a page where
-          everything is a card is a page with no hierarchy at all. */}
-      <p className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-        <Link href={`/subjects/${child.id}/so-far`} className="text-ochre hover:underline">
-          See the book so far
-        </Link>
-        <Link href={`/subjects/${child.id}/tag`} className="text-ochre hover:underline">
-          {untagged > 0
-            ? `Say who's in ${countOf(untagged, "thing")}`
-            : "Say who's in things"}
-        </Link>
-        <Link href={`/subjects/${child.id}/inbox`} className="text-ochre hover:underline">
-          {waitingToFile > 0
-            ? `${countOf(waitingToFile, "thing")} we couldn’t place`
-            : `Send things in without opening this`}
-        </Link>
-        {/* Only shown when there is something to ask. A permanent link to an
-            empty question page teaches people it is always empty. */}
-        {somebodyToAskAbout && (
-          <Link href={`/subjects/${child.id}/who`} className="text-ochre hover:underline">
-            Two names we can&rsquo;t place
+      {/* ------------------------------------------------------- the input
+          One primary action rather than a row of three equal cards. Adding
+          is the only thing on this page the product actually needs. */}
+      <section className="mt-14 border-t border-rule pt-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl">Add to {first}&rsquo;s year</h2>
+            <p className="mt-1 max-w-[46ch] text-sm leading-relaxed text-stone">
+              Photos, something {subject} said, a day you don&rsquo;t want to lose.
+            </p>
+          </div>
+          <Link href={`/subjects/${child.id}/upload`} className="btn">
+            Add something
           </Link>
-        )}
-        {thingsToAskAbout > 0 && (
-          <Link href={`/subjects/${child.id}/about`} className="text-ochre hover:underline">
-            {thingsToAskAbout === 1
-              ? "One thing we can\u2019t explain"
-              : `${countOf(thingsToAskAbout, "thing")} we can\u2019t explain`}
-          </Link>
-        )}
-      </p>
+        </div>
 
-      {prompt && (
-        <Link
-          href={`/subjects/${child.id}/upload`}
-          className="card mt-10 block hover:border-clay"
-        >
-          <p className="text-xs uppercase tracking-[0.18em] text-ochre">A small question</p>
-          <p className="mt-2 max-w-[46ch] font-display text-xl leading-snug">
-            {prompt.question}
+        {littleThings && littleThings.length > 0 && (
+          <p className="mt-6 max-w-[60ch] text-sm leading-relaxed text-stone">
+            <Link href={`/subjects/${child.id}/little-things`} className="text-ochre">
+              Right now
+            </Link>{" "}
+            &middot; {littleThings.map((lt) => lt.value).join(" \u00b7 ")}
           </p>
-          {/* Why this one, so it reads as somebody having looked rather than
-              a reminder on a timer. */}
-          <p className="mt-2 max-w-[48ch] text-sm text-stone">{prompt.because}</p>
-        </Link>
+        )}
+      </section>
+
+      {/* ------------------------------------------------- the people in it
+          From the graph rather than the family list, because a membership
+          row is an intention and a mention is a fact. */}
+      {people.length > 0 && (
+        <section className="mt-14 border-t border-rule pt-8">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-display text-2xl">Who&rsquo;s in it</h2>
+            <Link href={`/subjects/${child.id}/tag`} className="text-sm text-ochre">
+              {untagged > 0 ? `Say who\u2019s in ${countOf(untagged, "thing")}` : "Say who's in things"}
+            </Link>
+          </div>
+          <ul className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
+            {people.map((person) => (
+              <li key={person.id}>
+                <span className="font-display text-lg">{person.label}</span>{" "}
+                <span className="text-sm text-stone">
+                  {countOf(person.mentions.length, "time")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ------------------------------------------------ what you've told us
+          The compounding asset, made visible. Nothing else in the product
+          shows a family what they are actually building — which is not the
+          photographs, it is what the photographs were of. */}
+      {told.length > 0 && (
+        <section className="mt-14 border-t border-rule pt-8">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-display text-2xl">What you&rsquo;ve told us</h2>
+            <Link href={`/subjects/${child.id}/about`} className="text-sm text-ochre">
+              All of it
+            </Link>
+          </div>
+          <ul className="mt-5 space-y-5">
+            {told.map((t) => (
+              <li key={`${t.entityKey}-${t.wondering}`} className="max-w-[54ch]">
+                <p className="text-sm leading-relaxed text-stone">{t.because}</p>
+                <p className="mt-1 font-display text-lg leading-snug">{t.answer}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {clusters && clusters.length > 0 && (
-        <section className="mt-10">
+        <section className="mt-14 border-t border-rule pt-8">
           <div className="flex items-center justify-between">
             <h2 className="text-xl">Things that keep coming up</h2>
             <Link href={`/subjects/${child.id}/clusters`} className="text-sm text-ochre">See them all</Link>
@@ -287,9 +336,9 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
 
       {/* Their own shelf. The years already made are in their colours; the
           ones still to come are drawn as the space they will take. */}
-      <section className="mt-12">
+      <section className="mt-14 border-t border-rule pt-8">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xl">{first}&rsquo;s shelf</h2>
+          <h2 className="font-display text-2xl">{first}&rsquo;s shelf</h2>
           <span className="text-sm text-stone">
             {countOf(yearNumber, "volume")} of eighteen
           </span>
@@ -366,9 +415,9 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
         </Link>
       )}
 
-      <section className="mt-12">
+      <section className="mt-14 border-t border-rule pt-8">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xl">Lately</h2>
+          <h2 className="font-display text-2xl">Lately</h2>
           <Link href={`/subjects/${child.id}/years`} className="text-sm text-ochre">
             All of {first}&rsquo;s years
           </Link>

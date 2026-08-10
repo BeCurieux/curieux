@@ -16,14 +16,27 @@ export function Weekly({ note, subjectId }: { note: ShownNote; subjectId: string
   if (!note.worthShowing) return null;
   const { shownIds } = note;
 
+  // No box. This was a beige panel identical to the seven below it, which
+  // made the one genuinely alive thing on the screen read as another module.
+  // It is now the page's opening statement: the first observation is set at
+  // display size, and the ones after it step down — because the note is
+  // ranked, and rendering three equal lines throws that ranking away.
   return (
-    <section className="card !p-6">
-      <p className="text-xs uppercase tracking-[0.18em] text-clay">This week</p>
+    <section>
+      <p className="text-xs uppercase tracking-[0.18em] text-clay">I noticed</p>
 
-      <ul className="mt-4 space-y-4">
+      <ul className="mt-5 space-y-7">
         {note.observations.map((o, i) => (
-          <li key={o.entityId} className="border-b border-rule/60 pb-4 last:border-0 last:pb-0">
-            <p className="font-display text-lg leading-snug">{o.line}</p>
+          <li key={o.entityId}>
+            <p
+              className={
+                i === 0
+                  ? "max-w-[22ch] font-display text-4xl leading-[1.15] md:max-w-[24ch] md:text-5xl"
+                  : "max-w-[40ch] font-display text-xl leading-snug"
+              }
+            >
+              {o.line}
+            </p>
 
             {/* Three answers, all one tap, none of them dismissive of the
                 others. "Ignore" is offered as plainly as "keep" — a product
