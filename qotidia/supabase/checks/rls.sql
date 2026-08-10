@@ -9,18 +9,20 @@
 -- after any change to the schema. It lists only what is wrong, so a short
 -- answer is a good answer.
 --
--- Expect exactly two rows:
+-- Expect exactly three rows:
 --
+--     ai_calls         | on | 0
 --     analytics_events | on | 0
 --     jobs             | on | 0
 --
--- Both are correct and deliberate, and for the same reason. The jobs table
--- is the background queue and analytics_events is usage measurement; both
--- are touched only by the service role, which bypasses row-level security
--- entirely, so both have protection switched on and no policies at all — the
--- effect is that nothing reachable from a browser can see either. Zero
--- policies is listed here rather than hidden because on any *other* table it
--- would mean the opposite: locked so tight the feature is quietly broken.
+-- All three are correct and deliberate, and for the same reason. jobs is the
+-- background queue, analytics_events is usage measurement and ai_calls is
+-- what the model cost; all three are touched only by the service role, which
+-- bypasses row-level security entirely, so all three have protection
+-- switched on and no policies at all — the effect is that nothing reachable
+-- from a browser can see any of them. Zero policies is listed here rather
+-- than hidden because on any *other* table it would mean the opposite:
+-- locked so tight the feature is quietly broken.
 --
 -- analytics_events has no policy for families either. There is nothing in it
 -- about any particular family to show them, and a policy that returned rows

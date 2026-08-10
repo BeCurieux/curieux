@@ -3,6 +3,7 @@
 // same end state and never duplicates print orders or payments.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { meter } from "@/lib/ai/meter";
 import { getAIProvider } from "@/lib/ai/provider";
 import { getPrintProvider } from "@/lib/print/provider";
 import { enqueue, type Job } from "./queue";
@@ -256,10 +257,15 @@ async function analyseMemories(db: SupabaseClient, payload: Record<string, unkno
     .select("*")
     .eq("family_id", subject!.family_id);
 
-  const analyses = await getAIProvider().analyseMemories({
-    memories: pending,
-    familyMembers: members ?? [],
-  });
+  const analyses = await meter(
+    db,
+    { familyId: subject!.family_id, kind: "analyse" },
+    () =>
+      getAIProvider().analyseMemories({
+        memories: pending,
+        familyMembers: members ?? [],
+      })
+  );
 
   for (const analysis of analyses) {
     const memory = pending.find((m) => m.id === analysis.memory_id);
@@ -281,10 +287,18 @@ async function analyseMemories(db: SupabaseClient, payload: Record<string, unkno
   await enqueue(db, "cluster_memories", { subject_id: subjectId }, `cluster-${subjectId}-${Date.now()}`);
 }
 
+/** The family a subject belongs to. Needed so a model call can be costed. */
+async function familyOfSubject(db: SupabaseClient, subjectId: string): Promise<string | null> {
+  const { data } = await db.from("subjects").select("family_id").eq("id", subjectId).maybeSingle();
+  return (data as any)?.family_id ?? null;
+}
+
 async function clusterMemories(db: SupabaseClient, payload: Record<string, unknown>) {
   const subjectId = payload.subject_id as string;
   const memories = await loadMemories(db, subjectId);
-  const suggestions = await getAIProvider().clusterMemories(memories);
+  const suggestions = await meter(db, { familyId: await familyOfSubject(db, subjectId), kind: "cluster" }, () =>
+    getAIProvider().clusterMemories(memories)
+  );
 
   const { data: existing } = await db
     .from("memory_clusters")
@@ -333,7 +347,9 @@ async function generateQuestions(db: SupabaseClient, payload: Record<string, unk
     .select("*")
     .eq("subject_id", subjectId);
 
-  const questions = await getAIProvider().generateQuestions(memories, clusters, existing ?? []);
+  const questions = await meter(db, { familyId: await familyOfSubject(db, subjectId), kind: "questions" }, () =>
+    getAIProvider().generateQuestions(memories, clusters, existing ?? [])
+  );
   const asked = new Set((existing ?? []).map((q: any) => q.question));
   for (const q of questions) {
     if (asked.has(q.question)) continue;
@@ -383,7 +399,16 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
     .eq("subject_id", subjectId)
     .eq("status", "answered");
 
+  // One meter for the whole book, not one per section. Generating a book is
+  // a dozen model calls that only make sense together — costing them as one
+  // job is what makes "what does a book cost us" answerable, and it means
+  // the ceiling is checked once at the start rather than a section at a
+  // time, which would stop halfway and leave a half-drafted book.
   const ai = getAIProvider();
+  const { structure, sectionBlocks } = await meter(
+    db,
+    { familyId: await familyOfSubject(db, subjectId), kind: "structure" },
+    async () => {
   const structure = await ai.generateBookStructure({
     subject,
     yearNumber: book.year_number,
@@ -417,6 +442,9 @@ async function generateBook(db: SupabaseClient, payload: Record<string, unknown>
       })
     );
   }
+      return { structure, sectionBlocks };
+    }
+  );
 
   // Photo assets for pagination. Gated: a photograph that has not been read
   // server-side and found to be what it claimed must not be laid out, let
@@ -530,6 +558,7 @@ async function notifyDigest(db: SupabaseClient, payload: Record<string, unknown>
   // indexed delete, and if it fails the digest still goes out.
   try {
     await db.rpc("purge_old_analytics");
+    await db.rpc("purge_old_ai_calls");
   } catch {
     // Never let housekeeping stop a family being told what is waiting.
   }

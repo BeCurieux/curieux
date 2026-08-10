@@ -9,6 +9,7 @@ import type {
 } from "@/lib/types";
 import type { AIProvider, AnalyseMemoriesInput, DraftCopyInput } from "./provider";
 import { MAX_QUESTIONS_PER_BOOK } from "./provider";
+import { spend } from "./meter";
 import { ANALYSIS_SYSTEM, EDITORIAL_SYSTEM, QUESTIONS_SYSTEM, clusterPrompt, copyPrompt } from "./prompts";
 import { enforceProvenance } from "@/lib/book/provenance";
 import { enforceEditorial } from "@/lib/editorial";
@@ -23,6 +24,14 @@ export class AnthropicProvider implements AIProvider {
     this.model = process.env.AI_MODEL ?? "claude-sonnet-5";
   }
 
+  /**
+   * The one place this adapter talks to a model.
+   *
+   * Every method below funnels through here, which is why the token
+   * accounting lives here rather than at six call sites. spend() throws if
+   * there is no meter open, so an unmetered call fails on its first line
+   * instead of turning up as an unexplained invoice — see lib/ai/meter.ts.
+   */
   private async json<T>(system: string, prompt: string): Promise<T> {
     const res = await this.client.messages.create({
       model: this.model,
@@ -30,6 +39,9 @@ export class AnthropicProvider implements AIProvider {
       system,
       messages: [{ role: "user", content: prompt }],
     });
+    // Tokens only. Not the prompt, not the reply — a cost log that kept
+    // those would be a second copy of the archive, held for accounting.
+    spend(this.model, res.usage?.input_tokens ?? 0, res.usage?.output_tokens ?? 0);
     const text = res.content
       .filter((b): b is Anthropic.TextBlock => b.type === "text")
       .map((b) => b.text)

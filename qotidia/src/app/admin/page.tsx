@@ -46,6 +46,8 @@ export default async function AdminPage() {
       <p className="mt-8 text-sm">
         <Link href="/admin/funnel" className="text-ochre">Is it working</Link>
         {" \u00b7 "}
+        <Link href="/admin/spend" className="text-ochre">What the model costs</Link>
+        {" \u00b7 "}
         <Link href="/admin/support" className="text-ochre">
           Families who have asked us to look
         </Link>
