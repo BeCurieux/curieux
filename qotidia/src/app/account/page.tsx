@@ -63,6 +63,12 @@ export default async function AccountPage() {
       </div>
 
       <p className="mt-8 text-center text-sm text-stone">
+        {/* A stuck person looks here before they look anywhere else, and
+            until now this page offered them a privacy explainer. */}
+        <Link href="/help" className="text-ochre">
+          Something wrong? A person answers
+        </Link>
+        {" \u00b7 "}
         <Link href="/privacy" className="text-ochre">
           How we keep your family private
         </Link>

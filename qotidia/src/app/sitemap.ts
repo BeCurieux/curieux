@@ -17,7 +17,7 @@ import type { MetadataRoute } from "next";
 import { BASE, OFF_LIMITS } from "./robots";
 
 /** Public pages, in rough order of how much we want them found. */
-export const PUBLIC_PAGES = ["/", "/promise", "/privacy", "/pricing"] as const;
+export const PUBLIC_PAGES = ["/", "/promise", "/privacy", "/pricing", "/help"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return PUBLIC_PAGES.filter(

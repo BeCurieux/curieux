@@ -21,6 +21,7 @@ import { BRAND } from "@/lib/brand";
 import { AS_AT, HISTORY, STATUTORY, UNDERTAKINGS } from "@/lib/trust/promise";
 import { fullDate } from "@/lib/words";
 import { FROM } from "@/lib/email/provider";
+import { signedBy } from "@/lib/trust/founder";
 
 export const metadata = {
   title: `The ${BRAND} Privacy Promise`,
@@ -140,10 +141,14 @@ export default function PromisePage() {
           invented for this page. A promise signed with a mailbox nobody
           reads is the cheapest kind of promise there is. */}
       <p className="mt-16 border-t border-rule pt-8 text-sm text-stone">
-        Written by the person who built this, and answerable for it.{" "}
+        Written by {signedBy()}, and answerable for it.{" "}
         <a href={`mailto:${FROM.address}`} className="text-ochre">
           {FROM.address}
         </a>
+        {" \u00b7 "}
+        <Link href="/help" className="text-ochre">
+          What happens when you write
+        </Link>
       </p>
     </div>
   );
