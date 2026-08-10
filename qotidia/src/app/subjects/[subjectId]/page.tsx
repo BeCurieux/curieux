@@ -19,6 +19,12 @@ import { canEdit, canModerate } from "@/lib/family/roles";
 import { bestPrompt } from "@/lib/prompts/engine";
 import { countStoryMemories, countUnfiled, recentStoryMemories } from "@/lib/memories/scope";
 import { countUntagged } from "@/lib/memories/who";
+import { todayIso } from "@/lib/time";
+import { loadEntities } from "@/lib/graph/extract";
+import { oneToAsk } from "@/lib/graph/identity";
+import { settledFor } from "@/lib/graph/identity-store";
+import { contextQuestions } from "@/lib/graph/context";
+import { settledContext } from "@/lib/graph/context-store";
 
 export const dynamic = "force-dynamic";
 
@@ -121,6 +127,19 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
     write: canEdit(role) ? adminClient() : null,
   });
 
+  // What the archive can see and cannot explain. Both of these pages were
+  // reachable only by typing the URL until now — /who shipped with no inbound
+  // link at all — and a question nobody is offered is a question nobody
+  // answers.
+  const entities = await loadEntities(db, child.id);
+  const identitySettled = await settledFor(db, child.family_id);
+  const somebodyToAskAbout = Boolean(oneToAsk({ entities, settled: identitySettled }));
+  const thingsToAskAbout = contextQuestions(
+    entities,
+    todayIso(),
+    await settledContext(db, child.family_id)
+  ).length;
+
   const recentPhotoIds = (recent ?? []).filter((m) => m.type === "photo").map((m) => m.id);
   const recentPhotos = await resolvePhotoUrls(db, recentPhotoIds);
   // Photographs are withheld until they have been read server-side. That is
@@ -216,6 +235,20 @@ export default async function ChildDashboard({ params }: { params: { subjectId: 
             ? `${countOf(waitingToFile, "thing")} we couldn’t place`
             : `Send things in without opening this`}
         </Link>
+        {/* Only shown when there is something to ask. A permanent link to an
+            empty question page teaches people it is always empty. */}
+        {somebodyToAskAbout && (
+          <Link href={`/subjects/${child.id}/who`} className="text-ochre hover:underline">
+            Two names we can&rsquo;t place
+          </Link>
+        )}
+        {thingsToAskAbout > 0 && (
+          <Link href={`/subjects/${child.id}/about`} className="text-ochre hover:underline">
+            {thingsToAskAbout === 1
+              ? "One thing we can\u2019t explain"
+              : `${countOf(thingsToAskAbout, "thing")} we can\u2019t explain`}
+          </Link>
+        )}
       </p>
 
       {prompt && (

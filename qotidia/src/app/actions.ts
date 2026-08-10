@@ -42,6 +42,8 @@ import { getObjectStore, TTL } from "@/lib/storage/provider";
 import { keeperNamed as keeperNamedEmail } from "@/lib/email/messages";
 import { SETTLING_DAYS, mayClaim } from "@/lib/succession/policy";
 import { openClaim } from "@/lib/succession/run";
+import { recordContext } from "@/lib/graph/context-store";
+import type { Wondering } from "@/lib/graph/context";
 
 
 /**
@@ -2141,4 +2143,52 @@ export async function refuseClaim(formData: FormData) {
 
   revalidatePath("/settings/succession");
   redirect("/settings/succession?stopped=1");
+}
+
+
+/**
+ * What the family said about a thing.
+ *
+ * The most valuable write in the product. Everything else here can be
+ * reconstructed from photographs; this cannot be reconstructed from
+ * anything, because it only exists in somebody's head and it is going.
+ *
+ * The `because` is stored alongside the answer on purpose. "It just stopped"
+ * is uninterpretable in five years without the sentence it was answering.
+ */
+export async function answerAboutThing(formData: FormData) {
+  const user = await requireUser();
+  const db = userClient();
+  const subjectId = String(formData.get("subject_id"));
+  const familyId = String(formData.get("family_id"));
+  const entityKey = String(formData.get("entity_key"));
+  const wondering = String(formData.get("wondering")) as Wondering;
+  const because = String(formData.get("because") ?? "") || null;
+
+  const membership = await roleForSubject(db, subjectId, user.id);
+  if (!membership) throw new Error("not a member of this family");
+
+  // A skip is a real answer and is stored as one. Re-asking something
+  // somebody declined is worse than never asking.
+  const skipped = String(formData.get("intent")) === "skip";
+  const answer = skipped ? null : String(formData.get("answer") ?? "").trim();
+
+  // An empty box submitted with "Keep this" is a slip, not a decline —
+  // silencing the question on it would be the wrong reading of a blank.
+  if (!skipped && !answer) {
+    revalidatePath(`/subjects/${subjectId}/about`);
+    return;
+  }
+
+  await recordContext(db, {
+    familyId,
+    entityKey,
+    wondering,
+    answer: skipped ? null : answer,
+    because,
+    userId: user.id,
+  });
+
+  revalidatePath(`/subjects/${subjectId}/about`);
+  revalidatePath(`/subjects/${subjectId}`);
 }
