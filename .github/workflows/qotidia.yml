@@ -63,6 +63,13 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # `--max-warnings=0` lives in the npm script, so a warning fails the run
+      # rather than joining a pile nobody reads. That only stays honest while
+      # rules are switched off deliberately — see .eslintrc.json, where the
+      # one exception is argued rather than merely silenced.
+      - name: Lint
+        run: npm run lint
+
       # Cheap, and catches the one kind of damage that is otherwise invisible:
       # a font file mangled by a checkout that guessed wrong about line endings.
       - name: Fonts intact

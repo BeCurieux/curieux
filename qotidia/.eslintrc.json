@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "extends": "next/core-web-vitals",
+  "ignorePatterns": [".next/", "node_modules/", "public/", "out/"],
+  "rules": {
+    // Off deliberately, not because it is inconvenient.
+    //
+    // Nearly every image in this product is a private family photograph
+    // served as a signed URL that stops working within minutes. `next/image`
+    // would fetch each one through the Next image optimizer, which writes an
+    // optimized copy into an on-disk cache keyed by URL — putting a decrypted
+    // copy of somebody's child outside the private bucket and outliving the
+    // signature that was supposed to bound its life. The privacy page tells
+    // parents those links expire; an optimizer cache would make that untrue.
+    // It would also mean allow-listing the storage host in `remotePatterns`.
+    //
+    // The handful of static marketing images could use it safely, but the
+    // same components switch between a signed photograph and a placeholder
+    // (`hero.isPhoto ? <img src={hero.src}/> : <img src="/sample/…"/>`), and
+    // one mechanism across both branches is worth more than the optimisation.
+    "@next/next/no-img-element": "off"
+  }
+}
