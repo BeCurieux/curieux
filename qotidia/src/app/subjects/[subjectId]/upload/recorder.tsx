@@ -4,9 +4,19 @@
 // Records in the browser, uploads to the same private bucket as photographs,
 // and stores the parent's own transcription alongside it. The transcript is
 // what gets printed; the recording is what gets heard.
+//
+// This is the only place in the product that asks the browser for anything,
+// and the asking is done carefully — see lib/media/microphone.ts for why a
+// microphone "no" is more expensive here than almost anywhere else. Three
+// things follow from it and are easy to undo by accident:
+//
+//   getUserMedia is called from a tap and never on mount.
+//   The reason is on the page before the browser's dialog, not after it.
+//   A blocked permission gets directions, not a button that cannot work.
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { registerVoiceMemory, uploadTicket } from "@/app/actions";
+import { BEFORE_ASKING, SAYS, currentState, readError, type MicState } from "@/lib/media/microphone";
 
 type Phase = "idle" | "recording" | "review" | "saving" | "saved";
 
@@ -15,16 +25,50 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/**
+ * What a rejection meant, resolved as far as the browser will allow.
+ *
+ * NotAllowedError covers both "closed the dialog" and "told it no,
+ * permanently", and they need opposite advice: one is a button, the other is
+ * directions to a setting. Chrome and Firefox will say which via
+ * permissions.query(); Safari will not, so there the second refusal is taken
+ * as the real one — a parent who genuinely dismissed once gets one extra tap,
+ * which is much cheaper than a blocked parent getting a button that cannot
+ * work.
+ */
+async function settle(err: unknown, asks: number): Promise<MicState> {
+  const guess = readError(err);
+  if (guess !== "blocked") return guess;
+  const known = await currentState();
+  if (known === "blocked") return "blocked";
+  return asks > 1 ? "blocked" : "dismissed";
+}
+
 export function Recorder({ subjectId }: { subjectId: string }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [seconds, setSeconds] = useState(0);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // What the browser already thinks, read without prompting.
+  const [mic, setMic] = useState<MicState>("unasked");
+  /** How many times we have prompted. Tells a closed dialog from a block. */
+  const asksRef = useRef(0);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const blobRef = useRef<Blob | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Read-only. permissions.query() never prompts, which is the whole reason
+  // it is safe to run here: it lets a blocked person see the way back before
+  // they tap a button that would fail silently.
+  useEffect(() => {
+    let live = true;
+    void currentState().then((state) => live && setMic(state));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const stopTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -34,6 +78,7 @@ export function Recorder({ subjectId }: { subjectId: string }) {
   const start = useCallback(async () => {
     setError(null);
     try {
+      asksRef.current += 1;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       chunksRef.current = [];
@@ -50,8 +95,8 @@ export function Recorder({ subjectId }: { subjectId: string }) {
       setSeconds(0);
       setPhase("recording");
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-    } catch {
-      setError("We couldn't reach your microphone. Check the browser's permission and try again.");
+    } catch (err) {
+      setMic(await settle(err, asksRef.current));
     }
   }, []);
 
@@ -118,17 +163,58 @@ export function Recorder({ subjectId }: { subjectId: string }) {
   );
 
   const mmss = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  // Nothing to say while it is working, or before anything has happened.
+  const said = mic === "unasked" || mic === "ready" ? null : SAYS[mic];
 
   return (
     <div className="card">
       {error && <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       {phase === "idle" && (
-        <div className="text-center">
-          <p className="text-sm text-stone">
-            Their voice now — a word they say oddly, a song, a whole conversation.
+        <div>
+          <p className="text-sm">
+            Their voice now &mdash; a word they say oddly, a song, a whole
+            conversation.
           </p>
-          <button onClick={start} className="btn mt-4">Start recording</button>
+
+          {/* Where we stand, and what to do about it. Only ever one of these
+              at a time, and none of them is a dead end. */}
+          {said ? (
+            <div className="mt-3 rounded-xl bg-paper p-4">
+              <p className="max-w-[46ch] text-sm leading-relaxed">{said.what}</p>
+              {said.next && (
+                <p className="mt-1.5 max-w-[46ch] text-sm leading-relaxed text-stone">
+                  {said.next}
+                </p>
+              )}
+            </div>
+          ) : (
+            // The reason, above the browser's dialog rather than after it.
+            // The dialog has room for a hostname; everything a parent needs
+            // in order to say yes has to already have been read.
+            mic !== "ready" && (
+              <p className="mt-3 max-w-[48ch] text-xs leading-relaxed text-stone">
+                {BEFORE_ASKING}
+              </p>
+            )
+          )}
+
+          {(!said || said.retryable) && (
+            <button onClick={start} className="btn mt-4">
+              {asksRef.current > 0 ? "Try the microphone again" : "Start recording"}
+            </button>
+          )}
+
+          {/* Refusing must cost nothing else. Saying so is the difference
+              between a request and a toll gate, and it is true — the quote
+              box above this one takes the same memory in words. */}
+          {said && !said.retryable && (
+            <p className="mt-4 max-w-[48ch] text-xs leading-relaxed text-stone">
+              Everything else on this page still works. If you write down what
+              they said instead, it goes in the book exactly the same way
+              &mdash; only the sound of it is missing.
+            </p>
+          )}
         </div>
       )}
 
