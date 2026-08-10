@@ -23,6 +23,9 @@ on:
     paths:
       - "qotidia/**"
       - ".github/workflows/qotidia.yml"
+  # Lets you run it by hand from the Actions tab, which is the quickest way
+  # to prove it works without pushing a commit to provoke it.
+  workflow_dispatch:
 
 # Read-only. This workflow reports on code; it has no business changing any.
 permissions:
