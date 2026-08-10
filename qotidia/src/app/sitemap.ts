@@ -15,12 +15,15 @@
 
 import type { MetadataRoute } from "next";
 import { BASE, OFF_LIMITS } from "./robots";
+import { published } from "@/lib/journal/entries";
 
 /** Public pages, in rough order of how much we want them found. */
-export const PUBLIC_PAGES = ["/", "/about", "/promise", "/privacy", "/pricing", "/help"] as const;
+export const PUBLIC_PAGES = [
+  "/", "/about", "/promise", "/privacy", "/pricing", "/help", "/journal",
+] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return PUBLIC_PAGES.filter(
+  const fixed = PUBLIC_PAGES.filter(
     // Belt and braces against the two files disagreeing. A page that robots
     // forbids must never appear here, whatever anybody adds above.
     (path) => !OFF_LIMITS.some((blocked) => path.startsWith(blocked))
@@ -29,4 +32,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "monthly" as const,
     priority: path === "/" ? 1 : 0.7,
   }));
+
+  // Journal entries, from the same published() list the index and the feed
+  // read — so a draft cannot be absent from one and announced in another.
+  // lastModified is the real date, never the deploy: a page claiming to have
+  // changed today because it was built today is lying to a search engine and
+  // to a reader in the same breath.
+  const journal = published().map((e) => ({
+    url: `${BASE}/journal/${e.slug}`,
+    lastModified: new Date(e.updated ?? e.published),
+    changeFrequency: "yearly" as const,
+    priority: 0.6,
+  }));
+
+  return [...fixed, ...journal];
 }
