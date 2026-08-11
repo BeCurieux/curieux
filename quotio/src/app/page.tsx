@@ -66,7 +66,7 @@ export default async function HomePage({
           <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-yellow-soft blur-3xl" />
           <div className="pointer-events-none absolute -right-20 top-40 h-80 w-80 rounded-full bg-purple-soft blur-3xl" />
 
-          <div className="relative mx-auto grid max-w-[1240px] gap-12 px-5 pb-16 pt-14 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:items-center lg:gap-10 lg:pb-24 lg:pt-20">
+          <div className="relative mx-auto grid max-w-[1240px] gap-12 px-5 pb-12 pt-14 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:items-center lg:gap-10 lg:pb-14 lg:pt-20">
             <div>
               <span className="badge">
                 <SparkleIcon size={13} />
@@ -124,8 +124,8 @@ export default async function HomePage({
         </section>
 
         {/* ---- The prompt box (§10) -------------------------------- */}
-        <section id="build" className="scroll-mt-20 px-5 py-16">
-          <div className="mx-auto max-w-3xl text-center">
+        <section id="build" className="scroll-mt-20 px-5 pb-16 pt-6">
+          <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-title">What do you want your website to do?</h2>
             <p className="mx-auto mt-3 max-w-xl text-slate">
               Describe it in your own words. We&rsquo;ll build the questions, the maths and the result
@@ -235,9 +235,11 @@ export default async function HomePage({
         {/* ---- Closing ---------------------------------------------- */}
         <section className="px-5 py-16">
           <div className="mx-auto max-w-3xl rounded-hero border border-rule bg-navy px-6 py-14 text-center text-white sm:px-12">
-            <h2 className="text-title text-white">Build once. Use anywhere.</h2>
-            <p className="mx-auto mt-4 max-w-md text-white/70">
-              Delightful for your audience. Powerful for your business.
+            {/* Not "Build once. Use anywhere." — the footer strip says that
+                two hundred pixels further down. */}
+            <h2 className="text-title text-white">Ready to make one?</h2>
+            <p className="mx-auto mt-4 max-w-sm text-white/70">
+              Free to build and free to publish. We only ask who you are when you press publish.
             </p>
             <Link
               href="#build"
