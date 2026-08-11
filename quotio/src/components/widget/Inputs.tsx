@@ -20,9 +20,27 @@ interface StepInputProps {
   onCommit?: () => void;
   /** Unique per render surface so preview and page radios never collide. */
   namespace: string;
+  /**
+   * Which answer cards the visitor actually clicked.
+   *
+   * Answers are stored as *values* because that's what the maths needs, but
+   * two answers may legitimately share one — "Not sure" is priced as a
+   * 2-bedroom. Ticking by value therefore lights up both. The chosen ids are
+   * carried separately so the highlight follows the click.
+   */
+  chosenIds?: string[];
+  onChoose?: (ids: string[]) => void;
 }
 
-export function StepInput({ step, value, onChange, onCommit, namespace }: StepInputProps) {
+export function StepInput({
+  step,
+  value,
+  onChange,
+  onCommit,
+  namespace,
+  chosenIds,
+  onChoose,
+}: StepInputProps) {
   const name = `${namespace}-${step.id}`;
 
   switch (step.input.kind) {
@@ -35,6 +53,8 @@ export function StepInput({ step, value, onChange, onCommit, namespace }: StepIn
           onChange={onChange}
           onCommit={onCommit}
           name={name}
+          chosenIds={chosenIds}
+          onChoose={onChoose}
         />
       );
 
@@ -200,6 +220,8 @@ function ChoiceField({
   onChange,
   onCommit,
   name,
+  chosenIds,
+  onChoose,
 }: {
   step: WidgetStep;
   input: Extract<WidgetStep["input"], { kind: "choice" }>;
@@ -207,23 +229,41 @@ function ChoiceField({
   onChange: (value: unknown) => void;
   onCommit?: () => void;
   name: string;
+  chosenIds?: string[];
+  onChoose?: (ids: string[]) => void;
 }) {
   const layout = chooseLayout(input.options, input.columns);
-  const selected = new Set(
+
+  // Prefer the ids the visitor clicked; fall back to matching on value for
+  // surfaces that don't track them (a widget rendered from saved answers).
+  const clicked = chosenIds ? new Set(chosenIds) : null;
+  const byValue = new Set(
     input.multiple ? (Array.isArray(value) ? value : []) : value === undefined ? [] : [value]
   );
+  const isChosen = (option: ChoiceOption) =>
+    clicked ? clicked.has(option.id) : byValue.has(option.value);
 
   const toggle = (option: ChoiceOption) => {
     if (!input.multiple) {
       onChange(option.value);
+      onChoose?.([option.id]);
       // A single-choice answer is a complete thought — move on (§9).
       onCommit?.();
       return;
     }
-    const next = new Set(selected);
-    if (next.has(option.value)) next.delete(option.value);
-    else next.add(option.value);
-    onChange([...next]);
+
+    const nextIds = new Set(clicked ?? new Set<string>());
+    if (!clicked) {
+      // Seed from values on first interaction with an untracked field.
+      for (const candidate of input.options) if (byValue.has(candidate.value)) nextIds.add(candidate.id);
+    }
+    if (nextIds.has(option.id)) nextIds.delete(option.id);
+    else nextIds.add(option.id);
+
+    onChoose?.([...nextIds]);
+    onChange(
+      input.options.filter((candidate) => nextIds.has(candidate.id)).map((candidate) => candidate.value)
+    );
   };
 
   return (
@@ -233,13 +273,13 @@ function ChoiceField({
       aria-labelledby={`${name}-label`}
     >
       {input.options.map((option) => {
-        const isSelected = selected.has(option.value);
+        const isSelected = isChosen(option);
         // A count reads best as a big numeral with its unit underneath —
         // "2" over "Bedrooms" — with the picture below both.
         const isCount = !layout.row && option.label.length <= 3;
 
         const art = option.illustration ? (
-          <Illustration name={option.illustration} size={layout.row ? 32 : 44} />
+          <Illustration name={option.illustration} size={layout.row ? 32 : 50} />
         ) : null;
 
         const text = (

@@ -53,6 +53,8 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-faint": "#A3AED0",
       "--w-border": "#E7EAF6",
       "--w-shadow": "0 1px 2px rgba(27,31,59,0.04), 0 12px 32px -16px rgba(27,31,59,0.14)",
+      "--w-ink": "#1B1F3B",
+      "--w-on-ink": "#FFFFFF",
       "--w-celebrate": "#E7F7F3",
       "--w-celebrate-border": "#A9E3D8",
       "--w-celebrate-strong": "#2E9C8B",
@@ -74,6 +76,8 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-faint": "#9AA1AE",
       "--w-border": "#E6E7EB",
       "--w-shadow": "none",
+      "--w-ink": "#16181D",
+      "--w-on-ink": "#FFFFFF",
       "--w-celebrate": "#F5F6F7",
       "--w-celebrate-border": "#E2E4E8",
       "--w-celebrate-strong": "#3D4A45",
@@ -95,6 +99,8 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-faint": "#7C869C",
       "--w-border": "#12142B",
       "--w-shadow": "4px 4px 0 rgba(18,20,43,1)",
+      "--w-ink": "#12142B",
+      "--w-on-ink": "#FFFFFF",
       "--w-celebrate": "#FFF4DE",
       "--w-celebrate-border": "#12142B",
       "--w-celebrate-strong": "#12142B",
@@ -116,6 +122,8 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-faint": "#A9AAC9",
       "--w-border": "#E9E7FB",
       "--w-shadow": "0 10px 30px -18px rgba(80,72,180,0.35)",
+      "--w-ink": "#2A2A46",
+      "--w-on-ink": "#FFFFFF",
       "--w-celebrate": "#EAF6F3",
       "--w-celebrate-border": "#BCE4DC",
       "--w-celebrate-strong": "#37907F",
@@ -137,6 +145,8 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-faint": "#93968D",
       "--w-border": "#E2DACB",
       "--w-shadow": "0 1px 0 rgba(31,42,36,0.06)",
+      "--w-ink": "#1F2A24",
+      "--w-on-ink": "#FFFDF9",
       "--w-celebrate": "#EFF3EC",
       "--w-celebrate-border": "#D7E0D1",
       "--w-celebrate-strong": "#3A5A44",
@@ -158,6 +168,8 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-faint": "#7B82AC",
       "--w-border": "#2C3157",
       "--w-shadow": "0 18px 40px -20px rgba(0,0,0,0.6)",
+      "--w-ink": "#F4F5FF",
+      "--w-on-ink": "#14172B",
       "--w-celebrate": "#1D3B38",
       "--w-celebrate-border": "#2F5A54",
       "--w-celebrate-strong": "#8FE0D2",
@@ -271,7 +283,18 @@ export function themeStyle(theme: WidgetTheme): Record<string, string> {
   };
 }
 
-/** Button styling is a token too, so the renderer stays free of branches. */
+/**
+ * Button styling is a token too, so the renderer stays free of branches.
+ *
+ * "Filled" is the theme's ink — deep navy on light themes, near-white on dark
+ * — rather than the brand colour. The brand colour still marks every piece of
+ * *state* in the widget: the selected answer, the progress bar, the slider,
+ * the toggle, the focus ring. Separating "press this" from "you chose this"
+ * is what keeps a busy question screen readable.
+ *
+ * An author who wants their brand colour on the button itself picks "Soft" or
+ * "Outline", both of which are accent-driven.
+ */
 export function buttonVars(theme: WidgetTheme): Record<string, string> {
   switch (theme.buttonStyle) {
     case "soft":
@@ -289,13 +312,17 @@ export function buttonVars(theme: WidgetTheme): Record<string, string> {
         "--w-btn-hover": "var(--w-accent-soft)",
       };
     case "filled":
-    default:
+    default: {
+      const preset = presetFor(theme);
+      const ink = preset.vars["--w-ink"] ?? "#1B1F3B";
+      const isDark = preset.id === "dark";
       return {
-        "--w-btn-bg": "var(--w-accent)",
-        "--w-btn-fg": "var(--w-on-accent)",
+        "--w-btn-bg": "var(--w-ink)",
+        "--w-btn-fg": "var(--w-on-ink)",
         "--w-btn-border": "transparent",
-        "--w-btn-hover": "var(--w-accent-strong)",
+        "--w-btn-hover": isDark ? shade(ink, 0.1) : tint(ink, 0.18),
       };
+    }
   }
 }
 

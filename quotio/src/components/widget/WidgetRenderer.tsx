@@ -48,6 +48,13 @@ export function WidgetRenderer({
   className,
 }: WidgetRendererProps) {
   const [answers, setAnswers] = useState<Answers>(() => defaultAnswers(widget));
+  /**
+   * Which answer card was clicked, per step. Kept beside the answers rather
+   * than inside them: the engine wants values, the highlight wants identity,
+   * and two answers may share a value on purpose ("Not sure" prices as a
+   * 2-bedroom). Lives here, not in the input, so it survives going Back.
+   */
+  const [chosen, setChosen] = useState<Record<string, string[]>>({});
   const [phase, setPhase] = useState<Phase>(() => (widget.intro ? "intro" : "steps"));
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState<Direction>("forward");
@@ -155,6 +162,7 @@ export function WidgetRenderer({
   const restart = useCallback(() => {
     clearAdvance();
     setAnswers(defaultAnswers(widget));
+    setChosen({});
     setLeadState("idle");
     setStepIndex(0);
     setDirection("back");
@@ -295,6 +303,10 @@ export function WidgetRenderer({
                     namespace={widget.id}
                     onChange={(value) => setAnswer(currentStep.id, value)}
                     onCommit={commitAndAdvance}
+                    chosenIds={chosen[currentStep.id]}
+                    onChoose={(ids) =>
+                      setChosen((current) => ({ ...current, [currentStep.id]: ids }))
+                    }
                   />
                 </div>
               </fieldset>

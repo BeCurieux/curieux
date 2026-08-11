@@ -36,11 +36,14 @@
 }
 
 @layer components {
-  /* ---- Buttons (§7: 12–18px radius) ---------------------------------- */
+  /* ---- Buttons (§7: 12–18px radius) ----------------------------------
+     Actions are deep navy; purple stays the accent — it marks state
+     (selection, progress, the headline word) rather than "press me". Two
+     inks competing for attention is what makes a page feel busy. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-btn bg-purple px-5 py-3
+    @apply inline-flex items-center justify-center gap-2 rounded-btn bg-navy px-5 py-3
            text-sm font-semibold text-white transition
-           hover:bg-purple-deep active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+           hover:bg-[#2C3157] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-lg {
     @apply px-6 py-4 text-base;

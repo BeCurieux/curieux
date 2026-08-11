@@ -53,19 +53,18 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   // A made bed with a plant beside it. The companion object is what stops
   // these reading as icons: a bed is a symbol, a bed next to a houseplant is
   // somebody's room.
+  // A made bed, filling the frame. An earlier version had a houseplant beside
+  // it — charming at 80px, illegible mush at the 44px an answer card actually
+  // renders. These are drawn for the smallest size they appear at.
   bed: (
     <g>
-      <path d="M4 38h8l-1 5.5a2 2 0 0 1-2 1.7H7a2 2 0 0 1-2-1.7L4 38Z" fill={C.coral} />
-      <path d="M8 38v-7" stroke={C.navy} strokeWidth="1.8" strokeLinecap="round" />
-      <ellipse cx="5.4" cy="31" rx="3.4" ry="2.3" transform="rotate(-28 5.4 31)" fill={C.mint} />
-      <ellipse cx="10.8" cy="32.5" rx="3" ry="2.1" transform="rotate(28 10.8 32.5)" fill={C.mint} />
-
-      <rect x="17" y="11" width="26" height="15" rx="5" fill={C.purpleSoft} stroke={C.navy} strokeWidth="2" />
-      <rect x="15" y="25" width="30" height="7" rx="3.5" fill={C.white} stroke={C.navy} strokeWidth="2" />
-      <path d="M15 32h30v4.5a3 3 0 0 1-3 3H18a3 3 0 0 1-3-3V32Z" fill={C.mint} />
-      <rect x="20" y="19" width="11" height="6.5" rx="3.2" fill={C.white} stroke={C.navy} strokeWidth="1.6" />
-      <rect x="16" y="39" width="3.2" height="5" rx="1.6" fill={C.navy} />
-      <rect x="40.5" y="39" width="3.2" height="5" rx="1.6" fill={C.navy} />
+      <rect x="8" y="9" width="32" height="16" rx="6" fill={C.purpleSoft} stroke={C.navy} strokeWidth="2.2" />
+      <rect x="14" y="17" width="14" height="8" rx="4" fill={C.white} stroke={C.navy} strokeWidth="1.8" />
+      <rect x="5" y="24" width="38" height="8" rx="4" fill={C.white} stroke={C.navy} strokeWidth="2.2" />
+      <path d="M5 32h38v5a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 37v-5Z" fill={C.mint} />
+      <path d="M5 34.5h38" stroke={C.navy} strokeWidth="1.6" opacity="0.25" />
+      <rect x="6" y="40" width="3.6" height="5" rx="1.8" fill={C.navy} />
+      <rect x="38.4" y="40" width="3.6" height="5" rx="1.8" fill={C.navy} />
     </g>
   ),
   bath: (

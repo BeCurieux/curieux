@@ -115,6 +115,7 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
             { value: "outline", label: "Outline" },
           ]}
           onChange={(buttonStyle) => setTheme({ buttonStyle })}
+          hint="Filled uses the theme's ink so it stays legible. Soft and Outline use your brand colour."
         />
       </Section>
 
