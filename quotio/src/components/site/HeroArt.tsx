@@ -21,6 +21,33 @@ const C = {
   rule: "#E7EAF6",
 } as const;
 
+/**
+ * Foliage tucked into the corner of the hero widget.
+ *
+ * Deliberately part of the *page*, not the widget runtime. In the reference
+ * these leaves overlap the widget card as part of the hero composition — but
+ * a widget is embedded on other people's sites, and a removals firm should
+ * not find houseplants growing out of their quote form. If it should be
+ * available inside widgets it belongs in the theme system as an opt-in, not
+ * baked into the renderer.
+ */
+export function HeroLeaves({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 170 140" fill="none" className={className} aria-hidden="true">
+      <circle cx="52" cy="120" r="34" fill={C.yellow} opacity="0.55" />
+
+      <g fill={C.mint}>
+        <path d="M104 138c-14-6-22-20-20-36 15 3 26 15 27 31l-7 5Z" />
+        <path d="M116 132c-6-20 2-41 20-52 8 19 3 41-12 53l-8-1Z" />
+        <path d="M138 138c2-16 14-29 30-33 1 15-8 29-22 35l-8-2Z" />
+      </g>
+      <g stroke="#4FB3A2" strokeWidth="2" strokeLinecap="round" opacity="0.6">
+        <path d="M100 136c-6-9-9-19-9-29M126 131c-3-14 0-28 8-40M148 136c2-9 8-17 16-22" />
+      </g>
+    </svg>
+  );
+}
+
 export function HeroArt({ className }: { className?: string }) {
   return (
     <svg

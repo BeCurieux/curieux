@@ -201,7 +201,8 @@
    the rail would steal more width than the step names are worth. */
 @container (min-width: 600px) {
   .qw-layout {
-    grid-template-columns: 196px minmax(0, 1fr);
+    /* Wide enough for a glyph, two lines of question and a state mark. */
+    grid-template-columns: 214px minmax(0, 1fr);
   }
   .qw-rail {
     border-bottom: 0;
@@ -221,7 +222,7 @@
 
 @container (min-width: 860px) {
   .qw-layout {
-    grid-template-columns: 236px minmax(0, 1fr);
+    grid-template-columns: 250px minmax(0, 1fr);
   }
   .qw-main {
     padding: 32px 40px 36px;
@@ -534,9 +535,9 @@
 .qw-rail-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  padding: 9px 10px;
+  padding: 9px 8px;
   font: inherit;
   font-size: 14px;
   text-align: left;
@@ -564,30 +565,47 @@
   background: var(--w-surface);
 }
 
+/* A line glyph hinting at what the question is about, inferred from its
+   wording. Colour carries the state; the mark on the right carries it a
+   second time, so this is never the only signal (§37). */
 .qw-rail-dot {
   display: grid;
   place-items: center;
   flex: none;
-  width: 22px;
-  height: 22px;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 999px;
-  border: 1.5px solid var(--w-border);
+  width: 20px;
+  height: 20px;
   color: var(--w-faint);
 }
 
-.qw-rail-item[data-state="current"] .qw-rail-dot {
-  border-color: var(--w-accent);
+.qw-rail-num {
+  font-variant-numeric: tabular-nums;
+  color: var(--w-faint);
+}
+
+.qw-rail-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
   color: var(--w-accent);
 }
 
-/* A finished step is a small green tick, not another purple dot — it reads as
-   "done" at a glance instead of competing with the current step. */
+.qw-rail-item[data-state="current"] .qw-rail-dot,
+.qw-rail-item[data-state="current"] .qw-rail-num {
+  color: var(--w-accent);
+}
+
+/* A finished step gets a green tick rather than another purple mark — it
+   reads as "done" at a glance instead of competing with the current step. */
 .qw-rail-item[data-state="done"] .qw-rail-dot {
-  background: var(--w-done);
-  border-color: var(--w-done);
+  color: var(--w-done);
+}
+
+.qw-rail-item[data-state="done"] .qw-rail-mark {
   color: #ffffff;
+  background: var(--w-done);
+  border-radius: 999px;
 }
 
 /* ---- Screen transitions (§38) ------------------------------------ */

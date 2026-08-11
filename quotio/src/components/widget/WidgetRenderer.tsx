@@ -16,7 +16,8 @@ import { StepInput } from "./Inputs";
 import { LeadForm, type LeadValues } from "./LeadForm";
 import { ResultView } from "./ResultView";
 import { Illustration } from "@/components/illustrations/Illustration";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from "@/components/ui/Icons";
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronRightIcon } from "@/components/ui/Icons";
+import { StepGlyph } from "./StepGlyph";
 import { brand } from "@/config/brand";
 import { createTracker, noopTracker } from "@/lib/analytics/client";
 import { defaultAnswers, evaluateWidget, isAnswered, visibleSteps, type Answers } from "@/lib/widget/engine";
@@ -500,11 +501,24 @@ function Rail({
                 onClick={() => onJump(index)}
               >
                 <span className="qw-rail-dot">
-                  {state === "done" ? <CheckIcon size={11} strokeWidth={3} /> : index + 1}
+                  <StepGlyph title={step.title} />
                 </span>
+
                 {/* Two lines, not an ellipsis: "How many bedrooms?" and "How
                     many bathrooms?" are indistinguishable when truncated. */}
-                <span className="line-clamp-2 text-left leading-snug">{step.title}</span>
+                <span className="line-clamp-2 flex-1 text-left leading-snug">
+                  <span className="qw-rail-num">{index + 1}.</span> {step.title}
+                </span>
+
+                {/* Where you are and where you've been, on the right, so the
+                    left edge stays a clean column of marks. */}
+                <span className="qw-rail-mark" aria-hidden="true">
+                  {state === "done" ? (
+                    <CheckIcon size={13} strokeWidth={3} />
+                  ) : state === "current" ? (
+                    <ChevronRightIcon size={14} />
+                  ) : null}
+                </span>
               </button>
             </li>
           );

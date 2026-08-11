@@ -237,11 +237,16 @@ function ChoiceField({
 }) {
   const layout = chooseLayout(input.options, input.columns);
 
-  // When every answer shows the same picture — six beds for "how many
-  // bedrooms?" — colour them differently so the grid has some life in it.
-  // A set that already varies (Apartment / House / Office) is left alone.
-  const artNames = input.options.map((option) => option.illustration).filter(Boolean);
-  const repeats = artNames.length > 2 && new Set(artNames).size === 1;
+  // When one picture dominates an answer grid — five beds for "how many
+  // bedrooms?", plus a question mark for "Not sure" — colour the repeats
+  // differently so the grid has some life in it. A set that genuinely varies
+  // (Apartment / House / Office) is left alone.
+  const tally = new Map<string, number>();
+  for (const option of input.options) {
+    if (option.illustration) tally.set(option.illustration, (tally.get(option.illustration) ?? 0) + 1);
+  }
+  const [repeated, repeatCount] = [...tally.entries()].sort((a, b) => b[1] - a[1])[0] ?? ["", 0];
+  const repeatedArt = repeatCount >= 3 ? repeated : null;
 
   // Prefer the ids the visitor clicked; fall back to matching on value for
   // surfaces that don't track them (a widget rendered from saved answers).
@@ -291,7 +296,9 @@ function ChoiceField({
           <Illustration
             name={option.illustration}
             size={layout.row ? 32 : 50}
-            tint={repeats ? ART_TINTS[index % ART_TINTS.length] : undefined}
+            tint={
+              option.illustration === repeatedArt ? ART_TINTS[index % ART_TINTS.length] : undefined
+            }
           />
         ) : null;
 
