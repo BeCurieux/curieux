@@ -341,9 +341,18 @@ function firstString(nodes: Record<string, unknown>[], key: string): string | un
   return undefined;
 }
 
+/**
+ * The first sentence, at most 100 characters.
+ *
+ * 99 rather than 100 in the character class, because the terminator counts:
+ * `.{10,100}[.!?]` matches 101 characters, and `ShopConfig.brand.tagline` is
+ * capped at 100. That one character was the difference between a real store
+ * whose meta description opens with a 101-character sentence generating a shop
+ * and throwing at the final parse, after the model call had been paid for.
+ */
 function firstSentence(text: string): string {
   const collapsed = collapse(text);
-  const match = /^(.{10,100}?[.!?])(\s|$)/.exec(collapsed);
+  const match = /^(.{10,99}?[.!?])(\s|$)/.exec(collapsed);
   if (match?.[1]) return match[1];
   return collapsed.length <= 100 ? collapsed : `${collapsed.slice(0, 97).trimEnd()}…`;
 }

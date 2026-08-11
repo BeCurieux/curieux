@@ -122,14 +122,16 @@ export async function merchandise(
       continue;
     }
 
+    const assembled = assembleShopConfig({ plan: parsed.data, ingest, prompt: trimmed, now: now() });
+
     return {
-      config: assembleShopConfig({ plan: parsed.data, ingest, prompt: trimmed, now: now() }),
+      config: assembled.config,
       diagnostics: {
         provider: provider.name,
         model: lastModel,
         attempts: attempt,
         rejected: corrections.map((c) => c.errors),
-        warnings: [...warnings, ...validation.warnings],
+        warnings: [...warnings, ...validation.warnings, ...assembled.warnings],
         ...(usage ? { usage } : {}),
         catalogue: {
           offered: brief.catalogue.included,
