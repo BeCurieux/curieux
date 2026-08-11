@@ -111,7 +111,12 @@ export default function LandingPage() {
           the first thing on the page is a sentence, at a size that says the
           company is confident about it. */}
       <section className="bleed bg-paper">
-        <div className="mx-auto max-w-page px-[5vw] pb-24 pt-10 md:pb-32 md:pt-16">
+        {/* Little padding at the foot on purpose: the section below is also
+            bg-paper, so its own pt lands on the same ground and the two add
+            up. This boundary was 304px of unbroken cream — the biggest void
+            on the page, and it read as the hero having ended badly rather
+            than as room to think. */}
+        <div className="mx-auto max-w-page px-[5vw] pb-16 pt-10 md:pb-12 md:pt-16">
           <div className="grid items-center gap-14 md:grid-cols-[42fr_58fr] md:gap-12">
             <div>
               <h1 className="rise text-hero font-display lowercase" style={{ ["--d" as string]: "0ms" }}>
@@ -162,7 +167,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════════════ 02 · the problem
           Almost nothing on the screen. This is the section that separates
           this from a photo book, and it works by leaving room. */}
-      <section className="bleed bg-paper py-28 md:py-44">
+      <section className="bleed bg-paper pb-28 pt-20 md:pb-40 md:pt-24">
         <div className="mx-auto max-w-page px-[5vw]">
           <p className="mx-auto max-w-[20ch] text-center text-display font-display lowercase">
             you photograph what happened.
@@ -197,7 +202,7 @@ export default function LandingPage() {
           The camera roll is generated cover artwork standing in for candid
           photographs, which is the weakest thing on this page and the first
           thing a real shoot fixes. */}
-      <section className="bleed band-card py-24 md:py-36">
+      <section className="bleed band-card py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="grid gap-16 md:grid-cols-[46fr_54fr] md:gap-20">
             {/* The evidence: a camera roll where the same thing keeps
@@ -279,7 +284,7 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════ 05 · the book */}
-      <section className="bleed band-card py-24 md:py-36">
+      <section className="bleed band-card py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <h2 className="max-w-[14ch] text-display font-display lowercase">
             a book for every year.
@@ -353,7 +358,7 @@ export default function LandingPage() {
           archive, because that is what it is.
 
           The observations are real output from the product's own engine. */}
-      <section className="bleed bg-paper py-24 md:py-36">
+      <section className="bleed bg-paper py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="grid gap-16 md:grid-cols-[44fr_56fr] md:gap-20">
             <div>
@@ -430,7 +435,7 @@ export default function LandingPage() {
 
       {/* ══════════════════════════════════════════════════════ 08 · privacy
           Part of the emotional promise, not compliance content. */}
-      <section className="bleed band-ink py-24 md:py-36">
+      <section className="bleed band-ink py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="grid items-end gap-16 md:grid-cols-[54fr_46fr]">
             <div>
@@ -470,7 +475,7 @@ export default function LandingPage() {
           The retention argument, made visually rather than explained. A row
           of years with a gap in it does the work of a paragraph about annual
           subscriptions. */}
-      <section className="bleed bg-paper py-24 md:py-36">
+      <section className="bleed bg-paper py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="overflow-x-auto pb-6">
             <div className="flex w-max items-end gap-5">
@@ -504,7 +509,7 @@ export default function LandingPage() {
           page that takes payment is a fabricated review, and this is the one
           company that cannot afford to make things up about families. */}
       {PARENT_STORIES.length > 0 && (
-        <section className="bleed band-card py-24 md:py-36">
+        <section className="bleed band-card py-20 md:py-28">
           <div className="mx-auto grid max-w-page gap-16 px-[5vw] md:grid-cols-2">
             {PARENT_STORIES.map((story) => (
               <figure key={story.attribution}>
