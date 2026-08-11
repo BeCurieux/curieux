@@ -3,6 +3,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Qotidia — Records, refined</title>
 <style>
+  @font-face{font-family:"Charter";src:url("../src/fonts/Charter-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:"Charter";src:url("../src/fonts/Charter-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+  :root{
+    --serif:Charter,"Bitstream Charter","Charis SIL",Georgia,serif;
+    --sans:"Liberation Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+
   :root { --page-bg:#EFEEEB; --page-ink:#1A1A1E; --page-muted:#63636E; --page-line:#DEDCD7; }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) { --page-bg:#0E0E11; --page-ink:#F3F3F6; --page-muted:#9C9CA8; --page-line:#2A2A31; }
@@ -11,13 +18,13 @@
   * { box-sizing: border-box; }
   body {
     margin:0; background:var(--page-bg); color:var(--page-ink);
-    font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--serif);
     line-height:1.55; -webkit-font-smoothing:antialiased;
   }
   .wrap { max-width:1200px; margin:0 auto; padding:40px 24px 96px; }
   .intro { max-width:70ch; display:flex; flex-direction:column; gap:13px; }
   .intro h1 {
-    margin:0; font-family:Charter,Georgia,"Iowan Old Style",serif; font-weight:400;
+    margin:0; font-family:var(--serif); font-weight:400;
     font-size:clamp(30px,4.4vw,44px); letter-spacing:-0.015em; line-height:1.08; text-wrap:balance;
   }
   .intro p { margin:0; color:var(--page-muted); }
@@ -41,14 +48,14 @@
     --bg:#FBFAF7; --surface:#FFFFFF; --line:#E8E5DF; --line-strong:#D6D2C9;
     --ink:#17181C; --muted:#666870; --faint:#8D8F98;
     --accent:#14614A; --accent-soft:#E7F1EC; --flag:#A26206; --flag-soft:#FBF0DF;
-    background:var(--bg); color:var(--ink); font-size:14px;
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:var(--serif);
   }
-  .R .serif { font-family:Charter,Georgia,"Iowan Old Style",serif; }
+  .R .serif { font-family:var(--serif); }
   .R .topbar {
     display:flex; align-items:center; gap:16px; padding:11px 18px;
     border-bottom:1px solid var(--line); background:var(--surface);
   }
-  .R .brand { font-family:Charter,Georgia,serif; font-size:18px; }
+  .R .brand { font-family:var(--serif); font-size:18px; }
   .R .search {
     flex:1; max-width:400px; display:flex; align-items:center;
     border:1px solid var(--line-strong); border-radius:7px; padding:7px 11px;
@@ -85,10 +92,10 @@
     flex-direction:column; justify-content:space-between; padding:10px 9px; color:#fff;
     font-size:9.5px; box-shadow:0 1px 2px rgb(0 0 0 / .12), 0 10px 20px -11px rgb(0 0 0 / .5);
   }
-  .R .cover i { font-style:normal; font-family:Charter,Georgia,serif; font-size:13px; }
+  .R .cover i { font-style:normal; font-family:var(--serif); font-size:13px; }
   .R .cover u { text-decoration:none; opacity:.82; letter-spacing:.1em; }
   .R h2 {
-    margin:0; font-family:Charter,Georgia,"Iowan Old Style",serif; font-weight:400;
+    margin:0; font-family:var(--serif); font-weight:400;
     font-size:28px; letter-spacing:-0.012em; line-height:1.1;
   }
   .R .facts { display:flex; flex-wrap:wrap; gap:6px 24px; margin:10px 0 0; }
@@ -160,13 +167,21 @@
     padding:14px; text-decoration:none; color:inherit; display:block;
   }
   .R .card:hover { border-color:var(--line-strong); }
-  .R .card .nm { font-family:Charter,Georgia,"Iowan Old Style",serif; font-size:19px; }
+  .R .card .nm { font-family:var(--serif); font-size:19px; }
   .R .card .mt { color:var(--muted); font-size:12.5px; margin-top:2px; font-variant-numeric:tabular-nums; }
   .R .years { display:flex; gap:3px; margin-top:12px; align-items:flex-end; }
   .R .years i { height:26px; flex:1; border-radius:2px; }
   .R .years i.empty { background:transparent; border:1px dashed var(--line-strong); height:20px; }
   .R .years-l { display:flex; gap:3px; margin-top:4px; }
   .R .years-l span { flex:1; font-size:9.5px; color:var(--faint); text-align:center; }
+
+  /* The sans is kept for functional micro-type only — form fields, buttons,
+     small labels — the same division fonts.ts states and the printed page makes. */
+  .R .rail-h, .R .facts dt, .R .years-l span, .R .chip, .R .meta, .R .n, .R .pip,
+  .R .facet, .R .btn, .R .hint button, .R .search, .R .card .mt, .R .avatar,
+  .R .cover u, .R .hint small, .screen-cap, .changes dt {
+    font-family:var(--sans);
+  }
   @media (max-width:800px) {
     .R .body { grid-template-columns:1fr; }
     .R .rail { border-right:0; border-bottom:1px solid var(--line); }
@@ -200,10 +215,13 @@
     <dt>Facets</dt>
     <dd>Seventy-one things is past the point where scrolling works. Filter by who is in
       it, what kind it is, and which year.</dd>
-    <dt>On the serif</dt>
-    <dd>Names and the family&rsquo;s own words render in Georgia here. The real app ships
-      <b>Charter</b>, self-hosted in <code>src/fonts</code> &mdash; a close relative, but not
-      identical. Judge the hierarchy, not the letterforms.</dd>
+    <dt>Type, corrected</dt>
+    <dd>The first version set everything in a system sans and used the serif only for names
+      and quotes &mdash; the reverse of the product&rsquo;s own system. <code>fonts.ts</code> sets
+      the site in <b>Charter</b> and keeps the sans &ldquo;for functional micro-type only &mdash;
+      form fields, buttons, small labels&rdquo;. That division now holds here, and the real
+      <code>Charter-Regular.woff2</code> / <code>Charter-Bold.woff2</code> are loaded, so these are
+      the shipping letterforms.</dd>
   </dl>
 
   <p class="screen-cap">One child&rsquo;s archive</p>
