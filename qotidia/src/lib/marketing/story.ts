@@ -15,19 +15,11 @@
 // **The parent stories.** There are none, and the section renders nothing
 // until there are. See below.
 
-/**
- * The things a photograph does not hold.
- *
- * The heart of the pitch: a camera roll remembers what a year looked like,
- * and nothing remembers what it was like. These are Florence's, invented.
- */
-export const FORGOTTEN = [
-  "The way she called strawberries “bobbies”.",
-  "The yellow boots she refused to take off.",
-  "The song you played at every bath time.",
-  "That Bun Bun had to sit beside her at breakfast.",
-  "The exact way two felt.",
-];
+// FORGOTTEN lived here — five things a photograph does not hold. It was the
+// same list as QOTIDIA_ALSO_KEEPS below, minus the foil that makes it land,
+// and the two rendered two thousand pixels apart on one page. "The yellow
+// boots" was in both, and in the demonstration between them. The contrast
+// pair survived; the bare list did not.
 
 /** What a photo book keeps. Uncontroversial, and the point of the contrast. */
 export const A_PHOTOBOOK_KEEPS = [
