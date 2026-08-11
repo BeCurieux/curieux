@@ -1,0 +1,62 @@
+# Does shopfront still typecheck and pass its tests?
+#
+# Scoped to shopfront, in the same spirit as qotidia.yml: this repository holds
+# several independent apps side by side, and each gets to decide its own checks
+# rather than inherit a sibling's.
+#
+# No secrets, and no network. The ingester's tests inject their own fetch, so a
+# run here never touches a real storefront — which is deliberate: a suite that
+# depends on somebody else's shop being up is a suite that goes red for reasons
+# that have nothing to do with the commit.
+
+name: shopfront
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "shopfront/**"
+      - ".github/workflows/shopfront.yml"
+  pull_request:
+    paths:
+      - "shopfront/**"
+      - ".github/workflows/shopfront.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopfront-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shopfront
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from the `packageManager` field, so the runner and a
+      # developer's machine cannot drift apart without the change being visible.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: shopfront/pnpm-lock.yaml
+
+      # `--frozen-lockfile` fails if package.json and the lockfile disagree, so
+      # a run cannot quietly test a different dependency tree than we develop on.
+      - run: pnpm install --frozen-lockfile
+
+      # Separate steps so a red run names what broke on the summary page.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test

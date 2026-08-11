@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+
+# Ingested catalogues, cached so that iterating on the merchandiser does not
+# mean re-fetching somebody else's storefront a hundred times. Real data about
+# real shops — it does not belong in the repository.
+.cache/
