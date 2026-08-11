@@ -105,7 +105,7 @@ export default async function HomePage({
                 ))}
               </ul>
 
-              <HeroArt className="mt-10 hidden h-auto w-full max-w-md lg:block" />
+              <HeroArt className="mt-7 hidden h-auto w-full max-w-md lg:block" />
             </div>
 
             <div>

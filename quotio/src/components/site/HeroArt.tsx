@@ -51,7 +51,10 @@ export function HeroLeaves({ className }: { className?: string }) {
 export function HeroArt({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 300 170"
+      // Cropped to the drawing. The old box carried ~26 units of empty space
+      // above the artwork, which at render size was 40px of mystery gap
+      // between the proof points and the character's head.
+      viewBox="0 26 300 142"
       fill="none"
       className={className}
       role="img"

@@ -137,11 +137,12 @@ export function PromptBox({
           event.preventDefault();
           void submit(prompt);
         }}
-        className={
-          variant === "hero"
-            ? "rounded-panel border border-rule bg-white p-3 shadow-lift"
-            : "rounded-panel border border-rule bg-white p-3 shadow-soft"
-        }
+        // A composer, not a text field: the writing area and the action row are
+        // separated by a rule, and the whole thing lifts when focused so it's
+        // obvious you're typing into the most important control on the page.
+        className={`overflow-hidden rounded-panel border border-rule bg-white transition
+          focus-within:border-purple-mid focus-within:shadow-pop
+          ${variant === "hero" ? "shadow-lift" : "shadow-soft"}`}
       >
         <label htmlFor="build-prompt" className="sr-only">
           Describe the widget you want to create
@@ -149,7 +150,7 @@ export function PromptBox({
         <textarea
           id="build-prompt"
           ref={textarea}
-          rows={variant === "hero" ? 2 : 3}
+          rows={variant === "hero" ? 3 : 4}
           value={prompt}
           autoFocus={autoFocus}
           placeholder={placeholder}
@@ -162,11 +163,11 @@ export function PromptBox({
               void submit(prompt);
             }
           }}
-          className="w-full resize-none bg-transparent px-3 py-2.5 text-base leading-relaxed text-navy placeholder:text-muted focus:outline-none"
+          className="block w-full resize-none bg-transparent px-5 pb-3 pt-5 text-base leading-relaxed text-navy placeholder:text-muted focus:outline-none"
         />
 
-        <div className="flex items-center justify-between gap-3 px-1 pb-1 pt-1">
-          <p className="hidden text-xs text-muted sm:block">
+        <div className="flex items-center justify-between gap-3 border-t border-rule bg-lavender/40 px-4 py-3">
+          <p className="hidden text-xs leading-snug text-muted sm:block">
             The more you tell us — questions, prices, rules — the better it lands.
           </p>
           <button type="submit" className="btn btn-lg ml-auto">
