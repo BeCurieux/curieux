@@ -19,15 +19,37 @@ describe("buildTheme", () => {
     const { variables } = buildTheme(base);
     expect(variables["--bg"]).toBe("#faf8f4");
     expect(variables["--accent"]).toBe("#2f5d50");
-    expect(variables["--font-display"]).toContain("Hoefler Text");
+    expect(variables["--font-display"]).toContain("--font-brand-display");
     expect(variables["--plate-ratio"]).toBe("4 / 5");
   });
 
-  it("names no webfont, because a bio-link shop has one round trip to spend", () => {
+  it("keeps a real device font behind every brand face", () => {
+    // The brand faces load with `font-display: swap`, so these tails are what
+    // a shopper reads for the first few hundred milliseconds on mobile data.
+    // A stack that bottomed out in bare `serif` would hand that moment to
+    // whatever Times variant the phone happens to ship.
     for (const typography of ["editorial-serif", "modern-sans", "soft-rounded", "mono-utility"] as const) {
       const { variables } = buildTheme({ ...base, typography });
-      expect(variables["--font-display"], typography).not.toMatch(/url\(|@import/);
-      expect(variables["--font-body"], typography).toMatch(/serif|sans-serif|monospace|ui-rounded/);
+      for (const key of ["--font-display", "--font-body"]) {
+        const stack = variables[key]!;
+        expect(stack, `${typography} ${key}`).not.toMatch(/url\(|@import|https?:/);
+        expect(stack, `${typography} ${key}`).toMatch(/serif|sans-serif|monospace|ui-rounded/);
+        // A named family before the generic — not `var(--font-brand-sans), sans-serif`,
+        // which is a webfont with no real fallback wearing one.
+        const named = stack.split(",").filter((part) => !/^\s*(var\(|serif|sans-serif|monospace)\s*$/.test(part));
+        expect(named.length, `${typography} ${key}`).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+
+  it("never asks the browser for a font a shop's theme did not choose", () => {
+    // A rounded or mono shop stays on device fonts entirely — the browser only
+    // fetches a family something on the page uses, and that is only true while
+    // these stacks stay clean.
+    for (const typography of ["soft-rounded", "mono-utility"] as const) {
+      const { variables } = buildTheme({ ...base, typography });
+      expect(variables["--font-display"], typography).not.toContain("--font-brand");
+      expect(variables["--font-body"], typography).not.toContain("--font-brand");
     }
   });
 
@@ -37,6 +59,17 @@ describe("buildTheme", () => {
     for (const accent of ["#2f5d50", "#f4e04d", "#111111", "#ffffff", "#b4472f"]) {
       const { variables } = buildTheme({ ...base, colorway: { ...base.colorway, accent } });
       const ratio = contrastRatio(parseColour(variables["--on-accent"]!)!, parseColour(accent)!);
+      expect(ratio, accent).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("keeps the soft pill's label readable on the soft pill", () => {
+    // The board's look is a pale tint of the accent carrying the accent's own
+    // hue in the label. That is only a good idea while it stays legible, and a
+    // pale brand colour on a tint of itself is exactly where it stops being.
+    for (const accent of ["#2f5d50", "#f4e04d", "#ffd166", "#6b55f6", "#ff6b8a", "#ffffff", "#111111"]) {
+      const { variables } = buildTheme({ ...base, colorway: { ...base.colorway, accent } });
+      const ratio = contrastRatio(parseColour(variables["--accent-ink"]!)!, parseColour(variables["--accent-soft"]!)!);
       expect(ratio, accent).toBeGreaterThanOrEqual(4.5);
     }
   });

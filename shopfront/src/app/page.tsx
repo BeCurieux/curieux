@@ -4,10 +4,16 @@
  * Everything generated so far, so that looking at four shops side by side is
  * one click rather than four commands. It is a development tool and it says
  * so — the published shops are the product; this is the bench they sit on.
+ *
+ * It wears popuup's own brand rather than a merchant's, and the cards show the
+ * theme tokens each shop got: reading five moods across a dozen shops is the
+ * comparison this page exists for.
  */
 
 import Link from "next/link";
 import { listShops } from "@/lib/render/store";
+import { Sparkle } from "@/components/shop/marks";
+import "./workbench.css";
 
 export const dynamic = "force-dynamic";
 
@@ -15,32 +21,60 @@ export default async function Index() {
   const shops = await listShops();
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px", fontFamily: "var(--font-body, ui-serif, Georgia, serif)" }}>
-      <h1 style={{ fontSize: 22, margin: "0 0 6px", letterSpacing: "-0.02em" }}>Shopfront — generated shops</h1>
-      <p style={{ margin: "0 0 32px", color: "#666", fontSize: 14, lineHeight: 1.5 }}>
-        Run <code>pnpm merchandise &lt;store-url&gt; &quot;&lt;prompt&gt;&quot; --render</code> to add one.
-      </p>
+    <main className="bench">
+      <div className="bench-inner">
+        <p className="bench-mark">
+          pop<em>uu</em>p
+        </p>
 
-      {shops.length === 0 ? (
-        <p style={{ color: "#888", fontSize: 14 }}>Nothing generated yet.</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, borderTop: "1px solid #e6e6e6" }}>
-          {shops.map((shop) => (
-            <li key={shop.key} style={{ borderBottom: "1px solid #e6e6e6" }}>
-              <Link
-                href={`/preview/${shop.key}`}
-                style={{ display: "block", padding: "16px 0", color: "inherit", textDecoration: "none" }}
-              >
-                <strong style={{ fontSize: 15 }}>{shop.name}</strong>
-                <span style={{ color: "#999", fontSize: 13, marginLeft: 8 }}>{shop.blocks} blocks</span>
-                <span style={{ display: "block", color: "#666", fontSize: 13, marginTop: 4, lineHeight: 1.4 }}>
-                  {shop.prompt}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+        <span className="bench-chip">
+          <Sparkle className="" />
+          Workbench
+        </span>
+
+        <h1>
+          Every shop <em>generated</em> so far.
+        </h1>
+
+        <p className="bench-lede">
+          Nothing here is published. These read from the local cache — step 4 is what gives a shop a URL.
+        </p>
+
+        <code className="bench-command">pnpm merchandise &lt;store-url&gt; &quot;&lt;prompt&gt;&quot; --render</code>
+
+        {shops.length === 0 ? (
+          <p className="bench-empty">Nothing generated yet.</p>
+        ) : (
+          <ul className="bench-list">
+            {shops.map((shop) => (
+              <li key={shop.key}>
+                <Link className="bench-card" href={`/preview/${shop.key}`}>
+                  <h2>{shop.name}</h2>
+                  <p className="prompt">{shop.prompt}</p>
+
+                  <div className="bench-swatches">
+                    <span style={{ background: shop.theme.colorway.background }} />
+                    <span style={{ background: shop.theme.colorway.surface }} />
+                    <span style={{ background: shop.theme.colorway.accent }} />
+                  </div>
+
+                  <div className="bench-tags">
+                    <span className="bench-tag" data-kind="mood">
+                      {shop.theme.mood}
+                    </span>
+                    <span className="bench-tag" data-kind="type">
+                      {shop.theme.typography}
+                    </span>
+                    <span className="bench-tag" data-kind="blocks">
+                      {shop.blocks} blocks
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </main>
   );
 }

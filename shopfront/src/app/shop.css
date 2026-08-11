@@ -135,6 +135,18 @@
   flex: 0 0 auto;
 }
 
+/* A small drawn mark against the title. It is decoration and it is doing one
+   real job: at a glance it separates a section heading from the product titles
+   below it, on a page where both are set in the display face. */
+.section-head .sparkle {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  color: var(--accent);
+  opacity: 0.75;
+  transform: translateY(-0.15em);
+}
+
 /* The rule runs off to the right margin — a magazine gesture, and it also
    quietly signals "this section continues" on a narrow screen. */
 .section-head .rule {
@@ -159,7 +171,15 @@
 .plate {
   position: relative;
   aspect-ratio: var(--plate-ratio);
-  background: var(--surface);
+  /* A soft gradient rather than a flat fill. On a white cut-out — the shot
+     every catalogue has too many of — a dead-flat tint makes the product look
+     pasted on; a gentle vertical fall gives it something to sit on. */
+  background:
+    linear-gradient(
+      175deg,
+      color-mix(in srgb, var(--accent-wash) 55%, var(--surface)) 0%,
+      var(--surface) 62%
+    );
   border-radius: var(--radius-plate);
   overflow: hidden;
   /* A hairline inside the plate, so a white-background cut-out still has an
@@ -363,23 +383,48 @@
   opacity: 1;
 }
 
-.cta {
-  display: inline-block;
+/*
+ * The soft pill.
+ *
+ * Not a solid accent block. Over a photograph a saturated button competes with
+ * the product for the one bit of colour attention the frame has; a pale tint
+ * of the same hue with the hue itself in the label reads as part of the brand
+ * rather than as a control bolted onto it. `--accent-ink` is computed to clear
+ * 4.5:1 on that tint, so the softness never costs legibility.
+ */
+/* Scoped through `.shop` on purpose: `.shop a { color: inherit }` is one
+   specificity point heavier than a bare `.cta`, so an unscoped rule loses the
+   colour here and the label quietly inherits the hero's white. */
+.shop .cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
   margin-top: var(--space-4);
-  padding: 0.78em 1.5em;
-  background: var(--accent);
-  color: var(--on-accent);
+  padding: 0.82em 1.5em;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
   border-radius: var(--radius-control);
-  font-size: 0.86rem;
-  letter-spacing: 0.02em;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  box-shadow: var(--shadow);
   transition:
-    transform 200ms ease,
-    filter 200ms ease;
+    transform 220ms cubic-bezier(0.22, 0.68, 0.24, 1),
+    box-shadow 220ms ease;
 }
 
-.cta:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.06);
+.shop .cta:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Over a photograph the tint has nothing to relate to — it was mixed with the
+   page background, which is nowhere in frame — so it goes lighter and opaque,
+   which reads against anything the scrim has already darkened. */
+.shop .hero:not(.hero--nomedia) .cta {
+  background: color-mix(in srgb, var(--accent-soft) 82%, #fff);
+  backdrop-filter: blur(6px);
 }
 
 /* ------------------------------------------------------------------- cards */
@@ -458,10 +503,14 @@
   text-wrap: pretty;
 }
 
+/* The price reads as dark as the title. A shopper scanning a grid is looking
+   for this number, and greying it out to make the layout calmer costs the
+   merchant the one piece of information the scan is for. */
 .card-price {
-  font-size: 0.86rem;
-  color: var(--text-soft);
-  margin-top: 2px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 4px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -530,32 +579,89 @@
 
 /* ---------------------------------------------------------------- offer */
 
+/*
+ * The offer band.
+ *
+ * The one block on the page that is allowed to be loud, so it is: a full tint
+ * panel, the description as the headline rather than as small print, and the
+ * code as a chip you press to copy. The code itself always came out of the
+ * merchant's own prompt — the validator rejects an invented one — which is
+ * what makes a band this emphatic honest rather than a discount ad.
+ */
 .offer {
-  background: var(--accent-wash);
-  border: var(--rule) solid color-mix(in srgb, var(--accent) 26%, transparent);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--accent-soft) 0%, var(--accent-wash) 100%);
   border-radius: var(--radius-plate);
-  padding: var(--space-4);
+  padding: var(--space-5) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: flex-start;
-}
-
-.offer code {
-  font-family: var(--font-mono);
-  font-size: 1.06rem;
-  letter-spacing: 0.14em;
-  padding: 0.5em 0.8em;
-  border-radius: var(--radius-control);
-  background: var(--bg);
-  border: 1px dashed var(--line-strong);
-  color: var(--text);
 }
 
 .offer p {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-soft);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(1.24rem * var(--display-scale));
+  line-height: 1.15;
+  max-width: 22ch;
+  color: var(--accent-ink);
+  text-wrap: balance;
+}
+
+/* The chip. A dashed edge is the one piece of skeuomorphism worth keeping —
+   it says "voucher" faster than any label would. */
+.offer-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  font-family: var(--font-mono);
+  font-size: 0.98rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  padding: 0.62em 0.75em 0.62em 1em;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--bg) 86%, #fff);
+  border: 1px dashed color-mix(in srgb, var(--accent) 42%, transparent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.offer-code:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lift);
+}
+
+.offer-code svg {
+  width: 15px;
+  height: 15px;
+  opacity: 0.66;
+  flex: none;
+}
+
+.offer-code[data-copied="true"] svg {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* The doodle, bottom right, clipped by the panel. Decoration that costs one
+   element and reads as hand-drawn rather than as a stock icon. */
+.offer-mark {
+  position: absolute;
+  right: calc(var(--space-3) * -1);
+  bottom: calc(var(--space-3) * -1);
+  width: 108px;
+  height: 108px;
+  color: var(--accent);
+  opacity: 0.22;
+  pointer-events: none;
 }
 
 /* ------------------------------------------------------------- link list */
@@ -591,33 +697,44 @@
 
 /* ----------------------------------------------------------------- chrome */
 
+/*
+ * Centred, and with nothing beside it.
+ *
+ * The board puts a hamburger and a cart badge either side of the wordmark.
+ * Neither ships: a mini-shop is one page, so a menu would open onto itself,
+ * and there is no cart — checkout is a permalink out to the merchant's own
+ * store. A control that does nothing is worse than an empty corner, so the
+ * wordmark gets the whole line.
+ */
 .masthead {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-4) 0 var(--space-3);
+  gap: var(--space-1);
+  padding: var(--space-4) 0 var(--space-4);
+  text-align: center;
 }
 
 .masthead img {
-  height: 26px;
+  height: 30px;
   width: auto;
-  max-width: 150px;
+  max-width: 190px;
   object-fit: contain;
 }
 
 .masthead .name {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.24rem;
+  font-weight: var(--display-weight);
   letter-spacing: var(--display-tracking);
 }
 
 .masthead .tagline {
-  margin-left: auto;
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   color: var(--text-faint);
-  text-align: right;
-  max-width: 44%;
-  line-height: 1.3;
+  line-height: 1.35;
+  max-width: 32ch;
+  margin: 0;
 }
 
 .colophon {

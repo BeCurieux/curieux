@@ -46,7 +46,16 @@ export async function loadShop(key: string): Promise<ShopRenderInput | null> {
   }
 }
 
-export async function listShops(): Promise<{ key: string; name: string; blocks: number; prompt: string }[]> {
+export interface ShopSummary {
+  key: string;
+  name: string;
+  blocks: number;
+  prompt: string;
+  /** The tokens themselves, so the bench can compare theming at a glance. */
+  theme: ShopRenderInput["config"]["theme"];
+}
+
+export async function listShops(): Promise<ShopSummary[]> {
   let files: string[];
   try {
     files = await readdir(DIR);
@@ -61,7 +70,13 @@ export async function listShops(): Promise<{ key: string; name: string; blocks: 
         const key = file.replace(/\.json$/, "");
         const shop = await loadShop(key);
         return shop
-          ? { key, name: shop.config.brand.name, blocks: shop.config.blocks.length, prompt: shop.config.meta.prompt }
+          ? {
+              key,
+              name: shop.config.brand.name,
+              blocks: shop.config.blocks.length,
+              prompt: shop.config.meta.prompt,
+              theme: shop.config.theme,
+            }
           : null;
       }),
   );

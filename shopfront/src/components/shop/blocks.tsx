@@ -16,6 +16,8 @@ import type { Catalogue } from "@/lib/ingest/types";
 import { resolveAll, resolveProduct } from "@/lib/render/resolve";
 import { HERO_WIDTHS, imageAttrs } from "@/lib/render/image";
 import { ProductCard, Plate, type CardContext } from "./ProductCard";
+import { HeartScribble, Sparkle } from "./marks";
+import { OfferCode } from "./OfferCode";
 import type { MoodShape } from "@/lib/render/theme";
 
 export interface BlockContext extends CardContext {
@@ -57,6 +59,7 @@ function SectionHead({ title, count }: { title?: string | undefined; count?: num
   return (
     <div className="section-head">
       <h2 className="display">{title}</h2>
+      <Sparkle />
       <div className="rule" />
       {/* The count is an editorial gesture that happens to be useful: a thumb
           decides whether to keep scrolling a section before it starts. */}
@@ -225,8 +228,9 @@ function Routine({
 function Offer({ block }: { block: Extract<Block, { type: "offer" }> }) {
   return (
     <section className="offer">
-      <code>{block.code}</code>
       <p>{block.description}</p>
+      <OfferCode code={block.code} />
+      <HeartScribble className="offer-mark" />
     </section>
   );
 }

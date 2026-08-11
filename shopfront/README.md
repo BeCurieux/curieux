@@ -145,20 +145,70 @@ weight, and the display scale, tracking and weight — not by a corner radius.
 `tests/render-theme.test.ts` asserts all five moods produce distinct
 fingerprints, because if two of them collapse, one was decoration.
 
-**Device fonts only.** A bio-link shop is opened on mobile data from an app's
-in-app browser, where a webfont costs a round trip before the first word is
-readable. The stacks lead with faces that actually ship on real devices —
-Hoefler Text, Iowan Old Style, `ui-rounded` — and the seam for a self-hosted
-variable font is the head of one array.
+**The brand's two faces, self-hosted.** A warm editorial serif for display over
+Space Grotesk for everything a shopper reads at 14px. Both come from npm rather
+than Google Fonts — no third-party connection, no request to a stranger's CDN
+carrying a shopper's IP — as latin-subset variable woff2: 62KB and 22KB, two
+files rather than the eight a static family would need. `font-display: swap`
+with a metric-adjusted fallback, and only the display face is preloaded, since
+the hero headline is the one piece of text worth the bytes. A shop whose theme
+picks `soft-rounded` or `mono-utility` fetches neither file and stays on device
+fonts entirely.
+
+Fraunces stands in for Recoleta, which is a commercial licence (Latinotype)
+this repository cannot vendor. It is not a compromise — its SOFT axis gives the
+same rounded terminals that make Recoleta read warm rather than literary — and
+swapping the real thing in is one `src` in `app/fonts.ts`, which is the only
+file that names a font file.
 
 **Derived colour is computed, not `color-mix`ed.** Muted text, hairlines and the
 accent wash come out of the same arithmetic the ingester and the validator use,
 so `--on-accent` clearing 4.5:1 is something a test can check rather than
 something the browser decides at paint time.
 
+**Rounded, soft, warm.** Pills for every control, 14–26px plates, a gentle
+gradient in the plate tint so a white cut-out has something to sit on, and wide
+low-opacity shadows built on the scrim so the same rule works on a dark page.
+The hero CTA is a pale tint of the accent carrying the accent's own hue in the
+label rather than a saturated block — over a photograph a solid button competes
+with the product for the only colour attention the frame has. `--accent-ink` is
+solved for 4.5:1 on that tint, walking the accent towards the text colour a
+step at a time so a green brand keeps a green label instead of getting a black
+one.
+
 **One well-orchestrated page load.** Staggered reveals driven by `--i` per
 block, a scroll-snap carousel, and nothing else moving — all of it off under
-`prefers-reduced-motion`.
+`prefers-reduced-motion`. The single client component on the page is the
+press-to-copy discount chip, which earns it: a code exists to be typed into a
+checkout on another site, and selecting one accurately on a phone is the only
+genuinely fiddly interaction a mini-shop has.
+
+### What the brand board specifies that a generated shop does not get
+
+The board's shop mockups carry four things this renderer will not draw, each
+for the same reason:
+
+| On the board | Why it is not on the page |
+|---|---|
+| Star ratings and review counts — `(128)`, `(96)`, `(77)` | No review data is ingestable from a public storefront yet, and a rating nobody read is the same fabrication as a price nobody read |
+| A testimonial with an avatar and a quote | Same — there is no source for it |
+| A cart icon with an item badge | There is no cart. Checkout is a permalink out to the merchant's own store (step 5) |
+| A hamburger beside the wordmark | A mini-shop is one page, so it would open onto itself |
+
+The ratings are the one worth coming back for, and they are closer than
+"omit the block" suggests: Judge.me, Yotpo, Okendo and Stamped all expose public
+aggregates, and the ingester already sees their widget scripts on the homepage.
+A fifth rung on the catalogue ladder that reads a detected review app's public
+API would make the board's product card shippable exactly as drawn, for the
+stores that have one. Until then `reviews` renders nothing.
+
+### popuup's own brand
+
+`app/brand.css` holds the palette from the board — violet, pink, amber, teal,
+ink and the warm off-whites — and `app/workbench.css` is the only thing that
+uses it. A generated shop wears the *merchant's* colours; these never leak into
+one. They live in their own file because step 4's free-tier badge is the one
+thing that will cross over, and the badge and the app must not drift apart.
 
 ### The honesty rules, as tests
 
@@ -221,7 +271,7 @@ the first three quarters of it.
 
 ## Verification status
 
-215 unit and integration tests pass against fixtures, all three stages have been
+217 unit and integration tests pass against fixtures, all three stages have been
 run end to end against a local storefront, and the renderer has been reviewed at
 390×844 and 1280×900 across all five moods.
 

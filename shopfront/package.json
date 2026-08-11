@@ -2,7 +2,7 @@
   "name": "shopfront",
   "private": true,
   "version": "0.1.0",
-  "description": "Shopfront \u2014 make a shop in a sentence. Sprint 1, step 1: the ingester.",
+  "description": "Shopfront — make a shop in a sentence. Sprint 1, step 1: the ingester.",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
     "next": "^16.3.0",
     "playwright-core": "^1.48.0",
     "react": "^19.2.8",
