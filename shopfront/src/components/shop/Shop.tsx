@@ -11,6 +11,7 @@ import type { ShopConfig } from "@/lib/schema";
 import type { Catalogue } from "@/lib/ingest/types";
 import { buildTheme } from "@/lib/render/theme";
 import { BlockView } from "./blocks";
+import { Badge } from "./Badge";
 
 export interface ShopProps {
   config: ShopConfig;
@@ -19,9 +20,17 @@ export interface ShopProps {
   /** When that catalogue was read. Printed, because it is not live yet. */
   ingestedAt?: string;
   locale?: string;
+  /**
+   * Free-tier shops carry the badge. Pro removes it, and that is most of what
+   * the paid tier is for — so the default is `true`: a caller that forgets to
+   * pass a plan ships the badge rather than quietly giving away the tier.
+   */
+  badge?: boolean;
+  /** For the badge's UTM, so the install loop is measurable. */
+  slug?: string;
 }
 
-export function Shop({ config, catalogue, ingestedAt, locale = "en" }: ShopProps) {
+export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = true, slug }: ShopProps) {
   const theme = buildTheme(config.theme);
 
   return (
@@ -80,6 +89,8 @@ export function Shop({ config, catalogue, ingestedAt, locale = "en" }: ShopProps
             </span>
           )}
         </footer>
+
+        {badge && <Badge {...(slug ? { slug } : {})} />}
       </div>
     </div>
   );

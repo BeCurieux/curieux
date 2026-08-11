@@ -10,3 +10,4 @@ node_modules/
 # real shops — it does not belong in the repository.
 .cache/
 next-env.d.ts
+.env.local

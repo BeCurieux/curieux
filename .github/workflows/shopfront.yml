@@ -1,6 +1,6 @@
-# Does shopfront still typecheck and pass its tests?
+# Does popuup still typecheck and pass its tests?
 #
-# Scoped to shopfront, in the same spirit as qotidia.yml: this repository holds
+# Scoped to the shopfront/ directory, in the same spirit as qotidia.yml: this repository holds
 # several independent apps side by side, and each gets to decide its own checks
 # rather than inherit a sibling's.
 #
@@ -9,7 +9,7 @@
 # depends on somebody else's shop being up is a suite that goes red for reasons
 # that have nothing to do with the commit.
 
-name: shopfront
+name: popuup
 
 on:
   push:

@@ -844,3 +844,56 @@
     gap: var(--space-4);
   }
 }
+
+/* ------------------------------------------------------------------ badge */
+
+/*
+ * The free-tier badge.
+ *
+ * Set in the shop's own muted tone rather than popuup's violet, because a
+ * badge a merchant resents is a badge they remove the moment they can, and the
+ * growth loop depends on it staying. It sits below the colophon with real air
+ * around it: crowded against the footer it reads as a disclaimer, and given
+ * space it reads as a credit.
+ */
+.badge {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.42em;
+  padding: 0 0 var(--space-6);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  transition: color 220ms ease;
+}
+
+.badge-made {
+  letter-spacing: 0.01em;
+}
+
+/* The only piece of popuup that survives into a merchant's palette. It is the
+   wordmark's distinguishing mark and it is recognisable at 12px. */
+.badge-mark {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  font-size: 0.84rem;
+  color: var(--text-soft);
+}
+
+.badge-mark em {
+  font-style: normal;
+  /* Kept as an absolute rather than a theme token: this is the one mark on the
+     page that is ours, and tinting it to the merchant's accent would make it
+     twenty different logos instead of one. */
+  color: #6b55f6;
+}
+
+@media (hover: hover) {
+  .badge:hover {
+    color: var(--text-soft);
+  }
+  .badge:hover .badge-mark {
+    color: var(--text);
+  }
+}

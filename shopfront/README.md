@@ -3,23 +3,36 @@
 Make a shop in a sentence. See `BRIEF.md` for what this is and `CLAUDE.md` for
 the rules that must never be violated.
 
-**Built so far: steps 1–4 of the build order — the ingester, the Catalogue
-Genome, the merchandiser and the renderer.**
+**Built so far: steps 1–5 of the build order — the ingester, the Catalogue
+Genome, the merchandiser, the renderer and publish.**
 
 ```
 pnpm install
+pnpm generate kelpandcotton.com "a clean bio shop for the knitwear post"
+pnpm dev                                                   # then open the URL it printed
+```
+
+That is the whole pipeline in one command. The stages are also separable, which
+is how you iterate on one of them:
+
+```
 pnpm ingest kelpandcotton.com                              # store URL -> catalogue + brand
 pnpm genome kelpandcotton.com                              # catalogue -> what each product is for
-pnpm merchandise kelpandcotton.com "a clean bio shop for the knitwear post" --render
-pnpm dev                                                   # then open /preview/<store>
+pnpm merchandise kelpandcotton.com "<prompt>" --render     # -> ShopConfig, previewable
 pnpm test
 pnpm typecheck
 ```
 
-`merchandise` reuses the cached ingest, so iterating on a prompt costs one
-model call rather than a re-crawl of somebody else's storefront. It runs the
-deterministic merchandiser by default; `AI_PROVIDER=anthropic` (or
-`--provider anthropic`) uses the model.
+With nothing configured it runs on the deterministic providers and writes to
+`.cache/`, so it works on a laptop with no accounts. `AI_PROVIDER=anthropic`
+uses the model; `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` uses the database.
+See `.env.example`; whichever store ran is named in the output.
+
+Each stage caches at a different grain, because each costs a different thing.
+The ingest is a crawl of somebody else's storefront and is reused until
+`--fresh`. The Genome is a model pass over a whole catalogue and is reused until
+`--regenome`. Only the merchandising runs every time — it is the only stage
+whose answer depends on the prompt.
 
 ## 1. The ingester
 
@@ -302,6 +315,64 @@ file in the renderer that knows where a shop lives, because step 4 replaces
 exactly that with Supabase and a public URL. Everything above it takes a config
 and a catalogue as arguments.
 
+## 5. Publish
+
+`ShopConfig` in; a URL somebody can put in their bio out.
+
+```
+publishShop({ config, ingest, genome })
+  ├── stores          one row per storefront: catalogue + Genome, upserted
+  ├── shops           a slug and a plan
+  ├── shop_versions   one ShopConfig, appended — never overwritten
+  └── /<slug>         served from the current version
+```
+
+**Catalogue lives on the store, not on the version.** Re-ingesting a merchant's
+prices updates every shop built from that catalogue at once, which is the actual
+mechanism behind "constantly live" — a sell-out reaches twenty published shops
+without any of them being regenerated. What a version pins is the
+*merchandising*, because that is what step 6's funnel events have to be
+attributable to.
+
+**Regenerating appends a version.** It costs a row and buys two things: a
+merchant who regenerates and prefers the old shop has not lost it, and a funnel
+event recorded against v1 is not silently reattributed to v3.
+
+**The slug is the most public string this system produces.** It goes into an
+Instagram bio and is copied into places nobody can edit, so shops live at the
+root — `popuup.com/kelpandcotton`, not `/s/kelpandcotton`. The price of that is
+`RESERVED_SLUGS`: Next matches static routes before dynamic ones, so a shop that
+took a word the app later needed would simply stop resolving one day with no
+error anywhere. The list is deliberately longer than the routes that exist.
+Collisions count up (`-2`, `-3`) rather than randomising, because
+`kelp-and-cotton-2` can be read down a phone and `kelp-and-cotton-f3a9` cannot.
+A slug the merchant asks for is *refused* rather than corrected — publishing
+"Summer Edit!" to `summer-edit` without saying so is how a bio link ends up
+pointing somewhere they never agreed to.
+
+**The Genome is unreachable from a public key, structurally.** It is stored on
+the store row, and the only public read path is `get_published_shop`, a
+`security definer` function whose return columns are the allowlist. `genome` is
+not among them. `stores` has no select policy at all, so even a bug that asked
+for it would be denied rather than served. The same rule holds in the types:
+`PublishedShop` has no field for it.
+
+**The badge is the marketing budget, so it is designed to be kept.** Free-tier
+shops carry "Made with popuup" below the colophon — in the *merchant's* muted
+palette rather than popuup's violet, because a badge someone resents is a badge
+they remove the moment they can. The one piece of brand that survives the
+translation is the violet on the double-u. It carries a per-shop UTM, since
+"organic install rate from published-shop badges" is a number the brief commits
+to and is otherwise unmeasurable. `badge` defaults to `true` in the renderer: a
+caller that forgets to pass a plan ships the badge rather than quietly giving
+the tier away.
+
+**Supabase or the filesystem.** `createLocalStore` writes the same shapes to
+`.cache/published/`, and it exists for a specific reason: the kill-test
+generates thirty shops from public storefront data before any of those merchants
+has an account, and standing up Postgres for that would be building step 5's
+infrastructure to run the test that decides whether step 5 is worth building.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront
@@ -329,20 +400,17 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 
 ## Not built yet
 
-**Step 5, publish.** `/preview/<key>` renders from a local file; there is no
-public URL, no Supabase and no free-tier badge.
+**Step 6, provenance + funnel.** Provenance is done: every version stores its
+prompt, stated audience and the whole `ShopConfig`, in columns rather than only
+inside a blob. What is missing is the funnel — nothing on a page records a view,
+a product click or a checkout start, and checkout is still a link to the
+merchant's product page rather than a pre-filled cart permalink. The shop
+*version* those events need to be keyed to already exists and is already stable
+across regenerations, which was the part worth getting right first.
 
-**Step 6, provenance + funnel.** A `ShopConfig` already carries its prompt,
-stated audience and every merchandising decision, so provenance is half-built by
-accident — what is missing is persisting it against a shop *version*, and
-recording view → product click → checkout start keyed to the version that served
-them. Nothing on the page records anything today, and checkout is still a link
-to the merchant's product page rather than a pre-filled cart permalink.
-
-`pnpm generate` is the definition of done for Sprints 1–2 and ends in a
-published, shareable URL with the Genome stored and funnel events recording, so
-it does not exist yet — `pnpm ingest`, `pnpm genome`, `pnpm merchandise --render`
-and `pnpm dev` are its first four fifths.
+`pnpm generate` now runs the whole pipeline and ends in a URL, so the definition
+of done is one step short: it asks for funnel events recording, and they do not.
+The command says so on every run rather than implying otherwise.
 
 **PULSE stays in the drawer.** No learned weights, no experimentation
 framework, no schema shaped for a learning system that does not exist. The
@@ -351,9 +419,11 @@ descriptive — nothing reads them back into a decision.
 
 ## Verification status
 
-252 unit and integration tests pass against fixtures, all four stages have been
-run end to end against a local storefront, and the renderer has been reviewed at
-390×844 and 1280×900 across all five moods.
+284 unit and integration tests pass against fixtures, all five stages have been
+run end to end against a local storefront via `pnpm generate` — including
+publishing, republishing to v2, a custom slug, a 404 on an unknown one, and the
+badge rendering with its UTM — and the renderer has been reviewed at 390×844 and
+1280×900 across all five moods.
 
 The design review used a purpose-built fake store whose photography is
 deliberately bad in seven different ways — landscape studio shot, floating white
@@ -362,7 +432,7 @@ cut-out, underexposed, extremely wide, busy phone snap, blown highlights, a
 mediocre product photography" is not a claim a catalogue of clean shots can
 test.
 
-Two things have **not** been verified, both because this environment's egress
+Three things have **not** been verified, all because this environment's egress
 proxy blocks them:
 
 - **No real catalogue has been ingested.** Storefront hosts are refused at the
@@ -377,3 +447,12 @@ proxy blocks them:
   half *has* been verified against the fixture catalogue: it correctly finds the
   200×200 thumbnail and the product with no image, and spreads eight products
   across all four price tiers.
+- **No Supabase project has been touched.** `supabase.com` is refused at the
+  proxy and no credentials are configured, so `supabase.ts` has been typechecked
+  against the real client and run against nothing, and `schema.sql` has never
+  been applied. The `ShopStore` interface it implements is covered by tests
+  through the local adapter, so what is unverified is narrow but real: whether
+  those queries and those RLS policies are right. Applying the migration to a
+  fresh project and running `pnpm generate` against it is the first thing to do
+  next, and the RLS check worth doing by hand is that an anon key can read a
+  published shop and cannot read `stores.genome`.
