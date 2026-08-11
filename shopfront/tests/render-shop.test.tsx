@@ -232,14 +232,29 @@ describe("what reaches the shopper", () => {
     expect(html).not.toContain('src=""');
   });
 
-  it("links every card to the merchant's own product page", () => {
-    // Sprint 5 puts a cart permalink behind these. Until then the merchant's
-    // storefront is the only place a purchase can actually complete.
+  it("sends every card to the merchant's own domain and nowhere else", () => {
+    // Step 6 made the destination conditional — a cart permalink when there is
+    // one variant this could mean, the product page otherwise. What must not
+    // vary is the host: a purchase can only complete on the merchant's own
+    // storefront, and a card pointing anywhere else is the worst thing this
+    // system could ship.
     const html = markup([
       HERO,
-      { id: "grid", block: { type: "productGrid", layout: "grid", products: [{ handle: "oat-crew" }] } },
+      {
+        id: "grid",
+        block: {
+          type: "productGrid",
+          layout: "grid",
+          products: [{ handle: "oat-crew" }, { handle: "linen-tea-towel" }, { handle: "wool-throw" }],
+        },
+      },
     ]);
-    expect(html).toContain('href="https://kelpandcotton.com/products/oat-crew"');
+
+    const hrefs = [...html.matchAll(/<a class="card[^"]*" href="([^"]+)"/g)].map((m) => m[1]!);
+    expect(hrefs.length).toBe(3);
+    for (const href of hrefs) {
+      expect(new URL(href).origin, href).toBe("https://kelpandcotton.com");
+    }
   });
 
   it("gives the hero one eager image and leaves the rest lazy", () => {

@@ -3,13 +3,15 @@
 Make a shop in a sentence. See `BRIEF.md` for what this is and `CLAUDE.md` for
 the rules that must never be violated.
 
-**Built so far: steps 1–5 of the build order — the ingester, the Catalogue
-Genome, the merchandiser, the renderer and publish.**
+**Sprints 1–2 are complete: all six steps of the build order — the ingester,
+the Catalogue Genome, the merchandiser, the renderer, publish, and provenance +
+funnel.**
 
 ```
 pnpm install
 pnpm generate kelpandcotton.com "a clean bio shop for the knitwear post"
 pnpm dev                                                   # then open the URL it printed
+pnpm funnel kelp-and-cotton                                # did anyone buy anything?
 ```
 
 That is the whole pipeline in one command. The stages are also separable, which
@@ -373,6 +375,72 @@ generates thirty shops from public storefront data before any of those merchants
 has an account, and standing up Postgres for that would be building step 5's
 infrastructure to run the test that decides whether step 5 is worth building.
 
+## 6. Provenance and the funnel
+
+Provenance was finished by step 5: every version stores its prompt, its stated
+audience and the whole `ShopConfig`, in columns rather than only inside a blob.
+This step is the funnel.
+
+```
+view → product click → checkout start
+  ├── Funnel.tsx     one `view` on mount, then one delegated click listener
+  ├── /api/events    validates, resolves the slug server-side, always 204s
+  ├── shop_events    keyed to the shop *version* that served the page
+  └── pnpm funnel    the rates, per session
+```
+
+**The client says what happened, never where to file it.** A browser sends a
+slug and a session id; the server resolves that slug to the shop and to the
+version it is currently serving, and stamps the clock itself. `FunnelEventBody`
+is `.strict()`, so a body carrying `shopId` or `versionId` is rejected rather
+than trusted — otherwise the events table is writable by anyone with the URL.
+
+**Rates are per session, not per event.** A shopper who taps four products has
+converted once on the question the merchant is asking. Counting it four times is
+how a funnel flatters itself into a number nobody can act on.
+
+**Keyed to the version.** This is what step 5's append-only versions were for: a
+regeneration does not reattribute yesterday's numbers to a shop nobody saw
+yesterday, so `pnpm funnel` can show v2 against v1.
+
+**Not tracking.** No cookie, no IP, no fingerprint, nothing cross-site. The
+session id is random — not derived from anything about the person, which is a
+distinction that has to be visible in the code that makes it — and lives in
+`sessionStorage`, scoped to one tab on one origin and gone when it closes. Every
+storage access is guarded, because a shop that failed to render in a private
+window because analytics could not write would be unacceptable.
+
+The one contextual thing recorded is *where the click came from*, coarsely:
+`instagram`, not a URL. That is the layer the brief calls the honest moat, and
+recording less than the browser offered is the point. A merchant's own
+`utm_source` beats the referrer, because a tag is a statement of intent and
+in-app browsers — most of this product's traffic — routinely send no referrer at
+all.
+
+### Checkout is a cart permalink, and sometimes it is not
+
+`/cart/<variantId>:1`, on the merchant's own domain, optionally carrying the
+offer code from their own brief. Shopify owns the money, the tax, the fraud
+rules and the compliance. It lands on their cart, pre-filled — one tap from
+checkout rather than the checkout itself, which is what the brief asks for and
+what this claims.
+
+A card only gets one when there is exactly one variant it could mean:
+
+| Case | Destination | Because |
+|---|---|---|
+| One variant, in stock | Cart permalink | Nothing to choose |
+| A variant the plan pinned | Cart permalink | The plan chose it and the card shows its price |
+| Sizes, colours, strengths | Product page | Pre-filling the medium because it was first sends somebody to a checkout holding the wrong thing, and the shopper who does not notice is the expensive case |
+| Sold out | Product page | A cart that cannot be filled is the most annoying possible dead end |
+| Non-numeric variant id | Product page | A permalink built on a guess is a 404 where a purchase should be |
+
+**The drawer stays shut.** Nothing here carries a weight, a variant assignment
+or a score, and nothing reads these numbers back into a decision. Three event
+types, closed — no properties bag, no custom events, which is how an events
+table becomes an analytics product nobody asked for. `pnpm funnel` says so at
+the bottom of its own output.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront
@@ -400,17 +468,14 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 
 ## Not built yet
 
-**Step 6, provenance + funnel.** Provenance is done: every version stores its
-prompt, stated audience and the whole `ShopConfig`, in columns rather than only
-inside a blob. What is missing is the funnel — nothing on a page records a view,
-a product click or a checkout start, and checkout is still a link to the
-merchant's product page rather than a pre-filled cart permalink. The shop
-*version* those events need to be keyed to already exists and is already stable
-across regenerations, which was the part worth getting right first.
+Step 7 is **Stop.** OAuth sync, email capture, creator shops, billing,
+word-editing and TikTok-URL input are Sprint 3, gated on the kill-test — five of
+thirty merchants actively wanting their shop live. The `capture` block and the
+`EditMove` set are both defined in `schema.ts` and both deliberately unbuilt.
 
-`pnpm generate` now runs the whole pipeline and ends in a URL, so the definition
-of done is one step short: it asks for funnel events recording, and they do not.
-The command says so on every run rather than implying otherwise.
+PULSE is not in the drawer by accident either. The logs from step 6 are what it
+would eventually learn from; until they hold enough real sessions, there are no
+learned weights, no experimentation framework and no schema shaped for one.
 
 **PULSE stays in the drawer.** No learned weights, no experimentation
 framework, no schema shaped for a learning system that does not exist. The
@@ -419,11 +484,15 @@ descriptive — nothing reads them back into a decision.
 
 ## Verification status
 
-284 unit and integration tests pass against fixtures, all five stages have been
-run end to end against a local storefront via `pnpm generate` — including
-publishing, republishing to v2, a custom slug, a 404 on an unknown one, and the
-badge rendering with its UTM — and the renderer has been reviewed at 390×844 and
-1280×900 across all five moods.
+308 unit and integration tests pass against fixtures, and the whole pipeline has
+been run end to end against a local storefront: `pnpm generate` through all six
+steps, republishing to v2, a custom slug, a 404 on an unknown one, and the badge
+with its UTM. The funnel was verified by driving three real browser sessions
+through a published shop — one arriving with an Instagram referrer, one direct,
+one from TikTok — and reading the result back with `pnpm funnel`, which
+attributed the sources, the per-session rates and the per-product breakdown
+correctly. The renderer has been reviewed at 390×844 and 1280×900 across all
+five moods.
 
 The design review used a purpose-built fake store whose photography is
 deliberately bad in seven different ways — landscape studio shot, floating white

@@ -181,6 +181,16 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
   };
 }
 
+/**
+ * The service-role client.
+ *
+ * Exported so the funnel can share it rather than mint a second one: same key,
+ * same pool, and exactly one place in the codebase that reads the secret.
+ */
+export function serviceRoleClient(options: SupabaseStoreOptions = {}): SupabaseClient {
+  return defaultClient(options);
+}
+
 function defaultClient(options: SupabaseStoreOptions): SupabaseClient {
   const url = options.url ?? process.env.SUPABASE_URL;
   const key = options.serviceRoleKey ?? process.env.SUPABASE_SERVICE_ROLE_KEY;

@@ -14,10 +14,43 @@ import type { ResolvedProduct } from "@/lib/render/resolve";
 import { stockState } from "@/lib/render/resolve";
 import { CARD_WIDTHS, imageAttrs } from "@/lib/render/image";
 import { formatFrom, formatMoney } from "@/lib/render/money";
+import { cartPermalink } from "@/lib/cart/permalink";
 
 export interface CardContext {
   currency: string | null;
   locale: string;
+  /** The merchant's storefront, for building cart permalinks. */
+  storeUrl?: string;
+  /** A code from the merchant's own prompt, carried into the cart. */
+  discount?: string;
+}
+
+/**
+ * Where a card goes, and what it counts as.
+ *
+ * A cart permalink when there is exactly one variant this could mean — the
+ * brief's "one tap → pre-filled Shopify checkout" — and the product page
+ * otherwise. Two cases rule the permalink out. A sold-out product must not link
+ * to a cart it cannot fill, which would be the most annoying possible dead end.
+ * And a product with sizes has no single right answer, so the shopper picks; see
+ * `chooseCartVariant` in render/resolve.ts.
+ */
+export function cardTarget(
+  product: ResolvedProduct,
+  context: CardContext,
+): { href: string; event: "product_click" | "checkout_start"; variantId?: string } {
+  const soldOut = stockState(product) === "sold-out";
+
+  if (!soldOut && product.cartVariantId && context.storeUrl) {
+    const href = cartPermalink({
+      storeUrl: context.storeUrl,
+      variantId: product.cartVariantId,
+      ...(context.discount ? { discount: context.discount } : {}),
+    });
+    if (href) return { href, event: "checkout_start", variantId: product.cartVariantId };
+  }
+
+  return { href: product.url, event: "product_click" };
 }
 
 export function Plate({
@@ -69,9 +102,18 @@ export function ProductCard({
   eager?: boolean;
 }) {
   const soldOut = stockState(product) === "sold-out";
+  const target = cardTarget(product, context);
 
   return (
-    <a className={`card${soldOut ? " card--soldout" : ""}`} href={product.url}>
+    <a
+      className={`card${soldOut ? " card--soldout" : ""}`}
+      href={target.href}
+      // Read by the delegated listener in Funnel.tsx. Plain attributes on a
+      // plain link, so the card stays a server component.
+      data-fnl={target.event}
+      data-fnl-handle={product.handle}
+      {...(target.variantId ? { "data-fnl-variant": target.variantId } : {})}
+    >
       <Plate product={product} sizes={sizes} {...(eager ? { eager } : {})} />
       <div className="card-meta">
         <p className="card-title">{product.title}</p>

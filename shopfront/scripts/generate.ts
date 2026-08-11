@@ -13,8 +13,8 @@
  * pay for one catalogue read. Only the merchandising runs every time — it is
  * the only stage whose answer depends on the prompt.
  *
- * What is still missing from the definition of done is step 6: nothing here
- * records a funnel event, and this says so rather than implying otherwise.
+ * The published page records its own funnel from the first shopper who opens
+ * it — `pnpm funnel <slug>` reads it back.
  */
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -182,9 +182,7 @@ async function main(): Promise<void> {
     `  ${((Date.now() - started) / 1000).toFixed(1)}s · ${published.shop.plan} plan${published.shop.plan === "free" ? " (badge on)" : ""}`,
   );
 
-  // The definition of done asks for funnel events too. Saying so here is the
-  // difference between a step that is unfinished and one that looks finished.
-  say(args.quiet, "  no funnel events recorded — that is step 6, and it is not built");
+  say(args.quiet, `  funnel recording once it is opened — \`pnpm funnel ${published.shop.slug}\``);
   say(args.quiet, "");
 
   // The URL alone on stdout, so this composes with anything.

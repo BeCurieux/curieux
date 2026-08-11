@@ -156,3 +156,71 @@ comment on function public.get_published_shop(text) is
   'The one public read path. security definer so an anon key can serve a shop without select access to stores; the column list is the allowlist, and genome is not in it.';
 
 grant execute on function public.get_published_shop(text) to anon, authenticated;
+
+-- ================================================================== step 6
+-- Provenance is already above: shop_versions holds every prompt, stated
+-- audience and ShopConfig, in columns rather than only inside a blob. What
+-- follows is the funnel.
+--
+-- Three event types, closed. No properties bag and no custom events — those are
+-- how an events table becomes an analytics product nobody asked for. Nothing
+-- here carries a weight, a variant assignment or a score: PULSE stays in the
+-- drawer until the logs contain enough real sessions to learn from, and a
+-- column shaped for it now would be building the thing the rule forbids.
+
+create table if not exists public.shop_events (
+  id          uuid primary key default gen_random_uuid(),
+  shop_id     uuid not null references public.shops(id) on delete cascade,
+  -- The version that served the page. This is why publishing appends versions
+  -- rather than overwriting: a regeneration must not reattribute yesterday's
+  -- numbers to a shop nobody saw yesterday.
+  version_id  uuid not null references public.shop_versions(id) on delete cascade,
+  -- Random, generated in the browser, kept in sessionStorage. Not a cookie, not
+  -- derived from anything about the person, and gone when the tab closes.
+  session_id  text not null,
+  type        text not null check (type in ('view', 'product_click', 'checkout_start')),
+  handle      text,
+  variant_id  text,
+  -- Coarse, from the referrer the browser already sent. "instagram", not a URL.
+  source      text,
+  campaign    text,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists shop_events_shop_id_created_idx on public.shop_events(shop_id, created_at desc);
+create index if not exists shop_events_version_idx on public.shop_events(version_id);
+create index if not exists shop_events_session_idx on public.shop_events(session_id);
+
+alter table public.shop_events enable row level security;
+
+-- No policy at all: events are written by the service role from the API route
+-- and read by the service role for the funnel summary. A public key can neither
+-- write one nor read anybody's.
+
+create or replace function public.shop_funnel(want_slug text)
+returns table (
+  id         uuid,
+  shop_id    uuid,
+  version_id uuid,
+  version    integer,
+  session_id text,
+  type       text,
+  handle     text,
+  variant_id text,
+  source     text,
+  campaign   text,
+  created_at timestamptz
+)
+language sql
+stable
+as $$
+  select e.id, e.shop_id, e.version_id, v.version, e.session_id, e.type,
+         e.handle, e.variant_id, e.source, e.campaign, e.created_at
+  from public.shop_events e
+  join public.shops sh on sh.id = e.shop_id
+  join public.shop_versions v on v.id = e.version_id
+  where sh.slug = want_slug;
+$$;
+
+comment on function public.shop_funnel(text) is
+  'Raw events for one shop. Not security definer and not granted to anon: the summary is the merchant''s, not the public''s. Aggregation happens in funnel/store.ts so the file and database adapters cannot compute a different rate.';

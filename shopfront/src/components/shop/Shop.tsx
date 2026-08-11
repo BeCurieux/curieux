@@ -12,6 +12,7 @@ import type { Catalogue } from "@/lib/ingest/types";
 import { buildTheme } from "@/lib/render/theme";
 import { BlockView } from "./blocks";
 import { Badge } from "./Badge";
+import { Funnel } from "./Funnel";
 
 export interface ShopProps {
   config: ShopConfig;
@@ -32,6 +33,14 @@ export interface ShopProps {
 
 export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = true, slug }: ShopProps) {
   const theme = buildTheme(config.theme);
+
+  // The first offer code on the page rides along on every cart permalink. It
+  // came from the merchant's own brief — the validator rejects an invented one —
+  // so applying it is carrying their instruction through, not a claim the page
+  // is making.
+  const discount = config.blocks.find((entry) => entry.block.type === "offer")?.block as
+    | { type: "offer"; code: string }
+    | undefined;
 
   return (
     <div className="shop" data-dark={theme.dark} style={theme.variables as React.CSSProperties}>
@@ -61,6 +70,8 @@ export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = tru
                 locale,
                 shape: theme.shape,
                 brandName: config.brand.name,
+                storeUrl: config.brand.storeUrl,
+                ...(discount ? { discount: discount.code } : {}),
               }}
             />
           </div>
@@ -91,6 +102,11 @@ export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = tru
         </footer>
 
         {badge && <Badge {...(slug ? { slug } : {})} />}
+
+        {/* Only a published shop records anything. A preview has no slug, and
+            counting developer reloads as merchant traffic would poison the one
+            number the merchant is going to judge this on. */}
+        {slug && <Funnel slug={slug} />}
       </div>
     </div>
   );

@@ -38,6 +38,12 @@ export interface ResolvedProduct {
   /** False when the surface we ingested from never reported stock at all. */
   availabilityKnown: boolean;
   variant?: IngestedVariant;
+  /**
+   * The variant a cart permalink may pre-fill, when there is exactly one right
+   * answer. See `chooseCartVariant` — the absence of this is a decision, not a
+   * gap.
+   */
+  cartVariantId?: string;
 }
 
 export function resolveProduct(ref: Ref, catalogue: Catalogue): ResolvedProduct | null {
@@ -46,6 +52,7 @@ export function resolveProduct(ref: Ref, catalogue: Catalogue): ResolvedProduct 
 
   const variant = ref.variantId ? product.variants.find((v) => v.id === ref.variantId) : undefined;
   const image = leadImage(product, ref, variant);
+  const cartVariant = chooseCartVariant(product, variant);
 
   const price = variant ? variant.price : product.price.min;
   const compareAt = variant?.compareAtPrice ?? bestCompareAt(product);
@@ -63,7 +70,27 @@ export function resolveProduct(ref: Ref, catalogue: Catalogue): ResolvedProduct 
     available: variant ? variant.available : product.available,
     availabilityKnown: product.availabilityKnown,
     ...(variant ? { variant } : {}),
+    ...(cartVariant ? { cartVariantId: cartVariant } : {}),
   };
+}
+
+/**
+ * Which variant a "buy" link may pre-fill — and, mostly, none.
+ *
+ * A pinned variant is unambiguous: the plan chose it and the card shows its
+ * price. A product with a single variant is equally unambiguous, because there
+ * is nothing to choose.
+ *
+ * A product with sizes is neither. Pre-filling a cart with the medium because
+ * it happened to be first sends somebody to a checkout holding the wrong thing,
+ * and the shopper who does not notice is the expensive case — a return, and a
+ * merchant who blames the shop that did it. So a multi-variant product links to
+ * its own product page and lets the person choose, which costs one tap.
+ */
+function chooseCartVariant(product: IngestedProduct, variant: IngestedVariant | undefined): string | undefined {
+  if (variant) return variant.id;
+  if (product.variants.length === 1) return product.variants[0]!.id;
+  return undefined;
 }
 
 export function resolveAll(refs: Ref[], catalogue: Catalogue): ResolvedProduct[] {

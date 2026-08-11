@@ -15,7 +15,7 @@ type Block = z.infer<typeof BlockSchema>;
 import type { Catalogue } from "@/lib/ingest/types";
 import { resolveAll, resolveProduct } from "@/lib/render/resolve";
 import { HERO_WIDTHS, imageAttrs } from "@/lib/render/image";
-import { ProductCard, Plate, type CardContext } from "./ProductCard";
+import { ProductCard, Plate, cardTarget, type CardContext } from "./ProductCard";
 import { HeartScribble, Sparkle } from "./marks";
 import { OfferCode } from "./OfferCode";
 import type { MoodShape } from "@/lib/render/theme";
@@ -210,18 +210,42 @@ function Routine({
             {/* The number is the point of this block — it is the one place the
                 order of the products is the merchandising. */}
             <div className="step-index">{index + 1}</div>
-            <a className="card step-body" href={step.product.url}>
+            <StepLink product={step.product} context={context}>
               <Plate product={step.product} sizes="(min-width: 760px) 160px, 108px" />
               <div className="card-meta">
                 <p className="step-label">{step.label}</p>
                 <p className="card-title">{step.product.title}</p>
                 {step.product.blurb && <p className="card-blurb">{step.product.blurb}</p>}
               </div>
-            </a>
+            </StepLink>
           </div>
         ))}
       </div>
     </section>
+  );
+}
+
+/** A routine step is a card too, so it goes to the same place and counts the same. */
+function StepLink({
+  product,
+  context,
+  children,
+}: {
+  product: NonNullable<ReturnType<typeof resolveProduct>>;
+  context: BlockContext;
+  children: React.ReactNode;
+}) {
+  const target = cardTarget(product, context);
+  return (
+    <a
+      className="card step-body"
+      href={target.href}
+      data-fnl={target.event}
+      data-fnl-handle={product.handle}
+      {...(target.variantId ? { "data-fnl-variant": target.variantId } : {})}
+    >
+      {children}
+    </a>
   );
 }
 
