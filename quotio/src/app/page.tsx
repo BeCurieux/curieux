@@ -132,7 +132,7 @@ export default async function HomePage({
         </section>
 
         {/* ---- The prompt box (§10) -------------------------------- */}
-        <section id="build" className="scroll-mt-20 px-5 pb-16 pt-6">
+        <section id="build" className="scroll-mt-20 px-5 pb-9 pt-6">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-title">What do you want your website to do?</h2>
             <p className="mx-auto mt-3 max-w-xl text-slate">
@@ -151,7 +151,7 @@ export default async function HomePage({
         </section>
 
         {/* ---- Three promises -------------------------------------- */}
-        <section className="px-5 py-10">
+        <section className="px-5 py-9">
           <div className="mx-auto max-w-6xl">
             {/* One panel, three columns — a row of separate cards fragments
                 what is really a single claim about the product. */}
@@ -179,7 +179,7 @@ export default async function HomePage({
         </section>
 
         {/* ---- How it works ---------------------------------------- */}
-        <section className="px-5 py-16">
+        <section className="px-5 py-9">
           <div className="mx-auto max-w-6xl">
             <div className="panel overflow-hidden px-6 py-12 sm:px-12">
               <div className="max-w-lg">
@@ -208,7 +208,7 @@ export default async function HomePage({
         </section>
 
         {/* ---- Templates ------------------------------------------- */}
-        <section className="px-5 py-10">
+        <section className="px-5 py-9">
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-md">
@@ -245,7 +245,7 @@ export default async function HomePage({
         </section>
 
         {/* ---- Closing ---------------------------------------------- */}
-        <section className="px-5 py-16">
+        <section className="px-5 py-9">
           <div className="mx-auto max-w-3xl rounded-hero border border-rule bg-navy px-6 py-14 text-center text-white sm:px-12">
             {/* Not "Build once. Use anywhere." — the footer strip says that
                 two hundred pixels further down. */}
