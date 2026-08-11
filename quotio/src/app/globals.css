@@ -163,8 +163,20 @@
 }
 
 .qw-rail {
+  display: flex;
+  flex-direction: column;
   padding: 18px 20px;
   border-bottom: 1px solid var(--w-border);
+}
+
+/* The "Made with" credit sits at the foot of the rail, out of the way of the
+   questions — only once the rail is tall enough to have a foot. */
+.qw-rail-foot {
+  display: none;
+}
+
+.qw-rail-steps {
+  flex: 1;
 }
 
 .qw-rail-head {
@@ -197,6 +209,10 @@
   }
   .qw-rail-list {
     display: block;
+  }
+  .qw-rail-foot {
+    display: block;
+    margin: 16px -6px -4px;
   }
   .qw-main {
     padding: 28px 28px 32px;

@@ -222,6 +222,19 @@ export function WidgetRenderer({
     }
   }, [evaluation.outcome, tracker, widget.result.cta]);
 
+  const badge = showBadge ? (
+    <a
+      className="qw-badge"
+      href={badgeHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`Like this widget? Make your own with ${brand.name}.`}
+    >
+      {brand.badgeLabel} <strong>{brand.name}</strong>
+      <span aria-hidden="true">✦</span>
+    </a>
+  ) : null;
+
   const stepNumber = steps.findIndex((step) => step.id === currentStep?.id) + 1;
   const progress =
     phase === "result" ? 1 : steps.length === 0 ? 0 : Math.max(0, stepNumber - 1) / steps.length;
@@ -245,6 +258,7 @@ export function WidgetRenderer({
               setStepIndex(index);
             }}
             isReachable={(index) => index <= stepIndex || phase === "result"}
+            badge={badge}
           />
         ) : null}
 
@@ -336,6 +350,15 @@ export function WidgetRenderer({
                     : "Pick an answer to continue."}
                 </p>
               ) : null}
+
+              {/* Said up front, where it reassures, rather than only next to
+                  the form where it reads as a disclaimer. */}
+              {widget.settings.leadCapture.mode !== "none" ? (
+                <p className="qw-faint mt-6 flex items-center gap-1.5 text-xs">
+                  <ShieldIcon />
+                  {widget.settings.privacyNote}
+                </p>
+              ) : null}
             </div>
           ) : null}
 
@@ -382,21 +405,26 @@ export function WidgetRenderer({
         </div>
       </div>
 
-      {showBadge ? (
-        <div className="qw-badge-row">
-          <a
-            className="qw-badge"
-            href={badgeHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={`Like this widget? Make your own with ${brand.name}.`}
-          >
-            {brand.badgeLabel} <strong>{brand.name}</strong>
-            <span aria-hidden="true">✦</span>
-          </a>
-        </div>
+      {/* With a rail, the badge lives in its footer. Without one there's
+          nowhere to put it but under the card. */}
+      {badge && !widget.settings.showProgress ? (
+        <div className="qw-badge-row">{badge}</div>
       ) : null}
     </div>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="flex-none">
+      <path
+        d="M12 3l7 2.5v6c0 4.2-3 7.5-7 8.5-4-1-7-4.3-7-8.5v-6L12 3Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="m9 12 2 2 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -419,6 +447,7 @@ function Rail({
   logoUrl,
   onJump,
   isReachable,
+  badge,
 }: {
   name: string;
   steps: Array<{ id: string; title: string }>;
@@ -429,6 +458,7 @@ function Rail({
   logoUrl?: string;
   onJump: (index: number) => void;
   isReachable: (index: number) => boolean;
+  badge?: React.ReactNode;
 }) {
   const currentIndex = steps.findIndex((step) => step.id === currentId);
 
@@ -452,7 +482,7 @@ function Rail({
         </div>
       </div>
 
-      <ol className="qw-rail-list">
+      <ol className="qw-rail-list qw-rail-steps">
         {steps.map((step, index) => {
           const state =
             phase === "result" || index < currentIndex
@@ -480,6 +510,8 @@ function Rail({
           );
         })}
       </ol>
+
+      {badge ? <div className="qw-rail-foot">{badge}</div> : null}
     </aside>
   );
 }

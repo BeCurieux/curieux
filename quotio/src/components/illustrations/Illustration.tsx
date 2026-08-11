@@ -27,9 +27,28 @@ export interface IllustrationProps {
   name: IllustrationKey;
   size?: number;
   className?: string;
+  /**
+   * Recolours the drawing's soft-furnishing fill (the parts painted with
+   * `currentColor`).
+   *
+   * A grid of six "how many bedrooms?" cards showing six identical beds looks
+   * like a rendering bug. The reference varies the furniture card to card; we
+   * vary the colour, which gets the same lively grid without pretending a
+   * 3-bed has different furniture from a 4-bed.
+   */
+  tint?: string;
 }
 
-export function Illustration({ name, size = 44, className }: IllustrationProps) {
+/** What each drawing's `currentColor` parts are painted when nothing overrides. */
+const DEFAULT_TINT: Partial<Record<IllustrationKey, string>> = {
+  bed: C.mint,
+  couch: C.coral,
+  bath: C.mint,
+  box: C.yellowSoft,
+  house: C.purpleSoft,
+};
+
+export function Illustration({ name, size = 44, className, tint }: IllustrationProps) {
   return (
     <svg
       width={size}
@@ -40,6 +59,9 @@ export function Illustration({ name, size = 44, className }: IllustrationProps) 
       focusable="false"
       className={className}
       shapeRendering="geometricPrecision"
+      // Always explicit: `currentColor` would otherwise inherit the card's
+      // navy text colour and paint the duvet black.
+      style={{ color: tint ?? DEFAULT_TINT[name] ?? C.mint }}
     >
       {DRAWINGS[name]}
     </svg>
@@ -50,9 +72,6 @@ export function Illustration({ name, size = 44, className }: IllustrationProps) 
 const r = 4;
 
 const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
-  // A made bed with a plant beside it. The companion object is what stops
-  // these reading as icons: a bed is a symbol, a bed next to a houseplant is
-  // somebody's room.
   // A made bed, filling the frame. An earlier version had a houseplant beside
   // it — charming at 80px, illegible mush at the 44px an answer card actually
   // renders. These are drawn for the smallest size they appear at.
@@ -61,7 +80,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
       <rect x="8" y="9" width="32" height="16" rx="6" fill={C.purpleSoft} stroke={C.navy} strokeWidth="2.2" />
       <rect x="14" y="17" width="14" height="8" rx="4" fill={C.white} stroke={C.navy} strokeWidth="1.8" />
       <rect x="5" y="24" width="38" height="8" rx="4" fill={C.white} stroke={C.navy} strokeWidth="2.2" />
-      <path d="M5 32h38v5a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 37v-5Z" fill={C.mint} />
+      <path d="M5 32h38v5a3.5 3.5 0 0 1-3.5 3.5h-31A3.5 3.5 0 0 1 5 37v-5Z" fill="currentColor" />
       <path d="M5 34.5h38" stroke={C.navy} strokeWidth="1.6" opacity="0.25" />
       <rect x="6" y="40" width="3.6" height="5" rx="1.8" fill={C.navy} />
       <rect x="38.4" y="40" width="3.6" height="5" rx="1.8" fill={C.navy} />
@@ -69,7 +88,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   ),
   bath: (
     <g>
-      <path d="M6 25h36v5a9 9 0 0 1-9 9H15a9 9 0 0 1-9-9v-5Z" fill={C.mintSoft} />
+      <path d="M6 25h36v5a9 9 0 0 1-9 9H15a9 9 0 0 1-9-9v-5Z" fill="currentColor" opacity="0.55" />
       <rect x="4" y="22" width="40" height="4" rx="2" fill={C.mint} />
       <path d="M14 22v-9a4 4 0 0 1 8 0" stroke={C.navy} strokeWidth="2.5" strokeLinecap="round" />
       <circle cx="34" cy="16" r="3" fill={C.purple} />
@@ -83,7 +102,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
       <rect x="17" y="18" width="14" height="9" rx="3.5" fill={C.yellow} />
       <rect x="6" y="22" width="9" height="14" rx="4.5" fill={C.coral} stroke={C.navy} strokeWidth="2" />
       <rect x="33" y="22" width="9" height="14" rx="4.5" fill={C.coral} stroke={C.navy} strokeWidth="2" />
-      <rect x="11" y="27" width="26" height="10" rx="4" fill={C.coral} stroke={C.navy} strokeWidth="2" />
+      <rect x="11" y="27" width="26" height="10" rx="4" fill="currentColor" stroke={C.navy} strokeWidth="2" />
       <rect x="12" y="37" width="3.2" height="5" rx="1.6" fill={C.navy} />
       <rect x="32.8" y="37" width="3.2" height="5" rx="1.6" fill={C.navy} />
     </g>
@@ -139,7 +158,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   ),
   house: (
     <g>
-      <path d="M24 6 42 20v18a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V20L24 6Z" fill={C.purpleSoft} />
+      <path d="M24 6 42 20v18a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V20L24 6Z" fill="currentColor" />
       <path d="M4 21 24 6l20 15" stroke={C.purple} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <rect x="19" y="27" width="10" height="15" rx="2" fill={C.purple} />
       <rect x="11" y="24" width="6" height="6" rx="2" fill={C.yellow} />
@@ -336,7 +355,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   ),
   box: (
     <g>
-      <path d="M24 7 42 15v18l-18 8-18-8V15L24 7Z" fill={C.yellowSoft} stroke={C.navy} strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M24 7 42 15v18l-18 8-18-8V15L24 7Z" fill="currentColor" stroke={C.navy} strokeWidth="2.5" strokeLinejoin="round" />
       <path d="M6 15l18 8 18-8M24 23v18" stroke={C.navy} strokeWidth="2.5" strokeLinejoin="round" fill="none" />
       <rect x="20" y="9" width="8" height="10" rx="2" fill={C.coral} />
     </g>

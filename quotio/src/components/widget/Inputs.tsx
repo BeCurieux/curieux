@@ -190,6 +190,9 @@ export function StepInput({
 /* Choice                                                              */
 /* ------------------------------------------------------------------ */
 
+/** Rotation used when one picture repeats across a whole answer grid. */
+const ART_TINTS = ["#7DD3C7", "#FFC857", "#FF8FA3", "#A9A9F7", "#5FBFB0", "#F5B971"];
+
 /**
  * Layout is inferred, not configured.
  *
@@ -234,6 +237,12 @@ function ChoiceField({
 }) {
   const layout = chooseLayout(input.options, input.columns);
 
+  // When every answer shows the same picture — six beds for "how many
+  // bedrooms?" — colour them differently so the grid has some life in it.
+  // A set that already varies (Apartment / House / Office) is left alone.
+  const artNames = input.options.map((option) => option.illustration).filter(Boolean);
+  const repeats = artNames.length > 2 && new Set(artNames).size === 1;
+
   // Prefer the ids the visitor clicked; fall back to matching on value for
   // surfaces that don't track them (a widget rendered from saved answers).
   const clicked = chosenIds ? new Set(chosenIds) : null;
@@ -272,14 +281,18 @@ function ChoiceField({
       role={input.multiple ? "group" : "radiogroup"}
       aria-labelledby={`${name}-label`}
     >
-      {input.options.map((option) => {
+      {input.options.map((option, index) => {
         const isSelected = isChosen(option);
         // A count reads best as a big numeral with its unit underneath —
         // "2" over "Bedrooms" — with the picture below both.
         const isCount = !layout.row && option.label.length <= 3;
 
         const art = option.illustration ? (
-          <Illustration name={option.illustration} size={layout.row ? 32 : 50} />
+          <Illustration
+            name={option.illustration}
+            size={layout.row ? 32 : 50}
+            tint={repeats ? ART_TINTS[index % ART_TINTS.length] : undefined}
+          />
         ) : null;
 
         const text = (

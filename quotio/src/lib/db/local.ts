@@ -10,7 +10,7 @@
 // rename, so a crash mid-save can't leave a half-written database behind.
 // It is not built for concurrency across processes; Supabase is for that.
 
-import { mkdirSync, readFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type {
@@ -50,21 +50,51 @@ const EMPTY: Database = {
  * Next's dev server re-evaluates modules on edit. Without this the database
  * would silently reset — and worse, two copies would race each other.
  */
-const globalCache = globalThis as unknown as { __quotioDb?: Database };
+const globalCache = globalThis as unknown as { __quotioDb?: Database; __quotioDbStamp?: number };
 
 export class LocalStore implements Store {
   private readonly file: string;
   private db: Database;
   private writing: Promise<void> = Promise.resolve();
+  /** Our own last write, so `refresh()` can tell it from someone else's. */
+  private stamp = 0;
 
   constructor(file = process.env.LOCAL_STORE_PATH ?? path.join(process.cwd(), ".data", "store.json")) {
     this.file = file;
     if (globalCache.__quotioDb) {
       this.db = globalCache.__quotioDb;
+      this.stamp = globalCache.__quotioDbStamp ?? 0;
     } else {
       this.db = this.read();
+      this.stamp = this.mtime();
       globalCache.__quotioDb = this.db;
+      globalCache.__quotioDbStamp = this.stamp;
     }
+  }
+
+  private mtime(): number {
+    try {
+      return existsSync(this.file) ? statSync(this.file).mtimeMs : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  /**
+   * Pick up changes another process made to the file.
+   *
+   * `npm run seed` while `npm run dev` is running is a completely reasonable
+   * thing to do, and without this the server would keep serving the copy it
+   * loaded at boot and the demo account simply wouldn't exist. One stat call
+   * per read is a fair price for the documented workflow actually working.
+   */
+  private refresh(): void {
+    const current = this.mtime();
+    if (current === 0 || current === this.stamp) return;
+    this.db = this.read();
+    this.stamp = current;
+    globalCache.__quotioDb = this.db;
+    globalCache.__quotioDbStamp = current;
   }
 
   private read(): Database {
@@ -86,6 +116,8 @@ export class LocalStore implements Store {
       const temporary = `${this.file}.${process.pid}.tmp`;
       await writeFile(temporary, JSON.stringify(this.db, null, 2), "utf8");
       await rename(temporary, this.file);
+      this.stamp = this.mtime();
+      globalCache.__quotioDbStamp = this.stamp;
     });
     return this.writing;
   }
@@ -106,10 +138,12 @@ export class LocalStore implements Store {
   }
 
   async getUser(id: string): Promise<User | null> {
+    this.refresh();
     return this.db.users.find((user) => user.id === id) ?? null;
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
+    this.refresh();
     const needle = email.trim().toLowerCase();
     return this.db.users.find((user) => user.email === needle) ?? null;
   }
@@ -133,6 +167,7 @@ export class LocalStore implements Store {
   }
 
   async getSession(token: string): Promise<Session | null> {
+    this.refresh();
     return this.db.sessions.find((session) => session.token === token) ?? null;
   }
 
@@ -179,20 +214,24 @@ export class LocalStore implements Store {
   }
 
   async getWidget(id: string): Promise<WidgetRecord | null> {
+    this.refresh();
     return this.db.widgets.find((widget) => widget.id === id) ?? null;
   }
 
   async getWidgetBySlug(slug: string): Promise<WidgetRecord | null> {
+    this.refresh();
     return this.db.widgets.find((widget) => widget.slug === slug) ?? null;
   }
 
   async listWidgets(ownerId: string): Promise<WidgetRecord[]> {
+    this.refresh();
     return this.db.widgets
       .filter((widget) => widget.ownerId === ownerId)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
 
   async countWidgets(ownerId: string): Promise<number> {
+    this.refresh();
     return this.db.widgets.filter((widget) => widget.ownerId === ownerId).length;
   }
 
@@ -256,6 +295,7 @@ export class LocalStore implements Store {
   }
 
   async listVersions(widgetId: string, limit = 20): Promise<WidgetVersion[]> {
+    this.refresh();
     return this.db.versions
       .filter((version) => version.widgetId === widgetId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -281,6 +321,7 @@ export class LocalStore implements Store {
   }
 
   async listEvents(widgetId: string, since?: Date): Promise<EventRecord[]> {
+    this.refresh();
     const cutoff = since?.toISOString();
     return this.db.events.filter(
       (event) => event.widgetId === widgetId && (!cutoff || event.createdAt >= cutoff)
@@ -288,6 +329,7 @@ export class LocalStore implements Store {
   }
 
   async countInteractionsThisMonth(ownerId: string): Promise<number> {
+    this.refresh();
     const owned = new Set(
       this.db.widgets.filter((widget) => widget.ownerId === ownerId).map((widget) => widget.id)
     );
@@ -317,6 +359,7 @@ export class LocalStore implements Store {
   }
 
   async listLeads(widgetId: string, limit = 100): Promise<LeadRecord[]> {
+    this.refresh();
     return this.db.leads
       .filter((lead) => lead.widgetId === widgetId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -324,12 +367,14 @@ export class LocalStore implements Store {
   }
 
   async countLeads(widgetId: string): Promise<number> {
+    this.refresh();
     return this.db.leads.filter((lead) => lead.widgetId === widgetId).length;
   }
 
   /* billing ---------------------------------------------------------- */
 
   async getSubscription(userId: string): Promise<SubscriptionRecord | null> {
+    this.refresh();
     return this.db.subscriptions.find((subscription) => subscription.userId === userId) ?? null;
   }
 
