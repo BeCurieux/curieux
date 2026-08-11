@@ -11,3 +11,6 @@ node_modules/
 .cache/
 next-env.d.ts
 .env.local
+
+# The real kill-test target list — businesses that have agreed to nothing.
+killtest-targets.txt

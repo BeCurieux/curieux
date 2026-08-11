@@ -3,9 +3,9 @@
 Make a shop in a sentence. See `BRIEF.md` for what this is and `CLAUDE.md` for
 the rules that must never be violated.
 
-**Sprints 1–2 are complete: all six steps of the build order — the ingester,
-the Catalogue Genome, the merchandiser, the renderer, publish, and provenance +
-funnel.**
+**Sprints 1–2 are complete: all six build steps — the ingester, the Catalogue
+Genome, the merchandiser, the renderer, publish, and provenance + funnel. Step 7
+is "Stop", and it is enforced rather than remembered — see below.**
 
 ```
 pnpm install
@@ -441,6 +441,74 @@ types, closed — no properties bag, no custom events, which is how an events
 table becomes an analytics product nobody asked for. `pnpm funnel` says so at
 the bottom of its own output.
 
+## 7. Stop
+
+The seventh entry in the build order is not a feature. OAuth sync, email
+capture, creator shops, billing, word-editing and TikTok-URL input are Sprint 3,
+and they stay unbuilt until thirty real merchants have been asked and five
+actively want their shop live.
+
+Two things exist to hold that line.
+
+**`tests/stop-line.test.tsx` is the rule as a test.** Every other rule in
+CLAUDE.md has something enforcing it; this one had nothing, and it is the
+easiest of all of them to break — because none of these features arrives
+announcing itself as Sprint 3. Email capture arrives as "the capture block is
+already in the schema, it's twenty minutes." Word-editing arrives as "`EditMove`
+is defined, we may as well apply it." Each is individually reasonable and
+collectively the reason a kill test never gets run. So eight assertions: no
+Admin API or OAuth token anywhere, no `<form>` or `<input>` in the entire source
+tree, `capture` and `reviews` withheld from the merchandiser while staying in
+the contract, `EditMove` referenced by nothing outside `schema.ts`, no payments,
+no creator-shop concept, nothing reading a TikTok video, and no weights,
+experiments or scoring. Each one was checked by injecting the violation and
+watching it fail — a guard test that cannot fail is decoration.
+
+If one of these starts failing, that is not a bug. It is somebody having built
+a Sprint 3 feature, and the honest fix is to delete it or to run the kill test
+and delete the file.
+
+**`pnpm killtest` runs the gate.**
+
+```
+pnpm killtest check <targets-file>       # is this test allowed to run at all?
+pnpm killtest generate <targets-file>    # a shop per merchant, into the ledger
+pnpm killtest log <store-url> --stage wants_it_live --said "..."
+pnpm killtest status                     # the count, and the call
+```
+
+The verdict is computed, not reached. "Kill quickly rather than rationalise" is
+not advice a tool can give on the day — it is a number decided in advance and
+read out later, so `THRESHOLD_COUNT` is a named constant and moving it is a
+commit somebody has to justify. Three rules do the real work:
+
+- **Proceed the moment five clear the bar.** It is absolute; the other
+  twenty-five cannot change the answer.
+- **Never call a kill on a partial run.** Six DMs and no replies yet is not a
+  no, and collapsing that distinction is what this test exists to prevent.
+- **A stage never goes backwards.** A merchant who asked to connect and then
+  went quiet still asked to connect — overwriting that a week later is quietly
+  editing the numerator.
+
+`preflight` refuses to run the test on the deterministic providers, which is the
+single most damaging way to run it: thirty merchants shown a competent-but-flat
+shop say no, and the conclusion recorded is "merchants do not want this" rather
+than "we showed them the wrong thing." The brief's own condition is "not a mock,
+their real products" — this makes it enforceable rather than aspirational.
+
+The ledger is local, never in the shops database, and not reachable from any
+route. It is our own record about merchants who have agreed to nothing.
+
+**PULSE stays in the drawer for the same reason.** The step-6 logs are what it
+would eventually learn from; until they hold enough real sessions there are no
+learned weights, no experimentation framework and no schema shaped for one. The
+stop-line test asserts that too.
+
+**PULSE stays in the drawer.** No learned weights, no experimentation
+framework, no schema shaped for a learning system that does not exist. The
+Genome is heuristics plus one model pass, and the diagnostics on it are
+descriptive — nothing reads them back into a decision.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront
@@ -466,25 +534,10 @@ told.
 **Everything above `http.ts` and `provider.ts` is pure.** The tests inject a
 fetch and a fake model client; none of them need a network, a browser or a key.
 
-## Not built yet
-
-Step 7 is **Stop.** OAuth sync, email capture, creator shops, billing,
-word-editing and TikTok-URL input are Sprint 3, gated on the kill-test — five of
-thirty merchants actively wanting their shop live. The `capture` block and the
-`EditMove` set are both defined in `schema.ts` and both deliberately unbuilt.
-
-PULSE is not in the drawer by accident either. The logs from step 6 are what it
-would eventually learn from; until they hold enough real sessions, there are no
-learned weights, no experimentation framework and no schema shaped for one.
-
-**PULSE stays in the drawer.** No learned weights, no experimentation
-framework, no schema shaped for a learning system that does not exist. The
-Genome is heuristics plus one model pass, and the diagnostics on it are
-descriptive — nothing reads them back into a decision.
 
 ## Verification status
 
-308 unit and integration tests pass against fixtures, and the whole pipeline has
+331 unit and integration tests pass against fixtures, and the whole pipeline has
 been run end to end against a local storefront: `pnpm generate` through all six
 steps, republishing to v2, a custom slug, a 404 on an unknown one, and the badge
 with its UTM. The funnel was verified by driving three real browser sessions
@@ -493,6 +546,11 @@ one from TikTok — and reading the result back with `pnpm funnel`, which
 attributed the sources, the per-session rates and the per-product breakdown
 correctly. The renderer has been reviewed at 390×844 and 1280×900 across all
 five moods.
+
+The step-7 guards were verified the only way a guard test can be: by injecting
+each violation — an email form, an `EditMove` applier, a Stripe key, a Shopify
+admin token, a set of experiment weights — and confirming the suite went red for
+it, then removing them. A guard that cannot fail is decoration.
 
 The design review used a purpose-built fake store whose photography is
 deliberately bad in seven different ways — landscape studio shot, floating white
@@ -507,7 +565,10 @@ proxy blocks them:
 - **No real catalogue has been ingested.** Storefront hosts are refused at the
   proxy with a policy denial. Running against four real stores, one with poor
   photography, is the first thing to do next; the ingest trace exists for that
-  session.
+  session. This is also why **the kill test cannot be run from here** — and the
+  kill test is the whole content of step 7. `pnpm killtest check` refuses in
+  this environment for exactly the right reasons, which is the most that can be
+  demonstrated without egress.
 - **No real merchandising or Genome call has been made.** `api.anthropic.com`
   answers but no credential is configured here, so both Anthropic providers have
   only been exercised against a faked SDK client — request shape, refusal,

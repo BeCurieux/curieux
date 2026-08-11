@@ -14,6 +14,7 @@
     "merchandise": "tsx scripts/merchandise.ts",
     "generate": "tsx scripts/generate.ts",
     "funnel": "tsx scripts/funnel.ts",
+    "killtest": "tsx scripts/killtest.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
