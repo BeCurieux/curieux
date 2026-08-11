@@ -11,7 +11,7 @@ import { PromptBox } from "@/components/create/PromptBox";
 import { Illustration } from "@/components/illustrations/Illustration";
 import { HeroArt, HeroLeaves } from "@/components/site/HeroArt";
 import { SiteFooter, SiteHeader, Sparkles, Squiggle } from "@/components/site/Chrome";
-import { ArrowRightIcon, ChartIcon, LinkIcon, SparkleIcon } from "@/components/ui/Icons";
+import { ArrowRightIcon, ChartIcon, LinkIcon, PencilIcon, SparkleIcon } from "@/components/ui/Icons";
 import { WidgetRenderer } from "@/components/widget/WidgetRenderer";
 import { brand } from "@/config/brand";
 import { currentUser, isRegistered } from "@/lib/auth/session";
@@ -144,25 +144,29 @@ export default async function HomePage({
 
         {/* ---- Three promises -------------------------------------- */}
         <section className="px-5 py-10">
-          <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-3">
-            <PromiseCard
-              tone="purple"
-              icon={<SparkleIcon size={20} />}
-              title="Build in minutes"
-              body="Describe it or start from a template. Everything is editable, nothing needs code."
-            />
-            <PromiseCard
-              tone="mint"
-              icon={<LinkIcon size={20} />}
-              title="Share anywhere"
-              body="A hosted link, an iframe or a one-line script. It resizes itself to fit your page."
-            />
-            <PromiseCard
-              tone="yellow"
-              icon={<ChartIcon size={20} />}
-              title="See what happens"
-              body="Views, starts, completions and clicks. Enough to know what's working."
-            />
+          <div className="mx-auto max-w-6xl">
+            {/* One panel, three columns — a row of separate cards fragments
+                what is really a single claim about the product. */}
+            <div className="panel grid gap-8 px-7 py-9 sm:grid-cols-3 sm:gap-7 sm:px-10 sm:py-10">
+              <PromiseCard
+                tone="lavender"
+                icon={<PencilIcon size={25} />}
+                title="Build in minutes"
+                body="Describe it in a sentence or start from a template. Everything is editable and nothing needs code."
+              />
+              <PromiseCard
+                tone="yellow"
+                icon={<LinkIcon size={25} />}
+                title="Share anywhere"
+                body="A hosted link, a plain iframe or a one-line script that resizes itself to fit your page."
+              />
+              <PromiseCard
+                tone="mint"
+                icon={<ChartIcon size={25} />}
+                title="See what happens"
+                body="Views, starts, completions and clicks — enough to know what's working and what to change."
+              />
+            </div>
           </div>
         </section>
 
@@ -263,22 +267,29 @@ function PromiseCard({
   title,
   body,
 }: {
-  tone: "purple" | "mint" | "yellow";
+  tone: "lavender" | "mint" | "yellow";
   icon: React.ReactNode;
   title: string;
   body: string;
 }) {
+  // One pale disc and two saturated ones, as in the reference — three pale
+  // circles in a row would disappear into the panel behind them. Each pairs
+  // its mark with a colour that stays legible on it.
   const tones = {
-    purple: "bg-purple-soft text-purple",
-    mint: "bg-mint-soft text-mint",
-    yellow: "bg-yellow-soft text-yellow",
+    lavender: "bg-purple-soft text-purple",
+    yellow: "bg-yellow text-navy",
+    mint: "bg-mint text-white",
   } as const;
 
   return (
-    <div className="card p-6">
-      <span className={`grid h-12 w-12 place-items-center rounded-full ${tones[tone]}`}>{icon}</span>
-      <p className="mt-4 font-bold">{title}</p>
-      <p className="mt-1.5 text-sm leading-relaxed text-slate">{body}</p>
+    <div className="flex gap-4">
+      <span className={`grid h-14 w-14 flex-none place-items-center rounded-full ${tones[tone]}`}>
+        {icon}
+      </span>
+      <div className="min-w-0 pt-1">
+        <p className="font-bold leading-tight">{title}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-slate">{body}</p>
+      </div>
     </div>
   );
 }

@@ -83,6 +83,13 @@ export const DragIcon = (props: IconProps) => (
   </Icon>
 );
 
+export const PencilIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M4 20h4l10.5-10.5a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+    <path d="m14.5 5.5 4 4" />
+  </Icon>
+);
+
 export const SparkleIcon = (props: IconProps) => (
   <Icon {...props}>
     <path d="M12 3c.9 4.7 2.4 6.2 7 7-4.6.9-6.1 2.4-7 7-.9-4.6-2.4-6.1-7-7 4.6-.8 6.1-2.3 7-7Z" />
