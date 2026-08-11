@@ -60,3 +60,9 @@ jobs:
 
       - name: Tests
         run: pnpm test
+
+      # The renderer is a Next app now, and `next build` catches a class of
+      # thing `tsc --noEmit` does not — a server component importing something
+      # that only runs in a browser, a route whose params signature changed.
+      - name: Build
+        run: pnpm build

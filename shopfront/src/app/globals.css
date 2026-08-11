@@ -1,0 +1,33 @@
+/*
+ * The floor the template stands on. Deliberately almost nothing: `.shop` in
+ * shop.css owns every visual decision, and a reset that made choices here
+ * would be a second, invisible design system fighting the first.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  /* A published shop is opened from an app's in-app browser, where a rubber
+     band past the last block shows the page's own background, not the app's. */
+  background: #ffffff;
+  font-family: system-ui, sans-serif;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}

@@ -296,6 +296,18 @@ export function suggestColorway(candidates: ColourCandidate[], themeColor?: stri
   return { background: toHex(background), surface, text, accent };
 }
 
+/**
+ * Blend two colours. `t` is how much of `b` to take.
+ *
+ * Exported because the renderer needs derived tones — a muted text colour, a
+ * hairline rule — and computing them here means they are the same arithmetic
+ * the contrast checks use, rather than a CSS `color-mix` the checker cannot see.
+ */
+export function mix(a: Rgb, b: Rgb, t: number): Rgb {
+  const k = clamp(t, 0, 1);
+  return { r: a.r + (b.r - a.r) * k, g: a.g + (b.g - a.g) * k, b: a.b + (b.b - a.b) * k };
+}
+
 /** Nudge a colour towards white (positive) or black (negative). */
 function shift({ r, g, b }: Rgb, amount: number): Rgb {
   const target = amount > 0 ? 255 : 0;

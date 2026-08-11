@@ -3,13 +3,14 @@
 Make a shop in a sentence. See `BRIEF.md` for what this is and `CLAUDE.md` for
 the rules that must never be violated.
 
-**Built so far: steps 1 and 2 of the build order — the ingester and the
-merchandiser.**
+**Built so far: steps 1, 2 and 3 of the build order — the ingester, the
+merchandiser and the renderer.**
 
 ```
 pnpm install
 pnpm ingest kelpandcotton.com                              # store URL -> catalogue + brand
-pnpm merchandise kelpandcotton.com "a clean bio shop for the knitwear post"
+pnpm merchandise kelpandcotton.com "a clean bio shop for the knitwear post" --render
+pnpm dev                                                   # then open /preview/<store>
 pnpm test
 pnpm typecheck
 ```
@@ -111,6 +112,79 @@ reload, and the baseline. If the model's shop isn't obviously better than this,
 the merchandising isn't earning its cost. It is **not** a fallback: if the API
 is unreachable the run fails rather than quietly shipping a heuristic shop.
 
+## 3. The renderer
+
+`ShopConfig` + catalogue in; one page out. No branching on brand, category or
+block count beyond what the tokens already say.
+
+```
+<Shop config catalogue ingestedAt />
+  ├── theme.ts     5 tokens -> ~40 CSS custom properties on the root
+  ├── resolve.ts   handle -> live price, stock and photograph, at render time
+  ├── image.ts     the merchant's own CDN asked for the widths this layout uses
+  └── shop.css     one hand-written stylesheet, mobile-first, serving every shop
+```
+
+### Where the taste budget went
+
+**One plate ratio, one tint, one page.** Every product photograph is cropped to
+the mood's `--plate-ratio` and sits on the same surface colour. That single
+decision does most of the work of flattering a mixed catalogue: a landscape
+studio shot, an underexposed phone snap and a floating white cut-out stop
+arguing with each other the moment they are all the same shape on the same
+ground. Nothing is filtered — the merchant's goods have to look like the
+merchant's goods — but a soft radial vignette on the plate keeps a blown-out
+white background from bleeding into the page.
+
+**A product with no photograph gets its initial, set huge in the display face.**
+A grey rectangle is the single clearest tell that a page was generated.
+
+**Mood has to mean something.** `luxe` and `playful` differ by plate ratio, hero
+height, whether the hero bleeds to the edges, eyebrow case and tracking, rule
+weight, and the display scale, tracking and weight — not by a corner radius.
+`tests/render-theme.test.ts` asserts all five moods produce distinct
+fingerprints, because if two of them collapse, one was decoration.
+
+**Device fonts only.** A bio-link shop is opened on mobile data from an app's
+in-app browser, where a webfont costs a round trip before the first word is
+readable. The stacks lead with faces that actually ship on real devices —
+Hoefler Text, Iowan Old Style, `ui-rounded` — and the seam for a self-hosted
+variable font is the head of one array.
+
+**Derived colour is computed, not `color-mix`ed.** Muted text, hairlines and the
+accent wash come out of the same arithmetic the ingester and the validator use,
+so `--on-accent` clearing 4.5:1 is something a test can check rather than
+something the browser decides at paint time.
+
+**One well-orchestrated page load.** Staggered reveals driven by `--i` per
+block, a scroll-snap carousel, and nothing else moving — all of it off under
+`prefers-reduced-motion`.
+
+### The honesty rules, as tests
+
+`tests/render-shop.test.tsx` renders the actual markup and asserts the things a
+rendering bug could quietly break without any type failing:
+
+| Assertion | Because |
+|---|---|
+| A sold-out product appears, marked | Hiding it tidies the page and loses the merchant the sale someone came back for |
+| A product whose stock we never read says nothing | "In stock" is a claim nobody checked |
+| Prices come from the catalogue, in its currency | The config carries no prices, so a shop opened in June shows June's |
+| No "live", "real-time", "in sync", rating or review word anywhere | None of it is wired, and the merchant reads this page first |
+| `reviews` and `capture` render nothing at all | No review data is ingestable; nothing receives an email address |
+| A handle missing from the catalogue is dropped | A dead card is worse for the merchant than a shorter page |
+| The dateline prints when — and only when — there is an ingest time | A snapshot is not a feed, and shoppers are owed the difference |
+
+**No image optimiser.** `images: { unoptimized: true }` is deliberate: the
+merchant's CDN already resizes when asked, and `/_next/image` would add a second
+optimiser, a `remotePatterns` allowlist to widen per merchant, and a proxy hop
+in front of a photo that was one request away.
+
+**`.cache/shop/` is the storage seam.** `src/lib/render/store.ts` is the only
+file in the renderer that knows where a shop lives, because step 4 replaces
+exactly that with Supabase and a public URL. Everything above it takes a config
+and a catalogue as arguments.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront
@@ -138,23 +212,33 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 
 ## Not built yet
 
-Steps 3-5: renderer, publish, funnel events. There is no Next.js app in this
-package yet — it arrives with the renderer, and `src/lib` is where it will sit.
-`pnpm generate` is the definition of done for Sprints 1-2 and ends in a
-published URL, so it does not exist; `pnpm ingest` and `pnpm merchandise` are
-its first two thirds.
+Steps 4-5: publish and funnel events. `/preview/<key>` renders from a local
+file; there is no public URL, no Supabase and no free-tier badge yet, and
+nothing on the page records a view or a product click. `pnpm generate` is the
+definition of done for Sprints 1-2 and ends in a published, shareable URL, so it
+does not exist — `pnpm ingest`, `pnpm merchandise --render` and `pnpm dev` are
+the first three quarters of it.
 
 ## Verification status
 
-173 unit and integration tests pass against fixtures, and both CLIs have been
-run end to end against a local storefront.
+215 unit and integration tests pass against fixtures, all three stages have been
+run end to end against a local storefront, and the renderer has been reviewed at
+390×844 and 1280×900 across all five moods.
+
+The design review used a purpose-built fake store whose photography is
+deliberately bad in seven different ways — landscape studio shot, floating white
+cut-out, underexposed, extremely wide, busy phone snap, blown highlights, a
+200×200 thumbnail, and one product with no image at all — because "must flatter
+mediocre product photography" is not a claim a catalogue of clean shots can
+test.
 
 Two things have **not** been verified, both because this environment's egress
 proxy blocks them:
 
 - **No real catalogue has been ingested.** Storefront hosts are refused at the
-  proxy. Running against four real stores, one with poor photography, is the
-  first thing to do next; the ingest trace exists for that session.
+  proxy with a policy denial. Running against four real stores, one with poor
+  photography, is the first thing to do next; the ingest trace exists for that
+  session.
 - **No real merchandising call has been made.** `api.anthropic.com` answers but
   no credential is configured here, so the Anthropic provider has only been
   exercised against a faked SDK client — request shape, refusal, truncation and

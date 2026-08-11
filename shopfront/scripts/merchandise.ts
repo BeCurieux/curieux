@@ -16,6 +16,7 @@ import { ingestStore, IngestError } from "../src/lib/ingest/index";
 import { normaliseStoreUrl, storeCacheKey } from "../src/lib/ingest/url";
 import type { IngestResult } from "../src/lib/ingest/types";
 import { merchandise, MerchandiseError, createAnthropicProvider, createMockProvider } from "../src/lib/merchandise/index";
+import { saveShop } from "../src/lib/render/store";
 import type { ShopConfig } from "../src/lib/schema";
 
 interface Args {
@@ -25,10 +26,11 @@ interface Args {
   provider?: "anthropic" | "mock";
   fresh: boolean;
   quiet: boolean;
+  render: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { url: "", prompt: "", fresh: false, quiet: false };
+  const args: Args = { url: "", prompt: "", fresh: false, quiet: false, render: false };
   const positional: string[] = [];
 
   for (let i = 0; i < argv.length; i++) {
@@ -46,6 +48,9 @@ function parseArgs(argv: string[]): Args {
       case "--fresh":
         args.fresh = true;
         break;
+      case "--render":
+        args.render = true;
+        break;
       case "--quiet":
         args.quiet = true;
         break;
@@ -58,7 +63,7 @@ function parseArgs(argv: string[]): Args {
   args.url = positional[0] ?? "";
   args.prompt = positional.slice(1).join(" ");
   if (!args.url || !args.prompt) {
-    throw new Error('Usage: pnpm merchandise <store-url> "<prompt>" [--provider anthropic|mock] [--out file] [--fresh]');
+    throw new Error('Usage: pnpm merchandise <store-url> "<prompt>" [--provider anthropic|mock] [--render] [--out file] [--fresh]');
   }
   return args;
 }
@@ -145,6 +150,18 @@ async function main(): Promise<void> {
   if (!args.quiet) {
     process.stderr.write(`merchandised in ${((Date.now() - started) / 1000).toFixed(1)}s\n`);
     process.stderr.write(`${summarise(result.config, result.diagnostics)}\n`);
+  }
+
+  if (args.render) {
+    // Config plus the catalogue it resolves against — the renderer needs both,
+    // because prices and stock are read live rather than baked into the plan.
+    const key = storeCacheKey(normaliseStoreUrl(args.url));
+    await saveShop(key, {
+      config: result.config,
+      catalogue: ingest.catalogue,
+      ingestedAt: ingest.store.ingestedAt,
+    });
+    if (!args.quiet) process.stderr.write(`\nrenderable at /preview/${key} — run \`pnpm dev\`\n`);
   }
 
   const json = JSON.stringify(result.config, null, 2);

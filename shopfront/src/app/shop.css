@@ -1,0 +1,729 @@
+/*
+ * The template.
+ *
+ * One stylesheet for one page, driven entirely by the custom properties that
+ * `render/theme.ts` computes from five tokens. Nothing here reads a brand
+ * name or a mood by name — if it did, this would be five templates wearing a
+ * trench coat, and the next mood would need a sixth.
+ *
+ * The organising idea is the plate: every photograph on the page sits in a
+ * tinted container at one aspect ratio, cropped to fill. Merchant catalogues
+ * are a jumble of ratios, white cut-outs, phone snaps and studio exports, and
+ * a single ratio on a single tint is what makes that pile read as one page
+ * instead of a scrape. The grain over the top is the old print trick for the
+ * same problem: a shared texture unifies photographs that share nothing else.
+ *
+ * Mobile first throughout. The desktop rules are the adaptation, and there is
+ * exactly one breakpoint.
+ */
+
+.shop {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/*
+ * Grain.
+ *
+ * 3.5% opacity of fractal noise over the whole page, screen-blended on dark
+ * and multiplied on light. It is almost invisible on its own and does most of
+ * the work of making a mediocre photograph look like a considered one: the
+ * texture crosses the boundary between image and page, so the eye stops
+ * reading the photo as a pasted rectangle.
+ */
+.shop::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.shop[data-dark="true"]::after {
+  mix-blend-mode: screen;
+  opacity: 0.055;
+}
+
+.shop a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ layout */
+
+.wrap {
+  padding-inline: var(--gutter);
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.block + .block {
+  margin-top: var(--space-7);
+}
+
+/*
+ * One orchestrated page load, staggered by block index.
+ *
+ * Scattered micro-interactions do not survive a phone; a single settling
+ * motion as the page arrives does. Anything that moves is decorative, so all
+ * of it goes away under a reduced-motion preference.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.block {
+  animation: rise 620ms cubic-bezier(0.22, 0.68, 0.24, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms + 40ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    animation: none;
+  }
+  .shop * {
+    transition: none !important;
+  }
+}
+
+/* --------------------------------------------------------------- typography */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.05;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.eyebrow {
+  font-family: var(--eyebrow-font);
+  font-size: 0.72rem;
+  text-transform: var(--eyebrow-case);
+  letter-spacing: var(--eyebrow-tracking);
+  color: var(--text-faint);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.section-head h2 {
+  font-size: calc(1.5rem * var(--display-scale));
+  flex: 0 0 auto;
+}
+
+/* The rule runs off to the right margin — a magazine gesture, and it also
+   quietly signals "this section continues" on a narrow screen. */
+.section-head .rule {
+  flex: 1 1 auto;
+  height: 0;
+  border-top: var(--rule) solid var(--line);
+  transform: translateY(-0.28em);
+}
+
+.section-head .count {
+  flex: 0 0 auto;
+  font-family: var(--eyebrow-font);
+  font-size: 0.68rem;
+  text-transform: var(--eyebrow-case);
+  letter-spacing: var(--eyebrow-tracking);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------- plates */
+
+.plate {
+  position: relative;
+  aspect-ratio: var(--plate-ratio);
+  background: var(--surface);
+  border-radius: var(--radius-plate);
+  overflow: hidden;
+  /* A hairline inside the plate, so a white-background cut-out still has an
+     edge rather than dissolving into the tint. */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+/*
+ * The vignette.
+ *
+ * A whisper of falloff at the edges of every plate. On a studio shot it is
+ * invisible; on the white cut-out that every catalogue has too many of, it is
+ * the difference between a product sitting on the page and one floating in a
+ * void. Same idea as the grain: give photographs that share nothing else one
+ * thing in common.
+ */
+.plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(118% 96% at 50% 42%, transparent 52%, rgb(var(--scrim) / 0.11) 100%);
+}
+
+.plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Nothing is filtered — these are the merchant's goods and altering how they
+     look is misrepresenting them. The only treatment is the crop. */
+  transition: transform 900ms cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+
+@media (hover: hover) {
+  .card:hover .plate img {
+    transform: scale(1.035);
+  }
+}
+
+/*
+ * No photograph at all.
+ *
+ * Every catalogue has some, and a grey box with a broken-image glyph is the
+ * single clearest tell that a page was generated. The initial set in the
+ * display face at absurd size reads as a decision instead.
+ */
+.plate--empty {
+  display: grid;
+  place-items: center;
+}
+
+.plate--empty span {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 30cqw, 9rem);
+  line-height: 1;
+  color: var(--line-strong);
+  user-select: none;
+}
+
+.plate--empty {
+  container-type: inline-size;
+}
+
+.plate--soldout img {
+  opacity: 0.72;
+}
+
+.stock {
+  position: absolute;
+  z-index: 2;
+  left: var(--space-2);
+  bottom: var(--space-2);
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.34em 0.62em;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  color: var(--text-soft);
+  box-shadow: 0 1px 3px rgb(var(--scrim) / 0.12);
+}
+
+/* -------------------------------------------------------------------- hero */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero--bleed .hero-plate {
+  border-radius: 0;
+  box-shadow: none;
+  aspect-ratio: auto;
+  min-height: var(--hero-height);
+  /* Out of the wrap and all the way to the glass. Pulling back by the gutter
+     alone leaves a margin once `.wrap` hits its max-width, which is the exact
+     moment a full-bleed hero stops looking full-bleed. */
+  width: 100vw;
+  max-width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+.hero-plate {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  min-height: var(--hero-height);
+  background: var(--surface);
+  border-radius: var(--radius-plate);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.hero-plate img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The scrim is what makes overlaid type legible on a photograph whose
+   brightness we cannot know in advance. Two stops, weighted low. */
+.hero-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgb(var(--scrim) / 0.74) 0%,
+    rgb(var(--scrim) / 0.55) 22%,
+    rgb(var(--scrim) / 0.22) 52%,
+    rgb(var(--scrim) / 0) 78%
+  );
+  z-index: 1;
+}
+
+.hero--nomedia .hero-plate::before {
+  display: none;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-5) var(--gutter) var(--space-5);
+  width: 100%;
+  color: #fff;
+}
+
+/*
+ * A bleeding hero still has to keep the page's text column.
+ *
+ * Without this the headline sits against the glass while every heading below
+ * it starts at the wrap's inset — a misalignment of exactly the wrap's auto
+ * margin, invisible on a phone and obvious the moment the container hits its
+ * max-width.
+ */
+.hero--bleed .hero-copy {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.hero--nomedia .hero-copy {
+  color: var(--text);
+  padding-inline: 0;
+}
+
+.hero--nomedia .hero-plate {
+  background: transparent;
+  min-height: 0;
+  aspect-ratio: auto;
+  box-shadow: none;
+}
+
+.hero-copy h1 {
+  font-size: calc(2.7rem * var(--display-scale));
+  max-width: 13ch;
+  /* The photograph underneath can be any colour; a soft shadow keeps the
+     headline legible on the pale ones without darkening the whole image. */
+  text-shadow: 0 1px 28px rgb(var(--scrim) / 0.34);
+}
+
+.hero-copy .subline {
+  margin: var(--space-3) 0 0;
+  font-size: 0.98rem;
+  max-width: 34ch;
+  opacity: 0.92;
+}
+
+.hero-copy .eyebrow {
+  color: inherit;
+  opacity: 0.76;
+  margin-bottom: var(--space-2);
+}
+
+.hero--nomedia .hero-copy .eyebrow {
+  color: var(--text-faint);
+  opacity: 1;
+}
+
+.cta {
+  display: inline-block;
+  margin-top: var(--space-4);
+  padding: 0.78em 1.5em;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-control);
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  transition:
+    transform 200ms ease,
+    filter 200ms ease;
+}
+
+.cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+/* ------------------------------------------------------------------- cards */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-3);
+  row-gap: var(--space-5);
+}
+
+/*
+ * The stagger.
+ *
+ * Every column after the first is pushed down. It costs nothing, and it is the
+ * difference between a page that reads as edited and one that reads as a
+ * database table with pictures. Off in the stack layout, where it would just
+ * look like a mistake.
+ */
+.grid > :nth-child(even) {
+  margin-top: var(--space-6);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 68%;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* Bleed to the screen edges so the next card peeks: the affordance that
+     tells a thumb there is more without a row of dots. */
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  padding-bottom: var(--space-2);
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel > * {
+  scroll-snap-align: start;
+}
+
+.card {
+  display: block;
+}
+
+.card-meta {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-title {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.card-blurb {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin: 2px 0 0;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.card-price {
+  font-size: 0.86rem;
+  color: var(--text-soft);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-price del {
+  opacity: 0.55;
+  margin-right: 0.5em;
+  text-decoration-thickness: 1px;
+}
+
+.card--soldout .card-title,
+.card--soldout .card-price {
+  color: var(--text-faint);
+}
+
+/* The stack layout gives each product the full width and lets the type sit
+   beside the plate on desktop — for one to three products this reads as a
+   feature rather than a leftover row. */
+.stack .card {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* -------------------------------------------------------------- routine */
+
+.routine {
+  display: grid;
+  gap: var(--space-5);
+  position: relative;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.step-index {
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  width: 2.1em;
+  height: 2.1em;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: var(--rule) solid var(--line-strong);
+  color: var(--text-soft);
+  flex: none;
+}
+
+.step-body {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.step-label {
+  font-family: var(--eyebrow-font);
+  text-transform: var(--eyebrow-case);
+  letter-spacing: var(--eyebrow-tracking);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  margin: 0 0 4px;
+}
+
+/* ---------------------------------------------------------------- offer */
+
+.offer {
+  background: var(--accent-wash);
+  border: var(--rule) solid color-mix(in srgb, var(--accent) 26%, transparent);
+  border-radius: var(--radius-plate);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.offer code {
+  font-family: var(--font-mono);
+  font-size: 1.06rem;
+  letter-spacing: 0.14em;
+  padding: 0.5em 0.8em;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  border: 1px dashed var(--line-strong);
+  color: var(--text);
+}
+
+.offer p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+/* ------------------------------------------------------------- link list */
+
+.links {
+  border-top: var(--rule) solid var(--line);
+}
+
+.links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: var(--rule) solid var(--line);
+  font-size: 0.94rem;
+  transition: padding-inline-start 220ms ease;
+}
+
+.links a span:last-child {
+  color: var(--text-faint);
+  transition: transform 220ms ease;
+}
+
+@media (hover: hover) {
+  .links a:hover {
+    padding-inline-start: var(--space-2);
+  }
+  .links a:hover span:last-child {
+    transform: translateX(3px);
+  }
+}
+
+/* ----------------------------------------------------------------- chrome */
+
+.masthead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) 0 var(--space-3);
+}
+
+.masthead img {
+  height: 26px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+}
+
+.masthead .name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: var(--display-tracking);
+}
+
+.masthead .tagline {
+  margin-left: auto;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  text-align: right;
+  max-width: 44%;
+  line-height: 1.3;
+}
+
+.colophon {
+  margin-top: var(--space-7);
+  padding: var(--space-5) 0 var(--space-6);
+  border-top: var(--rule) solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.colophon a {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.colophon .asof {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------- desktop */
+
+@media (min-width: 760px) {
+  .shop {
+    font-size: 17px;
+  }
+
+  .wrap {
+    padding-inline: var(--space-6);
+  }
+
+  .hero-copy {
+    padding: var(--space-6);
+  }
+
+  .hero--bleed .hero-copy {
+    padding-inline: var(--space-6);
+  }
+
+  .hero-copy h1 {
+    font-size: calc(4rem * var(--display-scale));
+  }
+
+  .hero-copy .subline {
+    font-size: 1.06rem;
+  }
+
+  .section-head h2 {
+    font-size: calc(2rem * var(--display-scale));
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-4);
+  }
+
+  /* The stagger climbs: nothing on a desktop grid should sit on one baseline. */
+  .grid > :nth-child(even) {
+    margin-top: var(--space-6);
+  }
+  .grid > :nth-child(3n) {
+    margin-top: var(--space-4);
+  }
+
+  .carousel {
+    grid-auto-columns: 30%;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .stack .card {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: center;
+  }
+
+  .stack .card:nth-child(even) .plate {
+    order: 2;
+  }
+
+  .stack .card-meta {
+    margin-top: 0;
+  }
+
+  .stack .card-title {
+    font-family: var(--font-display);
+    font-size: calc(1.6rem * var(--display-scale));
+    letter-spacing: var(--display-tracking);
+  }
+
+  .stack .card-blurb {
+    font-size: 0.98rem;
+    max-width: 38ch;
+  }
+
+  .step-body {
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .offer {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+  }
+}
