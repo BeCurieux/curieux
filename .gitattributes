@@ -1,0 +1,37 @@
+# Which files are text, and which must never be touched.
+#
+# Git for Windows converts line endings on checkout by default. It decides
+# what is text by sniffing for NUL bytes, and that heuristic is a guess — a
+# guess this repository cannot afford, because a single byte inserted into a
+# font file changes every glyph's advance width and the whole site renders
+# as a pile of overlapping letters.
+#
+# So the binaries are declared rather than sniffed.
+
+* text=auto
+
+# Typefaces. The site and the printed book are set in the same face, so a
+# corrupted file here is wrong on screen and wrong on paper.
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+
+# Photographs, generated samples, and anything destined for a printer.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.pdf   binary
+*.ico   binary
+
+# Shell scripts must keep LF whatever platform they are checked out on: a
+# carriage character on the shebang line makes them unrunnable, with an
+# error naming an interpreter that does exist.
+*.sh    text eol=lf
+
+# SQL is pasted into the Supabase editor from a browser, where either ending
+# is fine — but keeping it LF means the file a person copies is the file that
+# was verified.
+*.sql   text eol=lf

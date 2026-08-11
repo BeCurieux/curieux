@@ -1,0 +1,4 @@
+
+# A stray vitest run from the repo root created this once.
+# The app has its own node_modules under qotidia/.
+node_modules/

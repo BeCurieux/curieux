@@ -1,0 +1,51 @@
+{
+  "name": "qotidia",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Qotidia (working brand TBD) — turns a parent's photos, quotes and memories into a beautifully designed annual childhood book. You live it. We help you keep it.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:supabase": "node scripts/check-supabase.mjs",
+    "check:fonts": "node scripts/check-fonts.mjs",
+    "build:setup": "node scripts/build-setup-sql.mjs",
+    "verify:schema": "./scripts/verify-schema.sh",
+    "seed": "node scripts/seed.mjs",
+    "jobs": "node scripts/run-jobs.mjs",
+    "sample": "CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome tsx scripts/sample-book.ts",
+    "demo": "DEMO_MODE=1 next dev -p 3000",
+    "spreads": "CHROMIUM_PATH=$(ls -d /opt/pw-browsers/chromium*/chrome-linux/chrome 2>/dev/null | head -1) tsx scripts/sample-spreads.mts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "@types/archiver": "^8.0.0",
+    "@types/qrcode": "^1.5.6",
+    "archiver": "^8.0.0",
+    "next": "16.3.0",
+    "playwright-core": "^1.48.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "stripe": "^17.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "@types/react": "^18.3.11",
+    "autoprefixer": "^10.4.20",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.3.0",
+    "postcss": "^8.4.47",
+    "sharp": "^0.35.3",
+    "tailwindcss": "^3.4.14",
+    "tsx": "^4.23.6",
+    "typescript": "^5.6.3",
+    "vitest": "4.1.10"
+  }
+}

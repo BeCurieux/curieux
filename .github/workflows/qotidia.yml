@@ -1,0 +1,82 @@
+# Does qotidia still build, typecheck and pass its tests?
+#
+# This repository holds several independent apps side by side. Until now the
+# only automated checks on a pull request came from Vercel, and those three
+# projects build `haunted` and `waterline` — so a change to qotidia could go
+# green without a single line of it having been compiled by anything. This
+# workflow exists to close that gap, and it is scoped to qotidia on purpose:
+# the sibling apps get to decide their own checks rather than inherit these.
+#
+# It needs no secrets. The build was verified to succeed with no environment
+# file present at all, which is the state a fresh runner is in — anything
+# that genuinely requires configuration fails at runtime, not at build time.
+
+name: qotidia
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "qotidia/**"
+      - ".github/workflows/qotidia.yml"
+  pull_request:
+    paths:
+      - "qotidia/**"
+      - ".github/workflows/qotidia.yml"
+  # Lets you run it by hand from the Actions tab, which is the quickest way
+  # to prove it works without pushing a commit to provoke it.
+  workflow_dispatch:
+
+# Read-only. This workflow reports on code; it has no business changing any.
+permissions:
+  contents: read
+
+# A second push supersedes the first. Waiting on a run for a commit that has
+# already been replaced tells you about code nobody is going to merge.
+concurrency:
+  group: qotidia-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: qotidia
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: qotidia/package-lock.json
+
+      # `ci` rather than `install`: it installs what the lockfile says and
+      # fails if package.json and the lockfile disagree, so a run cannot
+      # quietly test a different dependency tree than a developer has.
+      - run: npm ci
+
+      # Ordered fastest-first, and kept as separate steps so a red run names
+      # what broke on the summary page instead of making you open the log.
+      - name: Typecheck
+        run: npm run typecheck
+
+      # `--max-warnings=0` lives in the npm script, so a warning fails the run
+      # rather than joining a pile nobody reads. That only stays honest while
+      # rules are switched off deliberately — see .eslintrc.json, where the
+      # one exception is argued rather than merely silenced.
+      - name: Lint
+        run: npm run lint
+
+      # Cheap, and catches the one kind of damage that is otherwise invisible:
+      # a font file mangled by a checkout that guessed wrong about line endings.
+      - name: Fonts intact
+        run: npm run check:fonts
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
