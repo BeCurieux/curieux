@@ -16,7 +16,7 @@ describe("createHttpClient", () => {
     const headers = fetchImpl.mock.calls[0]![1]!.headers as Record<string, string>;
     // We are reading storefronts that have not asked us to. A merchant looking
     // at their logs must be able to find out who we are.
-    expect(headers["user-agent"]).toMatch(/Shopfront/i);
+    expect(headers["user-agent"]).toMatch(/Popuup/i);
     expect(headers["user-agent"]).toMatch(/https?:\/\//);
   });
 

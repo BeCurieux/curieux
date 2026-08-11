@@ -1,4 +1,4 @@
-# CLAUDE.md — Shopfront
+# CLAUDE.md — POPUUP
 
 Read BRIEF.md before doing anything. This file is the short version that must never be violated.
 
@@ -7,6 +7,8 @@ Read BRIEF.md before doing anything. This file is the short version that must ne
 **There is no page builder. The prompt is the builder.**
 
 The user describes who a shop is for; the system selects, merchandises, designs and publishes. If a proposed feature adds blocks, sections, layout pickers, template galleries, or any builder-shaped UI: the answer is no. Ask before deviating.
+
+Underlying direction (architecture, not launch pitch): don't tell us what page to build — tell us who is coming. This shapes what we log, never what we ship early.
 
 ## The one architectural law
 
@@ -24,20 +26,25 @@ Next.js (App Router) · TypeScript · Supabase · Stripe · Anthropic API · Ver
 ## Build order (do not reorder)
 
 1. **Ingester** — store URL → public catalogue (`/products.json` first; fall back to scraping), brand context (name, logo, colours, voice) from the homepage. No Shopify OAuth in this phase.
-2. **Merchandiser** — Anthropic call: catalogue + brand context + user prompt → `ShopConfig`. Selection, ordering, grouping, hero, copy, theme tokens.
-3. **Renderer** — one gorgeous template consuming `ShopConfig`. This is where the taste budget goes. Must flatter mediocre product photography. Read the frontend-design skill before building it.
-4. **Publish** — Supabase persistence, public URL per shop, badge on free tier, Vercel.
-5. **Funnel events** — view → product click → checkout start. Checkout = Shopify cart permalink, pre-filled. Never build on-page checkout.
-6. **Stop.** OAuth sync, email capture, creator shops, billing, word-editing are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live).
+2. **Catalogue Genome** — an LLM enrichment pass over the ingested catalogue, producing per-product: problem solved, likely audience, occasion, price tier, hero-vs-supporting role, complements/substitutes (by handle), photographs-well flag, giftability. Stored alongside the catalogue; input to the merchandiser. Heuristics + one model pass — no ML system, no embeddings infra unless asked.
+3. **Merchandiser** — Anthropic call: catalogue + Genome + brand context + user prompt → `ShopConfig`. Selection, ordering, grouping, hero, copy, theme tokens.
+4. **Renderer** — one gorgeous template consuming `ShopConfig`. This is where the taste budget goes. Must flatter mediocre product photography. Read the frontend-design skill before building it.
+5. **Publish** — Supabase persistence, public URL per shop, badge on free tier, Vercel.
+6. **Provenance + funnel** — every shop persists its prompt, stated audience, and the `ShopConfig` decisions; sessions record view → product click → checkout start, keyed to the shop version that served them. Checkout = Shopify cart permalink, pre-filled. Never build on-page checkout.
+7. **Stop.** OAuth sync, email capture, creator shops, billing, word-editing, TikTok-URL input are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live).
+
+## The drawer rule
+
+A future merchandising engine ("PULSE") may someday learn from the provenance logs. Until then it does not exist: no learned weights, no experimentation framework, no "intelligence" claims in copy, no schema built for a learning system we don't have. Log faithfully (step 6) and build nothing on top. If a task seems to require the engine, stop and ask.
 
 ## Product rules
 
 - Mobile-first always; desktop is the adaptation.
 - Sold-out products are shown (marked), never hidden — back-in-stock capture is a paid feature later, but the visual state exists now.
-- Prices, availability and imagery come from ingested data only. Never invent products, prices, reviews or review counts. If reviews aren't ingestable for a store, omit the reviews block entirely.
+- Prices, availability and imagery come from ingested data only. Never invent products, prices, reviews or review counts. Genome fields are inferences and stay internal — never rendered as claims on the page. If reviews aren't ingestable for a store, omit the reviews block entirely.
 - Every generated shop must be honest: nothing on the page may claim sync/liveness that isn't yet wired for that store.
 - Copy tone: confident, minimal, editorial. No exclamation-mark ecommerce voice unless the brand's own voice is that.
 
 ## Definition of done for Sprint 1–2
 
-`pnpm generate <store-url> "<prompt>"` produces a published, shareable, mobile-beautiful shop URL for a real store in under 60 seconds, with funnel events recording. Test against at least 4 real catalogues, including one with poor photography.
+`pnpm generate <store-url> "<prompt>"` produces a published, shareable, mobile-beautiful shop URL for a real store in under 60 seconds, with Genome stored and provenance + funnel events recording. Test against at least 4 real catalogues, including one with poor photography.

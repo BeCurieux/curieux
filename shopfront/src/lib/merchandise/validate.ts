@@ -12,6 +12,7 @@
  * to do instead. Warnings are for the human and never trigger a retry.
  */
 
+import { BANNED_CLAIMS, unqualifiedAmounts } from "@/lib/claims";
 import { contrastRatio, parseColour } from "@/lib/ingest/colour";
 import type { IngestResult } from "@/lib/ingest/types";
 import { SPRINT_1_BLOCK_TYPES, type MerchandisingPlan, type PlannedBlock } from "./plan";
@@ -41,25 +42,7 @@ export interface PlanValidation {
  * failure wearing different clothes — a review count nobody read, a stock
  * level nobody checked.
  */
-const BANNED_CLAIMS: { pattern: RegExp; why: string }[] = [
-  {
-    pattern: /\b(synced?|syncing|in sync|auto-?updat\w*|always up to date|live inventory|real-?time|updates? automatically)\b/i,
-    why: "claims the shop syncs with the store. It does not yet — nothing on the page may say it does",
-  },
-  {
-    pattern: /(\b\d[\d,.]*\s*(reviews?|ratings?|five-?star)\b)|(\b\d(\.\d)?\s*stars?\b)|(★)|(\brated\s+\d)/i,
-    why: "states review or rating data. No review data was ingested for this store",
-  },
-  {
-    pattern: /\b(only \d+ left|selling fast|almost gone|nearly sold out|limited stock|\d+ in stock|back in stock)\b/i,
-    why: "states a stock level. Stock is resolved live by the renderer and must not appear in copy",
-  },
-];
 
-/** A currency amount: $24, £1,299.00, 40 USD. */
-const MONEY = /(?:[$£€¥₹]\s?\d[\d,]*(?:\.\d{1,2})?)|(?:\b\d[\d,]*(?:\.\d{1,2})?\s?(?:USD|GBP|EUR|AUD|CAD|NZD|JPY)\b)/gi;
-/** A threshold the merchant asked for, rather than a price we are asserting. */
-const THRESHOLD = /(under|below|beneath|over|above|from|up to|less than|starting at|no more than)\s*$/i;
 
 export function validatePlan(input: PlanValidationInput): PlanValidation {
   const errors: string[] = [];
@@ -348,16 +331,6 @@ function* copyOf(block: PlannedBlock, where: string): Generator<{ text: string; 
 }
 
 /** Amounts that are being asserted rather than used as a merchant's threshold. */
-function unqualifiedAmounts(text: string): string[] {
-  const out: string[] = [];
-  MONEY.lastIndex = 0;
-  let match: RegExpExecArray | null;
-  while ((match = MONEY.exec(text))) {
-    const before = text.slice(Math.max(0, match.index - 24), match.index);
-    if (!THRESHOLD.test(before.trimEnd() + " ")) out.push(match[0]);
-  }
-  return out;
-}
 
 /**
  * "Everything under £80" has to actually be everything under £80.

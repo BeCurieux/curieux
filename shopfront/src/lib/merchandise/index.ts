@@ -1,7 +1,7 @@
 /**
  * Catalogue + brand context + the merchant's prompt -> ShopConfig.
  *
- * Step 2 of the build order, and the loop the brief demands: every model
+ * Step 3 of the build order, and the loop the brief demands: every model
  * response is validated against the schema, and an invalid one is retried with
  * the error rather than rendered. Two things are validated, not one — zod
  * proves the shape, `validate.ts` proves the plan is about *this* store — and
@@ -20,12 +20,22 @@ import { buildBrief, SYSTEM_PROMPT, type BriefOptions } from "./prompt";
 import { providerNameFromEnv, type Correction, type MerchandiseProvider } from "./provider";
 import { validatePlan } from "./validate";
 import type { IngestResult } from "@/lib/ingest/types";
+import type { CatalogueGenome } from "@/lib/genome/types";
 import type { ShopConfig } from "@/lib/schema";
 
 export interface MerchandiseOptions {
   provider?: MerchandiseProvider;
   /** Total attempts, including the first. */
   maxAttempts?: number;
+  /**
+   * Step 2's read of this catalogue.
+   *
+   * Optional, and deliberately so: a store can be merchandised without one, and
+   * the diagnostics say when that happened. Making it required would mean a
+   * Genome failure took the whole pipeline down, and a shop built without the
+   * relationship graph is worse than one built with it — not broken.
+   */
+  genome?: CatalogueGenome;
   brief?: BriefOptions;
   now?: () => Date;
 }
@@ -40,7 +50,9 @@ export interface MerchandiseResult {
     rejected: string[][];
     warnings: string[];
     usage?: { inputTokens: number; outputTokens: number };
-    catalogue: { offered: number; omitted: number; descriptions: boolean };
+    catalogue: { offered: number; omitted: number; descriptions: boolean; enriched: number };
+    /** False when no Genome was supplied — the shop was built without step 2. */
+    genome: boolean;
   };
 }
 
@@ -72,7 +84,7 @@ export async function merchandise(
   const maxAttempts = options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
   const now = options.now ?? (() => new Date());
 
-  const brief = buildBrief(ingest, trimmed, options.brief ?? {});
+  const brief = buildBrief(ingest, trimmed, withGenome(options));
   const corrections: Correction[] = [];
   const warnings = [...brief.catalogue.warnings];
 
@@ -123,7 +135,9 @@ export async function merchandise(
           offered: brief.catalogue.included,
           omitted: brief.catalogue.omitted,
           descriptions: brief.catalogue.descriptionsIncluded,
+          enriched: brief.catalogue.enriched,
         },
+        genome: options.genome !== undefined,
       },
     };
   }
@@ -133,6 +147,17 @@ export async function merchandise(
     `No valid plan after ${maxAttempts} attempts. The last attempt failed on: ${corrections[corrections.length - 1]?.errors.join("; ") ?? "unknown"}`,
     corrections.map((c) => c.errors),
   );
+}
+
+/**
+ * The Genome reaches the brief through the catalogue view, since that is where
+ * it is rendered per product. An explicit `options.genome` wins over one buried
+ * in `options.brief.catalogue`, so the common call stays one argument deep.
+ */
+function withGenome(options: MerchandiseOptions): BriefOptions {
+  const brief = options.brief ?? {};
+  if (!options.genome) return brief;
+  return { ...brief, catalogue: { ...(brief.catalogue ?? {}), genome: options.genome } };
 }
 
 function defaultProvider(): MerchandiseProvider {

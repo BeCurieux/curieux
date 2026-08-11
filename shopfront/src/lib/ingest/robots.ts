@@ -111,7 +111,7 @@ function selectGroup(
   for (const key of groups.keys()) {
     if (key === "*") continue;
     // Substring rather than equality: robots.txt names products ("googlebot"),
-    // and our full UA string is "ShopfrontBot/0.1 (+https://...)".
+    // and our full UA string is "PopuupBot/0.1 (+https://...)".
     if (token.includes(key) && (!bestKey || key.length > bestKey.length)) bestKey = key;
   }
   return groups.get(bestKey ?? "*");

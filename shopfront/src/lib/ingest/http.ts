@@ -39,7 +39,7 @@ export interface HttpClientOptions {
 }
 
 export const DEFAULT_USER_AGENT =
-  "ShopfrontBot/0.1 (+https://shopfront.new/bot; reads public storefront data)";
+  "PopuupBot/0.1 (+https://popuup.com/bot; reads public storefront data)";
 
 const DEFAULTS = {
   timeoutMs: 15_000,

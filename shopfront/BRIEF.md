@@ -1,11 +1,11 @@
-# Shopfront — Founding Brief v2
+# POPUUP — Founding Brief v3
 
 **Company thesis:** Make a shop in a sentence.
 **First wedge:** Turn your bio into a shop.
 **Internal north star:** There is no page builder. The prompt is the builder.
-**Date:** August 2026 · Sounding Labs
+**Underlying direction (not the launch pitch):** Don't tell us what page to build — tell us who is coming.
 
----
+*Date: August 2026 · Sounding Labs · Working name: POPUUP*
 
 ## Product truth
 
@@ -21,29 +21,33 @@ The same primitive repeats without new features:
 - `Make a Mother's Day edit under $150.`
 - `Make one for Jess using her five favourite products and JESS15.`
 
-Carrd's primitive was the page. Ours is the **shop**.
+Carrd's primitive was the page. Ours is the shop.
 
 ## The honest competitive picture
 
 This is not white space. It is validated demand with an under-served extreme.
 
 - **Linktree** has offered Shopify Stores since 2022; connected collections auto-update, and it now runs a dedicated social-commerce product. But commerce is bolted onto a links product, generically templated, inside a company optimised for 50M general creators.
-- **LoudCrowd and Superfiliate** prove creator storefronts work at scale (LoudCrowd claims 12,400+ live storefronts, $420M+ creator GMV; boohoo deployed storefronts to thousands of creators). But these are heavyweight creator-marketing systems — sales-led, programme-oriented, priced and built for brands running creator operations.
+- **LoudCrowd** and **Superfiliate** prove creator storefronts work at scale (LoudCrowd claims 12,400+ live storefronts, $420M+ creator GMV; boohoo deployed storefronts to thousands of creators). But these are heavyweight creator-marketing systems — sales-led, programme-oriented, priced and built for brands running creator operations.
 - **Replo, GemPages, PageFly** own the "powerful page builder" end for Shopify.
 
-**The open position is the simple extreme:** absurdly self-serve, gorgeous by default, AI-merchandised, priced for any Shopify merchant, with no builder to learn. Nobody occupies "the Carrd of commerce pages." Carrd itself never had white space either — it had a hundred competitors and won the simplicity extreme. Same play, one layer up.
+The open position is the **simple extreme**: absurdly self-serve, gorgeous by default, AI-merchandised, priced for any Shopify merchant, with no builder to learn. Nobody occupies "the Carrd of commerce pages." Carrd itself never had white space either — it had a hundred competitors and won the simplicity extreme. Same play, one layer up.
 
-The strategy sentence: **we're taking a capability currently sold inside heavyweight creator-commerce software and making it available to every Shopify merchant in thirty seconds.**
+**The strategy sentence:** we're taking a capability currently sold inside heavyweight creator-commerce software and making it available to every Shopify merchant in thirty seconds.
 
 ## The killer feature is merchandising, not syncing
 
 Anyone can sync products. The promise is: **you don't build the shop — you describe who it's for.**
 
-`This is for people coming from our TikTok about hormonal acne. Keep it to a three-step routine, nothing over $60, lead with the serum.`
+> `This is for people coming from our TikTok about hormonal acne. Keep it to a three-step routine, nothing over $60, lead with the serum.`
 
 The system understands the catalogue, selects the products, orders them, pulls the best imagery, writes the merchandising copy, applies the offer, designs the page, publishes. AI is not a copywriting button; it is the thing that eliminates page-building.
 
-**After generation, editing is words too** — with one engineering caveat taken seriously. Open-ended natural-language editing against arbitrary page state is where trust goes to die ("make the hero smaller" doing something weird twice is fatal when there's no manual editor to fall back on). So V1 constrains it: prompts map to a defined set of legal moves within a tight design system — reorder, resize within steps, feature/hide, swap imagery, adjust tone, filter (e.g. in-stock only) — plus minimal direct manipulation (drag to reorder, tap to hide/swap). The constraint is the product philosophy anyway: there is no builder to leak into.
+**The Catalogue Genome (in V1).** At ingest, every product gets an enrichment pass: what problem it solves, who it's for, occasion, price tier, hero-vs-supporting, complements and substitutes, whether it photographs well, giftability. This private product-relationship graph is what makes merchandising decisions good instead of plausible — and it improves generation quality on day one, no learning system required.
+
+**Fast-follow input: paste a URL, not a prompt.** The merchant pastes a creator's TikTok/Reel; the system reads the content — who's talking, what they claim, which product they mention — and the shop is simply ready: right products chosen, creator's video in the hero, their code applied. This is the demo-of-demos and the first expression of the underlying direction.
+
+After generation, **editing is words too** — with one engineering caveat taken seriously. Open-ended natural-language editing against arbitrary page state is where trust goes to die ("make the hero smaller" doing something weird twice is fatal when there's no manual editor to fall back on). So V1 constrains it: prompts map to a defined set of legal moves within a tight design system — reorder, resize within steps, feature/hide, swap imagery, adjust tone, filter (e.g. in-stock only) — plus minimal direct manipulation (drag to reorder, tap to hide/swap). The constraint is the product philosophy anyway: there is no builder to leak into.
 
 **Discipline test for every future feature:** does this add a builder? Then no.
 
@@ -52,12 +56,12 @@ The system understands the catalogue, selects the products, orders them, pulls t
 1. **Commerce-native.** Live inventory, variants, reviews, discounts, collections, drops and (paid tier) back-in-stock are the product, not integrations.
 2. **Beautiful automatically.** Editorial mini-shops, not stacked buttons. Design taste is a durable edge against both Linktree's genericism and the enterprise tools' utility.
 3. **AI merchandising.** The core feature, per above.
-4. **Creator shops — in V1.** "Make another shop → for a creator": name, photo or video, products, unique code, publish. Nearly the same object as the brand shop, so it costs little to include — and it lets us test the brand-bio market and the creator-shop market simultaneously without building two products. The demo it unlocks — **one Shopify catalogue → twenty different shops in seconds** — is the strongest demo the product has. What V1 does *not* include is creator programme management; that's LoudCrowd's territory and a later decision, not the founding thesis.
+4. **Creator shops — in V1.** "Make another shop → for a creator": name, photo or video, products, unique code, publish. Nearly the same object as the brand shop, so it costs little to include — and it lets us test the brand-bio market and the creator-shop market simultaneously without building two products. The demo it unlocks — one Shopify catalogue → twenty different shops in seconds — is the strongest demo the product has. What V1 does **not** include is creator programme management; that's LoudCrowd's territory and a later decision, not the founding thesis.
 5. **Constantly live.** Sell-outs, price changes, new reviews and drop launches reflect automatically. The reason this beats a Canva/Carrd/Lovable export, forever.
 
 ## Scope
 
-**V1:** Shopify connect → catalogue import → shop generated from one prompt → product cards, hero video/image, collections, reviews, discount code, email capture → word-editing (constrained) → creator shops (single) → custom URL → publish → mobile-first → **funnel analytics** (below).
+**V1:** Shopify connect → catalogue import + Catalogue Genome enrichment → shop generated from one prompt → product cards, hero video/image, collections, reviews, discount code, email capture → word-editing (constrained) → creator shops (single) → custom URL → publish → mobile-first → funnel analytics (below) → decision-provenance logging: every shop records its prompt, stated audience, the merchandising decisions made, and funnel outcomes. Cheap now; feeds everything later.
 
 **First paid-tier additions, deliberately deferred:** back-in-stock notifications, SMS capture (compliance weight), deeper analytics. These carry infrastructure cost and are exactly what's worth gating at the paid tier.
 
@@ -86,7 +90,7 @@ Merchant economics beat creator-tool economics: the page produces trackable reve
 
 Buyers who plausibly care, and why: **Linktree** (commerce conversion is its structural weakness; proven consolidator), **creator-commerce platforms and Later-types** (the Mavely deal shows creator→sale attribution commands premiums), **Klaviyo** (every shop is a list-growth surface), **Wix** (proven buyer of solo AI-native builders), **Shopify** (platform risk first, acqui-hire second), **Canva/Lovable** (generation-tech angle).
 
-Rather than forecasting exit prices, the brief commits to accumulating the **strategic assets a buyer would price:**
+Rather than forecasting exit prices, the brief commits to accumulating the strategic assets a buyer would price:
 
 - merchant installs and active live shops
 - attributable GMV through shops
@@ -96,9 +100,17 @@ Rather than forecasting exit prices, the brief commits to accumulating the **str
 
 If those compound, the exit takes care of itself; if they don't, no forecast would have saved it.
 
+## The long game, kept in a drawer: PULSE
+
+The eventual product beneath the product is a **merchandising decision engine** — given who is arriving, it decides what to show, in what order, with what offer, and learns from what happens. Codename PULSE. It is deliberately **not in scope**, and stays out until the provenance logs contain enough real sessions to learn from; before that point, "PULSE" is just Claude plus heuristics plus the Genome, which is what V1 already is.
+
+**The honest moat claim.** The defensible data is not conversion behaviour — Shopify sees vastly more of that across every merchant and is building AI merchandising itself; that data war is unwinnable. The defensible layer is **audience context**: where the session came from, what the creator actually said, what intent the merchant declared. That context lives at our layer and nowhere else, and traffic-source-aware merchandising is the version of the flywheel worth claiming. *(Before any pitch claims cross-merchant learning: check Shopify API terms on aggregated derived data.)*
+
+**Discipline rule:** no ML investment, no learned weights, no "engine" marketing until the logs justify it. The drawer stays shut on evidence, not enthusiasm.
+
 ## Risks
 
-- **Incumbent bundling:** Linktree deepens commerce, or Shopify revives a Linkpop successor. Mitigation: speed, App Store position, and owning the no-builder extreme they'd have to *un-build* toward.
+- **Incumbent bundling:** Linktree deepens commerce, or Shopify revives a Linkpop successor. *Mitigation:* speed, App Store position, and owning the no-builder extreme they'd have to un-build toward.
 - **Platform dependency:** Shopify API terms and app review timelines.
 - **Word-editing trust:** constrained scope in V1; expand the legal-move set only as reliability proves out.
 - **Willingness to pay above Linktree-free:** unvalidated until the kill-test.
@@ -107,13 +119,13 @@ If those compound, the exit takes care of itself; if they don't, no forecast wou
 
 The generation flow runs on public storefront data — no app approval needed to demo. So:
 
-**Thirty Shopify brands, over-indexed on former Linkpop users and active bio-link users. Generate a genuinely excellent shop for each — not a mock, their real products, imagery and reviews. DM the actual link:**
+Thirty Shopify brands, over-indexed on former Linkpop users and active bio-link users. Generate a genuinely excellent shop for each — not a mock, their real products, imagery and reviews. DM the actual link:
 
-> *"I made this from your Shopify store — it goes live and stays synced the moment you connect. Want it for your Instagram bio?"*
+> "I made this from your Shopify store — it goes live and stays synced the moment you connect. Want it for your Instagram bio?"
 
-(Phrasing matters: it isn't synced *yet*, and we don't claim it is. First contact under our own name in our own ecosystem starts honest.)
+*(Phrasing matters: it isn't synced yet, and we don't claim it is. First contact under our own name in our own ecosystem starts honest.)*
 
-**Measure the funnel:** opened → replied → asked to connect → published → asked price / paid.
+Measure the funnel: opened → replied → asked to connect → published → asked price / paid.
 
 - **Proceed:** 5+ of 30 actively wanting it live. Any unprompted "how much?" is gold.
 - **Kill:** polite silence. Kill quickly rather than rationalise — the whole point of a two-week, near-zero-cost test is that a "no" is cheap now and expensive after four weeks of OAuth plumbing.

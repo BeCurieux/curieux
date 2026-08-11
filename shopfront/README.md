@@ -1,14 +1,15 @@
-# Shopfront
+# popuup
 
 Make a shop in a sentence. See `BRIEF.md` for what this is and `CLAUDE.md` for
 the rules that must never be violated.
 
-**Built so far: steps 1, 2 and 3 of the build order — the ingester, the
-merchandiser and the renderer.**
+**Built so far: steps 1–4 of the build order — the ingester, the Catalogue
+Genome, the merchandiser and the renderer.**
 
 ```
 pnpm install
 pnpm ingest kelpandcotton.com                              # store URL -> catalogue + brand
+pnpm genome kelpandcotton.com                              # catalogue -> what each product is for
 pnpm merchandise kelpandcotton.com "a clean bio shop for the knitwear post" --render
 pnpm dev                                                   # then open /preview/<store>
 pnpm test
@@ -41,13 +42,79 @@ The first rung that yields products wins. Every attempt lands in
 `diagnostics.trace` whether it worked or not, which is what makes "why did this
 store come back empty?" a five-second question.
 
-## 2. The merchandiser
+## 2. The Catalogue Genome
+
+Catalogue in; a private read of what each product is *for* out.
+
+```
+enrichCatalogue(ingest)
+  ├── brief        every product's title, type, tags, options and description
+  ├── one pass     one Anthropic call over the whole catalogue, not one per product
+  ├── validate     zod for shape, then semantics: do these handles exist, is this
+  │                 graph coherent, is there a price hiding in the prose?
+  ├── compute      price tier and photography, which the model is never asked for
+  └── store        .cache/genome/<store>.json, beside the catalogue
+```
+
+**The relationship graph is the point.** Titles and prices are already in the
+catalogue; what is not there is which two products belong in the same routine
+and which two are the same decision at different price points. `complements` and
+`substitutes` are what make a three-step routine an actual routine rather than
+three products in an arbitrary order, and they are why this is one pass over the
+whole catalogue rather than one call per product — a model looking at a single
+listing cannot know what it relates to.
+
+**Two fields are computed, not inferred.** Both are questions about
+measurements, and a model answering them is confidently wrong in a way that is
+hard to spot:
+
+| Field | Why it is not the model's to answer |
+|---|---|
+| `priceTier` | Quantiles of *this store's* own prices. £180 is entry-level in one catalogue and flagship in another; any absolute band gets one of them wrong, and a model shown one product at a time has no distribution to read |
+| `photography` | Image count, resolution and aspect ratio, from what the ingest measured. Never an aesthetic judgement — we have not seen the pixels, and a flag claiming a photograph is ugly would be inventing |
+
+`photography.dimensionsKnown` carries the same discipline as `availabilityKnown`
+on the catalogue: some ingest surfaces return bare image URLs, and "we did not
+measure" must never be recorded as "measured and found wanting". Unmeasured
+imagery can never be rated `strong`, because `strong` is what the merchandiser
+leans on to pick a hero.
+
+**None of it is ever rendered.** The Genome is the most quotable text in the
+system — `problemSolved` reads like a product blurb and `audience` reads like a
+headline — and both are somebody's reading of a marketing description. A shopper
+meeting one as a claim about their own life is exactly the failure the
+internal/external line exists to prevent. So the line is structural rather than
+a matter of discipline: the Genome is not a field on `ShopConfig`, it is not part
+of `ShopRenderInput`, and the renderer is never handed it.
+`tests/genome-internal.test.tsx` plants a telltale string in every Genome field
+and asserts it reaches the merchandiser's brief and nothing else.
+
+Free text in the Genome is validated against the same banned claims as page
+copy (`src/lib/claims.ts`, shared with the merchandiser). A Genome that says
+"the £148 jumper" hands the merchandiser a price it can echo without inventing
+anything itself, and a snapshot's price outlives the snapshot.
+
+**The Genome is a per-store cost; the merchandiser is a per-shop one.** A
+merchant generating twenty shops from one catalogue pays for one read, which is
+why `pnpm genome` is its own command and `pnpm merchandise` loads what it
+stored. `staleFor()` reports which catalogue products a stored Genome no longer
+covers, so a grown catalogue degrades to partial coverage that says so rather
+than to a silently stale graph.
+
+**The deterministic read.** `AI_PROVIDER=mock` infers from structure alone —
+same product type means substitute, shared tags across types mean complement —
+and writes `"Not inferred without a model pass"` where a model would write an
+audience. It is visibly mechanical on purpose: it is the baseline the real pass
+has to beat, and a baseline that flattered itself would be useless for that.
+
+## 3. The merchandiser
 
 Catalogue + brand context + the merchant's prompt in; `ShopConfig` out.
 
 ```
-merchandise(ingest, "nothing over £80, lead with the crew")
-  ├── brief        brand, its own voice, its colours, a closed set of URLs, the catalogue
+merchandise(ingest, "nothing over £80, lead with the crew", { genome })
+  ├── brief        brand, its own voice, its colours, a closed set of URLs, the
+  │                 catalogue — each product carrying its Genome line
   ├── generate     one Anthropic call, output_config.format = the plan schema
   ├── validate     zod for shape, then semantics against THIS store
   │                 └── invalid? the errors go back as the next turn. Up to 3 attempts.
@@ -107,12 +174,12 @@ brand's own line as the headline, photographed products first, the colourway
 read off the brand's own stylesheet, and no copy it cannot source. It has one
 hard contract — it always produces a plan that passes validation.
 
-It is the test fixture, the renderer's input for step 3 without a model call per
-reload, and the baseline. If the model's shop isn't obviously better than this,
+It is the test fixture, the renderer's input without a model call per reload,
+and the baseline. If the model's shop isn't obviously better than this,
 the merchandising isn't earning its cost. It is **not** a fallback: if the API
 is unreachable the run fails rather than quietly shipping a heuristic shop.
 
-## 3. The renderer
+## 4. The renderer
 
 `ShopConfig` + catalogue in; one page out. No branching on brand, category or
 block count beyond what the tokens already say.
@@ -262,16 +329,29 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 
 ## Not built yet
 
-Steps 4-5: publish and funnel events. `/preview/<key>` renders from a local
-file; there is no public URL, no Supabase and no free-tier badge yet, and
-nothing on the page records a view or a product click. `pnpm generate` is the
-definition of done for Sprints 1-2 and ends in a published, shareable URL, so it
-does not exist — `pnpm ingest`, `pnpm merchandise --render` and `pnpm dev` are
-the first three quarters of it.
+**Step 5, publish.** `/preview/<key>` renders from a local file; there is no
+public URL, no Supabase and no free-tier badge.
+
+**Step 6, provenance + funnel.** A `ShopConfig` already carries its prompt,
+stated audience and every merchandising decision, so provenance is half-built by
+accident — what is missing is persisting it against a shop *version*, and
+recording view → product click → checkout start keyed to the version that served
+them. Nothing on the page records anything today, and checkout is still a link
+to the merchant's product page rather than a pre-filled cart permalink.
+
+`pnpm generate` is the definition of done for Sprints 1–2 and ends in a
+published, shareable URL with the Genome stored and funnel events recording, so
+it does not exist yet — `pnpm ingest`, `pnpm genome`, `pnpm merchandise --render`
+and `pnpm dev` are its first four fifths.
+
+**PULSE stays in the drawer.** No learned weights, no experimentation
+framework, no schema shaped for a learning system that does not exist. The
+Genome is heuristics plus one model pass, and the diagnostics on it are
+descriptive — nothing reads them back into a decision.
 
 ## Verification status
 
-217 unit and integration tests pass against fixtures, all three stages have been
+252 unit and integration tests pass against fixtures, all four stages have been
 run end to end against a local storefront, and the renderer has been reviewed at
 390×844 and 1280×900 across all five moods.
 
@@ -289,7 +369,11 @@ proxy blocks them:
   proxy with a policy denial. Running against four real stores, one with poor
   photography, is the first thing to do next; the ingest trace exists for that
   session.
-- **No real merchandising call has been made.** `api.anthropic.com` answers but
-  no credential is configured here, so the Anthropic provider has only been
-  exercised against a faked SDK client — request shape, refusal, truncation and
-  the retry loop are covered; the actual quality of the merchandising is not.
+- **No real merchandising or Genome call has been made.** `api.anthropic.com`
+  answers but no credential is configured here, so both Anthropic providers have
+  only been exercised against a faked SDK client — request shape, refusal,
+  truncation and the retry loop are covered; the actual quality of the
+  merchandising and of the relationship graph is not. The Genome's heuristic
+  half *has* been verified against the fixture catalogue: it correctly finds the
+  200×200 thumbnail and the product with no image, and spreads eight products
+  across all four price tiers.

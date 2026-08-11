@@ -14,6 +14,7 @@
  */
 
 import type { Catalogue, IngestedProduct } from "@/lib/ingest/types";
+import type { CatalogueGenome, ProductGenome } from "@/lib/genome/types";
 
 export interface CatalogueViewOptions {
   /** Hard cap on products handed to the model. */
@@ -21,6 +22,8 @@ export interface CatalogueViewOptions {
   /** Below this many products, each one gets a description. */
   descriptionsBelow?: number;
   maxDescriptionChars?: number;
+  /** Step 2's read of this catalogue, if it has been run. */
+  genome?: CatalogueGenome;
 }
 
 export interface CatalogueView {
@@ -28,6 +31,8 @@ export interface CatalogueView {
   included: number;
   omitted: number;
   descriptionsIncluded: boolean;
+  /** How many of the offered products carried a Genome entry. */
+  enriched: number;
   warnings: string[];
 }
 
@@ -58,23 +63,40 @@ export function renderCatalogue(catalogue: Catalogue, options: CatalogueViewOpti
     );
   }
 
+  const byHandle = new Map((options.genome?.products ?? []).map((entry) => [entry.handle, entry]));
+  const enriched = products.filter((product) => byHandle.has(product.handle)).length;
+
+  if (options.genome && enriched < products.length) {
+    warnings.push(
+      `${products.length - enriched} of ${products.length} offered products have no Genome entry; the merchandiser sees less about them than about the rest.`,
+    );
+  }
+
   const currency = catalogue.currency ?? "unstated currency";
   const header =
     `handle | title | price (${currency}) | stock | type | tags | images` +
     (withDescriptions ? " | description" : "");
 
-  const lines = products.map((product) => renderProduct(product, withDescriptions, maxDescriptionChars));
+  const lines = products.map((product) =>
+    renderProduct(product, withDescriptions, maxDescriptionChars, byHandle.get(product.handle)),
+  );
 
   return {
     text: [header, ...lines].join("\n"),
     included: products.length,
     omitted,
     descriptionsIncluded: withDescriptions,
+    enriched,
     warnings,
   };
 }
 
-function renderProduct(product: IngestedProduct, withDescription: boolean, maxDescriptionChars: number): string {
+function renderProduct(
+  product: IngestedProduct,
+  withDescription: boolean,
+  maxDescriptionChars: number,
+  genome: ProductGenome | undefined,
+): string {
   const price =
     product.price.min === product.price.max
       ? money(product.price.min)
@@ -94,19 +116,47 @@ function renderProduct(product: IngestedProduct, withDescription: boolean, maxDe
 
   if (withDescription) cells.push(clip(product.description, maxDescriptionChars) || "—");
 
-  const line = cells.join(" | ");
+  const rows = [cells.join(" | ")];
+
+  if (genome) rows.push(`    ${renderGenome(genome)}`);
 
   // Variant ids are only worth their tokens when pinning one changes the
   // price — that is the case `ProductRef.variantId` exists for ("the size
   // that comes in under £60"). For a product with one price, the default
   // variant is always the right answer and the ids are noise.
-  if (product.price.min === product.price.max) return line;
+  if (product.price.min !== product.price.max) {
+    const variants = product.variants
+      .slice(0, 12)
+      .map((v) => `${v.id} "${v.title}" ${money(v.price)}${v.available ? "" : " sold out"}`)
+      .join("; ");
+    rows.push(`    variants: ${variants}`);
+  }
 
-  const variants = product.variants
-    .slice(0, 12)
-    .map((v) => `${v.id} "${v.title}" ${money(v.price)}${v.available ? "" : " sold out"}`)
-    .join("; ");
-  return `${line}\n    variants: ${variants}`;
+  return rows.join("\n");
+}
+
+/**
+ * The Genome line.
+ *
+ * Compact on purpose — this is a second line for every product in the
+ * catalogue, and the merchandiser needs it scannable rather than complete. The
+ * relationship handles come last because they are the part worth reading
+ * carefully when building a routine.
+ */
+function renderGenome(genome: ProductGenome): string {
+  const parts = [
+    `genome: ${genome.role}`,
+    `${genome.priceTier} tier`,
+    `photo ${genome.photography.rating}`,
+    `gift ${genome.giftability}`,
+    ...(genome.confidence !== "high" ? [`${genome.confidence} confidence`] : []),
+    `solves: ${genome.problemSolved}`,
+    `for: ${genome.audience}`,
+    ...(genome.occasions.length ? [`occasions: ${genome.occasions.join(", ")}`] : []),
+    ...(genome.complements.length ? [`with: ${genome.complements.join(", ")}`] : []),
+    ...(genome.substitutes.length ? [`or: ${genome.substitutes.join(", ")}`] : []),
+  ];
+  return parts.join(" · ");
 }
 
 function money(amount: number): string {

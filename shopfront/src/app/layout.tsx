@@ -5,7 +5,7 @@ import "./brand.css";
 import "./shop.css";
 
 export const metadata: Metadata = {
-  title: "Shopfront",
+  title: "popuup",
   description: "Make a shop in a sentence.",
 };
 

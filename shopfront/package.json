@@ -2,11 +2,12 @@
   "name": "shopfront",
   "private": true,
   "version": "0.1.0",
-  "description": "Shopfront — make a shop in a sentence. Sprint 1, step 1: the ingester.",
+  "description": "Shopfront \u2014 make a shop in a sentence. Sprint 1, step 1: the ingester.",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "ingest": "tsx scripts/ingest.ts",
+    "genome": "tsx scripts/genome.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

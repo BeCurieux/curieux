@@ -16,7 +16,7 @@
 import type { IngestResult } from "@/lib/ingest/types";
 import { renderCatalogue, type CatalogueView, type CatalogueViewOptions } from "./catalogue-view";
 
-export const SYSTEM_PROMPT = `You are the merchandiser for Shopfront. A merchant tells you who a shop is for; you decide what is in it.
+export const SYSTEM_PROMPT = `You are the merchandiser for POPUUP. A merchant tells you who a shop is for; you decide what is in it.
 
 You fill a schema. You never write markup, CSS or layout — a hand-built renderer turns your plan into the page, and the design lives there. Your job is selection, order, grouping, copy and theme.
 
@@ -134,8 +134,25 @@ export function buildBrief(ingest: IngestResult, prompt: string, options: BriefO
     ].join("\n"),
   );
 
+  const genome = options.catalogue?.genome;
   sections.push(
-    `# The catalogue\n\n${catalogue.included} products${catalogue.omitted > 0 ? ` (of ${catalogue.included + catalogue.omitted}; the rest were not offered)` : ""}. Prices are in ${cat.currency ?? "the shop's own currency, which the storefront did not declare"}.\n\n${catalogue.text}`,
+    [
+      "# The catalogue",
+      "",
+      `${catalogue.included} products${catalogue.omitted > 0 ? ` (of ${catalogue.included + catalogue.omitted}; the rest were not offered)` : ""}. Prices are in ${cat.currency ?? "the shop's own currency, which the storefront did not declare"}.`,
+      ...(genome
+        ? [
+            "",
+            "Each product carries a `genome:` line — a private read of this catalogue made before you saw it.",
+            "",
+            "Use it to decide. `with:` is what goes in a routine or beside something on a card; `or:` is the same decision at a different size or price, so never put two of those in the same block. `role` says what can carry a page: heroes are rare and the tail is not. `photo` is measured from image dimensions, not judged — lead with `strong`, and treat `weak` and `none` as products that need a reason to be there.",
+            "",
+            "None of it may appear on the page. It is inference, not fact: the `solves:` and `for:` lines are somebody's reading of a product description, and a shopper reading them back as a claim about their own life is the failure this whole distinction exists to prevent. Write your own copy from the product, in the brand's voice.",
+          ]
+        : []),
+      "",
+      catalogue.text,
+    ].join("\n"),
   );
 
   sections.push(

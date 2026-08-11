@@ -16,6 +16,7 @@ import { ingestStore, IngestError } from "../src/lib/ingest/index";
 import { normaliseStoreUrl, storeCacheKey } from "../src/lib/ingest/url";
 import type { IngestResult } from "../src/lib/ingest/types";
 import { merchandise, MerchandiseError, createAnthropicProvider, createMockProvider } from "../src/lib/merchandise/index";
+import { loadGenome, staleFor } from "../src/lib/genome/store";
 import { saveShop } from "../src/lib/render/store";
 import type { ShopConfig } from "../src/lib/schema";
 
@@ -27,10 +28,12 @@ interface Args {
   fresh: boolean;
   quiet: boolean;
   render: boolean;
+  /** Skip the stored Genome even if there is one. */
+  noGenome: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { url: "", prompt: "", fresh: false, quiet: false, render: false };
+  const args: Args = { url: "", prompt: "", fresh: false, quiet: false, render: false, noGenome: false };
   const positional: string[] = [];
 
   for (let i = 0; i < argv.length; i++) {
@@ -51,6 +54,9 @@ function parseArgs(argv: string[]): Args {
       case "--render":
         args.render = true;
         break;
+      case "--no-genome":
+        args.noGenome = true;
+        break;
       case "--quiet":
         args.quiet = true;
         break;
@@ -63,7 +69,9 @@ function parseArgs(argv: string[]): Args {
   args.url = positional[0] ?? "";
   args.prompt = positional.slice(1).join(" ");
   if (!args.url || !args.prompt) {
-    throw new Error('Usage: pnpm merchandise <store-url> "<prompt>" [--provider anthropic|mock] [--render] [--out file] [--fresh]');
+    throw new Error(
+      'Usage: pnpm merchandise <store-url> "<prompt>" [--provider anthropic|mock] [--render] [--no-genome] [--out file] [--fresh]',
+    );
   }
   return args;
 }
@@ -95,6 +103,11 @@ function summarise(config: ShopConfig, diagnostics: Awaited<ReturnType<typeof me
   }
   lines.push(
     `  catalogue     ${diagnostics.catalogue.offered} products offered${diagnostics.catalogue.omitted ? `, ${diagnostics.catalogue.omitted} withheld` : ""}${diagnostics.catalogue.descriptions ? "" : ", no descriptions"}`,
+  );
+  lines.push(
+    diagnostics.genome
+      ? `  genome        ${diagnostics.catalogue.enriched} of ${diagnostics.catalogue.offered} products enriched`
+      : "  genome        none — run `pnpm genome <store-url>` first for better selection",
   );
   lines.push(
     `  theme         ${config.theme.mood} · ${config.theme.typography} · ${config.theme.density} · ${config.theme.colorway.background} ${config.theme.colorway.accent}`,
@@ -140,8 +153,24 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const ingest = await loadIngest(args.url, args.fresh, args.quiet);
 
+  // The Genome is a per-store cost and the merchandiser is a per-shop one, so
+  // this reads whatever step 2 already stored rather than enriching inline.
+  // Absent is normal: `merchandise()` says so in its diagnostics and carries on.
+  const key = storeCacheKey(normaliseStoreUrl(args.url));
+  const genome = args.noGenome ? null : await loadGenome(key);
+
+  if (genome && !args.quiet) {
+    const stale = staleFor(genome, ingest.catalogue);
+    if (!stale.complete) {
+      process.stderr.write(
+        `genome covers ${genome.products.length} products; ${stale.missing.length} in the catalogue are not covered — re-run \`pnpm genome\` if the catalogue has changed\n`,
+      );
+    }
+  }
+
   const started = Date.now();
   const result = await merchandise(ingest, args.prompt, {
+    ...(genome ? { genome } : {}),
     ...(args.provider
       ? { provider: args.provider === "anthropic" ? createAnthropicProvider() : createMockProvider() }
       : {}),
@@ -155,7 +184,8 @@ async function main(): Promise<void> {
   if (args.render) {
     // Config plus the catalogue it resolves against — the renderer needs both,
     // because prices and stock are read live rather than baked into the plan.
-    const key = storeCacheKey(normaliseStoreUrl(args.url));
+    // The Genome is deliberately not among them: it is internal, and the
+    // renderer having no access to it is how that stays true.
     await saveShop(key, {
       config: result.config,
       catalogue: ingest.catalogue,
