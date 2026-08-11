@@ -113,7 +113,15 @@ export default async function HomePage({
                   tucks into the corner rather than drifting under the caption. */}
               <div className="relative">
                 <Sparkles className="absolute -left-8 -top-6 hidden h-14 w-14 text-yellow lg:block" />
-                <WidgetRenderer widget={demo} live={false} showBadge={false} />
+                {/* Opens on the bedrooms grid: six illustrated answers make a
+                    far better first impression than three, and the taller card
+                    balances the column instead of floating in the middle. */}
+                <WidgetRenderer
+                  widget={demo}
+                  live={false}
+                  showBadge={false}
+                  initialStepId="bedrooms"
+                />
                 <HeroLeaves className="pointer-events-none absolute -bottom-8 -right-10 hidden h-32 w-40 lg:block" />
               </div>
               <p className="mt-4 text-center text-xs font-medium text-muted">

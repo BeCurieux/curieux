@@ -35,6 +35,13 @@ export interface WidgetRendererProps {
   showBadge?: boolean;
   /** The builder drives the preview to whichever step is being edited (§15). */
   activeStepId?: string | null;
+  /**
+   * Which question to open on. Unlike `activeStepId` this is a starting point,
+   * not a leash — the visitor can move freely afterwards. The homepage uses it
+   * so the hero opens on a question worth looking at rather than whichever one
+   * happens to be first.
+   */
+  initialStepId?: string;
   /** Where the badge sends people. Defaults to the marketing site. */
   badgeHref?: string;
   className?: string;
@@ -45,6 +52,7 @@ export function WidgetRenderer({
   live = false,
   showBadge = true,
   activeStepId,
+  initialStepId,
   badgeHref = "/?from=badge",
   className,
 }: WidgetRendererProps) {
@@ -57,7 +65,11 @@ export function WidgetRenderer({
    */
   const [chosen, setChosen] = useState<Record<string, string[]>>({});
   const [phase, setPhase] = useState<Phase>(() => (widget.intro ? "intro" : "steps"));
-  const [stepIndex, setStepIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState(() => {
+    if (!initialStepId) return 0;
+    const index = widget.steps.filter((step) => !step.hidden).findIndex((step) => step.id === initialStepId);
+    return index >= 0 ? index : 0;
+  });
   const [direction, setDirection] = useState<Direction>("forward");
   const [leadState, setLeadState] = useState<"idle" | "sending" | "done" | "skipped">("idle");
 
