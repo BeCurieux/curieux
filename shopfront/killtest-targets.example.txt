@@ -1,0 +1,13 @@
+# Kill-test targets — one Shopify storefront per line.
+#
+# Thirty merchants, over-indexed on former Linkpop users and active bio-link
+# users, per BRIEF.md. Blank lines and # comments are ignored.
+#
+#   pnpm killtest check killtest-targets.txt
+#   pnpm killtest generate killtest-targets.txt
+#
+# The real list is not committed: it is a list of businesses that have agreed to
+# nothing, and it belongs in a working file rather than in version control.
+
+# https://examplestore.com
+# https://anotherstore.com

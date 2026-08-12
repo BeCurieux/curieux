@@ -1,0 +1,134 @@
+# Does popuup still typecheck and pass its tests?
+#
+# Scoped to the shopfront/ directory, in the same spirit as qotidia.yml: this repository holds
+# several independent apps side by side, and each gets to decide its own checks
+# rather than inherit a sibling's.
+#
+# No secrets, and no network. The ingester's tests inject their own fetch, so a
+# run here never touches a real storefront — which is deliberate: a suite that
+# depends on somebody else's shop being up is a suite that goes red for reasons
+# that have nothing to do with the commit.
+
+name: popuup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "shopfront/**"
+      - ".github/workflows/shopfront.yml"
+  pull_request:
+    paths:
+      - "shopfront/**"
+      - ".github/workflows/shopfront.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopfront-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shopfront
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from the `packageManager` field, so the runner and a
+      # developer's machine cannot drift apart without the change being visible.
+      #
+      # `package_json_file` is not optional here, and the reason is easy to miss:
+      # `defaults.run.working-directory` above applies to `run:` steps only, so
+      # this action still looks for `package.json` at the repository root — which
+      # this repo does not have, because it holds several apps side by side.
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: shopfront/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: shopfront/pnpm-lock.yaml
+
+      # `--frozen-lockfile` fails if package.json and the lockfile disagree, so
+      # a run cannot quietly test a different dependency tree than we develop on.
+      - run: pnpm install --frozen-lockfile
+
+      # Separate steps so a red run names what broke on the summary page.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      # The renderer is a Next app now, and `next build` catches a class of
+      # thing `tsc --noEmit` does not — a server component importing something
+      # that only runs in a browser, a route whose params signature changed.
+      - name: Build
+        run: pnpm build
+
+  # Separated from `check` because it is a different kind of slow and a
+  # different kind of fragile: it downloads a browser, boots a dev server and a
+  # fixture storefront, and measures a real layout. Keeping it out of `check`
+  # means a geometry regression and a failing unit test never arrive as the
+  # same red X, and a browser download that fails cannot mask a broken build.
+  #
+  # It runs in parallel with `check` rather than after it. The two share no
+  # state, and making this wait would add three minutes to every red run for no
+  # information.
+  visual:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shopfront
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: shopfront/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: shopfront/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # `playwright` and `playwright-core` are pinned to the same exact version
+      # in package.json, and they have to be: the installer fetches the browser
+      # build that its own version expects, while the suite launches whatever
+      # build playwright-core asks for. A caret on either one lets those drift
+      # apart, and the failure is a launch against a path that was never
+      # downloaded.
+      - name: Resolve the browser build
+        id: pw
+        run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the browser
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      # `--with-deps` on a miss only: the system libraries it installs are not
+      # in the cached directory, but a cache hit means the runner image already
+      # had them when the browser was fetched.
+      - name: Install Chromium
+        run: pnpm exec playwright install ${{ steps.browser-cache.outputs.cache-hit == 'true' && 'chromium' || '--with-deps chromium' }}
+
+      # `CI` is already set by Actions, and the suite reads it: a missing
+      # browser fails here rather than skipping, so a broken install step
+      # cannot report ninety-four skipped tests as a green tick.
+      - name: Geometry
+        run: pnpm test:visual

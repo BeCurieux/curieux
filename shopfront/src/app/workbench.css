@@ -1,0 +1,228 @@
+/*
+ * The workbench — popuup's own surface, in popuup's own brand.
+ *
+ * This is the only place the brand palette gets to be itself. A generated shop
+ * wears the merchant's colours and must never leak these; the one thing that
+ * will cross over is step 4's free-tier badge, which is why the tokens live in
+ * brand.css rather than here.
+ *
+ * It is a development tool and it says so. Not a product surface, so it gets
+ * the brand's warmth and none of its marketing.
+ */
+
+.bench {
+  min-height: 100svh;
+  background:
+    radial-gradient(90% 60% at 8% -8%, color-mix(in srgb, var(--pop-violet) 9%, transparent) 0%, transparent 62%),
+    radial-gradient(70% 50% at 102% 4%, color-mix(in srgb, var(--pop-teal) 11%, transparent) 0%, transparent 58%),
+    var(--pop-paper);
+  color: var(--pop-ink);
+  font-family: var(--font-brand-sans), "Avenir Next", "Segoe UI", Helvetica, sans-serif;
+  padding: clamp(28px, 7vw, 72px) clamp(20px, 5vw, 44px) 72px;
+}
+
+.bench-inner {
+  max-width: 940px;
+  margin-inline: auto;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.bench-mark {
+  font-family: var(--font-brand-sans), sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: -0.045em;
+  margin: 0;
+}
+
+/* The double-u, in violet — the one piece of the wordmark that carries the
+   brand, so it is markup rather than an image and stays selectable text. */
+.bench-mark em {
+  font-style: normal;
+  color: var(--pop-violet);
+}
+
+.bench-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 18px;
+  padding: 0.55em 1.05em 0.55em 0.85em;
+  border-radius: var(--pop-pill);
+  background: color-mix(in srgb, var(--pop-violet) 11%, var(--pop-paper));
+  color: color-mix(in srgb, var(--pop-violet) 82%, var(--pop-ink));
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bench-chip svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.bench h1 {
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 6vw, 3.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  margin: 26px 0 0;
+  max-width: 16ch;
+  text-wrap: balance;
+}
+
+.bench h1 em {
+  font-style: normal;
+  color: var(--pop-violet);
+}
+
+.bench-lede {
+  margin: 16px 0 0;
+  max-width: 46ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--pop-muted);
+}
+
+/* Its own line rather than inline. A command this long inside a sentence
+   either wraps mid-flag or forces a ragged three-line paragraph, and both read
+   as a layout that was not looked at. */
+.bench-command {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 18px;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  background: var(--pop-shell);
+  border: 1px solid var(--pop-line);
+  border-radius: 12px;
+  padding: 0.7em 1em;
+  color: var(--pop-ink);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------- cards */
+
+.bench-list {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+.bench-card {
+  display: block;
+  height: 100%;
+  padding: 22px;
+  border-radius: var(--pop-radius-lg);
+  background: color-mix(in srgb, #fff 78%, var(--pop-paper));
+  border: 1px solid var(--pop-line);
+  box-shadow: var(--pop-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 260ms cubic-bezier(0.22, 0.68, 0.24, 1),
+    box-shadow 260ms ease,
+    border-color 260ms ease;
+}
+
+.bench-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--pop-shadow-lift);
+  border-color: color-mix(in srgb, var(--pop-violet) 34%, var(--pop-line));
+}
+
+.bench-card h2 {
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.16rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.bench-card .prompt {
+  margin: 10px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--pop-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bench-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.bench-tag {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.36em 0.7em;
+  border-radius: var(--pop-pill);
+  background: var(--pop-shell);
+  color: var(--pop-faint);
+}
+
+/*
+ * A tag per token, tinted by what it says.
+ *
+ * The colours are the brand's, and they are doing a real job: five moods and
+ * four type choices scanned across a dozen shops is exactly the comparison
+ * this page exists for, and colour makes it a glance instead of a read.
+ */
+.bench-tag[data-kind="mood"] {
+  background: color-mix(in srgb, var(--pop-violet) 13%, var(--pop-paper));
+  color: color-mix(in srgb, var(--pop-violet) 78%, var(--pop-ink));
+}
+
+.bench-tag[data-kind="type"] {
+  background: color-mix(in srgb, var(--pop-teal) 16%, var(--pop-paper));
+  color: color-mix(in srgb, var(--pop-teal) 62%, var(--pop-ink));
+}
+
+.bench-tag[data-kind="blocks"] {
+  background: color-mix(in srgb, var(--pop-amber) 26%, var(--pop-paper));
+  color: color-mix(in srgb, var(--pop-amber) 30%, var(--pop-ink));
+}
+
+/* The merchant's own three colours, as three dots. The fastest possible read
+   of "did the ingester get this brand right?" */
+.bench-swatches {
+  display: flex;
+  gap: 5px;
+  margin-top: 16px;
+}
+
+.bench-swatches span {
+  width: 15px;
+  height: 15px;
+  border-radius: var(--pop-pill);
+  box-shadow: inset 0 0 0 1px rgb(23 26 35 / 0.1);
+}
+
+/* ------------------------------------------------------------------- empty */
+
+.bench-empty {
+  margin-top: 40px;
+  padding: 44px 26px;
+  border-radius: var(--pop-radius-lg);
+  border: 1.5px dashed var(--pop-line-strong);
+  text-align: center;
+  color: var(--pop-faint);
+  font-size: 0.92rem;
+}
