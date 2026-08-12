@@ -5,6 +5,11 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
   },
+  // Some tests import a component module to exercise the real function the
+  // pages use rather than a copy of it — `miniFromDocument` sits next to the
+  // JSX it feeds. Without this those files transform with the classic
+  // runtime and fail on `React is not defined`.
+  esbuild: { jsx: "automatic" },
   test: {
     include: ["tests/**/*.test.ts"],
     environment: "node",

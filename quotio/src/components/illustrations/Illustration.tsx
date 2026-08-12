@@ -46,6 +46,13 @@ const DEFAULT_TINT: Partial<Record<IllustrationKey, string>> = {
   bath: C.mint,
   box: C.yellowSoft,
   house: C.purpleSoft,
+  // Added when the repeat rule turned out to reach these too: a question can
+  // be three cakes, three calendars or three people. Each value below is the
+  // colour that part was already painted, so an untinted drawing is unchanged.
+  cake: C.coralSoft,
+  calendar: C.purple,
+  person: C.purple,
+  people: C.mint,
 };
 
 export function Illustration({ name, size = 44, className, tint }: IllustrationProps) {
@@ -217,7 +224,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   ),
   cake: (
     <g>
-      <rect x="8" y="24" width="32" height="16" rx={r} fill={C.coralSoft} />
+      <rect x="8" y="24" width="32" height="16" rx={r} fill="currentColor" />
       <rect x="8" y="24" width="32" height="7" rx="3" fill={C.coral} />
       <rect x="22" y="12" width="4" height="9" rx="2" fill={C.mint} />
       <ellipse cx="24" cy="10" rx="2.5" ry="3.5" fill={C.yellow} />
@@ -229,7 +236,7 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   calendar: (
     <g>
       <rect x="7" y="11" width="34" height="30" rx={r} fill={C.white} stroke={C.navy} strokeWidth="2.5" />
-      <rect x="7" y="11" width="34" height="9" rx={r} fill={C.purple} />
+      <rect x="7" y="11" width="34" height="9" rx={r} fill="currentColor" />
       <rect x="14" y="6" width="3.5" height="9" rx="1.75" fill={C.navy} />
       <rect x="30" y="6" width="3.5" height="9" rx="1.75" fill={C.navy} />
       <rect x="13" y="25" width="7" height="6" rx="2" fill={C.yellow} />
@@ -300,13 +307,13 @@ const DRAWINGS: Record<IllustrationKey, JSX.Element> = {
   ),
   person: (
     <g>
-      <circle cx="24" cy="16" r="8" fill={C.purple} />
+      <circle cx="24" cy="16" r="8" fill="currentColor" />
       <path d="M9 41c0-8 7-13 15-13s15 5 15 13" fill={C.purpleSoft} />
     </g>
   ),
   people: (
     <g>
-      <circle cx="16" cy="17" r="7" fill={C.mint} />
+      <circle cx="16" cy="17" r="7" fill="currentColor" />
       <circle cx="33" cy="19" r="6" fill={C.purple} />
       <path d="M3 40c0-7 6-11 13-11s13 4 13 11" fill={C.mintSoft} />
       <path d="M25 40c0-6 4-9 9-9s11 3 11 9" fill={C.purpleSoft} />

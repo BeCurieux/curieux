@@ -11,12 +11,14 @@
 
 import { Illustration } from "@/components/illustrations/Illustration";
 import type { IllustrationKey } from "@/lib/widget/illustrations";
+import { repeatedIllustration, tintFor } from "@/lib/widget/tints";
 import type { WidgetDocument } from "@/lib/widget/schema";
 
 export interface MiniWidgetData {
   brandColour: string;
   question: string;
-  options: Array<{ id: string; label: string; illustration?: IllustrationKey }>;
+  /** `tint` is resolved here, not in the component — see the note below. */
+  options: Array<{ id: string; label: string; illustration?: IllustrationKey; tint?: string }>;
 }
 
 /** Pull the miniature out of a widget document. */
@@ -25,17 +27,22 @@ export function miniFromDocument(document: WidgetDocument): MiniWidgetData {
   const step =
     document.steps.find((entry) => entry.input.kind === "choice") ?? document.steps[0];
 
+  // The rotation is decided across every answer and then sliced, never the
+  // other way round: three cakes out of three repeat, three cakes out of a
+  // list where they don't wouldn't. Working from the slice would let a card
+  // disagree with the widget it is a picture of.
+  const options = step?.input.kind === "choice" ? step.input.options : [];
+  const repeated = repeatedIllustration(options);
+
   return {
     brandColour: document.theme.brandColour,
     question: step?.title ?? document.name,
-    options:
-      step?.input.kind === "choice"
-        ? step.input.options.slice(0, 3).map((option) => ({
-            id: option.id,
-            label: option.label,
-            illustration: option.illustration,
-          }))
-        : [],
+    options: options.slice(0, 3).map((option, index) => ({
+      id: option.id,
+      label: option.label,
+      illustration: option.illustration,
+      tint: tintFor(option.illustration, index, repeated),
+    })),
   };
 }
 
@@ -70,7 +77,7 @@ export function MiniWidget({ data }: { data: MiniWidgetData }) {
                 {option.label}
               </span>
               {option.illustration ? (
-                <Illustration name={option.illustration} size={22} />
+                <Illustration name={option.illustration} size={22} tint={option.tint} />
               ) : (
                 <span className="h-[22px]" />
               )}

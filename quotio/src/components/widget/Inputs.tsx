@@ -9,6 +9,7 @@
 // only paint. Nothing here is a div pretending to be a control.
 
 import { Illustration } from "@/components/illustrations/Illustration";
+import { repeatedIllustration, tintFor } from "@/lib/widget/tints";
 import { CheckIcon } from "@/components/ui/Icons";
 import type { ChoiceOption, WidgetStep } from "@/lib/widget/schema";
 
@@ -190,9 +191,6 @@ export function StepInput({
 /* Choice                                                              */
 /* ------------------------------------------------------------------ */
 
-/** Rotation used when one picture repeats across a whole answer grid. */
-const ART_TINTS = ["#73DDB5", "#FFC857", "#FF806F", "#A9A9F7", "#5FBFB0", "#F5B971"];
-
 /**
  * Layout is inferred, not configured.
  *
@@ -237,16 +235,9 @@ function ChoiceField({
 }) {
   const layout = chooseLayout(input.options, input.columns);
 
-  // When one picture dominates an answer grid — five beds for "how many
-  // bedrooms?", plus a question mark for "Not sure" — colour the repeats
-  // differently so the grid has some life in it. A set that genuinely varies
-  // (Apartment / House / Office) is left alone.
-  const tally = new Map<string, number>();
-  for (const option of input.options) {
-    if (option.illustration) tally.set(option.illustration, (tally.get(option.illustration) ?? 0) + 1);
-  }
-  const [repeated, repeatCount] = [...tally.entries()].sort((a, b) => b[1] - a[1])[0] ?? ["", 0];
-  const repeatedArt = repeatCount >= 3 ? repeated : null;
+  // See lib/widget/tints.ts. The whole option list, not a slice — the
+  // miniature on a template card has to reach the same answer.
+  const repeatedArt = repeatedIllustration(input.options);
 
   // Prefer the ids the visitor clicked; fall back to matching on value for
   // surfaces that don't track them (a widget rendered from saved answers).
@@ -296,9 +287,7 @@ function ChoiceField({
           <Illustration
             name={option.illustration}
             size={layout.row ? 32 : 50}
-            tint={
-              option.illustration === repeatedArt ? ART_TINTS[index % ART_TINTS.length] : undefined
-            }
+            tint={tintFor(option.illustration, index, repeatedArt)}
           />
         ) : null;
 
