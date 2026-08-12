@@ -10,6 +10,7 @@
 import { BRAND_SWATCHES, ColourField } from "./ContentTab";
 import { Section, SegmentedField, SelectField, TextField, ToggleField, UpgradeNote } from "./controls";
 import type { EditorProps } from "./types";
+import { badgeVisible } from "@/lib/plans";
 import { THEME_FONTS, THEME_PRESETS } from "@/lib/widget/themes";
 import type { WidgetTheme } from "@/lib/widget/schema";
 
@@ -148,7 +149,7 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
               ? "A small, unobtrusive credit under the widget."
               : `Included on ${planName}. Upgrade to remove it.`
           }
-          checked={doc.settings.showBadge || !capabilities.removeBadge}
+          checked={badgeVisible(capabilities.removeBadge, doc.settings.showBadge)}
           disabled={!capabilities.removeBadge}
           onChange={(checked) =>
             update((draft) => ({

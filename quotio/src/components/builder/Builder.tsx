@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/Icons";
 import { WidgetRenderer } from "@/components/widget/WidgetRenderer";
 import { publishWidget, saveWidget } from "@/app/actions";
+import { badgeVisible } from "@/lib/plans";
 import { fieldise } from "@/lib/widget/format";
 import { validateStructure, widgetSchema, type WidgetDocument } from "@/lib/widget/schema";
 
@@ -318,7 +319,7 @@ export function Builder({
               <WidgetRenderer
                 widget={preview}
                 live={false}
-                showBadge={doc.settings.showBadge || !capabilities.removeBadge}
+                showBadge={badgeVisible(capabilities.removeBadge, doc.settings.showBadge)}
                 activeStepId={activeStepId}
               />
             </div>

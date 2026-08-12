@@ -7,7 +7,7 @@ import { LocalStore } from "@/lib/db/local";
 import { setStore, uniqueSlug } from "@/lib/db/store";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { summarise } from "@/lib/analytics/events";
-import { can, mustShowBadge, PLANS } from "@/lib/plans";
+import { badgeVisible, can, mustShowBadge, PLAN_IDS, PLANS } from "@/lib/plans";
 import { templateBySlug } from "@/lib/templates/catalogue";
 import { createWidgetFor, isLimitError, publicDocument, renderableFor } from "@/lib/widgets/service";
 
@@ -118,6 +118,35 @@ describe("plan gating reaches the rendered widget (§35)", () => {
     expect(mustShowBadge("pro", true)).toBe(true);
     expect(can("free", "analytics")).toBe(false);
     expect(can("business", "advancedLogic")).toBe(true);
+  });
+
+  /**
+   * The builder preview asks `badgeVisible` and the hosted page asks
+   * `mustShowBadge`. They have to be the same question — a preview that
+   * disagrees with the page it is previewing is worse than no preview.
+   *
+   * This is what stops the two drifting: the builder holds capability
+   * booleans and never sees a plan id, so the only thing tying it to the plan
+   * table is that these two agree on every input.
+   */
+  it("answers the same for the builder as for the visitor, on every plan", () => {
+    for (const plan of PLAN_IDS) {
+      for (const setting of [true, false]) {
+        expect(
+          badgeVisible(can(plan, "removeBadge"), setting),
+          `${plan} / showBadge=${setting}`
+        ).toBe(mustShowBadge(plan, setting));
+      }
+    }
+  });
+
+  it("forces the badge on whenever the plan cannot remove it", () => {
+    // The half that matters for revenue: no combination of settings takes the
+    // badge off a plan that hasn't paid for it (§22, §35).
+    for (const plan of PLAN_IDS.filter((id) => !can(id, "removeBadge"))) {
+      expect(badgeVisible(can(plan, "removeBadge"), false), plan).toBe(true);
+      expect(badgeVisible(can(plan, "removeBadge"), true), plan).toBe(true);
+    }
   });
 });
 

@@ -163,6 +163,20 @@ export function interactionLimit(plan: PlanId): number {
 }
 
 /**
+ * Whether the badge shows, stated in terms of the capability rather than the
+ * plan — so the builder can ask the same question the server answers.
+ *
+ * The builder only ever receives a bag of capability booleans, never a plan
+ * id, and it used to re-derive this rule inline as
+ * `settings.showBadge || !capabilities.removeBadge`. That is the same rule
+ * written a second way, and the preview's whole promise is that it shows what
+ * a visitor sees. One condition added here would have quietly broken it.
+ */
+export function badgeVisible(canRemoveBadge: boolean, settingEnabled: boolean): boolean {
+  return canRemoveBadge ? settingEnabled : true;
+}
+
+/**
  * Whether the badge must be shown on a given widget.
  *
  * Two conditions, and the plan one is not negotiable in the UI: a free user
@@ -170,8 +184,7 @@ export function interactionLimit(plan: PlanId): number {
  * The setting is remembered so it takes effect the moment they upgrade.
  */
 export function mustShowBadge(plan: PlanId, settingEnabled: boolean): boolean {
-  if (!can(plan, "removeBadge")) return true;
-  return settingEnabled;
+  return badgeVisible(can(plan, "removeBadge"), settingEnabled);
 }
 
 /** The upgrade prompt shown when someone hits a wall. Never a dead end. */
