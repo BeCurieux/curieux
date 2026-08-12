@@ -68,6 +68,16 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
           label="Brand colour"
           value={theme.brandColour}
           swatches={BRAND_SWATCHES}
+          // Filled buttons take the theme's ink, not this colour, so on the
+          // default style you can change brand colour and watch the biggest
+          // button on the result screen not move. Said here, where you'd
+          // notice, and pointing at the control that changes it — the Buttons
+          // field explains the same rule, but two sections further down.
+          hint={
+            theme.buttonStyle === "filled"
+              ? "Colours the progress bar, selected answers and highlights. Filled buttons follow the theme’s ink — set Buttons to Soft or Outline below to colour those too."
+              : "Colours the progress bar, selected answers, highlights and your buttons."
+          }
           onChange={(value) => {
             // Half-typed hex codes shouldn't repaint the preview mid-keystroke.
             if (/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value)) setTheme({ brandColour: value });

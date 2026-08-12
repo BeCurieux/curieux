@@ -232,14 +232,16 @@ export function ColourField({
   value,
   onChange,
   swatches,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   swatches: string[];
+  hint?: string;
 }) {
   return (
-    <Field label={label}>
+    <Field label={label} hint={hint}>
       <div className="flex items-center gap-2">
         <input
           type="color"
