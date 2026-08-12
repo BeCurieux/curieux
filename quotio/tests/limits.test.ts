@@ -77,6 +77,46 @@ describe("whether there is anywhere to upgrade to", () => {
   });
 });
 
+/**
+ * The pricing page renders `features` verbatim, and those strings are written
+ * by hand a few lines below the numbers they describe. Nothing stopped the
+ * two drifting apart, which is how a pricing page starts quoting a limit the
+ * product doesn't enforce.
+ */
+describe("what the pricing page promises", () => {
+  /** 10000 → "10,000", the way the feature strings are written. */
+  const grouped = (value: number) => value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  it("quotes each plan's real widget limit", () => {
+    for (const plan of ORDERED_PLANS) {
+      const claim = `${grouped(widgetLimit(plan.id))} widgets`;
+      expect(plan.features, `${plan.id} should say "${claim}"`).toContain(claim);
+    }
+  });
+
+  it("quotes each plan's real interaction limit", () => {
+    for (const plan of ORDERED_PLANS) {
+      const claim = `${grouped(interactionLimit(plan.id))} interactions a month`;
+      expect(plan.features, `${plan.id} should say "${claim}"`).toContain(claim);
+    }
+  });
+
+  it("never advertises a capability the plan doesn't have", () => {
+    // "Integrations" was advertised on Business while nothing implemented it.
+    const claims: Array<[string, keyof (typeof ORDERED_PLANS)[number]["limits"]]> = [
+      ["Remove the badge", "removeBadge"],
+      ["Lead capture", "leadCapture"],
+    ];
+    for (const plan of ORDERED_PLANS) {
+      for (const [claim, flag] of claims) {
+        if (plan.features.includes(claim)) {
+          expect(plan.limits[flag], `${plan.id} advertises "${claim}"`).toBe(true);
+        }
+      }
+    }
+  });
+});
+
 describe("the published limits", () => {
   it("only ever go up as you pay more", () => {
     // A plan that cost more but allowed less would be a pricing page that

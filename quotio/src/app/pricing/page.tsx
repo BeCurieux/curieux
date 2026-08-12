@@ -124,8 +124,11 @@ export default async function PricingPage() {
                 a: "Someone answering at least one question. Views are free and unlimited — we only count people who actually engaged.",
               },
               {
+                // This answer has to track widgets/service.ts:isOverInteractionLimit.
+                // It described the behaviour before the limit was enforced, and
+                // promised an email nothing in the product sends.
                 q: "What happens if I go over?",
-                a: "Your widget keeps working. We'll email you, and nothing stops until you've had a chance to decide what to do.",
+                a: "Your published widgets pause for the rest of the month and visitors see a short notice — your builder, drafts, analytics and enquiries all carry on as normal. They come back on the 1st, or the moment you move up a plan.",
               },
               {
                 q: "Can I use it on more than one site?",
