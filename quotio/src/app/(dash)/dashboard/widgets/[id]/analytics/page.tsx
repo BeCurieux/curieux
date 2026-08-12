@@ -87,8 +87,11 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Views" value={stats.views.toLocaleString()} hint="People who saw it" />
         <StatTile label="Starts" value={stats.starts.toLocaleString()} hint="People who answered something" />
+        {/* "Finished" everywhere: this tile, the funnel below it and the
+            dashboard card are the same number, and three names for it is a
+            small tax on every reader. */}
         <StatTile
-          label="Completed"
+          label="Finished"
           value={stats.completions.toLocaleString()}
           hint={stats.starts > 0 ? `${stats.completionRate}% of starts` : "No starts yet"}
         />

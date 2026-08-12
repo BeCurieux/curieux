@@ -133,14 +133,21 @@ export function WidgetCard(props: WidgetCardProps) {
 
         <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-rule pt-3">
           <Stat label="Views" value={props.analyticsAllowed ? format(props.stats.views) : "—"} />
+          {/* "Finished 62%" beside "Views 316" invites reading it as 62% of
+              those views. It is 62% of *starts* — someone who scrolled past
+              never had the chance to finish — so the card says which, the way
+              the analytics tile does. */}
           <Stat
-            label="Done"
+            label="Finished"
             value={
               props.analyticsAllowed
                 ? props.stats.starts > 0
                   ? `${props.stats.completionRate}%`
                   : "—"
                 : "Pro"
+            }
+            caption={
+              props.analyticsAllowed && props.stats.starts > 0 ? "of starts" : undefined
             }
           />
           {/* Enquiries are what a business is actually here for. */}
@@ -188,10 +195,12 @@ function format(value: number): string {
 function Stat({
   label,
   value,
+  caption,
   highlight,
 }: {
   label: string;
   value: string;
+  caption?: string;
   highlight?: boolean;
 }) {
   return (
@@ -202,6 +211,9 @@ function Stat({
       >
         {value}
       </dd>
+      {/* A fixed slot, so the three columns keep their baselines whether or
+          not a stat has something to qualify. */}
+      <p className="min-h-[0.875rem] text-[10px] leading-[0.875rem] text-muted">{caption ?? ""}</p>
     </div>
   );
 }
