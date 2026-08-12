@@ -22,6 +22,7 @@ import { brand } from "@/config/brand";
 import { createTracker, noopTracker } from "@/lib/analytics/client";
 import { defaultAnswers, evaluateWidget, isAnswered, visibleSteps, type Answers } from "@/lib/widget/engine";
 import type { Widget } from "@/lib/widget/schema";
+import { resolveChosen } from "@/lib/widget/selection";
 import { widgetStyleVars } from "@/lib/widget/themes";
 
 type Phase = "intro" | "steps" | "lead" | "result";
@@ -42,6 +43,12 @@ export interface WidgetRendererProps {
    * happens to be first.
    */
   initialStepId?: string;
+  /**
+   * Answers to start with. Used by the marketing demos so a widget shows
+   * itself mid-conversation — a screenshot whose only control is a greyed-out
+   * Continue button sells nothing.
+   */
+  initialAnswers?: Answers;
   /** Where the badge sends people. Defaults to the marketing site. */
   badgeHref?: string;
   className?: string;
@@ -53,17 +60,23 @@ export function WidgetRenderer({
   showBadge = true,
   activeStepId,
   initialStepId,
+  initialAnswers,
   badgeHref = "/?from=badge",
   className,
 }: WidgetRendererProps) {
-  const [answers, setAnswers] = useState<Answers>(() => defaultAnswers(widget));
+  const [answers, setAnswers] = useState<Answers>(() => ({
+    ...defaultAnswers(widget),
+    ...initialAnswers,
+  }));
   /**
    * Which answer card was clicked, per step. Kept beside the answers rather
    * than inside them: the engine wants values, the highlight wants identity,
    * and two answers may share a value on purpose ("Not sure" prices as a
    * 2-bedroom). Lives here, not in the input, so it survives going Back.
    */
-  const [chosen, setChosen] = useState<Record<string, string[]>>({});
+  const [chosen, setChosen] = useState<Record<string, string[]>>(() =>
+    resolveChosen(widget.steps, initialAnswers)
+  );
   const [phase, setPhase] = useState<Phase>(() => (widget.intro ? "intro" : "steps"));
   const [stepIndex, setStepIndex] = useState(() => {
     if (!initialStepId) return 0;
@@ -174,13 +187,13 @@ export function WidgetRenderer({
 
   const restart = useCallback(() => {
     clearAdvance();
-    setAnswers(defaultAnswers(widget));
-    setChosen({});
+    setAnswers({ ...defaultAnswers(widget), ...initialAnswers });
+    setChosen(resolveChosen(widget.steps, initialAnswers));
     setLeadState("idle");
     setStepIndex(0);
     setDirection("back");
     setPhase(widget.intro ? "intro" : "steps");
-  }, [widget]);
+  }, [widget, initialAnswers]);
 
   /** Auto-advance after a single-choice answer, once the tick has landed. */
   const commitAndAdvance = useCallback(() => {

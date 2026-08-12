@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { TEMPLATES } from "@/lib/templates/catalogue";
 import { evaluateWidget } from "@/lib/widget/engine";
+import { resolveChosen } from "@/lib/widget/selection";
 
 /**
  * Answers are stored as values, because that's what the maths needs. Two
@@ -44,5 +45,28 @@ describe("answers that deliberately share a value", () => {
 
     expect(notSure.value).toBe(twoBedrooms.value);
     expect(notSure.display).toBe(twoBedrooms.display);
+  });
+});
+
+describe("resolving pre-filled answers to answer cards", () => {
+  const cleaning = TEMPLATES.find((entry) => entry.slug === "cleaning-estimate")!.document;
+
+  it("highlights one card when two answers share a value", () => {
+    // "2 Bedrooms" and "Not sure" are both worth 2. Matching on value alone
+    // ticks both, which is what shipped twice before this test existed.
+    const chosen = resolveChosen(cleaning.steps, { bedrooms: 2 });
+    expect(chosen.bedrooms).toEqual(["b2"]);
+  });
+
+  it("resolves each pick of a multi-select without reusing an option", () => {
+    const chosen = resolveChosen(cleaning.steps, { extras: [30, 25] });
+    expect(chosen.extras).toEqual(["oven", "windows"]);
+  });
+
+  it("ignores questions that have no answer, and non-choice questions", () => {
+    const chosen = resolveChosen(cleaning.steps, { home_type: 60 });
+    expect(chosen).toEqual({ home_type: ["house"] });
+    expect(resolveChosen(cleaning.steps, undefined)).toEqual({});
+    expect(resolveChosen(cleaning.steps, { bedrooms: 99 })).toEqual({});
   });
 });

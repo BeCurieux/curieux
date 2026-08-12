@@ -11,7 +11,16 @@ import { createFromTemplate } from "@/app/actions";
  * No signup in the way — §27 means this lands the person straight in the
  * builder with their own editable copy.
  */
-export function UseTemplateButton({ slug, label = "Use this template" }: { slug: string; label?: string }) {
+export function UseTemplateButton({
+  slug,
+  label = "Use this template",
+  tone = "primary",
+}: {
+  slug: string;
+  label?: string;
+  /** Secondary where the page's own content should lead, as on /examples. */
+  tone?: "primary" | "secondary";
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +29,7 @@ export function UseTemplateButton({ slug, label = "Use this template" }: { slug:
     <>
       <button
         type="button"
-        className="btn btn-lg"
+        className={tone === "secondary" ? "btn-secondary" : "btn btn-lg"}
         disabled={busy}
         onClick={async () => {
           setBusy(true);
