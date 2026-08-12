@@ -13,6 +13,19 @@
  * interface it implements is covered by tests through `local.ts`; what is not
  * covered is whether these queries are right, and that is the first thing to
  * check when a project exists.
+ *
+ * Narrowed since that was written. `tests/publish-supabase-contract.test.ts`
+ * parses `schema.sql` and cross-checks every table, column, `onConflict`,
+ * foreign-key hint, function name and rpc argument named below, including the
+ * columns read back off an rpc result. Those are strings, `tsc` has never read
+ * the `.sql` file, and a rename on one side of the pair is otherwise invisible
+ * until a real project answers the query.
+ *
+ * What is still unproven is behaviour rather than naming: whether `upsert`
+ * with `onConflict` does what this expects, what `maybeSingle` returns against
+ * two rows, and whether the embedded-resource select shape below comes back
+ * nested the way `listPublished` unwraps it. Those need PostgREST, not a
+ * parser.
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
