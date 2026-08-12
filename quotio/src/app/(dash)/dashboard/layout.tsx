@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const plan = user ? PLANS[user.plan] : PLANS.free;
 
   return (
-    <div className="min-h-screen bg-lavender">
+    <div className="min-h-screen bg-canvas">
       <header className="border-b border-rule bg-white">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5">
           <Link href="/" aria-label="Home">

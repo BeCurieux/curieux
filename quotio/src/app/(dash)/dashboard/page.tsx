@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
+import { miniFromDocument } from "@/components/widget/MiniWidget";
 import { Illustration } from "@/components/illustrations/Illustration";
 import { ArrowRightIcon, PlusIcon } from "@/components/ui/Icons";
 import { hostedUrl } from "@/config/brand";
@@ -53,7 +54,7 @@ export default async function DashboardPage() {
         <EmptyState />
       ) : (
         <>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {cards.map(({ widget, stats }) => (
               <WidgetCard
                 key={widget.id}
@@ -66,6 +67,7 @@ export default async function DashboardPage() {
                 stats={stats}
                 hostedUrl={hostedUrl(widget.slug)}
                 analyticsAllowed={analyticsAllowed}
+                preview={miniFromDocument(widget.published ?? widget.draft)}
               />
             ))}
           </div>
