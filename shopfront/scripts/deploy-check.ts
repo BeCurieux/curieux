@@ -111,10 +111,13 @@ if (findings.some((f) => f.fatal)) {
   process.exit(1);
 }
 
+if (process.env.WORKBENCH) {
+  note(
+    `WORKBENCH=${process.env.WORKBENCH} is set. The development workbench at "/" is served on this deployment — it lists every shop in the local cache and shows the command that fills it. Intended on a preview URL; on the domain merchants are sent to, unset it.`,
+  );
+}
+
 process.stdout.write(
-  "\n  Configuration is deployable. Two things this cannot see:\n" +
-    "  · whether the database answers — `pnpm rls:check`\n" +
-    "  · that `/` is the workbench, not a landing page. It reads the local\n" +
-    "    cache, so in production it renders an empty dev tool at the root of\n" +
-    "    whatever domain merchants are about to be sent to.\n\n",
+  "\n  Configuration is deployable. One thing this cannot see: whether the\n" +
+    "  database answers — `pnpm rls:check`.\n\n",
 );
