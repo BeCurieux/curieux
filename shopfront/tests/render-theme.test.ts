@@ -74,6 +74,39 @@ describe("buildTheme", () => {
     }
   });
 
+  it("keeps the quiet tones readable, however light the palette", () => {
+    // --text-faint carries the colophon, the "as of" line and the sold-out
+    // chip: all small, and small is where "quiet" turns into "cannot read it".
+    // The intended mix measured 2.75:1 on the default palette, which is well
+    // under AA — found by the browser suite, guarded here because it is
+    // arithmetic and does not need a browser to check.
+    const palettes = [
+      { background: "#faf8f4", text: "#22201d" },
+      { background: "#ffffff", text: "#000000" },
+      // A page whose ink is already soft has the least room to give away.
+      { background: "#fdfdfd", text: "#5a5a5a" },
+      // And a dark page mixes the other way.
+      { background: "#141414", text: "#f2f2f2" },
+    ];
+
+    for (const { background, text } of palettes) {
+      const { variables } = buildTheme({ ...base, colorway: { ...base.colorway, background, text } });
+      const bg = parseColour(background)!;
+      for (const token of ["--text-soft", "--text-faint"] as const) {
+        const ratio = contrastRatio(parseColour(variables[token]!)!, bg);
+        expect(ratio, `${token} on ${background}`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it("leaves a tone that already reads well exactly where it was asked to be", () => {
+    // The readability guard is a floor, not an opinion. --text-soft clears the
+    // bar on the default palette at the mix it asked for, and nudging it would
+    // quietly flatten the gap between supporting copy and metadata.
+    const { variables } = buildTheme(base);
+    expect(variables["--text-soft"]).toBe("#676562");
+  });
+
   it("derives its supporting tones from the brand's own two colours", () => {
     const { variables } = buildTheme(base);
     // Soft, faint and line are mixes towards the background, so they read as

@@ -307,6 +307,45 @@ rendering bug could quietly break without any type failing:
 | A handle missing from the catalogue is dropped | A dead card is worse for the merchant than a shorter page |
 | The dateline prints when — and only when — there is an ingest time | A snapshot is not a feed, and shoppers are owed the difference |
 
+### The geometry rules, in a real browser
+
+`pnpm test:visual` is a second suite, and it exists because the first one cannot
+see. vitest runs in jsdom, which has no layout engine: nothing in it can observe
+an `aspect-ratio` resolving against a container width, a grid collapsing to one
+column, or a label rendering white on white. Those are the bugs this template
+actually has had.
+
+It boots the fixture storefront, runs the real pipeline over it — ingest,
+merchandise, save — then renders the result five times, once per mood, changing
+nothing but `theme.mood`, and measures the page in Chromium.
+
+| Invariant | The regression it catches |
+|---|---|
+| Hero ≤ 85% of the viewport, every mood, every desktop width | A 4/5 plate on a 1072px column computes to 1340px: the fold is one photograph and the grid is off-screen |
+| Hero heights stay distinct and ordered | The same ratio overrode `--hero-height` entirely, so five moods landed on one number — a height cap alone would have hidden this |
+| Hero copy is not clipped by its plate | The plate is `overflow: hidden`, so a hero that stops governing its height eats the tagline silently |
+| The plated moods keep 4/5 on a phone | The desktop fix lives inside a `min-width` block precisely so this stays true |
+| Masthead, section head, card and colophon share one x | Column drift is the thing that reads as "generated" |
+| Two columns on a phone, three on desktop | — |
+| No horizontal overflow at any width | A full-bleed hero is `100vw` plus a negative margin, one scrollbar away from overflowing |
+| Every sold-out product present, marked, and nothing else marked | The product rule, checked against rendered DOM rather than intent |
+| Every label clears 4.5:1 against what is actually behind it | `.shop a { color: inherit }` once outscored `.cta`, putting the page's ink on the accent fill |
+
+It is not wired into CI, which has no browser; a red X on a machine that was
+never going to run this teaches nothing. It skips with an explanation unless
+`CHROMIUM_PATH` is set, reuses a `next dev` you already have running, and starts
+its own when you do not.
+
+The suite was checked the same way the step-7 guards were — by reverting the
+hero fix and confirming six assertions went red with the real numbers in the
+message (`1.49`, and `[1340, 1340, 594, 666, 738]`) — then restoring it.
+
+Its first run found a genuine defect: `--text-faint`, which carries the
+colophon, the dateline and the sold-out chip, was mixed 55% toward the
+background and measured **2.75:1**. `theme.ts` now walks that mix back until it
+clears AA, so a palette that can afford the full step keeps it and one that
+cannot gives up only what it must.
+
 **No image optimiser.** `images: { unoptimized: true }` is deliberate: the
 merchant's CDN already resizes when asked, and `/_next/image` would add a second
 optimiser, a `remotePatterns` allowlist to widen per merchant, and a proxy hop
@@ -537,15 +576,16 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 
 ## Verification status
 
-331 unit and integration tests pass against fixtures, and the whole pipeline has
-been run end to end against a local storefront: `pnpm generate` through all six
-steps, republishing to v2, a custom slug, a 404 on an unknown one, and the badge
-with its UTM. The funnel was verified by driving three real browser sessions
-through a published shop — one arriving with an Instagram referrer, one direct,
-one from TikTok — and reading the result back with `pnpm funnel`, which
-attributed the sources, the per-session rates and the per-product breakdown
-correctly. The renderer has been reviewed at 390×844 and 1280×900 across all
-five moods.
+333 unit and integration tests pass against fixtures, and a further 94 browser
+assertions pass under `pnpm test:visual`. The whole pipeline has been run end to
+end against a local storefront: `pnpm generate` through all six steps,
+republishing to v2, a custom slug, a 404 on an unknown one, and the badge with
+its UTM. The funnel was verified by driving three real browser sessions through
+a published shop — one arriving with an Instagram referrer, one direct, one from
+TikTok — and reading the result back with `pnpm funnel`, which attributed the
+sources, the per-session rates and the per-product breakdown correctly. The
+renderer has been reviewed at 390×844, 1280×800 and 1440×900 across all five
+moods.
 
 The step-7 guards were verified the only way a guard test can be: by injecting
 each violation — an email form, an `EditMove` applier, a Stripe key, a Shopify

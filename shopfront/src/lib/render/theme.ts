@@ -197,8 +197,12 @@ export function buildTheme(tokens: ThemeTokens): RenderTheme {
       // Derived tones. `soft` is for supporting copy, `faint` for metadata,
       // `line` for hairlines — all mixed towards the background so they sit in
       // the same family rather than reading as a second grey.
-      "--text-soft": toHex(mix(text, bg, 0.32)),
-      "--text-faint": toHex(mix(text, bg, 0.55)),
+      //
+      // The two that carry words are capped at the point where they stop being
+      // readable; the hairlines are not, because a rule is not text and a rule
+      // that clears 4.5:1 is a border.
+      "--text-soft": toHex(quietest(text, bg, 0.32)),
+      "--text-faint": toHex(quietest(text, bg, 0.55)),
       "--line": toHex(mix(text, bg, 0.82)),
       "--line-strong": toHex(mix(text, bg, 0.62)),
       "--on-accent": toHex(readableOn(accent)),
@@ -277,6 +281,29 @@ function readableInk(accent: Rgb, on: Rgb, text: Rgb): Rgb {
   for (let step = 0; step <= 10; step++) {
     const candidate = mix(accent, text, step / 10);
     if (contrastRatio(candidate, on) >= 4.5) return candidate;
+  }
+  return text;
+}
+
+/**
+ * As quiet as a tone is allowed to get before it stops being text.
+ *
+ * `--text-faint` carries the colophon, the "as of" line, the stock chip — all
+ * of it small, which is exactly where a designer's idea of quiet becomes
+ * something a person cannot read. On the default palette the intended 0.55 of
+ * the way to the background measured 2.75:1, well under AA.
+ *
+ * The mix is walked back rather than replaced so a page keeps the intended
+ * hierarchy wherever the palette allows it, and only the palettes that cannot
+ * afford the full step give some of it up.
+ */
+function quietest(text: Rgb, bg: Rgb, wanted: number): Rgb {
+  // The requested mix is tried first and unchanged, so a tone that already
+  // clears the bar is never nudged by the guard that exists for the ones that
+  // do not.
+  for (let ratio = wanted; ratio > 0; ratio -= 0.05) {
+    const candidate = mix(text, bg, ratio);
+    if (contrastRatio(candidate, bg) >= 4.5) return candidate;
   }
   return text;
 }

@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:visual": "vitest run --config vitest.visual.config.ts",
     "merchandise": "tsx scripts/merchandise.ts",
     "generate": "tsx scripts/generate.ts",
     "funnel": "tsx scripts/funnel.ts",

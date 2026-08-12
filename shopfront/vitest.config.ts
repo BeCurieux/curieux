@@ -7,6 +7,10 @@ export default defineConfig({
   },
   test: {
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+    // The browser suite has its own config and its own script. It needs a
+    // Chromium binary and a dev server, neither of which this run has any
+    // business requiring.
+    exclude: ["tests/visual/**"],
     environment: "node",
   },
 });
