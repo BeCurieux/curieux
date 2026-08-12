@@ -29,6 +29,7 @@ import { Logo } from "@/components/site/Chrome";
 import {
   ArrowLeftIcon,
   BranchIcon,
+  CheckIcon,
   DesktopIcon,
   EyeIcon,
   MobileIcon,
@@ -225,6 +226,17 @@ export function Builder({
 
         <SaveIndicator state={saveState} dirty={dirty} />
 
+        {/* Which plan you're on decides what half the inspector will let you
+            do, so it belongs where you can see it — and it goes to the page
+            that explains the difference rather than being a dead label. */}
+        <Link
+          href="/pricing"
+          className="hidden flex-none rounded-full border border-rule px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-slate transition hover:border-purple-mid hover:text-purple sm:block"
+          title={`You're on the ${planName} plan — compare plans`}
+        >
+          {planName}
+        </Link>
+
         {status === "published" ? (
           <a
             href={`${origin}/w/${slug}`}
@@ -267,8 +279,8 @@ export function Builder({
           />
         </aside>
 
-        <main className="min-h-0 overflow-y-auto">
-          <div className="flex items-center justify-between gap-2 px-4 py-3">
+        <main className="flex min-h-0 flex-col overflow-y-auto">
+          <div className="flex flex-none items-center justify-between gap-2 px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted">Live preview</p>
             <div className="flex gap-1 rounded-btn border border-rule bg-white p-1">
               {(Object.keys(VIEWPORTS) as ViewportId[]).map((id) => (
@@ -294,9 +306,13 @@ export function Builder({
             </div>
           </div>
 
-          <div className="px-4 pb-10">
+          {/* The preview sits in the middle of its column rather than pinned
+              to the top with a screenful of empty lavender underneath. Short
+              widgets are the common case, so the common case is what this is
+              laid out for. */}
+          <div className="centre-safe flex flex-1 flex-col px-4 pb-8 pt-1">
             <div
-              className="mx-auto transition-[max-width] duration-300"
+              className="mx-auto w-full transition-[max-width] duration-300"
               style={{ maxWidth: VIEWPORTS[viewport].width }}
             >
               <WidgetRenderer
@@ -375,16 +391,22 @@ export function Builder({
 /* ------------------------------------------------------------------ */
 
 function SaveIndicator({ state, dirty }: { state: SaveState; dirty: boolean }) {
+  // Always says something. At rest the document on screen *is* the document in
+  // the store — autosave has either just run or has had nothing to do — so
+  // "Saved" is the truthful label, and a bar that only speaks up mid-save
+  // leaves you wondering for the other 99% of the time (§33).
+  const settled = !dirty && state !== "saving" && state !== "error";
   const label =
-    state === "saving" ? "Saving…" : state === "error" ? "Not saved" : dirty ? "Unsaved" : state === "saved" ? "Saved" : "";
-
-  if (!label) return <span className="hidden w-16 sm:block" />;
+    state === "saving" ? "Saving…" : state === "error" ? "Not saved" : dirty ? "Unsaved" : "Saved";
 
   return (
     <span
-      className={`hidden text-xs font-medium sm:block ${state === "error" ? "text-coral" : "text-muted"}`}
+      className={`hidden flex-none items-center gap-1 whitespace-nowrap text-xs font-medium sm:flex ${
+        state === "error" ? "text-coral" : "text-muted"
+      }`}
       aria-live="polite"
     >
+      {settled ? <CheckIcon size={13} className="text-mint" /> : null}
       {label}
     </span>
   );

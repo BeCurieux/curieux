@@ -5,75 +5,22 @@
 // turn to mush smaller than that. These are line glyphs: one stroke weight,
 // no fill, `currentColor` so the rail's own done/current/todo colours apply.
 //
-// No new authoring burden: the glyph is inferred from the question's wording
-// by the same matcher that picks illustrations, so "And bathrooms?" gets a
-// bath without anyone choosing one.
+// No new authoring burden: which mark a question gets is worked out from its
+// wording in src/lib/widget/glyphs.ts. This file is the drawings.
 
-import { guessIllustration, type IllustrationKey } from "@/lib/widget/illustrations";
-
-type GlyphName =
-  | "home"
-  | "bed"
-  | "bath"
-  | "sparkle"
-  | "person"
-  | "people"
-  | "calendar"
-  | "coins"
-  | "chart"
-  | "camera"
-  | "box"
-  | "clock"
-  | "question"
-  | "screen"
-  | "dot";
-
-/** Many illustrations, a dozen glyphs — several pictures share a mark. */
-const GLYPH_FOR: Partial<Record<IllustrationKey, GlyphName>> = {
-  house: "home",
-  window: "home",
-  bed: "bed",
-  bath: "bath",
-  droplet: "bath",
-  couch: "home",
-  sparkle: "sparkle",
-  star: "sparkle",
-  heart: "sparkle",
-  gift: "sparkle",
-  plant: "sparkle",
-  sun: "sparkle",
-  shield: "sparkle",
-  balloons: "sparkle",
-  cake: "sparkle",
-  person: "person",
-  people: "people",
-  calendar: "calendar",
-  coins: "coins",
-  wallet: "coins",
-  graph: "chart",
-  chart: "chart",
-  target: "chart",
-  camera: "camera",
-  music: "camera",
-  box: "box",
-  truck: "box",
-  oven: "box",
-  bucket: "box",
-  sponge: "box",
-  clock: "clock",
-  question: "question",
-  browser: "screen",
-  cursor: "screen",
-  phone: "screen",
-  palette: "screen",
-  rocket: "screen",
-};
+import { glyphForTitle, type GlyphName } from "@/lib/widget/glyphs";
 
 const PATHS: Record<GlyphName, React.ReactNode> = {
   home: <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8.5Z" />,
   bed: <path d="M3 18v-7m0 4h18m0 3v-6a2 2 0 0 0-2-2h-8v5M7 9.5h1.5" />,
   bath: <path d="M3 12h18v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3ZM7 12V6a2 2 0 0 1 4 0M6 19l-1 2M18 19l1 2" />,
   sparkle: <path d="M12 4c.9 4.2 2.4 5.6 6.5 6.5C14.4 11.4 13 12.8 12 17c-.9-4.2-2.4-5.6-6.5-6.5C9.6 9.6 11 8.2 12 4ZM18 16.5c.3 1.4.8 1.9 2.2 2.2-1.4.3-1.9.8-2.2 2.2-.3-1.4-.8-1.9-2.2-2.2 1.4-.3 1.9-.8 2.2-2.2Z" />,
+  brush: (
+    <>
+      <path d="M17.8 3.9a2.1 2.1 0 0 1 3 3L11.4 16.3l-3.7.7.7-3.7 9.4-9.4Z" />
+      <path d="M4 20.5c1.6.4 3-.2 3.4-1.5.3-1-.4-1.9-1.4-1.9-1.3 0-1.5 1.2-2 2-.3.5-.7.9-1.2 1.1 0 0 .5.2 1.2.3Z" />
+    </>
+  ),
   person: (
     <>
       <circle cx="12" cy="8" r="3.4" />
@@ -129,8 +76,7 @@ const PATHS: Record<GlyphName, React.ReactNode> = {
 };
 
 export function StepGlyph({ title, size = 18 }: { title: string; size?: number }) {
-  const key = guessIllustration(title);
-  const glyph = (key && GLYPH_FOR[key]) ?? "dot";
+  const glyph = glyphForTitle(title);
 
   return (
     <svg

@@ -79,18 +79,24 @@ export function StepList({ doc, selection, select, onReorder, onAdd, onDelete }:
                 <button
                   type="button"
                   onClick={() => select({ kind: "step", id: step.id })}
-                  className={`flex w-full items-center gap-2 rounded-btn px-2 py-2 text-left text-sm transition ${
+                  className={`flex w-full items-start gap-2 rounded-btn px-2 py-2 text-left text-sm transition ${
                     selected ? "bg-purple-soft font-semibold text-purple" : "text-slate hover:bg-lavender"
                   }`}
                 >
                   <DragIcon
                     size={14}
-                    className="flex-none cursor-grab text-muted opacity-0 transition group-hover:opacity-100"
+                    className="mt-[3px] flex-none cursor-grab text-muted opacity-0 transition group-hover:opacity-100"
                   />
-                  <span className="w-4 flex-none text-xs font-bold text-muted">{index + 1}</span>
-                  <span className="truncate">{step.title || "Untitled question"}</span>
+                  <span className="w-4 flex-none text-xs font-bold leading-5 text-muted">
+                    {index + 1}
+                  </span>
+                  {/* Two lines, not an ellipsis: a rail full of "What are we
+                      buil…" tells you nothing, and questions are phrases. */}
+                  <span className="line-clamp-2 leading-5">
+                    {step.title || "Untitled question"}
+                  </span>
                   {step.hidden ? (
-                    <span className="ml-auto flex-none rounded-full bg-lavender px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted">
+                    <span className="ml-auto mt-0.5 flex-none rounded-full bg-lavender px-1.5 py-0.5 text-[10px] font-bold uppercase leading-4 text-muted">
                       Rule
                     </span>
                   ) : null}
