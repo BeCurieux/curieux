@@ -48,7 +48,7 @@
     --bg:#FBFAF7; --surface:#FFFFFF; --line:#E8E5DF; --line-strong:#D6D2C9;
     --ink:#17181C; --muted:#666870; --faint:#8D8F98;
     --accent:#14614A; --accent-soft:#E7F1EC; --flag:#A26206; --flag-soft:#FBF0DF;
-    background:var(--bg); color:var(--ink); font-size:14px; font-family:var(--serif);
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:var(--sans);
   }
   .R .serif { font-family:var(--serif); }
   .R .topbar {
@@ -133,7 +133,7 @@
   .R .facets { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 2px; }
   .R .facet {
     border:1px solid var(--line-strong); background:var(--surface); border-radius:999px;
-    padding:4px 11px; font-size:12.5px; color:var(--muted); cursor:pointer;
+    padding:4px 11px; font:inherit; font-size:12.5px; color:var(--muted); cursor:pointer;
   }
   .R .facet[aria-pressed="true"] { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:560; }
   .R .facet b { font-weight:560; }
@@ -175,13 +175,11 @@
   .R .years-l { display:flex; gap:3px; margin-top:4px; }
   .R .years-l span { flex:1; font-size:9.5px; color:var(--faint); text-align:center; }
 
-  /* The sans is kept for functional micro-type only — form fields, buttons,
-     small labels — the same division fonts.ts states and the printed page makes. */
-  .R .rail a, .R .rail-h, .R .facts dt, .R .years-l span, .R .chip, .R .meta, .R .n, .R .pip,
-  .R .facet, .R .btn, .R .hint button, .R .search, .R .card .mt, .R .avatar,
-  .R .cover u, .R .hint small, .screen-cap, .changes dt {
-    font-family:var(--sans);
-  }
+  /* Charter is opted into, never inherited: the child's name, the family's
+     own words, headings. Everything else is the product talking about itself
+     and stays in the sans — the division tailwind.config.ts draws for the app.
+     These two sit outside .R, on the page framing the mockup. */
+  .screen-cap, .changes dt { font-family:var(--sans); }
   @media (max-width:800px) {
     .R .body { grid-template-columns:1fr; }
     .R .rail { border-right:0; border-bottom:1px solid var(--line); }
