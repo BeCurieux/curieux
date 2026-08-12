@@ -23,8 +23,8 @@ export default async function PricingPage() {
       <main className="mx-auto max-w-5xl px-5 py-14">
         <div className="mx-auto max-w-xl text-center">
           <p className="eyebrow">Pricing</p>
-          <h1 className="mt-3 text-display">Free until it&rsquo;s working.</h1>
-          <p className="mt-5 text-lg leading-relaxed text-slate">
+          <h1 className="mt-2 text-title">Free until it&rsquo;s working.</h1>
+          <p className="mt-3 leading-relaxed text-slate">
             Build, publish and embed on the free plan — really. Upgrade when you want the enquiries
             in your inbox and our name off the bottom.
           </p>
@@ -41,7 +41,9 @@ export default async function PricingPage() {
                 }`}
               >
                 {featured ? (
-                  <span className="absolute -top-3 left-7 rounded-full bg-purple px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                  // Ringed in the page colour so it reads as sitting on top of
+                  // the card's border rather than being sliced by it.
+                  <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-purple px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white ring-4 ring-canvas">
                     Most people
                   </span>
                 ) : null}
@@ -67,29 +69,46 @@ export default async function PricingPage() {
                   ))}
                 </ul>
 
+                {/* Every card ends with a real action. Building is free on
+                    any plan, so that is always the honest first step — and
+                    when Stripe isn't configured the upgrade route becomes a
+                    quiet line underneath rather than a dashed box that looks
+                    like an error (§41). */}
                 <div className="mt-7">
-                  {plan.id === "free" ? (
-                    <Link href="/dashboard/widgets/new" className={featured ? "btn w-full" : "btn-secondary w-full"}>
+                  {plan.id === "free" || !paid ? (
+                    <Link
+                      href="/dashboard/widgets/new"
+                      className={featured ? "btn w-full" : "btn-secondary w-full"}
+                    >
                       Start building
                     </Link>
-                  ) : paid ? (
+                  ) : (
                     <Link
                       href={`/dashboard/settings?upgrade=${plan.id}`}
                       className={featured ? "btn w-full" : "btn-secondary w-full"}
                     >
                       Choose {plan.name}
                     </Link>
-                  ) : (
-                    // §41: no buttons that do nothing. Until Stripe is wired
-                    // up, this says so rather than pretending to check out.
-                    <div className="rounded-btn border border-dashed border-rule px-4 py-3 text-center text-xs leading-relaxed text-muted">
-                      Card payments aren&rsquo;t switched on yet.{" "}
-                      <a href={`mailto:${brand.supportEmail}`} className="font-semibold text-purple">
-                        Email us
-                      </a>{" "}
-                      and we&rsquo;ll sort you out.
-                    </div>
                   )}
+
+                  {/* Every card carries a line here, in a slot tall enough for
+                      two, so the buttons sit level across all three however
+                      the notes wrap. */}
+                  <p className="mt-2.5 min-h-[2.25rem] text-center text-xs leading-relaxed text-muted">
+                    {plan.price === 0 ? (
+                      "No card needed. Nothing expires."
+                    ) : paid ? (
+                      "Cancel any time."
+                    ) : (
+                      <>
+                        Card payments aren&rsquo;t on yet —{" "}
+                        <a href={`mailto:${brand.supportEmail}`} className="font-semibold text-purple">
+                          email us
+                        </a>{" "}
+                        to upgrade.
+                      </>
+                    )}
+                  </p>
                 </div>
               </div>
             );

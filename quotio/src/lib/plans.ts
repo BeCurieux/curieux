@@ -56,11 +56,16 @@ export const PLANS: Record<PlanId, Plan> = {
       advancedLogic: false,
       integrations: false,
     },
+    // Every line here must be something the gates above actually enforce, and
+    // the lists are the same length so the three cards align. Embeds are on
+    // the free plan deliberately: the badge is the growth loop (§22), and it
+    // only spreads if free widgets can go on real websites.
     features: [
       "3 widgets",
       "500 interactions a month",
-      "Hosted links",
-      "Basic templates",
+      "Hosted links and embeds",
+      "Every template",
+      "Playful and Minimal themes",
       "“Made with” badge",
     ],
   },
@@ -84,10 +89,9 @@ export const PLANS: Record<PlanId, Plan> = {
       "20 widgets",
       "10,000 interactions a month",
       "Remove the badge",
-      "Premium themes",
+      "All six themes",
       "Lead capture",
-      "Analytics",
-      "Embeds",
+      "Analytics and enquiries",
     ],
     stripePriceEnv: "STRIPE_PRICE_PRO",
   },
@@ -107,12 +111,14 @@ export const PLANS: Record<PlanId, Plan> = {
       advancedLogic: true,
       integrations: true,
     },
+    // "Integrations" is in the plan's capability flags but nothing implements
+    // it yet, so it stays off the pricing page until it does (§41).
     features: [
       "100 widgets",
       "100,000 interactions a month",
       "Everything in Pro",
-      "Advanced logic",
-      "Integrations",
+      "Show and hide questions",
+      "Multipliers and discounts",
     ],
     stripePriceEnv: "STRIPE_PRICE_BUSINESS",
   },
