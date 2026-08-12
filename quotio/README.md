@@ -1,4 +1,4 @@
-# Quotio (working codename)
+# MEKMI
 
 > Make your website do things.
 
@@ -12,9 +12,11 @@ The promise, in one flow:
 describe it → customise → preview → publish → embed → measure
 ```
 
-**Quotio is a development codename.** Every user-visible brand string lives in
-[`src/config/brand.ts`](./src/config/brand.ts); changing it there renames the
-product everywhere.
+Every user-visible brand string lives in
+[`src/config/brand.ts`](./src/config/brand.ts) — the rename from the Quotio
+codename was a three-line change there. The logo is not a string: the wordmark,
+the mark and the prompt → tool icon are drawn in
+[`src/components/brand/`](./src/components/brand/).
 
 ---
 
@@ -29,7 +31,7 @@ No accounts, no keys, no database. Then either:
 
 - type a description into the homepage prompt box, or
 - `npm run seed` for a demo account with three published widgets and a
-  fortnight of traffic — sign in as `demo@quotio.test` / `demo-password`.
+  fortnight of traffic — sign in as `demo@mekmi.test` / `demo-password`.
 
 New to this? [SETUP.md](./SETUP.md) is the step-by-step version.
 

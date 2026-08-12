@@ -114,7 +114,7 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-10 text-xs text-muted">
-          © {new Date().getFullYear()} {brand.name}. Name subject to change.
+          © {new Date().getFullYear()} {brand.name}.
         </p>
       </div>
     </footer>
