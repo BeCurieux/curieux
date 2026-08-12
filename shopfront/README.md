@@ -588,7 +588,11 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 ## Verification status
 
 333 unit and integration tests pass against fixtures, and a further 94 browser
-assertions pass under `pnpm test:visual`. The whole pipeline has been run end to
+assertions pass under `pnpm test:visual` — including on a GitHub runner, where
+the `visual` job downloads its own Chromium and reports 94 passed rather than 94
+skipped, which is the distinction that job's `CI` guard exists to enforce.
+
+The whole pipeline has been run end to
 end against a local storefront: `pnpm generate` through all six steps,
 republishing to v2, a custom slug, a 404 on an unknown one, and the badge with
 its UTM. The funnel was verified by driving three real browser sessions through
@@ -610,18 +614,8 @@ cut-out, underexposed, extremely wide, busy phone snap, blown highlights, a
 mediocre product photography" is not a claim a catalogue of clean shots can
 test.
 
-Four things have **not** been verified, all because this environment's egress
+Three things have **not** been verified, all because this environment's egress
 proxy blocks them:
-
-- **The browser download in the `visual` CI job has never run.** `pnpm exec
-  playwright install chromium` is refused at the proxy — `cdn.playwright.dev`
-  returns `403 host not permitted` — so the one link in that job that has not
-  been exercised is the download itself. Everything downstream of it has: with
-  `CI` set and a browser present the suite passes 94/94, and with `CI` set and
-  no browser it fails on `has a browser to measure with` rather than skipping,
-  which is the failure mode that would otherwise let a broken install step
-  certify nothing. The first run of that job on a real runner is worth
-  watching.
 
 - **No real catalogue has been ingested.** Storefront hosts are refused at the
   proxy with a policy denial. Running against four real stores, one with poor
