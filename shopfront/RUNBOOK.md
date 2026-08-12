@@ -147,14 +147,21 @@ to grep for. The first signal is a merchant saying their link is broken.
 configuration only; `pnpm rls:check` is the one that proves the database
 answers.
 
-**Two things to settle before pointing a domain at this.**
+**The workbench does not ship.** `/` is a development tool — it lists every
+shop in the local cache and shows the command that fills it — and it is the
+page a merchant lands on by trimming their own shop link back to the domain.
+In a production build it now returns 404, which is the honest answer: there is
+no page there. `WORKBENCH=1` puts it back for a deployment where that is
+wanted, such as comparing five moods on a preview URL rather than on the
+machine that generated them; `deploy:check` says so when it sees the variable
+set. The gate is on `NODE_ENV`, not on Vercel's own variables, so a self-hosted
+`next start` behaves the same way.
 
-- **`/` is the workbench.** It reads the local shop cache, which is empty in a
-  deployment, so the root of whatever domain merchants are sent to renders a
-  development tool saying *"Every shop generated so far"* and *"Nothing here is
-  published"*. Harmless — it exposes nothing, because there is nothing there to
-  expose — but it is the first thing a curious merchant sees after visiting
-  their own shop link. Decide whether it ships.
+`/preview/<key>` is not gated and does not need to be — it reads the same local
+cache, which is empty in a deployment, so every key 404s on its own.
+
+**One thing to keep in mind.**
+
 - **The Playwright rung does not run on Vercel.** It is on for the workstation
   runs (§0) because that is where `pnpm generate` runs. Serverless functions
   have no browser and `serverExternalPackages` does not put one there. Nothing

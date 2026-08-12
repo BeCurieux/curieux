@@ -11,13 +11,21 @@
  */
 
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { listShops } from "@/lib/render/store";
+import { workbenchVisible } from "@/lib/workbench";
 import { Sparkle } from "@/components/shop/marks";
 import "./workbench.css";
 
 export const dynamic = "force-dynamic";
 
 export default async function Index() {
+  // A 404 rather than a redirect or a holding page: in a production build there
+  // is no page here, and saying so is more honest than sending a shopper
+  // somewhere they did not ask for. `WORKBENCH=1` puts it back — see
+  // `lib/workbench.ts`.
+  if (!workbenchVisible()) notFound();
+
   const shops = await listShops();
 
   return (
