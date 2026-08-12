@@ -1,0 +1,63 @@
+# Kill-test targets — one storefront URL per line.
+#
+#   cp killtest/targets.example.txt killtest/targets.txt
+#   pnpm killtest check    killtest/targets.txt
+#   pnpm killtest generate killtest/targets.txt
+#
+# Blank lines and lines starting with # are ignored, so the notes below cost
+# nothing. `check` refuses localhost, duplicates, and an empty file, and warns
+# when there are fewer than thirty — a short list can produce a proceed but
+# never a kill.
+#
+# ---------------------------------------------------------------- who to pick
+#
+# From the product standard, §1. A merchant who fails these is not a worse
+# merchant, they are a different test:
+#
+#   · Shopify, with /products.json open. Check first:
+#       curl -s -o /dev/null -w '%{http_code}\n' https://STORE/products.json
+#     A 404 or 401 means the ingester falls through to Playwright, which is
+#     slower and lossier. Worth knowing before, not during.
+#   · Roughly 20–500 products. Under 20 there is nothing to merchandise; the
+#     Genome currently reads the first 160 of anything larger and says so.
+#   · Traffic from Instagram, TikTok, creators or paid ads.
+#   · Two or more campaigns or collections a month.
+#   · No in-house web developer.
+#   · Roughly US$20k–500k a month.
+#   · Beauty, fashion, food, gifting, homewares or accessories.
+#
+# Not hobby stores, not creators without a catalogue, not enterprise retailers
+# with approval workflows.
+#
+# ------------------------------------------------------- the photography rule
+#
+# At least a handful must have mediocre product photography. The brief's phrase
+# is "must flatter mediocre product photography", and thirty catalogues of clean
+# studio cut-outs test the renderer's easiest case thirty times. Mark them
+# below so the sample is visible rather than assumed.
+#
+# ------------------------------------------------------------- what to record
+#
+#   pnpm killtest log https://store.com --stage sent
+#   pnpm killtest log https://store.com --stage replied --said "..."
+#   pnpm killtest log https://store.com --stage wants_it_live
+#   pnpm killtest status
+#
+# Stages: sent · opened · replied · wants_it_live · asked_price · paid
+# Outcomes: open · declined · silent
+#
+# `--said` takes their words. Not a summary, not a sentiment — the sentence
+# they actually wrote. Five people saying yes for five different reasons is a
+# different signal from five saying it for the same one, and only the quotes
+# carry that.
+#
+# ------------------------------------------------------------- the verdict
+#
+# Thirty merchants asked. Five wanting it live is proceed. `status` computes it;
+# it will not call a kill before all thirty have been asked and every
+# conversation has resolved. That number was chosen in advance precisely so it
+# cannot be renegotiated on the day.
+
+# --- targets ---------------------------------------------------------------
+# https://example-brand.com          # beauty, ~80 products
+# https://another-brand.com          # homewares, ~200 products, POOR PHOTOGRAPHY

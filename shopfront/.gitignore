@@ -13,4 +13,8 @@ next-env.d.ts
 .env.local
 
 # The real kill-test target list — businesses that have agreed to nothing.
+# The example is the only file in killtest/ that may be committed; everything
+# else there is either a real target list or a ledger of what real people said.
 killtest-targets.txt
+killtest/*
+!killtest/targets.example.txt

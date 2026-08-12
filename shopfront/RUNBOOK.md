@@ -31,34 +31,67 @@ start a run in that state, deliberately.
 ## 1. Apply the migration, then try to break it
 
 ```sh
-psql "$SUPABASE_DB_URL" -f src/lib/publish/schema.sql
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f src/lib/publish/schema.sql
+pnpm rls:check                 # or: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f src/lib/publish/rls-check.sql
 ```
 
-Then verify by hand, because this is the one thing no test in the repo can
-prove. The Genome is a model's reading of a merchant's catalogue — it reads
-like page copy and is not page copy — and the only thing standing between it
-and the public is these grants.
+The second command is the one that matters. It inserts probe rows, re-reads
+them as `anon`, asserts what may and may not come back, and rolls the whole
+thing back — safe against a live project, and it raises on the first failure
+rather than printing a report nobody reads to the end. A silent
+`RLS check passed` notice is the pass.
 
-Against the project with the **anon** key, not the service role:
+The Genome is what this protects: a model's reading of a merchant's catalogue,
+which reads like page copy and is not page copy.
 
-```sql
--- Must succeed: the one public read path.
-select * from public.get_published_shop('some-published-slug');
+**This used to be a by-hand checklist, and the checklist was wrong about all
+four of its assertions.** It asked for `permission denied` on `stores`,
+`shop_versions`, `shop_events` and `stores.genome`, and said "an empty result
+is not a pass". Both halves were mistaken:
 
--- Must all fail, with permission denied rather than an empty result.
-select * from public.stores;
-select genome from public.stores;
-select * from public.shop_versions;
-select * from public.shop_events;
-```
+- **Denied reads come back empty, not as an error.** Supabase grants `anon`
+  table-level privileges on `public` by default and relies on RLS for row
+  protection. A table with RLS on and no policy returns *zero rows* — Postgres
+  does not raise. For `stores` and `shop_events`, empty **is** the pass. Anyone
+  following the old instruction would have gone looking to "fix" grants on a
+  database that was already correct.
+- **Two of the four are supposed to return rows.** `schema.sql` deliberately
+  creates *"published shops are readable"* on `shops` and *"current versions are
+  readable"* on `shop_versions`. An anon read of those returning a published
+  shop is the schema working, not a leak.
 
-An empty result is not a pass. An empty result means the query was allowed and
-happened to match nothing, which is the same shape a bug takes when it starts
-matching something. What you want is the error.
+Writes are worth knowing the shape of too: `insert` raises
+`insufficient_privilege`, but `update` and `delete` report **zero rows affected**
+rather than failing. By eye those look like success. `rls-check.sql` asserts the
+row counts.
 
-`get_published_shop` is `security definer` and its return column list is the
-allowlist; `stores` has no select policy at all. If any of the four `select`s
-above returns rows, stop and fix the grants before publishing anything.
+What the check verifies, all of it confirmed against a local Postgres 16 with
+Supabase's own role and grant setup reproduced:
+
+| | anon |
+|---|---|
+| `stores`, incl. `genome` | 0 rows |
+| `published_shops` (view, joins stores) | 0 rows |
+| `shop_events`, `shop_funnel()` | 0 rows |
+| unpublished shop and its version/prompt | 0 rows |
+| `get_published_shop('<published>')` | 1 row — the one public path |
+| `get_published_shop('<draft>')` | 0 rows |
+| `genome` in the function's column list | absent |
+| insert event / insert shop | `insufficient_privilege` |
+| update shop / update store / delete version | 0 rows affected |
+
+It was also verified to fail: adding a `select` policy to `stores` raises
+*"anon can read public.stores (2 rows). The Genome is exposed."*, and adding
+`genome` to `get_published_shop`'s column list raises on the column list. A
+check that has never failed has proved nothing.
+
+**One thing the check does not decide for you.** `shop_versions.prompt` and
+`.audience` are readable by `anon` for published shops, by design — the
+provenance policy is deliberate. That means a merchant's own campaign brief
+("clear the slow-moving knitwear before the sale") is public to anyone who
+queries the table directly. Nothing renders it, and it is not the Genome, but
+it is the merchant's words. Decide whether that is acceptable before thirty of
+them are in the table.
 
 ## 2. Four real catalogues
 
