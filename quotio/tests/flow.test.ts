@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -194,6 +194,38 @@ describe("analytics roll-ups (§25)", () => {
     ]);
 
     expect(await store.countInteractionsThisMonth(user.id)).toBe(2);
+  });
+
+  it("backdates a seeded enquiry, and stamps a real one with now", async () => {
+    // Seeding walks a fortnight of traffic; without this the enquiries all
+    // landed on the day the script ran while the events that produced them
+    // were spread across two weeks.
+    const user = await store.createUser({});
+    const created = await createWidgetFor(user.id, "pro", cleaning());
+    if (isLimitError(created)) throw new Error("unexpected limit");
+
+    const lastTuesday = "2026-08-04T10:00:00.000Z";
+    await store.createLead({ widgetId: created.id, email: "seeded@example.com", createdAt: lastTuesday });
+    await store.createLead({ widgetId: created.id, email: "real@example.com" });
+
+    const leads = await store.listLeads(created.id, 10);
+    const seeded = leads.find((lead) => lead.email === "seeded@example.com")!;
+    const real = leads.find((lead) => lead.email === "real@example.com")!;
+
+    expect(seeded.createdAt).toBe(lastTuesday);
+    // Not backdated, and not wildly off either.
+    expect(Date.parse(real.createdAt)).toBeGreaterThan(Date.parse(lastTuesday));
+    expect(Math.abs(Date.now() - Date.parse(real.createdAt))).toBeLessThan(60_000);
+  });
+
+  it("gives a visitor no way to choose when their enquiry arrived", async () => {
+    // `createdAt` exists on NewLead for seeding. The public endpoint builds
+    // its object field by field, so the field is unreachable from outside —
+    // this pins that, because the cheap version of /api/leads would have been
+    // to spread the parsed body and quietly accept whatever it contained.
+    const source = readFileSync("src/app/api/leads/route.ts", "utf8");
+    expect(source).not.toMatch(/\.\.\.parsed\.data/);
+    expect(source).not.toMatch(/createdAt/);
   });
 
   it("takes analytics and leads with a deleted widget", async () => {

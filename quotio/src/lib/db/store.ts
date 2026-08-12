@@ -53,6 +53,12 @@ export interface NewLead {
   phone?: string;
   message?: string;
   metadata?: Record<string, unknown>;
+  /**
+   * Only set by seeding and imports, exactly as on NewEvent above.
+   * /api/leads builds its object field by field and never forwards this, so
+   * a visitor cannot claim their enquiry arrived last Tuesday.
+   */
+  createdAt?: string;
 }
 
 export interface Store {

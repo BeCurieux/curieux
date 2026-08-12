@@ -268,6 +268,8 @@ export class SupabaseStore implements Store {
       phone: lead.phone ?? null,
       message: lead.message ?? null,
       metadata_json: lead.metadata ?? null,
+      // Omitted rather than nulled when unset, so the column default stands.
+      ...(lead.createdAt ? { created_at: lead.createdAt } : {}),
     };
     const { data, error } = await this.client.from("leads").insert(row).select().single();
     if (error) throw error;

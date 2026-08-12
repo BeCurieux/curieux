@@ -113,6 +113,10 @@ async function main() {
                 name: NAMES[Math.floor(random() * NAMES.length)],
                 email: `visitor${leads + 1}@example.com`,
                 metadata: { answers, result: evaluation.display, outcome: evaluation.outcome?.title ?? null },
+                // The same day-stamp the events carry. Without it every demo
+                // enquiry landed today while the traffic that produced them
+                // was spread over a fortnight.
+                createdAt,
               });
               leads += 1;
             }

@@ -351,7 +351,7 @@ export class LocalStore implements Store {
       phone: lead.phone ?? null,
       message: lead.message ?? null,
       metadata: lead.metadata ?? null,
-      createdAt: new Date().toISOString(),
+      createdAt: lead.createdAt ?? new Date().toISOString(),
     };
     this.db.leads.push(record);
     await this.save();
