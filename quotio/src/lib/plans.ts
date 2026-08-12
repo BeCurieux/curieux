@@ -15,7 +15,13 @@ export type PlanId = (typeof PLAN_IDS)[number];
 
 export interface PlanLimits {
   widgets: number;
-  /** Completed widget sessions per calendar month. */
+  /**
+   * Visitors who answer something, per calendar month — `widget_start`, not
+   * completions. Someone who abandons halfway still counted as a visitor the
+   * widget served, so they count here. Enforced in
+   * `widgets/service.ts:isOverInteractionLimit`: past it, published widgets
+   * show a paused notice until the month turns over.
+   */
   interactions: number;
   removeBadge: boolean;
   leadCapture: boolean;

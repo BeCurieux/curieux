@@ -57,8 +57,25 @@ export default async function SettingsPage() {
             label="Interactions this month"
             used={interactions}
             limit={interactionLimit(plan.id)}
+            hint="Visitors who answered something."
           />
         </dl>
+
+        {/* The limit does something, so it has to say what — and it has to say
+            it here, where the bar that fills up lives. */}
+        {interactions >= interactionLimit(plan.id) ? (
+          <p className="mt-4 rounded-card border border-coral/40 bg-coral-soft p-4 text-sm leading-relaxed text-navy">
+            <strong className="font-bold">Your widgets are paused.</strong> They&rsquo;ve had every
+            interaction your plan allows this month, so visitors see a short notice instead. They
+            start working again on {monthResets()} — nothing is lost in the meantime, and your
+            analytics and enquiries are all still here.
+          </p>
+        ) : (
+          <p className="mt-4 text-xs leading-relaxed text-muted">
+            Past {interactionLimit(plan.id).toLocaleString()} interactions your published widgets
+            pause until the month turns over. Drafts and the builder are never affected.
+          </p>
+        )}
 
         <div className="mt-6 border-t border-rule pt-5">
           {billingEnabled() ? (
@@ -99,7 +116,24 @@ export default async function SettingsPage() {
   );
 }
 
-function Usage({ label, used, limit }: { label: string; used: number; limit: number }) {
+/** First of next month, matching the notice visitors are shown. */
+function monthResets(): string {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  return next.toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+}
+
+function Usage({
+  label,
+  used,
+  limit,
+  hint,
+}: {
+  label: string;
+  used: number;
+  limit: number;
+  hint?: string;
+}) {
   const share = Math.min(100, Math.round((used / Math.max(1, limit)) * 100));
   return (
     <div>
@@ -107,6 +141,7 @@ function Usage({ label, used, limit }: { label: string; used: number; limit: num
       <dd className="mt-1 text-sm font-semibold text-navy">
         {used.toLocaleString()} <span className="text-muted">of {limit.toLocaleString()}</span>
       </dd>
+      {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-lavender">
         <div
           className={`h-full rounded-full ${share > 85 ? "bg-coral" : "bg-purple"}`}

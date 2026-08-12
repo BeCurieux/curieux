@@ -12,7 +12,7 @@ import { getStore, uniqueSlug } from "@/lib/db/store";
 import type { WidgetRecord } from "@/lib/db/types";
 import { slugify } from "@/lib/widget/format";
 import { widgetSchema, type Widget, type WidgetDocument } from "@/lib/widget/schema";
-import { can, mustShowBadge, widgetLimit, type PlanId } from "@/lib/plans";
+import { can, interactionLimit, mustShowBadge, widgetLimit, type PlanId } from "@/lib/plans";
 
 export interface WidgetLimitError {
   error: "limit";
@@ -69,6 +69,28 @@ export interface RenderableWidget {
   showBadge: boolean;
   /** True when a gate changed what the visitor sees, for the builder's note. */
   leadCaptureGated: boolean;
+  /**
+   * The owner has used every interaction their plan allows this month, so
+   * visitors get a notice instead of the widget until it resets.
+   */
+  overInteractionLimit: boolean;
+}
+
+/**
+ * Has this owner used up the month's interactions?
+ *
+ * The limit counts `widget_start` — someone answering something — which is
+ * also what the dashboard's usage bar counts, so the number you watch there
+ * is the number that runs out.
+ *
+ * Enforced here rather than at the events endpoint on purpose: a widget that
+ * still takes answers but quietly stops recording them would show its owner a
+ * frozen count and no reason for it. Stopping at the door is visible to
+ * everyone it affects.
+ */
+export async function isOverInteractionLimit(ownerId: string, plan: PlanId): Promise<boolean> {
+  const used = await getStore().countInteractionsThisMonth(ownerId);
+  return used >= interactionLimit(plan);
 }
 
 /**
@@ -101,6 +123,7 @@ export async function renderableFor(
     widget: toRenderable(record, effective),
     showBadge: mustShowBadge(plan, document.settings.showBadge),
     leadCaptureGated: gated,
+    overInteractionLimit: await isOverInteractionLimit(record.ownerId, plan),
   };
 }
 

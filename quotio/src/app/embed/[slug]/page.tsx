@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { HeightReporter } from "@/components/widget/HeightReporter";
+import { PausedNotice } from "@/components/widget/PausedNotice";
 import { WidgetRenderer } from "@/components/widget/WidgetRenderer";
 import { appUrl } from "@/config/brand";
 import { getStore } from "@/lib/db/store";
@@ -25,7 +26,16 @@ export default async function EmbedPage({ params }: { params: { slug: string } }
   const document = publicDocument(record);
   if (!document) notFound();
 
-  const { widget, showBadge } = await renderableFor(record, document);
+  const { widget, showBadge, overInteractionLimit } = await renderableFor(record, document);
+
+  if (overInteractionLimit) {
+    return (
+      <div className="bg-transparent p-1">
+        <HeightReporter />
+        <PausedNotice name={widget.name} />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-transparent p-1">

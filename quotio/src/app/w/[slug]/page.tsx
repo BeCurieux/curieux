@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { DuplicateButton } from "@/components/widget/DuplicateButton";
+import { PausedNotice } from "@/components/widget/PausedNotice";
 import { WidgetRenderer } from "@/components/widget/WidgetRenderer";
 import { Logo } from "@/components/site/Chrome";
 import { appUrl, brand } from "@/config/brand";
@@ -36,7 +37,17 @@ export default async function HostedWidgetPage({ params }: { params: { slug: str
   const document = publicDocument(record);
   if (!document) notFound();
 
-  const { widget, showBadge } = await renderableFor(record, document);
+  const { widget, showBadge, overInteractionLimit } = await renderableFor(record, document);
+
+  // Over the month's interactions: the widget doesn't render at all, so there
+  // is nothing to press that wouldn't be counted (§41).
+  if (overInteractionLimit) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-lavender px-4 py-10">
+        <PausedNotice name={widget.name} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-lavender">

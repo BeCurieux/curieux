@@ -72,10 +72,22 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-card border border-rule bg-white px-5 py-4">
+          {/* Running out has a consequence, so the strip that counts it says
+              so — finding out from a paused widget is finding out too late. */}
+          <div
+            className={`mt-8 flex flex-wrap items-center justify-between gap-3 rounded-card border px-5 py-4 ${
+              used >= limit ? "border-coral/40 bg-coral-soft" : "border-rule bg-white"
+            }`}
+          >
             <p className="text-sm text-slate">
               <strong className="font-bold text-navy">{used.toLocaleString()}</strong> of{" "}
               {limit.toLocaleString()} interactions used this month.
+              {used >= limit ? (
+                <span className="font-semibold text-navy">
+                  {" "}
+                  Your published widgets are paused until the 1st.
+                </span>
+              ) : null}
             </p>
             <Link href="/pricing" className="text-sm font-semibold text-purple hover:underline">
               See plans →
