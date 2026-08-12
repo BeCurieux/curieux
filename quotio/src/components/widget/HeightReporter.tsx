@@ -19,7 +19,7 @@ export function HeightReporter() {
       // Ignore sub-pixel churn; a 2px threshold stops a resize feedback loop.
       if (Math.abs(height - last) < 2) return;
       last = height;
-      window.parent.postMessage({ type: "quotio:height", height }, "*");
+      window.parent.postMessage({ type: "mekmi:height", height }, "*");
     };
 
     post();

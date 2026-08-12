@@ -43,22 +43,22 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
     id: "playful",
     label: "Playful",
     hint: "Warm white, soft lavender panels, illustrations welcome.",
-    swatch: ["#FFFFFF", "#F7F8FC", "#5B5FEF"],
+    swatch: ["#FFFFFF", "#F7F8FC", "#7657F6"],
     vars: {
       "--w-bg": "#FFFFFF",
       "--w-panel": "#F7F8FC",
       "--w-surface": "#FFFFFF",
-      "--w-text": "#1B1F3B",
+      "--w-text": "#18233A",
       "--w-muted": "#4A5568",
       "--w-faint": "#A3AED0",
       "--w-border": "#E7EAF6",
       "--w-shadow": "0 1px 2px rgba(27,31,59,0.04), 0 12px 32px -16px rgba(27,31,59,0.14)",
-      "--w-ink": "#1B1F3B",
+      "--w-ink": "#18233A",
       "--w-on-ink": "#FFFFFF",
       "--w-celebrate": "#E7F7F3",
       "--w-celebrate-border": "#A9E3D8",
       "--w-celebrate-strong": "#2E9C8B",
-      "--w-done": "#7DD3C7",
+      "--w-done": "#73DDB5",
       "--w-option-weight": "1px",
     },
   },
@@ -66,7 +66,7 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
     id: "minimal",
     label: "Minimal",
     hint: "Quiet greys, hairline borders, no decoration.",
-    swatch: ["#FFFFFF", "#FAFAFA", "#1B1F3B"],
+    swatch: ["#FFFFFF", "#FAFAFA", "#18233A"],
     vars: {
       "--w-bg": "#FFFFFF",
       "--w-panel": "#FAFAFA",
@@ -89,7 +89,7 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
     id: "bold",
     label: "Bold",
     hint: "Heavy borders, big type, high contrast.",
-    swatch: ["#FFFFFF", "#FFF4DE", "#1B1F3B"],
+    swatch: ["#FFFFFF", "#FFF4DE", "#18233A"],
     vars: {
       "--w-bg": "#FFFFFF",
       "--w-panel": "#FFF4DE",
@@ -127,7 +127,7 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
       "--w-celebrate": "#EAF6F3",
       "--w-celebrate-border": "#BCE4DC",
       "--w-celebrate-strong": "#37907F",
-      "--w-done": "#7DD3C7",
+      "--w-done": "#73DDB5",
       "--w-option-weight": "1px",
     },
   },
@@ -314,7 +314,7 @@ export function buttonVars(theme: WidgetTheme): Record<string, string> {
     case "filled":
     default: {
       const preset = presetFor(theme);
-      const ink = preset.vars["--w-ink"] ?? "#1B1F3B";
+      const ink = preset.vars["--w-ink"] ?? "#18233A";
       const isDark = preset.id === "dark";
       return {
         "--w-btn-bg": "var(--w-ink)",

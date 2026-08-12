@@ -1,12 +1,12 @@
 // Single source of truth for every brand string in the product (brief §1).
 //
-// "Quotio" is a development codename. When the real name is chosen, change it
-// here — nothing else in the codebase hardcodes it. If you add a user-visible
-// string containing the product name, it belongs in this file.
+// The codename was Quotio; the product is MEKMI. This file is the only place
+// the name appears in prose — if you add a user-visible string containing it,
+// it belongs here. The logo is not a string: see components/brand/.
 
 export const brand = {
   /** Product name, as shown in the header, titles and the "Made with" badge. */
-  name: "Quotio",
+  name: "MEKMI",
 
   /** One-line positioning, used in metadata and the footer. */
   tagline: "Make your website do things.",
@@ -24,10 +24,10 @@ export const brand = {
   badgeLabel: "Made with",
 
   /** Marketing site domain, used in copy only. */
-  domain: "quotio.app",
+  domain: "mekmi.app",
 
   /** Support address shown on billing/settings screens. */
-  supportEmail: "hello@quotio.app",
+  supportEmail: "hello@mekmi.app",
 } as const;
 
 /**

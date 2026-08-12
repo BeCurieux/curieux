@@ -123,7 +123,7 @@ export function PromptBox({
             </li>
           ))}
         </ol>
-        <div className="qw-bar mt-6" style={{ ["--w-border" as string]: "#E7EAF6", ["--w-accent" as string]: "#5B5FEF" }}>
+        <div className="qw-bar mt-6" style={{ ["--w-border" as string]: "#E7EAF6", ["--w-accent" as string]: "#7657F6" }}>
           <span style={{ width: `${((stage + 1) / STAGES.length) * 100}%` }} />
         </div>
       </div>

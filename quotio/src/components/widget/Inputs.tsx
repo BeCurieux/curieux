@@ -191,7 +191,7 @@ export function StepInput({
 /* ------------------------------------------------------------------ */
 
 /** Rotation used when one picture repeats across a whole answer grid. */
-const ART_TINTS = ["#7DD3C7", "#FFC857", "#FF8FA3", "#A9A9F7", "#5FBFB0", "#F5B971"];
+const ART_TINTS = ["#73DDB5", "#FFC857", "#FF806F", "#A9A9F7", "#5FBFB0", "#F5B971"];
 
 /**
  * Layout is inferred, not configured.

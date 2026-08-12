@@ -858,5 +858,5 @@ function OutcomesEditor({
 }
 
 /* Re-exported so DesignTab can share the swatch list. */
-export const BRAND_SWATCHES = ["#5B5FEF", "#7DD3C7", "#FFC857", "#FF8FA3", "#1B1F3B", "#2E9C8B"];
+export const BRAND_SWATCHES = ["#7657F6", "#73DDB5", "#FFC857", "#FF806F", "#18233A", "#2E9C8B"];
 export { ColourField };

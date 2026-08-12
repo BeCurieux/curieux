@@ -1,8 +1,8 @@
 {
-  "name": "quotio",
+  "name": "mekmi",
   "private": true,
   "version": "0.1.0",
-  "description": "Quotio (working codename) — a no-code builder for beautiful interactive widgets: calculators, estimators and recommenders you can embed anywhere. Make your website do things.",
+  "description": "MEKMI — a no-code builder for beautiful interactive widgets: calculators, estimators and recommenders you can embed anywhere. Make your website do things.",
   "type": "module",
   "scripts": {
     "dev": "next dev",

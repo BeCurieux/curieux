@@ -11,15 +11,15 @@
 import type { IllustrationKey } from "@/lib/widget/illustrations";
 
 const C = {
-  purple: "#5B5FEF",
+  purple: "#7657F6",
   purpleSoft: "#DDDEFC",
-  mint: "#7DD3C7",
+  mint: "#73DDB5",
   mintSoft: "#DCF3EF",
   yellow: "#FFC857",
   yellowSoft: "#FFEFCF",
-  coral: "#FF8FA3",
+  coral: "#FF806F",
   coralSoft: "#FFE0E6",
-  navy: "#1B1F3B",
+  navy: "#18233A",
   white: "#FFFFFF",
 } as const;
 

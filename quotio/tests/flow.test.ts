@@ -15,9 +15,9 @@ let directory: string;
 let store: LocalStore;
 
 beforeEach(() => {
-  directory = mkdtempSync(path.join(tmpdir(), "quotio-"));
+  directory = mkdtempSync(path.join(tmpdir(), "mekmi-"));
   // A fresh file per test, and the global dev cache cleared with it.
-  (globalThis as { __quotioDb?: unknown }).__quotioDb = undefined;
+  (globalThis as { __mekmiDb?: unknown }).__mekmiDb = undefined;
   store = new LocalStore(path.join(directory, "store.json"));
   setStore(store);
 });
@@ -220,7 +220,7 @@ describe("persistence", () => {
 
     // Force the queued write to land, then read the file with a new instance.
     await new Promise((resolve) => setTimeout(resolve, 50));
-    (globalThis as { __quotioDb?: unknown }).__quotioDb = undefined;
+    (globalThis as { __mekmiDb?: unknown }).__mekmiDb = undefined;
     const reopened = new LocalStore(path.join(directory, "store.json"));
 
     const found = await reopened.getWidgetBySlug(created.slug);

@@ -12,10 +12,10 @@ export interface FunnelStage {
 }
 
 const TONES = {
-  purple: "#5B5FEF",
-  mint: "#7DD3C7",
+  purple: "#7657F6",
+  mint: "#73DDB5",
   yellow: "#FFC857",
-  coral: "#FF8FA3",
+  coral: "#FF806F",
 } as const;
 
 /** The view → start → complete funnel, as proportional bars. */

@@ -50,7 +50,7 @@ const EMPTY: Database = {
  * Next's dev server re-evaluates modules on edit. Without this the database
  * would silently reset — and worse, two copies would race each other.
  */
-const globalCache = globalThis as unknown as { __quotioDb?: Database; __quotioDbStamp?: number };
+const globalCache = globalThis as unknown as { __mekmiDb?: Database; __mekmiDbStamp?: number };
 
 export class LocalStore implements Store {
   private readonly file: string;
@@ -61,14 +61,14 @@ export class LocalStore implements Store {
 
   constructor(file = process.env.LOCAL_STORE_PATH ?? path.join(process.cwd(), ".data", "store.json")) {
     this.file = file;
-    if (globalCache.__quotioDb) {
-      this.db = globalCache.__quotioDb;
-      this.stamp = globalCache.__quotioDbStamp ?? 0;
+    if (globalCache.__mekmiDb) {
+      this.db = globalCache.__mekmiDb;
+      this.stamp = globalCache.__mekmiDbStamp ?? 0;
     } else {
       this.db = this.read();
       this.stamp = this.mtime();
-      globalCache.__quotioDb = this.db;
-      globalCache.__quotioDbStamp = this.stamp;
+      globalCache.__mekmiDb = this.db;
+      globalCache.__mekmiDbStamp = this.stamp;
     }
   }
 
@@ -93,8 +93,8 @@ export class LocalStore implements Store {
     if (current === 0 || current === this.stamp) return;
     this.db = this.read();
     this.stamp = current;
-    globalCache.__quotioDb = this.db;
-    globalCache.__quotioDbStamp = current;
+    globalCache.__mekmiDb = this.db;
+    globalCache.__mekmiDbStamp = current;
   }
 
   private read(): Database {
@@ -117,7 +117,7 @@ export class LocalStore implements Store {
       await writeFile(temporary, JSON.stringify(this.db, null, 2), "utf8");
       await rename(temporary, this.file);
       this.stamp = this.mtime();
-      globalCache.__quotioDbStamp = this.stamp;
+      globalCache.__mekmiDbStamp = this.stamp;
     });
     return this.writing;
   }

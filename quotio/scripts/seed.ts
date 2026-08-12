@@ -14,7 +14,7 @@ import { createWidgetFor, isLimitError } from "../src/lib/widgets/service";
 import { TEMPLATES, templateBySlug } from "../src/lib/templates/catalogue";
 import { defaultAnswers, evaluateWidget } from "../src/lib/widget/engine";
 
-const EMAIL = "demo@quotio.test";
+const EMAIL = "demo@mekmi.test";
 const PASSWORD = "demo-password";
 
 const SEEDED = ["cleaning-estimate", "skincare-finder", "website-project-quote"];

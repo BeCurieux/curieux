@@ -19,6 +19,7 @@ import { Illustration } from "@/components/illustrations/Illustration";
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronRightIcon } from "@/components/ui/Icons";
 import { StepGlyph } from "./StepGlyph";
 import { brand } from "@/config/brand";
+import { MekmiMark } from "@/components/brand/Wordmark";
 import { createTracker, noopTracker } from "@/lib/analytics/client";
 import { defaultAnswers, evaluateWidget, isAnswered, visibleSteps, type Answers } from "@/lib/widget/engine";
 import type { Widget } from "@/lib/widget/schema";
@@ -256,8 +257,14 @@ export function WidgetRenderer({
       rel="noopener noreferrer"
       title={`Like this widget? Make your own with ${brand.name}.`}
     >
-      {brand.badgeLabel} <strong>{brand.name}</strong>
-      <span aria-hidden="true">✦</span>
+      {/* The mark, then the words — a small product label rather than a
+          line of text with a sparkle after it. This is the distribution
+          surface: it sits on every free widget on somebody else's site, so
+          it has to look deliberate at 20px. */}
+      <MekmiMark size={17} className="qw-badge-mark" />
+      <span className="qw-badge-text">
+        {brand.badgeLabel} <strong>{brand.name}</strong>
+      </span>
     </a>
   ) : null;
 

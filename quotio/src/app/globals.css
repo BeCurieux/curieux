@@ -246,22 +246,39 @@
   padding-top: 12px;
 }
 
+/* A compact rounded product label, not a corporate logo bolted on. Outlined
+   rather than filled so it sits quietly on whatever background the host page
+   gives it, and keeps its own shape on a dark widget theme. */
 .qw-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 4px 11px 4px 5px;
+  font-size: 11px;
   font-weight: 500;
-  color: var(--w-faint);
+  line-height: 1.2;
+  color: var(--w-muted);
   text-decoration: none;
+  border: 1px solid var(--w-border);
   border-radius: 999px;
-  transition: color 150ms ease, background-color 150ms ease;
+  background: var(--w-surface);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.qw-badge-mark {
+  flex: none;
+  border-radius: 5px;
+}
+
+.qw-badge-text strong {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--w-text);
 }
 
 .qw-badge:hover {
   color: var(--w-text);
-  background: var(--w-panel);
+  border-color: var(--w-muted);
 }
 
 .qw-badge strong {

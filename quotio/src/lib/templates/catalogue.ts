@@ -157,7 +157,7 @@ const cleaning = template(
       cta: { label: "Book my cleaning" },
       disclaimer: "This is an indicative estimate. We'll confirm your exact price before booking.",
     },
-    theme: { preset: "playful", brandColour: "#5B5FEF", radius: "l", buttonStyle: "filled" },
+    theme: { preset: "playful", brandColour: "#7657F6", radius: "l", buttonStyle: "filled" },
     settings: {
       leadCapture: {
         mode: "after",
@@ -354,7 +354,7 @@ const website = template(
       cta: { label: "Book a call" },
       disclaimer: "A proper estimate needs a conversation. This gets us to the right ballpark.",
     },
-    theme: { preset: "minimal", brandColour: "#5B5FEF", radius: "m", buttonStyle: "filled" },
+    theme: { preset: "minimal", brandColour: "#7657F6", radius: "m", buttonStyle: "filled" },
     settings: {
       leadCapture: { mode: "after", fields: ["name", "email"], heading: "Send me this estimate" },
       privacyNote: PRIVACY,
@@ -416,7 +416,7 @@ const roi = template(
       showBreakdown: false,
       disclaimer: "Estimates, not promises. Your results depend on your market.",
     },
-    theme: { preset: "bold", brandColour: "#1B1F3B", radius: "s", buttonStyle: "filled" },
+    theme: { preset: "bold", brandColour: "#18233A", radius: "s", buttonStyle: "filled" },
     settings: {
       leadCapture: { mode: "after", fields: ["name", "email"], heading: "Email me this calculation" },
       privacyNote: PRIVACY,
@@ -828,7 +828,7 @@ const planFinder = template(
         },
       ],
     },
-    theme: { preset: "minimal", brandColour: "#5B5FEF", radius: "m", buttonStyle: "filled" },
+    theme: { preset: "minimal", brandColour: "#7657F6", radius: "m", buttonStyle: "filled" },
     settings: {
       showBadge: true,
       leadCapture: { mode: "none", fields: ["email"] },

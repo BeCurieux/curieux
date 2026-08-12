@@ -25,10 +25,10 @@ export async function GET() {
   var mounted = [];
 
   function mount(host) {
-    if (host.getAttribute("data-quotio-mounted") === "true") return;
+    if (host.getAttribute("data-mekmi-mounted") === "true") return;
     var slug = host.getAttribute(ATTRIBUTE);
     if (!slug) return;
-    host.setAttribute("data-quotio-mounted", "true");
+    host.setAttribute("data-mekmi-mounted", "true");
 
     var frame = document.createElement("iframe");
     frame.src = ORIGIN + "/embed/" + encodeURIComponent(slug);
@@ -56,7 +56,7 @@ export async function GET() {
   window.addEventListener("message", function (event) {
     if (event.origin !== ORIGIN) return;
     var data = event.data;
-    if (!data || data.type !== "quotio:height") return;
+    if (!data || data.type !== "mekmi:height") return;
 
     for (var i = 0; i < mounted.length; i++) {
       // Match on the source window, not the slug: the same widget can be

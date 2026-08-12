@@ -9,12 +9,12 @@
 // not childish — flat shapes, brand palette, no gradients, no shading.
 
 const C = {
-  purple: "#5B5FEF",
+  purple: "#7657F6",
   purpleSoft: "#DDDEFC",
-  mint: "#7DD3C7",
+  mint: "#73DDB5",
   yellow: "#FFC857",
-  coral: "#FF8FA3",
-  navy: "#1B1F3B",
+  coral: "#FF806F",
+  navy: "#18233A",
   peach: "#FDEBD8",
   cream: "#FFF4DE",
   white: "#FFFFFF",

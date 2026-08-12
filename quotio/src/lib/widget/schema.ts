@@ -40,7 +40,7 @@ export const slugSchema = z
 
 export const hexColourSchema = z
   .string()
-  .regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a hex colour like #5B5FEF.");
+  .regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a hex colour like #7657F6.");
 
 export const illustrationSchema = z.enum(ILLUSTRATION_KEYS);
 
@@ -281,7 +281,7 @@ export const buttonStyleSchema = z.enum(["filled", "soft", "outline"]);
 
 export const widgetThemeSchema = z.object({
   preset: themePresetSchema.default("playful"),
-  brandColour: hexColourSchema.default("#5B5FEF"),
+  brandColour: hexColourSchema.default("#7657F6"),
   font: themeFontSchema.default("dm-sans"),
   radius: themeRadiusSchema.default("l"),
   buttonStyle: buttonStyleSchema.default("filled"),

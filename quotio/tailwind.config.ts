@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Quotio's design system (brief §5–§7).
+ * MEKMI's design system (brief §5–§7).
  *
  * The look is "playful tech brand + exceptionally polished product UI".
  * Three rules keep it there, and they are encoded in these tokens rather
@@ -20,16 +20,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Electric violet. Kept under the `purple` token name because it is
+        // one, and renaming it would touch a few hundred class names for no
+        // gain — the value is what the brand specifies.
         purple: {
-          DEFAULT: "#5B5FEF",
-          soft: "#EEEFFE", // selected-answer wash
-          mid: "#C9CBFA", // borders on purple surfaces
-          deep: "#4448D4", // hover
+          DEFAULT: "#7657F6",
+          soft: "#EFECFE", // selected-answer wash
+          mid: "#CFC5FB", // borders on violet surfaces
+          deep: "#5E40DC", // hover
         },
-        mint: { DEFAULT: "#7DD3C7", soft: "#E6F7F4" },
+        // Mint and coral are product colours: illustrations, success and
+        // destructive states. They are deliberately absent from the logo and
+        // the site chrome, which is navy on cream with violet as the accent.
+        mint: { DEFAULT: "#73DDB5", soft: "#E4F8F0" },
         yellow: { DEFAULT: "#FFC857", soft: "#FFF4DE" },
-        coral: { DEFAULT: "#FF8FA3", soft: "#FFEDF0" },
-        navy: "#1B1F3B", // headings and body type
+        coral: { DEFAULT: "#FF806F", soft: "#FFEDEA" },
+        navy: "#18233A", // headings and body type
         slate: "#4A5568", // secondary type
         muted: "#A3AED0", // tertiary type, icons at rest
         lavender: "#F7F8FC", // cool panel backgrounds
@@ -39,12 +45,14 @@ const config: Config = {
         // biggest reason the reference reads as friendly rather than clinical:
         // white cards lift off it, and the whole product feels lit rather than
         // printed. Cards, inputs and the widget surface stay pure white.
-        canvas: "#FDFBF6",
-        cream: "#F9F5EC", // warmer band, for hero blobs and soft sections
+        canvas: "#FFF9F1",
+        cream: "#FBF3E6", // warmer band, for hero blobs and soft sections
         peach: "#FDEBD8", // the blush behind illustrations
       },
       fontFamily: {
         sans: [
+          "Bricolage Grotesque",
+          "Satoshi",
           "DM Sans",
           "Poppins",
           "Avenir Next",

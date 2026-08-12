@@ -1,32 +1,18 @@
 // Marketing site chrome (brief §9).
 //
-// "Keep header very clean." One row, six items, one filled button. The logo is
-// drawn rather than typeset so the wordmark keeps its personality when the
-// product is eventually renamed — the mark stays, the word comes from
-// config/brand.ts.
+// "Keep header very clean." One row, six items, one filled button. The logo
+// is the drawn MEKMI wordmark (components/brand/Wordmark.tsx) — paths, not
+// type, so it can't reflow when a webfont lands. Prose elsewhere on the page
+// still takes the name from config/brand.ts.
 
 import Link from "next/link";
 import { brand } from "@/config/brand";
+import { Wordmark } from "@/components/brand/Wordmark";
 
 export function Logo({ size = 30 }: { size?: number }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <rect width="40" height="40" rx="12" fill="#5B5FEF" />
-        <circle cx="15" cy="17" r="3" fill="#FFFFFF" />
-        <circle cx="25" cy="17" r="3" fill="#FFFFFF" />
-        <path
-          d="M14 25c1.8 2.2 4 3.3 6 3.3S24.2 27.2 26 25"
-          stroke="#FFFFFF"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <circle cx="32" cy="9" r="4" fill="#FFC857" />
-      </svg>
-      <span className="text-lg font-bold tracking-tight text-navy">{brand.name}</span>
-    </span>
-  );
+  // `size` was the old square logo's edge length; the wordmark is a
+  // horizontal lockup, so it maps to cap height. Callers keep working.
+  return <Wordmark height={Math.round(size * 0.72)} className="text-navy" />;
 }
 
 const NAV = [
@@ -82,7 +68,7 @@ export function SiteFooter() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M12 20S3 14.5 3 9a4.5 4.5 0 0 1 9-1.5A4.5 4.5 0 0 1 21 9c0 5.5-9 11-9 11Z"
-              fill="#5B5FEF"
+              fill="#7657F6"
             />
           </svg>
           Delightful for your audience. Powerful for your business.
