@@ -125,13 +125,15 @@ export default async function SettingsPage() {
               )}
             </div>
           ) : (
+            /* Same words as the pricing page's version of this line. "This
+               deployment" was ours, not theirs — nobody paying for a plan
+               knows or cares which deployment they landed on. */
             <p className="text-sm leading-relaxed text-slate">
-              Card payments aren&rsquo;t switched on in this deployment yet. Everything in your plan
-              works;{" "}
+              Card payments aren&rsquo;t on yet. Everything in your plan works —{" "}
               <a href={`mailto:${brand.supportEmail}`} className="font-semibold text-purple">
                 email us
               </a>{" "}
-              if you need a bigger one.
+              if you want a bigger one.
             </p>
           )}
         </div>
