@@ -127,6 +127,49 @@ than trusting one to imply the other.
 Service-role reads are unaffected by any of this: `service_role` carries
 `bypassrls`, so `listPublished` and the funnel summary still see everything.
 
+## 1b. The deployment
+
+```sh
+vercel env pull            # or run this where the deployment's own variables are
+pnpm deploy:check
+```
+
+Vercel is the second place a missing variable fails quietly, and it fails in
+front of merchants rather than in a terminal. `storeNameFromEnv()` chooses the
+Supabase adapter when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are both
+set and the **filesystem** adapter otherwise — right on a laptop, catastrophic
+on Vercel. A deployment missing either one boots cleanly, serves the workbench,
+and answers every published shop URL with a 404. No error, no log line, nothing
+to grep for. The first signal is a merchant saying their link is broken.
+
+`deploy:check` refuses on that, on a `NEXT_PUBLIC_`-prefixed secret, and on a
+`PUBLIC_ORIGIN` that is missing, not https, or carries a path. It reads
+configuration only; `pnpm rls:check` is the one that proves the database
+answers.
+
+**Two things to settle before pointing a domain at this.**
+
+- **`/` is the workbench.** It reads the local shop cache, which is empty in a
+  deployment, so the root of whatever domain merchants are sent to renders a
+  development tool saying *"Every shop generated so far"* and *"Nothing here is
+  published"*. Harmless — it exposes nothing, because there is nothing there to
+  expose — but it is the first thing a curious merchant sees after visiting
+  their own shop link. Decide whether it ships.
+- **The Playwright rung does not run on Vercel.** It is on for the workstation
+  runs (§0) because that is where `pnpm generate` runs. Serverless functions
+  have no browser and `serverExternalPackages` does not put one there. Nothing
+  in the deployment calls it today — generation is a CLI — so this is a fact to
+  keep rather than a bug to fix, and it becomes a real constraint the moment
+  generation is ever moved behind a route.
+
+`tests/deploy-config.test.ts` holds the four settings that only matter once
+deployed and cannot fail locally: `force-dynamic` on the shop page (without it
+Next caches the page and serves a price that was true at build time, under a
+dateline saying otherwise), `runtime = "nodejs"` on the funnel endpoint, the
+service key reaching exactly the two files it should, and Next's image
+optimiser staying off so no merchant CDN needs allowlisting before their
+photographs load.
+
 ## 2. Four real catalogues
 
 ```sh
