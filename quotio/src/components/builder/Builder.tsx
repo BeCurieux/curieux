@@ -307,11 +307,23 @@ export function Builder({
             </div>
           </div>
 
-          {/* The preview sits in the middle of its column rather than pinned
-              to the top with a screenful of empty lavender underneath. Short
-              widgets are the common case, so the common case is what this is
-              laid out for. */}
-          <div className="center-safe flex flex-1 flex-col px-4 pb-8 pt-1">
+          {/* Centred while there's little slack, top-biased once there's a
+              lot — the two spacers below share the free space equally until
+              the top one hits its cap, after which the remainder all falls to
+              the bottom.
+
+              Short widgets are the common case and they want centring, which
+              is what this used to do unconditionally. But the gap grew without
+              limit, so on a tall screen a five-question estimator sat a long
+              way down its own column. Capping only the top spacer keeps the
+              short case and fixes the tall one.
+
+              This also replaces `justify-content: safe center`: when the
+              content is taller than the column both spacers shrink to nothing
+              and the card starts at the top, so the first question can never
+              be scrolled off above the viewport. */}
+          <div className="flex flex-1 flex-col px-4 pb-8 pt-1">
+            <div className="max-h-24 min-h-0 flex-1" aria-hidden="true" />
             <div
               className="mx-auto w-full transition-[max-width] duration-300"
               style={{ maxWidth: VIEWPORTS[viewport].width }}
@@ -334,6 +346,8 @@ export function Builder({
                 </ul>
               </div>
             ) : null}
+            {/* Uncapped, so it soaks up whatever the top spacer didn't take. */}
+            <div className="min-h-0 flex-1" aria-hidden="true" />
           </div>
         </main>
 
