@@ -10,7 +10,7 @@ import type { Answers } from "@/lib/widget/engine";
 
 export const metadata: Metadata = {
   title: "Examples",
-  description: "Three widgets doing a real job, in the kind of page they'd normally live on.",
+  description: "Three widgets on three fake websites. All of them work.",
 };
 
 /**
@@ -43,9 +43,9 @@ const SHOWCASE: Example[] = [
     slug: "cleaning-estimate",
     site: "sparkle & co.",
     nav: ["Services", "Areas", "Prices", "About"],
-    context: "On a cleaning company's home page, under the hero.",
+    context: "A cleaning company's home page, right under the hero.",
     heading: "Cleaning that fits around your week",
-    body: "Vetted cleaners, fixed prices and no awkward phone calls. See what your place would cost before you commit to anything.",
+    body: "Get a price without ringing anyone up. Takes about thirty seconds.",
     layout: "landing",
     // Both the step behind and the one on screen, so the rail shows a tick
     // and Continue is live rather than greyed.
@@ -55,9 +55,9 @@ const SHOWCASE: Example[] = [
     slug: "skincare-finder",
     site: "north & fern",
     nav: ["Shop", "Routines", "Journal", "Help"],
-    context: "On a skincare brand's shop page, in the column where the filters would be.",
+    context: "A skincare shop, where the filters would normally go.",
     heading: "Not sure where to start?",
-    body: "Nine products, one right answer. Three questions and we'll tell you which set your skin actually wants.",
+    body: "Three questions and we'll point you at the right routine.",
     layout: "shop",
     start: { answers: { skin_type: "dry" } },
   },
@@ -65,9 +65,9 @@ const SHOWCASE: Example[] = [
     slug: "roi-calculator",
     site: "meridian",
     nav: ["Product", "Customers", "Pricing", "Docs"],
-    context: "Halfway down a B2B pricing page, above the plan table.",
+    context: "Halfway down a pricing page, just above the plans.",
     heading: "Would this pay for itself?",
-    body: "Put your own numbers in. We'd rather you talked yourself into it than took our word for anything.",
+    body: "Use your own numbers. We'd rather you talked yourself into it.",
     layout: "pricing",
   },
 ];
@@ -84,7 +84,7 @@ export default async function ExamplesPage() {
           <p className="eyebrow">Examples</p>
           <h1 className="mt-2 text-title">In the wild.</h1>
           <p className="mt-3 leading-relaxed text-slate">
-            Three widgets, doing a job, on three different kinds of page. All of them work — go on.
+            Three real widgets, sat on three fake websites. Go on, have a play.
           </p>
         </div>
 
