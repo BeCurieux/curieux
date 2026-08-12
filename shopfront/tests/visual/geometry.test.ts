@@ -155,10 +155,24 @@ describeVisual("geometry", () => {
     it.each(PLATED_MOODS)("%s keeps the portrait plate the ratio is there for", async (mood) => {
       // The desktop fix lives inside a min-width block precisely so this stays
       // true. A future fix that edits the base rule instead lands here.
+      //
+      // "Portrait, filling the column" rather than "exactly 4/5", because 4/5
+      // and `--hero-height` cannot both be satisfied and only one of them can
+      // be allowed to win. A 350px column crops to 437px at 4/5, which is
+      // 52svh — under utility's 46svh floor and over clean's 58svh one. Letting
+      // the ratio win outright would flatten every mood on a phone onto that
+      // same 437px, which is the desktop bug wearing a different hat; letting
+      // the floor win keeps clean taller than utility, which is the whole
+      // reason moods carry a hero height. So the ratio is the shape a mood gets
+      // when it does not ask for more, and a floor above it makes the plate
+      // more portrait, never less, and never wider than the column.
       const page = await open(harness, mood, PHONE);
       try {
-        const hero = (await boxOf(page, ".hero-plate"))!;
-        expect(hero.width / hero.height).toBeCloseTo(0.8, 2);
+        const hero = await heroBounds(page);
+        const box = (await boxOf(page, ".hero-plate"))!;
+
+        expect(box.width).toBe(hero.columnRight - hero.columnLeft);
+        expect(box.width / box.height).toBeLessThanOrEqual(0.8 + 0.005);
       } finally {
         await page.close();
       }
@@ -178,6 +192,40 @@ describeVisual("geometry", () => {
   });
 
   describe.each([PHONE, ...DESKTOPS])("at $label", (viewport: Viewport) => {
+    it.each(MOODS)("%s keeps the hero inside the edges it is laid out against", async (mood) => {
+      // The test below this one cannot see the failure this one catches, and
+      // the reason is worth writing down: `.shop` is `overflow-x: hidden`, so
+      // `scrollWidth` is clamped to the viewport whatever the layout does. A
+      // box hanging off the right edge reports zero overflow and gets silently
+      // cropped. Only the box itself tells the truth.
+      //
+      // The failure that prompted this: a 4/5 plate computing 392px wide inside
+      // a 350px column on a 390px phone, right edge at 412. `aspect-ratio`
+      // resolves in whichever direction is left free, and clean's
+      // `min-height: 58svh` (489px) beat the ratio's height (437px), so the
+      // ratio turned around and derived the *width* from the height instead —
+      // 489 ÷ 1.25 = 392. Utility escaped only by being short enough that the
+      // ratio still won.
+      const page = await open(harness, mood, viewport);
+      try {
+        const hero = await heroBounds(page);
+
+        // True of every mood: bleed heroes are meant to reach the glass, not
+        // pass through it.
+        expect(hero.left, JSON.stringify(hero)).toBeGreaterThanOrEqual(-1);
+        expect(hero.right, JSON.stringify(hero)).toBeLessThanOrEqual(viewport.width + 1);
+
+        // A plated hero owes more: it belongs to the text column, so sitting
+        // inside the screen is not enough — it has to sit inside the column.
+        if (PLATED_MOODS.includes(mood)) {
+          expect(hero.left, JSON.stringify(hero)).toBeGreaterThanOrEqual(hero.columnLeft - 1);
+          expect(hero.right, JSON.stringify(hero)).toBeLessThanOrEqual(hero.columnRight + 1);
+        }
+      } finally {
+        await page.close();
+      }
+    });
+
     it.each(MOODS)("%s never scrolls sideways", async (mood) => {
       // A full-bleed hero is built out of `100vw` and a negative margin, which
       // is one scrollbar away from overflowing the document.
@@ -249,6 +297,42 @@ async function columnCount(page: Page): Promise<number> {
     // horizontal position rather than by a shared top edge.
     const xs = cards.map((card) => Math.round(card.getBoundingClientRect().x));
     return new Set(xs).size;
+  });
+}
+
+interface HeroBounds {
+  left: number;
+  right: number;
+  /** The content box of the plate's containing block — the column it was laid out in. */
+  columnLeft: number;
+  columnRight: number;
+}
+
+/**
+ * Where the hero actually is, against where it was given room to be.
+ *
+ * Measured off the plate rather than off a scroll offset on purpose: a
+ * `getBoundingClientRect` is unaffected by `overflow: hidden`, so it reports an
+ * escaped box that the document has already finished cropping.
+ */
+async function heroBounds(page: Page): Promise<HeroBounds> {
+  return page.evaluate(() => {
+    const plate = document.querySelector(".hero-plate");
+    if (!plate) throw new Error("no .hero-plate on the page");
+    const parent = plate.parentElement;
+    if (!parent) throw new Error(".hero-plate has no containing block");
+
+    const rect = plate.getBoundingClientRect();
+    const around = parent.getBoundingClientRect();
+    const style = getComputedStyle(parent);
+    const inset = (value: string) => parseFloat(value) || 0;
+
+    return {
+      left: Math.round(rect.left),
+      right: Math.round(rect.right),
+      columnLeft: Math.round(around.left + inset(style.paddingLeft) + inset(style.borderLeftWidth)),
+      columnRight: Math.round(around.right - inset(style.paddingRight) - inset(style.borderRightWidth)),
+    };
   });
 }
 

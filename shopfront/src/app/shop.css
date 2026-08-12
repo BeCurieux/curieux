@@ -289,6 +289,20 @@
   position: relative;
   aspect-ratio: 4 / 5;
   min-height: var(--hero-height);
+  /* `aspect-ratio` resolves in whichever axis is still free, and when
+     `min-height` wins the height it is the *width* that is left free. A 350px
+     column, a 4/5 ratio and a `--hero-height` of 58svh on a 390px phone gives
+     437px of ratio height, 489px of min-height, and then 489 ÷ 1.25 = 392px of
+     width in a column that is 350 wide — the plate hangs 22px off the right of
+     the screen and `overflow-x: hidden` on `.shop` quietly crops it.
+
+     This is the same collision as the desktop one below, in the other axis: a
+     ratio and a minimum both asking to size the box. Capping the width settles
+     it in the column's favour, and the height goes on being governed by
+     `min-height`, which is what a mood's hero height is for.
+
+     `.hero--bleed .hero-plate` outranks this and keeps its `100vw`. */
+  max-width: 100%;
   background: var(--surface);
   border-radius: var(--radius-plate);
   overflow: hidden;
