@@ -308,8 +308,9 @@ R2 and not find it. If you have real archives, copy the two buckets across
 first (`rclone` handles Supabase → R2 directly); if it is only test data,
 switch and re-upload.
 
-**Checking it works before you trust it:** `./scripts/verify-storage.sh`
+**Checking it works before you trust it:** `npm run verify:storage`
 drives the R2 code against a local server that validates every signature
 with Amazon's own library, including the check that stops a browser
 uploading more than it declared. It needs `pip install botocore` and no
-Cloudflare account.
+Cloudflare account. CI runs it on every change, so a signing regression
+fails a pull request rather than an upload.

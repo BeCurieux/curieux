@@ -1,0 +1,370 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qotidia — Records, refined</title>
+<style>
+  @font-face{font-family:"Charter";src:url("../src/fonts/Charter-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:"Charter";src:url("../src/fonts/Charter-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+  :root{
+    --serif:Charter,"Bitstream Charter","Charis SIL",Georgia,serif;
+    --sans:"Liberation Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+
+  :root { --page-bg:#EFEEEB; --page-ink:#1A1A1E; --page-muted:#63636E; --page-line:#DEDCD7; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --page-bg:#0E0E11; --page-ink:#F3F3F6; --page-muted:#9C9CA8; --page-line:#2A2A31; }
+  }
+  :root[data-theme="dark"] { --page-bg:#0E0E11; --page-ink:#F3F3F6; --page-muted:#9C9CA8; --page-line:#2A2A31; }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--page-bg); color:var(--page-ink);
+    font-family: var(--serif);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1200px; margin:0 auto; padding:40px 24px 96px; }
+  .intro { max-width:70ch; display:flex; flex-direction:column; gap:13px; }
+  .intro h1 {
+    margin:0; font-family:var(--serif); font-weight:400;
+    font-size:clamp(30px,4.4vw,44px); letter-spacing:-0.015em; line-height:1.08; text-wrap:balance;
+  }
+  .intro p { margin:0; color:var(--page-muted); }
+  .intro code { font-family:ui-monospace,Consolas,monospace; font-size:.88em; }
+  .changes {
+    display:grid; grid-template-columns:132px 1fr; gap:9px 26px; font-size:14px;
+    border-top:1px solid var(--page-line); margin:30px 0; padding-top:20px;
+  }
+  .changes dt { color:var(--page-muted); }
+  .changes dd { margin:0; }
+  .screen-cap { font-size:13px; color:var(--page-muted); margin:30px 0 8px 2px; }
+  .screen {
+    border:1px solid var(--page-line); border-radius:13px; overflow:hidden;
+    box-shadow:0 1px 2px rgb(0 0 0 / .05), 0 22px 48px -30px rgb(0 0 0 / .35);
+  }
+
+  /* RECORDS, refined. Warmer paper than v1 — the chill was the main thing
+     making it feel like a bug tracker. Everything else stays precise:
+     hairlines, tabular figures, an 8px rhythm, a pine that is nobody's default. */
+  .R {
+    --bg:#FBFAF7; --surface:#FFFFFF; --line:#E8E5DF; --line-strong:#D6D2C9;
+    --ink:#17181C; --muted:#666870; --faint:#8D8F98;
+    --accent:#14614A; --accent-soft:#E7F1EC; --flag:#A26206; --flag-soft:#FBF0DF;
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:var(--sans);
+  }
+  .R .serif { font-family:var(--serif); }
+  .R .topbar {
+    display:flex; align-items:center; gap:16px; padding:11px 18px;
+    border-bottom:1px solid var(--line); background:var(--surface);
+  }
+  .R .brand { font-family:var(--serif); font-size:18px; }
+  .R .search {
+    flex:1; max-width:400px; display:flex; align-items:center;
+    border:1px solid var(--line-strong); border-radius:7px; padding:7px 11px;
+    color:var(--faint); background:var(--bg); font-size:13px;
+  }
+  .R .avatar {
+    width:27px; height:27px; border-radius:50%; background:var(--accent); color:#fff;
+    display:grid; place-items:center; font-size:12px; font-weight:620; margin-left:auto;
+  }
+  .R .crumbs {
+    display:flex; gap:7px; padding:10px 18px; color:var(--muted); font-size:12.5px;
+    border-bottom:1px solid var(--line); background:var(--surface);
+  }
+  .R .crumbs b { color:var(--ink); font-weight:560; }
+  .R .body { display:grid; grid-template-columns:200px 1fr; }
+  .R .rail { border-right:1px solid var(--line); padding:14px 10px; background:var(--surface); }
+  .R .rail-h {
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--faint); padding:0 9px; margin:0 0 7px;
+  }
+  .R .rail a {
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:7px 9px; border-radius:6px; color:var(--ink); text-decoration:none; font-size:13.5px;
+  }
+  .R .rail a:hover { background:var(--bg); }
+  .R .rail a[aria-current] { background:var(--accent-soft); color:var(--accent); font-weight:570; }
+  .R .rail .n { font-size:11.5px; color:var(--faint); font-variant-numeric:tabular-nums; }
+  .R .rail a[aria-current] .n { color:var(--accent); }
+  .R .rail .pip { background:var(--flag); color:#fff; border-radius:999px; padding:1px 6px; font-size:11px; font-weight:640; }
+  .R .main { padding:20px 22px 26px; }
+  .R .person { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+  .R .cover {
+    width:78px; height:106px; border-radius:4px; flex:none; display:flex;
+    flex-direction:column; justify-content:space-between; padding:10px 9px; color:#fff;
+    font-size:9.5px; box-shadow:0 1px 2px rgb(0 0 0 / .12), 0 10px 20px -11px rgb(0 0 0 / .5);
+  }
+  .R .cover i { font-style:normal; font-family:var(--serif); font-size:13px; }
+  .R .cover u { text-decoration:none; opacity:.82; letter-spacing:.1em; }
+  .R h2 {
+    margin:0; font-family:var(--serif); font-weight:400;
+    font-size:28px; letter-spacing:-0.012em; line-height:1.1;
+  }
+  .R .facts { display:flex; flex-wrap:wrap; gap:6px 24px; margin:10px 0 0; }
+  .R .facts dt { color:var(--faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; }
+  .R .facts dd { margin:1px 0 0; font-size:13px; font-variant-numeric:tabular-nums; }
+  .R .btn {
+    border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:7px;
+    padding:8px 15px; font:inherit; font-size:13px; font-weight:560; cursor:pointer;
+  }
+  .R .btn.ghost { background:var(--surface); color:var(--ink); border-color:var(--line-strong); }
+
+  /* Ancestry's leaf, without the leaf. Something the archive found that you
+     have not looked at — the one place the product volunteers work. */
+  .R .hint {
+    display:flex; gap:13px; align-items:flex-start; margin-top:18px;
+    border:1px solid var(--flag-soft); background:var(--flag-soft);
+    border-radius:9px; padding:13px 15px; flex-wrap:wrap;
+  }
+  .R .hint .dot { width:7px; height:7px; border-radius:50%; background:var(--flag); margin-top:7px; flex:none; }
+  .R .hint p { margin:0; font-size:14px; }
+  .R .hint small { color:var(--muted); font-size:12.5px; }
+  .R .hint .acts { margin-left:auto; display:flex; gap:7px; flex:none; }
+  .R .hint button {
+    border:1px solid var(--line-strong); background:var(--surface); color:var(--ink);
+    border-radius:6px; padding:5px 11px; font:inherit; font-size:12.5px; cursor:pointer;
+  }
+  .R .section-h {
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin:26px 0 0; padding-bottom:8px; border-bottom:1px solid var(--line);
+  }
+  .R .section-h h3 { margin:0; font-size:12.5px; font-weight:620; }
+  .R .section-h a { color:var(--accent); text-decoration:none; font-size:12.5px; }
+
+  /* Facets. What turns 71 things into something you can walk through. */
+  .R .facets { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 2px; }
+  .R .facet {
+    border:1px solid var(--line-strong); background:var(--surface); border-radius:999px;
+    padding:4px 11px; font:inherit; font-size:12.5px; color:var(--muted); cursor:pointer;
+  }
+  .R .facet[aria-pressed="true"] { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:560; }
+  .R .facet b { font-weight:560; }
+  .R .tl { display:grid; grid-template-columns:62px 1fr; }
+  .R .tl-y { font-variant-numeric:tabular-nums; font-size:12px; color:var(--faint); padding-top:15px; }
+  .R .tl-e { border-left:1px solid var(--line-strong); padding:14px 0 14px 18px; position:relative; }
+  .R .tl-e::before {
+    content:""; position:absolute; left:-4px; top:21px; width:7px; height:7px;
+    border-radius:50%; background:var(--accent); border:1.5px solid var(--bg);
+  }
+  .R .tl-e p { margin:0; font-size:16px; line-height:1.35; }
+  .R .tl-e .meta { color:var(--muted); font-size:12px; margin-top:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .R .chip { border:1px solid var(--line-strong); border-radius:5px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  .R .chip.src { border-style:dashed; }
+
+  /* Photographs. The v1 mockup had none at all, in an app whose whole
+     subject is photographs — the single biggest thing wrong with it. */
+  .R .thumbs { display:flex; gap:5px; margin-top:9px; }
+  .R .thumbs span { width:62px; height:62px; border-radius:4px; flex:none; box-shadow:inset 0 0 0 1px rgb(0 0 0 / .07); }
+  .R .thumbs .more {
+    display:grid; place-items:center; background:var(--surface);
+    border:1px dashed var(--line-strong); box-shadow:none; color:var(--muted); font-size:11.5px;
+  }
+  .R .miss .tl-e { border-left-style:dashed; }
+  .R .miss .tl-e::before { background:var(--bg); border-color:var(--line-strong); }
+  .R .miss .tl-e p { color:var(--faint); }
+  .R .miss .tl-e .cta { margin-top:8px; }
+  .R .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
+  .R .card {
+    border:1px solid var(--line); border-radius:9px; background:var(--surface);
+    padding:14px; text-decoration:none; color:inherit; display:block;
+  }
+  .R .card:hover { border-color:var(--line-strong); }
+  .R .card .nm { font-family:var(--serif); font-size:19px; }
+  .R .card .mt { color:var(--muted); font-size:12.5px; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .R .years { display:flex; gap:3px; margin-top:12px; align-items:flex-end; }
+  .R .years i { height:26px; flex:1; border-radius:2px; }
+  .R .years i.empty { background:transparent; border:1px dashed var(--line-strong); height:20px; }
+  .R .years-l { display:flex; gap:3px; margin-top:4px; }
+  .R .years-l span { flex:1; font-size:9.5px; color:var(--faint); text-align:center; }
+
+  /* Charter is opted into, never inherited: the child's name, the family's
+     own words, headings. Everything else is the product talking about itself
+     and stays in the sans — the division tailwind.config.ts draws for the app.
+     These two sit outside .R, on the page framing the mockup. */
+  .screen-cap, .changes dt { font-family:var(--sans); }
+  @media (max-width:800px) {
+    .R .body { grid-template-columns:1fr; }
+    .R .rail { border-right:0; border-bottom:1px solid var(--line); }
+    .R .grid { grid-template-columns:1fr; }
+    .changes { grid-template-columns:1fr; gap:3px; }
+    .changes dd { margin-bottom:12px; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>Records, refined</h1>
+    <p>
+      Direction A, with the things that were wrong with it fixed. Same ergonomics &mdash;
+      breadcrumb, counts on every destination, facts under the name, a timeline where the
+      missing year is a row rather than an omission.
+    </p>
+  </div>
+
+  <dl class="changes">
+    <dt>Photographs</dt>
+    <dd>The first version had <b>none at all</b>, in an app whose entire subject is
+      photographs. The timeline now carries them, at a size you can actually recognise a
+      morning from.</dd>
+    <dt>Warmer ground</dt>
+    <dd>#FBFAF7 instead of #FBFBFC. The cool white was most of what made it feel like a
+      bug tracker; the warmth costs nothing and the precision survives.</dd>
+    <dt>Something found</dt>
+    <dd>Ancestry&rsquo;s leaf, without the leaf &mdash; one amber row where the archive
+      volunteers something it noticed. It is the only place the product asks for anything.</dd>
+    <dt>Facets</dt>
+    <dd>Seventy-one things is past the point where scrolling works. Filter by who is in
+      it, what kind it is, and which year.</dd>
+    <dt>Type, corrected</dt>
+    <dd>The first version set everything in a system sans and used the serif only for names
+      and quotes &mdash; the reverse of the product&rsquo;s own system. <code>fonts.ts</code> sets
+      the site in <b>Charter</b> and keeps the sans &ldquo;for functional micro-type only &mdash;
+      form fields, buttons, small labels&rdquo;. That division now holds here, and the real
+      <code>Charter-Regular.woff2</code> / <code>Charter-Bold.woff2</code> are loaded, so these are
+      the shipping letterforms.</dd>
+  </dl>
+
+  <p class="screen-cap">One child&rsquo;s archive</p>
+  <div class="screen R">
+    <div class="topbar">
+      <span class="brand">qotidia</span>
+      <span class="search">Search memories, people, years&hellip;</span>
+      <span class="avatar">V</span>
+    </div>
+    <div class="crumbs">Everyone you keep <span>&rsaquo;</span> <b>Florence Wilson</b></div>
+    <div class="body">
+      <nav class="rail">
+        <p class="rail-h">This archive</p>
+        <a href="#" aria-current="page">Overview</a>
+        <a href="#">Timeline <span class="n">71</span></a>
+        <a href="#">Add</a>
+        <a href="#">Years <span class="n">4</span></a>
+        <a href="#">People <span class="n">9</span></a>
+        <a href="#">Questions <span class="n">3</span></a>
+        <a href="#">Waiting on you <span class="pip">2</span></a>
+        <p class="rail-h" style="margin-top:18px">The book</p>
+        <a href="#">Volumes <span class="n">1</span></a>
+        <a href="#">Orders</a>
+        <p class="rail-h" style="margin-top:18px">Household</p>
+        <a href="#">Theo <span class="n">3</span></a>
+        <a href="#">The Wilsons <span class="n">80</span></a>
+      </nav>
+      <div class="main">
+        <div class="person">
+          <div class="cover" style="background:#A95C3C"><i>florence</i><u>THREE</u></div>
+          <div style="flex:1;min-width:230px">
+            <h2>Florence Wilson</h2>
+            <dl class="facts">
+              <div><dt>Born</dt><dd>12 August 2023</dd></div>
+              <div><dt>Age</dt><dd>2y 11m</dd></div>
+              <div><dt>Kept</dt><dd>71</dd></div>
+              <div><dt>Volumes</dt><dd>1 of 3</dd></div>
+              <div><dt>Contributors</dt><dd>4</dd></div>
+            </dl>
+          </div>
+          <div style="display:flex;gap:8px;flex:none">
+            <button class="btn ghost">Add</button>
+            <button class="btn">Make this year&rsquo;s book</button>
+          </div>
+        </div>
+        <div class="hint">
+          <span class="dot"></span>
+          <div>
+            <p>Grandpa hasn&rsquo;t appeared since February.</p>
+            <small>Counted from 17 memories &middot; he was in one a fortnight before that</small>
+          </div>
+          <div class="acts"><button>Why this?</button><button>Keep</button></div>
+        </div>
+        <div class="section-h">
+          <h3>Timeline</h3>
+          <a href="#">All 71 &rarr;</a>
+        </div>
+        <div class="facets">
+          <button class="facet" aria-pressed="true">Everything <b>71</b></button>
+          <button class="facet">Said <b>18</b></button>
+          <button class="facet">Photographs <b>44</b></button>
+          <button class="facet">Voice <b>9</b></button>
+          <button class="facet">Grandpa <b>17</b></button>
+          <button class="facet">2026 <b>28</b></button>
+        </div>
+        <div class="tl">
+          <div class="tl-y">11 Aug</div>
+          <div class="tl-e">
+            <p class="serif">&ldquo;Bun Bun tired now. Bun Bun go bed.&rdquo;</p>
+            <div class="thumbs">
+              <span style="background:linear-gradient(150deg,#C9B79C,#8E7A63 60%,#6B5B49)"></span>
+              <span style="background:linear-gradient(150deg,#B9C4C0,#7F918B 55%,#5D6C67)"></span>
+              <span style="background:linear-gradient(150deg,#D8C6B0,#A8896B 60%,#7A6350)"></span>
+            </div>
+            <div class="meta"><span class="chip">said</span><span class="chip">3 photographs</span>Added by you</div>
+          </div>
+          <div class="tl-y">June</div>
+          <div class="tl-e">
+            <p class="serif">The yellow boots came back &mdash; the time before was four months ago.</p>
+            <div class="thumbs">
+              <span style="background:linear-gradient(150deg,#E0C071,#C39A3F 60%,#9A7828)"></span>
+              <span style="background:linear-gradient(150deg,#CFC0A6,#9E8A6C 60%,#77664E)"></span>
+              <span class="more">+9</span>
+            </div>
+            <div class="meta"><span class="chip">noticed</span><span class="chip src">from 17 memories</span></div>
+          </div>
+          <div class="tl-y">2025</div>
+          <div class="tl-e">
+            <p class="serif">Year two &mdash; printed, 148 pages.</p>
+            <div class="meta"><span class="chip">volume</span>Delivered 3 October &middot; 2 copies</div>
+          </div>
+        </div>
+        <div class="tl miss">
+          <div class="tl-y">2024</div>
+          <div class="tl-e">
+            <p>Year one has no book.</p>
+            <div class="meta">You kept 31 things that year &mdash; enough to make one.</div>
+            <div class="cta"><button class="btn ghost">Make year one</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="screen-cap">Everyone you keep</p>
+  <div class="screen R">
+    <div class="topbar">
+      <span class="brand">qotidia</span>
+      <span class="search">Search memories, people, years&hellip;</span>
+      <span class="avatar">V</span>
+    </div>
+    <div class="main">
+      <div class="section-h" style="margin-top:2px">
+        <h3 style="font-size:15px">Everyone you keep</h3>
+        <a href="#">Add someone &rarr;</a>
+      </div>
+      <div class="grid">
+        <a class="card" href="#">
+          <div class="nm">Florence</div>
+          <div class="mt">Three &middot; 71 kept &middot; 1 volume</div>
+          <div class="years">
+            <i style="background:#D9CFBE"></i><i style="background:#63746B"></i>
+            <i style="background:#A95C3C"></i><i class="empty"></i><i class="empty"></i>
+          </div>
+          <div class="years-l"><span>one</span><span>two</span><span>three</span><span>four</span><span>five</span></div>
+        </a>
+        <a class="card" href="#">
+          <div class="nm">Theo</div>
+          <div class="mt">Seven &middot; 3 kept &middot; no volumes</div>
+          <div class="years">
+            <i class="empty"></i><i class="empty"></i><i class="empty"></i><i class="empty"></i><i class="empty"></i>
+          </div>
+          <div class="years-l"><span>three</span><span>four</span><span>five</span><span>six</span><span>seven</span></div>
+        </a>
+        <a class="card" href="#">
+          <div class="nm">The Wilsons</div>
+          <div class="mt">Household &middot; 80 kept</div>
+          <!-- No year bar. A household has no ages, and a single full-width
+               ink bar in the slot where the others show a spectrum read as a
+               redaction rather than as an archive. -->
+          <div class="facets" style="margin-top:12px">
+            <span class="facet">Everyone</span><span class="facet">since 2023</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -15,8 +15,12 @@
 // Consortium, redistributable including in modified form. Worth confirming
 // before launch, as with any font you ship.
 //
-// The sans is kept for functional micro-type only — form fields, buttons,
-// small labels — the same division the printed page makes.
+// The two faces divide by what the words *are*, not by how big they are:
+// Charter sets anything the archive is about — a memory, a quote, a name, a
+// heading — and the system sans sets everything that is the product talking
+// about itself: navigation, buttons, labels, counts, dates. The interface
+// baseline is the sans. The full rationale lives in tailwind.config.ts under
+// `fontFamily`; this file only loads the face.
 //
 // One thing to know before replacing any of these files. An OpenType font
 // with CFF outlines states each letter's width twice — once in the `hmtx`

@@ -46,7 +46,6 @@ import { questions } from "@/lib/marketing/questions";
 import {
   A_PHOTOBOOK_KEEPS,
   DEMONSTRATION,
-  FORGOTTEN,
   PARENT_STORIES,
   QOTIDIA_ALSO_KEEPS,
 } from "@/lib/marketing/story";
@@ -111,7 +110,11 @@ export default function LandingPage() {
           the first thing on the page is a sentence, at a size that says the
           company is confident about it. */}
       <section className="bleed bg-paper">
-        <div className="mx-auto max-w-page px-[5vw] pb-24 pt-10 md:pb-32 md:pt-16">
+        {/* This was cut back hard when the section below was also bg-paper
+            and the two paddings landed on one ground, making 304px of
+            unbroken cream. That section has since gone, so a colour change
+            now does the separating and the hero can have its foot back. */}
+        <div className="mx-auto max-w-page px-[5vw] pb-20 pt-10 md:pb-28 md:pt-16">
           <div className="grid items-center gap-14 md:grid-cols-[42fr_58fr] md:gap-12">
             <div>
               <h1 className="rise text-hero font-display lowercase" style={{ ["--d" as string]: "0ms" }}>
@@ -159,35 +162,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════ 02 · the problem
-          Almost nothing on the screen. This is the section that separates
-          this from a photo book, and it works by leaving room. */}
-      <section className="bleed bg-paper py-28 md:py-44">
-        <div className="mx-auto max-w-page px-[5vw]">
-          <p className="mx-auto max-w-[20ch] text-center text-display font-display lowercase">
-            you photograph what happened.
-          </p>
-          <p className="mx-auto mt-8 max-w-[22ch] text-center text-display font-display lowercase text-stone">
-            but not everything around it.
-          </p>
+      {/* There was a section here — "you photograph what happened / but not
+          everything around it", then five examples of what a photograph
+          misses. It has gone, because it was the third telling of one idea.
 
-          {/* The measure is in rem, not ch. A `ch` on the list resolves
-              against the list's own font size — 16px — so max-w-[38ch] came
-              out around 300px and broke every line of 48px type into four.
-              Character units only work where the size is set. */}
-          <ul className="mx-auto mt-24 max-w-[44rem] space-y-8 md:mt-32">
-            {FORGOTTEN.map((line) => (
-              <li key={line} className="text-title font-display leading-[1.15]">
-                {line}
-              </li>
-            ))}
-          </ul>
+          Its list was FORGOTTEN; §07 renders QOTIDIA_ALSO_KEEPS, which is
+          the same list with a foil: a photobook keeps the birthday and the
+          beach, this keeps what she called the dog. "The yellow boots"
+          appeared in both, and is also the subject of the demonstration
+          immediately below — so a reader met the same example three times in
+          three registers and learned nothing new on the second or third.
 
-          <p className="mx-auto mt-24 max-w-[24ch] text-center text-title font-display lowercase md:mt-32">
-            qotidia keeps that part too.
-          </p>
-        </div>
-      </section>
+          §07 kept it because the contrast is what earns the list. The thesis
+          line that opened this section was the sharpest sentence on the page
+          and now closes §07 instead. */}
 
       {/* ═══════════════════════════════════════════════ 03 · the demonstration
           The signature section. photograph → noticed → asked → answered →
@@ -197,7 +185,7 @@ export default function LandingPage() {
           The camera roll is generated cover artwork standing in for candid
           photographs, which is the weakest thing on this page and the first
           thing a real shoot fixes. */}
-      <section className="bleed band-card py-24 md:py-36">
+      <section className="bleed band-card py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="grid gap-16 md:grid-cols-[46fr_54fr] md:gap-20">
             {/* The evidence: a camera roll where the same thing keeps
@@ -279,7 +267,7 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════ 05 · the book */}
-      <section className="bleed band-card py-24 md:py-36">
+      <section className="bleed band-card py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <h2 className="max-w-[14ch] text-display font-display lowercase">
             a book for every year.
@@ -293,18 +281,37 @@ export default function LandingPage() {
         {/* The shelf. Horizontal and allowed to run past the viewport on a
             phone, so the years are swiped through rather than shrunk. */}
         <div className="mt-20 overflow-x-auto pb-4">
-          <div className="mx-auto flex w-max items-end gap-4 px-[5vw]">
+          {/* Sized so all seven slots — six volumes and the missing one —
+              land inside 1440. At the old 13rem the row ran past the right
+              edge and clipped "seven", which left the gap looking like the
+              point where the shelf stopped rather than a year not bought. */}
+          <div className="mx-auto flex w-max items-end gap-2 px-[5vw]">
             {shelf.isPhoto ? (
               <img src={shelf.src} alt={shelf.alt} className="h-[22rem] rounded-sm object-cover md:h-[30rem]" />
             ) : (
-              ["01", "02", "03", "04", "05", "06", "07"].map((age, i) => (
-                <img
-                  key={age}
-                  src={`/sample/age-${age}.png`}
-                  alt=""
-                  className="block w-[9rem] flex-none rounded-sm shadow-[0_18px_36px_-16px_rgba(37,35,31,0.45)] md:w-[13rem]"
-                  style={{ transform: `translateY(${(i % 2) * 10}px)` }}
-                />
+              // The gap is the argument. This row used to run 01–07 with
+              // nothing missing, and a second, near-identical row further
+              // down the page carried the missing year — so the page drew
+              // the same object twice and only the second one said anything.
+              // One shelf now, and it is the one with the hole in it.
+              SHELF_YEARS.map((year, i) => (
+                <div key={year.word} className="flex flex-none items-end gap-2">
+                  <figure className="flex-none">
+                    <img
+                      src={`/sample/age-0${year.age + 1}.png`}
+                      alt=""
+                      className="block w-[9rem] rounded-sm shadow-[0_18px_36px_-16px_rgba(37,35,31,0.45)] md:w-[11rem]"
+                      style={{ transform: `translateY(${(i % 2) * 10}px)` }}
+                    />
+                    <figcaption className="mt-4 text-sm lowercase text-stone">
+                      florence &mdash; {year.word}
+                    </figcaption>
+                  </figure>
+                  {/* Deliberately empty. */}
+                  {year.gapAfter && (
+                    <div aria-hidden className="w-[9rem] flex-none md:w-[11rem]" />
+                  )}
+                </div>
               ))
             )}
           </div>
@@ -344,6 +351,12 @@ export default function LandingPage() {
           <p className="mt-10 max-w-[56ch] text-sm leading-relaxed text-stone">
             {SPREADS_DISCLOSURE}
           </p>
+
+          {/* The retention argument, and it belongs to the shelf above with
+              the gap in it rather than to a section of its own. */}
+          <p className="mt-20 max-w-[26ch] text-title font-display lowercase">
+            one year becomes two. then somehow, a childhood.
+          </p>
         </div>
       </section>
 
@@ -353,7 +366,7 @@ export default function LandingPage() {
           archive, because that is what it is.
 
           The observations are real output from the product's own engine. */}
-      <section className="bleed bg-paper py-24 md:py-36">
+      <section className="bleed bg-paper py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="grid gap-16 md:grid-cols-[44fr_56fr] md:gap-20">
             <div>
@@ -421,16 +434,19 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <p className="mt-24 max-w-[34ch] text-title font-display lowercase">
-            your camera roll remembers what they looked like. qotidia remembers
-            the life around them.
+          {/* The page's thesis, and the sharpest sentence on it. It used to
+              open a section of its own near the top; the sentence that stood
+              here said the same thing in twice the words. One of them had to
+              go and this is the better one. */}
+          <p className="mt-24 max-w-[30ch] text-title font-display lowercase">
+            you photograph what happened. but not everything around it.
           </p>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════ 08 · privacy
           Part of the emotional promise, not compliance content. */}
-      <section className="bleed band-ink py-24 md:py-36">
+      <section className="bleed band-ink py-20 md:py-28">
         <div className="mx-auto max-w-page px-[5vw]">
           <div className="grid items-end gap-16 md:grid-cols-[54fr_46fr]">
             <div>
@@ -466,45 +482,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ 09 · the shelf
-          The retention argument, made visually rather than explained. A row
-          of years with a gap in it does the work of a paragraph about annual
-          subscriptions. */}
-      <section className="bleed bg-paper py-24 md:py-36">
-        <div className="mx-auto max-w-page px-[5vw]">
-          <div className="overflow-x-auto pb-6">
-            <div className="flex w-max items-end gap-5">
-              {SHELF_YEARS.map((year) => (
-                <div key={year.word} className="flex items-end gap-5">
-                  <figure className="flex-none">
-                    <img
-                      src={`/sample/age-0${year.age + 1}.png`}
-                      alt=""
-                      className="block w-[8rem] rounded-sm shadow-[0_16px_32px_-14px_rgba(37,35,31,0.45)] md:w-[11rem]"
-                    />
-                    <figcaption className="mt-4 text-sm lowercase text-stone">
-                      florence &mdash; {year.word}
-                    </figcaption>
-                  </figure>
-                  {/* The gap. Deliberately empty, and the whole argument. */}
-                  {year.gapAfter && <div aria-hidden className="w-[8rem] flex-none md:w-[11rem]" />}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <p className="mt-16 max-w-[26ch] text-title font-display lowercase">
-            one year becomes two. then somehow, a childhood.
-          </p>
-        </div>
-      </section>
+      {/* §09 was a second shelf. It drew the same row of covers as §05 and
+          differed only in carrying the missing year — so the page spent two
+          full sections on one object, and the first of them said less. The
+          gap moved up to §05, which now owns the shelf outright, and this
+          section went with it. */}
 
       {/* ══════════════════════════════════════════════════ 10 · parent stories
           Renders nothing until real ones exist. Inventing a customer on a
           page that takes payment is a fabricated review, and this is the one
           company that cannot afford to make things up about families. */}
       {PARENT_STORIES.length > 0 && (
-        <section className="bleed band-card py-24 md:py-36">
+        <section className="bleed band-card py-20 md:py-28">
           <div className="mx-auto grid max-w-page gap-16 px-[5vw] md:grid-cols-2">
             {PARENT_STORIES.map((story) => (
               <figure key={story.attribution}>
