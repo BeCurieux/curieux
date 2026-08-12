@@ -132,6 +132,16 @@ What to read in the output, in order of how badly it matters:
 - **`merchandise`** — attempts, and any warnings. More than one attempt means
   the first plan failed validation; the errors are worth reading even when the
   retry succeeded.
+- **`cache_read_input_tokens`, on the second store and after.** Both adapters
+  put a `cache_control` breakpoint on their system prompt, and a breakpoint
+  below its model's minimum prefix does not error or warn — it silently does
+  not cache. The merchandiser's prompt clears Opus 5's 512-token minimum and
+  should show a non-zero read from the second store onward. The Genome's does
+  not clear Sonnet 5's 1,024, so its system breakpoint is inert by measurement
+  rather than by accident; `tests/genome-anthropic.test.ts` asserts both, so
+  the day either changes the suite says so. What matters for the Genome is the
+  catalogue, which is cached and is the expensive half — a zero read there,
+  across retries on one store, is the number worth chasing.
 - **The page itself, on a phone.** Prices, availability and the dateline
   against the merchant's own site. Anything invented is a bug of the most
   serious kind available here.
