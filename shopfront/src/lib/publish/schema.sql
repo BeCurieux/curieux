@@ -81,24 +81,27 @@ alter table public.stores        enable row level security;
 alter table public.shops         enable row level security;
 alter table public.shop_versions enable row level security;
 
--- No policy on `stores`, deliberately. A shopper's page needs a catalogue, and
--- it gets one through the view below rather than through table access — which
--- is what keeps the `genome` column unreachable from a public key.
+-- No policy on any of the three, deliberately. Not one of them needs table
+-- access from a public key: every read this codebase performs goes through the
+-- service role, and the one path built for an anon key is
+-- `get_published_shop` below, which is `security definer` and therefore
+-- unaffected by the absence of policies here.
+--
+-- `shops` and `shop_versions` did carry select policies — "published shops are
+-- readable" and "current versions are readable" — and they were dropped rather
+-- than narrowed. RLS is row-level, so a policy that let a shopper read a
+-- published version handed them the whole row, and `shop_versions` rows carry
+-- `prompt` and `audience`: the merchant's own campaign brief, in their own
+-- words. "Clear the slow-moving knitwear before the sale" is not something a
+-- merchant expects a competitor to be able to query.
+--
+-- The `drop` statements stay so that re-running this file against a project
+-- created before the change actually removes them. Deleting these two lines
+-- would leave the old policies in place on exactly the projects that have real
+-- merchants in them.
 
 drop policy if exists "published shops are readable" on public.shops;
-create policy "published shops are readable"
-  on public.shops for select
-  using (current_version_id is not null);
-
 drop policy if exists "current versions are readable" on public.shop_versions;
-create policy "current versions are readable"
-  on public.shop_versions for select
-  using (
-    exists (
-      select 1 from public.shops s
-      where s.current_version_id = shop_versions.id
-    )
-  );
 
 -- --------------------------------------------------------------------- view
 --

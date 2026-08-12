@@ -84,16 +84,28 @@ begin
     raise exception 'anon can read the funnel through shop_funnel() (% rows).', n;
   end if;
 
-  -- Unpublished work stays unpublished. A draft shop has no current version, so
-  -- neither it nor its prompt may surface.
-  select count(*) into n from public.shops where slug = 'rls-probe-draft';
+  -- The merchant's own words. `shop_versions` carries `prompt` and `audience`,
+  -- and RLS is row-level: any policy that lets a shopper read a published
+  -- version hands over the whole row. So no policy, and the assertion is on the
+  -- table rather than on the columns — a future policy added for a good reason
+  -- would re-expose the brief as a side effect, and this is what notices.
+  select count(*) into n from public.shop_versions;
   if n <> 0 then
-    raise exception 'anon can see an unpublished shop.';
+    raise exception 'anon can read public.shop_versions (% rows). Merchant prompts are exposed.', n;
   end if;
 
-  select count(*) into n from public.shop_versions where id = draft_ver;
+  -- Belt and braces: name the columns, so a failure says what leaked rather
+  -- than only that something did.
+  select string_agg(prompt, ' | ') into txt from public.shop_versions;
+  if txt is not null then
+    raise exception 'anon can read merchant prompts: %', txt;
+  end if;
+
+  -- Shops too. Slug and plan are not secret, but there is no public reader that
+  -- needs them, and an unpublished shop's existence is the merchant's business.
+  select count(*) into n from public.shops;
   if n <> 0 then
-    raise exception 'anon can read an unpublished shop version, including its prompt.';
+    raise exception 'anon can read public.shops (% rows).', n;
   end if;
 
   -- The one public read path has to work, or the check above is only proving
