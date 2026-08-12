@@ -502,8 +502,9 @@ That is the bar. If POPUUP nails those five, competitors may copy "prompt to pag
 # Where this collides with CLAUDE.md
 
 Recorded at the same time as the standard, so the disagreements are visible
-rather than discovered halfway through a task. Nothing below has been acted on.
-`CLAUDE.md` remains authoritative; each item needs a deliberate decision.
+rather than discovered halfway through a task. `CLAUDE.md` remains
+authoritative; each item needs a deliberate decision. One has been made —
+item 4, one shop rather than five. The rest are open.
 
 ## 1. The Performance Graph is PULSE
 
@@ -545,18 +546,29 @@ it is somebody having built a Sprint 3 feature."*
 
 The honest options are to run the kill test, or to move the gate on purpose.
 
-## 4. Three options and five recipes are close to a template gallery
+## 4. Three options and five recipes — DECIDED: one shop
 
-The north star: *"There is no page builder. The prompt is the builder … if a
-proposed feature adds blocks, sections, layout pickers, template galleries, or
-any builder-shaped UI: the answer is no. Ask before deviating."*
+**Decided 2026-08-12: one shop, not five.** The merchant describes the campaign
+and gets a finished shop. No gallery, no side-by-side comparison, no "pick a
+layout" step. §4's "generate three excellent options" and §9's five named
+compositions are internal — the AI picks the recipe, and the merchant sees the
+result of that choice, refined by conversation rather than by browsing
+alternatives.
 
-§4's "generate three excellent options" and §9's five named compositions are
-defensible if the AI picks and the merchant sees one result — the standard says
-"AI selects and configures the appropriate recipe", which reads that way. They
-are not defensible if the merchant browses five named layouts and chooses. The
-difference is entirely in the UI, and it is worth settling before either is
-built.
+The north star this protects: *"There is no page builder. The prompt is the
+builder … if a proposed feature adds blocks, sections, layout pickers, template
+galleries, or any builder-shaped UI: the answer is no."*
+
+The renderer already works this way and should stay that way. `mood` is one of
+five values in `ShopConfig`, chosen by the model from the brand's own voice
+(`src/lib/merchandise/prompt.ts`: *"Pick the mood from how the brand writes, not
+from what it sells"*), never offered as a choice. Recipes, when they arrive,
+belong in the same place: a field the model fills, not a screen the merchant
+shops in.
+
+This does not close off showing the merchant *why* — §4's "the starter set
+leads because it fits the requested budget" is explanation, not a picker, and
+step 6 already persists the decisions it would be built from.
 
 Same section, `§5`'s controls: *pinning, excluding, reordering sections,
 editing text, changing colours* are all inside the declared word-editing move
