@@ -13,6 +13,7 @@ import {
 } from "@/lib/plans";
 import { billingEnabled, periodsFor } from "@/lib/billing/stripe";
 import { UpgradeAction } from "@/components/dashboard/UpgradeAction";
+import { ChangePassword, DeleteAccount } from "@/components/dashboard/AccountSecurity";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -24,6 +25,13 @@ export default async function SettingsPage() {
   const widgets = user ? await store.countWidgets(user.id) : 0;
   const interactions = user ? await store.countInteractionsThisMonth(user.id) : 0;
   const paused = interactions >= interactionLimit(plan.id);
+
+  // Counted for the delete confirmation, so it can say what goes rather than
+  // gesturing at "all your data".
+  const owned = user ? await store.listWidgets(user.id) : [];
+  const enquiries = (
+    await Promise.all(owned.map((widget) => store.countLeads(widget.id)))
+  ).reduce((total, count) => total + count, 0);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -130,6 +138,13 @@ export default async function SettingsPage() {
         )}
       </section>
 
+      {isRegistered(user) ? (
+        <section className="card mt-4 p-6">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted">Password</h2>
+          <ChangePassword />
+        </section>
+      ) : null}
+
       <section className="card mt-4 p-6">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted">Your data</h2>
         <p className="mt-3 text-sm leading-relaxed text-slate">
@@ -137,6 +152,19 @@ export default async function SettingsPage() {
           nothing more) and any contact details visitors choose to give you. Deleting a widget
           deletes its analytics and enquiries with it.
         </p>
+
+        {/* The paragraph above describes what we hold; this is how you get it
+            back. Only for real accounts — there is nothing to close for an
+            anonymous author, and the card above already offers them signup. */}
+        {isRegistered(user) ? (
+          <div className="mt-5 border-t border-rule pt-5">
+            <p className="text-sm font-semibold text-navy">Close your account</p>
+            <p className="mt-1 text-sm leading-relaxed text-slate">
+              Deletes your account, your widgets and everything they collected.
+            </p>
+            <DeleteAccount widgets={owned.length} enquiries={enquiries} />
+          </div>
+        ) : null}
       </section>
     </div>
   );

@@ -77,6 +77,16 @@ export class SupabaseStore implements Store {
     await this.client.from("users").update({ plan }).eq("id", userId);
   }
 
+  async setUserPassword(userId: string, passwordHash: string): Promise<void> {
+    await this.client.from("users").update({ password_hash: passwordHash }).eq("id", userId);
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    // sessions / widgets cascade from users, and versions, events and leads
+    // cascade from widgets — see supabase/migrations/0001_init.sql.
+    await this.client.from("users").delete().eq("id", userId);
+  }
+
   async createSession(userId: string): Promise<Session> {
     const row = { token: newId("s_"), user_id: userId };
     const { data, error } = await this.client.from("sessions").insert(row).select().single();
@@ -91,6 +101,12 @@ export class SupabaseStore implements Store {
 
   async deleteSession(token: string): Promise<void> {
     await this.client.from("sessions").delete().eq("token", token);
+  }
+
+  async deleteSessionsForUser(userId: string, keepToken?: string): Promise<void> {
+    const query = this.client.from("sessions").delete().eq("user_id", userId);
+    if (keepToken) query.neq("token", keepToken);
+    await query;
   }
 
   async claimWidgets(fromUserId: string, toUserId: string): Promise<number> {

@@ -155,6 +155,24 @@ export class LocalStore implements Store {
     await this.save();
   }
 
+  async setUserPassword(userId: string, passwordHash: string): Promise<void> {
+    const user = this.db.users.find((entry) => entry.id === userId);
+    if (!user) return;
+    user.passwordHash = passwordHash;
+    await this.save();
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    // Widgets first, so their events and enquiries go with them by the same
+    // route a single delete uses — one definition of "widget and its data".
+    const owned = this.db.widgets.filter((widget) => widget.ownerId === userId).map((w) => w.id);
+    for (const id of owned) await this.deleteWidget(id);
+
+    this.db.sessions = this.db.sessions.filter((session) => session.userId !== userId);
+    this.db.users = this.db.users.filter((user) => user.id !== userId);
+    await this.save();
+  }
+
   async createSession(userId: string): Promise<Session> {
     const session: Session = {
       token: newId("s_"),
@@ -173,6 +191,13 @@ export class LocalStore implements Store {
 
   async deleteSession(token: string): Promise<void> {
     this.db.sessions = this.db.sessions.filter((session) => session.token !== token);
+    await this.save();
+  }
+
+  async deleteSessionsForUser(userId: string, keepToken?: string): Promise<void> {
+    this.db.sessions = this.db.sessions.filter(
+      (session) => session.userId !== userId || session.token === keepToken
+    );
     await this.save();
   }
 

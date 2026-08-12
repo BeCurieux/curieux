@@ -141,6 +141,62 @@ export async function signOut(): Promise<void> {
   cookies().delete(SESSION_COOKIE);
 }
 
+/* ------------------------------------------------------------------ */
+/* Account                                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Change the password, having proved you know the old one.
+ *
+ * The account is whoever the session cookie resolves to — never an id from
+ * the caller, so there is no request shape that changes somebody else's
+ * password.
+ *
+ * Every other session is dropped. If the reason you are here is that someone
+ * else had your password, leaving their session alive would make the change
+ * pointless.
+ */
+export async function changePassword(current: string, next: string): Promise<AuthResult> {
+  const user = await currentUser();
+  if (!isRegistered(user)) return { ok: false, error: "You need to be signed in." };
+
+  if (!(await verifyPassword(current, user.passwordHash))) {
+    return { ok: false, error: "That current password isn't right." };
+  }
+
+  const problem = passwordProblem(next);
+  if (problem) return { ok: false, error: problem };
+  if (await verifyPassword(next, user.passwordHash)) {
+    return { ok: false, error: "That's the password you already have." };
+  }
+
+  const store = getStore();
+  await store.setUserPassword(user.id, await hashPassword(next));
+  await store.deleteSessionsForUser(user.id, cookies().get(SESSION_COOKIE)?.value);
+  return { ok: true };
+}
+
+/**
+ * Delete the account and everything in it.
+ *
+ * Asks for the password rather than a typed confirmation phrase: it proves
+ * the person at the keyboard is the account holder, which a phrase copied
+ * off the screen does not. Irreversible, and the copy says so before this
+ * ever runs.
+ */
+export async function deleteAccount(password: string): Promise<AuthResult> {
+  const user = await currentUser();
+  if (!isRegistered(user)) return { ok: false, error: "You need to be signed in." };
+
+  if (!(await verifyPassword(password, user.passwordHash))) {
+    return { ok: false, error: "That password isn't right." };
+  }
+
+  await getStore().deleteUser(user.id);
+  cookies().delete(SESSION_COOKIE);
+  return { ok: true };
+}
+
 /** Ownership check for every widget mutation. */
 export async function ownsWidget(userId: string, widgetId: string): Promise<boolean> {
   const widget = await getStore().getWidget(widgetId);

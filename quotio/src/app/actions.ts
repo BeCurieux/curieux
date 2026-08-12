@@ -10,7 +10,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
+  changePassword,
   currentUser,
+  deleteAccount,
   ensureAuthor,
   isRegistered,
   signIn,
@@ -205,4 +207,34 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
 export async function signOutAction(): Promise<void> {
   await signOut();
   revalidatePath("/");
+}
+
+/* ---- Account ------------------------------------------------------ */
+
+// Both of these take the password out of a FormData rather than a typed
+// argument, so it never becomes part of a React server-action payload that
+// might be logged. Neither takes a user id: the account is whoever the
+// session cookie resolves to, checked in lib/auth/session.ts.
+
+export async function changePasswordAction(formData: FormData): Promise<ActionResult> {
+  const current = String(formData.get("current") ?? "");
+  const next = String(formData.get("next") ?? "");
+  if (!current || !next) return { ok: false, error: "Fill in both fields." };
+
+  const result = await changePassword(current, next);
+  if (!result.ok) return { ok: false, error: result.error };
+
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function deleteAccountAction(formData: FormData): Promise<ActionResult> {
+  const password = String(formData.get("password") ?? "");
+  if (!password) return { ok: false, error: "Enter your password to confirm." };
+
+  const result = await deleteAccount(password);
+  if (!result.ok) return { ok: false, error: result.error };
+
+  revalidatePath("/");
+  return { ok: true };
 }

@@ -67,10 +67,22 @@ export interface Store {
   getUser(id: string): Promise<User | null>;
   findUserByEmail(email: string): Promise<User | null>;
   setUserPlan(userId: string, plan: PlanId): Promise<void>;
+  setUserPassword(userId: string, passwordHash: string): Promise<void>;
+  /**
+   * Everything the account owns: widgets and their versions, events and
+   * enquiries, every session, and the user row. Irreversible by design —
+   * there is no soft-delete flag for a caller to forget to filter on.
+   */
+  deleteUser(userId: string): Promise<void>;
 
   createSession(userId: string): Promise<Session>;
   getSession(token: string): Promise<Session | null>;
   deleteSession(token: string): Promise<void>;
+  /**
+   * Sign out everywhere else. `keepToken` is the session doing the changing,
+   * so someone changing their password isn't logged out by their own action.
+   */
+  deleteSessionsForUser(userId: string, keepToken?: string): Promise<void>;
 
   /**
    * Turn an anonymous author into a signed-up one, keeping their work (§27).
