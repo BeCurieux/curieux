@@ -65,7 +65,7 @@ export const urlFor = (base: string, mood: Mood) => `${base}/preview/${keyFor(mo
  * ever happened, so the answer is only useful once the file is confirmed to
  * exist.
  */
-function chromiumPath(): string | null {
+export function chromiumPath(): string | null {
   const explicit = process.env.CHROMIUM_PATH ?? process.env.PLAYWRIGHT_CHROMIUM_PATH;
   if (explicit) return explicit;
 

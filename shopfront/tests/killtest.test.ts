@@ -145,6 +145,27 @@ describe("preflight", () => {
     expect(preflight({ storeUrls: real, aiProvider: "anthropic" }).ok).toBe(false);
   });
 
+  it("warns, but does not refuse, when the ingester's last rung has no browser", () => {
+    // Not a blocker: a list of stores with open feeds never reaches that rung,
+    // and refusing over a dependency most of the list does not have would be
+    // wrong. But CHROMIUM_PATH unset is a *silent* skip — the trace reads "no
+    // browser available" and the catalogue comes back thin — so the preflight
+    // of a thirty-merchant run is the one place it has to be said out loud.
+    const result = preflight({ storeUrls: real, aiProvider: "anthropic", anthropicKey: "sk-x" });
+    expect(result.ok).toBe(true);
+    expect(result.warnings.join(" ")).toContain("CHROMIUM_PATH");
+  });
+
+  it("says nothing about the browser once CHROMIUM_PATH is set", () => {
+    const result = preflight({
+      storeUrls: real,
+      aiProvider: "anthropic",
+      anthropicKey: "sk-x",
+      chromiumPath: "/opt/chromium/chrome",
+    });
+    expect(result.warnings.join(" ")).not.toContain("CHROMIUM_PATH");
+  });
+
   it("refuses a local address, because the test needs real storefronts", () => {
     const result = preflight({
       storeUrls: [...real, "http://127.0.0.1:8940"],
@@ -173,9 +194,17 @@ describe("preflight", () => {
     expect(result.warnings.join(" ")).toContain("cannot produce a kill verdict");
   });
 
-  it("passes a real run", () => {
+  it("passes a real run, silently", () => {
+    // Silence is the assertion. Every warning this file can produce is one
+    // somebody has to read and dismiss, so a fully-configured run printing
+    // nothing is what keeps the ones it does print worth reading.
     const thirty = Array.from({ length: 30 }, (_, i) => `https://merchant-${i}.com`);
-    const result = preflight({ storeUrls: thirty, aiProvider: "anthropic", anthropicKey: "sk-x" });
+    const result = preflight({
+      storeUrls: thirty,
+      aiProvider: "anthropic",
+      anthropicKey: "sk-x",
+      chromiumPath: "/opt/chromium/chrome",
+    });
     expect(result.ok).toBe(true);
     expect(result.warnings).toEqual([]);
   });
