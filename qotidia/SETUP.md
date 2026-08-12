@@ -303,10 +303,81 @@ Roughly, at a thousand families averaging 60GB:
 4. Restart `npm run dev`.
 
 **Existing files do not move by themselves.** Everything already uploaded
-stays in Supabase Storage, and after the switch the app will look for it in
-R2 and not find it. If you have real archives, copy the two buckets across
-first (`rclone` handles Supabase → R2 directly); if it is only test data,
-switch and re-upload.
+stays in Supabase Storage, and after the switch the app looks for it in R2
+and does not find it. If it is only test data, switch and re-upload. If there
+are real archives in there, follow the runbook below — those are the only
+copies of somebody's photographs, and this is the one operation in the system
+where a mistake is not recoverable by trying again.
+
+### Moving the files across
+
+Do all of this **before** changing `STORAGE_PROVIDER`, with the app still
+running on Supabase and serving families normally. Nothing here deletes
+anything from Supabase, at any point.
+
+1. **See what there is.** No writes; this is a count.
+
+   ```
+   npm run migrate:storage
+   ```
+
+   It reads the inventory from the *database* rather than by listing the
+   bucket, on purpose: the rows are the only record of which objects the
+   product still points at. A bucket listing would also sweep up orphans
+   from interrupted uploads and carry them across to be paid for forever.
+
+2. **Move a few first**, then look in the Cloudflare dashboard and confirm
+   they are really there.
+
+   ```
+   npm run migrate:storage -- --apply --limit 20
+   ```
+
+3. **Move the rest.** Every object is read back and compared to its source
+   before it counts as copied, and each one is appended to a ledger as it
+   lands, so an interrupted run resumes rather than starting over. Re-running
+   after a failure is always safe.
+
+   ```
+   npm run migrate:storage -- --apply
+   ```
+
+   Objects the source does not have are reported and skipped — a row naming
+   a file that is not there is worth investigating, but there is nothing to
+   copy and it does not make the move incomplete.
+
+4. **Switch over.** Set `STORAGE_PROVIDER=r2` and restart.
+
+5. **Catch the stragglers.** Anything uploaded between step 3 and step 4 went
+   to Supabase and is not in R2 yet. Run the copy once more — it re-reads the
+   database, so new rows are included, and the ledger skips everything
+   already done.
+
+   ```
+   npm run migrate:storage -- --apply
+   ```
+
+6. **Check the provider the app is actually on.**
+
+   ```
+   npm run verify:cutover
+   ```
+
+   This asks a different question from the copy: can the store this
+   deployment is *configured to use right now* serve every object the
+   database references? That is where a bucket named with a hyphen in the
+   wrong place, or a token scoped to one bucket of the two, shows up — each
+   of which copies perfectly and then serves nothing. It fetches one byte of
+   each object rather than downloading the archive.
+
+   If it reports anything unreadable, set `STORAGE_PROVIDER` back to
+   `supabase`, confirm the archive is readable again, and work out what the
+   copy missed before trying once more. Switching back is safe precisely
+   because nothing was deleted.
+
+**Leave the Supabase buckets alone for a while.** They are the fallback, and
+they cost very little next to being unable to undo. Empty them once R2 has
+been serving real traffic long enough that you would have heard about it.
 
 **Checking it works before you trust it:** `npm run verify:storage`
 drives the R2 code against a local server that validates every signature
