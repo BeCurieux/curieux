@@ -3,7 +3,17 @@ import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site/Chrome";
 import { appUrl, brand } from "@/config/brand";
 import { currentUser, isRegistered } from "@/lib/auth/session";
+import { EVENT_TYPES } from "@/lib/analytics/events";
 import { ALLOWED_FUNCTIONS } from "@/lib/widget/expression";
+
+/** Labels match their section headings exactly — a jump link that renames its
+ *  destination is a small broken promise. */
+const SECTIONS = [
+  { href: "#embedding", label: "Putting it on your site" },
+  { href: "#formulas", label: "Formulas" },
+  { href: "#rules", label: "Rules" },
+  { href: "#analytics", label: "What we count" },
+];
 
 export const metadata: Metadata = {
   title: "Docs",
@@ -25,24 +35,37 @@ export default async function DocsPage() {
     <>
       <SiteHeader signedIn={isRegistered(user)} />
 
-      <main className="mx-auto max-w-3xl px-5 py-14">
-        <p className="eyebrow">Docs</p>
-        <h1 className="mt-3 text-display">The short version.</h1>
+      <main className="mx-auto max-w-6xl px-5 pb-16 pt-10">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Docs</p>
+          <h1 className="mt-2 text-title">The short version.</h1>
+          <p className="mt-3 leading-relaxed text-slate">
+            Two things people genuinely get stuck on — putting the widget on their site, and writing
+            a formula — and what we count while it runs.
+          </p>
+        </div>
 
-        <nav className="mt-8 flex flex-wrap gap-2">
-          {[
-            ["#embedding", "Embedding"],
-            ["#formulas", "Formulas"],
-            ["#rules", "Rules"],
-            ["#analytics", "Analytics"],
-          ].map(([href, label]) => (
-            <a key={href} href={href} className="pill">
-              {label}
-            </a>
-          ))}
-        </nav>
+        {/* A sticky rail rather than pills at the top: on a page this long,
+            navigation that scrolls away isn't navigation. */}
+        <div className="mt-10 grid gap-10 lg:grid-cols-[188px_minmax(0,1fr)] lg:gap-14">
+          <nav aria-label="On this page" className="lg:sticky lg:top-24 lg:self-start">
+            <p className="eyebrow mb-3">On this page</p>
+            <ul className="space-y-0.5 border-l border-rule">
+              {SECTIONS.map((section) => (
+                <li key={section.href}>
+                  <a
+                    href={section.href}
+                    className="-ml-px block border-l-2 border-transparent py-1.5 pl-4 text-sm text-slate transition hover:border-purple hover:text-purple"
+                  >
+                    {section.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        <section id="embedding" className="scroll-mt-20 pt-14">
+          <div className="min-w-0 max-w-2xl">
+        <section id="embedding" className="scroll-mt-24">
           <h2 className="text-title">Putting a widget on your site</h2>
           <p className="mt-4 leading-relaxed text-slate">
             Publish the widget, then pick one of three. All three are on the Publish screen with a
@@ -76,14 +99,14 @@ export default async function DocsPage() {
           <Code>{`<iframe src="${origin}/embed/your-widget"\n  style="width:100%;border:0;height:620px"\n  title="Your widget" loading="lazy"></iframe>`}</Code>
         </section>
 
-        <section id="formulas" className="scroll-mt-20 pt-14">
+        <section id="formulas" className="scroll-mt-24 pt-14">
           <h2 className="text-title">Formulas</h2>
           <p className="mt-4 leading-relaxed text-slate">
             A formula is arithmetic over your questions. Each question has a short name — you can
             see it under the question in the Content tab — and you use those names directly.
           </p>
 
-          <Code>{`bedrooms * 35 + bathrooms * 25 + oven * 30`}</Code>
+          <Code>{`bedrooms * 35 + bathrooms * 25 + oven_cleaning * 30`}</Code>
 
           <ul className="mt-6 space-y-3 text-sm leading-relaxed text-slate">
             <li>
@@ -92,7 +115,7 @@ export default async function DocsPage() {
             </li>
             <li>
               <strong className="text-navy">Yes/no questions</strong> are 1 when on and 0 when off,
-              so an add-on is <code className="font-mono text-xs">oven * 30</code>.
+              so an add-on is <code className="font-mono text-xs">oven_cleaning * 30</code>.
             </li>
             <li>
               <strong className="text-navy">Multiple-choice questions</strong> add up everything
@@ -128,7 +151,7 @@ export default async function DocsPage() {
           </div>
         </section>
 
-        <section id="rules" className="scroll-mt-20 pt-14">
+        <section id="rules" className="scroll-mt-24 pt-14">
           <h2 className="text-title">Rules</h2>
           <p className="mt-4 leading-relaxed text-slate">
             Rules react to an answer. They read as sentences in the Logic tab, and run top to bottom.
@@ -145,13 +168,16 @@ export default async function DocsPage() {
           </p>
         </section>
 
-        <section id="analytics" className="scroll-mt-20 pt-14">
+        <section id="analytics" className="scroll-mt-24 pt-14">
           <h2 className="text-title">What we count</h2>
           <p className="mt-4 leading-relaxed text-slate">
-            Seven events: a view, a start, each question completed, a finish, the result being seen,
-            a click on your button, and an enquiry. Each carries the widget, an anonymous per-tab id
-            and a timestamp.
+            Seven events, and no more. Each carries the widget, an anonymous per-tab id and a
+            timestamp — plus the question, where the event is about one.
           </p>
+
+          {/* Rendered from the event model itself, so this list cannot drift
+              away from what the product actually records. */}
+          <Code>{EVENT_TYPES.join("\n")}</Code>
           <p className="mt-4 leading-relaxed text-slate">
             No cookies, no cross-site tracking, no IP logging, no third-party pixels. The per-tab id
             lives in <code className="font-mono text-xs">sessionStorage</code> and disappears when
@@ -160,7 +186,7 @@ export default async function DocsPage() {
           </p>
         </section>
 
-        <div className="mt-16 rounded-panel border border-rule bg-lavender p-6 text-center">
+        <div className="mt-14 rounded-panel border border-rule bg-lavender p-6 text-center">
           <p className="font-bold">Stuck on something that isn&rsquo;t here?</p>
           <p className="mt-1.5 text-sm text-slate">
             <a href={`mailto:${brand.supportEmail}`} className="font-semibold text-purple">
@@ -168,9 +194,11 @@ export default async function DocsPage() {
             </a>{" "}
             — a person reads it.
           </p>
-          <Link href="/dashboard/widgets/new" className="btn mt-5">
-            Build a widget
-          </Link>
+              <Link href="/dashboard/widgets/new" className="btn mt-5">
+                Build a widget
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
 
