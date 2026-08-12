@@ -769,6 +769,25 @@
     padding-inline: var(--space-6);
   }
 
+  /* A 4/5 plate is right on a phone: the column is ~390px, so the ratio lands
+     the hero near the height `--hero-height` was asking for anyway. On a
+     desktop column it stops being a ratio and becomes a bug — 1072px wide
+     computes to 1340px tall, one and a half screens of a single photograph
+     with the whole grid pushed out of view, and `min-height` never binds
+     because it is the smaller number.
+
+     The bleed heroes never had this because they drop the ratio and let
+     `--hero-height` govern. The plated ones get the same escape, which also
+     restores the mood difference the ratio was flattening: every mood was
+     landing on the same 1340px regardless of what it asked for.
+
+     Only the ratio is dropped here, leaving the base rule's `min-height` to do
+     the work: a long tagline must still be able to grow the plate rather than
+     be clipped by `overflow: hidden`. */
+  .hero-plate {
+    aspect-ratio: auto;
+  }
+
   .hero-copy {
     padding: var(--space-6);
   }
