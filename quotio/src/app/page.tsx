@@ -8,6 +8,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PromptBox } from "@/components/create/PromptBox";
+import { PromptToTool } from "@/components/brand/PromptToTool";
 import { Illustration } from "@/components/illustrations/Illustration";
 import { HeroArt, HeroLeaves } from "@/components/site/HeroArt";
 import { SiteFooter, SiteHeader, Sparkles, Squiggle } from "@/components/site/Chrome";
@@ -134,6 +135,9 @@ export default async function HomePage({
         {/* ---- The prompt box (§10) -------------------------------- */}
         <section id="build" className="scroll-mt-20 px-5 pb-9 pt-6">
           <div className="mx-auto max-w-4xl text-center">
+            {/* The mark sits above the heading it illustrates — sentence in,
+                working tool out — rather than being scattered as decoration. */}
+            <PromptToTool height={60} className="mx-auto mb-5 text-navy" />
             <h2 className="text-title">What do you want your website to do?</h2>
             <p className="mx-auto mt-3 max-w-xl text-slate">
               Describe it in your own words. We&rsquo;ll build the questions, the maths and the result

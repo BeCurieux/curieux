@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
+import { PromptToTool } from "@/components/brand/PromptToTool";
 import { miniFromDocument } from "@/components/widget/MiniWidget";
-import { Illustration } from "@/components/illustrations/Illustration";
 import { ArrowRightIcon, PlusIcon } from "@/components/ui/Icons";
 import { hostedUrl } from "@/config/brand";
 import { currentUser } from "@/lib/auth/session";
@@ -116,11 +116,9 @@ export default async function DashboardPage() {
 function EmptyState() {
   return (
     <div className="mt-8 rounded-panel border border-dashed border-rule bg-white px-6 py-16 text-center">
-      <div className="flex justify-center gap-3">
-        <Illustration name="bucket" size={54} />
-        <Illustration name="graph" size={54} />
-        <Illustration name="balloons" size={54} />
-      </div>
+      {/* One mark that says what happens next, rather than three drawings
+          of nothing in particular. */}
+      <PromptToTool height={64} className="mx-auto text-navy" />
 
       <h2 className="mt-6 text-xl font-bold">You haven&rsquo;t made anything yet.</h2>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate">
