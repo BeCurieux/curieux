@@ -18,15 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         {/*
-          DM Sans, with a geometric fallback stack in tailwind.config.ts so the
-          product still looks like itself if the font never arrives (§6).
+          No font link. Bricolage Grotesque is served from this origin — see
+          public/fonts/README.md. The widget runtime ends up on other
+          people's sites, and a webfont CDN there would mean their visitors'
+          browsers talking to a third party we don't control.
         */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body>{children}</body>
     </html>

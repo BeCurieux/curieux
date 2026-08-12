@@ -50,11 +50,10 @@ const config: Config = {
         peach: "#FDEBD8", // the blush behind illustrations
       },
       fontFamily: {
+        // Bricolage Grotesque is shipped from /public/fonts; everything
+        // after it is a system fallback for the moment before it lands.
         sans: [
           "Bricolage Grotesque",
-          "Satoshi",
-          "DM Sans",
-          "Poppins",
           "Avenir Next",
           "Segoe UI",
           "system-ui",
