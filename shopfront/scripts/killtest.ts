@@ -1,0 +1,241 @@
+#!/usr/bin/env tsx
+/**
+ * pnpm killtest <command>
+ *
+ *   check                          preflight only — is this test allowed to run?
+ *   generate <targets-file>        a shop per merchant, recorded in the ledger
+ *   log <store-url> --stage <s>    what a merchant actually said
+ *   status                         the count, and the call
+ *
+ * Step 7 is "Stop", and this is the only thing it asks anyone to build. Sprint 3
+ * — OAuth sync, email capture, creator shops, billing, word-editing, TikTok-URL
+ * input — is gated on the verdict this prints.
+ *
+ * `status` computes the call rather than offering an opinion, which is the
+ * point. "Kill quickly rather than rationalise" is not advice a tool can give
+ * on the day; it is a number decided in advance and read out later.
+ */
+
+import { readFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import {
+  addTargets,
+  emptyLedger,
+  loadLedger,
+  preflight,
+  recordOutcome,
+  saveLedger,
+  verdict,
+  STAGES,
+  OUTCOMES,
+  THRESHOLD_COUNT,
+  TARGET_MERCHANTS,
+  type Ledger,
+  type Outcome,
+  type Stage,
+} from "../src/lib/killtest/index";
+
+const usage = `Usage:
+  pnpm killtest check <targets-file>
+  pnpm killtest generate <targets-file> [--prompt "<prompt>"] [--dry-run]
+  pnpm killtest log <store-url> --stage <${STAGES.join("|")}> [--outcome <${OUTCOMES.join("|")}>] [--said "..."]
+  pnpm killtest status`;
+
+/** One storefront URL per line; blank lines and # comments ignored. */
+async function readTargets(file: string): Promise<string[]> {
+  const raw = await readFile(file, "utf8");
+  return raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+}
+
+function reportPreflight(storeUrls: string[]): boolean {
+  const result = preflight({
+    storeUrls,
+    aiProvider: process.env.AI_PROVIDER,
+    anthropicKey: process.env.ANTHROPIC_API_KEY,
+  });
+
+  for (const warning of result.warnings) process.stderr.write(`  ! ${warning}\n\n`);
+  if (result.ok) {
+    process.stderr.write(`  ready — ${storeUrls.length} merchants, generating with the model\n\n`);
+    return true;
+  }
+
+  process.stderr.write("  This kill test cannot run:\n\n");
+  for (const blocker of result.blockers) process.stderr.write(`  × ${blocker}\n\n`);
+  return false;
+}
+
+/**
+ * One `pnpm generate` per merchant, in sequence.
+ *
+ * Sequential rather than parallel on purpose: this crawls thirty storefronts
+ * belonging to people who have not asked us to, and hammering them in parallel
+ * is both rude and the fastest way to get rate-limited off the test.
+ */
+async function generate(file: string, prompt: string, dryRun: boolean): Promise<void> {
+  const storeUrls = await readTargets(file);
+  if (!reportPreflight(storeUrls)) process.exit(1);
+  if (dryRun) {
+    process.stderr.write("  --dry-run: stopping before any storefront is touched.\n\n");
+    return;
+  }
+
+  const now = new Date();
+  let ledger = addTargets((await loadLedger()) ?? emptyLedger(now), storeUrls, now);
+
+  for (const [index, storeUrl] of storeUrls.entries()) {
+    process.stderr.write(`  ${String(index + 1).padStart(2)}/${storeUrls.length}  ${storeUrl}\n`);
+
+    const run = spawnSync("pnpm", ["generate", storeUrl, prompt, "--quiet"], { encoding: "utf8" });
+    if (run.status !== 0) {
+      // A merchant we could not generate for is not a merchant who said no.
+      // Recording the difference is what keeps the denominator honest.
+      process.stderr.write(`        failed: ${(run.stderr ?? "").trim().split("\n").slice(-1)[0] ?? "unknown"}\n`);
+      continue;
+    }
+
+    const url = (run.stdout ?? "").trim().split("\n").pop() ?? "";
+    const slug = url.split("/").pop() ?? "";
+    ledger = recordOutcome(
+      ledger,
+      storeUrl,
+      { slug, shopUrl: url, generatedAt: new Date().toISOString() },
+      new Date(),
+    );
+    await saveLedger(ledger);
+    process.stderr.write(`        ${url}\n`);
+  }
+
+  process.stderr.write(`\n  ledger: ${await saveLedger(ledger)}\n\n`);
+}
+
+async function log(argv: string[]): Promise<void> {
+  const storeUrl = argv[0];
+  if (!storeUrl || storeUrl.startsWith("--")) throw new Error(usage);
+
+  let stage: Stage | undefined;
+  let outcome: Outcome | undefined;
+  let said: string | undefined;
+
+  for (let i = 1; i < argv.length; i++) {
+    const arg = argv[i]!;
+    if (arg === "--stage") {
+      const value = argv[++i];
+      if (!STAGES.includes(value as Stage)) throw new Error(`--stage must be one of: ${STAGES.join(", ")}`);
+      stage = value as Stage;
+    } else if (arg === "--outcome") {
+      const value = argv[++i];
+      if (!OUTCOMES.includes(value as Outcome)) throw new Error(`--outcome must be one of: ${OUTCOMES.join(", ")}`);
+      outcome = value as Outcome;
+    } else if (arg === "--said") {
+      said = argv[++i];
+    } else {
+      throw new Error(`Unknown option: ${arg}`);
+    }
+  }
+
+  const ledger = await loadLedger();
+  if (!ledger) throw new Error("No ledger yet. Run `pnpm killtest generate <targets-file>` first.");
+  if (!ledger.targets.some((t) => t.storeUrl === storeUrl)) {
+    throw new Error(`"${storeUrl}" is not in the ledger. Targets are added by \`generate\`.`);
+  }
+
+  const updated = recordOutcome(
+    ledger,
+    storeUrl,
+    {
+      ...(stage ? { stage } : {}),
+      ...(outcome ? { outcome } : {}),
+      ...(said ? { said } : {}),
+    },
+    new Date(),
+  );
+
+  await saveLedger(updated);
+  const target = updated.targets.find((t) => t.storeUrl === storeUrl)!;
+  process.stderr.write(`\n  ${storeUrl} — ${target.stage} / ${target.outcome}\n\n`);
+  printStatus(updated);
+}
+
+function printStatus(ledger: Ledger): void {
+  const v = verdict(ledger);
+  const lines: string[] = [];
+
+  lines.push("");
+  lines.push(`  kill test — started ${ledger.startedAt.slice(0, 10)}`);
+  lines.push("");
+  lines.push(`  generated        ${v.generated}`);
+  lines.push(`  contacted        ${v.contacted} of ${TARGET_MERCHANTS}`);
+  lines.push(`  want it live     ${v.wantItLive}   (the bar is ${THRESHOLD_COUNT})`);
+  lines.push(`  asked the price  ${v.askedPrice}   ${v.askedPrice > 0 ? "— the brief calls this gold" : ""}`.trimEnd());
+  lines.push(`  paid             ${v.paid}`);
+  lines.push(`  still open       ${v.outstanding}`);
+  lines.push("");
+
+  const call = v.call === "proceed" ? "PROCEED" : v.call === "kill" ? "KILL" : "RUNNING";
+  lines.push(`  ${call}`);
+  lines.push(`  ${v.reason}`);
+  lines.push("");
+
+  if (v.call === "running") {
+    lines.push("  Sprint 3 stays shut. Nothing in it gets built on a verdict that has not arrived.");
+    lines.push("");
+  }
+
+  process.stdout.write(lines.join("\n"));
+  process.stdout.write("\n");
+}
+
+async function main(): Promise<void> {
+  const [command, ...rest] = process.argv.slice(2);
+
+  switch (command) {
+    case "check": {
+      const file = rest[0];
+      if (!file) throw new Error(usage);
+      process.stderr.write("\n");
+      if (!reportPreflight(await readTargets(file))) process.exit(1);
+      return;
+    }
+
+    case "generate": {
+      const file = rest[0];
+      if (!file) throw new Error(usage);
+      let prompt = "a clean bio shop for the people arriving from their social links";
+      let dryRun = false;
+      for (let i = 1; i < rest.length; i++) {
+        if (rest[i] === "--prompt") prompt = rest[++i] ?? prompt;
+        else if (rest[i] === "--dry-run") dryRun = true;
+        else throw new Error(`Unknown option: ${rest[i]}`);
+      }
+      process.stderr.write("\n");
+      await generate(file, prompt, dryRun);
+      return;
+    }
+
+    case "log":
+      await log(rest);
+      return;
+
+    case "status": {
+      const ledger = await loadLedger();
+      if (!ledger) {
+        process.stderr.write("\n  No kill test has been started.\n\n");
+        process.exit(1);
+      }
+      printStatus(ledger);
+      return;
+    }
+
+    default:
+      throw new Error(usage);
+  }
+}
+
+main().catch((error: unknown) => {
+  process.stderr.write(`\n${error instanceof Error ? error.message : String(error)}\n\n`);
+  process.exit(1);
+});

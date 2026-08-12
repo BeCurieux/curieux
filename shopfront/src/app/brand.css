@@ -1,0 +1,34 @@
+/*
+ * popuup's own palette.
+ *
+ * Not the shop's. A generated shop wears the merchant's colours — that is the
+ * entire point of the theme tokens — and these are for the surfaces that are
+ * ours: the workbench, and the free-tier badge that step 4 puts on every
+ * published shop. Keeping them here rather than inline means the badge and the
+ * app cannot drift, and a shop's stylesheet never sees them.
+ */
+
+:root {
+  --pop-ink: #171a23;
+  --pop-violet: #6b55f6;
+  --pop-pink: #ff6b8a;
+  --pop-amber: #ffd166;
+  --pop-teal: #20c4a7;
+
+  --pop-paper: #faf7f3;
+  --pop-shell: #f1eee9;
+  --pop-line: #e6e2dc;
+  --pop-line-strong: #d7d6db;
+
+  --pop-muted: color-mix(in srgb, var(--pop-ink) 58%, var(--pop-paper));
+  --pop-faint: color-mix(in srgb, var(--pop-ink) 38%, var(--pop-paper));
+
+  /* Rounded everything, per the board — the radius scale is the single token
+     that carries most of the brand's softness. */
+  --pop-radius: 18px;
+  --pop-radius-lg: 26px;
+  --pop-pill: 999px;
+
+  --pop-shadow: 0 1px 2px rgb(23 26 35 / 0.04), 0 8px 24px -12px rgb(23 26 35 / 0.14);
+  --pop-shadow-lift: 0 2px 4px rgb(23 26 35 / 0.05), 0 18px 44px -18px rgb(23 26 35 / 0.22);
+}

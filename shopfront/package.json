@@ -1,0 +1,48 @@
+{
+  "name": "shopfront",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shopfront — make a shop in a sentence. Sprint 1, step 1: the ingester.",
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "ingest": "tsx scripts/ingest.ts",
+    "genome": "tsx scripts/genome.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:visual": "vitest run --config vitest.visual.config.ts",
+    "merchandise": "tsx scripts/merchandise.ts",
+    "generate": "tsx scripts/generate.ts",
+    "funnel": "tsx scripts/funnel.ts",
+    "killtest": "tsx scripts/killtest.ts",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
+    "@supabase/supabase-js": "^2.112.3",
+    "next": "^16.3.0",
+    "playwright-core": "1.62.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^3.25.76"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "playwright": "1.62.1",
+    "tsx": "^4.23.6",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10"
+  }
+}
