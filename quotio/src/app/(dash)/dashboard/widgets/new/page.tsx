@@ -15,7 +15,7 @@ export default function NewWidgetPage() {
       <h1 className="text-title text-center">What do you want to build?</h1>
       <p className="mx-auto mt-3 max-w-md text-center text-slate">
         Describe it in a sentence or two. Mention the questions you want to ask and what things
-        cost, and we&rsquo;ll wire up the maths.
+        cost, and we&rsquo;ll wire up the math.
       </p>
 
       <div className="mt-8">

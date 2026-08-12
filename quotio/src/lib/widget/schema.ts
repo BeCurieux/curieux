@@ -40,7 +40,7 @@ export const slugSchema = z
 
 export const hexColourSchema = z
   .string()
-  .regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a hex colour like #7657F6.");
+  .regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a hex color like #7657F6.");
 
 export const illustrationSchema = z.enum(ILLUSTRATION_KEYS);
 

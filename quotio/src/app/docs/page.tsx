@@ -194,7 +194,7 @@ export default async function DocsPage() {
             <code className="font-mono text-xs">widget_start</code>, someone answering at least one
             question. Views are free. Past your monthly allowance your published widgets pause and
             visitors see a short notice instead — your builder, your drafts, your analytics and
-            every enquiry you&rsquo;ve already collected carry on untouched. They come back on the
+            every lead you&rsquo;ve already collected carry on untouched. They come back on the
             1st, or the moment you move up a plan. Your dashboard shows the count as it fills.
           </p>
         </section>

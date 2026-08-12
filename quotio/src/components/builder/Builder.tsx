@@ -310,7 +310,7 @@ export function Builder({
               to the top with a screenful of empty lavender underneath. Short
               widgets are the common case, so the common case is what this is
               laid out for. */}
-          <div className="centre-safe flex flex-1 flex-col px-4 pb-8 pt-1">
+          <div className="center-safe flex flex-1 flex-col px-4 pb-8 pt-1">
             <div
               className="mx-auto w-full transition-[max-width] duration-300"
               style={{ maxWidth: VIEWPORTS[viewport].width }}

@@ -248,7 +248,7 @@ export function ColourField({
           className="h-10 w-12 cursor-pointer rounded-btn border border-rule bg-white p-1"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          aria-label={`${label} colour picker`}
+          aria-label={`${label} color picker`}
         />
         <input
           className="input font-mono text-xs uppercase"

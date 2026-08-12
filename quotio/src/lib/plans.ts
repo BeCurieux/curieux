@@ -93,7 +93,7 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Pro",
     priceYearly: 99,
     priceMonthly: 10,
-    blurb: "For when the enquiries start mattering.",
+    blurb: "For when the leads start mattering.",
     limits: {
       widgets: 20,
       interactions: 10000,
@@ -110,7 +110,7 @@ export const PLANS: Record<PlanId, Plan> = {
       "Remove the badge",
       "All six themes",
       "Lead capture",
-      "Analytics and enquiries",
+      "Analytics and leads",
     ],
     stripePriceEnv: "STRIPE_PRICE_PRO",
     stripePriceEnvMonthly: "STRIPE_PRICE_PRO_MONTHLY",

@@ -133,7 +133,7 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
 
       <div className="card mt-6 p-6">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-bold">Enquiries</h2>
+          <h2 className="text-sm font-bold">Leads</h2>
           <span className="text-xs font-semibold text-muted">{stats.leads.toLocaleString()} total</span>
         </div>
 

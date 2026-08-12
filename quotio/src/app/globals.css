@@ -202,7 +202,7 @@
      plain `center` overflows in both directions, so a widget taller than the
      column would have its first question scrolled off the top with no way
      back to it. */
-  .centre-safe {
+  .center-safe {
     justify-content: center;
     justify-content: safe center;
   }

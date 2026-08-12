@@ -196,7 +196,7 @@ export default async function HomePage({
                   { n: 1, t: "Describe it", b: "One sentence about what you want to ask and what it costs." },
                   { n: 2, t: "Make it yours", b: "Change any question or price. It updates as you type." },
                   { n: 3, t: "Publish", b: "A hosted page, or paste one line into your site." },
-                  { n: 4, t: "Watch it work", b: "Completions, clicks, and on Pro the enquiries it brings in." },
+                  { n: 4, t: "Watch it work", b: "Completions, clicks, and on Pro the leads it brings in." },
                 ].map((step) => (
                   <li key={step.n} className="rounded-card border border-rule bg-white p-5">
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-purple text-sm font-bold text-white">

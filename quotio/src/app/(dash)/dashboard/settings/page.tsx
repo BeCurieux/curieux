@@ -29,7 +29,7 @@ export default async function SettingsPage() {
   // Counted for the delete confirmation, so it can say what goes rather than
   // gesturing at "all your data".
   const owned = user ? await store.listWidgets(user.id) : [];
-  const enquiries = (
+  const leads = (
     await Promise.all(owned.map((widget) => store.countLeads(widget.id)))
   ).reduce((total, count) => total + count, 0);
 
@@ -86,7 +86,7 @@ export default async function SettingsPage() {
               <strong className="font-bold">Your widgets are paused.</strong> They&rsquo;ve had
               every interaction your plan allows this month, so visitors see a short notice
               instead. They start working again on {monthResets()} — nothing is lost in the
-              meantime, and your analytics and enquiries are all still here.
+              meantime, and your analytics and leads are all still here.
             </p>
             {/* Waiting until the 1st shouldn't be the only way out. */}
             <UpgradeAction plan={plan.id} />
@@ -150,7 +150,7 @@ export default async function SettingsPage() {
         <p className="mt-3 text-sm leading-relaxed text-slate">
           We store the widgets you build, the events your visitors generate (an anonymous per-tab id,
           nothing more) and any contact details visitors choose to give you. Deleting a widget
-          deletes its analytics and enquiries with it.
+          deletes its analytics and leads with it.
         </p>
 
         {/* The paragraph above describes what we hold; this is how you get it
@@ -162,7 +162,7 @@ export default async function SettingsPage() {
             <p className="mt-1 text-sm leading-relaxed text-slate">
               Deletes your account, your widgets and everything they collected.
             </p>
-            <DeleteAccount widgets={owned.length} enquiries={enquiries} />
+            <DeleteAccount widgets={owned.length} leads={leads} />
           </div>
         ) : null}
       </section>

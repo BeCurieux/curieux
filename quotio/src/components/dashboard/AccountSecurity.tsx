@@ -94,10 +94,10 @@ export function ChangePassword() {
 
 export function DeleteAccount({
   widgets,
-  enquiries,
+  leads,
 }: {
   widgets: number;
-  enquiries: number;
+  leads: number;
 }) {
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -130,7 +130,7 @@ export function DeleteAccount({
       }}
       className="mt-3 max-w-sm rounded-card border border-coral/40 bg-coral-soft p-4"
     >
-      {/* Counted, not described: "3 widgets and 56 enquiries" is a decision
+      {/* Counted, not described: "3 widgets and 56 leads" is a decision
           you can make, "all your data" is one you can only guess at. */}
       <p className="text-sm leading-relaxed text-navy">
         <strong className="font-bold">This deletes everything.</strong>{" "}
@@ -138,8 +138,8 @@ export function DeleteAccount({
           ? "You have no widgets, so there is nothing published to take down."
           : `Your ${widgets} widget${widgets === 1 ? "" : "s"} will stop working
              immediately — any page they're embedded on will show nothing.`}{" "}
-        {enquiries > 0
-          ? `Your ${enquiries} enquir${enquiries === 1 ? "y" : "ies"} and all
+        {leads > 0
+          ? `Your ${leads} lead${leads === 1 ? "" : "s"} and all
              analytics go with them.`
           : "Your analytics go with them."}{" "}
         We can&rsquo;t undo it.

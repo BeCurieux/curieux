@@ -65,7 +65,7 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
 
       <Section title="Your brand">
         <ColourField
-          label="Brand colour"
+          label="Brand color"
           value={theme.brandColour}
           swatches={BRAND_SWATCHES}
           // Filled buttons take the theme's ink, not this colour, so on the
@@ -75,8 +75,8 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
           // field explains the same rule, but two sections further down.
           hint={
             theme.buttonStyle === "filled"
-              ? "Colours the progress bar, selected answers and highlights. Filled buttons follow the theme’s ink — set Buttons to Soft or Outline below to colour those too."
-              : "Colours the progress bar, selected answers, highlights and your buttons."
+              ? "Colors the progress bar, selected answers and highlights. Filled buttons follow the theme’s ink — set Buttons to Soft or Outline below to color those too."
+              : "Colors the progress bar, selected answers, highlights and your buttons."
           }
           onChange={(value) => {
             // Half-typed hex codes shouldn't repaint the preview mid-keystroke.
@@ -125,7 +125,7 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
             { value: "outline", label: "Outline" },
           ]}
           onChange={(buttonStyle) => setTheme({ buttonStyle })}
-          hint="Filled uses the theme's ink so it stays legible. Soft and Outline use your brand colour."
+          hint="Filled uses the theme's ink so it stays legible. Soft and Outline use your brand color."
         />
       </Section>
 

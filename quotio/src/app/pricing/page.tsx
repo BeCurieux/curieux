@@ -44,7 +44,7 @@ export default async function PricingPage({
           <h1 className="mt-2 text-title">Free until it&rsquo;s working.</h1>
           <p className="mt-3 leading-relaxed text-slate">
             You can publish and embed without paying us anything. Upgrade when you want the
-            enquiries in your inbox and our name off the bottom.
+            leads in your inbox and our name off the bottom.
           </p>
         </div>
 

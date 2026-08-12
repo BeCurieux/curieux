@@ -107,7 +107,7 @@ export function WidgetCard(props: WidgetCardProps) {
                   </button>
                 ) : null}
 
-                {/* Deleting takes analytics and enquiries with it, so it asks. */}
+                {/* Deleting takes analytics and leads with it, so it asks. */}
                 {confirming ? (
                   <button
                     type="button"
@@ -150,9 +150,9 @@ export function WidgetCard(props: WidgetCardProps) {
               props.analyticsAllowed && props.stats.starts > 0 ? "of starts" : undefined
             }
           />
-          {/* Enquiries are what a business is actually here for. */}
+          {/* Leads are what a business is actually here for. */}
           <Stat
-            label="Enquiries"
+            label="Leads"
             value={props.analyticsAllowed ? format(props.stats.leads) : "Pro"}
             highlight={props.stats.leads > 0}
           />
