@@ -78,5 +78,26 @@ jobs:
       - name: Tests
         run: npm test
 
+      # Signing is the one module here where being wrong is silent. A bad
+      # signature is a bare 403 from Cloudflare with nothing about which of
+      # the fourteen steps disagreed — in production, on somebody's upload.
+      #
+      # The frozen botocore vectors in tests/sigv4.test.ts ran in the step
+      # above and prove the algorithm. This proves the URL survives being
+      # sent: that fetch does not drop a header we signed, that a download
+      # filename arrives intact, and that a body larger than the signed
+      # content-length is actually refused rather than merely discouraged.
+      # botocore validates every request, so this is two independent
+      # implementations agreeing over a socket instead of ours agreeing with
+      # itself. No Cloudflare account and no secrets.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Storage signatures, end to end
+        run: |
+          python3 -m pip install --quiet botocore
+          npm run verify:storage
+
       - name: Build
         run: npm run build
