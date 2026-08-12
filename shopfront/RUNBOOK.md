@@ -124,6 +124,18 @@ What to read in the output, in order of how badly it matters:
   `diagnostics.trace` records every attempt. A store that fell through to
   Playwright is a store whose `/products.json` is closed, and that is worth
   knowing before thirty of them.
+
+  **Decide about `CHROMIUM_PATH` before the first run, not after.** The
+  Playwright rung resolves its browser *only* from `CHROMIUM_PATH` — it does
+  not fall back to the browser `playwright install` leaves on disk. Unset, the
+  ladder's last rung is off and the trace says `no browser available` rather
+  than failing, so a store that needed it comes back thin and nothing draws
+  attention to why. `tests/visual/renderer.test.ts` asserts that behaviour
+  deliberately, so it is a decision rather than a surprise: either export
+  `CHROMIUM_PATH` for the run, or accept that a closed-feed store is out of
+  scope for this batch. The rung itself works — that suite drives a real
+  Chromium against a storefront whose catalogue only appears after JavaScript
+  runs.
 - **`genome`** — spot-check five products against what the merchant actually
   sells. This is a model inference over marketing copy and it will sometimes be
   confidently wrong. It never reaches a page, so a wrong reading degrades the
