@@ -62,7 +62,9 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-rule bg-lavender">
-      {/* The two promises, side by side, as in the reference. */}
+      {/* The two promises, side by side, as in the reference. Deliberately
+          different shapes: two short "X. Y." slogans in one strip read as a
+          template rather than as something anyone meant. */}
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 border-b border-rule px-5 py-6">
         <p className="flex items-center gap-2.5 text-sm font-semibold text-navy">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -71,7 +73,7 @@ export function SiteFooter() {
               fill="#7657F6"
             />
           </svg>
-          Delightful for your audience. Powerful for your business.
+          Your customers won&rsquo;t mind filling it in.
         </p>
         <p className="flex items-center gap-2.5 text-sm font-semibold text-navy">
           <Squiggle className="h-3 w-12 text-mint" />

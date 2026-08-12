@@ -40,8 +40,8 @@ export default async function DocsPage() {
           <p className="eyebrow">Docs</p>
           <h1 className="mt-2 text-title">The short version.</h1>
           <p className="mt-3 leading-relaxed text-slate">
-            Two things people genuinely get stuck on — putting the widget on their site, and writing
-            a formula — and what we count while it runs.
+            Two things trip people up: getting the widget onto their site, and writing a formula.
+            Then what we count while it runs.
           </p>
         </div>
 

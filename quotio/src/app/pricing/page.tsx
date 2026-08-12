@@ -43,8 +43,8 @@ export default async function PricingPage({
           <p className="eyebrow">Pricing</p>
           <h1 className="mt-2 text-title">Free until it&rsquo;s working.</h1>
           <p className="mt-3 leading-relaxed text-slate">
-            Build, publish and embed on the free plan — really. Upgrade when you want the enquiries
-            in your inbox and our name off the bottom.
+            You can publish and embed without paying us anything. Upgrade when you want the
+            enquiries in your inbox and our name off the bottom.
           </p>
         </div>
 
@@ -69,7 +69,12 @@ export default async function PricingPage({
                 ) : null}
 
                 <h2 className="text-lg font-bold">{plan.name}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-slate">{plan.blurb}</p>
+                {/* A slot two lines deep, so a one-line blurb doesn't pull its
+                    whole card up and leave the three prices on different
+                    baselines. */}
+                <p className="mt-1 min-h-[2.875rem] text-sm leading-relaxed text-slate">
+                  {plan.blurb}
+                </p>
 
                 <p className="mt-6 flex items-baseline gap-1.5">
                   <span className="text-4xl font-bold tracking-tight">
@@ -147,27 +152,27 @@ export default async function PricingPage({
         </div>
 
         <div className="mx-auto mt-14 max-w-2xl">
-          <h2 className="text-title text-center">Questions people actually ask</h2>
+          <h2 className="text-title text-center">Questions people ask</h2>
           <dl className="mt-8 space-y-5">
             {[
               {
                 q: "What counts as an interaction?",
-                a: "Someone answering at least one question. Views are free and unlimited — we only count people who actually engaged.",
+                a: "Someone answering at least one question. Views are free, however many you get.",
               },
               {
                 // This answer has to track widgets/service.ts:isOverInteractionLimit.
                 // It described the behaviour before the limit was enforced, and
                 // promised an email nothing in the product sends.
                 q: "What happens if I go over?",
-                a: "Your published widgets pause for the rest of the month and visitors see a short notice — your builder, drafts, analytics and enquiries all carry on as normal. They come back on the 1st, or the moment you move up a plan.",
+                a: "Your published widgets pause for the rest of the month and visitors see a short notice. Everything else keeps working. They come back on the 1st, or the moment you move up a plan.",
               },
               {
                 q: "Can I switch between monthly and yearly?",
-                a: "Yes, whenever you like — email us and we'll move you across at your next renewal. Your widgets, analytics and enquiries are untouched either way.",
+                a: "Yes. Email us and we'll move you across at your next renewal. Nothing about your widgets changes.",
               },
               {
                 q: "Can I use it on more than one site?",
-                a: "Yes. A widget is a link and a snippet — put it wherever you like.",
+                a: "Yes. It's a link and a snippet, so put it wherever you like.",
               },
               {
                 q: "Do I own what I build?",

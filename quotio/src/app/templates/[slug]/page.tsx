@@ -72,8 +72,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                   : "A calculated result with a breakdown",
                 template.document.logic.length > 0
                   ? `${template.document.logic.length} rule${template.document.logic.length === 1 ? "" : "s"} you can edit`
-                  : "No rules to unpick — the formula does the work",
-                "Every word, price and colour is yours to change",
+                  : "No rules to unpick. The formula does it",
+                "Every word and price is yours to change",
               ].map((point) => (
                 <li key={point} className="flex items-start gap-2 text-sm text-slate">
                   <span className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-mint-soft text-mint">

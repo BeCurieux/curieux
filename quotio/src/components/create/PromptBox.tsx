@@ -168,7 +168,7 @@ export function PromptBox({
 
         <div className="flex items-center justify-between gap-3 border-t border-rule bg-lavender/40 px-4 py-3">
           <p className="hidden text-xs leading-snug text-muted sm:block">
-            The more you tell us — questions, prices, rules — the better it lands.
+            Tell us the questions and the prices and it&rsquo;ll land closer.
           </p>
           <button type="submit" className="btn btn-lg ml-auto">
             <SparkleIcon size={18} />

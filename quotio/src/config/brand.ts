@@ -15,7 +15,7 @@ export const brand = {
   heroHeadline: { lead: "Tiny interactive tools,", accent: "beautifully made." },
 
   heroSupport:
-    "Create calculators, estimators and recommendations your customers will actually enjoy using.",
+    "Calculators and quizzes people are happy to finish.",
 
   /** The three promises under the hero CTA. */
   heroProofPoints: ["No code", "Beautiful by default", "Embed anywhere"],

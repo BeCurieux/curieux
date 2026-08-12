@@ -93,7 +93,7 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Pro",
     priceYearly: 99,
     priceMonthly: 10,
-    blurb: "For a business that runs on the enquiries these bring in.",
+    blurb: "For when the enquiries start mattering.",
     limits: {
       widgets: 20,
       interactions: 10000,
@@ -120,7 +120,7 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Business",
     priceYearly: 199,
     priceMonthly: 20,
-    blurb: "Higher limits and the logic that bigger rollouts need.",
+    blurb: "Bigger numbers, and questions that can branch.",
     limits: {
       widgets: 100,
       interactions: 100000,

@@ -7,7 +7,7 @@ import { TEMPLATES } from "@/lib/templates/catalogue";
 
 export const metadata: Metadata = {
   title: "Templates",
-  description: "Working calculators, estimators and quizzes you can make your own in a click.",
+  description: "Working calculators you can make your own in a click.",
 };
 
 export default async function TemplatesPage() {
@@ -38,8 +38,7 @@ export default async function TemplatesPage() {
           <p className="eyebrow">Templates</p>
           <h1 className="mt-2 text-title">Start from something that already works.</h1>
           <p className="mt-3 leading-relaxed text-slate">
-            Every one of these is a real, working widget — try it, then make it yours. Nothing here
-            is a screenshot.
+            Every one of these works. Try it, then make it yours. Nothing here is a screenshot.
           </p>
         </div>
 

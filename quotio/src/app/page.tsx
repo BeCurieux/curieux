@@ -71,7 +71,7 @@ export default async function HomePage({
             <div>
               <span className="badge">
                 <SparkleIcon size={13} />
-                Playful smart
+                Playful, but smart
               </span>
 
               <h1 className="mt-5 text-display">
@@ -140,8 +140,8 @@ export default async function HomePage({
             <PromptToTool height={60} className="mx-auto mb-5 text-navy" />
             <h2 className="text-title">What do you want your website to do?</h2>
             <p className="mx-auto mt-3 max-w-xl text-slate">
-              Describe it in your own words. We&rsquo;ll build the questions, the maths and the result
-              screen — you edit anything you don&rsquo;t like.
+              Describe it in your own words. We&rsquo;ll build it, then you change whatever you
+              don&rsquo;t like.
             </p>
           </div>
 
@@ -164,19 +164,19 @@ export default async function HomePage({
                 tone="lavender"
                 icon={<PencilIcon size={25} />}
                 title="Build in minutes"
-                body="Describe it in a sentence or start from a template. Everything is editable and nothing needs code."
+                body="Describe it in a sentence, or start from a template. Change anything afterwards."
               />
               <PromiseCard
                 tone="yellow"
                 icon={<LinkIcon size={25} />}
                 title="Share anywhere"
-                body="A hosted link, a plain iframe or a one-line script that resizes itself to fit your page."
+                body="One line of script and it resizes itself to fit your page. Or just send the link."
               />
               <PromiseCard
                 tone="mint"
                 icon={<ChartIcon size={25} />}
                 title="See what happens"
-                body="Views, starts, completions and clicks — enough to know what's working and what to change."
+                body="Views, starts and completions. Enough to see what's working."
               />
             </div>
           </div>
@@ -194,9 +194,9 @@ export default async function HomePage({
               <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {[
                   { n: 1, t: "Describe it", b: "One sentence about what you want to ask and what it costs." },
-                  { n: 2, t: "Make it yours", b: "Change any question, price or colour. Watch it update live." },
+                  { n: 2, t: "Make it yours", b: "Change any question or price. It updates as you type." },
                   { n: 3, t: "Publish", b: "A hosted page, or paste one line into your site." },
-                  { n: 4, t: "Watch it work", b: "Completions, clicks and — on Pro — the enquiries it brings in." },
+                  { n: 4, t: "Watch it work", b: "Completions, clicks, and on Pro the enquiries it brings in." },
                 ].map((step) => (
                   <li key={step.n} className="rounded-card border border-rule bg-white p-5">
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-purple text-sm font-bold text-white">
@@ -218,9 +218,12 @@ export default async function HomePage({
               <div className="max-w-md">
                 <p className="eyebrow">Made for any idea you have</p>
                 <h2 className="mt-3 text-title">From real estate to fitness.</h2>
+                {/* No count. Writing one down here means it's wrong the first
+                    time somebody adds a template, and rendering the numeral
+                    reads worse than not mentioning it at all. */}
                 <p className="mt-3 text-slate">
-                  If you can calculate it, you can build it here. Every template below is a working
-                  widget, not a picture of one.
+                  Each one built for a different kind of business, and each one a working widget
+                  rather than a picture of one.
                 </p>
               </div>
               <Link href="/templates" className="btn-secondary">
@@ -255,7 +258,7 @@ export default async function HomePage({
                 two hundred pixels further down. */}
             <h2 className="text-title text-white">Ready to make one?</h2>
             <p className="mx-auto mt-4 max-w-sm text-white/70">
-              Free to build and free to publish. We only ask who you are when you press publish.
+              Building and publishing are both free. We only ask who you are at the very end.
             </p>
             <Link
               href="#build"
