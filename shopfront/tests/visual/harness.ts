@@ -15,6 +15,7 @@
 
 import { spawn, type ChildProcess } from "node:child_process";
 import net from "node:net";
+import { existsSync } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright-core";
@@ -54,16 +55,43 @@ export const urlFor = (base: string, mood: Mood) => `${base}/preview/${keyFor(mo
 /**
  * The browser is the one thing here that cannot be installed on demand.
  *
- * Returning null rather than throwing lets the suite skip with an explanation
- * instead of failing, which matters because this is not wired into CI — a red
- * X on a machine that was never going to have Chromium teaches nothing.
+ * Two ways to find one, in order. An explicit `CHROMIUM_PATH` wins, because a
+ * developer with a Chromium already on disk should not be made to download a
+ * second one. Otherwise ask playwright-core where its own registry put the
+ * browser that `playwright install chromium` fetches — which is how CI finds
+ * it, and how a developer who ran that command does too.
+ *
+ * `executablePath()` answers from the registry whether or not the download
+ * ever happened, so the answer is only useful once the file is confirmed to
+ * exist.
  */
 function chromiumPath(): string | null {
-  return process.env.CHROMIUM_PATH ?? process.env.PLAYWRIGHT_CHROMIUM_PATH ?? null;
+  const explicit = process.env.CHROMIUM_PATH ?? process.env.PLAYWRIGHT_CHROMIUM_PATH;
+  if (explicit) return explicit;
+
+  try {
+    const resolved = chromium.executablePath();
+    return resolved && existsSync(resolved) ? resolved : null;
+  } catch {
+    return null;
+  }
 }
 
 export function browserAvailable(): boolean {
   return chromiumPath() !== null;
+}
+
+/**
+ * Skipping is right on a laptop and wrong in CI.
+ *
+ * A suite that quietly reports 94 skipped is indistinguishable, on the summary
+ * page, from one that passed — so the moment this runs somewhere that is
+ * supposed to have a browser, a missing browser has to be a failure. Locally it
+ * stays a skip: a red X on a machine that was never going to have Chromium
+ * teaches nothing.
+ */
+export function browserRequired(): boolean {
+  return Boolean(process.env.CI);
 }
 
 async function freePort(): Promise<number> {

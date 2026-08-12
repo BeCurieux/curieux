@@ -331,10 +331,21 @@ nothing but `theme.mood`, and measures the page in Chromium.
 | Every sold-out product present, marked, and nothing else marked | The product rule, checked against rendered DOM rather than intent |
 | Every label clears 4.5:1 against what is actually behind it | `.shop a { color: inherit }` once outscored `.cta`, putting the page's ink on the accent fill |
 
-It is not wired into CI, which has no browser; a red X on a machine that was
-never going to run this teaches nothing. It skips with an explanation unless
-`CHROMIUM_PATH` is set, reuses a `next dev` you already have running, and starts
-its own when you do not.
+CI runs it as a separate `visual` job, in parallel with `check` — the two share
+no state, and a browser download that fails should not arrive looking like a
+broken build. The job caches Chromium on the pinned playwright version, which is
+why `playwright` and `playwright-core` are pinned to the same exact version
+rather than a caret: the installer fetches the build its own version expects
+while the suite launches the build playwright-core asks for, and a drift between
+them is a launch against a path nothing ever downloaded.
+
+Locally it skips with an explanation when there is no browser, because a red X
+on a machine that was never going to run this teaches nothing. In CI it does the
+opposite: `CI` being set turns a missing browser into a failure, so a silently
+broken install step cannot report ninety-four skipped tests as a green tick. It
+finds Chromium at `CHROMIUM_PATH` first and falls back to playwright-core's own
+registry, reuses a `next dev` you already have running, and starts its own when
+you do not.
 
 The suite was checked the same way the step-7 guards were — by reverting the
 hero fix and confirming six assertions went red with the real numbers in the
@@ -599,8 +610,18 @@ cut-out, underexposed, extremely wide, busy phone snap, blown highlights, a
 mediocre product photography" is not a claim a catalogue of clean shots can
 test.
 
-Three things have **not** been verified, all because this environment's egress
+Four things have **not** been verified, all because this environment's egress
 proxy blocks them:
+
+- **The browser download in the `visual` CI job has never run.** `pnpm exec
+  playwright install chromium` is refused at the proxy — `cdn.playwright.dev`
+  returns `403 host not permitted` — so the one link in that job that has not
+  been exercised is the download itself. Everything downstream of it has: with
+  `CI` set and a browser present the suite passes 94/94, and with `CI` set and
+  no browser it fails on `has a browser to measure with` rather than skipping,
+  which is the failure mode that would otherwise let a broken install step
+  certify nothing. The first run of that job on a real runner is worth
+  watching.
 
 - **No real catalogue has been ingested.** Storefront hosts are refused at the
   proxy with a policy denial. Running against four real stores, one with poor

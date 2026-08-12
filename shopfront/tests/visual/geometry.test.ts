@@ -24,6 +24,7 @@ import { SOLD_OUT_HANDLES } from "./fixture-store";
 import {
   boxOf,
   browserAvailable,
+  browserRequired,
   startHarness,
   open,
   DESKTOPS,
@@ -51,6 +52,23 @@ const MIN_CONTRAST = 4.5;
 let harness: Harness;
 
 const describeVisual = browserAvailable() ? describe : describe.skip;
+
+/**
+ * In CI a missing browser is a failure, not a skip.
+ *
+ * "94 skipped" and "94 passed" look the same from ten feet away on a summary
+ * page, so if the install step ever silently stops producing a Chromium this
+ * has to say so rather than let a green tick certify nothing.
+ */
+if (browserRequired() && !browserAvailable()) {
+  describe("geometry", () => {
+    it("has a browser to measure with", () => {
+      throw new Error(
+        "CI is set but no Chromium was found. Expected `playwright install chromium` to have run, or CHROMIUM_PATH to point at one.",
+      );
+    });
+  });
+}
 
 describeVisual("geometry", () => {
   beforeAll(async () => {

@@ -73,3 +73,62 @@ jobs:
       # that only runs in a browser, a route whose params signature changed.
       - name: Build
         run: pnpm build
+
+  # Separated from `check` because it is a different kind of slow and a
+  # different kind of fragile: it downloads a browser, boots a dev server and a
+  # fixture storefront, and measures a real layout. Keeping it out of `check`
+  # means a geometry regression and a failing unit test never arrive as the
+  # same red X, and a browser download that fails cannot mask a broken build.
+  #
+  # It runs in parallel with `check` rather than after it. The two share no
+  # state, and making this wait would add three minutes to every red run for no
+  # information.
+  visual:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shopfront
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: shopfront/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: shopfront/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # `playwright` and `playwright-core` are pinned to the same exact version
+      # in package.json, and they have to be: the installer fetches the browser
+      # build that its own version expects, while the suite launches whatever
+      # build playwright-core asks for. A caret on either one lets those drift
+      # apart, and the failure is a launch against a path that was never
+      # downloaded.
+      - name: Resolve the browser build
+        id: pw
+        run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the browser
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      # `--with-deps` on a miss only: the system libraries it installs are not
+      # in the cached directory, but a cache hit means the runner image already
+      # had them when the browser was fetched.
+      - name: Install Chromium
+        run: pnpm exec playwright install ${{ steps.browser-cache.outputs.cache-hit == 'true' && 'chromium' || '--with-deps chromium' }}
+
+      # `CI` is already set by Actions, and the suite reads it: a missing
+      # browser fails here rather than skipping, so a broken install step
+      # cannot report ninety-four skipped tests as a green tick.
+      - name: Geometry
+        run: pnpm test:visual
