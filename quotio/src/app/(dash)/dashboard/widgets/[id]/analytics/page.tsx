@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { Funnel, Sparkbars, StatTile } from "@/components/dashboard/Charts";
+import { DropOff, Funnel, Sparkbars, StatTile } from "@/components/dashboard/Charts";
 import { ArrowLeftIcon } from "@/components/ui/Icons";
 import { currentUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/db/store";
-import { summarise } from "@/lib/analytics/events";
+import { dropOff, summarise } from "@/lib/analytics/events";
 import { can, nextPlanUp, PLANS } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Analytics" };
@@ -58,6 +58,13 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
     if (byDay.has(day)) byDay.set(day, (byDay.get(day) ?? 0) + 1);
   }
   const points = [...byDay.entries()].map(([day, value]) => ({ day: day.slice(5), value }));
+
+  // Drop-off is measured against the *published* document, because that's the
+  // one visitors met. Reading the draft would relabel history the moment you
+  // renamed a question, and would list a draft-only question as a question
+  // nobody got past — a 100% cliff for something never put in front of anyone.
+  const measured = widget.published ?? widget.draft;
+  const steps = dropOff(events, measured.steps, stats.starts);
 
   return (
     <>
@@ -116,28 +123,9 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
         <h2 className="text-sm font-bold">Question by question</h2>
         <p className="mt-1 text-xs text-muted">How many people got past each one.</p>
 
-        <ul className="mt-5 space-y-3">
-          {widget.draft.steps.map((step) => {
-            const passed = new Set(
-              events
-                .filter((event) => event.type === "step_complete" && event.stepId === step.id)
-                .map((event) => event.sessionId)
-            ).size;
-            const share = stats.starts > 0 ? Math.round((passed / stats.starts) * 100) : 0;
-
-            return (
-              <li key={step.id} className="flex items-center gap-4">
-                <span className="min-w-0 flex-1 truncate text-sm text-slate">{step.title}</span>
-                <span className="h-2 w-32 flex-none overflow-hidden rounded-full bg-lavender">
-                  <span className="block h-full rounded-full bg-purple" style={{ width: `${share}%` }} />
-                </span>
-                <span className="w-16 flex-none text-right text-sm font-semibold tabular-nums text-navy">
-                  {passed.toLocaleString()}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="mt-5">
+          <DropOff steps={steps} />
+        </div>
       </div>
 
       <div className="card mt-6 p-6">

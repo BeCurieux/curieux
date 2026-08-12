@@ -81,3 +81,61 @@ export function summarise(
     leads: leadCount,
   };
 }
+
+export interface DropOffRow {
+  id: string;
+  label: string;
+  /** Distinct visitors who got past this question. */
+  reached: number;
+  /** That, as a whole-number share of everyone who started. */
+  share: number;
+  /** Visitors who got past the question before this one, but not this one. */
+  lost: number;
+}
+
+/**
+ * How far people get through the questions (§25).
+ *
+ * `steps` must come from the *published* document. Analytics describe what
+ * visitors met; feeding it a draft relabels history the moment a question is
+ * renamed, and lists a draft-only question as a cliff nobody got past.
+ *
+ * `lost` is the fall from the question before, floored at zero. When every
+ * visitor sees every question it reconciles — the column sums to
+ * `starts - reached(last step)`. Branching and optional questions break that
+ * on purpose: a question a rule hides for most people is reached by few, and
+ * the one after it can be reached by more, which is a detour rather than a
+ * drop-off and so counts as zero lost rather than as a negative.
+ */
+export function dropOff(
+  // `stepId` is nullable because that's how it comes back out of the
+  // database — events that aren't about a question carry no step.
+  events: Array<{ type: string; sessionId: string; stepId?: string | null }>,
+  steps: Array<{ id: string; title: string }>,
+  starts: number
+): DropOffRow[] {
+  const reachedBy = (stepId: string) =>
+    new Set(
+      events
+        .filter((event) => event.type === "step_complete" && event.stepId === stepId)
+        .map((event) => event.sessionId)
+    ).size;
+
+  let before = starts;
+
+  return steps.map((step) => {
+    const reached = reachedBy(step.id);
+    const row: DropOffRow = {
+      id: step.id,
+      label: step.title,
+      reached,
+      share: starts === 0 ? 0 : Math.round((reached / starts) * 100),
+      // Never negative: a question can't gain people. Optional questions and
+      // rule-hidden ones can legitimately be reached by fewer than the one
+      // before, but not by more.
+      lost: Math.max(0, before - reached),
+    };
+    before = reached;
+    return row;
+  });
+}
