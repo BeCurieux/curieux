@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { interactionLimit, ORDERED_PLANS, widgetLimit } from "@/lib/plans";
+import { interactionLimit, nextPlanUp, ORDERED_PLANS, widgetLimit } from "@/lib/plans";
 
 const countInteractionsThisMonth = vi.fn<(ownerId: string) => Promise<number>>();
 
@@ -49,6 +49,31 @@ describe("the monthly interaction limit", () => {
     await expect(isOverInteractionLimit("u_1", "free")).resolves.toBe(true);
     await expect(isOverInteractionLimit("u_1", "pro")).resolves.toBe(false);
     await expect(isOverInteractionLimit("u_1", "business")).resolves.toBe(false);
+  });
+});
+
+/**
+ * What a paused account is offered depends entirely on this: UpgradeAction
+ * branches on whether there is a plan above yours, and offers a checkout (or
+ * an email) only when there is. Get it wrong at the top and the largest plan
+ * is sold an upgrade that doesn't exist.
+ */
+describe("whether there is anywhere to upgrade to", () => {
+  it("points each plan at the next one up", () => {
+    expect(nextPlanUp("free")?.id).toBe("pro");
+    expect(nextPlanUp("pro")?.id).toBe("business");
+  });
+
+  it("returns nothing for the largest plan, so it isn't sold to itself", () => {
+    const largest = ORDERED_PLANS[ORDERED_PLANS.length - 1];
+    expect(nextPlanUp(largest.id)).toBeNull();
+  });
+
+  it("never points at a plan that costs the same or less", () => {
+    for (const plan of ORDERED_PLANS) {
+      const next = nextPlanUp(plan.id);
+      if (next) expect(next.price, `${plan.id} → ${next.id}`).toBeGreaterThan(plan.price);
+    }
   });
 });
 

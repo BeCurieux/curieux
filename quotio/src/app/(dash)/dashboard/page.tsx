@@ -89,9 +89,22 @@ export default async function DashboardPage() {
                 </span>
               ) : null}
             </p>
-            <Link href="/pricing" className="text-sm font-semibold text-purple hover:underline">
-              See plans →
-            </Link>
+            {/* Paused, this points at the control rather than the sales page:
+                the thing that actually restarts your widgets lives in
+                settings. Under the limit there is nothing to do, so it stays
+                the ordinary comparison link. */}
+            {used >= limit ? (
+              <Link
+                href="/dashboard/settings"
+                className="btn py-2 text-sm"
+              >
+                Bring them back
+              </Link>
+            ) : (
+              <Link href="/pricing" className="text-sm font-semibold text-purple hover:underline">
+                See plans →
+              </Link>
+            )}
           </div>
         </>
       )}

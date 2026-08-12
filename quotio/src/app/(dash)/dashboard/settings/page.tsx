@@ -5,6 +5,7 @@ import { currentUser, isRegistered } from "@/lib/auth/session";
 import { getStore } from "@/lib/db/store";
 import { interactionLimit, ORDERED_PLANS, PLANS, widgetLimit } from "@/lib/plans";
 import { billingEnabled } from "@/lib/billing/stripe";
+import { UpgradeAction } from "@/components/dashboard/UpgradeAction";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ export default async function SettingsPage() {
   const plan = PLANS[user?.plan ?? "free"];
   const widgets = user ? await store.countWidgets(user.id) : 0;
   const interactions = user ? await store.countInteractionsThisMonth(user.id) : 0;
+  const paused = interactions >= interactionLimit(plan.id);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -63,13 +65,17 @@ export default async function SettingsPage() {
 
         {/* The limit does something, so it has to say what — and it has to say
             it here, where the bar that fills up lives. */}
-        {interactions >= interactionLimit(plan.id) ? (
-          <p className="mt-4 rounded-card border border-coral/40 bg-coral-soft p-4 text-sm leading-relaxed text-navy">
-            <strong className="font-bold">Your widgets are paused.</strong> They&rsquo;ve had every
-            interaction your plan allows this month, so visitors see a short notice instead. They
-            start working again on {monthResets()} — nothing is lost in the meantime, and your
-            analytics and enquiries are all still here.
-          </p>
+        {paused ? (
+          <div className="mt-4 rounded-card border border-coral/40 bg-coral-soft p-4">
+            <p className="text-sm leading-relaxed text-navy">
+              <strong className="font-bold">Your widgets are paused.</strong> They&rsquo;ve had
+              every interaction your plan allows this month, so visitors see a short notice
+              instead. They start working again on {monthResets()} — nothing is lost in the
+              meantime, and your analytics and enquiries are all still here.
+            </p>
+            {/* Waiting until the 1st shouldn't be the only way out. */}
+            <UpgradeAction plan={plan.id} />
+          </div>
         ) : (
           <p className="mt-4 text-xs leading-relaxed text-muted">
             Past {interactionLimit(plan.id).toLocaleString()} interactions your published widgets
@@ -77,6 +83,11 @@ export default async function SettingsPage() {
           </p>
         )}
 
+        {/* Not rendered while paused — the banner above is already offering
+            the same move, and saying it twice on one card reads as a bug.
+            Left out of the tree rather than hidden with a class, so it isn't
+            there for a screen reader to read out either. */}
+        {paused ? null : (
         <div className="mt-6 border-t border-rule pt-5">
           {billingEnabled() ? (
             <div className="flex flex-wrap gap-2">
@@ -102,6 +113,7 @@ export default async function SettingsPage() {
             </p>
           )}
         </div>
+        )}
       </section>
 
       <section className="card mt-4 p-6">
