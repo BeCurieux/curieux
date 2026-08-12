@@ -55,6 +55,7 @@ function reportPreflight(storeUrls: string[]): boolean {
     storeUrls,
     aiProvider: process.env.AI_PROVIDER,
     anthropicKey: process.env.ANTHROPIC_API_KEY,
+    chromiumPath: process.env.CHROMIUM_PATH,
   });
 
   for (const warning of result.warnings) process.stderr.write(`  ! ${warning}\n\n`);

@@ -20,6 +20,8 @@ export interface PreflightInput {
   storeUrls: string[];
   aiProvider?: string | undefined;
   anthropicKey?: string | undefined;
+  /** `CHROMIUM_PATH`. Absent means the ingester's last rung is switched off. */
+  chromiumPath?: string | undefined;
 }
 
 export interface Preflight {
@@ -31,9 +33,21 @@ export interface Preflight {
 /** A store URL that is obviously not a real merchant's. */
 const NOT_A_MERCHANT = /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|.*\.local)(:\d+)?(\/|$)/i;
 
-export function preflight({ storeUrls, aiProvider, anthropicKey }: PreflightInput): Preflight {
+export function preflight({ storeUrls, aiProvider, anthropicKey, chromiumPath }: PreflightInput): Preflight {
   const blockers: string[] = [];
   const warnings: string[] = [];
+
+  // Warned rather than blocked: a batch of stores with open feeds never needs
+  // the rung, and refusing to run without a browser would be refusing over a
+  // dependency most of the list does not have. But an unset variable is a
+  // *silent* skip — the trace says "no browser available" and the store comes
+  // back thin — so the one place it must not be silent is the preflight of a
+  // thirty-merchant run nobody wants to repeat.
+  if (!chromiumPath) {
+    warnings.push(
+      "CHROMIUM_PATH is not set, so the ingester's last rung is off. Any merchant whose /products.json is closed will be ingested from whatever the earlier rungs found, and the trace will say `no browser available` rather than failing. Run `pnpm browser:check` if that rung is meant to be on.",
+    );
+  }
 
   if (aiProvider !== "anthropic") {
     blockers.push(

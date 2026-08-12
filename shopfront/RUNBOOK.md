@@ -17,7 +17,27 @@ export AI_PROVIDER=anthropic          # the deterministic default does not merch
 export SUPABASE_URL=https://PROJECT.supabase.co
 export SUPABASE_SERVICE_ROLE_KEY=...  # server-only
 export PUBLIC_ORIGIN=https://popuup.com
+
+# The ingester's last rung. Decided: on.
+pnpm exec playwright install chromium
+export CHROMIUM_PATH="$(node -p "require('playwright-core').chromium.executablePath()")"
+pnpm browser:check                    # launches it — do not skip this
 ```
+
+`CHROMIUM_PATH` is the one variable here that fails quietly in **two**
+directions, which is why it gets a check of its own rather than a line in a
+list. Unset, the ladder's last rung is skipped and the trace reads `no browser
+available`: a store with a closed `/products.json` comes back thin and nothing
+says why. Set to a path that is not there, the renderer builds anyway — the
+code tests the variable, not the file — and every store fails at launch, one
+line deep in a diagnostics trace nobody reads until the batch is over.
+
+And the path can look right and be wrong. `playwright-core` reports the browser
+build *its own version* expects, which is not necessarily the build on disk;
+resolving without installing first gives a confident-looking path to nothing.
+`pnpm browser:check` resolves, checks the file is there, launches it, and reads
+a page whose only product link is written by a script after a tick — the same
+thing the rung does on a real storefront. It exits non-zero on anything less.
 
 `SUPABASE_SERVICE_ROLE_KEY` bypasses row-level security. It must never be given
 a `NEXT_PUBLIC_` prefix, never reach a browser bundle, and never be the key a
@@ -125,17 +145,13 @@ What to read in the output, in order of how badly it matters:
   Playwright is a store whose `/products.json` is closed, and that is worth
   knowing before thirty of them.
 
-  **Decide about `CHROMIUM_PATH` before the first run, not after.** The
-  Playwright rung resolves its browser *only* from `CHROMIUM_PATH` — it does
-  not fall back to the browser `playwright install` leaves on disk. Unset, the
-  ladder's last rung is off and the trace says `no browser available` rather
-  than failing, so a store that needed it comes back thin and nothing draws
-  attention to why. `tests/visual/renderer.test.ts` asserts that behaviour
-  deliberately, so it is a decision rather than a surprise: either export
-  `CHROMIUM_PATH` for the run, or accept that a closed-feed store is out of
-  scope for this batch. The rung itself works — that suite drives a real
-  Chromium against a storefront whose catalogue only appears after JavaScript
-  runs.
+  The Playwright rung is **on** for these runs — see §0. If the trace says
+  `no browser available` on any store, `CHROMIUM_PATH` did not survive into
+  that shell; stop and re-run `pnpm browser:check` rather than reading the
+  thin catalogue that follows as the store's own fault. The rung resolves
+  from `CHROMIUM_PATH` and nothing else, which
+  `tests/visual/renderer.test.ts` asserts deliberately, so an unset variable
+  is a silent skip rather than an error.
 - **`genome`** — spot-check five products against what the merchant actually
   sells. This is a model inference over marketing copy and it will sometimes be
   confidently wrong. It never reaches a page, so a wrong reading degrades the
