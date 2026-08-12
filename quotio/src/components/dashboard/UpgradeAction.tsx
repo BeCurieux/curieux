@@ -14,8 +14,8 @@
 
 import Link from "next/link";
 import { brand } from "@/config/brand";
-import { billingEnabled } from "@/lib/billing/stripe";
-import { nextPlanUp, PLANS, type PlanId } from "@/lib/plans";
+import { billingEnabled, periodsFor } from "@/lib/billing/stripe";
+import { cadenceLabel, nextPlanUp, PLANS, priceFor, type PlanId } from "@/lib/plans";
 
 export function UpgradeAction({ plan }: { plan: PlanId }) {
   const current = PLANS[plan];
@@ -35,15 +35,24 @@ export function UpgradeAction({ plan }: { plan: PlanId }) {
     );
   }
 
-  if (billingEnabled()) {
+  // Only the periods this deployment can actually charge for. A monthly
+  // button with no monthly price id behind it is a button that goes nowhere.
+  const periods = billingEnabled() ? periodsFor(next.id) : [];
+
+  if (periods.length > 0) {
     return (
       <div className="mt-4">
-        <form action="/api/billing/checkout" method="post">
-          <input type="hidden" name="plan" value={next.id} />
-          <button type="submit" className="btn">
-            Move to {next.name} — ${next.price}/yr
-          </button>
-        </form>
+        <div className="flex flex-wrap gap-2">
+          {periods.map((period, index) => (
+            <form key={period} action="/api/billing/checkout" method="post">
+              <input type="hidden" name="plan" value={next.id} />
+              <input type="hidden" name="period" value={period} />
+              <button type="submit" className={index === 0 ? "btn" : "btn-secondary"}>
+                {next.name} — ${priceFor(next, period)} {cadenceLabel(next, period)}
+              </button>
+            </form>
+          ))}
+        </div>
         <p className="mt-2 text-xs text-muted">
           {next.limits.interactions.toLocaleString()} interactions a month. Your widgets start
           working again as soon as the payment goes through — there&rsquo;s nothing to re-publish.

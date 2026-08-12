@@ -3,8 +3,15 @@ import type { Metadata } from "next";
 import { brand } from "@/config/brand";
 import { currentUser, isRegistered } from "@/lib/auth/session";
 import { getStore } from "@/lib/db/store";
-import { interactionLimit, ORDERED_PLANS, PLANS, widgetLimit } from "@/lib/plans";
-import { billingEnabled } from "@/lib/billing/stripe";
+import {
+  cadenceLabel,
+  interactionLimit,
+  ORDERED_PLANS,
+  PLANS,
+  priceFor,
+  widgetLimit,
+} from "@/lib/plans";
+import { billingEnabled, periodsFor } from "@/lib/billing/stripe";
 import { UpgradeAction } from "@/components/dashboard/UpgradeAction";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -91,15 +98,22 @@ export default async function SettingsPage() {
         <div className="mt-6 border-t border-rule pt-5">
           {billingEnabled() ? (
             <div className="flex flex-wrap gap-2">
-              {ORDERED_PLANS.filter((option) => option.id !== plan.id && option.price > 0).map(
-                (option) => (
-                  <form key={option.id} action="/api/billing/checkout" method="post">
+              {ORDERED_PLANS.filter(
+                (option) => option.id !== plan.id && option.priceYearly > 0
+              ).flatMap((option) =>
+                periodsFor(option.id).map((period) => (
+                  <form
+                    key={`${option.id}-${period}`}
+                    action="/api/billing/checkout"
+                    method="post"
+                  >
                     <input type="hidden" name="plan" value={option.id} />
+                    <input type="hidden" name="period" value={period} />
                     <button type="submit" className="btn-secondary">
-                      Switch to {option.name} — ${option.price}/yr
+                      {option.name} — ${priceFor(option, period)} {cadenceLabel(option, period)}
                     </button>
                   </form>
-                )
+                ))
               )}
             </div>
           ) : (

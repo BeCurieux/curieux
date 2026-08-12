@@ -4,7 +4,14 @@ import { SiteFooter, SiteHeader } from "@/components/site/Chrome";
 import { CheckIcon } from "@/components/ui/Icons";
 import { brand } from "@/config/brand";
 import { currentUser, isRegistered } from "@/lib/auth/session";
-import { ORDERED_PLANS } from "@/lib/plans";
+import {
+  cadenceLabel,
+  isBillingPeriod,
+  ORDERED_PLANS,
+  priceLabel,
+  yearlySaving,
+  type BillingPeriod,
+} from "@/lib/plans";
 import { billingEnabled } from "@/lib/billing/stripe";
 
 export const metadata: Metadata = {
@@ -12,9 +19,20 @@ export const metadata: Metadata = {
   description: "Free to build and publish. Pay when it's earning you something.",
 };
 
-export default async function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: { billing?: string };
+}) {
   const user = await currentUser();
   const paid = billingEnabled();
+
+  // The period lives in the URL rather than in client state: it survives a
+  // reload, it can be linked to ("here, look at the monthly prices"), and the
+  // toggle keeps working with JavaScript off, like the checkout form below it.
+  const period: BillingPeriod = isBillingPeriod(searchParams.billing)
+    ? searchParams.billing
+    : "yearly";
 
   return (
     <>
@@ -30,7 +48,9 @@ export default async function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-4 lg:grid-cols-3">
+        <PeriodToggle period={period} />
+
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {ORDERED_PLANS.map((plan) => {
             const featured = plan.id === "pro";
             return (
@@ -53,9 +73,20 @@ export default async function PricingPage() {
 
                 <p className="mt-6 flex items-baseline gap-1.5">
                   <span className="text-4xl font-bold tracking-tight">
-                    {plan.price === 0 ? "Free" : `$${plan.price}`}
+                    {priceLabel(plan, period)}
                   </span>
-                  <span className="text-sm text-muted">{plan.cadence}</span>
+                  <span className="text-sm text-muted">{cadenceLabel(plan, period)}</span>
+                </p>
+
+                {/* The saving is the gap between the two real prices, so it
+                    can't outlive them — and it only appears on the option it
+                    is a saving against. */}
+                <p className="mt-1 min-h-[1.25rem] text-xs font-semibold text-purple">
+                  {plan.priceYearly > 0 && yearlySaving(plan) > 0
+                    ? period === "yearly"
+                      ? `Saves $${yearlySaving(plan)} against monthly`
+                      : `$${plan.priceYearly} a year saves $${yearlySaving(plan)}`
+                    : ""}
                 </p>
 
                 <ul className="mt-6 flex-1 space-y-2.5">
@@ -84,7 +115,7 @@ export default async function PricingPage() {
                     </Link>
                   ) : (
                     <Link
-                      href={`/dashboard/settings?upgrade=${plan.id}`}
+                      href={`/dashboard/settings?upgrade=${plan.id}&billing=${period}`}
                       className={featured ? "btn w-full" : "btn-secondary w-full"}
                     >
                       Choose {plan.name}
@@ -95,10 +126,10 @@ export default async function PricingPage() {
                       two, so the buttons sit level across all three however
                       the notes wrap. */}
                   <p className="mt-2.5 min-h-[2.25rem] text-center text-xs leading-relaxed text-muted">
-                    {plan.price === 0 ? (
+                    {plan.priceYearly === 0 ? (
                       "No card needed. Nothing expires."
                     ) : paid ? (
-                      "Cancel any time."
+                      period === "monthly" ? "Cancel any time." : "Cancel any time. Renews yearly."
                     ) : (
                       <>
                         Card payments aren&rsquo;t on yet —{" "}
@@ -131,6 +162,10 @@ export default async function PricingPage() {
                 a: "Your published widgets pause for the rest of the month and visitors see a short notice — your builder, drafts, analytics and enquiries all carry on as normal. They come back on the 1st, or the moment you move up a plan.",
               },
               {
+                q: "Can I switch between monthly and yearly?",
+                a: "Yes, whenever you like — email us and we'll move you across at your next renewal. Your widgets, analytics and enquiries are untouched either way.",
+              },
+              {
                 q: "Can I use it on more than one site?",
                 a: "Yes. A widget is a link and a snippet — put it wherever you like.",
               },
@@ -150,5 +185,46 @@ export default async function PricingPage() {
 
       <SiteFooter />
     </>
+  );
+}
+
+/**
+ * Yearly / monthly, as two links rather than a control.
+ *
+ * Links because the choice belongs in the URL — it survives a reload, it can
+ * be sent to someone, and it needs no JavaScript, which matches the checkout
+ * form it eventually leads to.
+ */
+function PeriodToggle({ period }: { period: BillingPeriod }) {
+  const options: Array<{ id: BillingPeriod; label: string }> = [
+    { id: "yearly", label: "Pay yearly" },
+    { id: "monthly", label: "Pay monthly" },
+  ];
+
+  return (
+    <div className="mt-8 flex justify-center">
+      <div
+        className="inline-flex gap-1 rounded-full border border-rule bg-white p-1"
+        role="group"
+        aria-label="Billing period"
+      >
+        {options.map((option) => {
+          const active = option.id === period;
+          return (
+            <Link
+              key={option.id}
+              href={option.id === "yearly" ? "/pricing" : `/pricing?billing=${option.id}`}
+              scroll={false}
+              aria-current={active ? "true" : undefined}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                active ? "bg-navy text-white" : "text-slate hover:text-navy"
+              }`}
+            >
+              {option.label}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }

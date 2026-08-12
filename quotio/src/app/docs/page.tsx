@@ -184,6 +184,19 @@ export default async function DocsPage() {
             the tab closes — it exists so we can tell one person answering five questions from five
             people answering one.
           </p>
+
+          {/* Counting has a consequence, and this is the page about counting.
+              Kept in step with widgets/service.ts:isOverInteractionLimit and
+              with the same question on the pricing page. */}
+          <h3 className="mt-8 font-bold">When you&rsquo;ve been counted enough</h3>
+          <p className="mt-2 leading-relaxed text-slate">
+            One of those seven is the one your plan meters:{" "}
+            <code className="font-mono text-xs">widget_start</code>, someone answering at least one
+            question. Views are free. Past your monthly allowance your published widgets pause and
+            visitors see a short notice instead — your builder, your drafts, your analytics and
+            every enquiry you&rsquo;ve already collected carry on untouched. They come back on the
+            1st, or the moment you move up a plan. Your dashboard shows the count as it fills.
+          </p>
         </section>
 
         <div className="mt-14 rounded-panel border border-rule bg-lavender p-6 text-center">

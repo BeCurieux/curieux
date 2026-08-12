@@ -1,5 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { interactionLimit, nextPlanUp, ORDERED_PLANS, widgetLimit } from "@/lib/plans";
+import {
+  BILLING_PERIODS,
+  cadenceLabel,
+  interactionLimit,
+  isBillingPeriod,
+  nextPlanUp,
+  ORDERED_PLANS,
+  priceFor,
+  priceLabel,
+  widgetLimit,
+  yearlySaving,
+} from "@/lib/plans";
 
 const countInteractionsThisMonth = vi.fn<(ownerId: string) => Promise<number>>();
 
@@ -72,7 +83,8 @@ describe("whether there is anywhere to upgrade to", () => {
   it("never points at a plan that costs the same or less", () => {
     for (const plan of ORDERED_PLANS) {
       const next = nextPlanUp(plan.id);
-      if (next) expect(next.price, `${plan.id} → ${next.id}`).toBeGreaterThan(plan.price);
+      if (next)
+        expect(next.priceYearly, `${plan.id} → ${next.id}`).toBeGreaterThan(plan.priceYearly);
     }
   });
 });
@@ -121,13 +133,87 @@ describe("the published limits", () => {
   it("only ever go up as you pay more", () => {
     // A plan that cost more but allowed less would be a pricing page that
     // lies, and the pricing page is generated from exactly these numbers.
-    const paid = [...ORDERED_PLANS].sort((a, b) => a.price - b.price);
+    const paid = [...ORDERED_PLANS].sort((a, b) => a.priceYearly - b.priceYearly);
     for (let index = 1; index < paid.length; index += 1) {
       const [previous, current] = [paid[index - 1], paid[index]];
       expect(widgetLimit(current.id), current.id).toBeGreaterThan(widgetLimit(previous.id));
       expect(interactionLimit(current.id), current.id).toBeGreaterThan(
         interactionLimit(previous.id)
       );
+    }
+  });
+});
+
+/**
+ * Two prices per plan instead of one is two chances to disagree with each
+ * other, and the pricing page prints a saving calculated from both. These
+ * pin the relationship rather than the numbers, so the prices stay a
+ * business decision while the arithmetic stays honest.
+ */
+describe("monthly and yearly", () => {
+  const paidPlans = ORDERED_PLANS.filter((plan) => plan.priceYearly > 0);
+
+  it("has both prices on every paid plan", () => {
+    expect(paidPlans.length).toBeGreaterThan(0);
+    for (const plan of paidPlans) {
+      expect(plan.priceMonthly, plan.id).toBeGreaterThan(0);
+      expect(plan.priceYearly, plan.id).toBeGreaterThan(0);
+    }
+  });
+
+  it("makes paying yearly genuinely cheaper, or there is nothing to advertise", () => {
+    for (const plan of paidPlans) {
+      expect(plan.priceYearly, `${plan.id} yearly should beat 12 months`).toBeLessThan(
+        plan.priceMonthly * 12
+      );
+      expect(yearlySaving(plan), plan.id).toBeGreaterThan(0);
+    }
+  });
+
+  it("states a saving that is exactly the gap between the two prices", () => {
+    for (const plan of paidPlans) {
+      expect(yearlySaving(plan)).toBe(plan.priceMonthly * 12 - plan.priceYearly);
+    }
+  });
+
+  it("keeps free free in both periods, and never calls it a saving", () => {
+    const free = ORDERED_PLANS.find((plan) => plan.priceYearly === 0)!;
+    for (const period of BILLING_PERIODS) {
+      expect(priceFor(free, period)).toBe(0);
+      expect(priceLabel(free, period)).toBe("Free");
+      expect(cadenceLabel(free, period)).toBe("forever");
+    }
+    expect(yearlySaving(free)).toBe(0);
+  });
+
+  it("labels each period with the interval actually being bought", () => {
+    for (const plan of paidPlans) {
+      expect(cadenceLabel(plan, "monthly")).toBe("per month");
+      expect(cadenceLabel(plan, "yearly")).toBe("per year");
+      expect(priceLabel(plan, "monthly")).toBe(`$${plan.priceMonthly}`);
+      expect(priceLabel(plan, "yearly")).toBe(`$${plan.priceYearly}`);
+    }
+  });
+
+  it("accepts only the two real periods from a URL or a form field", () => {
+    // The pricing page reads ?billing= and the checkout route reads a form
+    // field; both are attacker-controlled strings.
+    expect(isBillingPeriod("monthly")).toBe(true);
+    expect(isBillingPeriod("yearly")).toBe(true);
+    for (const junk of ["", "weekly", "MONTHLY", "__proto__", null, undefined, 12, {}]) {
+      expect(isBillingPeriod(junk), String(junk)).toBe(false);
+    }
+  });
+
+  it("gives every paid plan a distinct Stripe price env per period", () => {
+    const seen = new Set<string>();
+    for (const plan of paidPlans) {
+      for (const key of [plan.stripePriceEnv, plan.stripePriceEnvMonthly]) {
+        // A shared env var would bill monthly customers the yearly price.
+        expect(key, plan.id).toBeTruthy();
+        expect(seen.has(key!), `${key} reused`).toBe(false);
+        seen.add(key!);
+      }
     }
   });
 });

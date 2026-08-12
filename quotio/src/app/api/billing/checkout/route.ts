@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 import { appUrl } from "@/config/brand";
 import { currentUser, isRegistered } from "@/lib/auth/session";
 import { billingEnabled, createCheckout } from "@/lib/billing/stripe";
-import { PLAN_IDS, type PlanId } from "@/lib/plans";
+import { isBillingPeriod, PLAN_IDS, type PlanId } from "@/lib/plans";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,10 +25,19 @@ export async function POST(request: Request) {
     return NextResponse.redirect(`${appUrl()}/pricing`, 303);
   }
 
+  // Anything unrecognised falls back to yearly, which is the pricing page's
+  // default and so what a request with no period at all meant. Nobody is
+  // charged the wrong amount by this: Stripe's own page states the price and
+  // the interval before the customer confirms, so a wrong guess here is a
+  // checkout they decline, not a payment they didn't agree to.
+  const raw = form.get("period");
+  const period = isBillingPeriod(raw) ? raw : "yearly";
+
   const url = await createCheckout({
     userId: user.id,
     email: user.email,
     plan: plan as PlanId,
+    period,
     successUrl: `${appUrl()}/dashboard/settings?upgraded=1`,
     cancelUrl: `${appUrl()}/pricing`,
   });
