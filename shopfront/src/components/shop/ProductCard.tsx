@@ -23,6 +23,11 @@ export interface CardContext {
   storeUrl?: string;
   /** A code from the merchant's own prompt, carried into the cart. */
   discount?: string;
+  /**
+   * How the name and price sit under the plate. Optional so a caller with no
+   * theme — a test, a fixture — gets the stacked default rather than a crash.
+   */
+  cardMeta?: "stacked" | "inline";
 }
 
 /**
@@ -115,7 +120,7 @@ export function ProductCard({
       {...(target.variantId ? { "data-fnl-variant": target.variantId } : {})}
     >
       <Plate product={product} sizes={sizes} {...(eager ? { eager } : {})} />
-      <div className="card-meta">
+      <div className="card-meta" data-layout={context.cardMeta ?? "stacked"}>
         <p className="card-title">{product.title}</p>
         {product.blurb && <p className="card-blurb">{product.blurb}</p>}
         <p className="card-price">

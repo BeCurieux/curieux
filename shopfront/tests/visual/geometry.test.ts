@@ -46,6 +46,18 @@ const MAX_HERO_SHARE = 0.85;
 /** Mood hero heights, shortest first. Ordering is the point, not the numbers. */
 const HERO_ORDER: Mood[] = ["utility", "clean", "playful", "editorial", "luxe"];
 
+/** Desktop columns per mood. Two is a gallery, four is a catalogue page. */
+const GRID_COLUMNS: Record<Mood, number> = {
+  utility: 4,
+  clean: 3,
+  playful: 3,
+  editorial: 3,
+  luxe: 2,
+};
+
+/** The moods that set their headline on the photograph rather than under it. */
+const OVERLAY_MOODS: Mood[] = ["editorial", "playful", "luxe"];
+
 /** WCAG AA for body-sized text. */
 const MIN_CONTRAST = 4.5;
 
@@ -100,14 +112,38 @@ describeVisual("geometry", () => {
       }
     });
 
-    it.each(MOODS)("%s does not clip its hero copy", async (mood) => {
+    it.each(OVERLAY_MOODS)("%s does not clip its hero copy", async (mood) => {
       // The plate is `overflow: hidden`, so a hero that stops governing its own
       // height silently eats the tagline rather than failing loudly.
+      //
+      // Overlay moods only, and the exclusion is the point rather than an
+      // exemption: copy that sits under the plate is not inside the box doing
+      // the clipping, so asserting it fits would be asserting nothing. The
+      // test below checks those moods are actually outside it.
       const page = await open(harness, mood, viewport);
       try {
         const plate = await boxOf(page, ".hero-plate");
         const copy = await boxOf(page, ".hero-copy");
         expect(copy!.bottom).toBeLessThanOrEqual(plate!.bottom + 1);
+      } finally {
+        await page.close();
+      }
+    });
+
+    it.each(MOODS)("%s puts the hero copy where the mood asked for it", async (mood) => {
+      // Where the headline sits is the largest single difference between the
+      // moods above the fold, and it is one a screenshot comparison would call
+      // "looks different" without saying which way round.
+      const page = await open(harness, mood, viewport);
+      try {
+        const plate = (await boxOf(page, ".hero-plate"))!;
+        const copy = (await boxOf(page, ".hero-copy"))!;
+        if (OVERLAY_MOODS.includes(mood)) {
+          expect(copy.y, "copy should be on the photograph").toBeGreaterThanOrEqual(plate.y - 1);
+          expect(copy.bottom).toBeLessThanOrEqual(plate.bottom + 1);
+        } else {
+          expect(copy.y, "copy should start below the plate").toBeGreaterThanOrEqual(plate.bottom - 1);
+        }
       } finally {
         await page.close();
       }
@@ -150,13 +186,54 @@ describeVisual("geometry", () => {
       }
     });
 
-    it.each(MOODS)("%s lays the grid out in three columns", async (mood) => {
+    it.each(MOODS)("%s lays the grid out in the columns its mood asked for", async (mood) => {
+      // This used to assert three for everybody, which is how five moods ended
+      // up looking like one design with the type swapped. The count is the
+      // loudest thing a mood says on a desktop, so it is worth pinning per
+      // mood rather than asserting they all agree.
       const page = await open(harness, mood, viewport);
       try {
-        expect(await columnCount(page)).toBe(3);
+        expect(await columnCount(page)).toBe(GRID_COLUMNS[mood]);
       } finally {
         await page.close();
       }
+    });
+
+    it("does not lay every mood out the same way", async () => {
+      // The regression this guards is not a broken page — it is five pages that
+      // work and are indistinguishable. Measured rather than declared: the
+      // numbers below come out of a laid-out browser, so a token that stops
+      // reaching the CSS shows up here even though `render-theme.test.ts` would
+      // still be green.
+      const signatures = new Map<string, string>();
+      for (const mood of MOODS) {
+        const page = await open(harness, mood, viewport);
+        try {
+          signatures.set(mood, await layoutSignature(page));
+        } finally {
+          await page.close();
+        }
+      }
+
+      const seen = new Set(signatures.values());
+      expect(seen.size, [...signatures].map(([m, s]) => `${m}: ${s}`).join("\n")).toBe(MOODS.length);
+    });
+
+    it("gives exactly one mood level rows", async () => {
+      // A stagger of zero is a deliberate setting, and the kind that a later
+      // "tidy up the grid" edit removes without noticing. It is also the only
+      // way to tell whether `--grid-stagger` is being read at all: every other
+      // value looks like the default from ten feet away.
+      const level: string[] = [];
+      for (const mood of MOODS) {
+        const page = await open(harness, mood, viewport);
+        try {
+          if ((await rowOffsets(page)).every((offset) => offset === 0)) level.push(mood);
+        } finally {
+          await page.close();
+        }
+      }
+      expect(level).toEqual(["utility"]);
     });
   });
 
@@ -208,6 +285,33 @@ describeVisual("geometry", () => {
         }, MIN_TAP_TARGET);
 
         expect(small, small.join("; ")).toEqual([]);
+      } finally {
+        await page.close();
+      }
+    });
+
+    it("keeps the name and the price off each other in the list layout", async () => {
+      // The inline card meta puts a title and a price on one line inside a
+      // ~170px phone column, which is the narrowest place on the page where two
+      // things compete for width. The failure mode is not a crash: the title
+      // takes the space and the price is pushed out of, or on top of, it.
+      //
+      // Checked on every card rather than the first, because the widths that
+      // break this come from the merchant's own product names.
+      const page = await open(harness, "utility", PHONE);
+      try {
+        const collisions = await page.evaluate(() =>
+          [...document.querySelectorAll('.card-meta[data-layout="inline"]')]
+            .map((meta) => {
+              const title = meta.querySelector(".card-title")?.getBoundingClientRect();
+              const price = meta.querySelector(".card-price")?.getBoundingClientRect();
+              if (!title || !price) return null;
+              const overlaps = price.left < title.right - 1;
+              return overlaps ? `${meta.querySelector(".card-title")?.textContent} overlaps its price` : null;
+            })
+            .filter(Boolean),
+        );
+        expect(collisions, collisions.join("; ")).toEqual([]);
       } finally {
         await page.close();
       }
@@ -322,6 +426,65 @@ describeVisual("geometry", () => {
     });
   });
 });
+
+/**
+ * How far each column is dropped relative to the highest one, in the top row.
+ *
+ * One card per column, not the first N cards: with four columns the fifth card
+ * is the second row, and a grid with no stagger at all still reports two
+ * distinct tops. Comparing within the top row is the only way to ask "are the
+ * columns level" and get an answer about the stagger rather than about the row
+ * height.
+ *
+ * Rounded to whole pixels — the stagger is `calc()` over a spacing scale
+ * already rounded to a tenth, and sub-pixel noise would make "level" a coin
+ * toss.
+ */
+async function rowOffsets(page: Page): Promise<number[]> {
+  return page.evaluate(() => {
+    const cards = [...document.querySelectorAll(".grid > *")];
+    if (cards.length === 0) return [];
+
+    // First card at each distinct x, in column order.
+    const topOfColumn = new Map<number, number>();
+    for (const card of cards) {
+      const box = card.getBoundingClientRect();
+      const x = Math.round(box.x);
+      if (!topOfColumn.has(x)) topOfColumn.set(x, Math.round(box.top));
+    }
+
+    const columns = [...topOfColumn.entries()].sort((a, b) => a[0] - b[0]).map(([, top]) => top);
+    const highest = Math.min(...columns);
+    return columns.map((top) => top - highest);
+  });
+}
+
+/**
+ * What the page looks like, as a string, before anybody reads a word of it.
+ *
+ * Deliberately structural: column count, plate shape, row rhythm, where the
+ * headline sits, how the price sits under the plate. Type weight and tracking
+ * are left out precisely because they were the axes the moods already differed
+ * on while still looking like one design.
+ */
+async function layoutSignature(page: Page): Promise<string> {
+  const offsets = await rowOffsets(page);
+  return page.evaluate(
+    ({ offsets }) => {
+      const plate = document.querySelector(".grid .plate");
+      const ratio = plate
+        ? (plate.getBoundingClientRect().width / plate.getBoundingClientRect().height).toFixed(2)
+        : "none";
+      const columns = new Set([...document.querySelectorAll(".grid > *")].map((c) => Math.round(c.getBoundingClientRect().x))).size;
+      const heroPlate = document.querySelector(".hero-plate")?.getBoundingClientRect();
+      const heroCopy = document.querySelector(".hero-copy")?.getBoundingClientRect();
+      const copyPlacement = heroPlate && heroCopy ? (heroCopy.top >= heroPlate.bottom - 1 ? "under" : "overlay") : "none";
+      const meta = document.querySelector(".card-meta")?.getAttribute("data-layout") ?? "none";
+      return [`cols:${columns}`, `plate:${ratio}`, `rows:${offsets.join(",")}`, `copy:${copyPlacement}`, `meta:${meta}`].join(" ");
+    },
+    { offsets },
+  );
+}
 
 /** How many cards share the first row's top edge. */
 async function columnCount(page: Page): Promise<number> {

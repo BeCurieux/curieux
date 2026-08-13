@@ -88,6 +88,30 @@ export interface MoodShape {
   heroFullBleed: boolean;
   /** vh the hero occupies on a phone. */
   heroHeight: number;
+  /**
+   * Where the headline sits.
+   *
+   * `overlay` puts it on the photograph behind a scrim — the magazine cover.
+   * `under` puts it below the plate in the page's own ink, which is a different
+   * fold rather than a smaller one, and has a second benefit worth naming: a
+   * headline that is not on the photograph can never collide with the subject
+   * of one. Every scrim is a bet about what the merchant's picture looks like,
+   * and two of the five moods now decline to make it.
+   */
+  heroCopy: "overlay" | "under";
+  /** Columns the product grid uses on desktop. The phone is always two. */
+  gridColumns: number;
+  /**
+   * Multiplies the stagger that drops alternate columns.
+   *
+   * Zero is a real setting, not an absence: aligned rows are what a catalogue
+   * looks like, and utility is the mood that should look like one.
+   */
+  gridStagger: number;
+  /** Multiplies the gap between cards. Reinforces what the column count says. */
+  gridGap: number;
+  /** `inline` puts the price on the title's line, right-aligned, like a list. */
+  cardMeta: "stacked" | "inline";
   eyebrowCase: "uppercase" | "none";
   eyebrowTracking: string;
   eyebrowFont: "display" | "body" | "mono";
@@ -103,6 +127,11 @@ const MOOD = {
     plateRatio: "4 / 5",
     heroFullBleed: false,
     heroHeight: 58,
+    heroCopy: "under",
+    gridColumns: 3,
+    gridStagger: 0.45,
+    gridGap: 1,
+    cardMeta: "stacked",
     eyebrowCase: "uppercase",
     eyebrowTracking: "0.1em",
     eyebrowFont: "body",
@@ -115,6 +144,11 @@ const MOOD = {
     plateRatio: "4 / 5",
     heroFullBleed: true,
     heroHeight: 74,
+    heroCopy: "overlay",
+    gridColumns: 3,
+    gridStagger: 1,
+    gridGap: 1,
+    cardMeta: "stacked",
     eyebrowCase: "none",
     eyebrowTracking: "0.02em",
     eyebrowFont: "display",
@@ -127,6 +161,11 @@ const MOOD = {
     plateRatio: "1 / 1",
     heroFullBleed: true,
     heroHeight: 66,
+    heroCopy: "overlay",
+    gridColumns: 3,
+    gridStagger: 1.5,
+    gridGap: 1.15,
+    cardMeta: "stacked",
     eyebrowCase: "none",
     eyebrowTracking: "0",
     eyebrowFont: "display",
@@ -139,6 +178,11 @@ const MOOD = {
     plateRatio: "4 / 5",
     heroFullBleed: true,
     heroHeight: 82,
+    heroCopy: "overlay",
+    gridColumns: 2,
+    gridStagger: 0.7,
+    gridGap: 1.6,
+    cardMeta: "stacked",
     eyebrowCase: "uppercase",
     eyebrowTracking: "0.24em",
     eyebrowFont: "body",
@@ -151,6 +195,11 @@ const MOOD = {
     plateRatio: "1 / 1",
     heroFullBleed: false,
     heroHeight: 46,
+    heroCopy: "under",
+    gridColumns: 4,
+    gridStagger: 0,
+    gridGap: 0.62,
+    cardMeta: "inline",
     eyebrowCase: "uppercase",
     eyebrowTracking: "0.08em",
     eyebrowFont: "mono",
@@ -244,6 +293,10 @@ export function buildTheme(tokens: ThemeTokens): RenderTheme {
       "--plate-ratio": shape.plateRatio,
       "--hero-height": `${shape.heroHeight}svh`,
       "--rule": shape.ruleWeight,
+
+      "--grid-columns": String(shape.gridColumns),
+      "--grid-stagger": String(shape.gridStagger),
+      "--grid-gap": String(shape.gridGap),
 
       "--eyebrow-case": shape.eyebrowCase,
       "--eyebrow-tracking": shape.eyebrowTracking,

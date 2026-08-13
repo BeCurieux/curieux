@@ -364,6 +364,57 @@
   padding-inline: 0;
 }
 
+/*
+ * Copy under the plate rather than on it.
+ *
+ * A different fold, not a smaller one. The photograph gets to be a photograph
+ * with nothing written across it, and the headline gets the page's own ink at
+ * full contrast instead of white behind a scrim — which also means the mood
+ * never has to bet on where the subject of an unknown photograph happens to sit.
+ *
+ * The scrim goes with it. It exists to make white type readable and there is no
+ * white type left, so leaving it on would just be a gradient darkening the
+ * bottom third of every hero for no reason.
+ */
+.hero--under .hero-plate::before {
+  display: none;
+}
+
+.hero--under .hero-copy {
+  color: var(--text);
+  padding: var(--space-4) 0 0;
+}
+
+.hero--under .hero-copy h1 {
+  text-shadow: none;
+  /* On the page rather than over an image, the headline can hold a longer
+     measure before it stops reading as a headline. */
+  max-width: 18ch;
+}
+
+.hero--under .hero-copy .subline {
+  color: var(--text-soft);
+  opacity: 1;
+}
+
+.hero--under .hero-copy .eyebrow {
+  color: var(--text-faint);
+  opacity: 1;
+}
+
+/* The plate no longer has to leave room at its foot for words. */
+.hero--under .hero-plate {
+  align-items: stretch;
+}
+
+/* A bleeding plate with the copy outside it: the words return to the column
+   the rest of the page is set in. Nothing ships this combination today —
+   both `under` moods are plated — but the rule costs one line and the
+   alternative is a headline against the glass the first time one does. */
+.hero--under.hero--bleed .hero-copy {
+  padding-inline: var(--gutter);
+}
+
 .hero--nomedia .hero-plate {
   background: transparent;
   min-height: 0;
@@ -445,9 +496,11 @@
 
 .grid {
   display: grid;
+  /* Two on a phone whatever the mood asks for. `--grid-columns` is a desktop
+     instruction: four 90px cards is a contact sheet, not a shop. */
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: var(--space-3);
-  row-gap: var(--space-5);
+  column-gap: calc(var(--space-3) * var(--grid-gap, 1));
+  row-gap: calc(var(--space-5) * var(--grid-gap, 1));
 }
 
 /*
@@ -457,9 +510,14 @@
  * difference between a page that reads as edited and one that reads as a
  * database table with pictures. Off in the stack layout, where it would just
  * look like a mistake.
+ *
+ * Scaled by the mood rather than fixed. `--grid-stagger: 0` is a setting a mood
+ * is allowed to want: a database table with pictures is exactly what a parts
+ * catalogue should look like, and refusing to let any mood have it is how five
+ * moods end up with one rhythm.
  */
 .grid > :nth-child(even) {
-  margin-top: var(--space-6);
+  margin-top: calc(var(--space-6) * var(--grid-stagger, 1));
 }
 
 .stack {
@@ -499,6 +557,39 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/*
+ * The list treatment: name on the left, price hard right on the same baseline.
+ *
+ * Placed explicitly rather than left to auto-flow, because the blurb is
+ * optional and a full-width row in the middle of an auto-placed grid pushes the
+ * price onto a third line whenever it appears.
+ */
+.card-meta[data-layout="inline"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: var(--space-2);
+  row-gap: 2px;
+}
+
+.card-meta[data-layout="inline"] .card-title {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.card-meta[data-layout="inline"] .card-price {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 0;
+  text-align: right;
+}
+
+.card-meta[data-layout="inline"] .card-blurb {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 0;
 }
 
 .card-title {
@@ -846,17 +937,25 @@
     font-size: calc(2rem * var(--display-scale));
   }
 
+  /*
+   * The column count is the mood's, and it is the loudest thing a mood says on
+   * a desktop. Two 540px plates is a gallery; four 260px ones is a catalogue
+   * page; three is a magazine spread. Holding all five at three was the single
+   * biggest reason the moods read as one design with the type swapped.
+   */
   .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: var(--space-4);
+    grid-template-columns: repeat(var(--grid-columns, 3), minmax(0, 1fr));
+    column-gap: calc(var(--space-4) * var(--grid-gap, 1));
   }
 
-  /* The stagger climbs: nothing on a desktop grid should sit on one baseline. */
+  /* The stagger climbs: two offsets rather than one, so a row of three does not
+     read as a pair and a spare. Both scaled by the mood, so a mood that wants
+     level rows gets level rows. */
   .grid > :nth-child(even) {
-    margin-top: var(--space-6);
+    margin-top: calc(var(--space-6) * var(--grid-stagger, 1));
   }
   .grid > :nth-child(3n) {
-    margin-top: var(--space-4);
+    margin-top: calc(var(--space-4) * var(--grid-stagger, 1));
   }
 
   .carousel {
