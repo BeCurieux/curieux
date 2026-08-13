@@ -30,10 +30,43 @@ function check(name, condition, detail = "") {
   console.log(results.at(-1));
 }
 
+/** Recorded and printed, but counted as neither a pass nor a failure. */
+function note(name) {
+  results.push(`SKIP  ${name}`);
+  console.log(results.at(-1));
+}
+
 const shot = async (page, name) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
 };
+
+/**
+ * Does embed.js point at the server we're testing?
+ *
+ * embed.js bakes the deployment's own origin into the script it serves, from
+ * NEXT_PUBLIC_APP_URL (defaulting to localhost:3000), so that a snippet copied
+ * out of the Publish screen works wherever it came from. The consequence for
+ * this suite: run the server on any other port and the iframe embed.js builds
+ * points somewhere with nothing on it. Nothing posts a height back, the height
+ * check below sees the untouched 560px fallback, and it reports the embed as
+ * broken — which reads like a product defect and isn't one.
+ *
+ * So establish it up front and say the actionable thing. Checked rather than
+ * corrected, because the mismatch means the snippet on the Publish screen is
+ * also wrong for this deployment, and that is worth knowing.
+ */
+const embedSource = await fetch(`${BASE}/embed.js`).then((response) => response.text());
+const embedOrigin = embedSource.match(/var ORIGIN = "([^"]*)"/)?.[1] ?? null;
+const originMatches = embedOrigin === BASE;
+check(
+  "embed.js is built for the server under test",
+  originMatches,
+  originMatches
+    ? embedOrigin
+    : `embed.js targets ${embedOrigin ?? "an origin we couldn't parse"}, but this run is against ` +
+      `${BASE}. Rebuild with NEXT_PUBLIC_APP_URL=${BASE}, or point BASE at ${embedOrigin}.`
+);
 
 const browser = await chromium.launch({ executablePath: EXECUTABLE });
 const context = await browser.newContext({ viewport: { width: 1440, height: 950 } });
@@ -196,7 +229,34 @@ try {
   await hostPage.waitForTimeout(2500);
   const frameHeight = await hostPage.locator("iframe").evaluate((node) => node.style.height);
   check("embed script mounts an iframe", (await hostPage.locator("iframe").count()) === 1);
-  check("iframe reports its own height", frameHeight && frameHeight !== "560px", frameHeight);
+
+  // "It resized" means "it is no longer the height embed.js first guessed",
+  // so read that guess out of embed.js rather than restating it here — a
+  // hard-coded 560 would quietly stop testing anything the day the fallback
+  // changed, and the check would pass for the wrong reason.
+  const fallbackMatch = embedSource.match(/data-height"\)\s*\|\|\s*"(\d+)"/);
+  const fallbackHeight = fallbackMatch ? `${fallbackMatch[1]}px` : null;
+  if (originMatches && !fallbackHeight) {
+    // Guarded, because the lazy version of this line interpolates the failed
+    // match straight in, compares the height against "undefinedpx", and passes
+    // no matter what the iframe did.
+    check(
+      "iframe reports its own height",
+      false,
+      "couldn't read embed.js's starting height, so this check would pass vacuously"
+    );
+  } else if (originMatches) {
+    check(
+      "iframe reports its own height",
+      frameHeight && frameHeight !== fallbackHeight,
+      `${frameHeight} (embed.js starts at ${fallbackHeight})`
+    );
+  } else {
+    // Already reported above as a configuration failure. Saying it twice, once
+    // as "the embed is broken", would send the next person hunting a bug that
+    // isn't there — which is exactly what this whole change is about.
+    note(`iframe reports its own height — not measured, embed.js targets ${embedOrigin}`);
+  }
   await shot(hostPage, "10-embedded");
 
   /* ---- Analytics recorded the visit (§25, §26) -------------------- */
