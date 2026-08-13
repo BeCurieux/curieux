@@ -123,11 +123,27 @@
   line-height: 1.2;
 }
 
+/*
+ * The section heading, and the first place the brand's colour is allowed to do
+ * something.
+ *
+ * The padding and the negative margins cancel exactly, so a mood that turns the
+ * band on and one that leaves it transparent lay out identically — the heading,
+ * the rule and the count sit in the same place either way, and only the ground
+ * behind them changes. Without that the band would be a layout switch wearing a
+ * colour's clothes, and the "one text column" invariant would fail on whichever
+ * mood asked for it.
+ */
 .section-head {
   display: flex;
   align-items: baseline;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  margin-inline: calc(var(--space-3) * -1);
+  margin-top: calc(var(--space-2) * -1);
+  margin-bottom: calc(var(--space-4) - var(--space-2));
+  background: var(--section-band);
+  border-radius: var(--radius-plate);
 }
 
 .section-head h2 {
@@ -152,7 +168,7 @@
 .section-head .rule {
   flex: 1 1 auto;
   height: 0;
-  border-top: var(--rule) solid var(--line);
+  border-top: var(--rule) solid var(--rule-colour);
   transform: translateY(-0.28em);
 }
 
@@ -162,7 +178,7 @@
   font-size: 0.68rem;
   text-transform: var(--eyebrow-case);
   letter-spacing: var(--eyebrow-tracking);
-  color: var(--text-faint);
+  color: var(--count-colour);
   font-variant-numeric: tabular-nums;
 }
 
@@ -617,6 +633,14 @@
   color: var(--text);
   margin-top: 4px;
   font-variant-numeric: tabular-nums;
+}
+
+/* A reduced price is the one number on the page that is allowed to shout, and
+   `--sale-colour` decides whether it does. It resolves to the page's ink for
+   the quiet moods, so this is a no-op there rather than a second rule to keep
+   in sync. */
+.card-price--sale {
+  color: var(--sale-colour);
 }
 
 .card-price del {

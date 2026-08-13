@@ -112,6 +112,24 @@ export interface MoodShape {
   gridGap: number;
   /** `inline` puts the price on the title's line, right-aligned, like a list. */
   cardMeta: "stacked" | "inline";
+  /**
+   * How far the brand's accent reaches.
+   *
+   * A mood cannot choose a merchant's colour — that comes from their own
+   * brand, and a shop that turned green because the model picked "playful"
+   * would be the wrong kind of surprise. What a mood can decide is how boldly
+   * the colour the merchant already owns gets used, and until now the answer
+   * was the same for all five: a 15px sparkle and the badge. The palette was
+   * doing no work.
+   *
+   * Four surfaces, chosen because each one is somewhere the eye already goes.
+   */
+  ruleTone: "line" | "accent";
+  /** A wash of the accent behind the section heading. */
+  sectionBand: boolean;
+  countTone: "faint" | "accent";
+  /** Whether a reduced price is set in the brand's colour or the page's ink. */
+  salePriceTone: "text" | "accent";
   eyebrowCase: "uppercase" | "none";
   eyebrowTracking: string;
   eyebrowFont: "display" | "body" | "mono";
@@ -132,6 +150,10 @@ const MOOD = {
     gridStagger: 0.45,
     gridGap: 1,
     cardMeta: "stacked",
+    ruleTone: "accent",
+    sectionBand: false,
+    countTone: "faint",
+    salePriceTone: "text",
     eyebrowCase: "uppercase",
     eyebrowTracking: "0.1em",
     eyebrowFont: "body",
@@ -149,6 +171,10 @@ const MOOD = {
     gridStagger: 1,
     gridGap: 1,
     cardMeta: "stacked",
+    ruleTone: "line",
+    sectionBand: false,
+    countTone: "accent",
+    salePriceTone: "text",
     eyebrowCase: "none",
     eyebrowTracking: "0.02em",
     eyebrowFont: "display",
@@ -166,6 +192,10 @@ const MOOD = {
     gridStagger: 1.5,
     gridGap: 1.15,
     cardMeta: "stacked",
+    ruleTone: "line",
+    sectionBand: true,
+    countTone: "accent",
+    salePriceTone: "accent",
     eyebrowCase: "none",
     eyebrowTracking: "0",
     eyebrowFont: "display",
@@ -183,6 +213,10 @@ const MOOD = {
     gridStagger: 0.7,
     gridGap: 1.6,
     cardMeta: "stacked",
+    ruleTone: "line",
+    sectionBand: false,
+    countTone: "faint",
+    salePriceTone: "text",
     eyebrowCase: "uppercase",
     eyebrowTracking: "0.24em",
     eyebrowFont: "body",
@@ -200,6 +234,10 @@ const MOOD = {
     gridStagger: 0,
     gridGap: 0.62,
     cardMeta: "inline",
+    ruleTone: "accent",
+    sectionBand: false,
+    countTone: "accent",
+    salePriceTone: "accent",
     eyebrowCase: "uppercase",
     eyebrowTracking: "0.08em",
     eyebrowFont: "mono",
@@ -233,6 +271,9 @@ export function buildTheme(tokens: ThemeTokens): RenderTheme {
   const accent = parseColour(tokens.colorway.accent) ?? text;
   const dark = contrastRatio(bg, { r: 255, g: 255, b: 255 }) > contrastRatio(bg, { r: 0, g: 0, b: 0 });
   const accentSoft = mix(accent, bg, 0.8);
+  // The accent, made safe to set words in. Same walk as `--accent-ink`, against
+  // the page ground rather than the soft pill.
+  const accentText = readableInk(accent, bg, text);
 
   return {
     dark,
@@ -297,6 +338,17 @@ export function buildTheme(tokens: ThemeTokens): RenderTheme {
       "--grid-columns": String(shape.gridColumns),
       "--grid-stagger": String(shape.gridStagger),
       "--grid-gap": String(shape.gridGap),
+
+      // How far the accent reaches. Every one of these resolves to
+      // `--accent-text` rather than the raw accent: a brand whose colour is a
+      // pale yellow still owns that colour, but a price set in it would be
+      // unreadable, and a hairline drawn in it would be invisible. The walk
+      // towards the page's ink keeps the hue and buys back the contrast.
+      "--accent-text": toHex(accentText),
+      "--rule-colour": shape.ruleTone === "accent" ? toHex(accentText) : "var(--line)",
+      "--section-band": shape.sectionBand ? "var(--accent-wash)" : "transparent",
+      "--count-colour": shape.countTone === "accent" ? toHex(accentText) : "var(--text-faint)",
+      "--sale-colour": shape.salePriceTone === "accent" ? toHex(accentText) : "var(--text)",
 
       "--eyebrow-case": shape.eyebrowCase,
       "--eyebrow-tracking": shape.eyebrowTracking,
