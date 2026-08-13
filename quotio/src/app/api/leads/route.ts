@@ -10,6 +10,7 @@ import { z } from "zod";
 import { getStore } from "@/lib/db/store";
 import { ownerCanCaptureLeads, publicDocument } from "@/lib/widgets/service";
 import { evaluateWidget } from "@/lib/widget/engine";
+import { notifyOwnerOfLead } from "@/lib/email/notifications";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
   const answers = sanitiseAnswers(parsed.data.answers ?? {});
   const evaluation = evaluateWidget(document, answers);
 
-  await store.createLead({
+  const lead = await store.createLead({
     widgetId: widget.id,
     name: parsed.data.name?.trim() || undefined,
     email: parsed.data.email?.trim().toLowerCase() || undefined,
@@ -65,6 +66,18 @@ export async function POST(request: Request) {
       outcome: evaluation.outcome?.title ?? null,
     },
   });
+
+  // Awaited so a serverless invocation isn't frozen mid-send, but never
+  // allowed to change the answer. The visitor filled the form in; the lead is
+  // stored; whether our mail provider is having a bad afternoon is not
+  // something they should find out about.
+  if (document.settings.leadCapture.notify) {
+    try {
+      await notifyOwnerOfLead(widget, lead, answers, document);
+    } catch (error) {
+      console.error("[leads] notification failed, lead is stored:", error);
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { Builder } from "@/components/builder/Builder";
 import { hydrateDocument } from "@/lib/widget/schema";
+import { emailEnabled } from "@/lib/email/mailer";
 import { appUrl } from "@/config/brand";
 import { currentUser, isRegistered } from "@/lib/auth/session";
 import { getStore } from "@/lib/db/store";
@@ -41,6 +42,7 @@ export default async function BuilderPage({
       capabilities={{
         leadCapture: can(user.plan, "leadCapture"),
         removeBadge: can(user.plan, "removeBadge"),
+        emailEnabled: emailEnabled(),
         premiumThemes: can(user.plan, "premiumThemes"),
         advancedLogic: can(user.plan, "advancedLogic"),
       }}

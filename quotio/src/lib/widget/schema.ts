@@ -301,6 +301,13 @@ export const widgetSettingsSchema = z.object({
       heading: z.string().max(160).default("Where should we send this?"),
       description: z.string().max(300).optional(),
       required: z.boolean().default(false),
+      /**
+       * Email the owner when one arrives. On by default, because a lead
+       * nobody is told about is the failure this feature exists to prevent —
+       * but off has to be reachable, or a busy widget turns into a mailbox
+       * full of things its owner already saw.
+       */
+      notify: z.boolean().default(true),
     })
     .default({}),
   /** The "Made with" badge. Forced on for free plans (§22, §35). */

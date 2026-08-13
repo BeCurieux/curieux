@@ -752,6 +752,29 @@ function ResultEditor({ doc, update, capabilities, planName }: EditorProps) {
                 })}
               </div>
             </Field>
+
+            {/* Sits with the form it is about. Off has to be reachable: a
+                widget doing well turns this into a lot of mail, and finding
+                no way to stop it is worse than never having had it. */}
+            <ToggleField
+              label="Email me each one"
+              hint={
+                capabilities.emailEnabled
+                  ? "Sent to your account address, with their answers and the quote."
+                  : "This deployment can't send email yet, so nothing is sent either way."
+              }
+              checked={doc.settings.leadCapture.notify}
+              disabled={!capabilities.emailEnabled}
+              onChange={(notify) =>
+                update((draft) => ({
+                  ...draft,
+                  settings: {
+                    ...draft.settings,
+                    leadCapture: { ...draft.settings.leadCapture, notify },
+                  },
+                }))
+              }
+            />
           </>
         ) : null}
       </Section>

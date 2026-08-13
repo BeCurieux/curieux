@@ -9,7 +9,18 @@ export interface EditorProps {
   selection: Selection;
   select: (selection: Selection) => void;
   /** Capabilities the owner's plan allows, for honest gating in the UI (§35). */
-  capabilities: { leadCapture: boolean; removeBadge: boolean; premiumThemes: boolean; advancedLogic: boolean };
+  capabilities: {
+    leadCapture: boolean;
+    removeBadge: boolean;
+    premiumThemes: boolean;
+    advancedLogic: boolean;
+    /**
+     * Not a plan gate — whether this deployment has a mail provider at all.
+     * Lives here because it decides the same thing the others do: which
+     * controls the panel is allowed to offer honestly (§41).
+     */
+    emailEnabled: boolean;
+  };
   planName: string;
 }
 

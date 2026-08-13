@@ -57,6 +57,7 @@ export interface BuilderProps {
   capabilities: {
     leadCapture: boolean;
     removeBadge: boolean;
+    emailEnabled: boolean;
     premiumThemes: boolean;
     advancedLogic: boolean;
   };

@@ -11,7 +11,7 @@
 import { getStore, uniqueSlug } from "@/lib/db/store";
 import type { WidgetRecord } from "@/lib/db/types";
 import { slugify } from "@/lib/widget/format";
-import { widgetSchema, type Widget, type WidgetDocument } from "@/lib/widget/schema";
+import { hydrateDocument, widgetSchema, type Widget, type WidgetDocument } from "@/lib/widget/schema";
 import { can, interactionLimit, mustShowBadge, widgetLimit, type PlanId } from "@/lib/plans";
 
 export interface WidgetLimitError {
@@ -51,7 +51,16 @@ export function isLimitError(value: unknown): value is WidgetLimitError {
  * (§34). Returns null for a widget that has never been published.
  */
 export function publicDocument(record: WidgetRecord): WidgetDocument | null {
-  return record.status === "published" ? record.published : null;
+  if (record.status !== "published" || !record.published) return null;
+  // Hydrated, because this is read straight out of storage and a document
+  // published last month has exactly the fields the schema had last month.
+  //
+  // Not a hypothetical: `leadCapture.notify` was added after these were
+  // written, so every existing widget read it as undefined and quietly never
+  // notified anybody — the feature working perfectly on new widgets and not
+  // at all on the ones with customers. Same shape as the `wording` bug in the
+  // builder. Anything reading a stored document has to go through a hydrate.
+  return hydrateDocument(record.published);
 }
 
 /** Attach the row's identity to a document so the renderer can be given one object. */
