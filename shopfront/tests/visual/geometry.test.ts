@@ -49,6 +49,15 @@ const HERO_ORDER: Mood[] = ["utility", "clean", "playful", "editorial", "luxe"];
 /** WCAG AA for body-sized text. */
 const MIN_CONTRAST = 4.5;
 
+/**
+ * The smallest a tappable thing may be on a phone.
+ *
+ * 44px rather than WCAG's 24px minimum: 44 is the figure both platform
+ * guidelines settled on, and these pages are opened one-handed from a link in
+ * a bio rather than studied at a desk.
+ */
+const MIN_TAP_TARGET = 44;
+
 let harness: Harness;
 
 const describeVisual = browserAvailable() ? describe : describe.skip;
@@ -173,6 +182,32 @@ describeVisual("geometry", () => {
 
         expect(box.width).toBe(hero.columnRight - hero.columnLeft);
         expect(box.width / box.height).toBeLessThanOrEqual(0.8 + 0.005);
+      } finally {
+        await page.close();
+      }
+    });
+
+    it.each(MOODS)("%s gives every link a thumb to land on", async (mood) => {
+      // Found by measuring rather than by looking: the colophon's "Visit the
+      // full store" link was 19px tall — under half a comfortable touch target,
+      // on the link that sends a shopper to the merchant's actual storefront.
+      // Everything else on the page already cleared it, which is exactly why
+      // one that did not was easy to miss.
+      //
+      // Measured on the phone viewport only. A mouse can hit 19px; a thumb on a
+      // moving train cannot, and the phone is where these shops are opened.
+      const page = await open(harness, mood, PHONE);
+      try {
+        const small = await page.evaluate((minimum) => {
+          return [...document.querySelectorAll("a")]
+            .map((a) => ({ box: a.getBoundingClientRect(), text: (a.textContent ?? "").trim().slice(0, 30) }))
+            // Zero-height anchors are not rendered; a hidden link is a
+            // different problem from a small one and not this test's.
+            .filter((entry) => entry.box.height > 0 && entry.box.height < minimum)
+            .map((entry) => `"${entry.text}" is ${Math.round(entry.box.height)}px`);
+        }, MIN_TAP_TARGET);
+
+        expect(small, small.join("; ")).toEqual([]);
       } finally {
         await page.close();
       }
