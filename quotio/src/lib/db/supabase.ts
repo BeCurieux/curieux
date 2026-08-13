@@ -18,6 +18,7 @@ import type {
   LeadRecord,
   Session,
   PasswordReset,
+  RateLimitRecord,
   SubscriptionRecord,
   User,
   WidgetRecord,
@@ -87,6 +88,24 @@ export class SupabaseStore implements Store {
     // sessions / widgets cascade from users, and versions, events and leads
     // cascade from widgets — see supabase/migrations/0001_init.sql.
     await this.client.from("users").delete().eq("id", userId);
+  }
+
+  async bumpRateLimit(key: string, windowStart: string): Promise<number> {
+    // One round trip, and atomic: the function is a Postgres upsert that adds
+    // to the count when the row is already in this window and resets it when
+    // it isn't. Doing it as read-then-write here would let two requests both
+    // read 4 and both write 5.
+    const { data, error } = await this.client.rpc("bump_rate_limit", {
+      p_key: key,
+      p_window_start: windowStart,
+    });
+    if (error) {
+      // Failing open. A rate limiter that 500s the endpoint it protects has
+      // become the outage it was there to prevent.
+      console.error("[ratelimit] could not count, allowing through:", error.message);
+      return 0;
+    }
+    return Number(data ?? 0);
   }
 
   async createPasswordReset(userId: string): Promise<PasswordReset> {

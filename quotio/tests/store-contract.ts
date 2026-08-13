@@ -149,6 +149,38 @@ export function describeStoreContract(name: string, harness: ContractHarness) {
       });
     });
 
+    describe("rate limit counting", () => {
+      const window = "2026-01-01T12:00:00.000Z";
+
+      it("counts up within a window", async () => {
+        expect(await store.bumpRateLimit("k", window)).toBe(1);
+        expect(await store.bumpRateLimit("k", window)).toBe(2);
+        expect(await store.bumpRateLimit("k", window)).toBe(3);
+      });
+
+      it("starts again in a new window", async () => {
+        await store.bumpRateLimit("k", window);
+        await store.bumpRateLimit("k", window);
+        expect(await store.bumpRateLimit("k", "2026-01-01T13:00:00.000Z")).toBe(1);
+      });
+
+      it("keeps keys apart", async () => {
+        await store.bumpRateLimit("a", window);
+        await store.bumpRateLimit("a", window);
+        expect(await store.bumpRateLimit("b", window)).toBe(1);
+      });
+
+      it("does not lose a count when requests arrive together", async () => {
+        // The reason SupabaseStore does this in one statement. Read-then-write
+        // lets two callers both read 4 and both write 5, and a limit of 20
+        // becomes a limit of 40 under exactly the load it exists for.
+        const results = await Promise.all(
+          Array.from({ length: 5 }, () => store.bumpRateLimit("race", window))
+        );
+        expect([...results].sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5]);
+      });
+    });
+
     /* widgets --------------------------------------------------------- */
 
     describe("widgets", () => {

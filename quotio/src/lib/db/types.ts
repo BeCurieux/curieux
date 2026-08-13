@@ -91,3 +91,10 @@ export interface PasswordReset {
   expiresAt: string;
   usedAt: string | null;
 }
+
+/** One fixed window of a rate limit. See lib/ratelimit.ts. */
+export interface RateLimitRecord {
+  key: string;
+  windowStart: string;
+  count: number;
+}

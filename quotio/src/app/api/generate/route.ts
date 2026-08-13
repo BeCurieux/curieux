@@ -11,6 +11,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ensureAuthor } from "@/lib/auth/session";
 import { getAIProvider, MAX_PROMPT_LENGTH } from "@/lib/ai/provider";
+import { callerKey, checkRateLimit, GENERATE_LIMIT } from "@/lib/ratelimit";
 import { widgetTypeSchema } from "@/lib/widget/schema";
 import { createWidgetFor, isLimitError } from "@/lib/widgets/service";
 
@@ -35,6 +36,25 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { ok: false, error: "Tell us a little about what you want to build." },
       { status: 400 }
+    );
+  }
+
+  // Before the model, and before ensureAuthor() mints an account for whoever
+  // is asking — an attacker gets a fresh user id per request, so counting
+  // after that point would count nothing.
+  const limit = await checkRateLimit(callerKey(request, "generate"), GENERATE_LIMIT);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "That's a lot of building in one go. Try again in a little while.",
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt.getTime() - Date.now()) / 1000))),
+        },
+      }
     );
   }
 

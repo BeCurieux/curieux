@@ -143,3 +143,38 @@ create table if not exists public.password_resets (
 
 create index if not exists password_resets_user_idx
   on public.password_resets (user_id);
+
+-- Rate limiting (lib/ratelimit.ts).
+--
+-- Fixed windows, one row per key. The row is rewritten rather than appended
+-- to when a new window starts, so this table stays the size of the number of
+-- things currently being limited rather than growing forever.
+create table if not exists public.rate_limits (
+  key           text primary key,
+  window_start  timestamptz not null,
+  count         integer not null default 0
+);
+
+-- Counting has to be atomic, or two requests arriving together both read the
+-- old value and both write the same new one — which is how a limit of 10
+-- quietly becomes a limit of 20 under exactly the load it exists for.
+create or replace function public.bump_rate_limit(p_key text, p_window_start timestamptz)
+returns integer
+language plpgsql
+as $$
+declare
+  new_count integer;
+begin
+  insert into public.rate_limits (key, window_start, count)
+    values (p_key, p_window_start, 1)
+  on conflict (key) do update
+    set count = case
+          when public.rate_limits.window_start = excluded.window_start
+            then public.rate_limits.count + 1
+          else 1
+        end,
+        window_start = excluded.window_start
+    returning count into new_count;
+  return new_count;
+end;
+$$;

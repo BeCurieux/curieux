@@ -17,6 +17,7 @@ import type {
   EventRecord,
   LeadRecord,
   PasswordReset,
+  RateLimitRecord,
   Session,
   SubscriptionRecord,
   User,
@@ -37,6 +38,7 @@ interface Database {
   leads: LeadRecord[];
   subscriptions: SubscriptionRecord[];
   passwordResets: PasswordReset[];
+  rateLimits: RateLimitRecord[];
 }
 
 const EMPTY: Database = {
@@ -48,6 +50,7 @@ const EMPTY: Database = {
   leads: [],
   subscriptions: [],
   passwordResets: [],
+  rateLimits: [],
 };
 
 /**
@@ -180,6 +183,28 @@ export class LocalStore implements Store {
     );
     this.db.users = this.db.users.filter((user) => user.id !== userId);
     await this.save();
+  }
+
+  async bumpRateLimit(key: string, windowStart: string): Promise<number> {
+    this.refresh();
+    const existing = this.db.rateLimits.find((row) => row.key === key);
+    // A new window replaces the old row rather than accumulating one per
+    // window: nothing ever reads a window that has passed.
+    if (!existing || existing.windowStart !== windowStart) {
+      this.db.rateLimits = this.db.rateLimits.filter((row) => row.key !== key);
+      this.db.rateLimits.push({ key, windowStart, count: 1 });
+      await this.save();
+      return 1;
+    }
+    existing.count += 1;
+    // Read before awaiting. `existing` is a live reference, so returning
+    // `existing.count` after the write hands every concurrent caller whatever
+    // the total had climbed to by then — five requests arriving together all
+    // saw 5, and a limiter that reports the wrong number rejects the wrong
+    // people.
+    const count = existing.count;
+    await this.save();
+    return count;
   }
 
   async createPasswordReset(userId: string): Promise<PasswordReset> {

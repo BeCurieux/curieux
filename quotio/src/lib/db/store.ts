@@ -16,6 +16,7 @@ import type {
   LeadRecord,
   Session,
   PasswordReset,
+  RateLimitRecord,
   SubscriptionRecord,
   User,
   WidgetRecord,
@@ -125,6 +126,13 @@ export interface Store {
   createLead(lead: NewLead): Promise<LeadRecord>;
   listLeads(widgetId: string, limit?: number): Promise<LeadRecord[]>;
   countLeads(widgetId: string): Promise<number>;
+
+  /**
+   * Count one request against `key` in the window starting at `windowStart`,
+   * and return the new total. Must be atomic: two requests arriving together
+   * have to produce 1 and 2, never 1 and 1.
+   */
+  bumpRateLimit(key: string, windowStart: string): Promise<number>;
 
   /* billing (§35) ---------------------------------------------------- */
   getSubscription(userId: string): Promise<SubscriptionRecord | null>;
