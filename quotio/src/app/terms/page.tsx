@@ -40,9 +40,12 @@ export default async function TermsPage() {
 
         <Clause title="What this is">
           <p>
+            {/* `Operator` is never sentence-initial: with no entity configured
+                it falls back to "the company operating MEKMI", which reads
+                fine mid-sentence and as a lowercase typo at the start of one. */}
             {brand.name} is a tool for building small interactive things — calculators, estimators,
-            quizzes — and putting them on your own website. <Operator /> provides it. Using it means
-            agreeing to what&rsquo;s on this page.
+            quizzes — and putting them on your own website. It&rsquo;s provided by <Operator />, and
+            using it means agreeing to what&rsquo;s on this page.
           </p>
         </Clause>
 
