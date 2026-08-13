@@ -210,6 +210,21 @@ What to read in the output, in order of how badly it matters:
 - **`merchandise`** — attempts, and any warnings. More than one attempt means
   the first plan failed validation; the errors are worth reading even when the
   retry succeeded.
+- **`shop_versions.model` and `.prompt_version`, after the first store.** These
+  are the two fields the build brief calls unrecoverable, and a run that
+  records nulls in them is a run whose provenance cannot be joined to a model
+  or a prompt revision afterwards. One query settles it:
+
+  ```sql
+  select version, model, prompt_version, genome_version
+  from public.shop_versions order by created_at desc limit 5;
+  ```
+
+  Nulls here mean `pnpm generate` did not pass provenance — stop and fix that
+  before generating the other three. `model` is the model that *answered*,
+  which with server-side fallbacks in force is not always the one that was
+  asked for; a surprise value there is a refusal that got re-served, and worth
+  knowing about.
 - **`cache_read_input_tokens`, on the second store and after.** Both adapters
   put a `cache_control` breakpoint on their system prompt, and a breakpoint
   below its model's minimum prefix does not error or warn — it silently does

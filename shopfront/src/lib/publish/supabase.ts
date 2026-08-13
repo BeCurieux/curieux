@@ -120,11 +120,17 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
       config,
       prompt,
       audience,
+      model = null,
+      promptVersion = null,
+      genomeVersion = null,
     }: {
       shopId: string;
       config: unknown;
       prompt: string;
       audience: string | null;
+      model?: string | null;
+      promptVersion?: string | null;
+      genomeVersion?: string | null;
     }): Promise<ShopVersionRecord> {
       const { count, error: countError } = await client
         .from("shop_versions")
@@ -134,7 +140,16 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
 
       const { data, error } = await client
         .from("shop_versions")
-        .insert({ shop_id: shopId, version: (count ?? 0) + 1, config, prompt, audience })
+        .insert({
+          shop_id: shopId,
+          version: (count ?? 0) + 1,
+          config,
+          prompt,
+          audience,
+          model,
+          prompt_version: promptVersion,
+          genome_version: genomeVersion,
+        })
         .select()
         .single();
       if (error || !data) return fail("version insert", error);
@@ -248,6 +263,9 @@ function toVersion(row: Record<string, any>): ShopVersionRecord {
     config: row.config as ShopConfig,
     prompt: row.prompt as string,
     audience: (row.audience ?? null) as string | null,
+    model: (row.model ?? null) as string | null,
+    promptVersion: (row.prompt_version ?? null) as string | null,
+    genomeVersion: (row.genome_version ?? null) as string | null,
     createdAt: row.created_at as string,
   };
 }

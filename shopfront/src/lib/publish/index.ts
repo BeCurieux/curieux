@@ -19,6 +19,7 @@ import type { Plan, PublishedShop } from "./types";
 import type { CatalogueGenome } from "@/lib/genome/types";
 import type { IngestResult } from "@/lib/ingest/types";
 import type { ShopConfig } from "@/lib/schema";
+import type { Provenance } from "@/lib/provenance";
 
 export interface PublishInput {
   config: ShopConfig;
@@ -28,6 +29,12 @@ export interface PublishInput {
   /** A URL the merchant asked for. Rejected rather than mangled if unusable. */
   slug?: string;
   plan?: Plan;
+  /**
+   * What produced this shop. Optional so a caller that genuinely does not know
+   * — a test, a hand-assembled config — records null rather than a guess, but
+   * `pnpm generate` always knows and always passes it.
+   */
+  provenance?: Provenance;
 }
 
 export interface PublishResult {
@@ -103,6 +110,9 @@ export async function publishShop(input: PublishInput, options: PublishOptions =
     config: input.config,
     prompt: input.config.meta.prompt,
     audience: input.config.meta.audience ?? null,
+    model: input.provenance?.model ?? null,
+    promptVersion: input.provenance?.promptVersion ?? null,
+    genomeVersion: input.provenance?.genomeVersion ?? null,
   });
 
   const published = await store.loadBySlug(slug);

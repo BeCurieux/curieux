@@ -15,6 +15,7 @@
 
 import type { IngestResult } from "@/lib/ingest/types";
 import { renderCatalogue, type CatalogueView, type CatalogueViewOptions } from "./catalogue-view";
+import { promptFingerprint } from "@/lib/provenance";
 
 export const SYSTEM_PROMPT = `You are the merchandiser for POPUUP. A merchant tells you who a shop is for; you decide what is in it.
 
@@ -208,3 +209,13 @@ function section(title: string, values: string[]): string | null {
 function bullets(values: string[]): string {
   return values.map((v) => `- ${v}`).join("\n");
 }
+
+/**
+ * Which revision of the prompt above produced a given shop.
+ *
+ * Derived from the text rather than hand-set, so it cannot be edited without
+ * changing — the failure a `PROMPT_VERSION = 3` constant has is somebody
+ * editing the prompt and not bumping the number, which files every later
+ * generation under the revision before it.
+ */
+export const PROMPT_VERSION = promptFingerprint(SYSTEM_PROMPT);
