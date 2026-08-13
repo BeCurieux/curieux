@@ -14,6 +14,16 @@
 //   stroke 20, round
 //
 // Flat colour only. No gradients, no shadow, no rendered depth.
+//
+// Two-tone: `mek` navy, `mi` violet, with a coral spark off the dot. The split
+// falls between the k and the second m, so the violet half is the syllable
+// people say when they shorten it. The spark is the one place coral appears
+// outside a product illustration — a deliberate exception to that rule,
+// because it is what makes the mark read as something firing rather than
+// sitting there.
+//
+// `mono` collapses all three to currentColor, for anywhere the logo has to
+// reverse out of a dark background.
 
 export type DotShape = "dot" | "plus" | "question" | "toggle" | "check";
 
@@ -33,6 +43,13 @@ const DOT_LABEL: Record<DotShape, string> = {
 
 const STROKE = 20;
 
+const NAVY = "#18233A";
+const VIOLET = "#7657F6";
+const CORAL = "#FF806F";
+
+/** Three rays off the dot's upper right. Drawn in the wordmark's own space. */
+const SPARK = ["M395 -8 L399 -27", "M408 2 L425 -13", "M412 18 L434 13"];
+
 /** Letter paths, each in its own space, positioned by the `x` offsets below. */
 const M_ARCHES = "M10 90V58q0-18 22-18t22 18v32M54 58q0-18 22-18t22 18v32";
 const E =
@@ -43,45 +60,71 @@ const I_STEM = "M10 40v50";
 /** Left edge of each glyph's ink, tuned by eye rather than by metric. */
 const LAYOUT = { m1: 0, e: 112, k: 196, m2: 268, i: 380, dot: 390 };
 
+/**
+ * Room for the spark, which reaches up to y=-33 and right to x=440.
+ * Letters still sit on the same grid; only the box around them grew, so
+ * `Logo` compensates to keep the rendered letters the size they were.
+ */
+const VIEW = { x: -10, y: -39, w: 460, h: 143 };
+
 export function Wordmark({
   height = 32,
   dot = "dot",
+  mono = false,
   className,
   title,
 }: {
   height?: number;
   dot?: DotShape;
+  /** One colour, taken from `currentColor`. For dark backgrounds. */
+  mono?: boolean;
   className?: string;
   title?: string;
 }) {
-  // 404 wide × 104 tall of ink, with the dot's cap reaching y=3.
-  const width = Math.round((height * 414) / 104);
+  const width = Math.round((height * VIEW.w) / VIEW.h);
+  const ink = mono ? "currentColor" : NAVY;
+  const accent = mono ? "currentColor" : VIOLET;
 
   return (
     <svg
       width={width}
       height={height}
-      viewBox="-10 -7 414 111"
+      viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`}
       fill="none"
       role="img"
       aria-label={title ?? `MEKMI${DOT_LABEL[dot]}`}
       className={className}
     >
-      <g
-        stroke="currentColor"
-        strokeWidth={STROKE}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d={M_ARCHES} transform={`translate(${LAYOUT.m1} 0)`} />
-        <path d={E} transform={`translate(${LAYOUT.e} 0)`} />
-        <path d={K} transform={`translate(${LAYOUT.k} 0)`} />
-        <path d={M_ARCHES} transform={`translate(${LAYOUT.m2} 0)`} />
-        <path d={I_STEM} transform={`translate(${LAYOUT.i} 0)`} />
+      <g strokeWidth={STROKE} strokeLinecap="round" strokeLinejoin="round">
+        <g stroke={ink}>
+          <path d={M_ARCHES} transform={`translate(${LAYOUT.m1} 0)`} />
+          <path d={E} transform={`translate(${LAYOUT.e} 0)`} />
+          <path d={K} transform={`translate(${LAYOUT.k} 0)`} />
+        </g>
+        <g stroke={accent}>
+          <path d={M_ARCHES} transform={`translate(${LAYOUT.m2} 0)`} />
+          <path d={I_STEM} transform={`translate(${LAYOUT.i} 0)`} />
+        </g>
       </g>
 
+      {/* Only on the official dot. A calculator's plus or a quiz's question
+          mark is already doing the job the spark does, and both at once is
+          two things shouting. */}
+      {dot === "dot" ? (
+        <g
+          stroke={mono ? "currentColor" : CORAL}
+          strokeWidth={12}
+          strokeLinecap="round"
+          opacity={mono ? 0.7 : 1}
+        >
+          {SPARK.map((d) => (
+            <path key={d} d={d} />
+          ))}
+        </g>
+      ) : null}
+
       <g transform={`translate(${LAYOUT.dot} 0)`}>
-        <Dot shape={dot} />
+        <Dot shape={dot} colour={accent} />
       </g>
     </svg>
   );

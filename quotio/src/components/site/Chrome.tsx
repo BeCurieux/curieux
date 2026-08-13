@@ -9,10 +9,14 @@ import Link from "next/link";
 import { brand } from "@/config/brand";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-export function Logo({ size = 30 }: { size?: number }) {
+export function Logo({ size = 30, mono = false }: { size?: number; mono?: boolean }) {
   // `size` was the old square logo's edge length; the wordmark is a
   // horizontal lockup, so it maps to cap height. Callers keep working.
-  return <Wordmark height={Math.round(size * 0.72)} className="text-navy" />;
+  //
+  // 0.928 rather than 0.72 because the viewBox grew to make room for the
+  // spark (111 → 143 tall) while the letters stayed on the same grid. Without
+  // the compensation every logo on the site would have shrunk by a fifth.
+  return <Wordmark height={Math.round(size * 0.928)} mono={mono} className="text-navy" />;
 }
 
 const NAV = [
