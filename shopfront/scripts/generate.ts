@@ -27,6 +27,9 @@ import { loadGenome, saveGenome, staleFor } from "../src/lib/genome/store";
 import type { CatalogueGenome } from "../src/lib/genome/types";
 import { merchandise, MerchandiseError } from "../src/lib/merchandise/index";
 import { defaultStore, publishShop, PublishError, checkSlug } from "../src/lib/publish/index";
+import { genomeVersionOf } from "../src/lib/provenance";
+import { PROMPT_VERSION as MERCHANDISE_PROMPT_VERSION } from "../src/lib/merchandise/prompt";
+import { PROMPT_VERSION as GENOME_PROMPT_VERSION } from "../src/lib/genome/prompt";
 
 interface Args {
   url: string;
@@ -162,6 +165,15 @@ async function main(): Promise<void> {
       config: merchandised.config,
       ingest,
       genome: genome ?? null,
+      // Recorded now because it cannot be recovered later: which model
+      // actually answered, and which revision of the prompt was in force.
+      provenance: {
+        model: d.model,
+        promptVersion: MERCHANDISE_PROMPT_VERSION,
+        genomeVersion: genome
+          ? genomeVersionOf(genome.diagnostics.model, GENOME_PROMPT_VERSION)
+          : null,
+      },
       ...(args.slug ? { slug: args.slug } : {}),
       plan: args.plan,
     },

@@ -52,11 +52,33 @@ create table if not exists public.shop_versions (
   -- needs an index on it.
   prompt     text not null,
   audience   text,
+  -- What produced this version. The model is the one that *answered*, which
+  -- with server-side fallbacks in force is not always the one that was asked;
+  -- prompt_version is a content fingerprint of the merchandiser's system
+  -- prompt, so it cannot drift from the text it describes the way a hand-set
+  -- number does; genome_version identifies the enrichment pass behind the
+  -- input. Nullable because rows written before these columns existed have no
+  -- honest answer, and inventing one would be worse than a null.
+  model          text,
+  prompt_version text,
+  genome_version text,
   created_at timestamptz not null default now(),
   unique (shop_id, version)
 );
 
+-- Added after the first shops were published, so re-running this file gives
+-- them to an existing project too. `if not exists` rather than a migration
+-- tool: this schema is applied by re-running it, and these three are additive.
+alter table public.shop_versions add column if not exists model          text;
+alter table public.shop_versions add column if not exists prompt_version text;
+alter table public.shop_versions add column if not exists genome_version text;
+
 create index if not exists shop_versions_shop_id_idx on public.shop_versions(shop_id);
+
+-- The query these columns exist to make possible: every shop a given prompt
+-- revision or model produced, joined to what those shops went on to do.
+create index if not exists shop_versions_prompt_version_idx on public.shop_versions(prompt_version);
+create index if not exists shop_versions_model_idx on public.shop_versions(model);
 
 -- The current-version pointer is added after the versions table exists so the
 -- two foreign keys can point at each other without an ordering problem.

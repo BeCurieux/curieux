@@ -13,6 +13,7 @@
 
 import type { Catalogue, IngestedProduct } from "@/lib/ingest/types";
 import type { BrandContext } from "@/lib/ingest/types";
+import { promptFingerprint } from "@/lib/provenance";
 
 export const SYSTEM_PROMPT = `You are reading a merchant's product catalogue so that a merchandiser can build shops from it later. You produce a private analysis. It is never shown to a shopper, never rendered on a page, and never quoted as copy.
 
@@ -150,3 +151,13 @@ function clip(text: string, max: number): string {
   const lastSpace = cut.lastIndexOf(" ");
   return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
+
+/**
+ * Which revision of the prompt above produced a given shop.
+ *
+ * Derived from the text rather than hand-set, so it cannot be edited without
+ * changing — the failure a `PROMPT_VERSION = 3` constant has is somebody
+ * editing the prompt and not bumping the number, which files every later
+ * generation under the revision before it.
+ */
+export const PROMPT_VERSION = promptFingerprint(SYSTEM_PROMPT);

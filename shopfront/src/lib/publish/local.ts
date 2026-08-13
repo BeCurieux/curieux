@@ -147,11 +147,17 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
       config,
       prompt,
       audience,
+      model = null,
+      promptVersion = null,
+      genomeVersion = null,
     }: {
       shopId: string;
       config: unknown;
       prompt: string;
       audience: string | null;
+      model?: string | null;
+      promptVersion?: string | null;
+      genomeVersion?: string | null;
     }): Promise<ShopVersionRecord> {
       const db = await read();
       const shop = db.shops.find((s) => s.id === shopId);
@@ -165,6 +171,9 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
         config: config as ShopConfig,
         prompt,
         audience,
+        model,
+        promptVersion,
+        genomeVersion,
         createdAt: now().toISOString(),
       };
 

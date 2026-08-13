@@ -53,6 +53,10 @@ export interface ShopStore {
     config: unknown;
     prompt: string;
     audience: string | null;
+    /** What produced it. Null only for a caller that genuinely does not know. */
+    model?: string | null;
+    promptVersion?: string | null;
+    genomeVersion?: string | null;
   }): Promise<ShopVersionRecord>;
 
   /**

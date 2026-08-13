@@ -73,6 +73,17 @@ export interface ShopVersionRecord {
    */
   prompt: string;
   audience: string | null;
+  /**
+   * What produced this version — the model that answered, the fingerprint of
+   * the merchandiser's prompt, and which Genome fed it.
+   *
+   * Nullable because versions published before these columns existed have no
+   * answer, and inventing one would be worse than an honest null. Everything
+   * generated from here on carries all three.
+   */
+  model: string | null;
+  promptVersion: string | null;
+  genomeVersion: string | null;
   createdAt: string;
 }
 
