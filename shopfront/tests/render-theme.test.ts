@@ -136,6 +136,51 @@ describe("buildTheme", () => {
     expect(new Set(shapes.map((s) => s.heroFullBleed)).size).toBe(2);
   });
 
+  it("separates the moods on structure, not only on type", () => {
+    // The failure this exists for is not "two moods are identical" — the test
+    // above already catches that — but the subtler one that produced it: five
+    // moods that differed only in weight, tracking and hero height, so every
+    // shop had the same three-column grid with the same rhythm and the mood
+    // token read as a font picker.
+    //
+    // Structure means the things a shopper sees before they read anything: how
+    // many products across, whether the rows are level, whether the headline is
+    // on the photograph or under it, whether the plate is square or portrait.
+    const moods = ["clean", "editorial", "playful", "luxe", "utility"] as const;
+    const shapes = moods.map((mood) => buildTheme({ ...base, mood }).shape);
+
+    const structure = shapes.map((s) =>
+      [s.gridColumns, s.gridStagger, s.plateRatio, s.heroCopy, s.cardMeta, s.heroFullBleed].join("|"),
+    );
+    expect(new Set(structure).size, structure.join("\n")).toBe(moods.length);
+
+    // And each axis has to be doing work on its own. A set of five that is
+    // distinct only because one field is a snowflake is the same failure in a
+    // better disguise.
+    expect(new Set(shapes.map((s) => s.gridColumns)).size).toBeGreaterThanOrEqual(3);
+    expect(new Set(shapes.map((s) => s.heroCopy)).size).toBe(2);
+    expect(new Set(shapes.map((s) => s.cardMeta)).size).toBe(2);
+    expect(new Set(shapes.map((s) => s.gridStagger)).size).toBeGreaterThanOrEqual(4);
+
+    // Level rows are a legal answer, and exactly one mood should want them.
+    expect(shapes.filter((s) => s.gridStagger === 0)).toHaveLength(1);
+  });
+
+  it("hands the grid numbers CSS can use", () => {
+    for (const mood of ["clean", "editorial", "playful", "luxe", "utility"] as const) {
+      const { variables, shape } = buildTheme({ ...base, mood });
+      // Unitless, because `--grid-columns` goes into `repeat()` and the other
+      // two into `calc(... * n)`. A stray "px" here fails silently: the
+      // declaration is dropped and the grid falls back to its default.
+      expect(variables["--grid-columns"]).toBe(String(shape.gridColumns));
+      expect(variables["--grid-stagger"]).toBe(String(shape.gridStagger));
+      expect(variables["--grid-gap"]).toBe(String(shape.gridGap));
+      for (const name of ["--grid-columns", "--grid-stagger", "--grid-gap"]) {
+        expect(Number.isFinite(Number(variables[name])), `${name} is ${variables[name]}`).toBe(true);
+      }
+    }
+  });
+
   it("scales the whole spacing system from density", () => {
     const airy = buildTheme({ ...base, density: "airy" }).variables;
     const compact = buildTheme({ ...base, density: "compact" }).variables;

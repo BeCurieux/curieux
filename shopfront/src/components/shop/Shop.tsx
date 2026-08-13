@@ -69,6 +69,7 @@ export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = tru
                 currency: catalogue.currency,
                 locale,
                 shape: theme.shape,
+                cardMeta: theme.shape.cardMeta,
                 brandName: config.brand.name,
                 storeUrl: config.brand.storeUrl,
                 ...(discount ? { discount: discount.code } : {}),

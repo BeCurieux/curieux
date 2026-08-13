@@ -86,13 +86,37 @@ function Hero({ block, context }: { block: Extract<Block, { type: "hero" }>; con
     alt: productMedia?.title ?? context.brandName,
   });
 
+  // A mood that sets the copy under the plate gets it as a sibling rather than
+  // a child. Nesting is the difference between type on a photograph and type on
+  // the page, and it cannot be done with CSS alone: `.hero-plate` is
+  // `overflow: hidden`, so copy that lives inside it can only ever be inside
+  // it.
+  //
+  // Only when there is a photograph. With no media the plate *is* the copy —
+  // `hero--nomedia` sets it on a tinted panel — and moving the words out would
+  // leave an empty box above them.
+  const under = context.shape.heroCopy === "under" && attrs !== undefined;
+
   const classes = [
     "hero",
     context.shape.heroFullBleed ? "hero--bleed" : "",
     attrs ? "" : "hero--nomedia",
+    under ? "hero--under" : "",
   ]
     .filter(Boolean)
     .join(" ");
+
+  const copy = (
+    <div className="hero-copy">
+      <h1 className="display">{block.headline}</h1>
+      {block.subline && <p className="subline">{block.subline}</p>}
+      {block.cta && (
+        <a className="cta" href={block.cta.targetBlockId ? `#${block.cta.targetBlockId}` : block.cta.url}>
+          {block.cta.label}
+        </a>
+      )}
+    </div>
+  );
 
   return (
     <section className={classes}>
@@ -100,16 +124,9 @@ function Hero({ block, context }: { block: Extract<Block, { type: "hero" }>; con
         {/* The one image above the fold: eager, high priority, and the only
             place on the page where that is worth the bytes. */}
         {attrs && <img {...attrs} loading="eager" fetchPriority="high" decoding="async" />}
-        <div className="hero-copy">
-          <h1 className="display">{block.headline}</h1>
-          {block.subline && <p className="subline">{block.subline}</p>}
-          {block.cta && (
-            <a className="cta" href={block.cta.targetBlockId ? `#${block.cta.targetBlockId}` : block.cta.url}>
-              {block.cta.label}
-            </a>
-          )}
-        </div>
+        {!under && copy}
       </div>
+      {under && copy}
     </section>
   );
 }
