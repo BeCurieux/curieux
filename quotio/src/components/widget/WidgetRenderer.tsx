@@ -25,6 +25,7 @@ import { defaultAnswers, evaluateWidget, isAnswered, visibleSteps, type Answers 
 import type { Widget } from "@/lib/widget/schema";
 import { resolveChosen } from "@/lib/widget/selection";
 import { widgetStyleVars } from "@/lib/widget/themes";
+import { wording, wordingDefaults } from "@/lib/widget/wording";
 
 type Phase = "intro" | "steps" | "lead" | "result";
 type Direction = "forward" | "back" | "result";
@@ -137,6 +138,9 @@ export function WidgetRenderer({
   }, [phase, stepIndex, steps.length]);
 
   const currentStep = steps[Math.min(stepIndex, Math.max(0, steps.length - 1))];
+  // Defaults for whatever the author left blank, in the wording that suits
+  // where this widget puts its lead form.
+  const labels = wordingDefaults(widget.settings.leadCapture.mode);
   const answered = currentStep ? isAnswered(currentStep, answers) : true;
 
   const setAnswer = useCallback(
@@ -371,7 +375,9 @@ export function WidgetRenderer({
                 </button>
 
                 <button type="button" className="qw-btn" onClick={goNext} disabled={!answered}>
-                  {stepIndex >= steps.length - 1 ? "See my result" : "Continue"}
+                  {stepIndex >= steps.length - 1
+                    ? wording(widget.settings.wording.finish, labels.finish)
+                    : wording(widget.settings.wording.next, labels.next)}
                   <ArrowRightIcon size={18} />
                 </button>
               </div>
@@ -400,6 +406,7 @@ export function WidgetRenderer({
               <LeadForm
                 variant="before"
                 settings={widget.settings.leadCapture}
+                wordingOverrides={widget.settings.wording}
                 privacyNote={widget.settings.privacyNote}
                 submitting={leadState === "sending"}
                 onSubmit={submitLead}
@@ -426,6 +433,7 @@ export function WidgetRenderer({
                 <LeadForm
                   variant="after"
                   settings={widget.settings.leadCapture}
+                  wordingOverrides={widget.settings.wording}
                   privacyNote={widget.settings.privacyNote}
                   submitting={leadState === "sending"}
                   submitted={leadState === "done"}

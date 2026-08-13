@@ -11,6 +11,7 @@
 import { useState } from "react";
 import { CheckIcon } from "@/components/ui/Icons";
 import type { LeadField, WidgetSettings } from "@/lib/widget/schema";
+import { wording, wordingDefaults } from "@/lib/widget/wording";
 
 export interface LeadValues {
   name?: string;
@@ -21,6 +22,8 @@ export interface LeadValues {
 
 interface LeadFormProps {
   settings: WidgetSettings["leadCapture"];
+  /** The author's button words, if they wrote any. */
+  wordingOverrides: WidgetSettings["wording"];
   privacyNote: string;
   submitting?: boolean;
   submitted?: boolean;
@@ -48,6 +51,7 @@ const FIELD_META: Record<
 
 export function LeadForm({
   settings,
+  wordingOverrides,
   privacyNote,
   submitting,
   submitted,
@@ -55,6 +59,10 @@ export function LeadForm({
   onSubmit,
   onSkip,
 }: LeadFormProps) {
+  // Keyed off this form's own variant rather than the widget's setting: they
+  // agree today, but the variant is what actually decides whether this button
+  // leads to a result or sends one.
+  const labels = wordingDefaults(variant);
   const [values, setValues] = useState<LeadValues>({});
   const [touched, setTouched] = useState(false);
 
@@ -139,13 +147,13 @@ export function LeadForm({
 
       <div className="mt-4 flex flex-col gap-2">
         <button type="submit" className="qw-btn w-full" disabled={submitting}>
-          {submitting ? "Sending…" : variant === "before" ? "See my result" : "Send it over"}
+          {submitting ? "Sending…" : wording(wordingOverrides.leadSubmit, labels.leadSubmit)}
         </button>
 
         {/* §20: never force it. */}
         {!settings.required && onSkip ? (
           <button type="button" className="qw-btn-quiet mx-auto text-sm" onClick={onSkip}>
-            {variant === "before" ? "Skip this" : "No thanks"}
+            {wording(wordingOverrides.leadSkip, labels.leadSkip)}
           </button>
         ) : null}
       </div>

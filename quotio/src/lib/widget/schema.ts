@@ -307,6 +307,22 @@ export const widgetSettingsSchema = z.object({
   showBadge: z.boolean().default(true),
   /** Small print under the lead form. */
   privacyNote: z.string().max(200).default("Your info is safe with us. No spam, ever."),
+  /**
+   * The widget's buttons, when the author wants different words.
+   *
+   * Optional rather than defaulted, deliberately: a stored document holds only
+   * what its author actually changed, and the wording that ships lives in
+   * widget/wording.ts. Baking the defaults in here would freeze every existing
+   * widget to whatever we happened to say the day it was created.
+   */
+  wording: z
+    .object({
+      next: z.string().max(60).optional(),
+      finish: z.string().max(60).optional(),
+      leadSubmit: z.string().max(60).optional(),
+      leadSkip: z.string().max(60).optional(),
+    })
+    .default({}),
 });
 
 /* ------------------------------------------------------------------ */
@@ -334,6 +350,22 @@ export const widgetSchemaSchema = z.object({
   theme: widgetThemeSchema.default({}),
   settings: widgetSettingsSchema.default({}),
 });
+
+/**
+ * Fill in anything a stored document predates.
+ *
+ * Documents are written through this schema but read back as raw JSON, so one
+ * saved last month has exactly the fields the schema had last month. Every
+ * field here carries a default, so re-parsing on the way out is what lets us
+ * add a setting as a code change instead of a data migration.
+ *
+ * This is not theoretical: `settings.wording` was added after the demo data
+ * was seeded, and without this the builder read `settings.wording.next` off a
+ * document that had no `wording` and took the whole panel down with it.
+ */
+export function hydrateDocument(document: WidgetDocument): WidgetDocument {
+  return widgetSchemaSchema.parse(document);
+}
 
 /** The full record, as stored and as handed to the renderer. */
 export const widgetSchema = widgetSchemaSchema.extend({

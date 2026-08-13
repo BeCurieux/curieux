@@ -12,7 +12,8 @@ import { Section, SegmentedField, SelectField, TextField, ToggleField, UpgradeNo
 import type { EditorProps } from "./types";
 import { badgeVisible } from "@/lib/plans";
 import { THEME_FONTS, THEME_PRESETS } from "@/lib/widget/themes";
-import type { WidgetTheme } from "@/lib/widget/schema";
+import type { WidgetDocument, WidgetTheme } from "@/lib/widget/schema";
+import { mergeWording, wordingDefaults } from "@/lib/widget/wording";
 
 /** Themes beyond the first two are a paid perk (§35). */
 const FREE_PRESETS: Array<WidgetTheme["preset"]> = ["playful", "minimal"];
@@ -21,6 +22,16 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
   const theme = doc.theme;
   const setTheme = (next: Partial<WidgetTheme>) =>
     update((draft) => ({ ...draft, theme: { ...draft.theme, ...next } }));
+
+  const setWording = (next: Partial<WidgetDocument["settings"]["wording"]>) =>
+    update((draft) => ({
+      ...draft,
+      settings: { ...draft.settings, wording: mergeWording(draft.settings.wording, next) },
+    }));
+
+  // The same call the widget makes, so a placeholder is never a word the
+  // runtime wouldn't actually have used.
+  const buttonDefaults = wordingDefaults(doc.settings.leadCapture.mode);
 
   return (
     <>
@@ -128,6 +139,53 @@ export function DesignTab({ doc, update, capabilities, planName }: EditorProps) 
           onChange={(buttonStyle) => setTheme({ buttonStyle })}
           hint="Filled uses the theme's ink so it stays legible. Soft and Outline use your brand color."
         />
+      </Section>
+
+      {/* Sits with the button styling because it is the same object seen from
+          the other side: that control decides how the buttons look, this one
+          decides what they say.
+
+          Every placeholder is the real default, computed the same way the
+          widget computes it, so the panel can't promise a word the runtime
+          wouldn't use. Leaving a field empty is how you keep ours — which is
+          why these are placeholders rather than pre-filled values. */}
+      <Section
+        title="Button words"
+        hint="Leave any of these blank to keep ours."
+      >
+        <TextField
+          label="Next question"
+          value={doc.settings.wording.next ?? ""}
+          placeholder={buttonDefaults.next}
+          maxLength={60}
+          onChange={(next) => setWording({ next })}
+        />
+        <TextField
+          label="Last question"
+          value={doc.settings.wording.finish ?? ""}
+          placeholder={buttonDefaults.finish}
+          maxLength={60}
+          onChange={(finish) => setWording({ finish })}
+        />
+        {doc.settings.leadCapture.mode === "none" ? null : (
+          <>
+            <TextField
+              label="Send their details"
+              value={doc.settings.wording.leadSubmit ?? ""}
+              placeholder={buttonDefaults.leadSubmit}
+              maxLength={60}
+              onChange={(leadSubmit) => setWording({ leadSubmit })}
+            />
+            <TextField
+              label="Skip the form"
+              value={doc.settings.wording.leadSkip ?? ""}
+              placeholder={buttonDefaults.leadSkip}
+              maxLength={60}
+              hint="Only shown when the form isn't required."
+              onChange={(leadSkip) => setWording({ leadSkip })}
+            />
+          </>
+        )}
       </Section>
 
       <Section title="Layout">
