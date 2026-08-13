@@ -132,7 +132,7 @@ const cleaning = template(
           columns: 3,
           options: [
             { id: "once", label: "One-off", value: 0, illustration: "calendar" },
-            { id: "fortnightly", label: "Fortnightly", description: "Save $10", value: -10, illustration: "calendar" },
+            { id: "every_two_weeks", label: "Every two weeks", description: "Save $10", value: -10, illustration: "calendar" },
             { id: "weekly", label: "Weekly", description: "Save $15", value: -15, illustration: "calendar" },
           ],
         },

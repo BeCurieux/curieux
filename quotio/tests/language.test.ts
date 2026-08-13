@@ -34,6 +34,9 @@ const BRITISH: Array<[RegExp, string]> = [
   [/\bbehaviour/i, "behavior"],
   [/\blicence\b/i, "license"],
   [/\bwhilst\b/i, "while"],
+  // Missed the first time round: it reached a real template label, and from
+  // there into a lead notification, which is where it was finally spotted.
+  [/\bfortnight(ly)?\b/i, "two weeks / every two weeks"],
   [/\bamongst\b/i, "among"],
   [/\b(personalis|customis|organis|recognis|optimis|apologis|analys)(e|ed|es|ing|ation)\b/i, "…ize / …yze"],
 ];
