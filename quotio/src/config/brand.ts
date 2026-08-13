@@ -28,7 +28,32 @@ export const brand = {
 
   /** Support address shown on billing/settings screens. */
   supportEmail: "hello@mekmi.app",
+
+  /**
+   * Who is legally operating this.
+   *
+   * Empty on purpose. Terms and a privacy policy have to name a real entity
+   * and a real jurisdiction to be worth anything, and neither can be guessed
+   * from a codebase — so rather than shipping "[COMPANY NAME]" to production,
+   * the legal pages read these and say plainly that they are unfinished until
+   * they're filled in (§41).
+   *
+   * Fill all three before taking money from anybody.
+   */
+  legal: {
+    /** Registered name, e.g. "Curieux Ltd". */
+    entity: "",
+    /** Registered address, one line. */
+    address: "",
+    /** Governing law, e.g. "England and Wales". */
+    jurisdiction: "",
+  },
 } as const;
+
+/** Whether the legal pages can name a real operator (§41). */
+export function legalEntityKnown(): boolean {
+  return Boolean(brand.legal.entity && brand.legal.address && brand.legal.jurisdiction);
+}
 
 /**
  * Absolute origin for hosted pages and embed snippets.

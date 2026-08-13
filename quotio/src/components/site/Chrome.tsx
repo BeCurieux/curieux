@@ -110,6 +110,8 @@ export function SiteFooter() {
               links={[
                 { href: "/docs", label: "Docs" },
                 { href: `mailto:${brand.supportEmail}`, label: "Contact" },
+                { href: "/terms", label: "Terms" },
+                { href: "/privacy", label: "Privacy" },
               ]}
             />
           </div>
