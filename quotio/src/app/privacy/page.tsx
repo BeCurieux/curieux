@@ -73,9 +73,11 @@ export default async function PrivacyPage() {
         </Clause>
 
         <Clause title="What we hold about your visitors">
-          <p>
-            Only two things, and the first is deliberately anonymous.
-          </p>
+          {/* The two we hold, adjacent, so "two things" is visibly true —
+              and what we don't after them. The no-tracking paragraph used to
+              sit between the pair, bolded like they are, which made a
+              statement about what we avoid read as a third thing we collect. */}
+          <p>Two things, and the first is deliberately anonymous.</p>
           <p>
             <strong className="text-navy">Analytics.</strong> {EVENT_TYPES.length} kinds of event,
             each carrying the widget, a random per-tab id, a timestamp, and the question where the
@@ -85,16 +87,15 @@ export default async function PrivacyPage() {
             answering one.
           </p>
           <p>
-            <strong className="text-navy">No cookies, no IP addresses, no third-party pixels, no
-            cross-site tracking.</strong> A published widget sets nothing that survives the tab and
-            records nothing that identifies the machine. This is a design decision, not a setting —
-            there is nowhere in the product to turn it on.
-          </p>
-          <p>
             <strong className="text-navy">Leads.</strong> Whatever you configured your widget to
             ask for — some combination of name, email, phone and a message — plus the answers that
-            produced their result, so the lead reaches you with its context attached. Nothing
-            else is collected alongside it.
+            produced their result, so the lead reaches you with its context attached.
+          </p>
+          <p>
+            And nothing else. A published widget sets no cookie, records no IP address, loads no
+            third-party pixel, and does nothing that would let anyone follow a visitor somewhere
+            else. That&rsquo;s a design decision rather than a setting — there is nowhere in the
+            product to turn it on.
           </p>
         </Clause>
 
