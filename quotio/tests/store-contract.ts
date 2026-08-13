@@ -114,6 +114,41 @@ export function describeStoreContract(name: string, harness: ContractHarness) {
       });
     });
 
+    describe("password resets", () => {
+      it("issues one that can be read back", async () => {
+        const user = await store.createUser({ email: "a@example.com", passwordHash: "x" });
+        const reset = await store.createPasswordReset(user.id);
+
+        const found = await store.getPasswordReset(reset.token);
+        expect(found?.userId).toBe(user.id);
+        expect(found?.usedAt ?? null).toBeNull();
+      });
+
+      it("spends it on first use", async () => {
+        const user = await store.createUser({ email: "a@example.com", passwordHash: "x" });
+        const reset = await store.createPasswordReset(user.id);
+
+        expect((await store.consumePasswordReset(reset.token))?.userId).toBe(user.id);
+        // Both stores have to agree here, and they get there differently:
+        // LocalStore checks then stamps, SupabaseStore updates where used_at
+        // is null so the database settles the race.
+        expect(await store.consumePasswordReset(reset.token)).toBeNull();
+      });
+
+      it("refuses a token nobody issued", async () => {
+        expect(await store.consumePasswordReset("r_nonexistent")).toBeNull();
+        expect(await store.getPasswordReset("r_nonexistent")).toBeNull();
+      });
+
+      it("goes when the account does", async () => {
+        const user = await store.createUser({ email: "a@example.com", passwordHash: "x" });
+        const reset = await store.createPasswordReset(user.id);
+
+        await store.deleteUser(user.id);
+        expect(await store.getPasswordReset(reset.token)).toBeNull();
+      });
+    });
+
     /* widgets --------------------------------------------------------- */
 
     describe("widgets", () => {

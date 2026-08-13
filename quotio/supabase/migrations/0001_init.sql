@@ -127,3 +127,19 @@ alter table public.widget_versions enable row level security;
 alter table public.widget_events   enable row level security;
 alter table public.leads           enable row level security;
 alter table public.subscriptions   enable row level security;
+
+-- Password reset links (§27 follow-on).
+--
+-- Single-use and short-lived. `used_at` is what makes redemption idempotent:
+-- consumePasswordReset updates where used_at is null, so two requests carrying
+-- the same link race here and exactly one wins.
+create table if not exists public.password_resets (
+  token       text primary key,
+  user_id     text not null references public.users (id) on delete cascade,
+  created_at  timestamptz not null default now(),
+  expires_at  timestamptz not null,
+  used_at     timestamptz
+);
+
+create index if not exists password_resets_user_idx
+  on public.password_resets (user_id);

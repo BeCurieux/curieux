@@ -19,6 +19,14 @@ export default function LoginPage() {
         <div className="mt-6">
           <AuthForm mode="signin" />
         </div>
+
+        {/* The way out of a locked account has to be on the screen that
+            locked you out, not somewhere you have to go looking. */}
+        <p className="mt-4 text-center text-sm">
+          <Link href="/forgot" className="font-semibold text-purple">
+            Forgotten your password?
+          </Link>
+        </p>
       </div>
     </div>
   );

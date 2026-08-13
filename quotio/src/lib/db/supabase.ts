@@ -17,6 +17,7 @@ import type {
   EventRecord,
   LeadRecord,
   Session,
+  PasswordReset,
   SubscriptionRecord,
   User,
   WidgetRecord,
@@ -24,6 +25,7 @@ import type {
 } from "./types";
 import { newId, type CreateWidgetInput, type NewEvent, type NewLead, type Store } from "./store";
 import { startOfMonth } from "./local";
+import { newSecureToken, resetExpiry } from "@/lib/auth/tokens";
 import type { WidgetDocument } from "@/lib/widget/schema";
 import type { PlanId } from "@/lib/plans";
 
@@ -87,8 +89,50 @@ export class SupabaseStore implements Store {
     await this.client.from("users").delete().eq("id", userId);
   }
 
+  async createPasswordReset(userId: string): Promise<PasswordReset> {
+    const reset: PasswordReset = {
+      token: newSecureToken("r_"),
+      userId,
+      createdAt: new Date().toISOString(),
+      expiresAt: resetExpiry(),
+      usedAt: null,
+    };
+    await this.client.from("password_resets").insert({
+      token: reset.token,
+      user_id: reset.userId,
+      created_at: reset.createdAt,
+      expires_at: reset.expiresAt,
+      used_at: null,
+    });
+    return reset;
+  }
+
+  async getPasswordReset(token: string): Promise<PasswordReset | null> {
+    const { data } = await this.client
+      .from("password_resets")
+      .select()
+      .eq("token", token)
+      .maybeSingle();
+    return data ? toPasswordReset(data) : null;
+  }
+
+  async consumePasswordReset(token: string): Promise<PasswordReset | null> {
+    // Redeemed by a conditional update rather than read-then-write: the
+    // filters are the check, so two requests carrying the same link race in
+    // the database and exactly one comes back with a row.
+    const { data } = await this.client
+      .from("password_resets")
+      .update({ used_at: new Date().toISOString() })
+      .eq("token", token)
+      .is("used_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .select()
+      .maybeSingle();
+    return data ? toPasswordReset(data) : null;
+  }
+
   async createSession(userId: string): Promise<Session> {
-    const row = { token: newId("s_"), user_id: userId };
+    const row = { token: newSecureToken("s_"), user_id: userId };
     const { data, error } = await this.client.from("sessions").insert(row).select().single();
     if (error) throw error;
     return { token: data.token, userId: data.user_id, createdAt: data.created_at };
@@ -344,6 +388,16 @@ export class SupabaseStore implements Store {
 }
 
 /* row → record mappers ---------------------------------------------- */
+
+function toPasswordReset(row: Row): PasswordReset {
+  return {
+    token: row.token as string,
+    userId: row.user_id as string,
+    createdAt: row.created_at as string,
+    expiresAt: row.expires_at as string,
+    usedAt: (row.used_at as string | null) ?? null,
+  };
+}
 
 function toUser(row: Row): User {
   return {

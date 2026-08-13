@@ -16,12 +16,14 @@ import path from "node:path";
 import type {
   EventRecord,
   LeadRecord,
+  PasswordReset,
   Session,
   SubscriptionRecord,
   User,
   WidgetRecord,
   WidgetVersion,
 } from "./types";
+import { newSecureToken, resetExpiry } from "@/lib/auth/tokens";
 import { newId, type CreateWidgetInput, type NewEvent, type NewLead, type Store } from "./store";
 import type { WidgetDocument } from "@/lib/widget/schema";
 import type { PlanId } from "@/lib/plans";
@@ -34,6 +36,7 @@ interface Database {
   events: EventRecord[];
   leads: LeadRecord[];
   subscriptions: SubscriptionRecord[];
+  passwordResets: PasswordReset[];
 }
 
 const EMPTY: Database = {
@@ -44,6 +47,7 @@ const EMPTY: Database = {
   events: [],
   leads: [],
   subscriptions: [],
+  passwordResets: [],
 };
 
 /**
@@ -169,13 +173,48 @@ export class LocalStore implements Store {
     for (const id of owned) await this.deleteWidget(id);
 
     this.db.sessions = this.db.sessions.filter((session) => session.userId !== userId);
+    // Postgres drops these by cascade, so this side has to as well — a live
+    // reset link outliving the account it resets is state nobody owns.
+    this.db.passwordResets = this.db.passwordResets.filter(
+      (reset) => reset.userId !== userId
+    );
     this.db.users = this.db.users.filter((user) => user.id !== userId);
     await this.save();
   }
 
+  async createPasswordReset(userId: string): Promise<PasswordReset> {
+    const reset: PasswordReset = {
+      token: newSecureToken("r_"),
+      userId,
+      createdAt: new Date().toISOString(),
+      expiresAt: resetExpiry(),
+      usedAt: null,
+    };
+    this.db.passwordResets.push(reset);
+    await this.save();
+    return reset;
+  }
+
+  async getPasswordReset(token: string): Promise<PasswordReset | null> {
+    this.refresh();
+    return this.db.passwordResets.find((reset) => reset.token === token) ?? null;
+  }
+
+  async consumePasswordReset(token: string): Promise<PasswordReset | null> {
+    this.refresh();
+    const reset = this.db.passwordResets.find((entry) => entry.token === token);
+    // Redeeming checks both conditions here rather than trusting the caller
+    // to have checked: this is the only door, so it is the only place the
+    // rules need to hold.
+    if (!reset || reset.usedAt || reset.expiresAt <= new Date().toISOString()) return null;
+    reset.usedAt = new Date().toISOString();
+    await this.save();
+    return reset;
+  }
+
   async createSession(userId: string): Promise<Session> {
     const session: Session = {
-      token: newId("s_"),
+      token: newSecureToken("s_"),
       userId,
       createdAt: new Date().toISOString(),
     };

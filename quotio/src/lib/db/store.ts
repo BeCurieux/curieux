@@ -15,6 +15,7 @@ import type {
   EventRecord,
   LeadRecord,
   Session,
+  PasswordReset,
   SubscriptionRecord,
   User,
   WidgetRecord,
@@ -83,6 +84,14 @@ export interface Store {
    * so someone changing their password isn't logged out by their own action.
    */
   deleteSessionsForUser(userId: string, keepToken?: string): Promise<void>;
+
+  /**
+   * Password reset. `consume` is the only way to redeem one, and it must be
+   * atomic enough that two requests with the same link cannot both succeed.
+   */
+  createPasswordReset(userId: string): Promise<PasswordReset>;
+  getPasswordReset(token: string): Promise<PasswordReset | null>;
+  consumePasswordReset(token: string): Promise<PasswordReset | null>;
 
   /**
    * Turn an anonymous author into a signed-up one, keeping their work (§27).

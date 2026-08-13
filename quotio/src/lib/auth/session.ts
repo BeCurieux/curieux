@@ -14,6 +14,8 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { getStore } from "@/lib/db/store";
+import { emailEnabled, getMailer } from "@/lib/email/mailer";
+import { appUrl, brand } from "@/config/brand";
 import type { User } from "@/lib/db/types";
 import { emailProblem, hashPassword, passwordProblem, verifyPassword } from "./password";
 
@@ -173,6 +175,79 @@ export async function changePassword(current: string, next: string): Promise<Aut
   const store = getStore();
   await store.setUserPassword(user.id, await hashPassword(next));
   await store.deleteSessionsForUser(user.id, cookies().get(SESSION_COOKIE)?.value);
+  return { ok: true };
+}
+
+/**
+ * Start a password reset.
+ *
+ * Always reports success, whether or not the address belongs to an account.
+ * The alternative tells anyone with a login form which of their guesses are
+ * real customers of ours, which is a list worth more than the small
+ * convenience of "no account found".
+ *
+ * The one thing it will not do is claim an email is on its way when this
+ * deployment cannot send email. `delivered` is what the page reads to decide
+ * between "check your inbox" and telling the truth (§41).
+ */
+export async function requestPasswordReset(
+  email: string
+): Promise<{ ok: true; delivered: boolean }> {
+  const address = email.trim().toLowerCase();
+  if (!address) return { ok: true, delivered: emailEnabled() };
+
+  const user = await getStore().findUserByEmail(address);
+  // No account, or an anonymous author who never set a password: nothing to
+  // reset, and the caller is told the same thing either way.
+  if (!user?.passwordHash) return { ok: true, delivered: emailEnabled() };
+
+  const reset = await getStore().createPasswordReset(user.id);
+  const link = `${appUrl()}/reset/${reset.token}`;
+
+  const result = await getMailer().send({
+    to: address,
+    subject: `Reset your ${brand.name} password`,
+    body: [
+      `Someone asked to reset the password for your ${brand.name} account.`,
+      "",
+      `Open this link within the hour to choose a new one:`,
+      link,
+      "",
+      "If that wasn't you, you can ignore this — the link only works once, and",
+      "nothing has changed until you use it.",
+    ].join("\n"),
+  });
+
+  return { ok: true, delivered: result.sent };
+}
+
+/**
+ * Finish a password reset.
+ *
+ * The token is the only credential here, which is why it is consumed inside
+ * the store rather than checked and then used: two requests carrying the same
+ * link must not both be able to set a password.
+ */
+export async function completePasswordReset(
+  token: string,
+  next: string
+): Promise<AuthResult> {
+  const problem = passwordProblem(next);
+  if (problem) return { ok: false, error: problem };
+
+  const store = getStore();
+  const reset = await store.consumePasswordReset(token);
+  if (!reset) {
+    return {
+      ok: false,
+      error: "That link has expired or been used already. Ask for a new one.",
+    };
+  }
+
+  await store.setUserPassword(reset.userId, await hashPassword(next));
+  // Whoever knew the old password is signed out everywhere. A reset is most
+  // often a reset *because* somebody else had it.
+  await store.deleteSessionsForUser(reset.userId);
   return { ok: true };
 }
 

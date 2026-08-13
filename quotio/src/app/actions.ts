@@ -11,10 +11,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
   changePassword,
+  completePasswordReset,
   currentUser,
   deleteAccount,
   ensureAuthor,
   isRegistered,
+  requestPasswordReset,
   signIn,
   signOut,
   signUp,
@@ -237,4 +239,28 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
 
   revalidatePath("/");
   return { ok: true };
+}
+
+/**
+ * Ask for a reset link.
+ *
+ * Returns `delivered` rather than a bare ok, so the page can tell someone to
+ * check their inbox only when something was actually put in it.
+ */
+export async function requestPasswordResetAction(
+  formData: FormData
+): Promise<{ ok: true; delivered: boolean } | ActionResult> {
+  const email = String(formData.get("email") ?? "");
+  if (!email.trim()) return { ok: false, error: "Enter the email you signed up with." };
+  return requestPasswordReset(email);
+}
+
+export async function completePasswordResetAction(formData: FormData): Promise<ActionResult> {
+  const token = String(formData.get("token") ?? "");
+  const next = String(formData.get("password") ?? "");
+  if (!token) return { ok: false, error: "That link is missing its code." };
+  if (!next) return { ok: false, error: "Choose a new password." };
+
+  const result = await completePasswordReset(token, next);
+  return result.ok ? { ok: true } : { ok: false, error: result.error };
 }

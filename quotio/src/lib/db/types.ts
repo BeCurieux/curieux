@@ -77,3 +77,17 @@ export interface SubscriptionRecord {
   plan: PlanId;
   status: string;
 }
+
+/**
+ * A password-reset link, in flight.
+ *
+ * Single-use and short-lived: `usedAt` is stamped the moment it is redeemed so
+ * a link forwarded, logged or sitting in a mailbox cannot be replayed.
+ */
+export interface PasswordReset {
+  token: string;
+  userId: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
+}
