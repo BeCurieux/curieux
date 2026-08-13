@@ -764,7 +764,31 @@
 }
 
 .colophon a {
-  border-bottom: 1px solid var(--line-strong);
+  /* 19px of text is not a tap target. This is the link back to the merchant's
+     own storefront — arguably the second most important on the page — and on a
+     phone it was a thumb-sized miss.
+
+     Padding grows the hit area to 44px; the equal negative margin gives the
+     space back to the layout, so the colophon's baseline row does not move. A
+     `min-height` would have worked too and would have pushed everything around
+     it down.
+
+     The padding is derived rather than typed. The colophon is a flex container,
+     so this anchor is a flex item and its box height is exactly one line —
+     which is what `1lh` is. A hand-set 12px was one pixel short of 44 at this
+     font size, and would have been short by a different amount at any other:
+     the arithmetic is the only version that survives a change to `--step--1`.
+
+     The rule under the text has to become `text-decoration` rather than a
+     border for the same reason: a border draws at the bottom of the box, and
+     the box is now 25px taller than the text it belongs to. `text-decoration`
+     tracks the text. */
+  padding-block: calc((44px - 1lh) / 2);
+  margin-block: calc((1lh - 44px) / 2);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
 }
 
 .colophon .asof {
