@@ -1,22 +1,31 @@
 /**
- * Social mockups: the prompt, and the shop it produced.
+ * Social posters: the sentence somebody typed, and the shop it produced.
  *
- * The product is one sentence in and a whole shop out, so every frame here
- * shows both halves and nothing else. The typed line is the merchant's actual
- * prompt from the demo config, not marketing copy written to sit above a
- * screenshot — if the words on the poster and the words that made the shop
- * ever drift apart, the poster is lying.
+ * The first cut of these was editorial — near-black grounds, a serif quote, a
+ * device. Handsome, and the wrong speed for a feed: it explained itself slowly
+ * and the concept did not survive a thumb. This cut fixes both by being louder
+ * about the same true thing.
+ *
+ * - The prompt sits in a white field with a cursor after it, so the causality
+ *   reads without a caption: this was typed, that came out.
+ * - The ground is popuup's violet rather than the merchant's colour, on every
+ *   poster. It makes the set unmistakably one campaign, and it is the only
+ *   ground the goods reliably pop against — pink goods on a pink poster
+ *   vanished.
+ * - The display face is Fraunces with wght, SOFT and WONK all pushed: heavy,
+ *   rounded terminals, alternate letterforms. It is the only face in the repo
+ *   that can be chunky without being generic, and its roundness is the same
+ *   roundness as the wordmark.
  *
  * Composed as HTML and screenshotted rather than assembled in an image
  * library, because the phone frame, the grain, the glow and the type are all
- * things CSS is better at than I am, and because a mockup that needs a tweak
+ * things CSS is better at than I am, and because a poster that needs a tweak
  * is then a CSS tweak.
  *
- * The goods in these shops are drawn, not photographed — see shops.mjs. Every
- * other pixel is the renderer's own output at the size a phone actually shows
- * it, screenshotted from a running dev server rather than redrawn here, so a
- * change to the template shows up in the next poster without anybody
- * remembering to update it.
+ * The goods are drawn, not photographed — see shops.mjs. Every other pixel is
+ * the renderer's own output at the size a phone shows it, screenshotted from a
+ * running dev server rather than redrawn here, so a change to the template
+ * shows up in the next poster without anybody remembering to update it.
  */
 
 import { launch } from "./browser.mjs";
@@ -27,40 +36,48 @@ import { resolve } from "node:path";
 const ROOT = resolve(import.meta.dirname, "../..");
 const SCRATCH = `${ROOT}/.cache/press`;
 
-/** Grounds are darkened from each shop's own palette, not invented next to it. */
+/** popuup's own violet, and the two grounds that had to differ from it. */
+const VIOLET = "#6C2BF5";
+const VIOLET_LIT = "#A88BFF";
+const INDIGO = "#241468";
+const LILAC = "#CDBCFF";
+const NAVY = "#130A3D";
+
 const SHOPS = [
   {
     mood: "utility", brand: "Bench & Bolt", frame: "mid",
     prompt: "the starter kit for someone setting up their first workshop",
-    ground: "#17120D", ink: "#F7F0E5", accent: "#FF5A1F", glow: "#FF4A0D",
+    ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [0, 5],
   },
   {
     mood: "clean", brand: "Sea Salt Skin", frame: "mid",
     prompt: "a first routine for someone who has never used skincare",
-    ground: "#042B25", ink: "#E8FAF5", accent: "#22D6AC", glow: "#00B08B",
+    ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [1, 4],
   },
   {
     mood: "playful", brand: "Pip & Pockets", frame: "grid",
     prompt: "a gift edit for a two-year-old who ruins everything",
-    ground: "#360619", ink: "#FFE9F2", accent: "#FF4C86", glow: "#FF1F6B",
+    ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [2, 4],
   },
   {
+    // Folio Press works in ultramarine, which is a neighbour of the violet and
+    // disappears into it. Pale ground, dark ink, same family.
     mood: "editorial", brand: "Folio Press", frame: "mid",
     prompt: "a desk set for someone who has started writing by hand again",
-    ground: "#0A0C32", ink: "#ECEBFF", accent: "#7C84FF", glow: "#1B23E8",
+    ground: LILAC, lit: "#EDE5FF", ink: NAVY, cutouts: [0, 6],
   },
   {
+    // Gold on violet is muddy; gold on indigo is the whole point of gold.
     mood: "luxe", brand: "Maison Verre", frame: "mid",
     prompt: "a wedding list for two people who already own everything",
-    // Warmer and a shade up from the shop's own #0C0B0E: at the shop's exact
-    // ground the phone's bezel vanished into the poster and the device lost
-    // its edges entirely.
-    ground: "#191309", ink: "#F6F0E4", accent: "#E8B23C", glow: "#E8B23C",
+    ground: INDIGO, lit: "#4A2FA8", ink: "#FFFFFF", cutouts: [3, 5],
   },
 ];
 
 const FONTS = {
-  display: `${ROOT}/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-soft-normal.woff2`,
+  // The full-axis cut, not the SOFT-only one the renderer ships: the posters
+  // need WONK as well, and the extra 40KB never reaches a shopper.
+  display: `${ROOT}/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2`,
   sans: `${ROOT}/node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2`,
 };
 
@@ -75,19 +92,23 @@ const fonts = {
 
 const shot = {};
 const badgeShot = {};
+const cutout = {};
 for (const shop of SHOPS) {
   badgeShot[shop.mood] = await dataUri(`${SCRATCH}/badge-${shop.mood}.png`, "image/png");
   for (const frame of ["fold", "grid", "mid", "foot"]) {
     shot[`${shop.mood}-${frame}`] = await dataUri(`${SCRATCH}/phone-${shop.mood}-${frame}.png`, "image/png");
   }
+  for (const index of shop.cutouts) {
+    cutout[`${shop.mood}-${index}`] = await dataUri(`${SCRATCH}/cutout-${shop.mood}-${index}.svg`, "image/svg+xml");
+  }
 }
 
 /**
- * Grain. Without it a flat dark ground photographs as a compression artefact
+ * Grain. Without it a flat saturated ground turns into a compression artefact
  * farm the moment Instagram re-encodes it.
  */
 const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3"/></filter><rect width="220" height="220" filter="url(#n)" opacity="0.42"/></svg>`,
+  `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3"/></filter><rect width="220" height="220" filter="url(#n)" opacity="0.42"/></svg>`,
 )}")`;
 
 const BASE = `
@@ -98,92 +119,120 @@ const BASE = `
   .canvas { position: relative; overflow: hidden; }
   .canvas::after {
     content: ""; position: absolute; inset: 0; background-image: ${GRAIN};
-    mix-blend-mode: overlay; opacity: 0.5; pointer-events: none;
+    mix-blend-mode: overlay; opacity: 0.42; pointer-events: none;
   }
-  .glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
-  .eyebrow {
-    font-size: 19px; font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase;
+
+  /* wght, SOFT and WONK together. Any one of them alone still reads as a
+     magazine; all three read as a poster. */
+  .shout {
+    font-family: Display; font-weight: 900;
+    font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+    letter-spacing: -0.032em; line-height: 0.92;
   }
-  /* The device. A bezel, one highlight along the top edge, and a shadow with a
+  .eyebrow { font-size: 19px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; }
+
+  /* The device. A bezel, a highlight along the top edge, and a shadow with a
      tight contact layer under a wide soft one — a single blurred shadow reads
      as a sticker. */
   .phone { position: absolute; border-radius: 58px; padding: 13px; background: #0B0B0D;
-    box-shadow: 0 2px 0 rgba(255,255,255,0.14) inset, 0 0 0 1px rgba(255,255,255,0.13),
-                0 40px 60px -20px rgba(0,0,0,0.7), 0 140px 160px -60px rgba(0,0,0,0.85); }
+    box-shadow: 0 2px 0 rgba(255,255,255,0.16) inset, 0 0 0 1px rgba(0,0,0,0.2),
+                0 40px 60px -20px rgba(28,6,80,0.5), 0 140px 160px -60px rgba(20,4,60,0.6); }
   .screen { border-radius: 46px; overflow: hidden; display: block; }
   .screen img { width: 100%; display: block; }
-  /* A zoom of a real page, presented as one: the crop keeps the shop's own
-     ground, so the card only needs an edge and a shadow to read as lifted off
-     the screen beside it. */
+
+  /* Goods loose on the ground: no plate, no cast shadow of their own beyond a
+     soft drop, so they read as objects on the poster rather than as pictures
+     of objects. */
+  .cut { position: absolute; }
+  .cut img { width: 100%; display: block; filter: drop-shadow(0 26px 26px rgba(20,4,60,0.32)); }
+
+  /* The prompt, as a field somebody typed into. */
+  .typed { background: #FFFFFF; border-radius: 34px; box-shadow: 0 22px 44px -20px rgba(20,4,60,0.5); }
+  .caret { display: inline-block; width: 4px; background: currentColor; margin-left: 7px;
+    vertical-align: baseline; transform: translateY(0.13em); }
+
+  /* A zoom of a real page, presented as one. */
   .callout { position: absolute; border-radius: 22px; overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.16), 0 30px 60px -18px rgba(0,0,0,0.75); }
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 30px 60px -18px rgba(20,4,60,0.7); }
   .callout img { width: 100%; display: block; }
+
+  /* The credit, as a sticker rather than a corner mark — it survives being
+     screenshotted, cropped and reposted, which corner marks do not. */
+  .sticker { position: absolute; z-index: 6; background: #FFFFFF; border-radius: 999px;
+    display: flex; align-items: center; gap: 18px; padding: 18px 34px;
+    box-shadow: 0 20px 40px -16px rgba(20,4,60,0.55); }
+  .sticker span:first-child { font-size: 25px; font-weight: 600; color: ${NAVY}; }
 `;
 
-/**
- * "Made with popuup" — the real wordmark, and the same three words the free
- * tier's badge puts at the foot of every published shop.
- *
- * The dark letters take the poster's ink rather than the brand navy, which is
- * invisible on a near-black ground. The violet on the double-u is the one part
- * that never translates: it is what makes the mark recognisable at 200px, and
- * it is the piece the in-page badge keeps for the same reason.
- */
-const VIOLET = "#9B7BFF";
-
-const lockup = (width, ink, align = "right") => `
-  <div style="display:flex; flex-direction:column; align-items:${align === "right" ? "flex-end" : "flex-start"}; gap:${Math.round(width * 0.055)}px">
-    <span class="eyebrow" style="font-size:${Math.round(width * 0.082)}px; opacity:0.72">Made with</span>
-    <span style="display:block; width:${width}px">${wordmark({ ink, accent: VIOLET, id: `uu-${align}-${width}` })}</span>
+/** "Made with popuup", in the brand's own colours on a white sticker. */
+const sticker = (markWidth, extra = "") => `
+  <div class="sticker" style="${extra}">
+    <span>Made with</span>
+    <span style="display:block; width:${markWidth}px">${wordmark({ id: `uu-${markWidth}` })}</span>
   </div>`;
+
+const typed = (prompt, size, colour) => {
+  const caret = `<span class="caret" style="height:${Math.round(size * 0.86)}px; color:${colour}"></span>`;
+  // The caret is glued to the last word. Left loose it wrapped onto a line of
+  // its own the moment a prompt happened to fill the final line exactly, which
+  // reads as a typo rather than a cursor.
+  const line = prompt.replace(/(\S+)$/, `<span style="white-space:nowrap">$1${caret}</span>`);
+
+  return `
+  <div class="typed" style="padding:${Math.round(size * 0.86)}px ${Math.round(size * 0.96)}px">
+    <p class="eyebrow" style="font-size:${Math.round(size * 0.5)}px; color:${colour}; margin-bottom:${Math.round(size * 0.44)}px">Make me a shop for</p>
+    <p style="font-size:${size}px; line-height:1.24; color:${NAVY}">${line}</p>
+  </div>`;
+};
 
 // --------------------------------------------------------------- the frames
 
 /**
- * One shop: the prompt above, the phone rising off the bottom edge.
+ * One shop. The claim, the sentence, the thing that came out.
  *
- * The same composition serves the feed and the story — a story is not a
- * different design, it is the same one with more air above the device, so it
- * takes a size rather than a second template.
+ * Feed and story are the same design at two heights rather than two designs,
+ * so the set stays one set.
  */
-const FEED = { width: 1080, height: 1350, pad: 84, size: 60, phone: 566, top: 512 };
-const STORY = { width: 1080, height: 1920, pad: 90, size: 64, phone: 620, top: 690 };
+const FEED = {
+  width: 1080, height: 1350, pad: 66, shout: 126, prompt: 30,
+  promptTop: 470, phone: 528, phoneTop: 742, sticker: 128, stickerTop: 1214,
+};
+const STORY = {
+  width: 1080, height: 1920, pad: 72, shout: 140, prompt: 32,
+  promptTop: 620, phone: 596, phoneTop: 950, sticker: 138, stickerTop: 1770,
+};
 
 const portrait = (shop, page = FEED) => `<!doctype html><html><head><meta charset="utf-8"><style>${BASE}</style></head><body>
 <div class="canvas" style="width:${page.width}px; height:${page.height}px; background:${shop.ground}; color:${shop.ink}">
-  <div class="glow" style="width:900px; height:900px; left:-180px; top:-380px; background:${shop.glow}; opacity:0.3"></div>
-  <div class="glow" style="width:700px; height:700px; right:-260px; top:${page.top}px; background:${shop.glow}; opacity:0.16"></div>
+  <div style="position:absolute; inset:0; background:radial-gradient(120% 68% at 14% -6%, ${shop.lit} 0%, transparent 62%)"></div>
 
-  <!-- The top block flows rather than being pinned line by line, because the
-       prompts are two and three lines long and the rule under them has to
-       follow the type, not a number I measured off one of them. -->
-  <div style="position:absolute; left:${page.pad}px; right:${page.pad}px; top:${Math.round(page.height * 0.058)}px">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start">
-      <span class="eyebrow" style="color:${shop.accent}">The prompt</span>
-      ${lockup(196, shop.ink)}
-    </div>
-
-    <p style="margin-top:40px; padding-right:66px; font-family:Display; font-weight:400;
-              font-size:${page.size}px; line-height:1.1; letter-spacing:-0.022em; text-wrap:balance">
-      &ldquo;${shop.prompt}&rdquo;
-    </p>
-
-    <div style="margin-top:54px; display:flex; align-items:center; gap:18px">
-      <span style="width:74px; height:2px; background:${shop.accent}; opacity:0.85"></span>
-      <span class="eyebrow" style="font-size:16px; opacity:0.62">${shop.brand}</span>
-    </div>
+  <div class="cut" style="width:${Math.round(page.width * 0.29)}px; left:-46px; top:${page.phoneTop - 110}px; transform:rotate(-17deg)">
+    <img src="${cutout[`${shop.mood}-${shop.cutouts[0]}`]}" alt="">
+  </div>
+  <div class="cut" style="width:${Math.round(page.width * 0.245)}px; right:-38px; top:${page.phoneTop - 230}px; transform:rotate(15deg)">
+    <img src="${cutout[`${shop.mood}-${shop.cutouts[1]}`]}" alt="">
   </div>
 
-  <div class="phone" style="width:${page.phone}px; left:${(page.width - page.phone) / 2}px; top:${page.top}px">
+  <p class="shout" style="position:absolute; left:${page.pad}px; right:${page.pad}px; top:${Math.round(page.height * 0.068)}px; font-size:${page.shout}px">
+    one line in.<br>a whole<br>shop out.
+  </p>
+
+  <div style="position:absolute; left:${page.pad}px; right:${page.pad + 40}px; top:${page.promptTop}px">
+    ${typed(shop.prompt, page.prompt, shop.ground === LILAC ? "#5B23F5" : shop.ground)}
+  </div>
+
+  <div class="phone" style="width:${page.phone}px; left:${Math.round((page.width - page.phone) / 2 + 22)}px; top:${page.phoneTop}px; transform:rotate(-4deg)">
     <span class="screen"><img src="${shot[`${shop.mood}-${shop.frame}`]}" alt=""></span>
   </div>
+
+  ${sticker(page.sticker, `left:${page.pad - 22}px; top:${page.stickerTop}px; transform:rotate(-4deg)`)}
 </div></body></html>`;
 
-/** All five at once: same sentence-in, five different shops out. */
+/** All five at once: same sentence in, five different shops out. */
 const fan = ({ width, height, phone, label }) => {
-  // The deck is laid out from its total span, not from a gap I liked the look
-  // of: at 0.86 of a phone width the outer two ran off both edges of the
-  // canvas and lost their brand names.
+  // Laid out from the deck's total span, not from a gap I liked the look of:
+  // at 0.86 of a phone width the outer two ran off both edges of the canvas
+  // and lost their brand names.
   const gap = phone.w * (phone.gap ?? 0.62);
   const span = gap * (SHOPS.length - 1) + phone.w;
   const left = (width - span) / 2;
@@ -198,56 +247,51 @@ const fan = ({ width, height, phone, label }) => {
   }).join("");
 
   return `<!doctype html><html><head><meta charset="utf-8"><style>${BASE}</style></head><body>
-<div class="canvas" style="width:${width}px; height:${height}px; background:#0B0A0C; color:#F4F1EA">
-  <div class="glow" style="width:${width}px; height:${width * 0.7}px; left:${width * 0.06}px; top:${-width * 0.34}px; background:#FF4A0D; opacity:0.2"></div>
-  <div class="glow" style="width:${width * 0.7}px; height:${width * 0.7}px; right:${-width * 0.2}px; bottom:${-width * 0.34}px; background:#1B23E8; opacity:0.26"></div>
+<div class="canvas" style="width:${width}px; height:${height}px; background:${VIOLET}; color:#FFFFFF">
+  <div style="position:absolute; inset:0; background:radial-gradient(110% 62% at 50% -12%, ${VIOLET_LIT} 0%, transparent 64%)"></div>
+  <div style="position:absolute; inset:0; background:radial-gradient(80% 60% at 96% 108%, ${INDIGO} 0%, transparent 62%)"></div>
 
-  <!-- The wordmark leads instead of sitting in a corner, because the deck runs
-       off the bottom edge and anything down there is half a phone deep. -->
-  <div style="position:absolute; left:${label.x}px; right:${label.x}px; top:${label.top}px; text-align:center">
-    <div style="display:flex; justify-content:center">${lockup(label.mark, "#F4F1EA", "left")}</div>
-    <p style="margin-top:${label.gap}px; font-family:Display; font-weight:400; font-size:${label.size}px; line-height:1.08; letter-spacing:-0.024em">
-      Five prompts. Five shops.<br>No builder, no templates, no drag.
-    </p>
-  </div>
+  <p class="shout" style="position:absolute; left:${label.x}px; right:${label.x}px; top:${label.top}px; font-size:${label.size}px; text-align:center">
+    five prompts.<br>five shops.
+  </p>
+  <p style="position:absolute; left:${label.x}px; right:${label.x}px; top:${label.subTop}px; text-align:center; font-size:${label.sub}px; opacity:0.82">
+    No builder. No templates. No drag.
+  </p>
 
   ${cards}
+  ${sticker(label.mark, label.stickerStyle ?? `left:50%; transform:translateX(-50%) rotate(-3deg); top:${label.stickerTop}px`)}
 </div></body></html>`;
 };
 
 /**
  * The badge, which is the whole distribution plan.
  *
- * Every other poster here shows what a merchant gets. This one shows what
- * popuup gets back, and it shows it by lifting the actual pixels off the
- * bottom of an actual page rather than setting the words again in a design
- * file — the crop and the phone beside it come from the same screenshot pass.
+ * Every other poster shows what a merchant gets. This one shows what popuup
+ * gets back, and it shows it by lifting the actual pixels off the bottom of an
+ * actual page rather than setting the words again in a design file — the crop
+ * and the phone beside it come from the same screenshot pass.
  */
 const badgePoster = (mood) => `<!doctype html><html><head><meta charset="utf-8"><style>${BASE}</style></head><body>
-<div class="canvas" style="width:1080px; height:1350px; background:#0B0A0C; color:#F4F1EA">
-  <div class="glow" style="width:820px; height:820px; left:-200px; top:-340px; background:#6C2BF5; opacity:0.34"></div>
-  <div class="glow" style="width:640px; height:640px; right:-220px; bottom:-240px; background:#6C2BF5; opacity:0.2"></div>
+<div class="canvas" style="width:1080px; height:1350px; background:${VIOLET}; color:#FFFFFF">
+  <div style="position:absolute; inset:0; background:radial-gradient(110% 60% at 10% -8%, ${VIOLET_LIT} 0%, transparent 62%)"></div>
+  <div style="position:absolute; inset:0; background:radial-gradient(80% 56% at 100% 106%, ${INDIGO} 0%, transparent 60%)"></div>
 
-  <div style="position:absolute; left:84px; right:84px; top:78px">
-    <span class="eyebrow" style="color:${VIOLET}">The badge</span>
-    <p style="margin-top:40px; font-family:Display; font-weight:400; font-size:62px;
-              line-height:1.08; letter-spacing:-0.022em; padding-right:120px">
-      Every free shop ends with this.
-    </p>
-    <p style="margin-top:30px; font-size:25px; line-height:1.5; opacity:0.66; max-width:640px">
-      One line at the foot of the page, in the merchant&rsquo;s own palette. It is
-      how the next merchant finds us.
-    </p>
-  </div>
+  <p class="shout" style="position:absolute; left:66px; right:66px; top:84px; font-size:118px">
+    every free<br>shop ends<br>with this.
+  </p>
+
+  <p style="position:absolute; left:70px; top:${84 + 118 * 0.92 * 3 + 44}px; font-size:26px; line-height:1.5; opacity:0.84; max-width:560px">
+    One line at the foot of the page, in the shop&rsquo;s own palette.<br>It is how the next merchant finds us.
+  </p>
 
   <!-- The device sits fully inside the canvas here, unlike every other poster.
        It has to: the badge is the last thing on the page, so a phone that runs
        off the bottom edge crops off the only reason this frame exists. -->
-  <div class="phone" style="width:404px; left:604px; top:452px">
+  <div class="phone" style="width:392px; left:626px; top:520px; transform:rotate(3deg)">
     <span class="screen"><img src="${shot[`${mood}-foot`]}" alt=""></span>
   </div>
 
-  <div class="callout" style="width:560px; left:56px; top:900px; transform:rotate(-2.4deg)">
+  <div class="callout" style="width:558px; left:52px; top:900px; transform:rotate(-3deg)">
     <img src="${badgeShot[mood]}" alt="">
   </div>
 </div></body></html>`;
@@ -283,18 +327,23 @@ for (const shop of SHOPS) {
 await render("popuup-badge", badgePoster("editorial"), 1080, 1350);
 
 await render("popuup-five-feed", fan({
-  width: 1080, height: 1350, label: { x: 90, top: 92, size: 56, gap: 40, mark: 236 },
-  phone: { w: 296, top: 470, lift: 30 },
+  width: 1080, height: 1350,
+  label: { x: 80, top: 92, size: 118, sub: 27, subTop: 350, mark: 122, stickerTop: 1222 },
+  phone: { w: 296, top: 500, lift: 30 },
 }), 1080, 1350);
 
 await render("popuup-five-story", fan({
-  width: 1080, height: 1920, label: { x: 90, top: 350, size: 62, gap: 46, mark: 268 },
-  phone: { w: 460, gap: 0.44, top: 1000, lift: 36 },
+  width: 1080, height: 1920,
+  label: { x: 80, top: 250, size: 128, sub: 29, subTop: 540, mark: 132, stickerTop: 700 },
+  phone: { w: 460, gap: 0.44, top: 1020, lift: 36 },
 }), 1080, 1920);
 
 await render("popuup-five-wide", fan({
-  width: 1600, height: 900, label: { x: 160, top: 66, size: 52, gap: 34, mark: 220 },
-  phone: { w: 262, top: 356, lift: 24 },
+  width: 1600, height: 900,
+  // Centred, the sticker stacked a third object under the headline and
+  // above the deck. In the corner it reads as a mark on the poster.
+  label: { x: 160, top: 66, size: 96, sub: 26, subTop: 268, mark: 118, stickerStyle: "left:88px; top:700px; transform:rotate(-3deg)" },
+  phone: { w: 262, top: 470, lift: 24 },
 }), 1600, 900);
 
 await browser.close();

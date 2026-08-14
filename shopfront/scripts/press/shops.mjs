@@ -13,7 +13,7 @@
  * regenerating them is one command.
  */
 import { resolve } from "node:path";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
 
 const uri = (svg) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 const CX = 600;
@@ -227,6 +227,16 @@ const draw = (palette, { art, base }) => uri(`<svg xmlns="http://www.w3.org/2000
   <g transform="translate(${CX} ${CY}) scale(${FILL}) translate(${-CX} ${-CY})">${floor(560, base + 26)}${art}</g>
 </svg>`);
 
+/**
+ * The same object with the ground and the cast shadow taken away, on a canvas
+ * cropped to the drawing.
+ *
+ * Posters want the goods loose — floating over a colour, overlapping a phone,
+ * running off an edge. A cutout is that, and it is the same path data as the
+ * catalogue image so the two can never show different objects.
+ */
+const cutout = ({ art }) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="180 300 840 920">${art}</svg>`;
+
 // ------------------------------------------------------------------- brands
 
 const BRANDS = [
@@ -324,6 +334,8 @@ const BRANDS = [
 
 const iso = "2026-08-14T09:00:00.000Z";
 
+mkdirSync(resolve(import.meta.dirname, "../../.cache/press"), { recursive: true });
+
 for (const brand of BRANDS) {
   const products = brand.products.map(([handle, title, price, type, art], index) => {
     const available = !brand.soldOut.includes(handle);
@@ -334,12 +346,23 @@ for (const brand of BRANDS) {
       vendor: brand.name, productType: type, tags: [type.toLowerCase()],
       url: `https://example.invalid/${brand.key}/products/${handle}`,
       images: [{ url: draw(brand.palette, art(brand.ink)), width: 1200, height: 1500 }],
+      // Not part of the catalogue — see below.
       variants: [{ id: String(49000 + index), title: "Default Title", price, ...(was ? { compareAtPrice: was } : {}), available, options: [] }],
       price: { min: price, max: price },
       ...(was ? { compareAtPrice: { min: was, max: was } } : {}),
       available,
       availabilityKnown: true,
     };
+  });
+
+  // Cutouts for the posters, written beside the shop rather than inside it:
+  // the catalogue is what a merchant's store would give us, and a
+  // transparent PNG of a product is not something a store gives anybody.
+  brand.products.forEach(([handle, , , , art], index) => {
+    writeFileSync(
+      resolve(import.meta.dirname, `../../.cache/press/cutout-${brand.mood}-${index}.svg`),
+      cutout(art(brand.ink)),
+    );
   });
 
   writeFileSync(resolve(import.meta.dirname, `../../.cache/shop/demo-${brand.mood}.json`), JSON.stringify({
