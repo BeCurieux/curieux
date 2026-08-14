@@ -75,7 +75,7 @@ export function Plate({
 
   return (
     <div className={classes}>
-      {attrs ? (
+      {attrs && (
         // eslint-disable-next-line @next/next/no-img-element -- resizing is done
         // by the merchant's own CDN in render/image.ts; next/image would add a
         // second optimiser in front of a URL we do not host.
@@ -85,9 +85,15 @@ export function Plate({
           decoding="async"
           fetchPriority={eager ? "high" : "auto"}
         />
-      ) : (
-        <span aria-hidden="true">{initial(product.title)}</span>
       )}
+      {/* Always rendered, invisible under a photograph that arrives. Kept in
+          the markup rather than swapped in on failure so the recovery is a
+          class change on a plate that already contains everything it needs —
+          no second render, and no flash of an empty tinted box while React
+          works out what to put there. */}
+      <span className="plate-initial" aria-hidden="true">
+        {initial(product.title)}
+      </span>
       {/* Shown and marked, never hidden. "unknown" prints nothing at all —
           claiming stock nobody checked is the same error as inventing a price. */}
       {stock === "sold-out" && <p className="stock">Sold out</p>}

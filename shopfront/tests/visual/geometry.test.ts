@@ -27,6 +27,7 @@ import {
   browserRequired,
   startHarness,
   open,
+  urlFor,
   DESKTOPS,
   MOODS,
   PHONE,
@@ -234,6 +235,114 @@ describeVisual("geometry", () => {
         }
       }
       expect(level).toEqual(["utility"]);
+    });
+  });
+
+  describe("when the photographs do not arrive", () => {
+    /**
+     * Found by running against a real store, not by imagining one.
+     *
+     * The renderer had a considered answer for a product with no photograph and
+     * no answer at all for a photograph whose URL is dead. Every plate rendered
+     * the browser's broken-image glyph with the alt text spilling across it, and
+     * the hero's white headline sat unreadable on the pale plate, because the
+     * scrim that makes white legible assumes there is a photograph beneath it.
+     *
+     * Merchants delete photos and CDN paths change, so this is routine rather
+     * than exotic. Every image request is failed here rather than pointed at a
+     * bad URL, because that is what a dead CDN actually does.
+     */
+    const openBroken = async (mood: Mood, viewport: Viewport): Promise<Page> => {
+      const page = await harness.browser.newPage({
+        viewport: { width: viewport.width, height: viewport.height },
+      });
+      // Matched on the URL rather than by intercepting everything and checking
+      // `resourceType`: routing every request also puts the framework's own
+      // chunks through the handler, and the page never finished hydrating — so
+      // the listener that does the recovery never ran and the test failed for a
+      // reason that had nothing to do with images.
+      await page.route(/\.(png|jpe?g|webp|avif|svg|gif)(\?|$)/i, (route) => route.abort());
+      await page.goto(urlFor(harness.base, mood), { waitUntil: "networkidle" });
+      await page.evaluate(() => document.fonts.ready);
+      // Settle rather than wait for the recovery's own marker. Gating on
+      // `[data-broken]` made both tests below fail at the gate when the fix was
+      // removed, which looks like a pass but proves nothing: the contrast
+      // assertion never ran. Waiting for the page to stop moving lets each test
+      // fail on the thing it is actually about.
+      await page.waitForTimeout(1_200);
+      return page;
+    };
+
+    it.each(MOODS)("%s shows an initial instead of a broken glyph", async (mood) => {
+      const page = await openBroken(mood, PHONE);
+      try {
+        const state = await page.evaluate(() => {
+          const plates = [...document.querySelectorAll(".plate")];
+          return {
+            plates: plates.length,
+            // The fixture includes a product with no photograph at all, whose
+            // plate has no <img> to fail and needs no marking — it is already
+            // showing its initial. Only the plates that asked for an image are
+            // the ones this recovery is about.
+            withImages: plates.filter((p) => p.querySelector("img") !== null).length,
+            marked: plates.filter((p) => p.hasAttribute("data-broken")).length,
+            // A visible <img> is the glyph, and the glyph is the failure.
+            visibleImages: plates.filter((p) => {
+              const image = p.querySelector("img");
+              return image !== null && getComputedStyle(image).display !== "none";
+            }).length,
+            initialsShown: plates.filter((p) => {
+              const initial = p.querySelector(".plate-initial");
+              return initial !== null && Number(getComputedStyle(initial).opacity) > 0.9;
+            }).length,
+          };
+        });
+
+        expect(state.plates).toBeGreaterThan(0);
+        expect(state.withImages).toBeGreaterThan(0);
+        expect(state.marked).toBe(state.withImages);
+        expect(state.visibleImages).toBe(0);
+        // Every plate ends up showing an initial, whichever way it got there.
+        expect(state.initialsShown).toBe(state.plates);
+      } finally {
+        await page.close();
+      }
+    });
+
+    it.each(MOODS)("%s keeps the headline readable", async (mood) => {
+      // The one that actually hurt: the largest words on the page turning white
+      // on cream. Measured against the plate the type is sitting on, because
+      // that is what a reader sees.
+      const page = await openBroken(mood, PHONE);
+      try {
+        const sample = await page.evaluate(() => {
+          const h1 = document.querySelector(".hero-copy h1");
+          const plate = document.querySelector(".hero-plate");
+          if (!h1 || !plate) return null;
+          const behind = (el: Element): string => {
+            let node: Element | null = el;
+            while (node) {
+              const background = getComputedStyle(node).backgroundColor;
+              if (background && !/rgba?\([^)]*,\s*0\s*\)$/.test(background)) return background;
+              node = node.parentElement;
+            }
+            return getComputedStyle(document.body).backgroundColor;
+          };
+          return { colour: getComputedStyle(h1).color, background: behind(plate) };
+        });
+
+        expect(sample).not.toBeNull();
+        const colour = parseColour(sample!.colour);
+        const background = parseColour(sample!.background);
+        expect(colour).not.toBeNull();
+        expect(background).not.toBeNull();
+        expect(
+          contrastRatio(colour!, background!),
+          `${sample!.colour} on ${sample!.background}`,
+        ).toBeGreaterThanOrEqual(MIN_CONTRAST);
+      } finally {
+        await page.close();
+      }
     });
   });
 
