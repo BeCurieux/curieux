@@ -1,10 +1,10 @@
 /**
- * Whether the workbench at `/` is a page or a 404.
+ * Whether the workbench at `/workbench` is a page or a 404.
  *
  * It is a development tool: it lists everything generated so far, reads the
  * local shop cache, and shows the command that fills it. That is exactly what
- * is wanted on a laptop and exactly what should not sit at the root of the
- * domain a merchant was handed a link on. In a deployment the cache does not
+ * is wanted on a laptop and exactly what should not be reachable on the domain
+ * a merchant was handed a link on. In a deployment the cache does not
  * exist either, so the page it would render is an empty dev tool with a
  * terminal command in it — nothing leaks, but nothing is gained.
  *
