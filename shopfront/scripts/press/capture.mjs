@@ -12,7 +12,7 @@
  */
 
 import { launch } from "./browser.mjs";
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const MOODS = ["utility", "clean", "playful", "editorial", "luxe"];
@@ -21,10 +21,22 @@ const BASE = process.env.PRESS_ORIGIN ?? "http://localhost:3000";
 
 await mkdir(OUT, { recursive: true });
 
+const VIEWPORT = { width: 390, height: 845 };
+const SCALE = 3;
+
+/**
+ * Where each frame was taken from, in CSS pixels.
+ *
+ * The posters that show the page whole have to line up on the same regions,
+ * and the offsets were briefly copied out of this script's log into the
+ * composer by hand — which is a number in two files waiting to disagree.
+ */
+const offsets = {};
+
 const browser = await launch();
 const context = await browser.newContext({
-  viewport: { width: 390, height: 845 },
-  deviceScaleFactor: 3,
+  viewport: VIEWPORT,
+  deviceScaleFactor: SCALE,
   isMobile: true,
   hasTouch: true,
 });
@@ -101,8 +113,22 @@ for (const mood of MOODS) {
     });
   }
 
-  console.log(`${mood.padEnd(10)} fold + grid (${grid}) + mid (${mid}) + foot + badge`);
+  // The whole page in one image. Posters that show the design full-bleed need
+  // more than a screenful, and the scroll-through animates by moving this
+  // behind a mask rather than by driving a real browser frame by frame.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${OUT}/page-${mood}.png`, fullPage: true });
+
+  offsets[mood] = { fold: 0, grid, mid };
+
+  console.log(`${mood.padEnd(10)} fold + grid (${grid}) + mid (${mid}) + foot + badge + page`);
   await page.close();
 }
+
+await writeFile(
+  `${OUT}/frames.json`,
+  `${JSON.stringify({ viewport: VIEWPORT, scale: SCALE, offsets }, null, 2)}\n`,
+);
 
 await browser.close();

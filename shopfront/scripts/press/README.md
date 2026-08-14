@@ -13,18 +13,29 @@ reliably pop against. The display face is Fraunces with wght, SOFT and WONK
 pushed together — heavy, rounded, slightly wrong, and the same roundness as
 the wordmark.
 
-Four steps, in order:
+There are four layouts, not one repeated five times, because a carousel of
+identical frames stops being a campaign by the third swipe:
+
+| layout | what it does | used by |
+|---|---|---|
+| `claim` | chunky line, the sentence, a tilted device, goods loose around it | Bench & Bolt, Maison Verre |
+| `bleed` | the page full width and unframed, violet only where type needs a ground | Pip & Pockets |
+| `split` | words on one side, the shop running off the other | Sea Salt Skin |
+| `object` | one good at poster scale, the shop kept small beside it | Folio Press |
+
+Five steps, in order:
 
 | step | what it does |
 |---|---|
 | `logo.mjs` | renders `wordmark.mjs` in brand colours → `public/brand/popuup.svg` |
 | `shops.mjs` | five demo shops with drawn goods and saturated palettes → `.cache/shop/demo-*.json`, plus cutouts of the same goods → `.cache/press/` |
 | `capture.mjs` | four phone frames per shop (fold, mid, grid, foot) at 390×845 ×3, plus a clip of the badge → `.cache/press/` |
-| `compose.mjs` | posters: claim, typed prompt, device, loose goods → `.cache/press/out/` as PNG and JPEG |
+| `compose.mjs` | the posters, in four layouts → `.cache/press/out/` as PNG and JPEG |
+| `motion.mjs` | the scroll-through: the prompt types itself, then the shop scrolls → `.cache/press/out/*.webm` |
 
 ```sh
 pnpm dev          # in one terminal; capture.mjs reads a running server
-pnpm press        # the four steps above
+pnpm press        # the five steps above
 ```
 
 `PRESS_ORIGIN` overrides the server capture.mjs reads (default
@@ -38,6 +49,19 @@ Output, all in `.cache/press/out/`:
   the third at 1600×900 for X
 - `popuup-badge.jpg` — the free tier's badge, shown in place at the foot of a
   page and again as a clip of those same pixels
+- `popuup-<mood>.webm` — 1080×1920, ~10s: the prompt typed a character at a
+  time, then the whole shop scrolling past, ending on the badge
+
+## Why the video is WebM
+
+The ffmpeg in the cloud container is Playwright's build, compiled
+`--disable-everything` plus webm — no H.264 and no GIF muxer, and the only
+decoder it has for piped frames is mjpeg. So frames go in as JPEG and come out
+as VP8. Anywhere with a normal ffmpeg:
+
+```sh
+ffmpeg -i popuup-playful.webm -c:v libx264 -pix_fmt yuv420p popuup-playful.mp4
+```
 
 ## What these may and may not say
 

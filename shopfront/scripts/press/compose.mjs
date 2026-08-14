@@ -45,30 +45,35 @@ const NAVY = "#130A3D";
 
 const SHOPS = [
   {
-    mood: "utility", brand: "Bench & Bolt", frame: "mid",
+    mood: "utility", brand: "Bench & Bolt", frame: "mid", layout: "claim",
+    shout: "one line in.<br>a whole<br>shop out.",
     prompt: "the starter kit for someone setting up their first workshop",
-    ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [0, 5],
+    ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [0, 2],
   },
   {
-    mood: "clean", brand: "Sea Salt Skin", frame: "mid",
+    mood: "clean", brand: "Sea Salt Skin", frame: "mid", layout: "split",
+    shout: "you type<br>who is<br>coming.",
     prompt: "a first routine for someone who has never used skincare",
     ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [1, 4],
   },
   {
-    mood: "playful", brand: "Pip & Pockets", frame: "grid",
+    mood: "playful", brand: "Pip & Pockets", frame: "grid", layout: "bleed",
+    shout: "no blocks.<br>no drag.<br>no builder.",
     prompt: "a gift edit for a two-year-old who ruins everything",
     ground: VIOLET, lit: VIOLET_LIT, ink: "#FFFFFF", cutouts: [2, 4],
   },
   {
     // Folio Press works in ultramarine, which is a neighbour of the violet and
     // disappears into it. Pale ground, dark ink, same family.
-    mood: "editorial", brand: "Folio Press", frame: "mid",
+    mood: "editorial", brand: "Folio Press", frame: "mid", layout: "object",
+    shout: "the prompt<br>is the<br>builder.",
     prompt: "a desk set for someone who has started writing by hand again",
     ground: LILAC, lit: "#EDE5FF", ink: NAVY, cutouts: [0, 6],
   },
   {
     // Gold on violet is muddy; gold on indigo is the whole point of gold.
-    mood: "luxe", brand: "Maison Verre", frame: "mid",
+    mood: "luxe", brand: "Maison Verre", frame: "mid", layout: "claim",
+    shout: "same code.<br>nothing<br>looks alike.",
     prompt: "a wedding list for two people who already own everything",
     ground: INDIGO, lit: "#4A2FA8", ink: "#FFFFFF", cutouts: [3, 5],
   },
@@ -90,13 +95,27 @@ const fonts = {
   sans: await dataUri(FONTS.sans, "font/woff2"),
 };
 
+/**
+ * Where the capture pass took each frame from, so a poster that shows the page
+ * whole can land on the same region a phone frame lands on. Computed rather
+ * than typed: the offsets are per shop and they move whenever the template's
+ * spacing does.
+ */
+const frames = JSON.parse(await readFile(`${SCRATCH}/frames.json`, "utf8"));
+const pageWidth = frames.viewport.width * frames.scale;
+
+/** The y offset to apply to a full-page image rendered at `width`. */
+const at = (mood, frame, width) =>
+  Math.round(frames.offsets[mood][frame] * frames.scale * (width / pageWidth));
+
 const shot = {};
 const badgeShot = {};
 const cutout = {};
 for (const shop of SHOPS) {
   badgeShot[shop.mood] = await dataUri(`${SCRATCH}/badge-${shop.mood}.png`, "image/png");
-  for (const frame of ["fold", "grid", "mid", "foot"]) {
-    shot[`${shop.mood}-${frame}`] = await dataUri(`${SCRATCH}/phone-${shop.mood}-${frame}.png`, "image/png");
+  for (const frame of ["fold", "grid", "mid", "foot", "page"]) {
+    const file = frame === "page" ? `page-${shop.mood}` : `phone-${shop.mood}-${frame}`;
+    shot[`${shop.mood}-${frame}`] = await dataUri(`${SCRATCH}/${file}.png`, "image/png");
   }
   for (const index of shop.cutouts) {
     cutout[`${shop.mood}-${index}`] = await dataUri(`${SCRATCH}/cutout-${shop.mood}-${index}.svg`, "image/svg+xml");
@@ -164,6 +183,15 @@ const BASE = `
   .sticker span:first-child { font-size: 25px; font-weight: 600; color: ${NAVY}; }
 `;
 
+/** The eyebrow and caret need a colour with contrast on white, not the ground. */
+const promptInk = (shop) => (shop.ground === LILAC ? "#5B23F5" : shop.ground);
+
+/** #RRGGBB at an alpha, for scrims that fade into the poster's own ground. */
+const hexa = (hex, alpha) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 /** "Made with popuup", in the brand's own colours on a white sticker. */
 const sticker = (markWidth, extra = "") => `
   <div class="sticker" style="${extra}">
@@ -202,8 +230,20 @@ const STORY = {
   promptTop: 620, phone: 596, phoneTop: 950, sticker: 138, stickerTop: 1770,
 };
 
-const portrait = (shop, page = FEED) => `<!doctype html><html><head><meta charset="utf-8"><style>${BASE}</style></head><body>
-<div class="canvas" style="width:${page.width}px; height:${page.height}px; background:${shop.ground}; color:${shop.ink}">
+/**
+ * Four layouts, not one repeated five times.
+ *
+ * A carousel of five identical frames stops being a campaign by the third
+ * swipe — the eye has already read the layout and skips the rest. Each shop
+ * gets the one that suits what it has: the loud claim, the page shown whole,
+ * a hard split, or a single object at poster scale. What stays constant is the
+ * violet, the face, the typed field and the sticker, which is what holds them
+ * together as a set.
+ */
+const LAYOUTS = {};
+
+/** The claim: chunky line, the sentence, the device, goods loose around it. */
+LAYOUTS.claim = (shop, page) => `
   <div style="position:absolute; inset:0; background:radial-gradient(120% 68% at 14% -6%, ${shop.lit} 0%, transparent 62%)"></div>
 
   <div class="cut" style="width:${Math.round(page.width * 0.29)}px; left:-46px; top:${page.phoneTop - 110}px; transform:rotate(-17deg)">
@@ -214,18 +254,99 @@ const portrait = (shop, page = FEED) => `<!doctype html><html><head><meta charse
   </div>
 
   <p class="shout" style="position:absolute; left:${page.pad}px; right:${page.pad}px; top:${Math.round(page.height * 0.068)}px; font-size:${page.shout}px">
-    one line in.<br>a whole<br>shop out.
+    ${shop.shout}
   </p>
 
   <div style="position:absolute; left:${page.pad}px; right:${page.pad + 40}px; top:${page.promptTop}px">
-    ${typed(shop.prompt, page.prompt, shop.ground === LILAC ? "#5B23F5" : shop.ground)}
+    ${typed(shop.prompt, page.prompt, promptInk(shop))}
   </div>
 
   <div class="phone" style="width:${page.phone}px; left:${Math.round((page.width - page.phone) / 2 + 22)}px; top:${page.phoneTop}px; transform:rotate(-4deg)">
     <span class="screen"><img src="${shot[`${shop.mood}-${shop.frame}`]}" alt=""></span>
   </div>
 
-  ${sticker(page.sticker, `left:${page.pad - 22}px; top:${page.stickerTop}px; transform:rotate(-4deg)`)}
+  ${sticker(page.sticker, `left:${page.pad - 22}px; top:${page.stickerTop}px; transform:rotate(-4deg)`)}`;
+
+/**
+ * The page, whole and unframed.
+ *
+ * No bezel and no tilt, because the bezel is the most generic object in tech
+ * marketing and it is standing in front of the only thing worth looking at.
+ * The scrim exists so white type survives whatever part of the page lands
+ * under it.
+ */
+LAYOUTS.bleed = (shop, page) => `
+  <img src="${shot[`${shop.mood}-page`]}" alt="" style="position:absolute; top:${-at(shop.mood, shop.frame, page.width) + Math.round(page.height * 0.24)}px; left:0; width:${page.width}px; display:block">
+
+  <!-- Solid, then a short fade. The first version fell away over half the
+       poster and turned the whole page lilac; a scrim has to be either opaque
+       or absent, and the fade is only there to keep the seam off the eye. -->
+  <div style="position:absolute; inset:0; background:linear-gradient(180deg, ${shop.ground} 0%, ${shop.ground} ${Math.round(page.height * 0.24)}px, ${hexa(shop.ground, 0)} ${Math.round(page.height * 0.31)}px)"></div>
+  <div style="position:absolute; inset:0; background:linear-gradient(0deg, ${shop.ground} 0%, ${shop.ground} ${Math.round(page.height * 0.16)}px, ${hexa(shop.ground, 0)} ${Math.round(page.height * 0.25)}px)"></div>
+
+  <p class="shout" style="position:absolute; left:${page.pad}px; right:${page.pad}px; top:${Math.round(page.height * 0.045)}px; font-size:${Math.round(page.shout * 0.72)}px; color:${shop.ink}">
+    ${shop.shout}
+  </p>
+
+  <div style="position:absolute; left:${page.pad}px; right:${page.pad + 40}px; bottom:${Math.round(page.height * 0.115)}px">
+    ${typed(shop.prompt, Math.round(page.prompt * 0.92), promptInk(shop))}
+  </div>
+
+  ${sticker(page.sticker, `left:${page.pad - 22}px; bottom:${Math.round(page.height * 0.036)}px; transform:rotate(-3deg)`)}`;
+
+/** A hard vertical split: the words on one side, the shop running off the other. */
+LAYOUTS.split = (shop, page) => {
+  const column = Math.round(page.width * 0.48);
+  return `
+  <div style="position:absolute; inset:0; background:radial-gradient(90% 60% at 0% 0%, ${shop.lit} 0%, transparent 64%)"></div>
+
+  <!-- The page is not cropped to the panel, it overflows it downward, so the
+       edge reads as a shop continuing past the frame rather than a thumbnail. -->
+  <div style="position:absolute; left:${column}px; top:${Math.round(page.height * 0.07)}px; right:0; bottom:${-Math.round(page.height * 0.06)}px; overflow:hidden; border-radius:34px 0 0 34px; box-shadow:-30px 40px 80px -30px rgba(20,4,60,0.6)">
+    <img src="${shot[`${shop.mood}-page`]}" alt="" style="position:absolute; top:${-at(shop.mood, shop.frame, page.width - column)}px; left:0; width:${page.width - column}px; display:block">
+  </div>
+
+  <p class="shout" style="position:absolute; left:${page.pad}px; width:${column - page.pad}px; top:${Math.round(page.height * 0.075)}px; font-size:${Math.round(page.shout * 0.82)}px">
+    ${shop.shout}
+  </p>
+
+  <div class="cut" style="width:${Math.round(page.width * 0.26)}px; left:${Math.round(page.width * 0.05)}px; top:${Math.round(page.height * 0.44)}px; transform:rotate(-13deg)">
+    <img src="${cutout[`${shop.mood}-${shop.cutouts[0]}`]}" alt="">
+  </div>
+
+  <div style="position:absolute; left:${page.pad}px; width:${Math.round(page.width * 0.62)}px; bottom:${Math.round(page.height * 0.13)}px; z-index:5">
+    ${typed(shop.prompt, Math.round(page.prompt * 0.88), promptInk(shop))}
+  </div>
+
+  ${sticker(Math.round(page.sticker * 0.86), `left:${page.pad - 22}px; bottom:${Math.round(page.height * 0.04)}px; transform:rotate(-3deg)`)}`;
+};
+
+/** One object at poster scale, with the shop kept small and honest beside it. */
+LAYOUTS.object = (shop, page) => `
+  <div style="position:absolute; inset:0; background:radial-gradient(80% 56% at 76% 46%, ${shop.lit} 0%, transparent 66%)"></div>
+
+  <div class="cut" style="width:${Math.round(page.width * 0.72)}px; right:${-Math.round(page.width * 0.09)}px; top:${Math.round(page.height * 0.2)}px; transform:rotate(9deg)">
+    <img src="${cutout[`${shop.mood}-${shop.cutouts[0]}`]}" alt="">
+  </div>
+
+  <p class="shout" style="position:absolute; left:${page.pad}px; right:${page.pad}px; top:${Math.round(page.height * 0.062)}px; font-size:${page.shout}px">
+    ${shop.shout}
+  </p>
+
+  <div class="phone" style="width:${Math.round(page.width * 0.25)}px; left:${page.pad}px; bottom:${Math.round(page.height * 0.175)}px;
+       transform:rotate(-5deg); padding:8px; border-radius:30px">
+    <span class="screen" style="border-radius:24px"><img src="${shot[`${shop.mood}-${shop.frame}`]}" alt=""></span>
+  </div>
+
+  <div style="position:absolute; left:${page.pad}px; width:${Math.round(page.width * 0.55)}px; bottom:${Math.round(page.height * 0.028)}px; z-index:5">
+    ${typed(shop.prompt, Math.round(page.prompt * 0.84), promptInk(shop))}
+  </div>
+
+  ${sticker(Math.round(page.sticker * 0.8), `right:${page.pad - 20}px; bottom:${Math.round(page.height * 0.028)}px; transform:rotate(3deg)`)}`;
+
+const portrait = (shop, page = FEED) => `<!doctype html><html><head><meta charset="utf-8"><style>${BASE}</style></head><body>
+<div class="canvas" style="width:${page.width}px; height:${page.height}px; background:${shop.ground}; color:${shop.ink}">
+  ${LAYOUTS[shop.layout](shop, page)}
 </div></body></html>`;
 
 /** All five at once: same sentence in, five different shops out. */
