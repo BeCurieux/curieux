@@ -399,28 +399,35 @@ describeVisual("geometry", () => {
       }
     });
 
-    it("keeps the name and the price off each other in the list layout", async () => {
-      // The inline card meta puts a title and a price on one line inside a
-      // ~170px phone column, which is the narrowest place on the page where two
-      // things compete for width. The failure mode is not a crash: the title
-      // takes the space and the price is pushed out of, or on top of, it.
+    it.each(MOODS)("%s gives a long product name room to be read", async (mood) => {
+      // The test that used to live here checked that a name and a price did not
+      // overlap, and it passed on a card that was plainly broken — because
+      // overlap was never the failure. The failure was squeeze.
       //
-      // Checked on every card rather than the first, because the widths that
-      // break this come from the merchant's own product names.
-      const page = await open(harness, "utility", PHONE);
+      // Real product names run 26 to 40 characters. The inline meta gave the
+      // name whatever a price did not want, which inside a 170px phone card was
+      // about ninety pixels, and "Professional 108-Piece Socket Wrench Set"
+      // wrapped onto six lines. The fixture's "Oat Crew" fits anywhere, so
+      // nothing here could ever have caught it; the names are lengthened for
+      // this test rather than the fixture changed, so every other invariant
+      // goes on measuring what it was written against.
+      const page = await open(harness, mood, PHONE);
       try {
-        const collisions = await page.evaluate(() =>
-          [...document.querySelectorAll('.card-meta[data-layout="inline"]')]
-            .map((meta) => {
-              const title = meta.querySelector(".card-title")?.getBoundingClientRect();
-              const price = meta.querySelector(".card-price")?.getBoundingClientRect();
-              if (!title || !price) return null;
-              const overlaps = price.left < title.right - 1;
-              return overlaps ? `${meta.querySelector(".card-title")?.textContent} overlaps its price` : null;
-            })
-            .filter(Boolean),
-        );
-        expect(collisions, collisions.join("; ")).toEqual([]);
+        const worst = await page.evaluate(() => {
+          const titles = [...document.querySelectorAll(".card-title")] as HTMLElement[];
+          if (titles.length === 0) return null;
+          const original = titles.map((t) => t.textContent ?? "");
+          for (const title of titles) title.textContent = "Professional 108-Piece Socket Wrench Set";
+          const lines = titles.map((title) => {
+            const leading = parseFloat(getComputedStyle(title).lineHeight);
+            return Math.round(title.getBoundingClientRect().height / leading);
+          });
+          titles.forEach((title, i) => (title.textContent = original[i]!));
+          return Math.max(...lines);
+        });
+
+        expect(worst).not.toBeNull();
+        expect(worst, `a 40-character name wraps onto ${worst} lines`).toBeLessThanOrEqual(3);
       } finally {
         await page.close();
       }

@@ -230,8 +230,19 @@ describe("the badge", () => {
  */
 const MID_WORD = /<\/?(?:em|strong|b|i|sub|sup)\b[^>]*>/gi;
 
+/**
+ * Decoration, removed whole rather than turned into a space.
+ *
+ * The badge's rays are an `aria-hidden` svg sitting inside the wordmark's own
+ * `<em>`, and the tag-to-space pass below split "popuup" into "popuu p" — a
+ * failure that was entirely this helper's, since nothing a shopper reads had
+ * changed. An svg carries no text in this renderer; it should leave none.
+ */
+const DECORATION = /<svg\b[^>]*>[\s\S]*?<\/svg>/gi;
+
 function visibleText(html: string): string {
   return html
+    .replace(DECORATION, "")
     .replace(MID_WORD, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&amp;/g, "&")
