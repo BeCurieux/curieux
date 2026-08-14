@@ -46,8 +46,25 @@ const BEAT = {
 const DURATION = Object.values(BEAT).reduce((a, b) => a + b, 0);
 
 const SUBJECTS = [
-  { mood: "playful", prompt: "a gift edit for a two-year-old who ruins everything", ground: "#6C2BF5", lit: "#A88BFF" },
-  { mood: "utility", prompt: "the starter kit for someone setting up their first workshop", ground: "#6C2BF5", lit: "#A88BFF" },
+  { mood: "playful", prompt: "a gift edit for a two-year-old who ruins everything", ground: "#6C2BF5", lit: "#A88BFF", goods: [2, 1, 4, 3] },
+  { mood: "utility", prompt: "the starter kit for someone setting up their first workshop", ground: "#6C2BF5", lit: "#A88BFF", goods: [0, 2, 7, 5] },
+];
+
+/**
+ * Where the goods land, and how they get there.
+ *
+ * They are thrown from the middle of the device rather than faded in from
+ * nowhere: the shop produced them, and an object that arrives from the place
+ * the shop appeared says so without a caption. Positions hug the edges so the
+ * screen itself is never covered — the whole point of the shot is what is on
+ * it. Each one is a little late on the one before it, because four objects
+ * arriving on the same frame reads as a slide transition.
+ */
+const LANDING = [
+  { x: -66, y: 560, w: 300, spin: -18, delay: 0 },
+  { x: 838, y: 900, w: 262, spin: 15, delay: 0.09 },
+  { x: -34, y: 1268, w: 244, spin: 12, delay: 0.18 },
+  { x: 862, y: 1452, w: 280, spin: -14, delay: 0.27 },
 ];
 
 const ffmpeg = ["/opt/pw-browsers/ffmpeg-1011/ffmpeg-linux", "ffmpeg"].find((p) => p === "ffmpeg" || existsSync(p));
@@ -88,15 +105,20 @@ const document_ = (subject, page) => {
   #sticker { position:absolute; left:50%; background:#fff; border-radius:999px; display:flex; align-items:center; gap:18px;
     padding:20px 36px; box-shadow:0 22px 44px -18px rgba(20,4,60,0.6); }
   #sticker span:first-child { font-size:27px; font-weight:600; color:#130A3D; }
+  .good { position:absolute; transform-origin:50% 50%; will-change:transform; }
+  .good img { width:100%; display:block; filter:drop-shadow(0 26px 26px rgba(20,4,60,0.34)); }
   </style></head><body>
   <div id="lit"></div>
   <p id="shout">one line in.<br>a whole<br>shop out.</p>
   <div id="field"><p id="label">Make me a shop for</p><p id="line"><span id="head"></span><span id="tail-wrap"><span id="tail"></span><span id="caret"></span></span></p></div>
   <div id="phone"><div id="screen"><img id="page" src="${page.src}"></div></div>
+  ${page.goods.map((src, i) => `<div class="good" id="good${i}" style="width:${LANDING[i].w}px"><img src="${src}"></div>`).join("")}
   <div id="sticker"><span>Made with</span><span style="display:block; width:150px">${wordmark({ id: "uu-motion" })}</span></div>
 
   <script>
   const PROMPT = ${JSON.stringify(subject.prompt)};
+  const LANDING = ${JSON.stringify(LANDING)};
+  const PHONE_MID = { x: ${WIDTH / 2}, y: 1150 };
   const BEAT = ${JSON.stringify(BEAT)};
   const PAGE_HEIGHT = ${pageHeight};
   const SCREEN_H = ${SCREEN_H};
@@ -137,6 +159,28 @@ const document_ = (subject, page) => {
     const scrolled = ease(clamp((t - at.scroll) / BEAT.scroll));
     document.getElementById("page").style.top = (-travel * scrolled) + "px";
 
+    // The goods, thrown out of the device as it arrives and drifting after.
+    // The overshoot is small and it matters: without it four objects stop dead
+    // on their marks and the whole thing looks like a PowerPoint build.
+    LANDING.forEach((spot, i) => {
+      const p = clamp((t - at.rise - spot.delay) / (BEAT.rise * 0.95));
+      const eased = ease(p);
+      const overshoot = Math.sin(p * Math.PI) * 26;
+      const drift = p === 1 ? Math.sin((t - at.rise) * 0.9 + i * 1.7) * 7 : 0;
+      // Spawn centred on the device, land on the mark. CSS left is an edge and
+      // not a centre, so the origin has to account for the object's own width,
+      // or every good starts half a body right of where the phone actually is.
+      // (No backticks in here: this whole document is one template literal.)
+      const fromX = PHONE_MID.x - spot.w / 2;
+      const x = fromX + (spot.x - fromX) * eased;
+      const y = PHONE_MID.y + (spot.y - PHONE_MID.y) * eased - overshoot + drift;
+      const good = document.getElementById("good" + i);
+      good.style.left = x + "px";
+      good.style.top = y + "px";
+      good.style.opacity = clamp(p * 2.2);
+      good.style.transform = "rotate(" + (spot.spin * eased) + "deg) scale(" + (0.3 + 0.7 * eased) + ")";
+    });
+
     document.getElementById("sticker").style.opacity = clamp((t - at.rest + 0.4) / 0.5);
     document.getElementById("sticker").style.top = (HEIGHT_PX - 150 - 30 * clamp((t - at.rest + 0.4) / 0.5)) + "px";
     document.getElementById("sticker").style.transform = "translateX(-50%) rotate(-3deg)";
@@ -158,9 +202,13 @@ for (const subject of SUBJECTS) {
     return buffer.readUInt32BE(20);
   })();
 
+  const goods = await Promise.all(
+    subject.goods.map((index) => b64(`${SCRATCH}/cutout-${subject.mood}-${index}.svg`, "image/svg+xml")),
+  );
+
   const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT }, deviceScaleFactor: 1 });
   const file = `${SCRATCH}/motion-${subject.mood}.html`;
-  await writeFile(file, document_(subject, { src, height }));
+  await writeFile(file, document_(subject, { src, height, goods }));
   await page.goto(`file://${file}`);
   await page.evaluate(() => document.fonts.ready);
 
