@@ -629,37 +629,17 @@
 }
 
 /*
- * The list treatment: name on the left, price hard right on the same baseline.
+ * The list treatment lives in the desktop block below, deliberately.
  *
- * Placed explicitly rather than left to auto-flow, because the blurb is
- * optional and a full-width row in the middle of an auto-placed grid pushes the
- * price onto a third line whenever it appears.
+ * It was here, applying at every width, until the first real catalogue arrived.
+ * Real product names run 26 to 40 characters — "Professional 108-Piece Socket
+ * Wrench Set" — and a name-left/price-right row inside a 170px phone card
+ * leaves the name about ninety pixels, which wrapped it onto six lines. The
+ * fixture never showed it because "Oat Crew" fits anywhere.
+ *
+ * A two-column meta row is a treatment that needs width. Below the breakpoint
+ * every mood stacks, which is the layout that survives a long name.
  */
-.card-meta[data-layout="inline"] {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  column-gap: var(--space-2);
-  row-gap: 2px;
-}
-
-.card-meta[data-layout="inline"] .card-title {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.card-meta[data-layout="inline"] .card-price {
-  grid-column: 2;
-  grid-row: 1;
-  margin-top: 0;
-  text-align: right;
-}
-
-.card-meta[data-layout="inline"] .card-blurb {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  margin-top: 0;
-}
 
 .card-title {
   font-family: var(--font-body);
@@ -1035,6 +1015,38 @@
     margin-top: calc(var(--space-4) * var(--grid-stagger, 1));
   }
 
+  /*
+   * Name on the left, price hard right on the same baseline. Placed explicitly
+   * rather than left to auto-flow, because the blurb is optional and a
+   * full-width row in the middle of an auto-placed grid pushes the price onto a
+   * third line whenever it appears.
+   */
+  .card-meta[data-layout="inline"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: var(--space-2);
+    row-gap: 2px;
+  }
+
+  .card-meta[data-layout="inline"] .card-title {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .card-meta[data-layout="inline"] .card-price {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+    text-align: right;
+  }
+
+  .card-meta[data-layout="inline"] .card-blurb {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+
   .carousel {
     grid-auto-columns: 30%;
     margin-inline: 0;
@@ -1114,8 +1126,30 @@
   color: var(--text-soft);
 }
 
+/*
+ * The rays over the second u.
+ *
+ * Absolutely placed rather than inserted into the text flow: they belong to one
+ * letter, and letting them take part in line layout would push the wordmark's
+ * baseline out of the badge's own baseline row. Sized in `em` so they track the
+ * type if the badge is ever set larger.
+ */
+.badge-pop {
+  position: absolute;
+  /* 75% of the "uu" is the middle of the second u. 50% would sit in the gap
+     between them, which is where it looked like a stray mark. */
+  left: 75%;
+  transform: translateX(-50%);
+  bottom: 0.94em;
+  width: 0.64em;
+  height: 0.32em;
+  color: #6b55f6;
+  overflow: visible;
+}
+
 .badge-mark em {
   font-style: normal;
+  position: relative;
   /* Kept as an absolute rather than a theme token: this is the one mark on the
      page that is ours, and tinting it to the merchant's accent would make it
      twenty different logos instead of one. */

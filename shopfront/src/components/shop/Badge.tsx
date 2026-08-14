@@ -29,8 +29,32 @@ export function Badge({ slug }: { slug?: string }) {
   return (
     <a className="badge" href={href} target="_blank" rel="noopener">
       <span className="badge-made">Made with</span>
+      {/*
+        The wordmark, and the three rays over the second u.
+
+        Written on one line on purpose. Broken across lines with a comment
+        between the letters, JSX collapsed the newlines into a space and the
+        mark rendered as "popuu p" — caught by the publish test, which asserts
+        the badge's exact words because a garbled logo is worse than none.
+
+        The rays are drawn rather than imported so the badge stays one request
+        and scales with the type around it. The letterforms deliberately stay
+        the merchant's own font: a foreign wordmark at this size reads as a
+        sticker somebody stuck on the page rather than a credit.
+      */}
       <span className="badge-mark">
-        pop<em>uu</em>p
+        {"pop"}
+        <em>
+          {"uu"}
+          <svg className="badge-pop" viewBox="0 0 26 13" aria-hidden="true">
+            <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+              <path d="M13 10.5V2.6" />
+              <path d="M4.6 12.4 2.4 8" />
+              <path d="M21.4 12.4l2.2-4.4" />
+            </g>
+          </svg>
+        </em>
+        {"p"}
       </span>
     </a>
   );
