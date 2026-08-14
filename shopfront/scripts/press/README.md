@@ -1,0 +1,41 @@
+# press
+
+Social and press images, generated from the renderer rather than mocked up
+beside it. Nothing in here is hand-drawn in a design tool, so a change to the
+template — a new mood axis, a card-meta fix, a badge tweak — shows up in the
+next set of posters without anybody redrawing anything.
+
+Three steps, in order:
+
+| step | what it does |
+|---|---|
+| `shops.mjs` | five demo shops with drawn goods and saturated palettes → `.cache/shop/demo-*.json` |
+| `capture.mjs` | three phone frames per shop (fold, mid, grid) at 390×845 ×3 → `.cache/press/` |
+| `compose.mjs` | posters: prompt above, device below → `.cache/press/out/` as PNG and JPEG |
+
+```sh
+pnpm dev          # in one terminal; capture.mjs reads a running server
+pnpm press        # the three steps above
+```
+
+`PRESS_ORIGIN` overrides the server capture.mjs reads (default
+`http://localhost:3000`).
+
+Output, all in `.cache/press/out/`:
+
+- `popuup-<mood>.jpg` — 1080×1350, one shop, feed
+- `popuup-<mood>-story.jpg` — 1080×1920, the same shop, story
+- `popuup-five-feed.jpg` / `-story.jpg` / `-wide.jpg` — all five as a deck,
+  the third at 1600×900 for X
+
+## What these may and may not say
+
+The goods are illustrated. A real product photograph belongs to a real
+merchant, and inventing one — or dressing a demo shop up as a store that
+exists — would put a claim on a poster that nothing behind it can support.
+The brands here are invented and read as invented.
+
+The line of type above each device is the shop's own `meta.prompt`, read from
+the config that produced the screenshot beneath it. If a poster's sentence and
+its shop ever disagree, the poster is lying, and the fix is to regenerate
+rather than to retype.
