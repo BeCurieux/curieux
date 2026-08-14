@@ -244,21 +244,52 @@
  * single clearest tell that a page was generated. The initial set in the
  * display face at absurd size reads as a decision instead.
  */
-.plate--empty {
+/*
+ * The initial, and when it shows.
+ *
+ * Two ways a plate ends up without a photograph, and they used to have one
+ * answer between them. `--empty` is a product the merchant never gave an image;
+ * `[data-broken]` is one whose image is there in the data and dead on the wire,
+ * marked by `BrokenImagery.tsx` when the load fails. A shopper cannot tell
+ * those apart and should not have to.
+ */
+.plate--empty,
+.plate[data-broken] {
   display: grid;
   place-items: center;
+  container-type: inline-size;
 }
 
-.plate--empty span {
+.plate-initial {
   font-family: var(--font-display);
   font-size: clamp(3.5rem, 30cqw, 9rem);
   line-height: 1;
   color: var(--line-strong);
   user-select: none;
+  /* Present in every plate and hidden under the photograph — which matters for
+     the cut-outs, where a transparent PNG would otherwise have a giant letter
+     showing through it. */
+  opacity: 0;
 }
 
-.plate--empty {
-  container-type: inline-size;
+.plate--empty .plate-initial,
+.plate[data-broken] .plate-initial {
+  opacity: 1;
+}
+
+.plate[data-broken] img {
+  display: none;
+}
+
+/*
+ * Belt and braces, for the moment before the listener runs and for a reader
+ * with no JavaScript at all: a broken image must not spill its alt text across
+ * the plate. The text is still in the DOM and still read aloud; it is only the
+ * browser's own fallback rendering that is silenced.
+ */
+.plate img,
+.hero-plate img {
+  color: transparent;
 }
 
 .plate--soldout img {
@@ -350,7 +381,8 @@
   z-index: 1;
 }
 
-.hero--nomedia .hero-plate::before {
+.hero--nomedia .hero-plate::before,
+.hero[data-broken] .hero-plate::before {
   display: none;
 }
 
@@ -375,7 +407,8 @@
   margin-inline: auto;
 }
 
-.hero--nomedia .hero-copy {
+.hero--nomedia .hero-copy,
+.hero[data-broken] .hero-copy {
   color: var(--text);
   padding-inline: 0;
 }
@@ -431,11 +464,30 @@
   padding-inline: var(--gutter);
 }
 
-.hero--nomedia .hero-plate {
+.hero--nomedia .hero-plate,
+.hero[data-broken] .hero-plate {
   background: transparent;
   min-height: 0;
   aspect-ratio: auto;
   box-shadow: none;
+}
+
+/*
+ * A hero whose photograph did not arrive.
+ *
+ * The white headline is only legible because a scrim darkens the photograph
+ * under it. With no photograph the plate is `--surface`, which is pale, and the
+ * most prominent line on the page vanishes — which is exactly what happened the
+ * first time this ran against a real store. Routing a failed image into the
+ * treatment that already exists for a missing one is the whole fix; the rules
+ * above were written for one case and now answer both.
+ */
+.hero[data-broken] .hero-copy h1 {
+  text-shadow: none;
+}
+
+.hero[data-broken] .hero-plate img {
+  display: none;
 }
 
 .hero-copy h1 {
@@ -459,7 +511,8 @@
   margin-bottom: var(--space-2);
 }
 
-.hero--nomedia .hero-copy .eyebrow {
+.hero--nomedia .hero-copy .eyebrow,
+.hero[data-broken] .hero-copy .eyebrow {
   color: var(--text-faint);
   opacity: 1;
 }

@@ -12,6 +12,7 @@ import type { Catalogue } from "@/lib/ingest/types";
 import { buildTheme } from "@/lib/render/theme";
 import { BlockView } from "./blocks";
 import { Badge } from "./Badge";
+import { BrokenImagery } from "./BrokenImagery";
 import { Funnel } from "./Funnel";
 
 export interface ShopProps {
@@ -103,6 +104,11 @@ export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = tru
         </footer>
 
         {badge && <Badge {...(slug ? { slug } : {})} />}
+
+        {/* Unconditional, unlike the funnel below: a photograph that fails to
+            load is a rendering problem, and a preview is exactly where the
+            merchant should find out about it. */}
+        <BrokenImagery />
 
         {/* Only a published shop records anything. A preview has no slug, and
             counting developer reloads as merchant traffic would poison the one
