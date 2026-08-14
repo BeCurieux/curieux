@@ -123,7 +123,7 @@ export function ProductCard({
       <div className="card-meta" data-layout={context.cardMeta ?? "stacked"}>
         <p className="card-title">{product.title}</p>
         {product.blurb && <p className="card-blurb">{product.blurb}</p>}
-        <p className="card-price">
+        <p className={`card-price${product.compareAtPrice !== undefined ? " card-price--sale" : ""}`}>
           {product.compareAtPrice !== undefined && (
             <del>{formatMoney(product.compareAtPrice, context.currency, context.locale)}</del>
           )}

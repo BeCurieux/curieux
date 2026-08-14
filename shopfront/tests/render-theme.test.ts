@@ -166,6 +166,45 @@ describe("buildTheme", () => {
     expect(shapes.filter((s) => s.gridStagger === 0)).toHaveLength(1);
   });
 
+  it("lets the brand's colour reach a different distance in each mood", () => {
+    // The palette belongs to the merchant, so a mood can't pick a colour. What
+    // it picks is how far that colour travels, and the failure this guards is
+    // the one the moods shipped with: every shop used the accent in exactly two
+    // places — a 15px sparkle and the badge — so the brand's colour did no work
+    // and five moods on one catalogue were five shades of the same beige.
+    const moods = ["clean", "editorial", "playful", "luxe", "utility"] as const;
+    const shapes = moods.map((mood) => buildTheme({ ...base, mood }).shape);
+
+    const reach = shapes.map((s) => [s.ruleTone, s.sectionBand, s.countTone, s.salePriceTone].join("|"));
+    expect(new Set(reach).size, reach.join("\n")).toBe(moods.length);
+
+    // Restraint has to stay available. One mood spends the accent on nothing at
+    // all, and that is a position rather than an oversight.
+    const spends = (s: (typeof shapes)[number]) =>
+      Number(s.ruleTone === "accent") + Number(s.sectionBand) + Number(s.countTone === "accent") + Number(s.salePriceTone === "accent");
+    expect(shapes.filter((s) => spends(s) === 0)).toHaveLength(1);
+    expect(shapes.filter((s) => spends(s) >= 2).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("keeps the accent readable when the brand's colour is not", () => {
+    // The reason every accent surface resolves to `--accent-text` rather than
+    // the raw accent. A merchant whose brand is a pale yellow still owns that
+    // yellow, but a price set in it is unreadable and a hairline drawn in it is
+    // invisible. Walking towards the page's ink keeps the hue and buys back the
+    // contrast.
+    const brands = ["#f7e08a", "#ffffff", "#2f5d50", "#111111", "#ff2d55"];
+    for (const accent of brands) {
+      const { variables } = buildTheme({ ...base, mood: "utility", colorway: { ...base.colorway, accent } });
+      const ink = parseColour(variables["--accent-text"]!);
+      const bg = parseColour(variables["--bg"]!);
+      expect(ink, accent).not.toBeNull();
+      expect(
+        contrastRatio(ink!, bg!),
+        `${accent} -> ${variables["--accent-text"]} on ${variables["--bg"]}`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it("hands the grid numbers CSS can use", () => {
     for (const mood of ["clean", "editorial", "playful", "luxe", "utility"] as const) {
       const { variables, shape } = buildTheme({ ...base, mood });
