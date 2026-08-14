@@ -20,6 +20,7 @@
  */
 
 import { launch } from "./browser.mjs";
+import { wordmark } from "./wordmark.mjs";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -73,8 +74,10 @@ const fonts = {
 };
 
 const shot = {};
+const badgeShot = {};
 for (const shop of SHOPS) {
-  for (const frame of ["fold", "grid", "mid"]) {
+  badgeShot[shop.mood] = await dataUri(`${SCRATCH}/badge-${shop.mood}.png`, "image/png");
+  for (const frame of ["fold", "grid", "mid", "foot"]) {
     shot[`${shop.mood}-${frame}`] = await dataUri(`${SCRATCH}/phone-${shop.mood}-${frame}.png`, "image/png");
   }
 }
@@ -109,14 +112,30 @@ const BASE = `
                 0 40px 60px -20px rgba(0,0,0,0.7), 0 140px 160px -60px rgba(0,0,0,0.85); }
   .screen { border-radius: 46px; overflow: hidden; display: block; }
   .screen img { width: 100%; display: block; }
-  .mark em { font-style: normal; position: relative; }
-  .mark svg { position: absolute; left: 75%; transform: translateX(-50%); bottom: 0.92em;
-    width: 0.62em; height: 0.31em; overflow: visible; }
+  /* A zoom of a real page, presented as one: the crop keeps the shop's own
+     ground, so the card only needs an edge and a shadow to read as lifted off
+     the screen beside it. */
+  .callout { position: absolute; border-radius: 22px; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.16), 0 30px 60px -18px rgba(0,0,0,0.75); }
+  .callout img { width: 100%; display: block; }
 `;
 
-/** The wordmark, rays and all — the same three strokes the badge draws. */
-const wordmark = (size, colour, accent) => `
-  <span class="mark" style="font-family: Display; font-weight: 600; font-size: ${size}px; letter-spacing: -0.02em; color: ${colour}">pop<em>uu<svg viewBox="0 0 26 13" style="color:${accent}"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M13 10.5V2.6"/><path d="M4.6 12.4 2.4 8"/><path d="M21.4 12.4l2.2-4.4"/></g></svg></em>p</span>`;
+/**
+ * "Made with popuup" — the real wordmark, and the same three words the free
+ * tier's badge puts at the foot of every published shop.
+ *
+ * The dark letters take the poster's ink rather than the brand navy, which is
+ * invisible on a near-black ground. The violet on the double-u is the one part
+ * that never translates: it is what makes the mark recognisable at 200px, and
+ * it is the piece the in-page badge keeps for the same reason.
+ */
+const VIOLET = "#9B7BFF";
+
+const lockup = (width, ink, align = "right") => `
+  <div style="display:flex; flex-direction:column; align-items:${align === "right" ? "flex-end" : "flex-start"}; gap:${Math.round(width * 0.055)}px">
+    <span class="eyebrow" style="font-size:${Math.round(width * 0.082)}px; opacity:0.72">Made with</span>
+    <span style="display:block; width:${width}px">${wordmark({ ink, accent: VIOLET, id: `uu-${align}-${width}` })}</span>
+  </div>`;
 
 // --------------------------------------------------------------- the frames
 
@@ -139,9 +158,9 @@ const portrait = (shop, page = FEED) => `<!doctype html><html><head><meta charse
        prompts are two and three lines long and the rule under them has to
        follow the type, not a number I measured off one of them. -->
   <div style="position:absolute; left:${page.pad}px; right:${page.pad}px; top:${Math.round(page.height * 0.058)}px">
-    <div style="display:flex; justify-content:space-between; align-items:baseline">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start">
       <span class="eyebrow" style="color:${shop.accent}">The prompt</span>
-      ${wordmark(34, shop.ink, shop.accent)}
+      ${lockup(196, shop.ink)}
     </div>
 
     <p style="margin-top:40px; padding-right:66px; font-family:Display; font-weight:400;
@@ -186,7 +205,7 @@ const fan = ({ width, height, phone, label }) => {
   <!-- The wordmark leads instead of sitting in a corner, because the deck runs
        off the bottom edge and anything down there is half a phone deep. -->
   <div style="position:absolute; left:${label.x}px; right:${label.x}px; top:${label.top}px; text-align:center">
-    ${wordmark(label.mark, "#F4F1EA", "#8B77FF")}
+    <div style="display:flex; justify-content:center">${lockup(label.mark, "#F4F1EA", "left")}</div>
     <p style="margin-top:${label.gap}px; font-family:Display; font-weight:400; font-size:${label.size}px; line-height:1.08; letter-spacing:-0.024em">
       Five prompts. Five shops.<br>No builder, no templates, no drag.
     </p>
@@ -195,6 +214,43 @@ const fan = ({ width, height, phone, label }) => {
   ${cards}
 </div></body></html>`;
 };
+
+/**
+ * The badge, which is the whole distribution plan.
+ *
+ * Every other poster here shows what a merchant gets. This one shows what
+ * popuup gets back, and it shows it by lifting the actual pixels off the
+ * bottom of an actual page rather than setting the words again in a design
+ * file — the crop and the phone beside it come from the same screenshot pass.
+ */
+const badgePoster = (mood) => `<!doctype html><html><head><meta charset="utf-8"><style>${BASE}</style></head><body>
+<div class="canvas" style="width:1080px; height:1350px; background:#0B0A0C; color:#F4F1EA">
+  <div class="glow" style="width:820px; height:820px; left:-200px; top:-340px; background:#6C2BF5; opacity:0.34"></div>
+  <div class="glow" style="width:640px; height:640px; right:-220px; bottom:-240px; background:#6C2BF5; opacity:0.2"></div>
+
+  <div style="position:absolute; left:84px; right:84px; top:78px">
+    <span class="eyebrow" style="color:${VIOLET}">The badge</span>
+    <p style="margin-top:40px; font-family:Display; font-weight:400; font-size:62px;
+              line-height:1.08; letter-spacing:-0.022em; padding-right:120px">
+      Every free shop ends with this.
+    </p>
+    <p style="margin-top:30px; font-size:25px; line-height:1.5; opacity:0.66; max-width:640px">
+      One line at the foot of the page, in the merchant&rsquo;s own palette. It is
+      how the next merchant finds us.
+    </p>
+  </div>
+
+  <!-- The device sits fully inside the canvas here, unlike every other poster.
+       It has to: the badge is the last thing on the page, so a phone that runs
+       off the bottom edge crops off the only reason this frame exists. -->
+  <div class="phone" style="width:404px; left:604px; top:452px">
+    <span class="screen"><img src="${shot[`${mood}-foot`]}" alt=""></span>
+  </div>
+
+  <div class="callout" style="width:560px; left:56px; top:900px; transform:rotate(-2.4deg)">
+    <img src="${badgeShot[mood]}" alt="">
+  </div>
+</div></body></html>`;
 
 // ------------------------------------------------------------------ compose
 
@@ -224,18 +280,20 @@ for (const shop of SHOPS) {
   await render(`popuup-${shop.mood}-story`, portrait(shop, STORY), STORY.width, STORY.height);
 }
 
+await render("popuup-badge", badgePoster("editorial"), 1080, 1350);
+
 await render("popuup-five-feed", fan({
-  width: 1080, height: 1350, label: { x: 90, top: 96, size: 56, gap: 38, mark: 34 },
+  width: 1080, height: 1350, label: { x: 90, top: 92, size: 56, gap: 40, mark: 236 },
   phone: { w: 296, top: 470, lift: 30 },
 }), 1080, 1350);
 
 await render("popuup-five-story", fan({
-  width: 1080, height: 1920, label: { x: 90, top: 360, size: 62, gap: 44, mark: 38 },
+  width: 1080, height: 1920, label: { x: 90, top: 350, size: 62, gap: 46, mark: 268 },
   phone: { w: 460, gap: 0.44, top: 1000, lift: 36 },
 }), 1080, 1920);
 
 await render("popuup-five-wide", fan({
-  width: 1600, height: 900, label: { x: 160, top: 74, size: 52, gap: 30, mark: 30 },
+  width: 1600, height: 900, label: { x: 160, top: 66, size: 52, gap: 34, mark: 220 },
   phone: { w: 262, top: 356, lift: 24 },
 }), 1600, 900);
 

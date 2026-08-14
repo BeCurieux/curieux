@@ -5,17 +5,18 @@ beside it. Nothing in here is hand-drawn in a design tool, so a change to the
 template — a new mood axis, a card-meta fix, a badge tweak — shows up in the
 next set of posters without anybody redrawing anything.
 
-Three steps, in order:
+Four steps, in order:
 
 | step | what it does |
 |---|---|
+| `logo.mjs` | renders `wordmark.mjs` in brand colours → `public/brand/popuup.svg` |
 | `shops.mjs` | five demo shops with drawn goods and saturated palettes → `.cache/shop/demo-*.json` |
-| `capture.mjs` | three phone frames per shop (fold, mid, grid) at 390×845 ×3 → `.cache/press/` |
+| `capture.mjs` | four phone frames per shop (fold, mid, grid, foot) at 390×845 ×3, plus a clip of the badge → `.cache/press/` |
 | `compose.mjs` | posters: prompt above, device below → `.cache/press/out/` as PNG and JPEG |
 
 ```sh
 pnpm dev          # in one terminal; capture.mjs reads a running server
-pnpm press        # the three steps above
+pnpm press        # the four steps above
 ```
 
 `PRESS_ORIGIN` overrides the server capture.mjs reads (default
@@ -27,6 +28,8 @@ Output, all in `.cache/press/out/`:
 - `popuup-<mood>-story.jpg` — 1080×1920, the same shop, story
 - `popuup-five-feed.jpg` / `-story.jpg` / `-wide.jpg` — all five as a deck,
   the third at 1600×900 for X
+- `popuup-badge.jpg` — the free tier's badge, shown in place at the foot of a
+  page and again as a clip of those same pixels
 
 ## What these may and may not say
 
@@ -39,3 +42,7 @@ The line of type above each device is the shop's own `meta.prompt`, read from
 the config that produced the screenshot beneath it. If a poster's sentence and
 its shop ever disagree, the poster is lying, and the fix is to regenerate
 rather than to retype.
+
+The badge poster shows the badge by cropping it out of a rendered page, not by
+setting the words again — so it cannot advertise a badge the renderer does not
+actually ship.

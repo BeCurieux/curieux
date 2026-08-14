@@ -1,11 +1,14 @@
 /**
  * Phone captures for the social mockups.
  *
- * Two frames per demo shop, both at the aspect ratio of the device frame they
+ * Four frames per demo shop, all at the aspect ratio of the device frame they
  * get dropped into (390 x 845), so nothing is cropped or squashed on the way
- * in: the fold, and the same shop scrolled to the first full row of the grid.
+ * in: the fold, the seam where the hero meets the grid, the grid itself, and
+ * the foot of the page. Plus a clip of the badge on its own.
+ *
  * Device scale factor 3 because the screen ends up ~560px wide in a 1080px
- * canvas and a 1x capture would show its pixels.
+ * canvas and a 1x capture would show its pixels — and because the badge clip
+ * gets blown up further still.
  */
 
 import { launch } from "./browser.mjs";
@@ -61,7 +64,44 @@ for (const mood of MOODS) {
   await page.waitForTimeout(400);
   await page.screenshot({ path: `${OUT}/phone-${mood}-mid.png` });
 
-  console.log(`${mood.padEnd(10)} fold + grid (${grid}) + mid (${mid})`);
+  // The foot frame: the end of the shop, where the badge lives. It is the
+  // only frame that shows what a published shop actually gives back.
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${OUT}/phone-${mood}-foot.png` });
+
+  // And the badge on its own, clipped from the page rather than redrawn, so
+  // the poster shows the thing itself at a size somebody can read.
+  // Clipped to the words, not to the element: the anchor carries the tap
+  // target's padding, so its own box is half again as tall as the type and the
+  // crop came out sitting at the top of a field of empty page.
+  const badge = await page.evaluate(() => {
+    const words = [...document.querySelectorAll(".badge span")];
+    if (!words.length) return null;
+    const boxes = words.map((word) => word.getBoundingClientRect());
+    const top = Math.min(...boxes.map((b) => b.top));
+    const bottom = Math.max(...boxes.map((b) => b.bottom));
+    return {
+      x: Math.min(...boxes.map((b) => b.left)),
+      y: top,
+      width: Math.max(...boxes.map((b) => b.right)) - Math.min(...boxes.map((b) => b.left)),
+      height: bottom - top,
+    };
+  });
+  if (badge) {
+    const pad = 22;
+    await page.screenshot({
+      path: `${OUT}/badge-${mood}.png`,
+      clip: {
+        x: Math.max(0, badge.x - pad),
+        y: Math.max(0, badge.y - pad),
+        width: Math.min(390, badge.width + pad * 2),
+        height: badge.height + pad * 2,
+      },
+    });
+  }
+
+  console.log(`${mood.padEnd(10)} fold + grid (${grid}) + mid (${mid}) + foot + badge`);
   await page.close();
 }
 
