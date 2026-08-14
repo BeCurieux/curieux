@@ -23,19 +23,60 @@ let uid = 0;
 const ground = (a, b, tone) => `
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>
-    <radialGradient id="lit" cx="0.32" cy="0.24" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity="0.4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-    <radialGradient id="cast" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="${tone}" stop-opacity="0.34"/><stop offset="1" stop-color="${tone}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lit" cx="0.32" cy="0.2" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity="0.5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cast" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="${tone}" stop-opacity="0.3"/><stop offset="1" stop-color="${tone}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="contact" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="${tone}" stop-opacity="0.5"/><stop offset="0.6" stop-color="${tone}" stop-opacity="0.18"/><stop offset="1" stop-color="${tone}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vignette" cx="0.5" cy="0.42" r="0.72"><stop offset="0.55" stop-color="${tone}" stop-opacity="0"/><stop offset="1" stop-color="${tone}" stop-opacity="0.16"/></radialGradient>
+    <linearGradient id="surface" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tone}" stop-opacity="0"/><stop offset="0.24" stop-color="${tone}" stop-opacity="0.13"/><stop offset="1" stop-color="${tone}" stop-opacity="0.05"/></linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>
+    <filter id="sheen" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="72"/></filter>
   </defs>
-  <rect width="1200" height="1500" fill="url(#g)"/><rect width="1200" height="1500" fill="url(#lit)"/>`;
+  <rect width="1200" height="1500" fill="url(#g)"/>
+  <rect width="1200" height="1500" fill="url(#lit)"/>
+  <!-- A horizon. Without it every object floats on a wall; with it they sit on
+       something, which is most of what separates a product shot from an icon.
+       It fades in rather than starting at full strength — a hard edge across
+       the backdrop reads as a band of colour, not as a table. -->
+  <rect y="760" width="1200" height="740" fill="url(#surface)"/>
+  <rect width="1200" height="1500" fill="url(#vignette)"/>`;
 
-const floor = (w, y) => `<ellipse cx="${CX}" cy="${y}" rx="${w * 0.62}" ry="${w * 0.1}" fill="url(#cast)"/>`;
+/**
+ * What the object is standing on.
+ *
+ * Two shadows, not one. A single wide blur reads as a sticker dropped onto the
+ * background; the tight dark one under the base is what makes it look in
+ * contact with the surface, and the wide one is only the ambient falloff.
+ */
+const floor = (w, y) => `
+  <ellipse cx="${CX}" cy="${y + 6}" rx="${w * 0.66}" ry="${w * 0.115}" fill="url(#cast)"/>
+  <ellipse cx="${CX}" cy="${y}" rx="${w * 0.3}" ry="${w * 0.045}" fill="url(#contact)"/>`;
 
-/** Every object drawn twice: body colour, then a lighter tone clipped to its left third. */
+/**
+ * One object, lit.
+ *
+ * The first version filled the silhouette flat and laid a lighter rectangle
+ * over its left third — a hard vertical seam down every product, which is what
+ * made these read as icons rather than as things. This lights it instead: a
+ * three-stop gradient across the form, a blurred specular down the lit side, an
+ * occlusion at the foot where it meets its own shadow, and a rim along the top
+ * edge. All four are clipped to the silhouette, so the shape library above did
+ * not have to change at all.
+ */
 const shape = (d, ink, extra = "") => {
   const id = ++uid;
-  return `<path d="${d}" fill="${ink.body}"/>
+  return `
+    <linearGradient id="f${id}" x1="0.08" y1="0" x2="0.92" y2="1">
+      <stop offset="0" stop-color="${ink.light}"/>
+      <stop offset="0.42" stop-color="${ink.body}"/>
+      <stop offset="1" stop-color="${ink.dark}"/>
+    </linearGradient>
     <clipPath id="c${id}"><path d="${d}"/></clipPath>
-    <rect x="0" y="0" width="${CX - 40}" height="1500" fill="${ink.light}" opacity="0.45" clip-path="url(#c${id})"/>${extra}`;
+    <path d="${d}" fill="url(#f${id})"/>
+    <g clip-path="url(#c${id})">
+      <ellipse cx="${CX - 170}" cy="${CY - 150}" rx="170" ry="380" fill="#fff" opacity="0.22" filter="url(#sheen)"/>
+      <ellipse cx="${CX + 60}" cy="1200" rx="520" ry="150" fill="${ink.dark}" opacity="0.34" filter="url(#soft)"/>
+      <path d="${d}" fill="none" stroke="#fff" stroke-opacity="0.26" stroke-width="7" transform="translate(0 5)"/>
+    </g>${extra}`;
 };
 
 // --- vessels: bottles, jars, tubes, stemware, tumblers, carafes -------------
