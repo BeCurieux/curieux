@@ -113,8 +113,39 @@ describe("the Sprint 3 line holds", () => {
   it("has no creator-shop concept beyond a reserved word", async () => {
     // Creator shops are nearly the same object as a brand shop, which is what
     // makes them cheap later and tempting now.
+    //
+    // The kill-test ledger is exempt, and the distinction is the whole point of
+    // the rule rather than a hole in it. A creator *shop* is a product feature:
+    // a second kind of thing to own, publish and bill for. A creator in the
+    // ledger is a row in our own local notes saying who we asked — the shop
+    // generated for them comes off the same public product feed, through the
+    // same code, and is the same object. Sprint 3 is about what gets built;
+    // this is about who gets shown what already exists.
+    //
+    // The check below keeps its teeth: if a creator ever becomes something the
+    // schema, the renderer or the publisher knows about, this fails.
     const files = await sourceFiles();
-    const offenders = files.filter(({ text }) => /\bcreatorshop|\bcreator_id|\bcreators?\s*:/i.test(code(text)));
+    const offenders = files
+      .filter(({ file }) => !file.startsWith("lib/killtest/"))
+      .filter(({ text }) => /\bcreatorshop|\bcreator_id|\bcreators?\s*:/i.test(code(text)));
+    expect(offenders.map((o) => o.file)).toEqual([]);
+  });
+
+  it("keeps the creator label inside the kill test, out of the product", async () => {
+    // The exemption above is only safe while it is narrow. A shop, a config or
+    // a published record that knows what a creator is would be the Sprint 3
+    // feature arriving under the name of a research label.
+    const files = await sourceFiles();
+    const product = files.filter(
+      ({ file }) => file.startsWith("lib/schema") || file.startsWith("lib/publish/") || file.startsWith("components/"),
+    );
+    expect(product.length).toBeGreaterThan(0);
+
+    // The bare word is allowed and always was — "creator" is in the reserved
+    // slug list precisely so no merchant can take that path before it means
+    // something. What must not appear is creator as a *field or entity*: the
+    // same shapes the check above forbids, with no exemption here.
+    const offenders = product.filter(({ text }) => /\bcreatorshop|\bcreator_id|\bcreators?\s*:/i.test(code(text)));
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 

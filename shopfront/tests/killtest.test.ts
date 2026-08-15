@@ -11,6 +11,7 @@
 import { describe, expect, it } from "vitest";
 import {
   addTargets,
+  segmentOf,
   emptyLedger,
   preflight,
   recordOutcome,
@@ -207,5 +208,75 @@ describe("preflight", () => {
     });
     expect(result.ok).toBe(true);
     expect(result.warnings).toEqual([]);
+  });
+});
+
+/**
+ * Creators on the list.
+ *
+ * The rule being held: adding a second segment must add information and must
+ * not be able to move the bar. A test that only checked the tally would pass
+ * while the gate quietly became clearable by inviting more creators.
+ */
+describe("segments", () => {
+  const creator = (storeUrl: string) => ({ storeUrl, segment: "creator" as const });
+
+  it("treats a bare URL as a merchant, which is what every list was before", () => {
+    const ledger = addTargets(emptyLedger(NOW), ["https://a.com"], NOW);
+    expect(segmentOf(ledger.targets[0]!)).toBe("merchant");
+  });
+
+  it("reads a target written before segments existed as a merchant", () => {
+    // A run in progress must not be re-segmented by a schema change.
+    const legacy: Ledger = {
+      version: 1,
+      startedAt: NOW.toISOString(),
+      targets: [{ storeUrl: "https://a.com", stage: "wants_it_live", outcome: "open", updatedAt: NOW.toISOString() }],
+    };
+    expect(verdict(legacy).wantItLive).toBe(1);
+    expect(verdict(legacy).segments.merchant.contacted).toBe(1);
+  });
+
+  it("keeps a note from the targets file", () => {
+    const ledger = addTargets(emptyLedger(NOW), [{ storeUrl: "https://a.com", note: "beauty, ~80 products" }], NOW);
+    expect(ledger.targets[0]!.note).toBe("beauty, ~80 products");
+  });
+
+  it("counts creators separately and leaves them out of the bar", () => {
+    let ledger = addTargets(emptyLedger(NOW), [creator("https://c1.com"), creator("https://c2.com")], NOW);
+    ledger = recordOutcome(ledger, "https://c1.com", { stage: "wants_it_live" }, NOW);
+    ledger = recordOutcome(ledger, "https://c2.com", { stage: "paid" }, NOW);
+
+    const v = verdict(ledger);
+    expect(v.segments.creator).toEqual({ contacted: 2, wantItLive: 2 });
+    // Nothing about the merchant gate moved.
+    expect(v.wantItLive).toBe(0);
+    expect(v.contacted).toBe(0);
+  });
+
+  it("cannot be made to proceed by adding creators", () => {
+    // The failure this exists to prevent: four merchants short of the bar, and
+    // a pile of enthusiastic creators making the number look fine.
+    let ledger = addTargets(emptyLedger(NOW), Array.from({ length: 30 }, (_, i) => `https://m${i}.com`), NOW);
+    for (let i = 0; i < 4; i++) ledger = recordOutcome(ledger, `https://m${i}.com`, { stage: "wants_it_live" }, NOW);
+    for (let i = 4; i < 30; i++) ledger = recordOutcome(ledger, `https://m${i}.com`, { outcome: "declined" }, NOW);
+
+    ledger = addTargets(ledger, Array.from({ length: 20 }, (_, i) => creator(`https://c${i}.com`)), NOW);
+    for (let i = 0; i < 20; i++) ledger = recordOutcome(ledger, `https://c${i}.com`, { stage: "wants_it_live" }, NOW);
+
+    const v = verdict(ledger);
+    expect(v.segments.creator.wantItLive).toBe(20);
+    expect(v.call).toBe("kill");
+  });
+
+  it("does not let creators pad the contacted count toward thirty", () => {
+    // The other direction: a test that is not finished must not look finished.
+    let ledger = addTargets(emptyLedger(NOW), Array.from({ length: 10 }, (_, i) => `https://m${i}.com`), NOW);
+    ledger = addTargets(ledger, Array.from({ length: 25 }, (_, i) => creator(`https://c${i}.com`)), NOW);
+
+    const v = verdict(ledger);
+    expect(v.contacted).toBe(10);
+    expect(v.call).toBe("running");
+    expect(v.reason).toContain(`10 of ${TARGET_MERCHANTS}`);
   });
 });

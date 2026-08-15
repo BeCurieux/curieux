@@ -16,6 +16,8 @@ import {
   type Ledger,
   type Outcome,
   type Stage,
+  type Segment,
+  type SegmentTally,
   type Target,
   type Verdict,
 } from "./types";
@@ -55,13 +57,39 @@ export function atLeast(stage: Stage, threshold: Stage): boolean {
   return rank(stage) >= rank(threshold);
 }
 
-export function addTargets(ledger: Ledger, storeUrls: string[], now: Date): Ledger {
+/**
+ * Which segment a target belongs to.
+ *
+ * One place, because the default is a judgement: a target written before
+ * segments existed came off a merchant list, and reading it as anything else
+ * would retroactively move somebody into a group they were never asked as.
+ */
+export function segmentOf(target: Target): Segment {
+  return target.segment ?? "merchant";
+}
+
+/** A line from the targets file: a URL, and what we know about it. */
+export interface TargetInput {
+  storeUrl: string;
+  segment?: Segment;
+  note?: string;
+}
+
+/** A bare URL is a merchant, which is what every list was before this existed. */
+function asInput(target: string | TargetInput): TargetInput {
+  return typeof target === "string" ? { storeUrl: target } : target;
+}
+
+export function addTargets(ledger: Ledger, targets: (string | TargetInput)[], now: Date): Ledger {
   const known = new Set(ledger.targets.map((t) => t.storeUrl));
-  const added = storeUrls
-    .filter((url) => !known.has(url))
+  const added = targets
+    .map(asInput)
+    .filter((target) => !known.has(target.storeUrl))
     .map(
-      (storeUrl): Target => ({
-        storeUrl,
+      (target): Target => ({
+        storeUrl: target.storeUrl,
+        segment: target.segment ?? "merchant",
+        ...(target.note ? { note: target.note } : {}),
         stage: "sent",
         outcome: "open",
         updatedAt: now.toISOString(),
@@ -120,8 +148,29 @@ export function recordOutcome(ledger: Ledger, storeUrl: string, update: Update, 
  * replied yet" is exactly the one a tired founder collapses, in whichever
  * direction they were already leaning.
  */
+function tally(targets: Target[]): SegmentTally {
+  return {
+    contacted: targets.length,
+    wantItLive: targets.filter((t) => atLeast(t.stage, THRESHOLD_STAGE)).length,
+  };
+}
+
 export function verdict(ledger: Ledger): Verdict {
-  const targets = ledger.targets;
+  /*
+   * The gate counts merchants and only merchants.
+   *
+   * Creators are on the list to answer a different question — which of the two
+   * this product is actually for — and letting them into this arithmetic would
+   * turn a bar that was fixed in advance into one that can be cleared by
+   * changing who is on the list. That is the precise failure the threshold was
+   * written down to prevent, and it would arrive wearing the face of good news.
+   */
+  const targets = ledger.targets.filter((t) => segmentOf(t) === "merchant");
+
+  const segments = {
+    merchant: tally(targets),
+    creator: tally(ledger.targets.filter((t) => segmentOf(t) === "creator")),
+  };
 
   const wantItLive = targets.filter((t) => atLeast(t.stage, THRESHOLD_STAGE)).length;
   const askedPrice = targets.filter((t) => atLeast(t.stage, "asked_price")).length;
@@ -131,7 +180,7 @@ export function verdict(ledger: Ledger): Verdict {
   const resolved = targets.filter((t) => t.outcome !== "open" || atLeast(t.stage, THRESHOLD_STAGE)).length;
   const outstanding = contacted - resolved;
 
-  const base = { wantItLive, askedPrice, paid, generated, contacted, resolved, outstanding };
+  const base = { wantItLive, askedPrice, paid, generated, contacted, resolved, outstanding, segments };
 
   if (wantItLive >= THRESHOLD_COUNT) {
     return {
