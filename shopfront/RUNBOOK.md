@@ -129,9 +129,18 @@ Service-role reads are unaffected by any of this: `service_role` carries
 
 ## 1b. The deployment
 
+**Importing the repository.** The Next app is in `shopfront/`, not at the
+repository root, so Vercel's **Root Directory** has to be set to `shopfront`
+when the project is created. Left at the default, the build fails on the first
+step with no `package.json` — a confusing error for a straightforward cause,
+and the single most likely way this import goes wrong. Everything else is
+detected: pnpm from the lockfile, Next from the dependency, `pnpm build` as
+the build command.
+
 ```sh
 vercel env pull            # or run this where the deployment's own variables are
 pnpm deploy:check
+pnpm build                 # the same thing Vercel runs; it is worth failing here first
 ```
 
 Vercel is the second place a missing variable fails quietly, and it fails in
@@ -147,11 +156,22 @@ to grep for. The first signal is a merchant saying their link is broken.
 configuration only; `pnpm rls:check` is the one that proves the database
 answers.
 
-**The workbench does not ship.** `/` is a development tool — it lists every
-shop in the local cache and shows the command that fills it — and it is the
-page a merchant lands on by trimming their own shop link back to the domain.
-In a production build it now returns 404, which is the honest answer: there is
-no page there. `WORKBENCH=1` puts it back for a deployment where that is
+**Deploying the landing page alone is a legitimate state, and `deploy:check`
+will refuse it.** The check is written for a deployment that serves shops: it
+treats a missing `SUPABASE_URL` as fatal because a published link would 404
+with nothing saying why. Before anything is published there are no such links,
+and `/` is a marketing page that needs no database. That deployment is fine —
+the check is right about what it measures and is simply answering a question
+that has not been asked yet. Read its output, then decide; do not weaken it.
+
+`PUBLIC_ORIGIN` still matters in that state. It is what `metadataBase` resolves
+the Open Graph image against, so a landing page deployed without it unfurls
+every share with an image pointing at `localhost`.
+
+**The workbench does not ship.** `/workbench` is a development tool — it lists
+every shop in the local cache and shows the command that fills it. In a
+production build it returns 404, which is the honest answer: there is no page
+there. `/` is the landing page and is not gated. `WORKBENCH=1` puts it back for a deployment where that is
 wanted, such as comparing five moods on a preview URL rather than on the
 machine that generated them; `deploy:check` says so when it sees the variable
 set. The gate is on `NODE_ENV`, not on Vercel's own variables, so a self-hosted
