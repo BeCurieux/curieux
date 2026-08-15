@@ -171,6 +171,32 @@ export default function Landing() {
       </section>
 
       {/*
+        Second, and it used to be fourth.
+
+        This is the only claim on the page that the two products a merchant
+        will compare us against structurally cannot make, so it should not be
+        three scrolls down. It also does the layout a favour: the hero and the
+        section under it were both violet, which turned the space between two
+        bands into what read as an empty one.
+      */}
+      <section className="negations" aria-labelledby="negations-heading">
+        <h2 id="negations-heading" className="shout negations-heading">
+          there is no
+          <br />
+          page builder.
+        </h2>
+        <ul>
+          <li>No blocks to drag.</li>
+          <li>No template to pick.</li>
+          <li>No theme to configure.</li>
+        </ul>
+        <p>
+          Every one of those asks you to be a designer for an afternoon. The prompt is the builder: you know who is
+          coming, and that is the only thing you should have to say.
+        </p>
+      </section>
+
+      {/*
         The positioning, stated as a place rather than as an adjective.
         "Merchandising layer" means nothing on its own; a layer is only
         meaningful with something on each side of it, so both sides are named
@@ -225,23 +251,6 @@ export default function Landing() {
 
         <p className="rail-note">
           Demo stores, so nobody&rsquo;s products are borrowed to sell something. The pages are the real renderer.
-        </p>
-      </section>
-
-      <section className="negations" aria-labelledby="negations-heading">
-        <h2 id="negations-heading" className="shout negations-heading">
-          there is no
-          <br />
-          page builder.
-        </h2>
-        <ul>
-          <li>No blocks to drag.</li>
-          <li>No template to pick.</li>
-          <li>No theme to configure.</li>
-        </ul>
-        <p>
-          Every one of those asks you to be a designer for an afternoon. The prompt is the builder: you know who is
-          coming, and that is the only thing you should have to say.
         </p>
       </section>
 
