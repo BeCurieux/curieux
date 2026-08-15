@@ -91,6 +91,15 @@ const RULES = [
   { mark: "→", body: "Too much moved? It asks to be remade" },
 ];
 
+/**
+ * The sentence the opening types out, as words.
+ *
+ * It is one of the five demo prompts verbatim — the one that produced the shop
+ * shown next to it. Writing a punchier sentence here would mean the page shows
+ * a prompt and a shop that never met.
+ */
+const PROMPT = "a gift edit for a two-year-old who ruins everything".split(" ");
+
 const STEPS = [
   {
     n: "01",
@@ -197,16 +206,67 @@ export default function Landing() {
           The field is a figure and not an input. There is nothing behind it
           yet, and a box that swallows a sentence and does nothing is a worse
           first impression than an honest picture of one.
+
+          It plays once on load and holds. The whole markup is meaningful with
+          no animation at all — the words are words, the phone holds the same
+          screenshot it always did — so `prefers-reduced-motion` is served by
+          switching the timeline off rather than by building a second version.
         */}
         <div className="stage" aria-label="An example prompt, and the shop it produced">
           <Burst className="stage-burst" />
+
           <span className="device device-lg" aria-hidden="true">
-            <img src="/press/shop-playful.jpg" alt="" width={780} height={1690} />
+            {/*
+              One capture, three times, each clipped to a band and arriving a
+              beat apart. Products appear to land row by row and every pixel of
+              it is the real renderer's output — which a hand-drawn shop
+              animating into place would not be, and this page has no business
+              showing a shop that nothing produced.
+            */}
+            <span className="screen">
+              {[0, 1, 2].map((band) => (
+                <img
+                  key={band}
+                  className="screen-band"
+                  src="/press/shop-playful.jpg"
+                  alt=""
+                  width={780}
+                  height={1690}
+                />
+              ))}
+
+              {/* The beat between asking and having, on the screen that is
+                  doing the thinking. Inside the phone rather than beside it so
+                  it lands in the same place at every width — beside it, it sat
+                  on top of the button at desktop. */}
+              <span className="think">
+                reading your catalogue
+                <i />
+                <i />
+                <i />
+              </span>
+            </span>
           </span>
+
           <figure className="prompt">
             <figcaption>What is this shop for?</figcaption>
             <p>
-              a gift edit for a two-year-old who ruins everything
+              {/*
+                Word by word rather than character by character. A character
+                reveal needs the line's exact width to animate against, which
+                is a number that changes with the viewport and breaks quietly
+                when the text rewraps; a word is its own box at any width.
+              */}
+              {PROMPT.map((word, index) => (
+                // The space is a text node between the spans, not inside them:
+                // a trailing space inside an inline-block is collapsed away,
+                // and the sentence renders as onelongword.
+                <span key={word + index}>
+                  <span className="typed" style={{ "--w": index } as React.CSSProperties}>
+                    {word}
+                  </span>{" "}
+                </span>
+              ))}
               <span className="caret" aria-hidden="true" />
             </p>
             <span className="prompt-go" aria-hidden="true">
