@@ -5,7 +5,7 @@
  * change later — a link in an Instagram bio is copied into places nobody can
  * edit — so it is worth more care than its size suggests.
  *
- * Shops live at the root (`popuup.com/kelpandcotton`) rather than under a
+ * Shops live at the root (`getpopuup.com/kelpandcotton`) rather than under a
  * prefix. A bio link is read aloud and typed by hand, and `/s/` in the middle
  * of one is a syllable spent on our routing convention. The cost is that every
  * word this app might ever want as a page has to be spoken for up front.

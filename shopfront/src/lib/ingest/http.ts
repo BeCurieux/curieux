@@ -11,6 +11,7 @@
  * gap between them, a real timeout, a body cap, and a User-Agent that names
  * us and links somewhere a merchant can read.
  */
+import { HOME } from "../origin";
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
@@ -39,7 +40,7 @@ export interface HttpClientOptions {
 }
 
 export const DEFAULT_USER_AGENT =
-  "PopuupBot/0.1 (+https://popuup.com/bot; reads public storefront data)";
+  `PopuupBot/0.1 (+${HOME}/bot; reads public storefront data)`;
 
 const DEFAULTS = {
   timeoutMs: 15_000,

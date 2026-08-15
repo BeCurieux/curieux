@@ -16,15 +16,15 @@ describe("resolveOrigin", () => {
     // about it, so it has to win.
     expect(
       resolveOrigin({
-        PUBLIC_ORIGIN: "https://popuup.com",
+        PUBLIC_ORIGIN: "https://getpopuup.com",
         VERCEL_PROJECT_PRODUCTION_URL: "popuup.vercel.app",
         VERCEL_URL: "popuup-q9tc.vercel.app",
       }),
-    ).toBe("https://popuup.com");
+    ).toBe("https://getpopuup.com");
   });
 
   it("accepts the NEXT_PUBLIC spelling of the same thing", () => {
-    expect(resolveOrigin({ NEXT_PUBLIC_ORIGIN: "https://popuup.com" })).toBe("https://popuup.com");
+    expect(resolveOrigin({ NEXT_PUBLIC_ORIGIN: "https://getpopuup.com" })).toBe("https://getpopuup.com");
   });
 
   it("falls back to the project's production domain, so a fresh import is correct", () => {
@@ -42,8 +42,8 @@ describe("resolveOrigin", () => {
   });
 
   it("gives a bare host a scheme, and leaves one that has it alone", () => {
-    expect(resolveOrigin({ PUBLIC_ORIGIN: "popuup.com" })).toBe("https://popuup.com");
-    expect(resolveOrigin({ PUBLIC_ORIGIN: "https://popuup.com/" })).toBe("https://popuup.com");
+    expect(resolveOrigin({ PUBLIC_ORIGIN: "getpopuup.com" })).toBe("https://getpopuup.com");
+    expect(resolveOrigin({ PUBLIC_ORIGIN: "https://getpopuup.com/" })).toBe("https://getpopuup.com");
     expect(resolveOrigin({ PUBLIC_ORIGIN: "http://localhost:3000" })).toBe("http://localhost:3000");
   });
 
@@ -53,11 +53,11 @@ describe("resolveOrigin", () => {
     expect(resolveOrigin({ PUBLIC_ORIGIN: "", VERCEL_PROJECT_PRODUCTION_URL: "popuup.vercel.app" })).toBe(
       "https://popuup.vercel.app",
     );
-    expect(resolveOrigin({ PUBLIC_ORIGIN: "   " })).toBe("https://popuup.com");
+    expect(resolveOrigin({ PUBLIC_ORIGIN: "   " })).toBe("https://getpopuup.com");
   });
 
   it("has an answer when nothing is set at all", () => {
-    expect(resolveOrigin({})).toBe("https://popuup.com");
+    expect(resolveOrigin({})).toBe("https://getpopuup.com");
     expect(() => new URL(resolveOrigin({}))).not.toThrow();
   });
 });
