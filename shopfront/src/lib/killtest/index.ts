@@ -22,5 +22,6 @@ export {
   saveLedger,
   verdict,
 } from "./ledger";
-export type { Update } from "./ledger";
+export { segmentOf } from "./ledger";
+export type { Update, TargetInput } from "./ledger";
 export * from "./types";

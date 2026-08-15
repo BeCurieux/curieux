@@ -1,13 +1,13 @@
-# Kill-test targets — one storefront URL per line.
+# Kill-test targets — one storefront per line, under a section heading.
 #
 #   cp killtest/targets.example.txt killtest/targets.txt
 #   pnpm killtest check    killtest/targets.txt
 #   pnpm killtest generate killtest/targets.txt
 #
 # Blank lines and lines starting with # are ignored, so the notes below cost
-# nothing. `check` refuses localhost, duplicates, and an empty file, and warns
-# when there are fewer than thirty — a short list can produce a proceed but
-# never a kill.
+# nothing. A # after a URL is kept as that target's note. `check` refuses
+# localhost, duplicates, and an empty file, and warns when there are fewer than
+# thirty — a short list can produce a proceed but never a kill.
 #
 # ---------------------------------------------------------------- who to pick
 #
@@ -26,8 +26,29 @@
 #   · Roughly US$20k–500k a month.
 #   · Beauty, fashion, food, gifting, homewares or accessories.
 #
-# Not hobby stores, not creators without a catalogue, not enterprise retailers
-# with approval workflows.
+# Not hobby stores, not enterprise retailers with approval workflows.
+#
+# ------------------------------------------------------------------ creators
+#
+# Creators go under [creators] and are counted separately. They are on the list
+# to answer a question the merchant list cannot: which of the two this product
+# is actually for. A creator has an audience, posts links constantly, needs a
+# new one every campaign, and has no storefront of their own competing with
+# what popuup makes — all of which could make them the better buyer, and none
+# of which is knowable without asking.
+#
+# They do not count toward the bar, and they cannot clear it. Thirty merchants,
+# five wanting it live, exactly as before; `status` prints the creator numbers
+# underneath the verdict rather than inside it. A gate that could be cleared by
+# changing who is on the list is not a gate.
+#
+# A creator still needs a public product feed — merch, digital goods, a small
+# line. Someone who only posts affiliate links has nothing to ingest, and the
+# shop that produces would be a demo of the wrong thing.
+#
+# This is not creator *shops*, which are Sprint 3 and stay shut. The shop a
+# creator gets here is the same object off the same feed through the same code.
+# Only the label on our own notes is different.
 #
 # ------------------------------------------------------- the photography rule
 #
@@ -53,11 +74,17 @@
 #
 # ------------------------------------------------------------- the verdict
 #
-# Thirty merchants asked. Five wanting it live is proceed. `status` computes it;
+# Thirty merchants asked. Five wanting it live is proceed — creators are not in
+# that arithmetic in either direction. `status` computes it;
 # it will not call a kill before all thirty have been asked and every
 # conversation has resolved. That number was chosen in advance precisely so it
 # cannot be renegotiated on the day.
 
 # --- targets ---------------------------------------------------------------
+
+[merchants]
 # https://example-brand.com          # beauty, ~80 products
 # https://another-brand.com          # homewares, ~200 products, POOR PHOTOGRAPHY
+
+[creators]
+# https://someones-merch.com         # 40k on Instagram, drops every few weeks
