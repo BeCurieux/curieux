@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { resolveOrigin } from "@/lib/origin";
 import { display, sans } from "./fonts";
 import "./globals.css";
 import "./brand.css";
@@ -9,18 +10,16 @@ import "./shop.css";
  *
  * Without this Next resolves `/press/og.jpg` against `http://localhost:3000`
  * and says so in a build warning — which means every share of the landing page
- * unfurls with a broken image, on a page whose entire job is being shared. It
- * reads the same variable `pnpm generate` prints shop URLs with, so a
- * deployment configures its origin once.
+ * unfurls with a broken image, on a page whose entire job is being shared.
  *
- * The fallback is the domain the badge already points at, because a build with
- * no origin set is more likely to be a preview of production than a genuinely
- * different site.
+ * The resolution order lives in `lib/origin.ts`, and the reason it is a
+ * function rather than one `??` chain here is the fourth entry: Vercel tells a
+ * deployment its own domain, so an import with no configuration at all still
+ * unfurls correctly. Setting `PUBLIC_ORIGIN` is what a custom domain needs and
+ * it still wins over everything.
  */
-const ORIGIN = process.env.PUBLIC_ORIGIN ?? process.env.NEXT_PUBLIC_ORIGIN ?? "https://popuup.com";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(ORIGIN),
+  metadataBase: new URL(resolveOrigin()),
   title: "popuup",
   description: "Make a shop in a sentence.",
 };
