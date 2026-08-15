@@ -14,5 +14,11 @@ import { wordmark } from "./wordmark.mjs";
 
 const out = resolve(import.meta.dirname, "../../public/brand");
 await mkdir(out, { recursive: true });
+
+// Two files, one geometry. The brand-colour navy is invisible on a violet
+// ground, and a landing page that needs the mark in white should not be
+// re-drawing it — that is exactly how a logo ends up with two versions that
+// disagree about letterspacing.
 await writeFile(`${out}/popuup.svg`, `${wordmark()}\n`);
-console.log("public/brand/popuup.svg");
+await writeFile(`${out}/popuup-light.svg`, `${wordmark({ ink: "#FFFFFF", accent: "#B9A3FF", id: "uu-light" })}\n`);
+console.log("public/brand/popuup.svg + popuup-light.svg");

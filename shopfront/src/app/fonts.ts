@@ -47,6 +47,25 @@ export const display = localFont({
   preload: true,
 });
 
+/**
+ * The same family with the rest of its axes.
+ *
+ * Fraunces ships WONK (alternate letterforms) and a wider optical size range
+ * in a bigger file. A shop does not need them — a merchant's headline wants to
+ * read, not to perform — but popuup's own front door does, and it is the one
+ * place the brand gets to be loud. Scoped to the landing page so no shopper
+ * ever downloads it.
+ */
+export const displayWonk = localFont({
+  src: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2",
+  variable: "--font-brand-wonk",
+  display: "swap",
+  weight: "100 900",
+  fallback: ["Hoefler Text", "Iowan Old Style", "Georgia", "serif"],
+  adjustFontFallback: "Times New Roman",
+  preload: true,
+});
+
 export const sans = localFont({
   src: "../../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2",
   variable: "--font-brand-sans",

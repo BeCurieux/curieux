@@ -30,7 +30,7 @@
 
 import { launch } from "./browser.mjs";
 import { wordmark } from "./wordmark.mjs";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { copyFile, readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "../..");
@@ -466,5 +466,39 @@ await render("popuup-five-wide", fan({
   label: { x: 160, top: 66, size: 96, sub: 26, subTop: 268, mark: 118, stickerStyle: "left:88px; top:700px; transform:rotate(-3deg)" },
   phone: { w: 262, top: 470, lift: 24 },
 }), 1600, 900);
+
+/**
+ * Web copies, for the landing page.
+ *
+ * The landing page needs the same screenshots the posters use, at a size that
+ * belongs in a page rather than in a poster. Exporting them here rather than
+ * committing a separate set means the page cannot show a template that no
+ * longer exists — the thing this whole directory was built to stop.
+ *
+ * These land in `public/`, so unlike everything else here they are committed.
+ */
+const WEB = `${ROOT}/public/press`;
+await mkdir(WEB, { recursive: true });
+
+for (const shop of SHOPS) {
+  const page = await browser.newPage({ viewport: { width: 780, height: 1690 }, deviceScaleFactor: 1 });
+  await page.setContent(
+    `<body style="margin:0"><img src="${shot[`${shop.mood}-mid`]}" style="width:780px;display:block"></body>`,
+  );
+  await page.waitForTimeout(120);
+  await page.screenshot({ path: `${WEB}/shop-${shop.mood}.jpg`, type: "jpeg", quality: 82 });
+  await page.close();
+  console.log(`public/press/shop-${shop.mood}.jpg`);
+}
+
+// The card a link to popuup unfurls into. 1200x630 is the size every crawler
+// agrees on, so the deck is composed at it rather than scaled into it.
+await render("og", fan({
+  width: 1200, height: 630,
+  label: { x: 120, top: 46, size: 78, sub: 22, subTop: 214, mark: 104, stickerStyle: "left:64px; top:470px; transform:rotate(-3deg)" },
+  phone: { w: 210, top: 330, lift: 18 },
+}), 1200, 630);
+await copyFile(`${SCRATCH}/out/og.jpg`, `${ROOT}/public/press/og.jpg`);
+console.log("public/press/og.jpg");
 
 await browser.close();

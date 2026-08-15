@@ -1,6 +1,6 @@
 /**
- * The workbench is a development tool, and `/` is the domain root a merchant
- * gets by trimming their own shop link.
+ * The workbench is a development tool, and it sits one path off a domain root
+ * a merchant reaches by trimming their own shop link.
  *
  * Two things are worth holding. The predicate itself, because it is one
  * boolean between a dev tool and a front door and the `WORKBENCH` escape hatch
@@ -11,7 +11,7 @@
 
 import { describe, expect, it } from "vitest";
 import { workbenchVisible } from "@/lib/workbench";
-import Index from "@/app/page";
+import Workbench from "@/app/workbench/page";
 
 describe("workbenchVisible", () => {
   it("renders in development", () => {
@@ -75,7 +75,7 @@ describe("the page", () => {
     // without a server. If the call is ever removed the page resolves instead
     // and this fails.
     const error = await withEnv({ NODE_ENV: "production", WORKBENCH: undefined }, () =>
-      Index().then(
+      Workbench().then(
         () => null,
         (e: unknown) => e,
       ),
@@ -86,7 +86,7 @@ describe("the page", () => {
 
   it("renders when the bench is on", async () => {
     const result = await withEnv({ NODE_ENV: "development", WORKBENCH: undefined }, () =>
-      Index().then(
+      Workbench().then(
         (element) => element,
         (e: unknown) => e,
       ),

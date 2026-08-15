@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -78 720 250" role="img" aria-label="popuup">
+  <title>popuup</title>
+  
+  <g fill="none" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#FFFFFF">
+      <path d="M13 13V143"/><circle cx="52" cy="52" r="39"/>
+      <circle cx="172" cy="52" r="39"/>
+      <path d="M253 13V143"/><circle cx="292" cy="52" r="39"/>
+      <path d="M613 13V143"/><circle cx="652" cy="52" r="39"/>
+    </g>
+    <g stroke="#B9A3FF">
+      <path d="M373 13v39a39 39 0 0 0 78 0V13"/>
+      <path d="M493 13v39a39 39 0 0 0 78 0V13"/>
+    </g>
+    <!-- The rays, over the second u: the same three strokes the in-page badge
+         draws, at four times the size and thinner in proportion, because at
+         wordmark scale the badge's ratio reads as a fourth letter. -->
+    <g stroke="#B9A3FF" stroke-width="17">
+      <path d="M532 -28v-32"/><path d="M498 -22l-9-18"/><path d="M566 -22l9-18"/>
+    </g>
+  </g>
+</svg>
