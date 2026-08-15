@@ -38,7 +38,19 @@ export interface OriginEnv {
   VERCEL_URL?: string | undefined;
 }
 
-const FALLBACK = "https://popuup.com";
+/**
+ * Where popuup lives, and where a person can write to it.
+ *
+ * Four files had this domain typed into them — the badge on every published
+ * shop, the landing page, the crawler's user agent, and the fallback below.
+ * That is four places to miss when the domain changes, and the badge is the
+ * one that would go on pointing at a domain nobody owns from inside every
+ * shop already published.
+ */
+export const HOME = "https://getpopuup.com";
+export const INBOX = "hello@getpopuup.com";
+
+const FALLBACK = HOME;
 
 // The cast is the weak-type check firing, not a shortcut: none of these names
 // are declared on Node's ProcessEnv, so TypeScript sees an object type with no

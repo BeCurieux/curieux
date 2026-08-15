@@ -18,7 +18,7 @@
  * the single most tempting place to break it.
  */
 
-const HOME = "https://popuup.com";
+import { HOME } from "@/lib/origin";
 
 export function Badge({ slug }: { slug?: string }) {
   // A UTM per shop, because "organic install rate from published-shop badges"

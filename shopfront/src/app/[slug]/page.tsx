@@ -1,7 +1,7 @@
 /**
  * A published shop, at the root.
  *
- * `popuup.com/kelpandcotton` rather than `/s/kelpandcotton`: this URL goes in
+ * `getpopuup.com/kelpandcotton` rather than `/s/kelpandcotton`: this URL goes in
  * an Instagram bio, gets read aloud and gets typed by hand, and a routing
  * prefix in the middle is a syllable spent on our conventions. The price is
  * that every word the app might want later has to be reserved up front, which

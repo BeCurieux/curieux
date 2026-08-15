@@ -21,21 +21,21 @@
  */
 
 import type { Metadata } from "next";
+import { HOME, INBOX } from "@/lib/origin";
 import { displayWonk } from "./fonts";
 import "./landing.css";
 
-/** Where the badge already points, so the two cannot disagree. */
-const HOME = "https://popuup.com";
 
-/**
- * The address on the button.
+
+/*
+ * The home and the inbox both come from `lib/origin`, where the badge reads
+ * them too, so the landing page and every published shop cannot end up
+ * pointing at different domains.
  *
- * It has to exist before this page is pointed at a domain — an unreachable
- * mailto is worse than no button, because it fails silently and looks like
- * indifference. Until then this is the honest shape of the ask: a person
- * writing to a person.
+ * The inbox has to exist before this page is pointed at a domain — an
+ * unreachable mailto is worse than no button, because it fails silently and
+ * looks like indifference.
  */
-const INBOX = "hello@popuup.com";
 
 const ASK = `mailto:${INBOX}?subject=${encodeURIComponent("Make me a shop")}&body=${encodeURIComponent(
   "My store:\n\nWho the shop is for:\n\n",
