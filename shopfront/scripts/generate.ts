@@ -27,6 +27,8 @@ import { loadGenome, saveGenome, staleFor } from "../src/lib/genome/store";
 import type { CatalogueGenome } from "../src/lib/genome/types";
 import { merchandise, MerchandiseError } from "../src/lib/merchandise/index";
 import { defaultStore, publishShop, PublishError, checkSlug } from "../src/lib/publish/index";
+import { readCreator, type Creator } from "../src/lib/creator";
+import type { RefreshPolicy } from "../src/lib/publish/types";
 import { genomeVersionOf } from "../src/lib/provenance";
 import { PROMPT_VERSION as MERCHANDISE_PROMPT_VERSION } from "../src/lib/merchandise/prompt";
 import { PROMPT_VERSION as GENOME_PROMPT_VERSION } from "../src/lib/genome/prompt";
@@ -36,6 +38,8 @@ interface Args {
   prompt: string;
   slug?: string;
   plan: "free" | "pro";
+  creator?: Creator;
+  refresh: RefreshPolicy;
   fresh: boolean;
   regenome: boolean;
   noGenome: boolean;
@@ -43,12 +47,55 @@ interface Args {
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { url: "", prompt: "", plan: "free", fresh: false, regenome: false, noGenome: false, quiet: false };
+  const args: Args = {
+    url: "",
+    prompt: "",
+    plan: "free",
+    refresh: "pinned",
+    fresh: false,
+    regenome: false,
+    noGenome: false,
+    quiet: false,
+  };
   const positional: string[] = [];
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!;
     switch (arg) {
+      /*
+       * Attribution, from the person running the command and from nowhere
+       * else. `--creator @ana.ruiz --creator-name "Ana Ruiz"` — a profile URL
+       * works in place of the handle, because that is what gets pasted.
+       *
+       * `readCreator` throws on anything it cannot read rather than falling
+       * back to something plausible. A mangled handle would publish a real
+       * person's name onto a public URL, and it would look fine.
+       */
+      case "--creator": {
+        const value = argv[++i];
+        if (!value) throw new Error("--creator needs a handle, e.g. @ana.ruiz");
+        // A second `--creator` replaces the first outright rather than merging
+        // into it: the name and url that were set belonged to the old handle.
+        args.creator = readCreator({ handle: value });
+        break;
+      }
+      case "--creator-name": {
+        const value = argv[++i];
+        if (!value) throw new Error("--creator-name needs a value");
+        if (!args.creator) throw new Error("--creator-name needs --creator first");
+        args.creator = readCreator({ ...args.creator, name: value });
+        break;
+      }
+      case "--creator-url": {
+        const value = argv[++i];
+        if (!value) throw new Error("--creator-url needs a value");
+        if (!args.creator) throw new Error("--creator-url needs --creator first");
+        args.creator = readCreator({ ...args.creator, url: value });
+        break;
+      }
+      case "--live":
+        args.refresh = "live";
+        break;
       case "--slug": {
         const value = argv[++i];
         if (!value) throw new Error("--slug needs a value");
@@ -85,7 +132,17 @@ function parseArgs(argv: string[]): Args {
   args.prompt = positional.slice(1).join(" ");
   if (!args.url || !args.prompt) {
     throw new Error(
-      'Usage: pnpm generate <store-url> "<prompt>" [--slug my-shop] [--plan free|pro] [--fresh] [--regenome] [--no-genome]',
+      [
+        'Usage: pnpm generate <store-url> "<prompt>" [options]',
+        "",
+        "  --slug my-shop            the URL, checked and refused rather than mangled",
+        "  --plan free|pro           pro removes the badge",
+        "  --creator @ana.ruiz       credit this shop to somebody's audience",
+        "  --creator-name 'Ana Ruiz' how they are credited on the page",
+        "  --creator-url <url>       where the credit links",
+        "  --live                    let `pnpm refresh` mend this shop against current stock",
+        "  --fresh --regenome --no-genome",
+      ].join("\n"),
     );
   }
   return args;
@@ -176,6 +233,10 @@ async function main(): Promise<void> {
       },
       ...(args.slug ? { slug: args.slug } : {}),
       plan: args.plan,
+      // Only passed when the command said so. `publishShop` leaves a
+      // republished shop's attribution and policy alone otherwise.
+      ...(args.creator ? { creator: args.creator } : {}),
+      ...(args.refresh === "live" ? { refresh: args.refresh } : {}),
     },
     { store },
   );
@@ -184,6 +245,13 @@ async function main(): Promise<void> {
     args.quiet,
     `  4 publish     ${published.created ? "created" : "updated"} v${published.shop.version} in the ${store.name} store`,
   );
+
+  if (published.shop.creator) {
+    say(args.quiet, `                credited to ${published.shop.creator.name} (@${published.shop.creator.handle})`);
+  }
+  if (published.shop.refresh === "live") {
+    say(args.quiet, "                live — `pnpm refresh` will mend it against current stock");
+  }
 
   for (const warning of d.warnings) say(args.quiet, `  ! ${warning}`);
 

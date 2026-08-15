@@ -31,11 +31,21 @@ Next.js (App Router) · TypeScript · Supabase · Stripe · Anthropic API · Ver
 4. **Renderer** — one gorgeous template consuming `ShopConfig`. This is where the taste budget goes. Must flatter mediocre product photography. Read the frontend-design skill before building it.
 5. **Publish** — Supabase persistence, public URL per shop, badge on free tier, Vercel.
 6. **Provenance + funnel** — every shop persists its prompt, stated audience, and the `ShopConfig` decisions; sessions record view → product click → checkout start, keyed to the shop version that served them. Checkout = Shopify cart permalink, pre-filled. Never build on-page checkout.
-7. **Stop.** OAuth sync, email capture, creator shops, billing, word-editing, TikTok-URL input are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live).
+7. **Stop.** OAuth sync, email capture, billing, word-editing and TikTok-URL input are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live).
+
+### The one thing opened early
+
+**Creator shops and shop refresh, on the owner's explicit call (2026-08-15), ahead of the kill test.**
+
+Recorded here because the alternative is a rule that quietly stopped being true. The gate was overridden, not routed around: `tests/stop-line.test.tsx` lost its two creator checks in the same commit that built the feature, rather than the feature being shaped to slip past them. Everything else on the step-7 list stays shut and its checks stay in that file.
+
+The boundary that came with it, and it is not negotiable: **a shop refreshes against the catalogue, never against what anybody clicked.** Sold out, gone, new, cheaper — those are facts about stock, they are readable in one comparison, and nothing about them is learned. The moment a refresh rule reads the funnel, it is the drawer below and it needs asking about again.
 
 ## The drawer rule
 
 A future merchandising engine ("PULSE") may someday learn from the provenance logs. Until then it does not exist: no learned weights, no experimentation framework, no "intelligence" claims in copy, no schema built for a learning system we don't have. Log faithfully (step 6) and build nothing on top. If a task seems to require the engine, stop and ask.
+
+This survives the exception above intact. Creator shops carry attribution, which is a fact recorded at publish time; refresh reads stock, which is a fact in the catalogue. Neither reads an outcome back into a decision, which is the thing the drawer holds.
 
 ## Product rules
 

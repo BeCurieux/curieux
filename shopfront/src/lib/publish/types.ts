@@ -22,6 +22,7 @@
  */
 
 import type { Catalogue } from "@/lib/ingest/types";
+import type { Creator } from "@/lib/creator";
 import type { CatalogueGenome } from "@/lib/genome/types";
 import type { ShopConfig } from "@/lib/schema";
 
@@ -51,10 +52,36 @@ export interface ShopRecord {
   storeId: string;
   slug: string;
   plan: Plan;
+  /**
+   * Whose audience this shop was made for, if it was made for one.
+   *
+   * On the shop and not on the version, because it does not change when the
+   * shop is regenerated — the same creator's shop, merchandised again, is
+   * still theirs. See `lib/creator.ts` for why it is not in `ShopConfig`.
+   */
+  creator: Creator | null;
+  /**
+   * Whether a rebuild may re-pick this shop's products from the current
+   * catalogue, or whether the selection is the merchant's and stays put.
+   */
+  refresh: RefreshPolicy;
   createdAt: string;
   /** Null only between creating a shop and adding its first version. */
   currentVersionId: string | null;
 }
+
+/**
+ * What a shop does when its catalogue moves under it.
+ *
+ * `pinned` is the old behaviour and the safe default: the products chosen are
+ * the products shown, until a person regenerates it. `live` lets `pnpm refresh`
+ * mend the selection against current stock — sold-out demoted, vanished
+ * dropped, and a regeneration proposed when too much has moved to mend.
+ *
+ * Both read the catalogue and only the catalogue. Nothing here has ever seen a
+ * funnel event, and `tests/stop-line.test.tsx` fails if that changes.
+ */
+export type RefreshPolicy = "pinned" | "live";
 
 export interface ShopVersionRecord {
   id: string;
@@ -100,6 +127,9 @@ export interface PublishedShop {
   versionId: string;
   config: ShopConfig;
   catalogue: Catalogue;
+  /** Credited on the page when present. Never inferred, never generated. */
+  creator: Creator | null;
+  refresh: RefreshPolicy;
   /** When the catalogue was read. Printed, because it is a snapshot. */
   ingestedAt: string;
   publishedAt: string;
@@ -111,5 +141,7 @@ export interface PublishedShopSummary {
   version: number;
   name: string;
   prompt: string;
+  creator: Creator | null;
+  refresh: RefreshPolicy;
   publishedAt: string;
 }

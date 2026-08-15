@@ -20,11 +20,13 @@ import type {
   Plan,
   PublishedShop,
   PublishedShopSummary,
+  RefreshPolicy,
   ShopRecord,
   ShopVersionRecord,
   StoreRecord,
   StoreRecordInput,
 } from "./types";
+import type { Creator } from "@/lib/creator";
 import type { ShopConfig } from "@/lib/schema";
 
 interface Db {
@@ -34,6 +36,19 @@ interface Db {
 }
 
 const EMPTY: Db = { stores: [], shops: [], versions: [] };
+
+/**
+ * A shop row as it might be on disk, filled in to what the type now promises.
+ *
+ * `.cache/published/db.json` is written by earlier versions of this file and
+ * read by this one. Rows predating creator attribution and the refresh policy
+ * have neither field, and `undefined` where the type says `Creator | null`
+ * would be a silent lie that only shows up as a rendering crash. The defaults
+ * are the old behaviour: nobody's shop, pinned.
+ */
+function hydrate(shop: ShopRecord): ShopRecord {
+  return { ...shop, creator: shop.creator ?? null, refresh: shop.refresh ?? "pinned" };
+}
 
 export interface LocalStoreOptions {
   dir?: string;
@@ -73,6 +88,8 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
       versionId: version.id,
       config: version.config,
       catalogue: store.catalogue,
+      creator: shop.creator ?? null,
+      refresh: shop.refresh ?? "pinned",
       ingestedAt: store.ingestedAt,
       publishedAt: version.createdAt,
       // store.genome is deliberately not spread in. The type has no field for
@@ -121,7 +138,19 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
       return (await read()).shops.some((s) => s.slug === slug);
     },
 
-    async createShop({ storeId, slug, plan }: { storeId: string; slug: string; plan: Plan }): Promise<ShopRecord> {
+    async createShop({
+      storeId,
+      slug,
+      plan,
+      creator = null,
+      refresh = "pinned",
+    }: {
+      storeId: string;
+      slug: string;
+      plan: Plan;
+      creator?: Creator | null;
+      refresh?: RefreshPolicy;
+    }): Promise<ShopRecord> {
       const db = await read();
       if (db.shops.some((s) => s.slug === slug)) throw new Error(`The URL "${slug}" is already taken.`);
 
@@ -130,6 +159,8 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
         storeId,
         slug,
         plan,
+        creator,
+        refresh,
         createdAt: now().toISOString(),
         currentVersionId: null,
       };
@@ -139,7 +170,28 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
     },
 
     async findShopBySlug(slug: string): Promise<ShopRecord | null> {
-      return (await read()).shops.find((s) => s.slug === slug) ?? null;
+      const shop = (await read()).shops.find((s) => s.slug === slug);
+      return shop ? hydrate(shop) : null;
+    },
+
+    async updateShop(
+      shopId: string,
+      patch: { creator?: Creator | null; refresh?: RefreshPolicy },
+    ): Promise<ShopRecord> {
+      const db = await read();
+      const shop = db.shops.find((s) => s.id === shopId);
+      if (!shop) throw new Error(`No shop with id ${shopId}.`);
+
+      // Only what was passed. `{}` is a no-op rather than a reset — a caller
+      // republishing a creator's shop without repeating the attribution must
+      // not silently strip their name off it.
+      if (patch.creator !== undefined) shop.creator = patch.creator;
+      if (patch.refresh !== undefined) shop.refresh = patch.refresh;
+
+      const record = hydrate(shop);
+      Object.assign(shop, record);
+      await write(db);
+      return record;
     },
 
     async addVersion({
@@ -201,6 +253,8 @@ export function createLocalStore(options: LocalStoreOptions = {}): ShopStore {
             version: published.version,
             name: published.config.brand.name,
             prompt: published.config.meta.prompt,
+            creator: published.creator,
+            refresh: published.refresh,
             publishedAt: published.publishedAt,
           };
         })

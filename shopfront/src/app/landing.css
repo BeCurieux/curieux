@@ -152,7 +152,7 @@
   opacity: 0.72;
 }
 
-/* ----------------------------------------------------------------- proof */
+/* ---------------------------------------------------------- section leads */
 
 .section-lead {
   font-family: var(--font-brand-display), Georgia, serif;
@@ -162,6 +162,79 @@
   line-height: 1.06;
   text-wrap: balance;
 }
+
+/* ----------------------------------------------------------------- layer */
+
+.layer {
+  padding-block: clamp(3rem, 9vw, 6rem);
+}
+
+.layer-lede {
+  max-width: 48ch;
+  margin-top: clamp(1.25rem, 4vw, 1.75rem);
+  font-size: clamp(1rem, 3.4vw, 1.1875rem);
+  line-height: 1.6;
+  opacity: 0.82;
+}
+
+/*
+ * A chain, drawn as one. The rule runs along the top of the row rather than
+ * between the items, so the three read as positions on a single line instead
+ * of as three cards — which is the difference between "a layer" and "three
+ * features".
+ */
+.chain {
+  display: grid;
+  gap: clamp(1.75rem, 5vw, 2.5rem);
+  margin-top: clamp(2rem, 6vw, 3rem);
+  list-style: none;
+  counter-reset: chain;
+}
+
+.chain li {
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(255 255 255 / 0.24);
+}
+
+/* The middle link is ours, and is the only one lit. */
+.chain li:nth-child(2) {
+  border-top-color: #fff;
+}
+
+.chain-name {
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.25rem, 4.6vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.chain li:nth-child(2) .chain-name::after {
+  content: "";
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-left: 0.45em;
+  border-radius: 50%;
+  background: var(--lilac);
+  vertical-align: 0.14em;
+}
+
+.chain p {
+  max-width: 34ch;
+  margin-top: 0.6rem;
+  font-size: clamp(0.9375rem, 3.2vw, 1.0625rem);
+  line-height: 1.55;
+  opacity: 0.78;
+}
+
+@media (min-width: 900px) {
+  .chain {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+}
+
+/* ----------------------------------------------------------------- proof */
 
 .proof {
   padding-block: clamp(3rem, 9vw, 6rem) clamp(3rem, 8vw, 5rem);

@@ -34,11 +34,13 @@ import type {
   Plan,
   PublishedShop,
   PublishedShopSummary,
+  RefreshPolicy,
   ShopRecord,
   ShopVersionRecord,
   StoreRecord,
   StoreRecordInput,
 } from "./types";
+import type { Creator } from "@/lib/creator";
 import type { ShopConfig } from "@/lib/schema";
 import type { Catalogue } from "@/lib/ingest/types";
 import type { CatalogueGenome } from "@/lib/genome/types";
@@ -94,10 +96,22 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
       return data !== null;
     },
 
-    async createShop({ storeId, slug, plan }: { storeId: string; slug: string; plan: Plan }): Promise<ShopRecord> {
+    async createShop({
+      storeId,
+      slug,
+      plan,
+      creator = null,
+      refresh = "pinned",
+    }: {
+      storeId: string;
+      slug: string;
+      plan: Plan;
+      creator?: Creator | null;
+      refresh?: RefreshPolicy;
+    }): Promise<ShopRecord> {
       const { data, error } = await client
         .from("shops")
-        .insert({ store_id: storeId, slug, plan })
+        .insert({ store_id: storeId, slug, plan, creator, refresh })
         .select()
         .single();
 
@@ -113,6 +127,28 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
       const { data, error } = await client.from("shops").select().eq("slug", slug).maybeSingle();
       if (error) return fail("shop lookup", error);
       return data ? toShop(data) : null;
+    },
+
+    async updateShop(
+      shopId: string,
+      patch: { creator?: Creator | null; refresh?: RefreshPolicy },
+    ): Promise<ShopRecord> {
+      // Only the keys that were passed, so an empty patch is an empty update
+      // rather than a row of nulls. A republish that did not repeat the
+      // attribution must not strip a creator's name off their own shop.
+      const row: Record<string, unknown> = {};
+      if (patch.creator !== undefined) row.creator = patch.creator;
+      if (patch.refresh !== undefined) row.refresh = patch.refresh;
+
+      if (Object.keys(row).length === 0) {
+        const { data, error } = await client.from("shops").select().eq("id", shopId).single();
+        if (error || !data) return fail("shop lookup", error);
+        return toShop(data);
+      }
+
+      const { data, error } = await client.from("shops").update(row).eq("id", shopId).select().single();
+      if (error || !data) return fail("shop update", error);
+      return toShop(data);
     },
 
     async addVersion({
@@ -177,6 +213,8 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
         versionId: row.version_id as string,
         config: row.config as ShopConfig,
         catalogue: row.catalogue as Catalogue,
+        creator: (row.creator ?? null) as Creator | null,
+        refresh: (row.refresh ?? "pinned") as RefreshPolicy,
         ingestedAt: row.ingested_at as string,
         publishedAt: row.published_at as string,
       };
@@ -185,7 +223,9 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
     async listPublished(limit = 50): Promise<PublishedShopSummary[]> {
       const { data, error } = await client
         .from("shops")
-        .select("slug, plan, shop_versions!shops_current_version_id_fkey(version, config, prompt, created_at)")
+        .select(
+          "slug, plan, creator, refresh, shop_versions!shops_current_version_id_fkey(version, config, prompt, created_at)",
+        )
         .not("current_version_id", "is", null)
         .limit(limit);
 
@@ -201,6 +241,8 @@ export function createSupabaseStore(options: SupabaseStoreOptions = {}): ShopSto
             version: version.version as number,
             name: (version.config as ShopConfig).brand.name,
             prompt: version.prompt as string,
+            creator: (row.creator ?? null) as Creator | null,
+            refresh: (row.refresh ?? "pinned") as RefreshPolicy,
             publishedAt: version.created_at as string,
           },
         ];
@@ -250,6 +292,8 @@ function toShop(row: Record<string, any>): ShopRecord {
     storeId: row.store_id as string,
     slug: row.slug as string,
     plan: row.plan as Plan,
+    creator: (row.creator ?? null) as Creator | null,
+    refresh: (row.refresh ?? "pinned") as RefreshPolicy,
     createdAt: row.created_at as string,
     currentVersionId: (row.current_version_id ?? null) as string | null,
   };

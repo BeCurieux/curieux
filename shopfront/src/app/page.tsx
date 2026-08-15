@@ -56,6 +56,29 @@ const SHOPS = [
   { mood: "luxe", brand: "Maison Verre", prompt: "a wedding list for two people who already own everything" },
 ];
 
+/**
+ * The three links in the chain, which is the whole positioning.
+ *
+ * popuup is not the destination and not the till. It is the merchandising step
+ * between the two, and saying so is more useful than any adjective: it tells a
+ * merchant what it replaces (one link, one page, everybody) and what it leaves
+ * alone (their checkout, their customer, their money).
+ */
+const CHAIN = [
+  {
+    name: "Attention",
+    body: "A post, a story, a reply, a creator sending their people your way. Each one is a different room full of different people.",
+  },
+  {
+    name: "popuup",
+    body: "Your catalogue, selected and ordered and written for that audience. A shop per click, not a shop per brand.",
+  },
+  {
+    name: "Your checkout",
+    body: "A Shopify cart, pre-filled, on your own domain. We never touch the money and never own the customer.",
+  },
+];
+
 const STEPS = [
   {
     n: "01",
@@ -70,17 +93,17 @@ const STEPS = [
   {
     n: "03",
     title: "You get a shop",
-    body: "Chosen, ordered, written and designed around that one sentence. A link you can put in a bio. Checkout is still yours.",
+    body: "Merchandised around that one sentence. A link for a bio, a story, or a creator you work with — as many as the moments you have. Checkout is still yours.",
   },
 ];
 
 export const metadata: Metadata = {
-  title: "popuup — one line in, a whole shop out",
+  title: "popuup — every click deserves its own shop",
   description:
-    "Describe who your shop is for. popuup selects from your catalogue, merchandises it and designs the page. No page builder.",
+    "The merchandising layer between social attention and your checkout. Describe who is coming; popuup selects from your catalogue, merchandises it and designs the page. No page builder.",
   openGraph: {
     title: "popuup",
-    description: "One line in, a whole shop out.",
+    description: "Every click deserves its own shop.",
     url: HOME,
     images: [{ url: "/press/og.jpg", width: 1200, height: 630 }],
   },
@@ -100,14 +123,16 @@ export default function Landing() {
             the sentence under it. */}
         <div className="hero-copy">
           <h1 className="shout">
-            one line in.
+            every click
             <br />
-            a whole shop out.
+            deserves its
+            <br />
+            own shop.
           </h1>
 
           <p className="hero-lede">
-            You describe the shopper. popuup picks from what you already sell, writes the page around them, and hands
-            you a link.
+            One link in a bio sends every audience to the same page. popuup reads what you already sell and
+            merchandises it for whoever that click was — then hands them to your checkout.
           </p>
 
         {/*
@@ -143,6 +168,30 @@ export default function Landing() {
             <img src="/press/shop-playful.jpg" alt="" width={780} height={1690} />
           </span>
         </span>
+      </section>
+
+      {/*
+        The positioning, stated as a place rather than as an adjective.
+        "Merchandising layer" means nothing on its own; a layer is only
+        meaningful with something on each side of it, so both sides are named
+        — including the one we do not want, which is the checkout.
+      */}
+      <section className="layer" aria-labelledby="layer-heading">
+        <h2 id="layer-heading" className="section-lead">
+          Between the tap and the checkout
+        </h2>
+        <p className="layer-lede">
+          Attention was never the hard part. It arrives somewhere specific — off one post, one creator, one
+          conversation — and lands on a link that treats all of it as the same person. That gap is the whole job.
+        </p>
+        <ol className="chain">
+          {CHAIN.map((link) => (
+            <li key={link.name}>
+              <span className="chain-name">{link.name}</span>
+              <p>{link.body}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="proof" aria-labelledby="proof-heading">
@@ -235,13 +284,13 @@ export default function Landing() {
       <section className="status" aria-labelledby="status-heading">
         <h2 id="status-heading">Where this is</h2>
         <p>
-          Early. The shops are real and the renderer is real; there is no sign-up, no dashboard and no billing, and
-          nothing here syncs with your store — a shop is a snapshot of your catalogue on the day it was made, and it
-          says so on the page.
+          Early. The shops are real and the renderer is real; there is no sign-up, no dashboard and no billing.
+          Nothing here syncs with your store on its own — we re-read your catalogue when we rebuild a shop, and every
+          page prints the date it was read.
         </p>
         <p>
-          We are making them one at a time for a small number of merchants to find out whether anybody wants theirs
-          live. If that is you, write to us.
+          We are making them by hand for a small number of merchants and the creators they work with, to find out
+          whether anybody wants theirs live. If that is you, write to us.
         </p>
       </section>
 

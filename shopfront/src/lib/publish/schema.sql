@@ -34,11 +34,42 @@ create table if not exists public.shops (
   store_id           uuid not null references public.stores(id) on delete cascade,
   slug               text not null unique,
   plan               text not null default 'free' check (plan in ('free', 'pro')),
+  -- Whose audience this shop was made for, when it was made for one. A small
+  -- json object — handle, name, optional profile url — rather than a creators
+  -- table, because there is nothing yet to hang off a creator row: no login, no
+  -- payout, no ownership. A table with one useful column is a join for nothing.
+  --
+  -- It is supplied at publish time by whoever ran the command. It is not in
+  -- ShopConfig and so it is not a field the model can fill, which is the point:
+  -- an invented credit is a real person's name on a shop they never saw.
+  creator            jsonb,
+  -- Whether a rebuild may re-pick this shop's products from current stock.
+  -- 'pinned' is the old behaviour: the selection is the merchant's until they
+  -- change it. Both settings read the catalogue and only the catalogue.
+  refresh            text not null default 'pinned' check (refresh in ('pinned', 'live')),
   current_version_id uuid,
   created_at         timestamptz not null default now()
 );
 
+-- Additive, like the provenance columns below, so re-running this file gives
+-- them to a project that already has shops in it.
+alter table public.shops add column if not exists creator jsonb;
+alter table public.shops add column if not exists refresh text not null default 'pinned';
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'shops_refresh_check') then
+    alter table public.shops
+      add constraint shops_refresh_check check (refresh in ('pinned', 'live'));
+  end if;
+end $$;
+
 create index if not exists shops_store_id_idx on public.shops(store_id);
+
+-- "Every shop this creator has" — the one query attribution exists to answer.
+-- Expression index rather than a column, since the handle is the only part of
+-- the object anything looks up by.
+create index if not exists shops_creator_handle_idx on public.shops((creator->>'handle'));
 
 -- -------------------------------------------------------------- versions
 
@@ -139,6 +170,8 @@ select
   v.id          as version_id,
   v.config,
   st.catalogue,
+  sh.creator,
+  sh.refresh,
   st.ingested_at,
   v.created_at  as published_at,
   sh.store_id
@@ -162,6 +195,8 @@ returns table (
   version_id  uuid,
   config      jsonb,
   catalogue   jsonb,
+  creator     jsonb,
+  refresh     text,
   ingested_at timestamptz,
   published_at timestamptz
 )
@@ -170,7 +205,8 @@ stable
 security definer
 set search_path = public
 as $$
-  select sh.slug, sh.plan, v.version, v.id, v.config, st.catalogue, st.ingested_at, v.created_at
+  select sh.slug, sh.plan, v.version, v.id, v.config, st.catalogue, sh.creator, sh.refresh,
+         st.ingested_at, v.created_at
   from public.shops sh
   join public.shop_versions v on v.id = sh.current_version_id
   join public.stores st       on st.id = sh.store_id
