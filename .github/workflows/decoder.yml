@@ -1,0 +1,88 @@
+# Does the decoder still typecheck, pass its tests, and hold its gate?
+#
+# Scoped to the decoder/ directory, in the same spirit as qotidia.yml and
+# shopfront.yml: this repository holds several independent apps side by side,
+# and each gets to decide its own checks rather than inherit a sibling's.
+#
+# No secrets, and no network. Every test that involves the vision adapter
+# injects its own transport, and everything downstream of `ParsedLabel` is
+# ordinary code — so a run here never reaches a model. That is deliberate: a
+# suite whose result depends on an inference call is a suite that goes red for
+# reasons that have nothing to do with the commit, and this particular suite is
+# the thing standing between the product and a confidently wrong verdict.
+
+name: decoder
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "decoder/**"
+      - ".github/workflows/decoder.yml"
+  pull_request:
+    paths:
+      - "decoder/**"
+      - ".github/workflows/decoder.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: decoder-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: decoder
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from the `packageManager` field, so the runner and a
+      # developer's machine cannot drift apart without the change being visible.
+      #
+      # `package_json_file` is not optional here: `defaults.run.working-directory`
+      # above applies to `run:` steps only, so this action still looks for
+      # `package.json` at the repository root — which this repo does not have,
+      # because it holds several apps side by side.
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: decoder/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: decoder/pnpm-lock.yaml
+
+      # `--frozen-lockfile` fails if package.json and the lockfile disagree, so
+      # a run cannot quietly test a different dependency tree than we develop on.
+      - run: pnpm install --frozen-lockfile
+
+      # Separate steps so a red run names what broke on the summary page — and
+      # the two that matter are named for what they mean rather than for the
+      # command they run.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      # Not a duplicate of the step above: it re-runs the two files that are not
+      # really tests of behaviour but statements of policy, so that a red run
+      # says which of the two happened. `safety` going red means §10 was
+      # loosened. `stop-line` going red means somebody built past the Phase 0
+      # gate — in either case the fix is a decision, not a patch.
+      - name: The safety rules and the gate
+        if: always()
+        run: pnpm vitest run tests/safety.test.ts tests/stop-line.test.ts
+
+      # The renderer is the Phase 0 asset, so "does it still produce cards" is
+      # part of the build being green. It writes to a gitignored directory and
+      # needs no browser.
+      - name: Render the Phase 0 cards
+        run: pnpm press

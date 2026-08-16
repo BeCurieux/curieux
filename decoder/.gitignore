@@ -1,0 +1,13 @@
+node_modules/
+
+# `pnpm press` regenerates these from the fixtures in one second, and they are
+# 12 large SVGs that would otherwise turn every renderer tweak into a diff
+# nobody can read. The command is the artefact; the output is not.
+press/
+
+# Whatever `pnpm decode --out` was pointed at during a session.
+out/
+
+.env
+.env.local
+.DS_Store
