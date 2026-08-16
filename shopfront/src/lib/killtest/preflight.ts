@@ -16,6 +16,8 @@
  * So this refuses rather than warns.
  */
 
+import { MISSING_KEY } from "@/lib/anthropic-key";
+
 export interface PreflightInput {
   storeUrls: string[];
   aiProvider?: string | undefined;
@@ -56,7 +58,7 @@ export function preflight({ storeUrls, aiProvider, anthropicKey, chromiumPath }:
   }
 
   if (!anthropicKey) {
-    blockers.push("ANTHROPIC_API_KEY is not set, so no real generation can happen.");
+    blockers.push(`No Anthropic API key, so no real generation can happen. ${MISSING_KEY}`);
   }
 
   const fake = storeUrls.filter((url) => NOT_A_MERCHANT.test(url.trim()));

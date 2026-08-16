@@ -10,6 +10,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { GenomeError } from "./errors";
+import { anthropicApiKey, MISSING_KEY } from "@/lib/anthropic-key";
 import { GENOME_INFERENCE_SCHEMA } from "./inference-schema";
 import type { GenomeProvider, GenomeRequest, GenomeResult } from "./provider";
 
@@ -47,12 +48,9 @@ export function createAnthropicGenomeProvider(options: GenomeAnthropicOptions = 
   const effort = options.effort ?? (process.env.GENOME_EFFORT as GenomeAnthropicOptions["effort"]) ?? DEFAULT_EFFORT;
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
 
-  const apiKey = options.apiKey ?? process.env.ANTHROPIC_API_KEY;
+  const apiKey = options.apiKey ?? anthropicApiKey();
   if (!options.client && !apiKey) {
-    throw new GenomeError(
-      "no-api-key",
-      "ANTHROPIC_API_KEY is not set. Set it, or run with AI_PROVIDER=mock for the deterministic catalogue read.",
-    );
+    throw new GenomeError("no-api-key", MISSING_KEY);
   }
   const client = options.client ?? new Anthropic({ apiKey });
 

@@ -16,6 +16,7 @@
  * on the day; it is a number decided in advance and read out later.
  */
 
+import { anthropicApiKey } from "../src/lib/anthropic-key";
 import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import {
@@ -91,7 +92,7 @@ function reportPreflight(targets: TargetInput[]): boolean {
   const result = preflight({
     storeUrls: targets.map((t) => t.storeUrl),
     aiProvider: process.env.AI_PROVIDER,
-    anthropicKey: process.env.ANTHROPIC_API_KEY,
+    anthropicKey: anthropicApiKey(),
     chromiumPath: process.env.CHROMIUM_PATH,
   });
 

@@ -20,6 +20,8 @@
  * database answers; this proves the app would ask it.
  */
 
+import { hasAnthropicKey } from "../src/lib/anthropic-key";
+
 const ok = (message: string) => process.stdout.write(`  ✓ ${message}\n`);
 const bad = (message: string) => process.stderr.write(`  × ${message}\n`);
 const note = (message: string) => process.stdout.write(`  · ${message}\n`);
@@ -87,14 +89,14 @@ function check(): Finding[] {
     }
   }
 
-  if (process.env.ANTHROPIC_API_KEY) {
+  if (hasAnthropicKey()) {
     // Worth saying rather than failing: it is not wrong, but the deployment
     // serves published shops and records events — it does not generate. A key
     // sitting in an environment that never calls the API is one more copy of a
     // secret than the job needs.
     findings.push({
       fatal: false,
-      message: "ANTHROPIC_API_KEY is set here. Generation runs from a workstation, not the deployment — this environment has no code path that calls the API.",
+      message: "An Anthropic API key is set here. Generation runs from a workstation, not the deployment — this environment has no code path that calls the API.",
     });
   }
 

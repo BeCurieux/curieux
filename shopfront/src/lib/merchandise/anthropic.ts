@@ -11,6 +11,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { MerchandiseError } from "./errors";
+import { anthropicApiKey, MISSING_KEY } from "@/lib/anthropic-key";
 import { MERCHANDISING_PLAN_SCHEMA } from "./plan-schema";
 import type { GenerateRequest, GenerateResult, MerchandiseProvider } from "./provider";
 
@@ -47,12 +48,9 @@ export function createAnthropicProvider(options: AnthropicProviderOptions = {}):
   const effort = options.effort ?? (process.env.AI_EFFORT as AnthropicProviderOptions["effort"]) ?? DEFAULT_EFFORT;
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
 
-  const apiKey = options.apiKey ?? process.env.ANTHROPIC_API_KEY;
+  const apiKey = options.apiKey ?? anthropicApiKey();
   if (!options.client && !apiKey) {
-    throw new MerchandiseError(
-      "no-api-key",
-      "ANTHROPIC_API_KEY is not set. Set it, or run with AI_PROVIDER=mock for the deterministic merchandiser.",
-    );
+    throw new MerchandiseError("no-api-key", MISSING_KEY);
   }
   const client = options.client ?? new Anthropic({ apiKey });
 
