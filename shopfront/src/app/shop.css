@@ -899,6 +899,40 @@
   margin: 0;
 }
 
+/*
+ * The creator credit.
+ *
+ * A rule above and below and a lot of air, because it is doing the job a
+ * headshot would do in a louder product and has to earn its line without one.
+ * Set small and tracked out: at this size it reads as a caption, which is what
+ * a credit is, rather than as a headline competing with the brand above it.
+ *
+ * It wears the merchant's tokens like everything else here. A creator badge in
+ * its own colours would be a third brand on a page that already has two.
+ */
+.credit {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: var(--rule) solid var(--line);
+  border-bottom: var(--rule) solid var(--line);
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.credit a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: var(--rule) solid var(--line);
+  padding-bottom: 0.15em;
+  /* The 44px target, derived the same way as the colophon's links. */
+  display: inline-block;
+  padding-block: max(0px, calc((44px - 1lh) / 2));
+  margin-block: min(0px, calc((1lh - 44px) / 2));
+}
+
 .colophon {
   margin-top: var(--space-7);
   padding: var(--space-5) 0 var(--space-6);

@@ -9,6 +9,7 @@
 
 import type { ShopConfig } from "@/lib/schema";
 import type { Catalogue } from "@/lib/ingest/types";
+import { creditLine, type Creator } from "@/lib/creator";
 import { buildTheme } from "@/lib/render/theme";
 import { BlockView } from "./blocks";
 import { Badge } from "./Badge";
@@ -30,9 +31,25 @@ export interface ShopProps {
   badge?: boolean;
   /** For the badge's UTM, so the install loop is measurable. */
   slug?: string;
+  /**
+   * Whose audience this shop was made for.
+   *
+   * A separate prop rather than a field on `config` on purpose: this is the one
+   * thing on the page naming a real person, and it must not be reachable by a
+   * model. See `lib/creator.ts`.
+   */
+  creator?: Creator | null;
 }
 
-export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = true, slug }: ShopProps) {
+export function Shop({
+  config,
+  catalogue,
+  ingestedAt,
+  locale = "en",
+  badge = true,
+  slug,
+  creator = null,
+}: ShopProps) {
   const theme = buildTheme(config.theme);
 
   // The first offer code on the page rides along on every cart permalink. It
@@ -54,6 +71,31 @@ export function Shop({ config, catalogue, ingestedAt, locale = "en", badge = tru
           )}
           {config.brand.tagline && <p className="tagline">{config.brand.tagline}</p>}
         </header>
+
+        {/*
+          The credit, directly under the brand and above everything else.
+
+          High on the page because it is the reason a shopper trusts the
+          selection — somebody they follow picked these — and burying it in the
+          footer would be keeping the fact and throwing away its value.
+
+          It says "chosen by" and stops. Not "in partnership with", not
+          "exclusive", not a discount code: this system knows that a person's
+          name was passed at publish time and knows nothing at all about the
+          commercial arrangement behind it, so anything warmer would be a claim
+          made on somebody else's behalf.
+        */}
+        {creator && (
+          <p className="credit">
+            {creator.url ? (
+              <a href={creator.url} target="_blank" rel="noopener">
+                {creditLine(creator)}
+              </a>
+            ) : (
+              creditLine(creator)
+            )}
+          </p>
+        )}
 
         {config.blocks.map((entry, index) => (
           <div

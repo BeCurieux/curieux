@@ -15,7 +15,8 @@ import { createLocalStore } from "./local";
 import { createSupabaseStore } from "./supabase";
 import { allocateSlug, checkSlug, slugify } from "./slug";
 import { storeNameFromEnv, type ShopStore } from "./store";
-import type { Plan, PublishedShop } from "./types";
+import type { Plan, PublishedShop, RefreshPolicy } from "./types";
+import { creatorSlugSeed, type Creator } from "@/lib/creator";
 import type { CatalogueGenome } from "@/lib/genome/types";
 import type { IngestResult } from "@/lib/ingest/types";
 import type { ShopConfig } from "@/lib/schema";
@@ -35,6 +36,16 @@ export interface PublishInput {
    * `pnpm generate` always knows and always passes it.
    */
   provenance?: Provenance;
+  /**
+   * Whose audience this shop is for.
+   *
+   * Comes from the command line, not from the model — see `lib/creator.ts` for
+   * why that separation is load-bearing. Omitted entirely on a republish leaves
+   * whatever the shop already had; `null` clears it deliberately.
+   */
+  creator?: Creator | null;
+  /** Defaults to `pinned` on a new shop, and to unchanged on a republish. */
+  refresh?: RefreshPolicy;
 }
 
 export interface PublishResult {
@@ -95,12 +106,33 @@ export async function publishShop(input: PublishInput, options: PublishOptions =
     shopId = existing.id;
     slug = existing.slug;
     created = false;
+
+    // Attribution and refresh policy belong to the shop, not to the version,
+    // so a republish only touches them when the caller said something. Passing
+    // the whole patch unconditionally would mean every plain regeneration
+    // silently reset both to their defaults.
+    if (input.creator !== undefined || input.refresh !== undefined) {
+      await store.updateShop(shopId, {
+        ...(input.creator !== undefined ? { creator: input.creator } : {}),
+        ...(input.refresh !== undefined ? { refresh: input.refresh } : {}),
+      });
+    }
   } else {
-    slug = input.slug ?? (await allocateSlug(slugify(input.config.brand.name), { isTaken: (s) => store.slugTaken(s) }));
+    // A creator's shop takes its name from both: `kelpandcotton-ana-ruiz` says
+    // whose shop it is and whose people it is for, in the order a reader
+    // expects. `allocateSlug` still has the last word on length and collisions.
+    const seed = input.creator ? creatorSlugSeed(input.config.brand.name, input.creator) : input.config.brand.name;
+    slug = input.slug ?? (await allocateSlug(slugify(seed), { isTaken: (s) => store.slugTaken(s) }));
     if (input.slug && (await store.slugTaken(slug))) {
       throw new PublishError("slug-taken", `The URL "${slug}" is already taken.`);
     }
-    const shop = await store.createShop({ storeId: storeRecord.id, slug, plan });
+    const shop = await store.createShop({
+      storeId: storeRecord.id,
+      slug,
+      plan,
+      creator: input.creator ?? null,
+      refresh: input.refresh ?? "pinned",
+    });
     shopId = shop.id;
     created = true;
   }
@@ -146,3 +178,4 @@ export { allocateSlug, checkSlug, slugify, RESERVED_SLUGS, SLUG_MAX, SLUG_MIN } 
 export { storeNameFromEnv } from "./store";
 export type { ShopStore } from "./store";
 export type * from "./types";
+export { readCreator, creditLine, creatorSlugSeed, normaliseHandle, Creator } from "@/lib/creator";

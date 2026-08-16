@@ -15,12 +15,14 @@
 import type {
   PublishedShop,
   PublishedShopSummary,
+  RefreshPolicy,
   ShopRecord,
   ShopVersionRecord,
   StoreRecord,
   StoreRecordInput,
   Plan,
 } from "./types";
+import type { Creator } from "@/lib/creator";
 
 export interface ShopStore {
   readonly name: string;
@@ -38,9 +40,27 @@ export interface ShopStore {
 
   slugTaken(slug: string): Promise<boolean>;
 
-  createShop(input: { storeId: string; slug: string; plan: Plan }): Promise<ShopRecord>;
+  createShop(input: {
+    storeId: string;
+    slug: string;
+    plan: Plan;
+    /** Whose audience it is for. Supplied at publish time, never generated. */
+    creator?: Creator | null;
+    refresh?: RefreshPolicy;
+  }): Promise<ShopRecord>;
 
   findShopBySlug(slug: string): Promise<ShopRecord | null>;
+
+  /**
+   * Change what a shop is, as opposed to what it currently shows.
+   *
+   * Separate from `addVersion` because these two outlive versions: a shop
+   * republished ten times is the same creator's shop with the same refresh
+   * policy throughout, and folding them into the version row would mean
+   * answering "whose is this?" differently depending on which version you
+   * happened to load.
+   */
+  updateShop(shopId: string, patch: { creator?: Creator | null; refresh?: RefreshPolicy }): Promise<ShopRecord>;
 
   /**
    * Append a version and make it current.

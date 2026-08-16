@@ -53,6 +53,7 @@ export default async function PublishedShopPage({ params }: { params: Promise<{ 
       catalogue={shop.catalogue}
       ingestedAt={shop.ingestedAt}
       slug={shop.slug}
+      creator={shop.creator}
       // Pro removes the badge; nothing else about the page changes with plan.
       badge={shop.plan === "free"}
     />

@@ -12,6 +12,7 @@ pnpm install
 pnpm generate kelpandcotton.com "a clean bio shop for the knitwear post"
 pnpm dev                                                   # then open the URL it printed
 pnpm funnel kelp-and-cotton                                # did anyone buy anything?
+pnpm refresh --all                                         # has anything sold out under it?
 ```
 
 That is the whole pipeline in one command. The stages are also separable, which
@@ -494,11 +495,18 @@ the bottom of its own output.
 ## 7. Stop
 
 The seventh entry in the build order is not a feature. OAuth sync, email
-capture, creator shops, billing, word-editing and TikTok-URL input are Sprint 3,
-and they stay unbuilt until thirty real merchants have been asked and five
-actively want their shop live.
+capture, billing, word-editing and TikTok-URL input are Sprint 3, and they stay
+unbuilt until thirty real merchants have been asked and five actively want their
+shop live.
 
-Two things exist to hold that line.
+**One item came off that list early, on the owner's explicit call: creator
+shops, and with them shop refresh.** The gate was overridden rather than routed
+around — the two creator assertions were deleted from `tests/stop-line.test.tsx`
+in the same commit that built the feature, which is the shape an override should
+take. Everything else on the list stays shut and its assertions stay in place.
+See "Creator shops" and "Refresh" below.
+
+Two things exist to hold what is left of that line.
 
 **`tests/stop-line.test.tsx` is the rule as a test.** Every other rule in
 CLAUDE.md has something enforcing it; this one had nothing, and it is the
@@ -506,13 +514,14 @@ easiest of all of them to break — because none of these features arrives
 announcing itself as Sprint 3. Email capture arrives as "the capture block is
 already in the schema, it's twenty minutes." Word-editing arrives as "`EditMove`
 is defined, we may as well apply it." Each is individually reasonable and
-collectively the reason a kill test never gets run. So eight assertions: no
+collectively the reason a kill test never gets run. So seven assertions: no
 Admin API or OAuth token anywhere, no `<form>` or `<input>` in the entire source
 tree, `capture` and `reviews` withheld from the merchandiser while staying in
 the contract, `EditMove` referenced by nothing outside `schema.ts`, no payments,
-no creator-shop concept, nothing reading a TikTok video, and no weights,
-experiments or scoring. Each one was checked by injecting the violation and
-watching it fail — a guard test that cannot fail is decoration.
+nothing reading a TikTok video, and no weights, experiments or scoring — plus
+one added alongside refresh: nothing under `lib/smart` may import the funnel.
+Each was checked by injecting the violation and watching it fail — a guard test
+that cannot fail is decoration.
 
 If one of these starts failing, that is not a bug. It is somebody having built
 a Sprint 3 feature, and the honest fix is to delete it or to run the kill test
@@ -558,6 +567,92 @@ stop-line test asserts that too.
 framework, no schema shaped for a learning system that does not exist. The
 Genome is heuristics plus one model pass, and the diagnostics on it are
 descriptive — nothing reads them back into a decision.
+
+## Creator shops
+
+A shop made for somebody's audience rather than for a bio link.
+
+```
+pnpm generate mirabelo.co "a first order for someone who found you on instagram" \
+  --creator @ana.ruiz --creator-name "Ana Ruiz" --creator-url https://instagram.com/ana.ruiz
+```
+
+It is the same object as any other shop — same catalogue, same `ShopConfig`,
+same renderer, same checkout permalink. The only new fact is attribution: the
+shop is credited to Ana on the page, its URL is `mirabelo-ana-ruiz`, and the
+funnel events under that slug are therefore Ana's numbers without any new
+plumbing. Keeping the feature that small is what stops it becoming a second
+product with its own accounts, payouts and dashboard.
+
+**The creator is not in `ShopConfig`, and that is the decision worth knowing.**
+`ShopConfig` is what the model fills. A field there is a field a model can
+invent, and an invented credit is a real person's name on a shop they never saw
+— the worst failure this system could have and one no amount of prompt care
+would reliably prevent. So attribution is a publish-time argument on the shop
+record, next to the plan and the slug. `tests/publish-creator.test.tsx` asserts
+the schema has nowhere to put it.
+
+The page says "Chosen by Ana Ruiz" and stops. Not "in partnership with", not
+"exclusive", no discount code: this system knows a name was passed at publish
+time and knows nothing whatever about the commercial arrangement behind it, so
+anything warmer is a claim made on somebody else's behalf. There is a test for
+that sentence.
+
+Handles are read off whatever gets pasted — `@ana.ruiz`, a profile URL, a TikTok
+link with a query string — and refused outright when unreadable rather than
+mangled into something publishable.
+
+## Refresh
+
+What a shop does when its catalogue moves under it.
+
+```
+pnpm generate <store> "<prompt>" --live      # opt this shop in
+pnpm ingest <store> --fresh                  # re-read the merchant
+pnpm refresh --all                           # say what would change
+pnpm refresh <slug> --apply                  # publish the mend
+```
+
+Prices and stock already flow through without any of this: the renderer resolves
+both from the store's catalogue rather than from the config, so re-ingesting a
+merchant updates every shop they have published at once. What does not flow
+through is the **selection** — the products chosen, in the order chosen. A shop
+whose first three cards sold out last week is still leading with them.
+
+Three files, deliberately separate, because a threshold you can read is a
+threshold somebody can disagree with:
+
+- `lib/smart/drift.ts` measures. What is sold out, what has left the catalogue,
+  what the page has never shown, and a damage figure that weights a delisted
+  product at twice a sold-out one.
+- `lib/smart/decide.ts` rules: hold, repair, or regenerate. `REGENERATE_ABOVE`
+  is one third — past that, a mended page stops resembling the page that was
+  merchandised. A block that would fall below two products sends it to
+  regenerate too.
+- `lib/smart/repair.ts` mends, with two moves and no others. Drop what is gone.
+  Move what is sold out behind what is buyable — **shown and marked, never
+  hidden**, which is a product rule the arithmetic would happily break. The
+  result is `ShopConfig.parse`d before it is returned.
+
+**It never adds.** Pulling an unused product into a grid means writing a blurb,
+deciding where it sits and whether it belongs beside what is around it — that is
+merchandising, it is what the model is for, and a rule that guessed at it would
+be the page builder arriving through the back door. Where mending is not enough,
+`pnpm refresh` prints the `pnpm generate` command and stops. It does not call a
+model and it does not regenerate unattended.
+
+**It reads stock and only stock.** Nothing here has ever seen a funnel event.
+"Products nobody clicked drop down the page" is one import away and is a learned
+weight wearing a sensible hat, so the stop-line test forbids the import rather
+than trusting the intent.
+
+Two bugs worth recording, both found by running it rather than by reading it.
+The repair runs speculatively, before the decision, so a config it cannot
+legally produce had to come back as a measurement instead of an exception — a
+grid mended to nothing now reports zero and routes to regenerate. And drift does
+not go away when it is dealt with, so a shop already mended went on reporting
+"repair" forever; `pnpm refresh --all --apply` on a schedule would have appended
+an identical version every run.
 
 ## Decisions worth knowing about
 

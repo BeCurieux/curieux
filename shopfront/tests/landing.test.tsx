@@ -110,6 +110,42 @@ describe("the landing page", () => {
     }
   });
 
+  it("does not borrow a class name the shop template already owns", () => {
+    /*
+     * Two design systems, one global namespace.
+     *
+     * `shop.css` is imported by the root layout, so every rule in it applies
+     * to the landing page too. The landing page used `.hero`, `.hero-copy` and
+     * `.eyebrow` — all three of which the shop template styles — and it went
+     * unnoticed for as long as both were white text on a dark ground. The
+     * moment the page moved onto cream, `.hero-copy { color: #fff }` from the
+     * other stylesheet made the headline invisible against its own background.
+     *
+     * The failure mode is what makes this worth a test: nothing errors, both
+     * files are individually correct, and the damage only appears in a browser
+     * at one specific combination of the two. So the rule is separation by
+     * name — the landing page may not use a selector the shop owns.
+     */
+    const selectorsIn = (file: string): Set<string> => {
+      const css = readFileSync(path.join(process.cwd(), "src/app", file), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+      const found = new Set<string>();
+      for (const [, selector] of css.matchAll(/([^{}]+)\{/g)) {
+        for (const [, name] of selector!.matchAll(/\.([A-Za-z_][\w-]*)/g)) found.add(name!);
+      }
+      return found;
+    };
+
+    const shop = selectorsIn("shop.css");
+    expect(shop.size).toBeGreaterThan(20);
+
+    // What the page actually puts in the DOM, rather than what the stylesheet
+    // happens to mention — an unstyled class still inherits the other file's.
+    const used = new Set([...html.matchAll(/class="([^"]*)"/g)].flatMap((m) => m[1]!.split(/\s+/)).filter(Boolean));
+    expect(used.size).toBeGreaterThan(10);
+
+    expect([...used].filter((name) => shop.has(name))).toEqual([]);
+  });
+
   it("shows the wordmark as the generated file, not a second drawing of it", () => {
     // Two copies of a logo is how a logo ends up with two letterspacings.
     // `scripts/press/logo.mjs` writes both colourways from one geometry.

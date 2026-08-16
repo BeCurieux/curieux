@@ -1,8 +1,8 @@
 /**
  * Step 7 — Stop — as a test.
  *
- * "OAuth sync, email capture, creator shops, billing, word-editing and
- * TikTok-URL input are Sprint 3, gated on the kill-test result."
+ * "OAuth sync, email capture, billing, word-editing and TikTok-URL input are
+ * Sprint 3, gated on the kill-test result."
  *
  * Every other rule in CLAUDE.md has something enforcing it. This one had
  * nothing, and it is the easiest of all of them to break: none of these
@@ -13,7 +13,16 @@
  *
  * So the line is a test. If one of these starts failing, that is not a bug —
  * it is somebody having built a Sprint 3 feature, and the honest fix is either
- * to delete it or to run the kill test and delete this file.
+ * to delete it or to open the gate on purpose.
+ *
+ * **Creator shops were opened on purpose, ahead of the kill test, on the
+ * owner's explicit call.** Their two checks used to live here and were deleted
+ * in the commit that built the feature. That is the shape this file wants an
+ * override to take: the rule is removed where it is written down, in the same
+ * change, by somebody who has decided — not satisfied by naming a field
+ * something else. Every other check below is untouched and still means what it
+ * said, and the last one — the drawer — means it most of all: refresh reads
+ * stock, and nothing here may read an outcome.
  */
 
 import { readFile } from "node:fs/promises";
@@ -110,45 +119,6 @@ describe("the Sprint 3 line holds", () => {
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 
-  it("has no creator-shop concept beyond a reserved word", async () => {
-    // Creator shops are nearly the same object as a brand shop, which is what
-    // makes them cheap later and tempting now.
-    //
-    // The kill-test ledger is exempt, and the distinction is the whole point of
-    // the rule rather than a hole in it. A creator *shop* is a product feature:
-    // a second kind of thing to own, publish and bill for. A creator in the
-    // ledger is a row in our own local notes saying who we asked — the shop
-    // generated for them comes off the same public product feed, through the
-    // same code, and is the same object. Sprint 3 is about what gets built;
-    // this is about who gets shown what already exists.
-    //
-    // The check below keeps its teeth: if a creator ever becomes something the
-    // schema, the renderer or the publisher knows about, this fails.
-    const files = await sourceFiles();
-    const offenders = files
-      .filter(({ file }) => !file.startsWith("lib/killtest/"))
-      .filter(({ text }) => /\bcreatorshop|\bcreator_id|\bcreators?\s*:/i.test(code(text)));
-    expect(offenders.map((o) => o.file)).toEqual([]);
-  });
-
-  it("keeps the creator label inside the kill test, out of the product", async () => {
-    // The exemption above is only safe while it is narrow. A shop, a config or
-    // a published record that knows what a creator is would be the Sprint 3
-    // feature arriving under the name of a research label.
-    const files = await sourceFiles();
-    const product = files.filter(
-      ({ file }) => file.startsWith("lib/schema") || file.startsWith("lib/publish/") || file.startsWith("components/"),
-    );
-    expect(product.length).toBeGreaterThan(0);
-
-    // The bare word is allowed and always was — "creator" is in the reserved
-    // slug list precisely so no merchant can take that path before it means
-    // something. What must not appear is creator as a *field or entity*: the
-    // same shapes the check above forbids, with no exemption here.
-    const offenders = product.filter(({ text }) => /\bcreatorshop|\bcreator_id|\bcreators?\s*:/i.test(code(text)));
-    expect(offenders.map((o) => o.file)).toEqual([]);
-  });
-
   it("accepts a store URL and a sentence, not a TikTok link", async () => {
     // "Paste a URL, not a prompt" is the demo-of-demos and explicitly a
     // fast-follow. Nothing should be reading a video yet.
@@ -165,6 +135,23 @@ describe("the Sprint 3 line holds", () => {
     const offenders = files.filter(({ text }) =>
       /\bexperiment\b|\bvariant_?group|\bab_?test|\bbandit\b|\bweights?\s*[:=]\s*[[{]|\bpulse\b/i.test(code(text)),
     );
+    expect(offenders.map((o) => o.file)).toEqual([]);
+  });
+
+  it("refreshes a shop against stock, never against what anybody clicked", async () => {
+    // The specific way the drawer would open now that shops can rebuild
+    // themselves. "Products nobody clicked drop down the page" is one import
+    // away from the refresh rules and is a learned weight wearing a sensible
+    // hat, so the import is what gets forbidden.
+    //
+    // Stated as a dependency rather than as a word list because that is the
+    // real boundary: `lib/smart` may know everything about a catalogue and
+    // nothing about a session.
+    const files = await sourceFiles();
+    const smart = files.filter(({ file }) => file.startsWith("lib/smart/"));
+    expect(smart.length).toBeGreaterThan(0);
+
+    const offenders = smart.filter(({ text }) => /from\s+["']@?[\w/.-]*funnel/i.test(text));
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 });
