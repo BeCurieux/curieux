@@ -17,6 +17,7 @@
     "refresh": "tsx --env-file-if-exists=.env.local scripts/refresh.ts",
     "funnel": "tsx --env-file-if-exists=.env.local scripts/funnel.ts",
     "killtest": "tsx --env-file-if-exists=.env.local scripts/killtest.ts",
+    "screen": "tsx --env-file-if-exists=.env.local scripts/screen.ts",
     "rls:check": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f src/lib/publish/rls-check.sql",
     "browser:check": "tsx --env-file-if-exists=.env.local scripts/browser-check.ts",
     "press": "node scripts/press/logo.mjs && node scripts/press/shops.mjs && node scripts/press/capture.mjs && node scripts/press/compose.mjs && node scripts/press/motion.mjs",
