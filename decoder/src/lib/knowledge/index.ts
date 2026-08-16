@@ -1,39 +1,40 @@
 /**
- * Matching label text to knowledge-base entries.
+ * Matching label text to entries in the graph.
  *
- * Two failure modes, pulling in opposite directions, and both are the product
- * dying:
+ * Two failure modes pull in opposite directions and both are the product dying:
  *
- * - **Missing a match** on an allergen is the harmed child in BRIEF.md §10.1.
- * - **A wrong match** is the confidently-wrong screenshot in §6 — and the
- *   cheapest way to generate one is a substring search, where `coconut milk`
- *   reads as dairy and `cocoa butter` reads as dairy and every plant-based
- *   product on the shelf lights up red for a milk allergy.
+ * - **Missing a match.** For an allergen rule that is BRIEF.md §17 Rule 1's
+ *   territory; for any other rule it is a verdict that quietly answers the
+ *   wrong question.
+ * - **A wrong match.** §25 makes verdict dispute rate a first-class metric, and
+ *   the cheapest way to inflate it is a substring search, where `coconut milk`
+ *   reads as dairy and every plant-based product on the shelf lights up for a
+ *   milk rule.
  *
  * So matching is whole-token and exact after normalisation — never fuzzy, never
- * a substring — and a small table of exceptions blocks the compound terms that
- * contain an entry's name while meaning something else.
+ * a substring — with a table of exceptions for the compounds that contain a
+ * name while meaning something else.
  */
 
-import { KnowledgeEntry } from "@/lib/schema";
+import { KnowledgeEntry, type ClassId } from "@/lib/schema";
 import { ENTRIES } from "@/lib/knowledge/entries";
+import { isA } from "@/lib/knowledge/classes";
 
-export { KNOWLEDGE_VERSION, PROPRIETARY_BLEND_CAVEAT, PROPRIETARY_BLEND_SOURCE, FLAVOR_SOURCE } from "@/lib/knowledge/entries";
+export { KNOWLEDGE_VERSION } from "@/lib/knowledge/entries";
+export { ALL_CLASSES, CLASS_TREE, ancestry, classLabel, isA } from "@/lib/knowledge/classes";
 
 /**
- * Validated once at module load. A malformed entry — a red flag with no source,
- * a red flag with nothing to look for instead — fails here rather than at the
- * moment somebody photographs a label.
+ * Validated once at module load, so a malformed entry fails here rather than at
+ * the moment somebody photographs a label.
  */
 export const KNOWLEDGE: KnowledgeEntry[] = ENTRIES.map((entry) => KnowledgeEntry.parse(entry));
 
 /**
  * Compound terms that contain an entry's name but are not that entry.
  *
- * Every line here is a false positive somebody would otherwise screenshot.
- * `coconut milk` is not dairy; `cocoa butter` is not dairy; `milk thistle` is a
- * plant. The blocked entry is named explicitly rather than inferred, because a
- * clever rule here would be a new way to be wrong.
+ * Every line is a dispute somebody would otherwise file. The blocked entry is
+ * named explicitly rather than inferred, because a clever rule here would be a
+ * new way to be wrong.
  */
 const EXCEPTIONS: { phrase: string; blocks: string[] }[] = [
   { phrase: "coconut milk", blocks: ["milk"] },
@@ -73,23 +74,12 @@ const EXCEPTIONS: { phrase: string; blocks: string[] }[] = [
   { phrase: "water chestnut", blocks: ["tree-nut"] },
   { phrase: "shea nut", blocks: ["tree-nut"] },
   { phrase: "palm sugar", blocks: ["sugar"] },
-  { phrase: "sugar alcohol", blocks: ["sugar"] },
-  { phrase: "sugar cane fiber", blocks: ["sugar"] },
+  { phrase: "sugar alcohol", blocks: ["sugar", "alcohol"] },
   { phrase: "no sugar added", blocks: ["sugar"] },
-  { phrase: "olive oil", blocks: ["seed-oil"] },
-  { phrase: "avocado oil", blocks: ["seed-oil"] },
-  { phrase: "coconut oil", blocks: ["seed-oil"] },
-  { phrase: "palm oil", blocks: ["seed-oil"] },
-  { phrase: "sesame oil", blocks: ["seed-oil"] },
-  { phrase: "flaxseed oil", blocks: ["seed-oil"] },
-  { phrase: "fish oil", blocks: ["seed-oil"] },
-  { phrase: "mct oil", blocks: ["seed-oil"] },
-  // "Non-alcoholic" and "alcohol-free" are the label saying the opposite of
-  // what the token says.
+  { phrase: "sugar cane fiber", blocks: ["sugar"] },
   { phrase: "non alcoholic", blocks: ["alcohol"] },
   { phrase: "nonalcoholic", blocks: ["alcohol"] },
   { phrase: "alcohol free", blocks: ["alcohol"] },
-  { phrase: "sugar alcohols", blocks: ["alcohol"] },
   { phrase: "cetyl alcohol", blocks: ["alcohol"] },
   { phrase: "stearyl alcohol", blocks: ["alcohol"] },
 ];
@@ -114,7 +104,6 @@ const QUALIFIERS = new Set([
   "fresh",
   "non",
   "gmo",
-  "gmo-free",
   "unsweetened",
   "refined",
   "unrefined",
@@ -169,17 +158,17 @@ const EXCEPTION_INDEX = EXCEPTIONS.map((e) => ({ tokens: tokenise(e.phrase), blo
 
 export type Match = {
   entry: KnowledgeEntry;
-  /** The name that matched, for showing the user why. */
+  /** The name that matched, for §16's inspect panel. */
   matchedOn: string;
 };
 
 /**
  * Every entry this piece of label text refers to.
  *
- * More than one is normal and correct: `soy lecithin` is both the lecithin
- * entry (which carries the seed-oil nuance) and the soy entry (which carries
- * the allergen). The scorer collapses the duplicate concerns; the matcher's job
- * is not to lose either.
+ * More than one is normal and correct — `soy lecithin` is both the lecithin
+ * entry, which classes it as an emulsifier, and the soy entry, which classes it
+ * as a declared allergen. The engine reconciles them; the matcher's job is not
+ * to lose either.
  */
 export function match(text: string): Match[] {
   const tokens = tokenise(text);
@@ -203,16 +192,17 @@ export function match(text: string): Match[] {
     if (blocked.has(candidate.entry.id)) continue;
     if (found.has(candidate.entry.id)) continue;
     if (containsRun(tokens, candidate.tokens) || containsRun(stripped, candidate.tokens)) {
-      found.set(candidate.entry.id, {
-        entry: candidate.entry,
-        matchedOn: candidate.tokens.join(" "),
-      });
+      found.set(candidate.entry.id, { entry: candidate.entry, matchedOn: candidate.tokens.join(" ") });
     }
   }
   return [...found.values()];
 }
 
-/** Lookup by id, for tests and for rendering a flag's entry. */
 export function entryById(id: string): KnowledgeEntry | undefined {
   return KNOWLEDGE.find((entry) => entry.id === id);
+}
+
+/** Every entry that falls under a class, following the parent links. */
+export function entriesInClass(target: ClassId): KnowledgeEntry[] {
+  return KNOWLEDGE.filter((entry) => isA(entry.classes, target));
 }

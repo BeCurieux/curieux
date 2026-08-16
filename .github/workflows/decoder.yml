@@ -74,9 +74,10 @@ jobs:
 
       # Not a duplicate of the step above: it re-runs the two files that are not
       # really tests of behaviour but statements of policy, so that a red run
-      # says which of the two happened. `safety` going red means §10 was
-      # loosened. `stop-line` going red means somebody built past the Phase 0
-      # gate — in either case the fix is a decision, not a patch.
+      # says which of the two happened. `safety` going red means one of §17's
+      # six safety rules was loosened. `stop-line` going red means somebody
+      # built past the Phase 0 gate, or started something on §19's do-not-build
+      # list — in either case the fix is a decision, not a patch.
       - name: The safety rules and the gate
         if: always()
         run: pnpm vitest run tests/safety.test.ts tests/stop-line.test.ts
@@ -86,3 +87,11 @@ jobs:
       # needs no browser.
       - name: Render the Phase 0 cards
         run: pnpm press
+
+      # A class nothing reaches, or a preset rule that matches no entry, is a
+      # rule the user sees in their list which silently never fires. The report
+      # is printed rather than asserted here — `tests/graph.test.ts` is what
+      # turns it red — but having it in the log means a shrinking graph is
+      # visible on the summary page.
+      - name: Graph coverage
+        run: pnpm knowledge

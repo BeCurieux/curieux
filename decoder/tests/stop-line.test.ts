@@ -1,17 +1,15 @@
 /**
- * Step 5 — Stop — as a test.
+ * §19's do-not-build list, and §26's gate, as a test.
  *
- * BRIEF.md §9 and §12: *"Three seeded TikToks using a mocked result screen …
- * No pull, no build"*, and *"Proceed to build only if Phase 0 fake-door
- * clears."* CLAUDE.md's build order ends at a stop, and this file is what makes
- * the stop cost something.
+ * BRIEF.md §22 and §26: mock creative first, and *"Proceed only if mock
+ * creative demonstrates genuine product intent."* CLAUDE.md's build order ends
+ * at a stop, and this file is what makes the stop cost something.
  *
  * None of the gated features arrives announcing itself as gated. The paywall
- * arrives as "RevenueCat is twenty minutes." Scan history arrives as "we
- * already have the verdict object, it's one table." The quiz arrives as "the
- * profiles are already defined." Each is individually reasonable, and
- * collectively they are the reason the fake door never gets tested and the
- * kill criteria never get to fire.
+ * arrives as "RevenueCat is twenty minutes". Scan history arrives as "we
+ * already have the verdict object, it's one table". Each is individually
+ * reasonable, and collectively they are why the mock-ups never get filmed and
+ * §27's kill criteria never get to fire.
  *
  * If a check here goes red, that is not a bug. It is somebody having built past
  * the gate, and the honest fix is to delete the feature or to open the gate on
@@ -22,7 +20,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ParsedLabel, Verdict } from "@/lib/schema";
+import { Finding, ParsedLabel, Verdict } from "@/lib/schema";
+import { ALL_PRESETS } from "@/lib/rules/presets";
 
 const SRC = path.join(process.cwd(), "src");
 
@@ -30,9 +29,7 @@ async function sourceFiles(): Promise<{ file: string; text: string }[]> {
   const { glob } = await import("node:fs/promises");
   const files: string[] = [];
   for await (const entry of glob("**/*.ts", { cwd: SRC })) files.push(entry as string);
-  return Promise.all(
-    files.map(async (file) => ({ file, text: await readFile(path.join(SRC, file), "utf8") })),
-  );
+  return Promise.all(files.map(async (file) => ({ file, text: await readFile(path.join(SRC, file), "utf8") })));
 }
 
 /** Code, with comments stripped — a rule about behaviour, not about prose. */
@@ -48,16 +45,16 @@ describe("the Phase 0 gate holds", () => {
     // Guards the guard. Every assertion below is "no file matches", which a
     // broken glob satisfies perfectly.
     const files = await sourceFiles();
-    expect(files.length).toBeGreaterThan(8);
+    expect(files.length).toBeGreaterThan(10);
   });
 
   it("takes no money and knows nothing about a subscription", async () => {
-    // §8's whole monetisation section is downstream of the gate. It is also the
-    // single most tempting thing to build early, because it is the part that
-    // looks like a business.
+    // §20's whole monetisation section is downstream of the gate, and it is the
+    // most tempting thing to build early because it is the part that looks like
+    // a business.
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
-      /\bstripe\b|\brevenuecat\b|\bsuperwall\b|\bpaywall\b|\bsubscription\b|\bcheckout\.session|\bprice_1[a-z0-9]|\bin-?app\s?purchase|\bstorekit\b/.test(
+      /\bstripe\b|\brevenuecat\b|\bsuperwall\b|\bpaywall\b|\bsubscription\b|\bcheckout\.session|\bprice_1[a-z0-9]|\bin-?app\s?purchase|\bstorekit\b|\bfree scans?\b/.test(
         code(text),
       ),
     );
@@ -65,13 +62,15 @@ describe("the Phase 0 gate holds", () => {
   });
 
   it("persists nothing and has no backend", async () => {
-    // Supabase and scan history are on the gated list. A scan that is not
-    // stored is also a scan that cannot leak, which is worth the note: the
-    // first thing this product would hold is a list of what somebody is
-    // allergic to.
+    // §18 lists Supabase and history in V1; both are behind the gate. A scan
+    // that is not stored is also a scan that cannot leak, which §17 Rule 6
+    // makes a design goal rather than a side effect — the first thing this
+    // product would hold is a list of what somebody avoids.
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
-      /\bsupabase\b|\bscan_?history\b|\bcreate\s+table\b|\bprisma\b|\bdrizzle\b/.test(code(text)),
+      /\bsupabase\b|\bscan_?history\b|\bcreate\s+table\b|\bprisma\b|\bdrizzle\b|\blocalstorage\b|\bindexeddb\b/.test(
+        code(text),
+      ),
     );
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
@@ -79,39 +78,62 @@ describe("the Phase 0 gate holds", () => {
   it("has no app shell", async () => {
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
-      /\breact-native\b|\bexpo-|\bfrom\s+["']expo["']|\bonboarding\s?quiz\b/.test(code(text)),
+      /\breact-native\b|\bexpo-|\bfrom\s+["']expo["']|\bnavigator\.mediadevices\b/.test(code(text)),
     );
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 
-  it("builds none of §11's do-not-build list", async () => {
-    // Barcode scanning and a packaged-product database, food logging, diaries,
-    // streaks, a chat interface, personalised nutrition plans, a social feed.
+  it("builds none of §19's do-not-build list", async () => {
+    // Android, calorie and macro tracking, meal logging, weight loss, a food
+    // diary, a barcode database, a social feed, a chatbot, recipes,
+    // personalised nutrition plans, supermarket and restaurant integrations,
+    // a substitute marketplace, a wellness dashboard.
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
-      /\bbarcode\b|\bupc\b|\bean-?13\b|\bfood\s?log\b|\bdiary\b|\bstreak\b|\bchat\b|\bnutrition\s?plan\b|\bmeal\s?plan\b|\bsocial\s?feed\b|\bfollowers\b/.test(
+      /\bbarcode\b|\bupc\b|\bean-?13\b|\bfood\s?log\b|\bdiary\b|\bstreak\b|\bchatbot\b|\bnutrition\s?plan\b|\bmeal\s?plan\b|\bsocial\s?feed\b|\bfollowers\b|\brecipes?\b|\bdashboard\b/.test(
         code(text),
       ),
     );
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 
-  it("keeps the provider SDK inside the adapter", async () => {
-    // §13 calls the knowledge graph "model-agnostic". That is a claim which
-    // decays silently the first time somebody imports the SDK one directory
-    // over, so it is a dependency rule rather than a promise.
+  it("recommends no substitute product — §10", async () => {
+    // "V1 should not automatically recommend a specific substitute unless
+    // product data is trustworthy and verified. Otherwise the product creates a
+    // second hallucination surface: Product X is bad → buy Product Y."
+    //
+    // Compare mode is the sanctioned alternative, and it only ever ranks two
+    // labels the user photographed themselves.
+    const files = await sourceFiles();
+    const offenders = files.filter(({ text }) =>
+      /\bsubstitute\b|\balternative\s?product\b|\brecommend(ed)?\s?product\b|\bbetter\s?pick\b|\blook\s?for\s?instead\b|\bbuy\s?instead\b/.test(
+        code(text),
+      ),
+    );
+    expect(offenders.map((o) => o.file)).toEqual([]);
+
+    // And nothing in the graph or the presets names a brand to go and buy.
+    const Finding_ = Object.keys(Finding.shape);
+    expect(Finding_).not.toContain("lookFor");
+    expect(Finding_).not.toContain("alternative");
+  });
+
+  it("keeps the provider SDK inside the two adapters", async () => {
+    // §31: never call the model integration the moat. Keeping it at the edges
+    // is how that stays true in the code rather than only in the pitch.
+    const allowed = [path.join("lib", "parse", "anthropic.ts"), path.join("lib", "rules", "anthropic.ts")];
     const files = await sourceFiles();
     const offenders = files.filter(
       ({ file, text }) =>
-        file !== path.join("lib", "parse", "anthropic.ts") &&
+        !allowed.includes(file) &&
         /from\s+["']@anthropic-ai\/|from\s+["']openai["']|require\(["']@anthropic-ai\//.test(text),
     );
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 
-  it("has no learned weights — the drawer stays shut", async () => {
-    // §13's verdict-evaluation dataset improves parse accuracy someday. Until
-    // then nothing learns, and a constant shaped for a learning system is the
+  it("has no learned weights — nothing here improves itself", async () => {
+    // §15's moat is built from captured data, not from a model that trains on
+    // it. Until that is a deliberate project, a constant shaped for one is the
     // rule broken quietly.
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
@@ -123,14 +145,10 @@ describe("the Phase 0 gate holds", () => {
   });
 });
 
-describe("the architectural law holds", () => {
-  it("gives the model nowhere to put a verdict", () => {
-    // CLAUDE.md: "The model reads the label. It never decides the verdict."
-    // Enforced structurally rather than by prompt — the vision pass is
-    // validated against `ParsedLabel`, and `ParsedLabel` has no field a score,
-    // a flag or a piece of advice could survive in.
+describe("§33's principles hold in the type system", () => {
+  it('gives the model nowhere to put a verdict — "AI reads, the rules engine decides"', () => {
     const fields = Object.keys(ParsedLabel.shape);
-    for (const forbidden of ["score", "flags", "verdict", "severity", "advice", "recommendation", "safe", "healthy"]) {
+    for (const forbidden of ["match", "score", "blockers", "flags", "verdict", "advice", "safe", "healthy"]) {
       expect(fields, `ParsedLabel must not have a "${forbidden}" field`).not.toContain(forbidden);
     }
     expect(fields.sort()).toEqual(
@@ -138,7 +156,7 @@ describe("the architectural law holds", () => {
     );
   });
 
-  it("rejects a vision response that tries to hand back a score", () => {
+  it("discards a vision response that tries to hand back a verdict", () => {
     const smuggled = {
       category: "snack",
       productName: "Something",
@@ -146,22 +164,43 @@ describe("the architectural law holds", () => {
       containsStatement: [],
       truncated: false,
       note: null,
-      score: 12,
-      flags: [{ ingredient: "Sugar", severity: "red" }],
+      match: 12,
+      blockers: [{ ingredient: "Sugar" }],
     };
     // Zod strips unknown keys rather than throwing, which is the right
-    // behaviour and also the reason this test exists: the score does not cause
-    // an error, it simply ceases to exist before anything downstream could read
-    // it.
+    // behaviour and also why this test exists: the smuggled verdict does not
+    // raise an error, it simply ceases to exist before anything downstream
+    // could read it.
     const parsed = ParsedLabel.parse(smuggled);
-    expect(parsed).not.toHaveProperty("score");
-    expect(parsed).not.toHaveProperty("flags");
+    expect(parsed).not.toHaveProperty("match");
+    expect(parsed).not.toHaveProperty("blockers");
+  });
+
+  it('makes a finding name its rule — "the user\'s rules determine the verdict"', () => {
+    expect(Object.keys(Finding.shape)).toContain("ruleId");
+    expect(Object.keys(Finding.shape)).toContain("because");
+  });
+
+  it('keeps uncertainty a first-class outcome — "uncertainty must be visible"', () => {
+    expect(Finding.shape.outcome.options).toContain("uncertain");
+    expect(Object.keys(Verdict.shape)).toContain("uncertain");
+    expect(Object.keys(Verdict.shape)).toContain("needsVerification");
   });
 
   it("requires a verdict to carry its provenance", () => {
-    // A verdict that cannot say which engine and which knowledge base produced
-    // it cannot be re-derived, and §13's evaluation dataset is unbuildable
-    // without that join.
+    // §25's dispute rate and §15's evaluation dataset both need to join a
+    // complaint back to the engine, the graph and the rules that produced it.
     expect(Object.keys(Verdict.shape)).toContain("provenance");
+  });
+
+  it("has no preset that decides anything on the user's behalf", () => {
+    // §17 Rule 4. Every rule in every preset attributes itself to the user, and
+    // the schema enforces the sentence shape — this asserts nobody has added a
+    // preset that routes around it with a `never-flag`.
+    for (const preset of ALL_PRESETS) {
+      for (const rule of preset.rules) {
+        expect(rule.because.toLowerCase(), `${preset.id}/${rule.id}`).toMatch(/\byou\b|\byour\b/);
+      }
+    }
   });
 });

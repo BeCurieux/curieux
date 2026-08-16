@@ -1,107 +1,276 @@
 /**
  * Every boundary in the product, as one file.
  *
- * The architectural law lives here in the type system: `ParsedLabel` is the
- * entire surface the model is allowed to produce, and it has no field that
- * could carry a verdict. There is nowhere for a model to put a score even if a
- * prompt drifted, which is the point — the rule is structural, not textual.
+ * Two of the six core principles (BRIEF.md §33) are enforced here in the type
+ * system rather than asked for in prose:
+ *
+ * - **"AI reads. The rules engine decides."** `ParsedLabel` is the entire
+ *   surface the vision pass may produce, and it has no field a verdict could
+ *   go in. There is nowhere to put a score even if a prompt drifted.
+ * - **"The user's rules determine the verdict."** A `Finding` cannot exist
+ *   without naming the rule that produced it. An ingredient is never flagged
+ *   because the app disapproves of it — only because a rule the user wrote
+ *   matched.
  */
 
 import { z } from "zod";
 
 /* -------------------------------------------------------------------------- */
-/* Profile — what the user told us about themselves                            */
+/* The ontology — §14's classification and relationships                       */
 /* -------------------------------------------------------------------------- */
 
 /**
- * The nine allergens with mandatory US labelling (FALCPA, plus sesame from the
- * FASTER Act, effective January 2023). The list is deliberately the legal one:
- * these are the substances a US label is *required* to declare, which is the
- * only reason we can say anything at all about their absence — and even then
- * only as "not flagged on this label" (see `verdict/language.ts`).
+ * What an ingredient *is*.
+ *
+ * §14 asks for classification and relationships:
+ *
+ * > sunflower oil → vegetable oil → sunflower-derived → seed oil
+ *
+ * The relationships are the parent links in `CLASS_TREE` (`knowledge/classes.ts`).
+ * A rule targeting `oil-seed` matches sunflower oil without naming it, and a
+ * rule targeting `animal-derived` matches gelatin, carmine, whey and shellac
+ * without a list — which is what makes "I'm vegan" a single rule rather than
+ * forty.
+ *
+ * This is also why the ontology is the moat rather than the entry count: a new
+ * sweetener inherits every rule ever written about sweeteners the moment it is
+ * classified.
  */
-export const Allergen = z.enum([
-  "milk",
+export const ClassId = z.enum([
+  // Provenance
+  "animal-derived",
+  "dairy",
   "egg",
   "fish",
   "shellfish",
-  "tree-nut",
-  "peanut",
-  "wheat",
-  "soy",
-  "sesame",
+  "meat",
+  "pork-derived",
+  "insect-derived",
+  "plant-derived",
+
+  // Allergens with mandatory US declaration (FALCPA + FASTER Act sesame)
+  "allergen-milk",
+  "allergen-egg",
+  "allergen-fish",
+  "allergen-shellfish",
+  "allergen-tree-nut",
+  "allergen-peanut",
+  "allergen-wheat",
+  "allergen-soy",
+  "allergen-sesame",
+
+  // Fats and oils
+  "oil",
+  "oil-vegetable",
+  "oil-seed",
+  "oil-fruit",
+  "oil-hydrogenated",
+  "fat-animal",
+
+  // Sweetness
+  "sweetener",
+  "sugar-added",
+  "sweetener-artificial",
+  "sweetener-sugar-alcohol",
+  "sweetener-plant",
+
+  // Additives by function
+  "additive",
+  "emulsifier",
+  "preservative",
+  "antioxidant-synthetic",
+  "colour",
+  "colour-synthetic",
+  "colour-natural",
+  "thickener",
+  "flavour-enhancer",
+  "flour-treatment",
+  "anti-caking",
+
+  // Other things rules get written about
+  "caffeine-source",
+  "gluten-grain",
+  "grain",
+  "starch-refined",
+  "nitrite-source",
+  "sulfite-source",
+  "high-fodmap",
+  "alcohol",
+  "umbrella-term",
 ]);
-export type Allergen = z.infer<typeof Allergen>;
+export type ClassId = z.infer<typeof ClassId>;
+
+/* -------------------------------------------------------------------------- */
+/* Evidence and uncertainty — §14                                              */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Intolerances are not allergens and are not mandatorily declared. They get
- * their own axis so the language can differ: an allergen answer is always
- * "flagged / not flagged", an intolerance answer can be ordinary.
+ * How well established the reason for a classification is.
+ *
+ * `none` is the honest and most common answer on the clean-label axis, and it
+ * is not a weakness: §17 Rule 3 forbids health claims, so where there is no
+ * regulatory position the entry asserts nothing about the world and the flag
+ * says only *you asked us to flag this*.
  */
-export const Intolerance = z.enum(["gluten", "lactose", "fructose", "histamine", "sulfite"]);
-export type Intolerance = z.infer<typeof Intolerance>;
+export const EvidenceStrength = z.enum(["regulatory", "established", "contested", "none"]);
+export type EvidenceStrength = z.infer<typeof EvidenceStrength>;
 
-/** The things a clean-label profile chooses to avoid. §4 ICP 2. */
-export const Avoidance = z.enum([
-  "seed-oils",
-  "artificial-sweeteners",
-  "artificial-colours",
-  "artificial-preservatives",
-  "added-sugar",
-  "carrageenan",
-  "titanium-dioxide",
-  "msg",
-  "nitrites",
-]);
-export type Avoidance = z.infer<typeof Avoidance>;
+export const Jurisdiction = z.enum(["US", "EU", "UK", "CA", "AU", "international"]);
+export type Jurisdiction = z.infer<typeof Jurisdiction>;
 
-/** §4 ICP 4. */
-export const Protocol = z.enum(["keto", "carnivore", "low-fodmap", "vegan", "vegetarian", "halal"]);
-export type Protocol = z.infer<typeof Protocol>;
-
-/** §4 ICP 3. A window, not a diagnosis — and never rendered as advice. */
-export const LifeStage = z.enum(["pregnancy", "breastfeeding", "young-children"]);
-export type LifeStage = z.infer<typeof LifeStage>;
-
-/**
- * Every axis a knowledge-base entry can speak to. Flattened into one union
- * because the engine matches entries to profiles by axis identity, and a
- * nested shape would mean five nearly-identical match paths.
- */
-export const Axis = z.union([
-  z.object({ kind: z.literal("allergen"), value: Allergen }),
-  z.object({ kind: z.literal("intolerance"), value: Intolerance }),
-  z.object({ kind: z.literal("avoidance"), value: Avoidance }),
-  z.object({ kind: z.literal("protocol"), value: Protocol }),
-  z.object({ kind: z.literal("life-stage"), value: LifeStage }),
-]);
-export type Axis = z.infer<typeof Axis>;
-
-export const Profile = z.object({
-  /** Stable id, so a verdict can be reproduced from a scan record. */
-  id: z.string().min(1),
-  /** What the user would call this profile. Shown on the share card. */
-  label: z.string().min(1),
-  allergens: z.array(Allergen).default([]),
-  intolerances: z.array(Intolerance).default([]),
-  avoidances: z.array(Avoidance).default([]),
-  protocols: z.array(Protocol).default([]),
-  lifeStages: z.array(LifeStage).default([]),
+export const Evidence = z.object({
+  /** Who says so. */
+  body: z.string().min(1),
+  /** What they say, in their own frame. Linted for health claims at test time. */
+  cite: z.string().min(1),
+  jurisdiction: Jurisdiction,
+  strength: EvidenceStrength,
+  /** ISO date. §14 asks for it, and a stale citation is a live liability. */
+  lastReviewed: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  url: z.string().url().nullable().default(null),
 });
-export type Profile = z.infer<typeof Profile>;
+export type Evidence = z.infer<typeof Evidence>;
+
+/**
+ * §14's uncertainty list, as a closed set.
+ *
+ * Structured rather than free text because §17 Rule 2 turns on it — uncertainty
+ * and absence must never collapse into each other, and the renderer needs to
+ * know *which kind* of not-knowing it is looking at to say the right sentence.
+ */
+export const UncertaintyKind = z.enum([
+  "may-be-animal-or-plant",
+  "umbrella-term",
+  "species-not-disclosed",
+  "source-not-disclosed",
+  "dose-not-disclosed",
+  "insufficient-label-information",
+]);
+export type UncertaintyKind = z.infer<typeof UncertaintyKind>;
+
+export const Uncertainty = z.object({
+  kind: UncertaintyKind,
+  /** One sentence, in the user's language, about what the label does not say. */
+  note: z.string().min(1),
+  /**
+   * Which classifications this casts doubt on. Empty means the contents are
+   * unknown altogether, which is what an umbrella term is.
+   *
+   * Uncertainty is relative to the question being asked, and forgetting that
+   * produces nonsense. Mono- and diglycerides may be animal or plant derived,
+   * so a vegan rule genuinely cannot be settled from the label — but they are
+   * emulsifiers either way, so a rule about emulsifiers is not in any doubt at
+   * all. Without this field the engine answered "we can't tell" to a question
+   * the label had already answered.
+   */
+  affects: z.array(ClassId).default([]),
+});
+export type Uncertainty = z.infer<typeof Uncertainty>;
+
+/* -------------------------------------------------------------------------- */
+/* The knowledge graph — §14                                                   */
+/* -------------------------------------------------------------------------- */
+
+export const KnowledgeEntry = z.object({
+  id: z.string().min(1),
+  /** What the app calls it. */
+  canonical: z.string().min(1),
+  /**
+   * Every way this appears on a label, lowercased: alternative spellings,
+   * common names, chemical names, regional variants. Matching is exact after
+   * normalisation against this list — never fuzzy, because a fuzzy match is a
+   * wrong answer with a confident face.
+   */
+  names: z.array(z.string().min(1)).min(1),
+  /** E-number where one exists, e.g. "E102". Also matched. */
+  eNumber: z.string().regex(/^E\d{3,4}[a-z]?$/i).nullable().default(null),
+  /** What it is and what it does. One sentence, no jargon, no claim. */
+  plain: z.string().min(1),
+  /** Where it sits in the ontology. Rules match through this. */
+  classes: z.array(ClassId).min(1),
+  evidence: z.array(Evidence).default([]),
+  uncertainty: z.array(Uncertainty).default([]),
+});
+export type KnowledgeEntry = z.infer<typeof KnowledgeEntry>;
+export type KnowledgeEntryInput = z.input<typeof KnowledgeEntry>;
+
+/* -------------------------------------------------------------------------- */
+/* Rules — the whole point of the product                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * - `avoid`      a blocker. "You asked us to avoid X."
+ * - `flag`       something to know. "You asked us to flag X."
+ * - `never-flag` an explicit opt-out, so "I don't care about seed oils"
+ *                survives a preset that would otherwise flag them. §6's
+ *                onboarding example ends with exactly this, and without it the
+ *                app cannot be told to stop — which is the difference between
+ *                a rules engine and a nag.
+ */
+export const RuleKind = z.enum(["avoid", "flag", "never-flag"]);
+export type RuleKind = z.infer<typeof RuleKind>;
+
+/** A rule points at a class, or at one specific ingredient. */
+export const RuleTarget = z.union([
+  z.object({ kind: z.literal("class"), value: ClassId }),
+  z.object({ kind: z.literal("ingredient"), value: z.string().min(1) }),
+]);
+export type RuleTarget = z.infer<typeof RuleTarget>;
+
+export const Rule = z
+  .object({
+    id: z.string().min(1),
+    kind: RuleKind,
+    target: RuleTarget,
+    /** What the user sees in their rule list. "Artificial sweeteners". */
+    label: z.string().min(1),
+    /**
+     * The exact sentence shown on a finding. Written in the second person and
+     * always attributing the decision to the user — §17 Rule 4 means the app
+     * never has an opinion of its own to express.
+     */
+    because: z.string().min(1),
+    origin: z.enum(["preset", "custom"]),
+    /**
+     * Set when this rule is about a declared allergen. It switches the entire
+     * output for that ingredient into the never-certify vocabulary in
+     * `verdict/language.ts` — "listed on this label", never "safe".
+     *
+     * §5 moves allergy households from the first launch segment to the fifth
+     * precisely because this is the highest-consequence path, so the marker is
+     * explicit rather than inferred from a label string.
+     */
+    allergen: z.boolean().default(false),
+  })
+  .superRefine((rule, ctx) => {
+    // §17 Rule 4: compatibility is relative to the user's own profile. A rule
+    // whose sentence does not attribute the decision to the user is the app
+    // smuggling an opinion in, so the shape of the sentence is checked here
+    // rather than left to whoever writes the next preset.
+    if (rule.kind !== "never-flag" && !/\byou\b|\byour\b/i.test(rule.because)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["because"],
+        message: `${rule.id}: a rule's explanation must say that the user asked for it`,
+      });
+    }
+  });
+export type Rule = z.infer<typeof Rule>;
+export type RuleInput = z.input<typeof Rule>;
+
+export const RuleSet = z.object({
+  id: z.string().min(1),
+  /** What the user calls this set of rules. Shown on the share card. */
+  label: z.string().min(1),
+  rules: z.array(Rule).default([]),
+});
+export type RuleSet = z.infer<typeof RuleSet>;
+export type RuleSetInput = z.input<typeof RuleSet>;
 
 /* -------------------------------------------------------------------------- */
 /* ParsedLabel — the whole of what the model may say                           */
 /* -------------------------------------------------------------------------- */
 
-/**
- * How well the camera did on this token.
- *
- * `unreadable` is a first-class outcome rather than an absence. A label the
- * model could not fully read must be able to say so, because the alternative —
- * dropping the token and returning a shorter clean list — is the exact failure
- * mode that turns a missed allergen into a green verdict.
- */
 export const Legibility = z.enum(["clear", "partial", "unreadable"]);
 export type Legibility = z.infer<typeof Legibility>;
 
@@ -112,20 +281,15 @@ export const ParsedIngredient = z.object({
   /** The model's confidence that it read the characters correctly, 0–1. */
   readConfidence: z.number().min(0).max(1),
   /**
-   * Sub-ingredients printed in parentheses, e.g. "chocolate chips (cocoa
-   * mass, sugar, soy lecithin)". Kept nested because an allergen hiding one
-   * level down is the common case, and flattening loses which product it
-   * belongs to.
+   * Sub-ingredients printed in parentheses, e.g. "chocolate chips (cocoa mass,
+   * sugar, soy lecithin)". Kept nested because that is where an animal-derived
+   * ingredient or an allergen usually hides, and flattening loses which product
+   * it belongs to.
    */
   contains: z.array(z.string().min(1)).default([]),
 });
 export type ParsedIngredient = z.infer<typeof ParsedIngredient>;
 
-/**
- * §10.3: a biscuit is scored as a biscuit. The category comes from the vision
- * pass because it is a fact about the photograph, and it selects the baseline
- * the scorer starts from.
- */
 export const Category = z.enum([
   "snack",
   "confectionery",
@@ -148,14 +312,13 @@ export const ParsedLabel = z.object({
   ingredients: z.array(ParsedIngredient),
   /**
    * The "contains: milk, soy" line, transcribed separately. It is a different
-   * legal statement from the ingredient list and reading it as an ingredient
+   * legal statement from the ingredient list, and reading it as an ingredient
    * would put the word "contains" in the list.
    */
   containsStatement: z.array(z.string().min(1)).default([]),
   /**
    * True when part of the ingredient list is cut off, blurred or out of frame
-   * — as distinct from an individual token being smudged. Drives the "cannot
-   * verify from this label" state on every allergen axis.
+   * — as distinct from an individual token being smudged.
    */
   truncated: z.boolean().default(false),
   /** Free-text note from the vision pass about what it could not do. */
@@ -164,214 +327,137 @@ export const ParsedLabel = z.object({
 export type ParsedLabel = z.infer<typeof ParsedLabel>;
 
 /* -------------------------------------------------------------------------- */
-/* Knowledge base — the asset                                                  */
+/* The verdict                                                                 */
 /* -------------------------------------------------------------------------- */
 
 /**
- * How well established the *reason for the concern* is. This is not OCR
- * confidence and the two are never merged into one number — see CLAUDE.md,
- * collision 4.
- *
- * - `regulatory`  a rule or mandatory declaration says so. Not an opinion.
- * - `established` broad agreement among the bodies that publish on it.
- * - `contested`   real disagreement, or evidence that does not settle it.
- * - `preference`  no claim of harm at all; the user simply said they avoid it.
+ * - `blocker`   an `avoid` rule matched.
+ * - `flag`      a `flag` rule matched.
+ * - `uncertain` a rule *might* apply and the label does not say enough to
+ *               settle it. §17 Rule 2 — this can never be reported as `clear`.
+ * - `clear`     read, understood, and no rule matched.
  */
-export const Strength = z.enum(["regulatory", "established", "contested", "preference"]);
-export type Strength = z.infer<typeof Strength>;
-
-export const Source = z.object({
-  /** Who says so. */
-  body: z.string().min(1),
-  /** What they say, in their own frame. */
-  cite: z.string().min(1),
-  url: z.string().url().nullable().default(null),
-});
-export type Source = z.infer<typeof Source>;
+export const Outcome = z.enum(["blocker", "flag", "uncertain", "clear"]);
+export type Outcome = z.infer<typeof Outcome>;
 
 /**
- * One reason one entry matters to one axis.
+ * §8's verdict lines and §16's inspect panel, as one record.
  *
- * `note` is the sentence the user reads, and it is linted: no disease names, no
- * calorie framing, no moralising (see `tests/safety.test.ts`). It explains why
- * *their profile* cares, never what will happen to their body.
+ * `ruleId` is non-nullable for anything but `clear` and `uncertain`: a blocker
+ * or a flag that cannot name the rule behind it is the app having an opinion,
+ * which §17 Rule 4 rules out.
  */
-export const Concern = z.object({
-  axis: Axis,
-  severity: z.enum(["red", "amber", "yellow"]),
-  strength: Strength,
-  note: z.string().min(1),
-  /**
-   * §10.3 — a red flag never renders alone. What to look for instead, at the
-   * ingredient level, because there is no product database in V1 (collision 2).
-   */
-  lookFor: z.string().min(1).nullable().default(null),
-  sources: z.array(Source),
-});
-export type Concern = z.infer<typeof Concern>;
-
-export const KnowledgeEntry = z
-  .object({
-    id: z.string().min(1),
-    /**
-     * Every way this appears on a label, lowercased. The first is the display
-     * name. Matching is exact-after-normalisation against this list; there is
-     * no fuzzy matching, because a fuzzy allergen match is a wrong answer with
-     * a confident face.
-     */
-    names: z.array(z.string().min(1)).min(1),
-    /** E-number where one exists, e.g. "E102". Also matched. */
-    eNumber: z.string().regex(/^E\d{3,4}[a-z]?$/i).nullable().default(null),
-    /** One sentence, plain English, no jargon and no claim. */
-    plain: z.string().min(1),
-    /**
-     * True for "natural flavors", "spices", "proprietary blend" — terms that
-     * legally stand in for contents the label does not disclose. Always amber,
-     * never green and never red: the honest answer is that the label does not
-     * say.
-     */
-    umbrella: z.boolean().default(false),
-    /**
-     * What this particular umbrella term hides, when the generic sentence would
-     * be wrong. A proprietary blend *does* name its contents — it withholds the
-     * doses — and saying "the label does not have to say what is in it" over a
-     * list of named ingredients is the product being visibly wrong about
-     * something the reader can check with their own eyes.
-     */
-    umbrellaNote: z.string().min(1).nullable().default(null),
-    concerns: z.array(Concern).default([]),
-  })
-  .superRefine((entry, ctx) => {
-    // CLAUDE.md safety rule 5, enforced in the type rather than in review: a
-    // red flag with no citation is exactly the confidently-wrong claim §6 calls
-    // the kill scenario. `preference` is exempt because it makes no claim about
-    // the world — the user said they avoid it, and that needs no source.
-    for (const [i, concern] of entry.concerns.entries()) {
-      if (concern.severity === "red" && concern.strength !== "preference" && concern.sources.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["concerns", i, "sources"],
-          message: `${entry.id}: a red flag must cite a source`,
-        });
-      }
-      if (concern.severity === "red" && concern.lookFor === null) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["concerns", i, "lookFor"],
-          message: `${entry.id}: a red flag must say what to look for instead (§10.3)`,
-        });
-      }
-    }
-  });
-export type KnowledgeEntry = z.infer<typeof KnowledgeEntry>;
-
-/**
- * The entry as it is *written*, before zod fills its defaults in.
- *
- * `entries.ts` is authored by hand and is the file that grows towards §11's
- * three hundred, so it is typed on the way in: an author who omits
- * `umbrellaNote` on an ordinary ingredient should not have to write `null`, but
- * an author who misspells `concerns` should still hear about it immediately
- * rather than at module load.
- */
-export type KnowledgeEntryInput = z.input<typeof KnowledgeEntry>;
-
-/* -------------------------------------------------------------------------- */
-/* Verdict — what the engine produces                                          */
-/* -------------------------------------------------------------------------- */
-
-/**
- * §6, field for field: ingredient → why it's flagged for YOUR profile →
- * confidence → plain English → source.
- */
-export const Flag = z.object({
+export const Finding = z.object({
   /** As printed on the label. */
   ingredient: z.string().min(1),
   entryId: z.string().min(1).nullable(),
-  severity: z.enum(["red", "amber", "yellow"]),
-  axis: Axis.nullable(),
-  /** Why *this* profile cares. Rendered verbatim. */
-  reason: z.string().min(1),
+  canonical: z.string().nullable(),
+  outcome: Outcome,
+  ruleId: z.string().nullable(),
+  ruleLabel: z.string().nullable(),
+  /** "You asked us to avoid seed oils." Rendered verbatim. */
+  because: z.string().min(1),
+  /** What the ingredient is. §16's "What it is". */
   plain: z.string().min(1),
-  /** How sure we are we read it (OCR). Never merged with `strength`. */
+  /**
+   * §8 shows "High confidence" or "Limited information". This is about whether
+   * the *label told us enough*, and it is deliberately separate from
+   * `readConfidence`, which is about whether the *camera read it*. A crisply
+   * printed umbrella term and a smudged additive are different problems and a
+   * single merged number would describe neither.
+   */
+  confidence: z.enum(["high", "limited"]),
   readConfidence: z.number().min(0).max(1),
-  /** How well established the concern is. Never merged with `readConfidence`. */
-  strength: Strength.nullable(),
-  lookFor: z.string().nullable(),
-  sources: z.array(Source),
+  uncertainty: Uncertainty.nullable(),
+  evidence: z.array(Evidence),
 });
-export type Flag = z.infer<typeof Flag>;
+export type Finding = z.infer<typeof Finding>;
 
 /**
- * The per-allergen answer, kept separate from `flags` and from the score.
+ * The allergen block, kept out of `findings` and out of the match score.
  *
- * This exists because of the one rule that must not be expressible as an
- * absence: a user with a peanut allergy needs an explicit statement about
- * peanuts on every scan, including the scans where nothing was found — and
- * that statement is "not flagged on this label", never "safe". A missing entry
- * in a flags array cannot carry that sentence, so the sentence gets its own
- * field.
+ * §5 and §17 Rule 1: the product may say *peanut listed on label* and must
+ * never say *safe for peanut allergy*. That needs its own vocabulary and its
+ * own place in the layout, because §8 is explicit that a declared allergen
+ * takes over the screen from the score.
+ *
+ * `state` has no value meaning "absent". `not-listed-in-what-we-read` is as
+ * close as the product is ever allowed to get, and it says so in its own name.
  */
-export const AllergenFinding = z.object({
-  allergen: Allergen,
-  /**
-   * - `flagged`      found, on the ingredient list or the contains statement
-   * - `not-flagged`  looked, and this label does not declare it
-   * - `cannot-verify` the label is truncated, illegible, or hides it behind an
-   *                   umbrella term. Never collapses into `not-flagged`.
-   */
-  state: z.enum(["flagged", "not-flagged", "cannot-verify"]),
-  /** Which ingredient triggered it, when flagged. */
+export const AllergenNotice = z.object({
+  ruleId: z.string().min(1),
+  label: z.string().min(1),
+  state: z.enum(["listed", "not-listed-in-what-we-read", "cannot-check"]),
   matches: z.array(z.string()).default([]),
-  /** Why we cannot verify, when we cannot. */
   because: z.string().nullable().default(null),
 });
-export type AllergenFinding = z.infer<typeof AllergenFinding>;
+export type AllergenNotice = z.infer<typeof AllergenNotice>;
 
 export const Verdict = z.object({
   /**
-   * Null when there is no honest score to give.
-   *
-   * A label that is cut off, or that has an ingredient nobody could read, has
-   * an unknown ingredient set — and a number computed over an unknown set is a
-   * confident answer to a question we cannot answer. The first version of this
-   * engine returned 100/100 on exactly that input, with a warning underneath,
-   * which is how the failure actually happens: the warning is not what gets
-   * screenshotted.
-   *
-   * A merely *smudged* ingredient does not null the score. There the identity
-   * is known and the reading is imperfect, which the flag's `readConfidence`
-   * already carries.
+   * Compatibility with this rule set, 0–100 — never a health rating (§17
+   * Rule 4). Null when the ingredient set is unknowable, because a percentage
+   * computed over a list that is missing an unknown number of entries is a
+   * confident answer to a question nobody can answer.
    */
-  score: z.number().int().min(0).max(100).nullable(),
-  /** §10.3 — the score is against this category, and says so. */
+  match: z.number().int().min(0).max(100).nullable(),
   category: Category,
-  profileId: z.string().min(1),
-  profileLabel: z.string().min(1),
+  ruleSetId: z.string().min(1),
+  ruleSetLabel: z.string().min(1),
   productName: z.string().nullable(),
-  flags: z.array(Flag),
-  allergens: z.array(AllergenFinding),
+  blockers: z.array(Finding),
+  flags: z.array(Finding),
+  uncertain: z.array(Finding),
+  /** Ingredients read clearly against which no rule matched. */
+  clearCount: z.number().int().min(0),
+  allergens: z.array(AllergenNotice),
   /**
-   * Ingredients that were read clearly and raised no flag for this profile.
-   *
-   * Deliberately excludes anything illegible: an ingredient nobody could read
-   * has not "checked out", and counting it as cleared is the same over-claim as
-   * scoring an unreadable label.
+   * §8 Step 2 — "Never silently guess." True when the reader should be asked to
+   * retake or confirm before the verdict is trusted.
    */
-  clearedCount: z.number().int().min(0),
-  /**
-   * True when anything at all could not be read or resolved — including a
-   * merely smudged ingredient that did not null the score. The renderer must
-   * show it; a partial read presented as a complete verdict is the failure
-   * mode §6 calls the kill scenario.
-   */
-  incomplete: z.boolean(),
-  /** Plain sentences explaining what was not verifiable. */
-  caveats: z.array(z.string()),
-  /** Version of the engine and knowledge base that produced this. */
+  needsVerification: z.boolean(),
+  /** True when anything at all could not be read. */
+  readComplete: z.boolean(),
+  /** Plain sentences about what the label or the photograph did not give us. */
+  notes: z.array(z.string()),
   provenance: z.object({
     engineVersion: z.string().min(1),
     knowledgeVersion: z.string().min(1),
+    ruleSetId: z.string().min(1),
   }),
 });
 export type Verdict = z.infer<typeof Verdict>;
+
+/* -------------------------------------------------------------------------- */
+/* Feedback — §16 and §25's verdict dispute rate                               */
+/* -------------------------------------------------------------------------- */
+
+/** §16's categories, verbatim. §25 makes the rate a first-class metric. */
+export const DisputeKind = z.enum([
+  "ingredient-missed",
+  "ingredient-misread",
+  "incorrect-classification",
+  "incorrect-rule-match",
+  "explanation-inaccurate",
+  "other",
+]);
+export type DisputeKind = z.infer<typeof DisputeKind>;
+
+export const Dispute = z.object({
+  kind: DisputeKind,
+  /** The finding disputed, when the user pointed at one. */
+  ingredient: z.string().nullable().default(null),
+  entryId: z.string().nullable().default(null),
+  note: z.string().nullable().default(null),
+  /**
+   * Enough to re-derive the verdict without storing the scan. §17 Rule 6:
+   * minimise collection — a dispute needs the versions and the label text, not
+   * an account and not a photograph.
+   */
+  provenance: z.object({
+    engineVersion: z.string().min(1),
+    knowledgeVersion: z.string().min(1),
+    ruleSetId: z.string().min(1),
+  }),
+});
+export type Dispute = z.infer<typeof Dispute>;

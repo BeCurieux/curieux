@@ -1,5 +1,5 @@
 /**
- * The parse adapter.
+ * The vision adapter.
  *
  * Every test injects its own transport, so the suite never reaches a model and
  * a red run here is always about the commit.
@@ -18,7 +18,6 @@ const GOOD = JSON.stringify({
   note: null,
 });
 
-/** Replays a fixed list of responses and records what it was asked. */
 function scripted(responses: string[]): VisionTransport & { seen: VisionRequest[] } {
   const seen: VisionRequest[] = [];
   let i = 0;
@@ -41,7 +40,7 @@ describe("reading a label", () => {
   });
 
   it("survives a fenced response with a preamble", async () => {
-    const messy = "Here is the transcription:\n\n```json\n" + GOOD + "\n```\n\nLet me know if you need anything else.";
+    const messy = "Here is the transcription:\n\n```json\n" + GOOD + "\n```\n\nAnything else?";
     const { label } = await parseLabel(IMAGE, scripted([messy]));
     expect(label.ingredients).toHaveLength(1);
   });
@@ -56,14 +55,12 @@ describe("reading a label", () => {
   });
 
   it("throws rather than returning a half-parsed label", async () => {
-    // CLAUDE.md: never build a verdict on unvalidated output. "We could not
-    // read it" is a perfectly good answer; a verdict over a guess is not.
+    // §8 Step 2 — never silently guess. "We couldn't read it" is a perfectly
+    // good answer; a verdict over a guess is not.
     await expect(parseLabel(IMAGE, scripted(["not json at all"]))).rejects.toBeInstanceOf(ParseError);
   });
 
-  it("keeps every raw attempt on the error, for the evaluation dataset", async () => {
-    // §13's verdict-evaluation dataset is built from exactly these — the
-    // failures are the useful half.
+  it("keeps every raw attempt on the error, for §15's failure corpus", async () => {
     try {
       await parseLabel(IMAGE, scripted(["nope"]), { maxAttempts: 3 });
       expect.unreachable();
@@ -81,10 +78,11 @@ describe("reading a label", () => {
   });
 });
 
-describe("defaults that must not fill in silently", () => {
+describe("what must not be tidied away", () => {
   it("keeps an ingredient the model marked unreadable", async () => {
     // The dangerous shortcut is a model returning a short clean list because it
-    // dropped what it could not read. Nothing here may tidy that up.
+    // dropped what it could not read. A short clean list is the most dangerous
+    // possible output, because it looks complete.
     const withGap = JSON.stringify({
       category: "bakery",
       ingredients: [
@@ -107,5 +105,6 @@ describe("the prompt", () => {
     expect(SYSTEM_PROMPT).toMatch(/TRANSCRIBE, DO NOT INTERPRET/);
     expect(SYSTEM_PROMPT).toMatch(/NO SCORES, NO FLAGS/);
     expect(SYSTEM_PROMPT).toMatch(/NEVER DROP AN INGREDIENT/);
+    expect(SYSTEM_PROMPT).toMatch(/NEVER GUESS AT TEXT/);
   });
 });

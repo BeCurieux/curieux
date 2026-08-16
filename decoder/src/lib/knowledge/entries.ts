@@ -1,1321 +1,898 @@
 /**
- * The ingredient knowledge base.
+ * The ingredient graph.
  *
- * BRIEF.md §11 wants "the ~300 most-flagged additives/ingredients with
- * plain-English explainers, sourced and reviewed — this is founder work and the
- * beginning of the data moat", and §13 calls the result the asset a buyer
- * cannot prompt into existence.
+ * BRIEF.md §14 asks for identity, classification, relationships, evidence and
+ * uncertainty per ingredient, and §15 says the ontology and the alias graph —
+ * not a table of 300 rows — are what compounds.
  *
- * **This file is a seed, not the 300.** It covers every axis in the schema and
- * every one of the five launch niches with enough depth to score real labels,
- * and `scripts/knowledge.ts` reports the count and the coverage so the gap is
- * visible rather than implied. Saying so here is the same habit as the rest of
- * the repository: a cap that announces itself beats a cap that is discovered.
+ * So an entry here says what something *is*, never what to think about it. The
+ * opinion lives in the user's rules and nowhere else, which is §17 Rule 4
+ * ("no universal morality score") expressed as a data model rather than as a
+ * style guide: there is no field in which this file could store a judgement
+ * even if somebody wanted to.
  *
- * ## Two conventions that are load-bearing
+ * **This is a seed, not §18's 300–500.** `pnpm knowledge` prints the count, the
+ * per-class coverage and the classes that nothing reaches yet, so the gap is a
+ * number somebody has to look at rather than an impression.
  *
- * **`url` is null nearly everywhere, on purpose.** Every `cite` below is a
- * statement I can stand behind; a URL is a different kind of claim — that a
- * specific page exists and says this today — and inventing one in a file whose
- * entire job is to be trustworthy would be the product's own kill scenario in
- * miniature. Attaching verified links is founder review work, and the schema
- * accepts null so the gap is honest rather than filled with something
- * plausible.
+ * ## Why `url` is null nearly everywhere, on purpose
  *
- * **`strength: "preference"` is used freely and is not a weakness.** §10.2
- * forbids medical claims, so where there is no regulatory position and no
- * settled evidence, the entry says exactly that: the user avoids it, we flag
- * it because they said so, and we assert nothing about the world. That is the
- * honest register for most of the clean-label axis, and pretending otherwise
- * is what gets an app an FTC letter.
+ * Every `cite` is a statement that can be stood behind. A URL is a different
+ * kind of claim — that a specific page exists and says this today — and
+ * inventing one in the file whose entire job is trustworthiness would be this
+ * product's own failure mode in miniature. §16 puts the source in front of the
+ * user on every tap, so the links have to be real ones. Attaching them is
+ * founder review work, and the schema accepts null so the gap stays honest.
  */
 
-import type {
-  Allergen,
-  Avoidance,
-  Axis,
-  Concern,
-  Intolerance,
-  KnowledgeEntryInput,
-  LifeStage,
-  Protocol,
-  Source,
-} from "@/lib/schema";
+import type { Evidence, Jurisdiction, KnowledgeEntryInput, Uncertainty, UncertaintyKind } from "@/lib/schema";
 
-/** Bump when entries change. Recorded on every verdict. */
-export const KNOWLEDGE_VERSION = "kb-2026-08-16";
+/** Bump when entries change. Recorded on every verdict and every dispute. */
+export const KNOWLEDGE_VERSION = "kb-2026-08-16b";
 
 /* -------------------------------------------------------------------------- */
-/* Sources                                                                     */
+/* Evidence                                                                    */
 /* -------------------------------------------------------------------------- */
 
-const src = (body: string, cite: string, url: string | null = null): Source => ({ body, cite, url });
+const ev = (
+  body: string,
+  cite: string,
+  jurisdiction: Jurisdiction,
+  strength: Evidence["strength"],
+  lastReviewed: string,
+): Evidence => ({ body, cite, jurisdiction, strength, lastReviewed, url: null });
 
-const FALCPA = src(
+const FALCPA = ev(
   "US Food and Drug Administration",
   "FALCPA, as amended by the FASTER Act, requires the nine major food allergens to be declared on packaged food labels sold in the US.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const EU_AZO = src(
+const EU_AZO = ev(
   "European Commission",
-  'Regulation (EC) No 1333/2008 Annex V requires foods containing these colours to carry the words "may have an adverse effect on activity and attention in children".',
+  'Regulation (EC) No 1333/2008 Annex V requires foods containing this colour to carry the words "may have an adverse effect on activity and attention in children".',
+  "EU",
+  "regulatory",
+  "2026-08-16",
 );
-const CA_AB418 = src(
+const CA_AB418 = ev(
   "State of California",
   "The California Food Safety Act (AB 418, 2023) prohibits the manufacture and sale of food containing brominated vegetable oil, potassium bromate, propylparaben or Red 3 in California from 2027.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const EFSA_TIO2 = src(
+const EFSA_TIO2 = ev(
   "European Food Safety Authority",
   "EFSA's 2021 re-evaluation concluded that titanium dioxide can no longer be considered safe as a food additive, and the EU withdrew its authorisation for food use in 2022. It remains permitted in the US.",
+  "EU",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_RED3 = src(
+const FDA_RED3 = ev(
   "US Food and Drug Administration",
   "The FDA revoked the colour additive authorisation for FD&C Red No. 3 in food in January 2025, with a compliance date in January 2027.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_BVO = src(
+const FDA_BVO = ev(
   "US Food and Drug Administration",
   "The FDA revoked the regulation authorising brominated vegetable oil in food in July 2024.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_PHO = src(
+const FDA_PHO = ev(
   "US Food and Drug Administration",
   'The FDA determined in 2015 that partially hydrogenated oils are no longer "generally recognised as safe" for use in human food; the compliance period closed in 2021.',
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_SULFITE = src(
+const FDA_SULFITE = ev(
   "US Food and Drug Administration",
   "Sulfites must be declared on the label when present at 10 parts per million or more.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_MSG = src(
+const FDA_MSG = ev(
   "US Food and Drug Administration",
-  'The FDA classifies monosodium glutamate as generally recognised as safe, and requires it to be declared by name on the ingredient list. It does not permit "no MSG" claims on foods containing naturally occurring glutamates.',
+  'The FDA classifies monosodium glutamate as generally recognised as safe and requires it to be declared by name. It does not permit "no MSG" claims on foods containing naturally occurring glutamates.',
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_FLAVOR = src(
+const CFR_FLAVOR = ev(
   "US Code of Federal Regulations",
   '21 CFR 101.22 permits flavouring substances to be declared collectively as "natural flavor" or "artificial flavor" without naming the constituents.',
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const DSHEA_BLEND = src(
+const CFR_BLEND = ev(
   "US Food and Drug Administration",
   "21 CFR 101.36 permits a proprietary blend to declare the total weight of the blend without disclosing the quantity of each individual ingredient.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const ACOG_CAFFEINE = src(
+const ACOG_CAFFEINE = ev(
   "American College of Obstetricians and Gynecologists",
   "ACOG advises that during pregnancy caffeine intake be limited to under 200 mg per day.",
+  "US",
+  "established",
+  "2026-08-16",
 );
-const FDA_PREG_DAIRY = src(
+const FDA_PREG_DAIRY = ev(
   "US Food and Drug Administration",
   "The FDA advises pregnant people to avoid unpasteurised (raw) milk and soft cheeses made from it.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const FDA_MERCURY = src(
+const FDA_MERCURY = ev(
   "US Food and Drug Administration / Environmental Protection Agency",
   'Joint FDA/EPA advice places shark, swordfish, king mackerel, tilefish, marlin, orange roughy and bigeye tuna on the "choices to avoid" list for people who are pregnant or breastfeeding.',
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const MONASH = src(
+const MONASH = ev(
   "Monash University FODMAP Program",
   "Monash, which developed the low-FODMAP protocol and maintains its food composition data, lists this among the high-FODMAP ingredients the protocol restricts.",
+  "AU",
+  "established",
+  "2026-08-16",
 );
-const JECFA_ASPARTAME = src(
+const JECFA_ASPARTAME = ev(
   "Joint FAO/WHO Expert Committee on Food Additives",
   "JECFA reaffirmed the acceptable daily intake for aspartame at 40 mg/kg of body weight in 2023.",
+  "international",
+  "contested",
+  "2026-08-16",
 );
-const EFSA_CARRAGEENAN = src(
+const EFSA_CARRAGEENAN = ev(
   "European Food Safety Authority",
   "EFSA's re-evaluation kept carrageenan authorised while noting that the available data did not allow a full assessment, and called for a lower molecular-weight specification.",
+  "EU",
+  "contested",
+  "2026-08-16",
 );
-const FDA_NITRITE = src(
+const CFR_NITRITE = ev(
   "US Code of Federal Regulations",
   "Sodium and potassium nitrite are permitted as curing agents at limited levels and must be declared on the ingredient list.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
-const VEGAN_SOC = src(
+const VEGAN_SOC = ev(
   "The Vegan Society",
   "Listed among the animal-derived ingredients that commonly appear on labels without an obvious animal name.",
+  "UK",
+  "established",
+  "2026-08-16",
+);
+const SURGEON_GENERAL = ev(
+  "US Surgeon General",
+  "US public-health advice is that no amount of alcohol is considered safe during pregnancy.",
+  "US",
+  "regulatory",
+  "2026-08-16",
 );
 
 /* -------------------------------------------------------------------------- */
-/* Axis shorthands                                                             */
+/* Uncertainty                                                                 */
 /* -------------------------------------------------------------------------- */
 
-const allergen = (value: Allergen): Axis => ({ kind: "allergen", value });
-const avoid = (value: Avoidance): Axis => ({ kind: "avoidance", value });
-const protocol = (value: Protocol): Axis => ({ kind: "protocol", value });
-const stage = (value: LifeStage): Axis => ({ kind: "life-stage", value });
-const intolerance = (value: Intolerance): Axis => ({ kind: "intolerance", value });
-
-/**
- * An allergen concern. Always red, always regulatory — the label is legally
- * required to declare it, which is the only reason we can say anything about
- * it at all.
- *
- * `lookFor` is deliberately not a substitution suggestion here. Telling
- * somebody with a peanut allergy what to buy instead is advice about a
- * different label we have not read; the only correct instruction is to check
- * the packaging.
- */
-const allergenConcern = (value: Allergen, food: string): Concern => ({
-  axis: allergen(value),
-  severity: "red",
-  strength: "regulatory",
-  note: `Your profile lists ${value.replace("-", " ")}. This label declares ${food}.`,
-  lookFor: "Check the packaging itself before eating this — labels change, and this reading is from a photograph.",
-  sources: [FALCPA],
+const unc = (kind: UncertaintyKind, note: string, affects: Uncertainty["affects"] = []): Uncertainty => ({
+  kind,
+  note,
+  affects,
 });
+
+const UMBRELLA_FLAVOUR = unc(
+  "umbrella-term",
+  "The label doesn't tell us exactly what's included, so we can't completely check this against your rules.",
+);
+// Doubt about provenance only. These are still definitely emulsifiers, dough
+// conditioners and anti-caking agents — a rule about those is not in doubt.
+const ANIMAL_OR_PLANT = unc(
+  "may-be-animal-or-plant",
+  "This can be made from either plant or animal sources, and the label doesn't say which.",
+  ["animal-derived"],
+);
+const SPECIES_UNKNOWN = unc("species-not-disclosed", "The label doesn't say which animal this came from.", [
+  "meat",
+  "pork-derived",
+]);
 
 /* -------------------------------------------------------------------------- */
 /* The entries                                                                 */
 /* -------------------------------------------------------------------------- */
 
 export const ENTRIES: KnowledgeEntryInput[] = [
-  /* ---- Umbrella terms. Always amber. The label does not say. ------------- */
+  /* ---- Umbrella terms ---------------------------------------------------- */
   {
     id: "natural-flavors",
+    canonical: "Natural flavours",
     names: ["natural flavors", "natural flavours", "natural flavoring", "natural flavouring", "flavoring", "flavouring", "flavour", "flavor"],
-    eNumber: null,
     plain: "A collective name for flavouring substances. The label is not required to name them.",
-    umbrella: true,
-    concerns: [],
+    classes: ["umbrella-term", "additive"],
+    evidence: [CFR_FLAVOR],
+    uncertainty: [UMBRELLA_FLAVOUR],
   },
   {
     id: "artificial-flavors",
+    canonical: "Artificial flavours",
     names: ["artificial flavors", "artificial flavours", "artificial flavoring", "artificial flavouring"],
-    eNumber: null,
     plain: "A collective name for synthetic flavouring substances. The label is not required to name them.",
-    umbrella: true,
-    concerns: [],
+    classes: ["umbrella-term", "additive"],
+    evidence: [CFR_FLAVOR],
+    uncertainty: [UMBRELLA_FLAVOUR],
   },
   {
     id: "spices",
+    canonical: "Spices",
     names: ["spices", "spice", "seasoning", "seasonings"],
-    eNumber: null,
     plain: "A collective name for spices. The individual spices are not required to be named.",
-    umbrella: true,
-    concerns: [],
+    classes: ["umbrella-term"],
+    evidence: [CFR_FLAVOR],
+    uncertainty: [UMBRELLA_FLAVOUR],
   },
   {
     id: "proprietary-blend",
-    // Not bare "blend". A "Protein Blend (Milk Protein Isolate, Whey Protein
-    // Concentrate)" names its contents and is not hiding anything — matching it
-    // put a proprietary-blend caveat on a label that has no proprietary blend,
-    // which is the product being wrong in the direction it can least afford.
+    canonical: "Proprietary blend",
+    // Not bare "blend": a "Protein Blend (Milk Protein Isolate, Whey Protein
+    // Concentrate)" names its contents and hides nothing.
     names: ["proprietary blend", "proprietary formula", "proprietary complex", "proprietary matrix"],
-    eNumber: null,
-    plain: "A named mix whose ingredients are listed without saying how much of each is in it.",
-    umbrella: true,
-    umbrellaNote: "The label names what is in this blend, but not how much of each — so there is no way to read the dose.",
-    concerns: [],
+    plain: "A named mix that lists its ingredients without saying how much of each is in it.",
+    classes: ["umbrella-term"],
+    evidence: [CFR_BLEND],
+    uncertainty: [
+      unc(
+        "dose-not-disclosed",
+        "The label names what's in this blend but not how much of each, so there's no way to read the dose.",
+      ),
+    ],
   },
 
-  /* ---- Allergens --------------------------------------------------------- */
+  /* ---- Allergens and provenance ------------------------------------------ */
   {
     id: "peanut",
-    // Both spellings of groundnut. The two-word form also has to be listed
-    // explicitly, because "ground" is a qualifier the matcher strips from the
-    // front of an ingredient — which would leave "nuts" and find nothing.
-    names: [
-      "peanut",
-      "peanuts",
-      "peanut butter",
-      "peanut oil",
-      "peanut flour",
-      "peanut protein",
-      "groundnut",
-      "groundnuts",
-      "ground nut",
-      "ground nuts",
-      "arachis oil",
-      "arachis hypogaea",
-      "beer nuts",
-      "monkey nuts",
-    ],
-    eNumber: null,
+    canonical: "Peanut",
+    names: ["peanut", "peanuts", "peanut butter", "peanut oil", "peanut flour", "peanut protein", "groundnut", "groundnuts", "ground nut", "ground nuts", "arachis oil", "arachis hypogaea", "beer nuts", "monkey nuts"],
     plain: "Peanut, or an ingredient made from it.",
-    umbrella: false,
-    concerns: [allergenConcern("peanut", "peanut")],
+    classes: ["allergen-peanut", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "tree-nut",
-    names: ["almond", "almonds", "almond flour", "cashew", "cashews", "walnut", "walnuts", "pecan", "pecans", "pistachio", "pistachios", "hazelnut", "hazelnuts", "macadamia", "brazil nut", "brazil nuts", "pine nut", "pine nuts", "chestnut", "praline", "marzipan", "nougat", "gianduja"],
-    eNumber: null,
+    canonical: "Tree nut",
+    names: ["almond", "almonds", "almond flour", "almond butter", "cashew", "cashews", "walnut", "walnuts", "pecan", "pecans", "pistachio", "pistachios", "hazelnut", "hazelnuts", "macadamia", "brazil nut", "brazil nuts", "pine nut", "pine nuts", "chestnut", "praline", "marzipan", "nougat", "gianduja"],
     plain: "A tree nut, or an ingredient made from one.",
-    umbrella: false,
-    concerns: [allergenConcern("tree-nut", "a tree nut")],
+    classes: ["allergen-tree-nut", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "coconut",
-    names: ["coconut", "coconut oil", "coconut milk", "coconut cream", "coconut flour", "desiccated coconut", "creamed coconut"],
-    eNumber: null,
+    canonical: "Coconut",
+    names: ["coconut", "coconut oil", "coconut milk", "coconut cream", "coconut flour", "desiccated coconut", "creamed coconut", "coconut butter"],
     plain: "Coconut. US labelling rules classify it as a tree nut, though botanically it is a drupe.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: allergen("tree-nut"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile lists tree nuts, and US labelling counts coconut as one — so it is flagged here. Whether it matters for you is a question for your allergist, not for a photograph of a label.",
-        lookFor: "Check the packaging itself before eating this — labels change, and this reading is from a photograph.",
-        sources: [FALCPA],
-      },
-    ],
+    // Both classes, and this is the point of having them separate: a tree-nut
+    // rule matches it because US labelling says so, and a seed-oil rule does
+    // not, because coconut oil is a fruit oil.
+    classes: ["allergen-tree-nut", "oil-fruit", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "milk",
-    names: ["milk", "milk powder", "skim milk", "skimmed milk", "whole milk", "buttermilk", "butter", "butterfat", "cream", "cheese", "yogurt", "yoghurt", "whey", "whey protein", "whey protein concentrate", "whey protein isolate", "casein", "caseinate", "sodium caseinate", "calcium caseinate", "lactose", "ghee", "curd", "milk solids", "milkfat", "condensed milk", "evaporated milk", "custard", "nonfat dry milk"],
-    eNumber: null,
+    canonical: "Milk",
+    names: ["milk", "milk powder", "skim milk", "skimmed milk", "whole milk", "buttermilk", "butter", "butterfat", "cream", "cheese", "yogurt", "yoghurt", "whey", "whey protein", "whey protein concentrate", "whey protein isolate", "casein", "caseinate", "sodium caseinate", "calcium caseinate", "milk protein", "milk protein isolate", "ghee", "curd", "milk solids", "milkfat", "condensed milk", "evaporated milk", "custard", "nonfat dry milk"],
     plain: "Milk, or an ingredient made from milk.",
-    umbrella: false,
-    concerns: [
-      allergenConcern("milk", "milk"),
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. This is a dairy ingredient.",
-        lookFor: "A version made with oat, soy, almond or coconut in place of the dairy.",
-        sources: [VEGAN_SOC],
-      },
-      {
-        axis: protocol("vegetarian"),
-        severity: "yellow",
-        strength: "preference",
-        note: "Dairy — fine on most vegetarian definitions, flagged in case yours excludes it.",
-        lookFor: null,
-        sources: [],
-      },
-    ],
+    classes: ["allergen-milk", "dairy", "animal-derived"],
+    evidence: [FALCPA, VEGAN_SOC],
   },
   {
-    id: "lactose-ingredient",
+    id: "lactose",
+    canonical: "Lactose",
     names: ["lactose", "milk sugar"],
-    eNumber: null,
     plain: "The sugar naturally present in milk.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: intolerance("lactose"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile lists lactose intolerance. This label declares lactose.",
-        lookFor: "A lactose-free version, or one where the dairy is replaced by a plant milk.",
-        sources: [FALCPA],
-      },
-    ],
+    classes: ["allergen-milk", "dairy", "animal-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "egg",
+    canonical: "Egg",
     names: ["egg", "eggs", "egg white", "egg yolk", "albumen", "albumin", "ovalbumin", "egg powder", "dried egg", "mayonnaise", "meringue", "lysozyme"],
-    eNumber: null,
     plain: "Egg, or an ingredient made from egg.",
-    umbrella: false,
-    concerns: [
-      allergenConcern("egg", "egg"),
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. This is an egg ingredient.",
-        lookFor: "A version bound with aquafaba, flax or starch instead of egg.",
-        sources: [VEGAN_SOC],
-      },
-    ],
+    classes: ["allergen-egg", "egg", "animal-derived"],
+    evidence: [FALCPA, VEGAN_SOC],
   },
   {
     id: "wheat",
+    canonical: "Wheat",
     names: ["wheat", "wheat flour", "flour", "enriched flour", "wheat starch", "wheat protein", "durum", "semolina", "spelt", "farro", "einkorn", "kamut", "couscous", "bulgur", "seitan", "vital wheat gluten", "graham flour"],
-    eNumber: null,
     plain: "Wheat, or an ingredient milled from it.",
-    umbrella: false,
-    concerns: [
-      allergenConcern("wheat", "wheat"),
-      {
-        axis: intolerance("gluten"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids gluten. Wheat is a gluten grain.",
-        lookFor: 'A version labelled "gluten-free", or one built on rice, corn, buckwheat or oat flour.',
-        sources: [FALCPA],
-      },
-      {
-        axis: protocol("keto"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is keto. Wheat flour is a starch.",
-        lookFor: "A version made with almond, coconut or lupin flour.",
-        sources: [],
-      },
-      {
-        axis: protocol("carnivore"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is carnivore. This is a grain ingredient.",
-        lookFor: "A single-ingredient meat, fish or egg product.",
-        sources: [],
-      },
-      {
-        axis: avoid("seed-oils"),
-        severity: "yellow",
-        strength: "preference",
-        note: "Not a seed oil — listed here because wheat germ oil sometimes gets grouped with them. Flagged only so the reason is visible.",
-        lookFor: null,
-        sources: [],
-      },
-    ],
+    classes: ["allergen-wheat", "gluten-grain", "grain", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "barley",
-    names: ["barley", "malt", "malt extract", "malted barley", "malt syrup", "malt vinegar", "brewer's yeast", "brewers yeast"],
-    eNumber: null,
-    plain: "Barley, or an ingredient made from it. Barley is a gluten grain but is not one of the nine US major allergens.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: intolerance("gluten"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile avoids gluten. Barley and malt are gluten grains — and unlike wheat, they are not required to be highlighted as an allergen on a US label.",
-        lookFor: 'A version labelled "gluten-free"; in drinks, one malted with sorghum or rice.',
-        sources: [FALCPA],
-      },
-    ],
+    canonical: "Barley",
+    names: ["barley", "malt", "malt extract", "malted barley", "malt syrup", "malt vinegar", "brewers yeast", "brewer's yeast"],
+    plain: "Barley, or an ingredient made from it. It is a gluten grain but not one of the nine US major allergens, so it need not be highlighted as one.",
+    classes: ["gluten-grain", "grain", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "rye",
+    canonical: "Rye",
     names: ["rye", "rye flour", "pumpernickel", "triticale"],
-    eNumber: null,
     plain: "Rye, a gluten grain.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: intolerance("gluten"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile avoids gluten. Rye is a gluten grain.",
-        lookFor: 'A version labelled "gluten-free".',
-        sources: [FALCPA],
-      },
-    ],
+    classes: ["gluten-grain", "grain", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "soy",
+    canonical: "Soy",
     names: ["soy", "soya", "soybean", "soybeans", "soy protein", "soy protein isolate", "soy flour", "soy sauce", "tofu", "tempeh", "edamame", "miso", "textured vegetable protein", "tvp", "hydrolyzed soy protein"],
-    eNumber: null,
     plain: "Soy, or an ingredient made from soybeans.",
-    umbrella: false,
-    concerns: [allergenConcern("soy", "soy")],
+    classes: ["allergen-soy", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "sesame",
+    canonical: "Sesame",
     names: ["sesame", "sesame seed", "sesame seeds", "sesame oil", "tahini", "benne", "gingelly", "til", "halva", "hummus"],
-    eNumber: null,
     plain: "Sesame, or an ingredient made from it.",
-    umbrella: false,
-    concerns: [allergenConcern("sesame", "sesame")],
+    classes: ["allergen-sesame", "plant-derived"],
+    evidence: [FALCPA],
   },
   {
     id: "fish",
+    canonical: "Fish",
     names: ["fish", "anchovy", "anchovies", "cod", "salmon", "tuna", "sardine", "sardines", "tilapia", "haddock", "pollock", "fish sauce", "worcestershire sauce", "fish oil", "surimi", "isinglass"],
-    eNumber: null,
     plain: "Fish, or an ingredient made from fish.",
-    umbrella: false,
-    concerns: [
-      allergenConcern("fish", "fish"),
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. This is a fish ingredient.",
-        lookFor: "A version using seaweed, miso or mushroom for the savoury note.",
-        sources: [VEGAN_SOC],
-      },
-      {
-        axis: protocol("vegetarian"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegetarian. This is a fish ingredient.",
-        lookFor: "A version using seaweed, miso or mushroom for the savoury note.",
-        sources: [VEGAN_SOC],
-      },
-    ],
+    classes: ["allergen-fish", "fish", "animal-derived"],
+    evidence: [FALCPA, VEGAN_SOC],
   },
   {
     id: "shellfish",
-    names: ["shrimp", "prawn", "prawns", "crab", "lobster", "crayfish", "crawfish", "langoustine", "krill", "shellfish", "crustacean", "oyster sauce", "oyster", "clam", "mussel", "scallop", "squid", "calamari", "octopus"],
-    eNumber: null,
+    canonical: "Shellfish",
+    names: ["shrimp", "prawn", "prawns", "crab", "lobster", "crayfish", "crawfish", "langoustine", "krill", "krill oil", "shellfish", "crustacean", "oyster sauce", "oyster", "clam", "mussel", "scallop", "squid", "calamari", "octopus"],
     plain: "Shellfish, or an ingredient made from shellfish.",
-    umbrella: false,
-    concerns: [
-      allergenConcern("shellfish", "shellfish"),
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. This is a shellfish ingredient.",
-        lookFor: "A version using seaweed or mushroom for the savoury note.",
-        sources: [VEGAN_SOC],
-      },
-    ],
+    classes: ["allergen-shellfish", "shellfish", "animal-derived"],
+    evidence: [FALCPA, VEGAN_SOC],
+  },
+  {
+    id: "pork",
+    canonical: "Pork",
+    names: ["pork", "bacon", "ham", "lard", "pancetta", "prosciutto", "gammon", "pork gelatin", "pork fat"],
+    plain: "Pork, or an ingredient made from it.",
+    classes: ["pork-derived", "meat", "animal-derived", "fat-animal"],
+    evidence: [VEGAN_SOC],
   },
 
-  /* ---- Hidden animal ingredients. §4 ICP 4. ------------------------------ */
+  /* ---- Hidden animal ingredients — §23's vegan creator message ----------- */
   {
     id: "gelatin",
+    canonical: "Gelatin",
     names: ["gelatin", "gelatine", "hydrolyzed collagen", "collagen", "bovine gelatin", "porcine gelatin"],
-    eNumber: null,
     plain: "A setting agent made by boiling animal skin, bone or connective tissue.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. Gelatin is made from animals.",
-        lookFor: "A version set with pectin, agar or carrageenan.",
-        sources: [VEGAN_SOC],
-      },
-      {
-        axis: protocol("vegetarian"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegetarian. Gelatin is made from animals.",
-        lookFor: "A version set with pectin, agar or carrageenan.",
-        sources: [VEGAN_SOC],
-      },
-      {
-        axis: protocol("halal"),
-        severity: "amber",
-        strength: "regulatory",
-        note: "Your profile is halal. The label does not say which animal this gelatin came from, or how it was slaughtered.",
-        lookFor: null,
-        sources: [VEGAN_SOC],
-      },
-    ],
+    classes: ["animal-derived", "thickener"],
+    evidence: [VEGAN_SOC],
+    // §14 names this exact case: "gelatin → animal-derived → potential species
+    // uncertainty". It matters for a halal or kosher rule, where the answer
+    // depends on an animal the label does not name.
+    uncertainty: [SPECIES_UNKNOWN],
   },
   {
     id: "carmine",
+    canonical: "Carmine",
     names: ["carmine", "cochineal", "cochineal extract", "carminic acid", "crimson lake", "natural red 4"],
     eNumber: "E120",
     plain: "A red colour made from cochineal insects.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. Carmine is made from insects.",
-        lookFor: "A version coloured with beetroot, paprika or anthocyanin.",
-        sources: [VEGAN_SOC],
-      },
-      {
-        axis: protocol("vegetarian"),
-        severity: "amber",
-        strength: "preference",
-        note: "Carmine is insect-derived — flagged because vegetarian definitions differ on it.",
-        lookFor: null,
-        sources: [VEGAN_SOC],
-      },
-    ],
+    classes: ["insect-derived", "animal-derived", "colour", "colour-natural"],
+    evidence: [VEGAN_SOC],
   },
   {
     id: "shellac",
-    names: ["shellac", "confectioner's glaze", "confectioners glaze", "resinous glaze", "pharmaceutical glaze"],
+    canonical: "Shellac",
+    names: ["shellac", "confectioners glaze", "confectioner's glaze", "resinous glaze", "pharmaceutical glaze"],
     eNumber: "E904",
     plain: "A glaze made from a resin secreted by the lac insect.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is vegan. Shellac comes from insects.",
-        lookFor: "A version glazed with carnauba wax.",
-        sources: [VEGAN_SOC],
-      },
-    ],
+    classes: ["insect-derived", "animal-derived", "additive"],
+    evidence: [VEGAN_SOC],
   },
   {
     id: "l-cysteine",
-    names: ["l-cysteine", "cysteine", "e920"],
+    canonical: "L-cysteine",
+    names: ["l-cysteine", "cysteine"],
     eNumber: "E920",
-    plain: "A dough conditioner. It can be made from feathers or hair, or produced by fermentation — the label does not say which.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "amber",
-        strength: "regulatory",
-        note: "Your profile is vegan. This can be animal-derived or fermentation-derived, and this label does not say which.",
-        lookFor: null,
-        sources: [VEGAN_SOC],
-      },
-    ],
+    plain: "A dough conditioner. It can be made from feathers or hair, or produced by fermentation.",
+    classes: ["flour-treatment", "additive"],
+    evidence: [VEGAN_SOC],
+    uncertainty: [ANIMAL_OR_PLANT],
   },
   {
     id: "mono-and-diglycerides",
-    names: ["mono and diglycerides", "mono- and diglycerides", "monoglycerides", "diglycerides", "mono-diglycerides", "e471"],
+    canonical: "Mono- and diglycerides",
+    names: ["mono and diglycerides", "mono- and diglycerides", "monoglycerides", "diglycerides", "mono-diglycerides"],
     eNumber: "E471",
     plain: "An emulsifier that keeps fat and water mixed. Made from either plant or animal fat.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "amber",
-        strength: "regulatory",
-        note: "Your profile is vegan. These can be made from plant or animal fat, and this label does not say which.",
-        lookFor: null,
-        sources: [VEGAN_SOC],
-      },
+    classes: ["emulsifier", "additive"],
+    evidence: [VEGAN_SOC],
+    uncertainty: [ANIMAL_OR_PLANT],
+  },
+  {
+    id: "vitamin-d3",
+    canonical: "Vitamin D3",
+    names: ["vitamin d3", "cholecalciferol"],
+    plain: "The form of vitamin D usually made from lanolin, the grease in sheep's wool. A lichen-derived version exists.",
+    classes: ["additive"],
+    evidence: [VEGAN_SOC],
+    uncertainty: [
+      unc(
+        "source-not-disclosed",
+        "D3 is usually made from lanolin; the lichen-derived version normally says so on the label, and this one doesn't.",
+        ["animal-derived"],
+      ),
     ],
   },
+  {
+    id: "magnesium-stearate",
+    canonical: "Magnesium stearate",
+    names: ["magnesium stearate", "stearic acid", "vegetable stearate"],
+    eNumber: "E470b",
+    plain: "A lubricant that stops powder sticking to tablet machinery. Can be plant or animal derived.",
+    classes: ["anti-caking", "additive"],
+    evidence: [VEGAN_SOC],
+    uncertainty: [ANIMAL_OR_PLANT],
+  },
 
-  /* ---- Colours. §4 ICP 2. ------------------------------------------------ */
+  /* ---- Colours — §5 ICP 1 ------------------------------------------------ */
   {
     id: "red-40",
+    canonical: "Red 40",
     names: ["red 40", "red no. 40", "fd&c red no. 40", "fd&c red 40", "allura red", "allura red ac", "red 40 lake"],
     eNumber: "E129",
     plain: "A synthetic red colour.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-colours"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids artificial colours. In the EU this colour carries a mandatory warning on the label; in the US it does not.",
-        lookFor: "A version coloured with beetroot, paprika extract or anthocyanin from fruit.",
-        sources: [EU_AZO],
-      },
-    ],
+    classes: ["colour-synthetic", "colour", "additive"],
+    evidence: [EU_AZO],
   },
   {
     id: "yellow-5",
+    canonical: "Yellow 5",
     names: ["yellow 5", "yellow no. 5", "fd&c yellow no. 5", "fd&c yellow 5", "tartrazine", "yellow 5 lake"],
     eNumber: "E102",
     plain: "A synthetic yellow colour.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-colours"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids artificial colours. In the EU this colour carries a mandatory warning on the label; in the US it does not.",
-        lookFor: "A version coloured with turmeric, annatto or safflower.",
-        sources: [EU_AZO],
-      },
-    ],
+    classes: ["colour-synthetic", "colour", "additive"],
+    evidence: [EU_AZO],
   },
   {
     id: "yellow-6",
+    canonical: "Yellow 6",
     names: ["yellow 6", "yellow no. 6", "fd&c yellow no. 6", "fd&c yellow 6", "sunset yellow", "sunset yellow fcf", "yellow 6 lake"],
     eNumber: "E110",
     plain: "A synthetic orange-yellow colour.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-colours"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids artificial colours. In the EU this colour carries a mandatory warning on the label; in the US it does not.",
-        lookFor: "A version coloured with annatto, paprika or carrot concentrate.",
-        sources: [EU_AZO],
-      },
-    ],
+    classes: ["colour-synthetic", "colour", "additive"],
+    evidence: [EU_AZO],
   },
   {
     id: "red-3",
+    canonical: "Red 3",
     names: ["red 3", "red no. 3", "fd&c red no. 3", "fd&c red 3", "erythrosine", "erythrosin"],
     eNumber: "E127",
-    plain: "A synthetic pink-red colour that US regulators have withdrawn from food use.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-colours"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids artificial colours. US authorisation for this colour in food has been revoked, with a compliance date in January 2027 — so it can still appear on shelves until then.",
-        lookFor: "A version coloured with beetroot or anthocyanin from fruit.",
-        sources: [FDA_RED3, CA_AB418],
-      },
-    ],
+    plain: "A synthetic pink-red colour whose US authorisation for food has been revoked, with a compliance date in 2027.",
+    classes: ["colour-synthetic", "colour", "additive"],
+    evidence: [FDA_RED3, CA_AB418],
   },
   {
     id: "blue-1",
+    canonical: "Blue 1",
     names: ["blue 1", "blue no. 1", "fd&c blue no. 1", "fd&c blue 1", "brilliant blue", "brilliant blue fcf"],
     eNumber: "E133",
     plain: "A synthetic blue colour.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-colours"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial colours. This one is a synthetic dye.",
-        lookFor: "A version coloured with spirulina extract.",
-        sources: [],
-      },
-    ],
+    classes: ["colour-synthetic", "colour", "additive"],
   },
   {
     id: "blue-2",
+    canonical: "Blue 2",
     names: ["blue 2", "blue no. 2", "fd&c blue no. 2", "fd&c blue 2", "indigotine", "indigo carmine"],
     eNumber: "E132",
     plain: "A synthetic blue colour.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-colours"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial colours. This one is a synthetic dye.",
-        lookFor: "A version coloured with spirulina extract or butterfly pea.",
-        sources: [],
-      },
-    ],
+    classes: ["colour-synthetic", "colour", "additive"],
   },
   {
     id: "titanium-dioxide",
+    canonical: "Titanium dioxide",
     names: ["titanium dioxide", "titanium oxide", "ci 77891"],
     eNumber: "E171",
-    plain: "A bright white pigment used to make coatings and icings opaque.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("titanium-dioxide"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids titanium dioxide. It is banned as a food additive in the EU and still permitted in the US — this is a case where the two regulators disagree.",
-        lookFor: "A version left uncoated, or whitened with rice starch or calcium carbonate.",
-        sources: [EFSA_TIO2],
-      },
-      {
-        axis: avoid("artificial-colours"),
-        severity: "amber",
-        strength: "regulatory",
-        note: "A colour additive rather than a dye — flagged for your artificial-colours profile so the reason is visible.",
-        lookFor: null,
-        sources: [EFSA_TIO2],
-      },
-    ],
+    plain: "A bright white pigment used to make coatings and icings opaque. Banned as a food additive in the EU, permitted in the US.",
+    classes: ["colour", "additive"],
+    evidence: [EFSA_TIO2],
   },
 
   /* ---- Sweeteners -------------------------------------------------------- */
   {
     id: "aspartame",
-    names: ["aspartame", "nutrasweet", "equal"],
+    canonical: "Aspartame",
+    names: ["aspartame", "nutrasweet"],
     eNumber: "E951",
     plain: "A synthetic sweetener roughly 200 times as sweet as sugar.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-sweeteners"),
-        severity: "red",
-        strength: "contested",
-        note: "Your profile avoids artificial sweeteners. This one is well studied and the expert bodies do not agree on how to read the evidence.",
-        lookFor: "A version sweetened with sugar, monk fruit or stevia, or an unsweetened one.",
-        sources: [JECFA_ASPARTAME],
-      },
-    ],
+    classes: ["sweetener-artificial", "sweetener", "additive"],
+    evidence: [JECFA_ASPARTAME],
   },
   {
     id: "sucralose",
+    canonical: "Sucralose",
     names: ["sucralose", "splenda"],
     eNumber: "E955",
     plain: "A synthetic sweetener made by modifying sugar.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-sweeteners"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial sweeteners.",
-        lookFor: "A version sweetened with sugar, monk fruit or stevia, or an unsweetened one.",
-        sources: [],
-      },
-    ],
+    classes: ["sweetener-artificial", "sweetener", "additive"],
   },
   {
     id: "acesulfame-k",
+    canonical: "Acesulfame potassium",
     names: ["acesulfame potassium", "acesulfame k", "ace-k", "acesulfame-k"],
     eNumber: "E950",
     plain: "A synthetic sweetener, usually blended with another one.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-sweeteners"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial sweeteners.",
-        lookFor: "A version sweetened with sugar, monk fruit or stevia, or an unsweetened one.",
-        sources: [],
-      },
-    ],
+    classes: ["sweetener-artificial", "sweetener", "additive"],
   },
   {
     id: "saccharin",
-    names: ["saccharin", "sodium saccharin", "sweet'n low"],
+    canonical: "Saccharin",
+    names: ["saccharin", "sodium saccharin"],
     eNumber: "E954",
     plain: "One of the oldest synthetic sweeteners.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-sweeteners"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial sweeteners.",
-        lookFor: "A version sweetened with sugar, monk fruit or stevia, or an unsweetened one.",
-        sources: [],
-      },
-    ],
+    classes: ["sweetener-artificial", "sweetener", "additive"],
   },
   {
     id: "sorbitol",
+    canonical: "Sorbitol",
     names: ["sorbitol", "glucitol"],
     eNumber: "E420",
     plain: "A sugar alcohol used as a sweetener and to keep things moist.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("low-fodmap"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile is low-FODMAP. Sorbitol is a polyol, one of the FODMAP groups the protocol restricts.",
-        lookFor: "A version sweetened with sugar, glucose or maple syrup.",
-        sources: [MONASH],
-      },
-    ],
+    classes: ["sweetener-sugar-alcohol", "sweetener", "high-fodmap", "additive"],
+    evidence: [MONASH],
   },
   {
     id: "mannitol",
+    canonical: "Mannitol",
     names: ["mannitol"],
     eNumber: "E421",
     plain: "A sugar alcohol used as a sweetener and bulking agent.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("low-fodmap"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile is low-FODMAP. Mannitol is a polyol, one of the FODMAP groups the protocol restricts.",
-        lookFor: "A version sweetened with sugar, glucose or maple syrup.",
-        sources: [MONASH],
-      },
-    ],
+    classes: ["sweetener-sugar-alcohol", "sweetener", "high-fodmap", "additive"],
+    evidence: [MONASH],
+  },
+  {
+    id: "maltitol",
+    canonical: "Maltitol",
+    names: ["maltitol", "maltitol syrup"],
+    eNumber: "E965",
+    plain: "A sugar alcohol used in sugar-free confectionery.",
+    classes: ["sweetener-sugar-alcohol", "sweetener", "high-fodmap", "additive"],
+    evidence: [MONASH],
+  },
+  {
+    id: "erythritol",
+    canonical: "Erythritol",
+    names: ["erythritol"],
+    eNumber: "E968",
+    plain: "A sugar alcohol, often paired with stevia or monk fruit.",
+    classes: ["sweetener-sugar-alcohol", "sweetener", "additive"],
+  },
+  {
+    id: "stevia",
+    canonical: "Stevia",
+    names: ["stevia", "steviol glycosides", "rebaudioside a", "reb a"],
+    eNumber: "E960",
+    plain: "A sweetener extracted from the stevia leaf.",
+    classes: ["sweetener-plant", "sweetener", "plant-derived"],
+  },
+  {
+    id: "monk-fruit",
+    canonical: "Monk fruit",
+    names: ["monk fruit", "monk fruit extract", "luo han guo", "mogroside"],
+    plain: "A sweetener extracted from monk fruit.",
+    classes: ["sweetener-plant", "sweetener", "plant-derived"],
   },
 
   /* ---- Sugars and starches ----------------------------------------------- */
   {
     id: "hfcs",
+    canonical: "High-fructose corn syrup",
     names: ["high fructose corn syrup", "high-fructose corn syrup", "hfcs", "corn syrup", "glucose-fructose syrup", "isoglucose"],
-    eNumber: null,
     plain: "A liquid sweetener made from corn starch.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("added-sugar"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids added sugar. This is an added sweetener.",
-        lookFor: "A version sweetened with fruit alone, or an unsweetened one.",
-        sources: [],
-      },
-      {
-        axis: protocol("low-fodmap"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile is low-FODMAP. This syrup carries excess fructose, one of the FODMAP groups the protocol restricts.",
-        lookFor: "A version sweetened with plain sugar, glucose or maple syrup.",
-        sources: [MONASH],
-      },
-      {
-        axis: protocol("keto"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is keto. This is a sugar syrup.",
-        lookFor: "A version sweetened with erythritol, monk fruit or allulose.",
-        sources: [],
-      },
-    ],
+    classes: ["sugar-added", "sweetener", "high-fodmap", "plant-derived"],
+    evidence: [MONASH],
   },
   {
     id: "sugar",
-    names: ["sugar", "cane sugar", "brown sugar", "invert sugar", "sucrose", "dextrose", "glucose", "fructose", "corn sugar", "beet sugar", "raw sugar", "turbinado", "molasses", "honey", "agave", "agave nectar", "agave syrup", "brown rice syrup", "fruit juice concentrate", "maple syrup", "coconut sugar"],
-    eNumber: null,
+    canonical: "Sugar",
+    names: ["sugar", "cane sugar", "brown sugar", "invert sugar", "sucrose", "dextrose", "glucose", "fructose", "corn sugar", "beet sugar", "raw sugar", "turbinado", "molasses", "honey", "agave", "agave nectar", "agave syrup", "brown rice syrup", "fruit juice concentrate", "maple syrup", "coconut sugar", "date syrup"],
     plain: "An added sweetener.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("added-sugar"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids added sugar. This is an added sweetener.",
-        lookFor: "A version sweetened with whole fruit alone, or an unsweetened one.",
-        sources: [],
-      },
-      {
-        axis: protocol("keto"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is keto. This is a sugar.",
-        lookFor: "A version sweetened with erythritol, monk fruit or allulose.",
-        sources: [],
-      },
-      {
-        axis: protocol("carnivore"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is carnivore. This is a plant-derived sweetener.",
-        lookFor: "A single-ingredient meat, fish or egg product.",
-        sources: [],
-      },
-    ],
+    classes: ["sugar-added", "sweetener"],
   },
   {
     id: "maltodextrin",
+    canonical: "Maltodextrin",
     names: ["maltodextrin", "malto dextrin"],
-    eNumber: null,
-    plain: "A starch broken down into a fine white powder. Used as a filler, thickener and carrier.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("added-sugar"),
-        severity: "yellow",
-        strength: "preference",
-        note: 'Not sugar on the label, but it behaves like one — flagged for your added-sugar profile because it is the usual reason "no added sugar" products still taste sweet and bulky.',
-        lookFor: null,
-        sources: [],
-      },
-      {
-        axis: protocol("keto"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is keto. Maltodextrin is a rapidly digested starch.",
-        lookFor: "A version bulked with inulin-free fibre, almond flour or nothing at all.",
-        sources: [],
-      },
-    ],
+    plain: "A starch broken down into a fine white powder, used as a filler, thickener and carrier. It is not a sugar on the label but behaves like one.",
+    classes: ["starch-refined", "additive", "plant-derived"],
+  },
+  {
+    id: "modified-starch",
+    canonical: "Modified starch",
+    names: ["modified corn starch", "modified starch", "modified food starch", "modified tapioca starch"],
+    plain: "A starch treated to change how it thickens or holds together.",
+    classes: ["starch-refined", "thickener", "additive", "plant-derived"],
   },
   {
     id: "inulin",
+    canonical: "Inulin",
     names: ["inulin", "chicory root", "chicory root fiber", "chicory root fibre", "chicory root extract", "oligofructose", "fructooligosaccharides", "fos"],
-    eNumber: null,
     plain: "A plant fibre, usually from chicory root, added to raise the fibre number.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("low-fodmap"),
-        severity: "red",
-        strength: "established",
-        note: "Your profile is low-FODMAP. Inulin and its relatives are fructans, one of the FODMAP groups the protocol restricts.",
-        lookFor: "A version whose fibre comes from oats, rice bran or psyllium.",
-        sources: [MONASH],
-      },
-    ],
+    classes: ["high-fodmap", "plant-derived"],
+    evidence: [MONASH],
   },
 
-  /* ---- Fats. §4 ICP 2 and CLAUDE.md collision 3. ------------------------- */
+  /* ---- Fats and oils ----------------------------------------------------- */
   {
     id: "seed-oil",
+    canonical: "Seed oil",
     names: ["soybean oil", "sunflower oil", "safflower oil", "canola oil", "rapeseed oil", "corn oil", "cottonseed oil", "grapeseed oil", "rice bran oil", "vegetable oil", "high oleic sunflower oil", "high oleic safflower oil"],
-    eNumber: null,
     plain: "An oil pressed or extracted from seeds.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("seed-oils"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids seed oils. This is one of the cooking oils that term usually means.",
-        lookFor: "A version fried or dressed in olive, avocado, coconut oil, butter or tallow.",
-        sources: [],
-      },
-    ],
+    classes: ["oil-seed", "oil-vegetable", "oil", "plant-derived"],
   },
   {
-    id: "sunflower-lecithin",
+    id: "olive-oil",
+    canonical: "Olive oil",
+    names: ["olive oil", "extra virgin olive oil", "virgin olive oil", "pomace oil"],
+    plain: "An oil pressed from olives.",
+    classes: ["oil-fruit", "oil-vegetable", "oil", "plant-derived"],
+  },
+  {
+    id: "avocado-oil",
+    canonical: "Avocado oil",
+    names: ["avocado oil"],
+    plain: "An oil pressed from avocado flesh.",
+    classes: ["oil-fruit", "oil-vegetable", "oil", "plant-derived"],
+  },
+  {
+    id: "palm-oil",
+    canonical: "Palm oil",
+    names: ["palm oil", "palm kernel oil", "palm fruit oil", "palmitate"],
+    plain: "An oil from the fruit or kernel of the oil palm.",
+    classes: ["oil-fruit", "oil-vegetable", "oil", "plant-derived"],
+  },
+  {
+    id: "lecithin",
+    canonical: "Lecithin",
     names: ["sunflower lecithin", "soy lecithin", "soya lecithin", "lecithin", "rapeseed lecithin"],
     eNumber: "E322",
-    plain: "An emulsifier that keeps fat and water from separating. Used in tiny amounts.",
-    umbrella: false,
-    concerns: [
-      /**
-       * CLAUDE.md collision 3, in code.
-       *
-       * The brief's own hero screenshot reds sunflower lecithin on a seed-oil
-       * profile. It is a phospholipid fraction used well under 1%, not one of
-       * the frying oils that audience avoids, and redding it would red most
-       * chocolate, protein powder and nut butter on the shelf. So it is amber
-       * and it explains itself, which is what the same brief asks for six
-       * sections earlier: "never a bare bad."
-       */
-      {
-        axis: avoid("seed-oils"),
-        severity: "amber",
-        strength: "preference",
-        note: "Lecithin comes from the same seed, but it is an emulsifier used in tiny amounts rather than one of the cooking oils a seed-oil profile is usually avoiding. Flagged so you can decide, not scored as if it were the oil.",
-        lookFor: null,
-        sources: [],
-      },
-      /** Soy lecithin and the soy allergen share a name list, so the allergen
-       *  concern has to live here too. Highly refined lecithin is often
-       *  tolerated, but that is a clinical judgement and not ours to make: the
-       *  label says soy, so the label gets flagged. */
-      {
-        axis: allergen("soy"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile lists soy. Soy lecithin is declared as a soy ingredient on this label.",
-        lookFor: "Check the packaging itself before eating this — labels change, and this reading is from a photograph.",
-        sources: [FALCPA],
-      },
-    ],
+    plain: "An emulsifier that stops fat and water separating. Used in very small amounts.",
+    // Classed as an emulsifier, not as a seed oil — the distinction the whole
+    // seed-oil audience is defined by, and the reason `oil-seed` and `oil-fruit`
+    // are siblings rather than parent and child in `classes.ts`.
+    // Classed as an emulsifier and nothing else, with no uncertainty attached.
+    // It is not a seed oil, so a seed-oil rule simply does not reach it — which
+    // is the class tree doing the work, and better than a note explaining why a
+    // match the user did not want happened anyway.
+    classes: ["emulsifier", "additive", "plant-derived"],
   },
   {
     id: "partially-hydrogenated",
+    canonical: "Partially hydrogenated oil",
     names: ["partially hydrogenated oil", "partially hydrogenated soybean oil", "partially hydrogenated cottonseed oil", "partially hydrogenated palm oil", "shortening"],
-    eNumber: null,
-    plain: "An oil hardened by adding hydrogen. US regulators withdrew its safe-ingredient status.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("seed-oils"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids seed oils, and this is a stronger case than most: US regulators removed partially hydrogenated oils from the generally-recognised-as-safe list in 2015.",
-        lookFor: "A version made with butter, coconut oil or a non-hydrogenated fat.",
-        sources: [FDA_PHO],
-      },
-    ],
+    plain: "An oil hardened by adding hydrogen. US regulators withdrew its safe-ingredient status in 2015.",
+    classes: ["oil-hydrogenated", "oil", "plant-derived"],
+    evidence: [FDA_PHO],
   },
   {
     id: "bvo",
+    canonical: "Brominated vegetable oil",
     names: ["brominated vegetable oil", "bvo"],
     eNumber: "E443",
-    plain: "An oil treated with bromine, formerly used to keep citrus flavour evenly mixed in soft drinks.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "regulatory",
-        note: "US authorisation for this ingredient in food was revoked in 2024, and California legislated against it separately.",
-        lookFor: "A drink that lists no emulsifier, or uses gum arabic or sucrose acetate isobutyrate.",
-        sources: [FDA_BVO, CA_AB418],
-      },
-    ],
+    plain: "An oil treated with bromine, formerly used to keep citrus flavour evenly mixed in soft drinks. Its US authorisation was revoked in 2024.",
+    classes: ["emulsifier", "oil", "additive"],
+    evidence: [FDA_BVO, CA_AB418],
+  },
+  {
+    id: "tallow",
+    canonical: "Tallow",
+    names: ["tallow", "beef tallow", "suet", "schmaltz", "duck fat"],
+    plain: "A rendered animal fat.",
+    classes: ["fat-animal", "oil", "meat", "animal-derived"],
+    evidence: [VEGAN_SOC],
   },
 
   /* ---- Preservatives and processing aids --------------------------------- */
   {
     id: "bha",
+    canonical: "BHA",
     names: ["bha", "butylated hydroxyanisole"],
     eNumber: "E320",
     plain: "A synthetic antioxidant that stops fats going rancid.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "contested",
-        note: "Your profile avoids artificial preservatives. Regulators in different regions have reached different conclusions about this one.",
-        lookFor: "A version preserved with rosemary extract or mixed tocopherols (vitamin E).",
-        sources: [
-          src(
-            "US Food and Drug Administration",
-            "BHA is permitted as a food additive at specified levels under 21 CFR 172.110.",
-          ),
-        ],
-      },
+    classes: ["antioxidant-synthetic", "preservative", "additive"],
+    evidence: [
+      ev(
+        "US Food and Drug Administration",
+        "BHA is permitted as a food additive at specified levels under 21 CFR 172.110.",
+        "US",
+        "regulatory",
+        "2026-08-16",
+      ),
     ],
   },
   {
     id: "bht",
+    canonical: "BHT",
     names: ["bht", "butylated hydroxytoluene"],
     eNumber: "E321",
     plain: "A synthetic antioxidant that stops fats going rancid.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial preservatives.",
-        lookFor: "A version preserved with rosemary extract or mixed tocopherols (vitamin E).",
-        sources: [],
-      },
-    ],
+    classes: ["antioxidant-synthetic", "preservative", "additive"],
   },
   {
     id: "tbhq",
+    canonical: "TBHQ",
     names: ["tbhq", "tertiary butylhydroquinone", "tert-butylhydroquinone"],
     eNumber: "E319",
     plain: "A synthetic antioxidant used in fried and packaged foods.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial preservatives.",
-        lookFor: "A version preserved with rosemary extract or mixed tocopherols (vitamin E).",
-        sources: [],
-      },
-    ],
+    classes: ["antioxidant-synthetic", "preservative", "additive"],
   },
   {
     id: "sodium-benzoate",
+    canonical: "Sodium benzoate",
     names: ["sodium benzoate", "benzoic acid", "potassium benzoate"],
     eNumber: "E211",
     plain: "A preservative that stops mould and yeast growing, common in acidic drinks.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile avoids artificial preservatives.",
-        lookFor: "A refrigerated or short-shelf-life version, which usually needs no preservative.",
-        sources: [],
-      },
-    ],
+    classes: ["preservative", "additive"],
+  },
+  {
+    id: "potassium-sorbate",
+    canonical: "Potassium sorbate",
+    names: ["potassium sorbate", "sorbic acid"],
+    eNumber: "E202",
+    plain: "A preservative that slows mould and yeast.",
+    classes: ["preservative", "additive"],
   },
   {
     id: "propylparaben",
+    canonical: "Propylparaben",
     names: ["propylparaben", "propyl paraben", "propyl p-hydroxybenzoate"],
     eNumber: "E216",
-    plain: "A preservative. California has legislated to remove it from food sold in the state.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile avoids artificial preservatives. California legislated against this one specifically, with effect from 2027.",
-        lookFor: "A version preserved with calcium propionate, or a refrigerated one.",
-        sources: [CA_AB418],
-      },
-    ],
+    plain: "A preservative. California has legislated to remove it from food sold in the state from 2027.",
+    classes: ["preservative", "additive"],
+    evidence: [CA_AB418],
   },
   {
     id: "potassium-bromate",
+    canonical: "Potassium bromate",
     names: ["potassium bromate", "bromated flour", "bromated wheat flour"],
     eNumber: "E924",
-    plain: "A flour treatment that strengthens dough. Banned in the EU, UK and Canada, and legislated against in California.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("artificial-preservatives"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Several regulators have prohibited this flour treatment, and California legislated against it with effect from 2027. It remains permitted federally in the US.",
-        lookFor: 'A bread whose flour is listed as "unbromated", or one leavened without a flour treatment.',
-        sources: [CA_AB418],
-      },
-    ],
+    plain: "A flour treatment that strengthens dough. Prohibited in the EU, UK and Canada, and legislated against in California from 2027.",
+    classes: ["flour-treatment", "additive"],
+    evidence: [CA_AB418],
   },
   {
     id: "nitrite",
+    canonical: "Nitrite",
     names: ["sodium nitrite", "potassium nitrite", "sodium nitrate", "potassium nitrate", "celery powder", "celery juice powder", "cultured celery extract"],
     eNumber: "E250",
-    plain: "A curing salt that keeps cured meat pink and stops spoilage. Celery powder is the same chemistry from a plant source.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("nitrites"),
-        severity: "red",
-        strength: "regulatory",
-        note: 'Your profile avoids nitrites. Worth knowing: cured meats labelled "uncured" or "no nitrites added" are usually cured with celery powder, which is nitrite from a plant.',
-        lookFor: "Fresh meat rather than cured, or a cured product that lists no nitrite and no celery powder.",
-        sources: [FDA_NITRITE],
-      },
-    ],
+    plain: 'A curing salt that keeps cured meat pink and slows spoilage. Celery powder is the same chemistry from a plant source, which is how "uncured" products are cured.',
+    classes: ["nitrite-source", "preservative", "additive"],
+    evidence: [CFR_NITRITE],
   },
   {
     id: "sulfites",
+    canonical: "Sulfites",
     names: ["sulfites", "sulphites", "sulfur dioxide", "sulphur dioxide", "sodium sulfite", "sodium bisulfite", "sodium metabisulfite", "potassium metabisulfite", "potassium bisulfite"],
     eNumber: "E220",
     plain: "A preservative used in dried fruit, wine and some processed potato products.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: intolerance("sulfite"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile lists sulfites. US labels must declare them at 10 parts per million or more.",
-        lookFor: 'Dried fruit labelled "unsulphured", which is browner and just as good.',
-        sources: [FDA_SULFITE],
-      },
-    ],
+    classes: ["sulfite-source", "preservative", "additive"],
+    evidence: [FDA_SULFITE],
   },
   {
     id: "carrageenan",
+    canonical: "Carrageenan",
     names: ["carrageenan", "irish moss extract"],
     eNumber: "E407",
     plain: "A thickener extracted from red seaweed, common in plant milks and cream.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("carrageenan"),
-        severity: "red",
-        strength: "contested",
-        note: "Your profile avoids carrageenan. It remains authorised, and the reviewing bodies have noted gaps in the data rather than settling the question.",
-        lookFor: "A plant milk thickened with gellan gum, or one with no thickener at all.",
-        sources: [EFSA_CARRAGEENAN],
-      },
-    ],
+    classes: ["thickener", "additive", "plant-derived"],
+    evidence: [EFSA_CARRAGEENAN],
+  },
+  {
+    id: "xanthan-gum",
+    canonical: "Xanthan gum",
+    names: ["xanthan gum", "xanthan"],
+    eNumber: "E415",
+    plain: "A thickener produced by fermentation.",
+    classes: ["thickener", "additive"],
+  },
+  {
+    id: "gellan-gum",
+    canonical: "Gellan gum",
+    names: ["gellan gum", "gellan"],
+    eNumber: "E418",
+    plain: "A thickener produced by fermentation, common in plant milks.",
+    classes: ["thickener", "additive"],
+  },
+  {
+    id: "polysorbate-80",
+    canonical: "Polysorbate 80",
+    names: ["polysorbate 80", "polysorbate 60", "polysorbate", "tween 80"],
+    eNumber: "E433",
+    plain: "A synthetic emulsifier used to keep oil and water mixed.",
+    classes: ["emulsifier", "additive"],
   },
   {
     id: "msg",
+    canonical: "Monosodium glutamate",
     names: ["monosodium glutamate", "msg", "glutamic acid", "monopotassium glutamate", "autolyzed yeast extract", "yeast extract", "hydrolyzed vegetable protein", "hydrolysed vegetable protein"],
     eNumber: "E621",
-    plain: "A savoury flavour enhancer. Yeast extract and hydrolysed protein deliver the same compound under different names.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: avoid("msg"),
-        severity: "red",
-        strength: "preference",
-        note: 'Your profile avoids MSG. Worth knowing: a product can say "no MSG added" and still list yeast extract or hydrolysed protein, which carry the same compound.',
-        lookFor: "A version seasoned with mushroom, tomato, miso or plain salt.",
-        sources: [FDA_MSG],
-      },
-    ],
+    plain: 'A savoury flavour enhancer. Yeast extract and hydrolysed protein carry the same compound, which is how a product can say "no MSG added" and still taste of it.',
+    classes: ["flavour-enhancer", "additive"],
+    evidence: [FDA_MSG],
+  },
+  {
+    id: "silicon-dioxide",
+    canonical: "Silicon dioxide",
+    names: ["silicon dioxide", "silica", "silicon dioxide anticaking"],
+    eNumber: "E551",
+    plain: "An anti-caking agent that stops powder clumping.",
+    classes: ["anti-caking", "additive"],
   },
 
-  /* ---- Pregnancy. §4 ICP 3. --------------------------------------------- */
+  /* ---- Caffeine, alcohol, pregnancy checks ------------------------------- */
   {
     id: "caffeine",
-    names: ["caffeine", "anhydrous caffeine", "guarana", "guarana extract", "green tea extract", "yerba mate"],
-    eNumber: null,
+    canonical: "Caffeine",
+    names: ["caffeine", "anhydrous caffeine", "caffeine anhydrous", "guarana", "guarana extract", "green tea extract", "yerba mate", "coffee extract"],
     plain: "A stimulant. Guarana and some extracts are concentrated sources of it.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: stage("pregnancy"),
-        severity: "amber",
-        strength: "established",
-        note: "Your profile is pregnancy. ACOG advises staying under 200 mg of caffeine a day — this label declares caffeine but not how much, so it counts towards that total by an amount the label does not say.",
-        lookFor: null,
-        sources: [ACOG_CAFFEINE],
-      },
-      {
-        axis: stage("breastfeeding"),
-        severity: "yellow",
-        strength: "preference",
-        note: "Your profile is breastfeeding. Flagged so the caffeine is visible; the label does not say how much.",
-        lookFor: null,
-        sources: [],
-      },
-    ],
-  },
-  {
-    id: "unpasteurised-dairy",
-    names: ["raw milk", "unpasteurized milk", "unpasteurised milk", "raw milk cheese", "unpasteurized cheese", "unpasteurised cheese", "queso fresco", "brie", "camembert", "roquefort", "gorgonzola", "feta"],
-    eNumber: null,
-    plain: "Milk or cheese that has not been heat-treated, or a soft cheese often made that way.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: stage("pregnancy"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is pregnancy. US food-safety advice puts unpasteurised milk and the soft cheeses made from it on the avoid list. If this one is made from pasteurised milk the packaging will say so.",
-        lookFor: "The same cheese made from pasteurised milk — most US supermarket versions are.",
-        sources: [FDA_PREG_DAIRY],
-      },
-    ],
-  },
-  {
-    id: "high-mercury-fish",
-    names: ["shark", "swordfish", "king mackerel", "tilefish", "marlin", "orange roughy", "bigeye tuna"],
-    eNumber: null,
-    plain: "A fish that US advice places on the avoid list during pregnancy.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: stage("pregnancy"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is pregnancy. Joint FDA and EPA advice places this fish on the choices-to-avoid list.",
-        lookFor: 'A fish from the same advice\'s "best choices" list — salmon, sardines, cod, tilapia or canned light tuna.',
-        sources: [FDA_MERCURY],
-      },
-      {
-        axis: stage("breastfeeding"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is breastfeeding. Joint FDA and EPA advice places this fish on the choices-to-avoid list.",
-        lookFor: 'A fish from the same advice\'s "best choices" list — salmon, sardines, cod, tilapia or canned light tuna.',
-        sources: [FDA_MERCURY],
-      },
+    classes: ["caffeine-source"],
+    evidence: [ACOG_CAFFEINE],
+    uncertainty: [
+      // Doubt about the amount, never about whether caffeine is present. A rule
+      // that flags caffeine is answered by the label; a rule about how much
+      // would not be, and there is no such rule.
+      unc("dose-not-disclosed", "The label declares caffeine but not how much, so there's no way to read the amount.", []),
     ],
   },
   {
     id: "alcohol",
+    canonical: "Alcohol",
     names: ["alcohol", "ethanol", "ethyl alcohol", "wine", "beer", "rum", "brandy", "liqueur", "bourbon", "whisky", "whiskey", "vodka"],
-    eNumber: null,
     plain: "An alcoholic ingredient.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: stage("pregnancy"),
-        severity: "red",
-        strength: "regulatory",
-        note: "Your profile is pregnancy. This label declares an alcoholic ingredient.",
-        lookFor: "A version made without alcohol — many extracts and sauces have one.",
-        sources: [
-          src(
-            "US Surgeon General",
-            "US public-health advice is that no amount of alcohol is considered safe during pregnancy.",
-          ),
-        ],
-      },
-      {
-        axis: protocol("halal"),
-        severity: "red",
-        strength: "preference",
-        note: "Your profile is halal. This label declares an alcoholic ingredient.",
-        lookFor: "A version made without alcohol.",
-        sources: [],
-      },
-    ],
+    classes: ["alcohol"],
+    evidence: [SURGEON_GENERAL],
   },
-
-  /* ---- Supplements. §4 ICP 5. ------------------------------------------- */
   {
-    id: "vitamin-d3",
-    names: ["vitamin d3", "cholecalciferol"],
-    eNumber: null,
-    plain: "The form of vitamin D usually made from lanolin, the grease in sheep's wool. A lichen-derived version exists.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "amber",
-        strength: "regulatory",
-        note: "Your profile is vegan. D3 is usually made from lanolin; the lichen-derived version says so on the label, and this one does not.",
-        lookFor: null,
-        sources: [VEGAN_SOC],
-      },
+    id: "unpasteurised-dairy",
+    canonical: "Unpasteurised dairy",
+    names: ["raw milk", "unpasteurized milk", "unpasteurised milk", "raw milk cheese", "unpasteurized cheese", "unpasteurised cheese", "queso fresco", "brie", "camembert", "roquefort", "gorgonzola", "feta"],
+    plain: "Milk or cheese that has not been heat-treated, or a soft cheese often made that way. US food-safety advice puts these on the avoid list during pregnancy.",
+    classes: ["allergen-milk", "dairy", "animal-derived"],
+    evidence: [FDA_PREG_DAIRY],
+    uncertainty: [
+      // It is dairy and an allergen either way; what the label may not settle is
+      // whether it is pasteurised, which no class here represents.
+      unc(
+        "insufficient-label-information",
+        "Many of these cheeses are made from pasteurised milk in the US; if this one is, the packaging will say so.",
+        [],
+      ),
     ],
   },
   {
-    id: "magnesium-stearate",
-    names: ["magnesium stearate", "stearic acid", "vegetable stearate"],
-    eNumber: "E470b",
-    plain: "A lubricant that stops powder sticking to tablet machinery. Can be plant or animal derived.",
-    umbrella: false,
-    concerns: [
-      {
-        axis: protocol("vegan"),
-        severity: "amber",
-        strength: "regulatory",
-        note: "Your profile is vegan. Stearates can be plant or animal derived, and this label does not say which.",
-        lookFor: null,
-        sources: [VEGAN_SOC],
-      },
-    ],
+    id: "high-mercury-fish",
+    canonical: "High-mercury fish",
+    names: ["shark", "swordfish", "king mackerel", "tilefish", "marlin", "orange roughy", "bigeye tuna"],
+    plain: 'A fish that joint FDA and EPA advice places on the "choices to avoid" list for people who are pregnant or breastfeeding.',
+    classes: ["allergen-fish", "fish", "animal-derived"],
+    evidence: [FDA_MERCURY],
   },
 ];
-
-/**
- * What a `proprietary blend` hides, stated once so the renderer and the
- * scorer agree. Supplements are ICP 5 and this is the whole complaint.
- */
-export const PROPRIETARY_BLEND_CAVEAT =
-  "This lists a proprietary blend, so the label names the ingredients but not how much of each — there is no way to tell the dose from the packaging.";
-
-export const PROPRIETARY_BLEND_SOURCE = DSHEA_BLEND;
-export const FLAVOR_SOURCE = FDA_FLAVOR;

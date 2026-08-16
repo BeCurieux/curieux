@@ -12,6 +12,8 @@
     "decode": "tsx scripts/decode.ts",
     "verdict": "tsx scripts/verdict.ts",
     "press": "tsx scripts/press.ts",
+    "rules": "tsx scripts/rules.ts",
+    "compare": "tsx scripts/compare.ts",
     "knowledge": "tsx scripts/knowledge.ts"
   },
   "dependencies": {
