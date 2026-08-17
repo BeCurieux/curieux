@@ -41,7 +41,7 @@ function check(): Finding[] {
     const missing = [!url && "SUPABASE_URL", !key && "SUPABASE_SERVICE_ROLE_KEY"].filter(Boolean).join(" and ");
     findings.push({
       fatal: true,
-      message: `${missing} not set. The app would fall back to the filesystem store, which does not exist in a deployment — every published shop URL would 404 and nothing would say why.`,
+      message: `${missing} not set. The app would fall back to the filesystem store, which does not exist in a deployment — every published shop URL would 404 and nothing would say why, and /contact would answer 503 on every message a merchant sends.`,
     });
   } else {
     ok("Supabase adapter: both variables present, so no silent fallback to the filesystem store.");
