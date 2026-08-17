@@ -39,7 +39,28 @@ export interface GenerateResult {
   /** Unvalidated — the caller checks it. Providers must not pre-filter. */
   plan: unknown;
   model: string;
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: TokenUsage;
+}
+
+/**
+ * What a generation cost, in tokens.
+ *
+ * `inputTokens` is every input token the request was billed for, cached ones
+ * included. The API reports cached reads and cache writes separately from
+ * `input_tokens`, and the brief is deliberately cached — so reading only
+ * `input_tokens` reports a two-token prompt for a request that actually sent a
+ * whole catalogue, which is how the first real merchandising runs appeared to
+ * cost nothing. The split is kept because the two are billed at different
+ * rates, and a cost estimate that ignores that is wrong in the other direction.
+ */
+export interface TokenUsage {
+  /** Total billed input, including `cachedInputTokens` and `cacheWriteTokens`. */
+  inputTokens: number;
+  outputTokens: number;
+  /** Read from the cache — billed at a fraction of the base input rate. */
+  cachedInputTokens: number;
+  /** Written to the cache on this request — billed above the base input rate. */
+  cacheWriteTokens: number;
 }
 
 export interface MerchandiseProvider {

@@ -23,15 +23,26 @@ import { cachesOn } from "./helpers/cache-minimums";
 
 const inference = { products: [] };
 
+/**
+ * Fakes `stream(...).finalMessage()`, not `create(...)`.
+ *
+ * The adapter streams because the SDK refuses a non-streaming request at the
+ * Genome's `max_tokens`. A fake that only offered `create` would keep passing
+ * while the real call threw before sending anything — which is how the pass
+ * shipped without ever having run. `create` keeps its name so the request-shape
+ * assertions below still read as "the body we sent".
+ */
 function fakeClient(response: Record<string, unknown>) {
-  const create = vi.fn(async (_body: Record<string, any>) => ({
-    stop_reason: "end_turn",
-    model: "claude-sonnet-5",
-    usage: { input_tokens: 9100, output_tokens: 2400 },
-    content: [],
-    ...response,
+  const create = vi.fn((_body: Record<string, any>) => ({
+    finalMessage: async () => ({
+      stop_reason: "end_turn",
+      model: "claude-sonnet-5",
+      usage: { input_tokens: 9100, output_tokens: 2400 },
+      content: [],
+      ...response,
+    }),
   }));
-  return { client: { beta: { messages: { create } } } as unknown as Anthropic, create };
+  return { client: { beta: { messages: { stream: create } } } as unknown as Anthropic, create };
 }
 
 const textResponse = (text: string) => ({ content: [{ type: "text", text }] });
@@ -65,13 +76,17 @@ describe("the request", () => {
     expect(body.messages[0].content[0].cache_control).toEqual({ type: "ephemeral" });
   });
 
-  it("opts into the server-side fallback rather than surfacing a false refusal", async () => {
+  it("does not send `fallbacks`, which the Genome's model rejects outright", async () => {
+    // The merchandiser opts into the server-side fallback; this pass must not.
+    // `fallbacks` is Opus-tier, and the Genome runs Sonnet, which 400s the
+    // whole request with "does not support the `fallbacks` parameter" — so
+    // asserting its presence here (as this test used to) pinned a request
+    // shape that could never succeed against the real API.
     const { client, create } = fakeClient(textResponse(JSON.stringify(inference)));
     await createAnthropicGenomeProvider({ client }).read(request());
 
     const body = create.mock.calls[0]![0];
-    expect(body.fallbacks).toBe("default");
-    expect(body.betas).toContain("server-side-fallback-2026-07-01");
+    expect(body.fallbacks).toBeUndefined();
   });
 
   it("replays the rejected read next to its errors", async () => {

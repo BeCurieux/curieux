@@ -17,7 +17,7 @@ import { MerchandiseError } from "./errors";
 import { createMockProvider } from "./mock";
 import { MerchandisingPlan } from "./plan";
 import { buildBrief, SYSTEM_PROMPT, type BriefOptions } from "./prompt";
-import { providerNameFromEnv, type Correction, type MerchandiseProvider } from "./provider";
+import { providerNameFromEnv, type Correction, type MerchandiseProvider, type TokenUsage } from "./provider";
 import { validatePlan } from "./validate";
 import type { IngestResult } from "@/lib/ingest/types";
 import type { CatalogueGenome } from "@/lib/genome/types";
@@ -49,7 +49,7 @@ export interface MerchandiseResult {
     /** Validation errors from each rejected attempt, oldest first. */
     rejected: string[][];
     warnings: string[];
-    usage?: { inputTokens: number; outputTokens: number };
+    usage?: TokenUsage;
     catalogue: { offered: number; omitted: number; descriptions: boolean; enriched: number };
     /** False when no Genome was supplied — the shop was built without step 2. */
     genome: boolean;
@@ -174,14 +174,14 @@ function zodErrors(error: { issues: { path: (string | number)[]; message: string
   });
 }
 
-function accumulate(
-  current: { inputTokens: number; outputTokens: number } | undefined,
-  next: { inputTokens: number; outputTokens: number },
-): { inputTokens: number; outputTokens: number } {
+/** Retries are billed too, so a shop's cost is the sum over its attempts. */
+function accumulate(current: TokenUsage | undefined, next: TokenUsage): TokenUsage {
   if (!current) return next;
   return {
     inputTokens: current.inputTokens + next.inputTokens,
     outputTokens: current.outputTokens + next.outputTokens,
+    cachedInputTokens: current.cachedInputTokens + next.cachedInputTokens,
+    cacheWriteTokens: current.cacheWriteTokens + next.cacheWriteTokens,
   };
 }
 

@@ -18,7 +18,11 @@ function scripted(plans: unknown[]): MerchandiseProvider & { requests: GenerateR
     async generate(request: GenerateRequest): Promise<GenerateResult> {
       requests.push(request);
       const plan = plans[Math.min(index++, plans.length - 1)];
-      return { plan, model: "scripted", usage: { inputTokens: 100, outputTokens: 20 } };
+      return {
+        plan,
+        model: "scripted",
+        usage: { inputTokens: 100, outputTokens: 20, cachedInputTokens: 80, cacheWriteTokens: 0 },
+      };
     },
   };
 }
@@ -113,7 +117,12 @@ describe("the retry loop", () => {
     const broken = goodPlan();
     broken.blocks = [{ id: "x", block: { type: "productGrid", products: [{ handle: "nope" }], layout: "grid" } }];
     const result = await merchandise(ingest, PROMPT, { provider: scripted([broken, goodPlan()]) });
-    expect(result.diagnostics.usage).toEqual({ inputTokens: 200, outputTokens: 40 });
+    expect(result.diagnostics.usage).toEqual({
+      inputTokens: 200,
+      outputTokens: 40,
+      cachedInputTokens: 160,
+      cacheWriteTokens: 0,
+    });
   });
 });
 

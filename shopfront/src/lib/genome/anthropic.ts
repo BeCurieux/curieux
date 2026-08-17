@@ -58,18 +58,31 @@ export function createAnthropicGenomeProvider(options: GenomeAnthropicOptions = 
     name: `anthropic:${model}`,
 
     async read(request: GenomeRequest): Promise<GenomeResult> {
-      const response = await client.beta.messages.create({
-        model,
-        max_tokens: maxTokens,
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
-        output_config: {
-          effort,
-          format: { type: "json_schema", schema: GENOME_INFERENCE_SCHEMA },
-        },
-        system: [{ type: "text", text: request.system, cache_control: { type: "ephemeral" } }],
-        messages: buildMessages(request),
-      });
+      // Streamed, not because anything consumes the tokens as they arrive, but
+      // because the SDK refuses a non-streaming request whose `max_tokens`
+      // could outlast its ten-minute timeout — and a whole-catalogue read at
+      // 32k tokens is exactly that. `create()` threw before sending a byte, so
+      // the Genome had never once run against a real model. `finalMessage()`
+      // gives back the same response object the rest of this function reads.
+      const response = await client.beta.messages
+        .stream({
+          model,
+          max_tokens: maxTokens,
+          // No `fallbacks` here, unlike the merchandiser. It is an Opus-tier
+          // parameter: Sonnet 5 rejects the request outright with "does not
+          // support the `fallbacks` parameter", which is the second reason
+          // this pass had never reached a real model. It also buys nothing —
+          // reading a hardware catalogue is not a refusal-prone request, and
+          // `enrichCatalogue` already treats a failed Genome as a shop built
+          // without one rather than a dead pipeline.
+          output_config: {
+            effort,
+            format: { type: "json_schema", schema: GENOME_INFERENCE_SCHEMA },
+          },
+          system: [{ type: "text", text: request.system, cache_control: { type: "ephemeral" } }],
+          messages: buildMessages(request),
+        })
+        .finalMessage();
 
       if (response.stop_reason === "refusal") {
         throw new GenomeError(
@@ -102,7 +115,16 @@ export function createAnthropicGenomeProvider(options: GenomeAnthropicOptions = 
       return {
         inference,
         model: response.model,
-        usage: { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens },
+        // Cached reads and cache writes are billed input the API reports
+        // outside `input_tokens`; counting only that field reports a
+        // near-empty prompt for a request that sent the whole catalogue.
+        usage: {
+          inputTokens:
+            response.usage.input_tokens +
+            (response.usage.cache_read_input_tokens ?? 0) +
+            (response.usage.cache_creation_input_tokens ?? 0),
+          outputTokens: response.usage.output_tokens,
+        },
       };
     },
   };
