@@ -50,10 +50,39 @@ start a run in that state, deliberately.
 
 ## 1. Apply the migration, then try to break it
 
+Create the project at supabase.com, take its connection string, and run one
+command:
+
+```sh
+export SUPABASE_DB_URL='postgresql://postgres:...@db.PROJECT.supabase.co:5432/postgres'
+pnpm supabase:setup
+```
+
+That applies `schema.sql`, runs the RLS check below, and then does the thing
+nothing else does: **exercises the adapter against real PostgREST.** Whether
+`upsert` with `onConflict` updates rather than duplicates, what `maybeSingle`
+returns on a miss, whether the embedded-resource select comes back nested the
+way `listPublished` unwraps it, whether `get_published_shop` carries a Genome
+column it must not — none of that is decidable from a schema file or a local
+Postgres, and all of it is a string in a query until a real project answers.
+
+It is safe against a project with merchants in it. The schema is `create table
+if not exists` throughout, the RLS check rolls itself back, and every row the
+probe writes is namespaced under a `.invalid` store URL and deleted in a
+`finally` — including when an assertion fails partway through. It is
+idempotent; run it again whenever the schema changes.
+
+The two steps separately, if you would rather watch them:
+
 ```sh
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f src/lib/publish/schema.sql
 pnpm rls:check                 # or: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f src/lib/publish/rls-check.sql
 ```
+
+One trap if you run `rls:check` by hand and script around it: the pass is a
+`raise notice`, which psql writes to **stderr**. Matching on stdout alone reads
+a passing check as a failure — which is exactly what `supabase:setup` did on
+its first run against a real database.
 
 The second command is the one that matters. It inserts probe rows, re-reads
 them as `anon`, asserts what may and may not come back, and rolls the whole

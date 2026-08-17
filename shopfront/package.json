@@ -24,7 +24,8 @@
     "deploy:check": "tsx --env-file-if-exists=.env.local scripts/deploy-check.ts",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "supabase:setup": "tsx --env-file-if-exists=.env.local scripts/supabase-setup.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
