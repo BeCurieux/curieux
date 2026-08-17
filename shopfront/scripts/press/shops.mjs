@@ -13,7 +13,7 @@
  * regenerating them is one command.
  */
 import { resolve } from "node:path";
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 
 const uri = (svg) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 const CX = 600;
@@ -375,6 +375,39 @@ const BRANDS = [
 
 const iso = "2026-08-14T09:00:00.000Z";
 
+/**
+ * A real photograph, if somebody has put one there.
+ *
+ * The drawings below are a stopgap and have always looked like one. They exist
+ * because the environment this repository is developed in has no outbound
+ * network at all — it cannot reach a storefront, a CDN or a stock library — so
+ * the pipeline needed *something* to render, and a drawn shape was the only
+ * thing available. What a visitor sees as a result is a real page full of
+ * crude blobs: the layout is genuine output, the goods in it plainly are not.
+ *
+ * So: drop photographs into `public/demo/<brand-key>/<handle>.<ext>` and they
+ * win. Nothing else changes — `pnpm press` regenerates the catalogues, the
+ * shops and the screenshots, and the front page picks them up because it is
+ * screenshotting the real renderer rather than displaying artwork.
+ *
+ * Local files rather than remote URLs on purpose, and it is not only about
+ * this environment. A demo that hotlinks somebody's CDN breaks the day that
+ * store is deleted, and it breaks silently, on the page whose entire job is
+ * convincing a merchant their shop will look good.
+ *
+ * `public/demo/README.md` has the naming and the shot list.
+ */
+const PHOTO_DIR = resolve(import.meta.dirname, "../../public/demo");
+const PHOTO_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
+
+function photoFor(brandKey, handle) {
+  for (const extension of PHOTO_EXTENSIONS) {
+    const file = resolve(PHOTO_DIR, brandKey, `${handle}${extension}`);
+    if (existsSync(file)) return `/demo/${brandKey}/${handle}${extension}`;
+  }
+  return null;
+}
+
 mkdirSync(resolve(import.meta.dirname, "../../.cache/press"), { recursive: true });
 
 for (const brand of BRANDS) {
@@ -386,7 +419,14 @@ for (const brand of BRANDS) {
       description: `${title} from ${brand.name}.`,
       vendor: brand.name, productType: type, tags: [type.toLowerCase()],
       url: `https://example.invalid/${brand.key}/products/${handle}`,
-      images: [{ url: draw(brand.palette, art(brand.ink)), width: 1200, height: 1500 }],
+      images: [
+        {
+          // A photograph beats a drawing. `photoFor` returns null until one exists.
+          url: photoFor(brand.key, handle) ?? draw(brand.palette, art(brand.ink)),
+          width: 1200,
+          height: 1500,
+        },
+      ],
       // Not part of the catalogue — see below.
       variants: [{ id: String(49000 + index), title: "Default Title", price, ...(was ? { compareAtPrice: was } : {}), available, options: [] }],
       price: { min: price, max: price },
