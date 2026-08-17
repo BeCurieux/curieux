@@ -5,24 +5,27 @@
  * same one the renderer works under: nothing may say something the system does
  * not do. That rules out most of what a landing page normally leans on — no
  * logo wall, no counter, no testimonial, no pricing table for billing that is
- * not built, no "instantly", no "syncs". What is left is the thing itself,
- * which turns out to be enough.
+ * not built, no "instantly", no "syncs".
  *
- * The redesign moved the page off a violet ground onto cream, and that is not a
- * colour preference. A site that is purple everywhere makes every shop on it
- * look like a popuup product; a cream page with purple *fields* lets the shops
- * be the colourful things on it, which is the argument the page is making. The
- * merchant's shop should never look like ours.
+ * The page runs on cream with purple fields cut into it, and that is a decision
+ * about the product rather than about taste: a site that is purple everywhere
+ * makes every shop on it look like a popuup product, and the argument here is
+ * that a generated shop looks like the *merchant*.
+ *
+ * Order is the conversion hierarchy, not a tour of the feature list. What is
+ * this → why does the click deserve better → what does it produce → how little
+ * work is it → where does it sit → what keeps it true → who else is it for →
+ * how does it go → where is it really.
  *
  * The shops are real output. `pnpm press` screenshots them from the running
  * renderer into `public/press/`, so a change to the template shows up here
  * without anybody redrawing anything, and this page can never advertise a
  * design that no longer exists.
  *
- * The one thing it asks for is an email, and it asks by opening the visitor's
- * own mail client rather than by collecting an address. Email capture is
- * Sprint 3 and gated on the kill test; a form that posted nowhere would be the
- * exact dishonesty the rest of the page is written to avoid.
+ * It asks for an email by opening the visitor's own mail client rather than by
+ * collecting an address. Email capture is Sprint 3 and gated on the kill test;
+ * a form that posted nowhere would be the exact dishonesty the rest of the page
+ * is written to avoid.
  */
 
 import type { Metadata } from "next";
@@ -35,94 +38,60 @@ const ASK = `mailto:${INBOX}?subject=${encodeURIComponent("Make me a shop")}&bod
 )}`;
 
 /**
- * The five demo shops, and the sentence each one came from.
+ * The shop in the opening, and the sentence that produced it.
  *
- * These prompts are the ones in the demo configs, not copy written to sit
- * under a screenshot. If they drift apart, the page is lying about what
- * produced the picture.
- *
- * `lift` staggers them into a collage rather than a row. Five phones at one
- * height is a specimen sheet; five at different heights is a page somebody
- * laid out, and the difference costs one number each.
+ * Maison Verre rather than the children's shop that was here before. Both are
+ * real output; this one is the one a merchant looks at and wants. The prompt is
+ * the demo config's own, because a punchier sentence written for the page would
+ * mean showing a prompt and a shop that never met.
  */
+const LEAD = {
+  mood: "luxe",
+  prompt: "a wedding list for two people who already own everything",
+  // What the merchandiser is actually working from. Chips rather than a
+  // product count: a number on screen has to be true, and this catalogue's
+  // size is not the point being made.
+  reads: ["Wedding list", "Owns everything", "In stock"],
+};
+
+/** The other four, as evidence that the sentence is what changed. */
 const SHOPS = [
-  { mood: "utility", brand: "Bench & Bolt", prompt: "the starter kit for someone setting up their first workshop", lift: 0 },
-  { mood: "clean", brand: "Sea Salt Skin", prompt: "a first routine for someone who has never used skincare", lift: 3 },
-  { mood: "playful", brand: "Pip & Pockets", prompt: "a gift edit for a two-year-old who ruins everything", lift: 0 },
-  { mood: "editorial", brand: "Folio Press", prompt: "a desk set for someone who has started writing by hand again", lift: 4 },
-  { mood: "luxe", brand: "Maison Verre", prompt: "a wedding list for two people who already own everything", lift: 1 },
+  { mood: "editorial", brand: "Folio Press", prompt: "a desk set for someone who has started writing by hand again" },
+  { mood: "clean", brand: "Sea Salt Skin", prompt: "a first routine for someone who has never used skincare" },
+  { mood: "utility", brand: "Bench & Bolt", prompt: "the starter kit for someone setting up their first workshop" },
+  { mood: "playful", brand: "Pip & Pockets", prompt: "a gift edit for a two-year-old who ruins everything" },
 ];
 
-/**
- * The three links in the chain, which is the whole positioning.
- *
- * popuup is not the destination and not the till. It is the merchandising step
- * between the two, and saying so is more useful than any adjective: it tells a
- * merchant what it replaces (one link, one page, everybody) and what it leaves
- * alone (their checkout, their customer, their money).
- */
 const CHAIN = [
-  {
-    name: "Attention",
-    body: "A post, a story, a reply, a creator sending their people your way. Each one is a different room full of different people.",
-  },
-  {
-    name: "popuup",
-    body: "Your catalogue, selected and ordered and written for that audience. A shop per click, not a shop per brand.",
-  },
-  {
-    name: "Your checkout",
-    body: "A Shopify cart, pre-filled, on your own domain. We never touch the money and never own the customer.",
-  },
+  { name: "Attention", body: "A post, a creator, a campaign. Someone arrived for a reason." },
+  { name: "popuup", body: "Your catalogue, selected and ordered and written for that reason." },
+  { name: "Your checkout", body: "Shopify handles the sale. Your store keeps the customer." },
 ];
 
 /**
  * What a rebuild does about stock, in the words the rules actually use.
  *
- * Each of these is a real branch in `lib/smart`, which is why the wording is
- * careful about the sold-out one: the rule demotes, it does not hide, and a
- * pill saying "removes sold-out products" would be advertising the opposite of
- * what the code does.
+ * The sold-out line is the one to guard. The rule demotes; it does not hide,
+ * and it does not substitute — a chip promising a replacement product would
+ * advertise the opposite of what `lib/smart/repair.ts` does.
  */
 const RULES = [
-  { mark: "↑", body: "What you can still sell comes first" },
-  { mark: "×", body: "Anything delisted leaves the page" },
-  { mark: "◦", body: "Sold out stays, and says so" },
-  { mark: "→", body: "Too much moved? It asks to be remade" },
+  "What you can still sell comes first",
+  "Anything delisted leaves the page",
+  "Sold out stays, and says so",
+  "Too much moved? It asks to be remade",
 ];
-
-/**
- * The sentence the opening types out, as words.
- *
- * It is one of the five demo prompts verbatim — the one that produced the shop
- * shown next to it. Writing a punchier sentence here would mean the page shows
- * a prompt and a shop that never met.
- */
-const PROMPT = "a gift edit for a two-year-old who ruins everything".split(" ");
 
 const STEPS = [
-  {
-    n: "01",
-    title: "Say who is coming",
-    body: "Not what page to build. One sentence about the person you are making it for — a first-time buyer, a gift-hunter, somebody who already owns everything.",
-  },
-  {
-    n: "02",
-    title: "We read your catalogue",
-    body: "Your public product feed: what you sell, what it costs, what is in stock, what it looks like. Nothing is invented and nothing is edited.",
-  },
-  {
-    n: "03",
-    title: "You get a shop",
-    body: "Merchandised around that one sentence. A link for a bio, a story, or a creator you work with — as many as the moments you have.",
-  },
+  { n: "01", title: "Say who is coming", body: "One sentence about the person, or the moment that sent them." },
+  { n: "02", title: "popuup merchandises", body: "It reads your catalogue and chooses what belongs in this shop." },
+  { n: "03", title: "Share the shop", body: "Behind a post, a creator, an email, a campaign. Anywhere the click starts." },
 ];
 
 /**
- * The graphic family, drawn rather than imported.
- *
- * Four marks, reused. Kept sparse on purpose: the same shape three times reads
- * as a brand, and eight different ones read as a sticker sheet.
+ * The graphic family, drawn rather than imported. Two marks, used sparingly —
+ * the same shape three times reads as a brand, eight different ones read as a
+ * sticker sheet.
  */
 function Burst({ className }: { className?: string }) {
   return (
@@ -138,13 +107,7 @@ function Burst({ className }: { className?: string }) {
 function Squiggle({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 120 24" aria-hidden="true">
-      <path
-        d="M2 18c14-18 26 12 40-4S72 2 84 12s22 2 34-6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
+      <path d="M2 18c14-18 26 12 40-4S72 2 84 12s22 2 34-6" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -152,7 +115,7 @@ function Squiggle({ className }: { className?: string }) {
 export const metadata: Metadata = {
   title: "popuup — every click deserves its own shop",
   description:
-    "The merchandising layer between social attention and your checkout. Describe who is coming; popuup selects from your catalogue, merchandises it and designs the page. No page builder.",
+    "The merchandising layer between social attention and your Shopify checkout. Tell popuup who is arriving; it reads your catalogue and builds the shop for them. No page builder.",
   openGraph: {
     title: "popuup",
     description: "Every click deserves its own shop.",
@@ -166,13 +129,12 @@ export default function Landing() {
     <main className={`landing ${displayWonk.variable}`}>
       <header className="bar">
         <img className="bar-mark" src="/brand/popuup.svg" alt="popuup" width={180} height={62} />
-        {/* One link, and it is the same one the opening uses. A nav bar with
-            Product / Pricing / Log in would be four promises we cannot keep. */}
         <a className="btn btn-sm" href={ASK}>
-          Make me a shop <span aria-hidden="true">→</span>
+          Get my shop made <span aria-hidden="true">→</span>
         </a>
       </header>
 
+      {/* ------------------------------------------------------------ opening */}
       <section className="opening">
         <div className="opening-say">
           <p className="tag">
@@ -189,75 +151,58 @@ export default function Landing() {
           </h1>
 
           <p className="lede">
-            One link in a bio sends every audience to the same page. popuup reads what you already sell and
-            merchandises it for whoever that click was — then hands them to your checkout.
+            Tell popuup who is arriving. It reads your Shopify catalogue and builds the shop for them — products, order
+            and copy included.
           </p>
+          <p className="lede-sub">For posts, creators, campaigns, emails, ads. Whatever sent the click.</p>
 
           <a className="btn btn-lg" href={ASK}>
-            Get your shop made <span aria-hidden="true">→</span>
+            Get my shop made <span aria-hidden="true">→</span>
           </a>
-          <p className="note">Made by hand, one at a time, while we find out whether it is any good. No account, no card.</p>
+          <p className="note">Early access. Free while we make these with a small group of Shopify brands.</p>
         </div>
 
         {/*
-          The demonstration, as one object: the sentence somebody typed, and
-          the shop it produced, overlapping.
+          The mechanic, as one object: the sentence, what it was read as, and
+          the shop that came out. Overlapping rather than side by side, because
+          side by side is three pictures and overlapping is a claim about cause.
 
           The field is a figure and not an input. There is nothing behind it
           yet, and a box that swallows a sentence and does nothing is a worse
           first impression than an honest picture of one.
-
-          It plays once on load and holds. The whole markup is meaningful with
-          no animation at all — the words are words, the phone holds the same
-          screenshot it always did — so `prefers-reduced-motion` is served by
-          switching the timeline off rather than by building a second version.
         */}
-        <div className="stage" aria-label="An example prompt, and the shop it produced">
+        <div className="stage" aria-label="A sentence, and the shop it produced">
           <Burst className="stage-burst" />
 
           <span className="device device-lg" aria-hidden="true">
             {/*
               One capture, three times, each clipped to a band and arriving a
-              beat apart. Products appear to land row by row and every pixel of
-              it is the real renderer's output — which a hand-drawn shop
-              animating into place would not be, and this page has no business
-              showing a shop that nothing produced.
+              beat apart, so products appear row by row and every pixel stays
+              the real renderer's output. A hand-drawn shop animating into
+              place would be a picture of something nothing produced.
             */}
             <span className="screen">
               {[0, 1, 2].map((band) => (
-                <img
-                  key={band}
-                  className="screen-band"
-                  src="/press/shop-playful.jpg"
-                  alt=""
-                  width={780}
-                  height={1690}
-                />
+                <img key={band} className="screen-band" src={`/press/shop-${LEAD.mood}.jpg`} alt="" width={780} height={1690} />
               ))}
 
-              {/* The beat between asking and having, on the screen that is
-                  doing the thinking. Inside the phone rather than beside it so
-                  it lands in the same place at every width — beside it, it sat
-                  on top of the button at desktop. */}
+              {/* The middle of the mechanic, and the part a finished mockup
+                  hides: the sentence being turned into constraints. */}
               <span className="think">
-                reading your catalogue
-                <i />
-                <i />
-                <i />
+                <span className="think-lead">Reading your catalogue</span>
+                <span className="think-chips">
+                  {LEAD.reads.map((chip) => (
+                    <i key={chip}>{chip}</i>
+                  ))}
+                </span>
               </span>
             </span>
           </span>
 
           <figure className="prompt">
-            <figcaption>What is this shop for?</figcaption>
+            <figcaption>Make a shop in a sentence</figcaption>
             <p>
-              {/*
-                Word by word rather than character by character. A character
-                reveal needs the line's exact width to animate against, which
-                is a number that changes with the viewport and breaks quietly
-                when the text rewraps; a word is its own box at any width.
-              */}
-              {PROMPT.map((word, index) => (
+              {LEAD.prompt.split(" ").map((word, index) => (
                 // The space is a text node between the spans, not inside them:
                 // a trailing space inside an inline-block is collapsed away,
                 // and the sentence renders as onelongword.
@@ -276,10 +221,70 @@ export default function Landing() {
         </div>
       </section>
 
-      {/*
-        Second, and it is the one claim on this page that the two products a
-        merchant will compare us against structurally cannot make.
-      */}
+      {/* Why the click deserved better. Deliberately three lines — the visitor
+          already felt this, and explaining it at length insults them. */}
+      <section className="band why">
+        <p className="why-line">
+          A reel about linen and a gift search in December are not the same person. They land on the same page anyway.
+          <Squiggle className="why-squiggle" />
+        </p>
+      </section>
+
+      {/* -------------------------------------------------------------- proof */}
+      <section className="band band-ink proof" aria-labelledby="proof-heading">
+        <div className="proof-say">
+          <h2 id="proof-heading" className="lead">
+            Five sentences.
+            <br />
+            Five shops.
+          </h2>
+          <p className="lead-note">Same system underneath. Change the sentence, change the shop.</p>
+          <p className="rail-note">
+            Demo stores, so nobody&rsquo;s products are borrowed to sell something. The pages are the real renderer.
+          </p>
+        </div>
+
+        {/* One large enough to read, four as evidence. Five equal thumbnails
+            made the viewer study screenshots instead of seeing the point. */}
+        <figure className="proof-lead">
+          <span className="device">
+            <img src={`/press/shop-${LEAD.mood}.jpg`} alt="Maison Verre, a shop generated by popuup" width={780} height={1690} loading="lazy" />
+          </span>
+          <figcaption>
+            <span className="rail-brand">Maison Verre</span>
+            <q>{LEAD.prompt}</q>
+          </figcaption>
+        </figure>
+
+        {/*
+          All five in the rail, lead included.
+
+          On a phone the standalone lead above is hidden and this is the whole
+          section — one shop at a time, swiped, which is how the comparison
+          actually gets made on a small screen. On a wide one the lead sits
+          beside its sentence instead and the first rail item steps aside, so
+          neither width shows the same shop twice. The duplicate `img` is the
+          same URL and costs one request between them.
+        */}
+        <ul className="rail">
+          {[{ ...LEAD, brand: "Maison Verre" }, ...SHOPS].map((shop) => (
+            <li key={shop.mood}>
+              <figure>
+                <span className="device">
+                  <img src={`/press/shop-${shop.mood}.jpg`} alt={`${shop.brand}, a shop generated by popuup`} width={780} height={1690} loading="lazy" />
+                </span>
+                <figcaption>
+                  <span className="rail-brand">{shop.brand}</span>
+                  <q>{shop.prompt}</q>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* The one claim the two products a merchant will compare us against
+          structurally cannot make. */}
       <section className="band band-purple negations" aria-labelledby="negations-heading">
         <h2 id="negations-heading" className="shout negations-heading">
           there is no
@@ -290,30 +295,23 @@ export default function Landing() {
           <li>No blocks to drag</li>
           <li>No template to pick</li>
           <li>No theme to configure</li>
+          <li>No afternoon lost</li>
         </ul>
         <p className="negations-note">
-          Every one of those asks you to be a designer for an afternoon. The prompt is the builder: you know who is
-          coming, and that is the only thing you should have to say.
+          A campaign should not cost you an afternoon in a builder. Tell popuup who is coming. That is the brief.
         </p>
       </section>
 
-      {/*
-        The positioning, stated as a place rather than as an adjective.
-        "Merchandising layer" means nothing on its own; a layer is only
-        meaningful with something on each side of it, so both sides are named
-        — including the one we do not want, which is the checkout.
-      */}
+      {/* Positioning as a place rather than an adjective. A layer means nothing
+          without something named on each side — including the side we do not
+          want, which is the checkout. */}
       <section className="band chain-band" aria-labelledby="chain-heading">
         <h2 id="chain-heading" className="lead">
           Between the tap
           <br />
           and the checkout
-          <Squiggle className="lead-squiggle" />
         </h2>
-        <p className="lead-note">
-          Attention was never the hard part. It arrives somewhere specific — off one post, one creator, one
-          conversation — and lands on a link that treats all of it as the same person. That gap is the whole job.
-        </p>
+        <p className="lead-note">That gap is the whole job.</p>
         <ol className="chain">
           {CHAIN.map((link, index) => (
             <li key={link.name} data-ours={index === 1 ? "" : undefined}>
@@ -324,75 +322,61 @@ export default function Landing() {
         </ol>
       </section>
 
-      <section className="band band-ink proof" aria-labelledby="proof-heading">
-        <h2 id="proof-heading" className="lead">
-          Five sentences.
-          <br />
-          Five shops.
-        </h2>
-
-        {/* Horizontal on a phone rather than a five-high stack: the comparison
-            is the content, and it does not survive being read one at a time. */}
-        <ul className="rail">
-          {SHOPS.map((shop) => (
-            <li key={shop.mood} style={{ "--lift": shop.lift } as React.CSSProperties}>
-              <figure>
-                <span className="device">
-                  <img
-                    src={`/press/shop-${shop.mood}.jpg`}
-                    alt={`${shop.brand}, a shop generated by popuup`}
-                    width={780}
-                    height={1690}
-                    loading="lazy"
-                  />
-                </span>
-                <figcaption>
-                  <span className="rail-brand">{shop.brand}</span>
-                  <q>{shop.prompt}</q>
-                </figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>
-
-        <p className="rail-note">
-          Demo stores, so nobody&rsquo;s products are borrowed to sell something. The pages are the real renderer.
-        </p>
-      </section>
-
       {/*
         Refresh, described in the tense it actually happens in.
 
-        The tempting line here is "set it once and it stays true", and it is
-        one word away from claiming a connection that does not exist. A shop
-        re-orders itself when the catalogue is read again, and reading it again
-        is something a person starts. So the copy says that.
+        The tempting line is "set it once and it stays true", and it is one word
+        away from claiming a connection that does not exist. A shop re-orders
+        itself when the catalogue is read again, and reading it again is
+        something a person starts. So the copy says that, and the demonstration
+        below shows demotion rather than substitution — because the rules never
+        add a product, and a picture of one being swapped in would advertise the
+        opposite of what the code does.
       */}
       <section className="band band-purple keep" aria-labelledby="keep-heading">
-        <h2 id="keep-heading" className="shout keep-heading">
-          not pages.
-          <br />
-          shops that keep up.
-        </h2>
-        <p className="keep-note">
-          A page you built in March is still selling March. When we read your catalogue again, the shop re-orders
-          itself around what you can still sell — by rules you can read, not a model&rsquo;s opinion on the day.
-        </p>
-        <ul className="rules">
-          {RULES.map((rule) => (
-            <li key={rule.body}>
-              <span aria-hidden="true">{rule.mark}</span>
-              {rule.body}
-            </li>
-          ))}
-        </ul>
+        <div className="keep-say">
+          <h2 id="keep-heading" className="shout keep-heading">
+            not pages.
+            <br />
+            shops that keep up.
+          </h2>
+          <p className="keep-note">
+            A page you built in March is still selling March. Read the catalogue again and the shop re-orders itself
+            around what you can still sell — by rules you can read, not a model&rsquo;s opinion on the day.
+          </p>
+        </div>
+
+        <div className="swap" aria-label="What a rebuild does when a product sells out">
+          {/* No prices on these cards. The contrast being drawn is
+              availability, and a number here would be a price on a page that
+              sells nothing — which the honesty tests refuse, correctly. */}
+          <div className="swap-row">
+            <span className="swap-when">Before</span>
+            <span className="swap-card is-out">
+              Wrap Coat <em>Sold out</em>
+            </span>
+            <span className="swap-card">
+              Linen Dress <em>In stock</em>
+            </span>
+          </div>
+          <div className="swap-row">
+            <span className="swap-when">Rebuilt</span>
+            <span className="swap-card">
+              Linen Dress <em>In stock</em>
+            </span>
+            <span className="swap-card is-out">
+              Wrap Coat <em>Sold out</em>
+            </span>
+          </div>
+          <ul className="rules">
+            {RULES.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+        </div>
       </section>
 
-      {/*
-        Creator shops. The credit is shown the way the badge already is: the
-        real markup, in the page, rather than a screenshot of it — so it cannot
-        drift from what a shop actually renders.
-      */}
+      {/* -------------------------------------------------- creators and steps */}
       <section className="band creators" aria-labelledby="creators-heading">
         <div>
           <h2 id="creators-heading" className="lead">
@@ -401,23 +385,20 @@ export default function Landing() {
             their <span className="lead-coral">own shop.</span>
           </h2>
           <p className="lead-note">
-            Same catalogue, same checkout, their audience. It carries their name at the top and lives at its own
-            address, so what it sells is theirs and not guesswork.
+            Their picks. Their name. Their link. Your catalogue and checkout underneath.
           </p>
           <ul className="ticks">
-            <li>Their people</li>
+            <li>Their audience</li>
             <li>Your products</li>
-            <li>Their own link</li>
+            <li>Their own address</li>
           </ul>
         </div>
+        {/* The credit reproduced as markup rather than screenshotted, so it
+            cannot drift from what a shop actually renders. */}
         <figure className="credit-sample">
-          <span className="credit-brand">Kelp &amp; Cotton</span>
+          <span className="credit-brand">Maison Verre</span>
           <p className="credit-line">Chosen by Ana Ruiz</p>
-          <figcaption>
-            What a creator&rsquo;s shop carries, under the brand. It says who picked these and nothing else — not
-            &ldquo;partner&rdquo;, not &ldquo;exclusive&rdquo;. We know a name was given to us; we do not know the deal
-            behind it.
-          </figcaption>
+          <figcaption>The credit a creator&rsquo;s shop carries, under the brand.</figcaption>
         </figure>
       </section>
 
@@ -440,27 +421,36 @@ export default function Landing() {
         </p>
       </section>
 
-      <section className="band band-lilac badge-note" aria-labelledby="badge-heading">
+      {/*
+        The part a launch page usually leaves out, kept candid rather than
+        apologetic. Saying the stage out loud costs nothing with the people
+        worth having early, and saves the conversation where somebody arrives
+        expecting a product.
+      */}
+      <section className="band band-lilac early" aria-labelledby="early-heading">
         <div>
-          <h2 id="badge-heading" className="lead">
-            Free shops carry this
+          <h2 id="early-heading" className="lead">
+            Where this is
           </h2>
           <p className="lead-note">
-            One line at the foot of the page, set in your own colours. It is how the next merchant finds us, and it is
-            the whole reason this can be free.
+            Early, on purpose. We are making shops with a small number of Shopify brands to find out whether this is
+            genuinely useful before building the rest of it.
           </p>
         </div>
-        <p className="badge-sample">
-          <span>Made with</span>
-          <img src="/brand/popuup.svg" alt="popuup" width={126} height={44} />
+        <ul className="ledger">
+          <li data-on="">Real shops, from your real catalogue</li>
+          <li data-on="">Your Shopify checkout, untouched</li>
+          <li data-on="">Creator credit and rebuilds</li>
+          <li>Onboarding is by hand, one at a time</li>
+          <li>No accounts and no billing yet</li>
+          <li>Nothing syncs with your store on its own</li>
+        </ul>
+        <p className="ledger-note">
+          Free shops carry a small &ldquo;Made with popuup&rdquo; credit at the foot, in your own colours. Paid plans
+          will remove it.
         </p>
       </section>
 
-      {/*
-        The part a launch page usually leaves out. Saying where this actually
-        is costs nothing with the people worth having early, and saves the
-        conversation where somebody signs up expecting a product.
-      */}
       <section className="band band-purple closing" aria-labelledby="closing-heading">
         <h2 id="closing-heading" className="shout closing-heading">
           your next post
@@ -468,21 +458,8 @@ export default function Landing() {
           deserves its own shop.
         </h2>
         <a className="btn btn-lg btn-coral" href={ASK}>
-          Get yours made <span aria-hidden="true">→</span>
+          Get my shop made <span aria-hidden="true">→</span>
         </a>
-
-        <div className="status">
-          <h3>Where this is</h3>
-          <p>
-            Early. The shops are real and the renderer is real; there is no sign-up, no dashboard and no billing.
-            Nothing here syncs with your store on its own — we re-read your catalogue when we rebuild a shop, and every
-            page prints the date it was read.
-          </p>
-          <p>
-            We are making them by hand for a small number of merchants and the creators they work with, to find out
-            whether anybody wants theirs live. If that is you, write to us.
-          </p>
-        </div>
 
         <footer className="foot">
           <img className="bar-mark" src="/brand/popuup-light.svg" alt="popuup" width={132} height={45} />
