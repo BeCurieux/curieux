@@ -99,7 +99,12 @@ function summarise(config: ShopConfig, diagnostics: Awaited<ReturnType<typeof me
   if (config.meta.audience) lines.push(`  for           ${config.meta.audience}`);
   lines.push(`  by            ${diagnostics.model} (${diagnostics.attempts} attempt${diagnostics.attempts === 1 ? "" : "s"})`);
   if (diagnostics.usage) {
-    lines.push(`  tokens        ${diagnostics.usage.inputTokens} in, ${diagnostics.usage.outputTokens} out`);
+    const { inputTokens, outputTokens, cachedInputTokens, cacheWriteTokens } = diagnostics.usage;
+    // The cached share is most of the input and is billed at a tenth of it, so
+    // a bare "in" figure reads as ten times the cost this actually incurs.
+    const cached = cachedInputTokens ? `, ${cachedInputTokens} of it cached` : "";
+    const written = cacheWriteTokens ? `, ${cacheWriteTokens} cache write` : "";
+    lines.push(`  tokens        ${inputTokens} in${cached}${written}, ${outputTokens} out`);
   }
   lines.push(
     `  catalogue     ${diagnostics.catalogue.offered} products offered${diagnostics.catalogue.omitted ? `, ${diagnostics.catalogue.omitted} withheld` : ""}${diagnostics.catalogue.descriptions ? "" : ", no descriptions"}`,

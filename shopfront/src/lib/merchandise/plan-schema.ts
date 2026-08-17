@@ -15,6 +15,24 @@
  * (`maxLength`, `minimum`, `maxItems`). Those limits are real — they live in
  * `schema.ts` — so they are stated in prose here and in the system prompt, and
  * enforced by zod. A violation is a validation error the retry loop feeds back.
+ *
+ * `format` is the same story, for a harder reason. `format: "uri"` and
+ * `format: "date-time"` each compile to a large regex inside the constrained
+ * grammar, and five of them between them put this schema over the API's
+ * grammar budget — the request is rejected outright with "the compiled grammar
+ * is too large", before the model ever sees it. Since the schema is only sent
+ * whole, that made every real merchandising call fail; the deterministic
+ * fallback provider was the only thing that had ever answered.
+ *
+ * Dropping them costs nothing. A URL is never checked for being URL-shaped: it
+ * is checked against `allowedUrls`, the closed set of URLs read off this store,
+ * which is strictly stronger than `format: "uri"` and is where the real risk
+ * lives — a well-formed URL pointing somewhere the merchant does not own is
+ * exactly the failure `validate.ts` exists to catch. `launchesAt` is likewise
+ * checked against the merchant's own brief. Say it in prose, enforce it in zod
+ * and `validate.ts`, and keep the grammar compilable.
+ *
+ * `tests/plan-schema.test.ts` asserts no `format` reappears.
  */
 
 type JsonSchema = Record<string, unknown>;
@@ -87,8 +105,8 @@ const HERO: JsonSchema = object(
             kind: { const: "brandAsset" },
             url: {
               type: "string",
-              format: "uri",
-              description: "Must be one of the brand image URLs listed in the brief. Never any other URL.",
+              description:
+                "An absolute URL, copied exactly from the brand image URLs listed in the brief. Never any other URL.",
             },
           },
           ["kind", "url"],
@@ -101,8 +119,8 @@ const HERO: JsonSchema = object(
         targetBlockId: { type: "string", description: "Optional. The id of a block further down this page." },
         url: {
           type: "string",
-          format: "uri",
-          description: "Optional. Must come from the links listed in the brief. Prefer targetBlockId.",
+          description:
+            "Optional. An absolute URL, copied exactly from the links listed in the brief. Prefer targetBlockId.",
         },
       },
       ["label"],
@@ -160,9 +178,8 @@ const DROP: JsonSchema = object(
     products: { type: "array", description: "One to eight products.", items: PRODUCT_REF },
     launchesAt: {
       type: "string",
-      format: "date-time",
       description:
-        "Optional ISO datetime. Set this ONLY if the merchant's brief gives a launch date. Never guess one — the renderer counts down to it.",
+        "Optional. An ISO 8601 datetime, e.g. '2026-09-01T09:00:00Z'. Set this ONLY if the merchant's brief gives a launch date. Never guess one — the renderer counts down to it.",
     },
   },
   ["type", "title", "products"],
@@ -192,7 +209,10 @@ const LINK_LIST: JsonSchema = object(
       items: object(
         {
           label: { type: "string", description: "Under 40 characters." },
-          url: { type: "string", format: "uri", description: "Must appear in the brief's link lists." },
+          url: {
+            type: "string",
+            description: "An absolute URL, copied exactly from the brief's link lists.",
+          },
         },
         ["label", "url"],
       ),

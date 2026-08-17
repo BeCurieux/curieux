@@ -11,8 +11,9 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { MerchandiseError } from "./errors";
+import { anthropicApiKey, MISSING_KEY } from "@/lib/anthropic-key";
 import { MERCHANDISING_PLAN_SCHEMA } from "./plan-schema";
-import type { GenerateRequest, GenerateResult, MerchandiseProvider } from "./provider";
+import type { GenerateRequest, GenerateResult, MerchandiseProvider, TokenUsage } from "./provider";
 
 export interface AnthropicProviderOptions {
   client?: Anthropic;
@@ -47,12 +48,9 @@ export function createAnthropicProvider(options: AnthropicProviderOptions = {}):
   const effort = options.effort ?? (process.env.AI_EFFORT as AnthropicProviderOptions["effort"]) ?? DEFAULT_EFFORT;
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
 
-  const apiKey = options.apiKey ?? process.env.ANTHROPIC_API_KEY;
+  const apiKey = options.apiKey ?? anthropicApiKey();
   if (!options.client && !apiKey) {
-    throw new MerchandiseError(
-      "no-api-key",
-      "ANTHROPIC_API_KEY is not set. Set it, or run with AI_PROVIDER=mock for the deterministic merchandiser.",
-    );
+    throw new MerchandiseError("no-api-key", MISSING_KEY);
   }
   const client = options.client ?? new Anthropic({ apiKey });
 
@@ -115,9 +113,28 @@ export function createAnthropicProvider(options: AnthropicProviderOptions = {}):
       return {
         plan,
         model: response.model,
-        usage: { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens },
+        usage: readUsage(response.usage),
       };
     },
+  };
+}
+
+/**
+ * Every input token the request was billed for, not just the uncached ones.
+ *
+ * `input_tokens` excludes both cache reads and cache writes. Since the system
+ * prompt and the brief are cached on purpose, reading it alone reports "2 in"
+ * for a request that sent a ten-product catalogue — which is not a rounding
+ * error in a cost estimate, it is the whole prompt going unmeasured.
+ */
+function readUsage(usage: Anthropic.Beta.BetaUsage): TokenUsage {
+  const cachedInputTokens = usage.cache_read_input_tokens ?? 0;
+  const cacheWriteTokens = usage.cache_creation_input_tokens ?? 0;
+  return {
+    inputTokens: usage.input_tokens + cachedInputTokens + cacheWriteTokens,
+    outputTokens: usage.output_tokens,
+    cachedInputTokens,
+    cacheWriteTokens,
   };
 }
 

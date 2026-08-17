@@ -33,13 +33,21 @@ Next.js (App Router) · TypeScript · Supabase · Stripe · Anthropic API · Ver
 6. **Provenance + funnel** — every shop persists its prompt, stated audience, and the `ShopConfig` decisions; sessions record view → product click → checkout start, keyed to the shop version that served them. Checkout = Shopify cart permalink, pre-filled. Never build on-page checkout.
 7. **Stop.** OAuth sync, email capture, billing, word-editing and TikTok-URL input are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live).
 
-### The one thing opened early
+### The things opened early
 
-**Creator shops and shop refresh, on the owner's explicit call (2026-08-15), ahead of the kill test.**
+Recorded here because the alternative is a rule that quietly stopped being true. In both cases the gate was overridden, not routed around: `tests/stop-line.test.tsx` changed in the same commit that built the thing, rather than the thing being shaped to slip past it.
 
-Recorded here because the alternative is a rule that quietly stopped being true. The gate was overridden, not routed around: `tests/stop-line.test.tsx` lost its two creator checks in the same commit that built the feature, rather than the feature being shaped to slip past them. Everything else on the step-7 list stays shut and its checks stay in that file.
+**1. Creator shops and shop refresh, on the owner's explicit call (2026-08-15).** The file lost its two creator checks.
 
-The boundary that came with it, and it is not negotiable: **a shop refreshes against the catalogue, never against what anybody clicked.** Sold out, gone, new, cheaper — those are facts about stock, they are readable in one comparison, and nothing about them is learned. The moment a refresh rule reads the funnel, it is the drawer below and it needs asking about again.
+**2. The Shopify app's *offline core*, on the owner's call (2026-08-17).** The check titled "has no Shopify OAuth or Admin API anywhere" was absolute and is now narrower. What opened: `src/lib/shopify/` — webhook HMAC verification, the delivery envelope, idempotency and out-of-order defence, the expiring-token lifecycle, an Admin GraphQL client behind an injected transport, and an Admin-products → `Catalogue` mapper. All pure, all tested against fakes, none of it reachable from the running app. The design is `SHOPIFY-APP.md`.
+
+What did **not** open, and is what the narrowed checks now hold: no OAuth endpoint is called, no route wires the app in, and nothing in `lib/ingest`, `lib/genome`, `lib/merchandise`, `lib/render`, `lib/smart` or `lib/killtest` may import `lib/shopify`. Going past that — an install flow, a webhook route, persisted tokens — means opening the gate again, and the recommendation in `SHOPIFY-APP.md` §0 is not to, until the kill test has run.
+
+**The boundary that came with it, and it is not negotiable: `pnpm ingest` stays credential-free and first-class.** Reading a public `/products.json` with no credentials is what lets a shop be built for a merchant who has agreed to nothing, which is the entire kill-test motion and the entire sales motion. The app is an **upgrade path, not a replacement**: it maps into the ingester's own output type and depends on it one way, an installation that loses its token degrades to the public feed rather than going dark, and the dependency direction is a test rather than an intention.
+
+Everything else on the step-7 list stays shut and its checks stay in that file.
+
+The boundary that came with the first: **a shop refreshes against the catalogue, never against what anybody clicked.** Sold out, gone, new, cheaper — those are facts about stock, they are readable in one comparison, and nothing about them is learned. The moment a refresh rule reads the funnel, it is the drawer below and it needs asking about again. This applies to the app too: it requests `read_products` and nothing else, so an order or a customer is not merely forbidden to it but invisible.
 
 ## The drawer rule
 

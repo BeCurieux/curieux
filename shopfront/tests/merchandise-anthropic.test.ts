@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 import type Anthropic from "@anthropic-ai/sdk";
 import { createAnthropicProvider } from "@/lib/merchandise/anthropic";
 import { MerchandiseError } from "@/lib/merchandise/errors";
+import { KEY_VARS } from "@/lib/anthropic-key";
 import { MERCHANDISING_PLAN_SCHEMA } from "@/lib/merchandise/plan-schema";
 import { buildPlan } from "@/lib/merchandise/mock";
 import { makeIngest } from "./helpers/ingest";
@@ -46,7 +47,32 @@ describe("the request", () => {
     expect(body.output_config.format).toEqual({ type: "json_schema", schema: MERCHANDISING_PLAN_SCHEMA });
     expect(body.output_config.effort).toBe("high");
     expect(result.plan).toEqual(plan);
-    expect(result.usage).toEqual({ inputTokens: 4200, outputTokens: 610 });
+    expect(result.usage).toEqual({ inputTokens: 4200, outputTokens: 610, cachedInputTokens: 0, cacheWriteTokens: 0 });
+  });
+
+  it("counts cached input, which is most of what a generation sends", async () => {
+    // The brief and the system prompt are cached deliberately, and the API
+    // reports those tokens outside `input_tokens`. Reading that field alone
+    // reported "2 in" for a real ten-product catalogue — the cost of a shop,
+    // unmeasurable, in the one diagnostic that exists to measure it.
+    const { client } = fakeClient({
+      ...textResponse(JSON.stringify(plan)),
+      usage: {
+        input_tokens: 2,
+        output_tokens: 610,
+        cache_read_input_tokens: 3_900,
+        cache_creation_input_tokens: 300,
+      },
+    });
+
+    const result = await createAnthropicProvider({ client }).generate(request());
+
+    expect(result.usage).toEqual({
+      inputTokens: 4_202,
+      outputTokens: 610,
+      cachedInputTokens: 3_900,
+      cacheWriteTokens: 300,
+    });
   });
 
   it("caches the system prompt and the brief, which retries re-read", async () => {
@@ -110,12 +136,17 @@ describe("responses with no plan in them", () => {
 
 describe("construction", () => {
   it("refuses to build without a key, and says what to run instead", () => {
-    const previous = process.env.ANTHROPIC_API_KEY;
-    delete process.env.ANTHROPIC_API_KEY;
+    // Every name `anthropicApiKey` reads, not just the obvious one. Clearing
+    // ANTHROPIC_API_KEY alone left this passing only while no key was set
+    // anywhere: the moment POPUUP_ANTHROPIC_API_KEY was populated — which is
+    // the whole point of that variable existing — the provider built fine and
+    // the test that guards against a silent downgrade to mock stopped guarding.
+    const previous = KEY_VARS.map((name) => [name, process.env[name]] as const);
+    for (const name of KEY_VARS) delete process.env[name];
     try {
       expect(() => createAnthropicProvider()).toThrow(/AI_PROVIDER=mock/);
     } finally {
-      if (previous !== undefined) process.env.ANTHROPIC_API_KEY = previous;
+      for (const [name, value] of previous) if (value !== undefined) process.env[name] = value;
     }
   });
 

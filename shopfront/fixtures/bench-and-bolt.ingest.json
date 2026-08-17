@@ -1,0 +1,514 @@
+{
+  "store": {
+    "inputUrl": "https://bench-and-bolt.myshopify.com",
+    "storeUrl": "https://bench-and-bolt.myshopify.com/",
+    "platform": "shopify",
+    "catalogueSource": "products.json",
+    "ingestedAt": "2026-08-14T05:20:00.000Z"
+  },
+  "brand": {
+    "name": "Bench and Bolt",
+    "storeUrl": "https://bench-and-bolt.myshopify.com/",
+    "palette": [],
+    "suggestedColorway": {
+      "background": "#F7F4EF",
+      "surface": "#EAE3D6",
+      "text": "#17140F",
+      "accent": "#D6420B"
+    },
+    "voice": {
+      "headings": [],
+      "sentences": [],
+      "navLabels": [],
+      "buttonLabels": []
+    },
+    "links": [
+      {
+        "label": "Catalog",
+        "url": "https://bench-and-bolt.myshopify.com/collections/all"
+      },
+      {
+        "label": "Contact",
+        "url": "https://bench-and-bolt.myshopify.com/pages/contact"
+      }
+    ],
+    "socialLinks": []
+  },
+  "catalogue": {
+    "currency": "USD",
+    "products": [
+      {
+        "handle": "heavy-duty-cordless-drill-20v",
+        "id": "8676416000000",
+        "title": "Heavy-Duty Cordless Drill 20V",
+        "description": "20V MAX lithium-ion, 2-speed gearbox, 1/2\" keyless chuck. Two batteries, charger and case.",
+        "vendor": "Bench and Bolt",
+        "productType": "Power Tools",
+        "tags": [
+          "cordless",
+          "drill",
+          "mens tools",
+          "power tools",
+          "workshop"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/heavy-duty-cordless-drill-20v",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image.png?v=1786682535",
+            "width": 1024,
+            "height": 1024,
+            "alt": "Heavy-Duty Cordless Drill 20V"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225316",
+            "title": "Default Title",
+            "price": 149.99,
+            "compareAtPrice": 199.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 149.99,
+          "max": 149.99
+        },
+        "compareAtPrice": {
+          "min": 199.99,
+          "max": 199.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "professional-108-piece-socket-wrench-set",
+        "id": "8676416000001",
+        "title": "Professional 108-Piece Socket Wrench Set",
+        "description": "108 pieces, SAE and metric, chrome vanadium. 72-tooth ratchet in three drive sizes.",
+        "vendor": "Bench and Bolt",
+        "productType": "Hand Tools",
+        "tags": [
+          "garage",
+          "hand tools",
+          "mens tools",
+          "socket set",
+          "wrench"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/professional-108-piece-socket-wrench-set",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_0c47e5af-3e89-4ffa-af6a-6b284465effd.png?v=1786682642",
+            "width": 1024,
+            "height": 1024,
+            "alt": "Professional 108-Piece Socket Wrench Set"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225317",
+            "title": "Default Title",
+            "price": 89.99,
+            "compareAtPrice": 129.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 89.99,
+          "max": 89.99
+        },
+        "compareAtPrice": {
+          "min": 129.99,
+          "max": 129.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "mens-steel-toe-work-boots",
+        "id": "8676416000002",
+        "title": "Men's Steel Toe Work Boots",
+        "description": "ASTM F2413 steel toe, full-grain leather, slip and oil resistant outsole. Waterproof.",
+        "vendor": "Bench and Bolt",
+        "productType": "Work Footwear",
+        "tags": [
+          "job site",
+          "mens",
+          "safety footwear",
+          "steel toe",
+          "work boots"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/mens-steel-toe-work-boots",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_40d01bb8-2106-4b2a-aa50-2fbe0ff61184.png?v=1786682703",
+            "width": 1024,
+            "height": 1024,
+            "alt": "Men's Steel Toe Work Boots"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225318",
+            "title": "Default Title",
+            "price": 179.99,
+            "compareAtPrice": 229.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 179.99,
+          "max": 179.99
+        },
+        "compareAtPrice": {
+          "min": 229.99,
+          "max": 229.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "7-drawer-mechanics-tool-chest",
+        "id": "8676416000003",
+        "title": "7-Drawer Mechanic's Tool Chest",
+        "description": "Seven ball-bearing drawers, central locking, 300kg rated. Integrated power strip.",
+        "vendor": "Bench and Bolt",
+        "productType": "Tool Storage",
+        "tags": [
+          "garage",
+          "mechanic",
+          "tool chest",
+          "tool storage",
+          "workshop"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/7-drawer-mechanics-tool-chest",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_d26fe2bb-c12f-4c1f-9600-97a4c727afe4.png?v=1786682894",
+            "width": 1024,
+            "height": 1024,
+            "alt": "7-Drawer Mechanic's Tool Chest"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225319",
+            "title": "Default Title",
+            "price": 549.99,
+            "compareAtPrice": 699.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 549.99,
+          "max": 549.99
+        },
+        "compareAtPrice": {
+          "min": 699.99,
+          "max": 699.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "4-5-heavy-duty-angle-grinder-850w",
+        "id": "8676416000004",
+        "title": "4.5\" Heavy-Duty Angle Grinder 850W",
+        "description": "850W, 115mm disc, 11,000 RPM. Adjustable guard, spindle lock, anti-vibration handle.",
+        "vendor": "Bench and Bolt",
+        "productType": "Power Tools",
+        "tags": [
+          "angle grinder",
+          "cutting",
+          "grinding",
+          "power tools",
+          "workshop"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/4-5-heavy-duty-angle-grinder-850w",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_38cabcb3-c724-4a90-bdd3-98a6d51a7606.png?v=1786682946",
+            "width": 1024,
+            "height": 1024,
+            "alt": "4.5\" Heavy-Duty Angle Grinder 850W"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225320",
+            "title": "Default Title",
+            "price": 79.99,
+            "compareAtPrice": 109.99,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 79.99,
+          "max": 79.99
+        },
+        "compareAtPrice": {
+          "min": 109.99,
+          "max": 109.99
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "mens-heavy-duty-leather-work-gloves",
+        "id": "8676416000005",
+        "title": "Men's Heavy-Duty Leather Work Gloves",
+        "description": "Full-grain leather palm, reinforced knuckle guard, touchscreen fingertips.",
+        "vendor": "Bench and Bolt",
+        "productType": "Safety Equipment",
+        "tags": [
+          "hand protection",
+          "leather",
+          "mens",
+          "safety",
+          "work gloves"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/mens-heavy-duty-leather-work-gloves",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_27087681-998f-44be-8c5c-ad370f048abc.png?v=1786683018",
+            "width": 1024,
+            "height": 1024,
+            "alt": "Men's Heavy-Duty Leather Work Gloves"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225321",
+            "title": "Default Title",
+            "price": 34.99,
+            "compareAtPrice": 49.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 34.99,
+          "max": 34.99
+        },
+        "compareAtPrice": {
+          "min": 49.99,
+          "max": 49.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "self-leveling-cross-line-laser-level-kit",
+        "id": "8676416000006",
+        "title": "Self-Leveling Cross-Line Laser Level Kit",
+        "description": "360° green lines, self-levelling to ±4°, ±1/8\" at 30 feet. Tripod and case included.",
+        "vendor": "Bench and Bolt",
+        "productType": "Measuring Tools",
+        "tags": [
+          "construction",
+          "laser level",
+          "measuring tools",
+          "precision",
+          "workshop"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/self-leveling-cross-line-laser-level-kit",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_86012e40-6d0e-4d02-addc-331a0395baae.png?v=1786683126",
+            "width": 1024,
+            "height": 1024,
+            "alt": "Self-Leveling Cross-Line Laser Level Kit"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225322",
+            "title": "Default Title",
+            "price": 119.99,
+            "compareAtPrice": 159.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 119.99,
+          "max": 119.99
+        },
+        "compareAtPrice": {
+          "min": 159.99,
+          "max": 159.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "18-bar-petrol-chainsaw-52cc",
+        "id": "8676416000007",
+        "title": "18\" Bar Petrol Chainsaw 52cc",
+        "description": "52cc two-stroke, 18\" bar. Anti-vibration, automatic chain oiler, tool-free tensioning.",
+        "vendor": "Bench and Bolt",
+        "productType": "Outdoor Power Equipment",
+        "tags": [
+          "chainsaw",
+          "logging",
+          "mens tools",
+          "outdoor power",
+          "petrol"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/18-bar-petrol-chainsaw-52cc",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_49e9856d-ddb2-409e-99fe-8cd21ce53357.png?v=1786683403",
+            "width": 1024,
+            "height": 1024,
+            "alt": "18\" Bar Petrol Chainsaw 52cc"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225323",
+            "title": "Default Title",
+            "price": 329.99,
+            "compareAtPrice": 429.99,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 329.99,
+          "max": 329.99
+        },
+        "compareAtPrice": {
+          "min": 429.99,
+          "max": 429.99
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "3-ton-low-profile-hydraulic-floor-jack",
+        "id": "8676416000008",
+        "title": "3-Ton Low-Profile Hydraulic Floor Jack",
+        "description": "6,000 lb capacity, 3.5\" to 19.5\". Rapid pump, swivel rear wheels, overload valve.",
+        "vendor": "Bench and Bolt",
+        "productType": "Garage Equipment",
+        "tags": [
+          "automotive",
+          "floor jack",
+          "garage",
+          "hydraulic",
+          "lifting equipment"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/3-ton-low-profile-hydraulic-floor-jack",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_05a231a7-cd89-4723-b6f7-8c80cb9060e5.png?v=1786683473",
+            "width": 1024,
+            "height": 1024,
+            "alt": "3-Ton Low-Profile Hydraulic Floor Jack"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225324",
+            "title": "Default Title",
+            "price": 199.99,
+            "compareAtPrice": 269.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 199.99,
+          "max": 199.99
+        },
+        "compareAtPrice": {
+          "min": 269.99,
+          "max": 269.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "mens-heavy-duty-tactical-tool-belt",
+        "id": "8676416000009",
+        "title": "Men's Heavy-Duty Tactical Tool Belt",
+        "description": "Full-grain leather, eleven pockets, hammer loop and tape clip. Fits 28–50\".",
+        "vendor": "Bench and Bolt",
+        "productType": "Tool Accessories",
+        "tags": [
+          "construction",
+          "leather",
+          "mens",
+          "tool belt",
+          "tradesman"
+        ],
+        "url": "https://bench-and-bolt.myshopify.com/products/mens-heavy-duty-tactical-tool-belt",
+        "images": [
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0801/4764/4516/files/image_40e7b6d4-fce6-434e-a354-eec8bfcaf05d.png?v=1786683527",
+            "width": 1024,
+            "height": 1024,
+            "alt": "Men's Heavy-Duty Tactical Tool Belt"
+          }
+        ],
+        "variants": [
+          {
+            "id": "48993145225325",
+            "title": "Default Title",
+            "price": 64.99,
+            "compareAtPrice": 89.99,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 64.99,
+          "max": 64.99
+        },
+        "compareAtPrice": {
+          "min": 89.99,
+          "max": 89.99
+        },
+        "available": true,
+        "availabilityKnown": true
+      }
+    ],
+    "productCount": 10,
+    "truncated": false
+  },
+  "reviews": {
+    "available": false,
+    "platformDetected": null,
+    "note": "Not read: this catalogue came from the Admin API, not the storefront."
+  },
+  "diagnostics": {
+    "warnings": [
+      "Catalogue fetched through the Shopify Admin API, not the storefront. /products.json and the fallback ladder were not exercised.",
+      "Brand colourway is hand-picked, not extracted from the homepage. Colour extraction is untested against this store.",
+      "Product photographs are on cdn.shopify.com, which this environment cannot reach. Every plate will render the no-photograph fallback."
+    ],
+    "trace": [
+      {
+        "step": "admin-api",
+        "url": "https://bench-and-bolt.myshopify.com",
+        "outcome": "ok",
+        "detail": "10 products via MCP"
+      },
+      {
+        "step": "products.json",
+        "outcome": "skipped",
+        "detail": "egress blocked; storefront also password-protected"
+      },
+      {
+        "step": "brand",
+        "outcome": "skipped",
+        "detail": "homepage not fetched"
+      }
+    ]
+  }
+}

@@ -75,6 +75,7 @@ export function validatePlan(input: PlanValidationInput): PlanValidation {
   }
 
   checkStock(plan, ingest, selected, prompt, warnings);
+  checkSelection(ingest, selected, prompt, warnings);
   checkImagery(plan, byHandle, warnings);
 
   return { errors, warnings };
@@ -385,6 +386,92 @@ function checkStock(
       `Every sold-out product was left out, and the brief did not ask for in-stock only. Sold-out products are meant to be shown and marked — check this was a merchandising call rather than a filter.`,
     );
   }
+}
+
+/**
+ * Above this share of a catalogue, a plan has stopped selecting.
+ *
+ * Seven tenths is a judgement, not a measurement, and it is written here so
+ * somebody can disagree with it. It was picked against the first real run:
+ * the two briefs that failed to select came back at 100%, 90%, 90% and 80%,
+ * and the two that selected well came back at 40% and 30%. Anything from about
+ * 0.5 to 0.85 separates those; 0.7 sits in the middle of the gap.
+ */
+export const SELECTION_CEILING = 0.7;
+
+/**
+ * Below this many products, showing most of them is not a failure to choose.
+ *
+ * A store with six products has no edit to make, and warning about it would
+ * train people to ignore the warning — which is the only thing that can
+ * actually break a check like this.
+ */
+export const SELECTION_FLOOR = 8;
+
+/**
+ * Did it merchandise, or did it just put headings on the catalogue?
+ *
+ * The first real run found this and nothing else caught it: given a brief with
+ * a constraint the model can check itself against — a price cap, a stock
+ * filter, an ordering rule — it is disciplined. Given an open-ended one it
+ * returned ten products out of ten, which is the catalogue with better
+ * headings. The system prompt already says "fewer, better… every product you
+ * add dilutes the ones you believe in", and saying it louder is not a fix; the
+ * model was not confused, it was unchecked.
+ *
+ * **A warning rather than an error, deliberately.** The obvious move is to
+ * reject and let the retry loop force a smaller selection, and it is wrong for
+ * a reason the same run demonstrated: the best shop it produced — "still in
+ * stock, cheapest first" — legitimately took every available product, because
+ * breadth *was* the brief. A hard rule would have failed the one output that
+ * needed no fixing. Nothing here can reliably tell a clearance edit from a
+ * model that gave up, so it does not pretend to: it reports the number and
+ * asks. A false positive costs a line somebody reads and dismisses; a false
+ * negative ships the whole catalogue and calls it merchandising.
+ *
+ * The denominator is the catalogue as ingested. A truncated catalogue makes
+ * the share look smaller than it is, which can only hide a problem, never
+ * invent one.
+ */
+function checkSelection(
+  ingest: IngestResult,
+  selected: Set<string>,
+  prompt: string,
+  warnings: string[],
+): void {
+  const total = ingest.catalogue.products.length;
+  if (total < SELECTION_FLOOR || selected.size === 0) return;
+
+  // A brief that asks for the lot is not asking to be edited down. Kept
+  // deliberately narrow — this is the one place a clever regex would start
+  // guessing at intent, and guessing wrong here silences the check.
+  //
+  // The stock phrasings were added once the brief started carrying a size
+  // (`selectionCeiling`, prompt.ts). This check was written when it was the
+  // only defence, and accepting a standing false positive on the clearance
+  // brief was the right call then: a warning nobody wanted beat a catalogue
+  // shipped as an edit. With the ceiling preventing the failure at source, the
+  // open briefs now land at six and seven of ten and no longer trip this — so
+  // the clearance shop would have become the *only* thing that ever warned,
+  // and every warning on this catalogue a false one. That is precisely the
+  // "train people to ignore the warning" failure SELECTION_FLOOR exists to
+  // avoid, arriving by a different road.
+  if (
+    /\b(everything|all of|the whole|entire|full (range|catalogue|catalog)|still in stock|what(?:'s| is) (?:still |left)|what(?:'s| is) left)\b/i.test(
+      prompt,
+    )
+  ) {
+    return;
+  }
+
+  const share = selected.size / total;
+  if (share <= SELECTION_CEILING) return;
+
+  warnings.push(
+    `${selected.size} of ${total} products made the page (${Math.round(share * 100)}%). ` +
+      `Above ${Math.round(SELECTION_CEILING * 100)}% this is closer to the catalogue with headings on it than to an edit — ` +
+      `check the brief was specific enough to select against, and that everything here earns its place.`,
+  );
 }
 
 function checkImagery(

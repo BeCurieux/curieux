@@ -1,0 +1,199 @@
+/*
+ * What it will cost.
+ *
+ * Runs on the landing page's tokens — same cream, same purple, same two faces —
+ * because a pricing page that looks like a different product is its own small
+ * dishonesty. This file only adds what the front door had no use for.
+ *
+ * The one deliberate departure from the convention: no highlighted middle tier.
+ * A recommended plan is a nudge toward a purchase, and there is no purchase to
+ * nudge anybody toward. The three cards sit at the same weight until one of
+ * them can actually be bought.
+ */
+
+.pricing-top {
+  padding-block: clamp(0.5rem, 3vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+}
+
+/*
+ * The caveat, sized to be read rather than skipped.
+ *
+ * It carries the coral edge because coral appears perhaps five times across the
+ * whole site and every one of them is a place the reader is meant to stop.
+ */
+.caveat {
+  max-width: 52ch;
+  margin-top: clamp(1.5rem, 4vw, 2rem);
+  padding: clamp(1.1rem, 3.5vw, 1.5rem) clamp(1.2rem, 4vw, 1.6rem);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--r-lg);
+  background: #fff;
+  box-shadow: 8px 10px 0 var(--coral);
+}
+
+.caveat-lead {
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.15rem, 4vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.caveat p + p,
+.caveat-lead + p {
+  margin-top: 0.7rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--on-cream-soft);
+}
+
+/* ------------------------------------------------------------------ tiers */
+
+.tiers-band {
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+
+.tiers {
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.5rem);
+  list-style: none;
+}
+
+.tier {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.25rem, 4vw, 1.75rem);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--r-lg);
+  background: var(--lilac);
+}
+
+.tier-name {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.tier-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  margin-top: 0.5rem;
+  font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-size: clamp(2.25rem, 8vw, 3rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  /* Digits in a row of three cards want to line up. */
+  font-variant-numeric: tabular-nums;
+}
+
+.tier-per {
+  font-family: var(--font-brand-sans), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--on-cream-soft);
+}
+
+.tier-who {
+  margin-top: 0.6rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--on-cream-soft);
+}
+
+.tier-lines {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: clamp(1rem, 3vw, 1.35rem);
+  padding-top: clamp(1rem, 3vw, 1.35rem);
+  border-top: 1px solid rgb(32 33 51 / 0.18);
+  list-style: none;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+/*
+ * Built and not-built read differently on purpose.
+ *
+ * A tick against something that does not exist is the exact lie this page is
+ * arranged to avoid, so the mark is the thing that carries the distinction and
+ * the label spells it out for anybody who cannot see the difference.
+ */
+.tier-lines li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  color: var(--on-cream-soft);
+}
+
+.tier-lines li::before {
+  content: "○";
+  flex: 0 0 auto;
+  color: var(--on-cream-soft);
+  font-size: 0.8em;
+}
+
+.tier-lines li[data-built] {
+  color: var(--on-cream);
+}
+
+.tier-lines li[data-built]::before {
+  content: "✓";
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.tier-lines em {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--coral);
+  white-space: nowrap;
+}
+
+.tiers-note {
+  max-width: 56ch;
+  margin-top: clamp(1.25rem, 3.5vw, 1.75rem);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-cream-soft);
+}
+
+/* ---------------------------------------------------------------- answers */
+
+.answers dl {
+  display: grid;
+  gap: clamp(1.25rem, 3.5vw, 1.75rem);
+  margin-top: clamp(1.5rem, 4vw, 2rem);
+}
+
+.answers dt {
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.05rem, 3.6vw, 1.2rem);
+  font-weight: 500;
+  letter-spacing: -0.012em;
+}
+
+.answers dd {
+  max-width: 58ch;
+  margin: 0.45rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--on-cream-soft);
+}
+
+@media (min-width: 860px) {
+  .tiers {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .answers dl {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: clamp(2rem, 5vw, 3.5rem);
+  }
+}

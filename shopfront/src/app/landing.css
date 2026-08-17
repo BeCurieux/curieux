@@ -1,28 +1,29 @@
 /*
  * The front door.
  *
- * The page runs on cream with purple fields cut into it, which is a decision
- * about the product rather than about taste. A site that is violet from top to
- * bottom makes every shop on it look like a popuup product; a cream page lets
- * the shops be the colourful objects on it, which is exactly the argument the
- * page is making — a generated shop should look like the merchant, never like
- * us. Purple is reserved for the bands where popuup is speaking in its own
- * voice, coral for the two or three moments that should surprise.
+ * Cream ground with purple fields cut into it — a decision about the product
+ * rather than about taste. A site that is violet from top to bottom makes every
+ * shop on it look like a popuup product, and the whole argument here is that a
+ * generated shop looks like the merchant. Purple is where popuup speaks in its
+ * own voice; coral punctuates and appears perhaps five times on the page.
  *
  * Colour, type, spacing and radii are tokens at the top. Nothing below invents
- * a value; a page with eleven hand-tuned violets is a page nobody can restyle.
+ * a value.
  *
- * Mobile-first like everything else here. The one place that breaks is the rail
- * of shops, which is horizontal at every width — five phones stacked vertically
- * is five separate pictures, and the whole argument is that they do not look
- * alike.
+ * The bands are deliberately tighter than they were. The page was eight and a
+ * half viewports of well-spaced content, which is a different problem from
+ * cramped: every scroll should land on something intentional, and three of them
+ * were landing on the gap between two ideas.
+ *
+ * Mobile-first. The one exception is the rail of shops, horizontal at every
+ * width — four phones stacked vertically is four separate pictures, and the
+ * argument is that they do not look alike.
  */
 
 .landing {
   /* ---------------------------------------------------------- colour */
   --purple: #6d3cf5;
   --purple-deep: #3f1aa8;
-  --purple-lit: #a88bff;
   --coral: #ff6b61;
   --cream: #fff8ee;
   --ink: #202133;
@@ -33,24 +34,20 @@
   --on-cream: var(--ink);
   --on-cream-soft: #5c5d70;
   --on-dark: var(--cream);
-  /* Cream at 0.74 over purple measured under 4.5:1 — legible in a mockup and
-     not on a phone in daylight, which is where this page is read. */
   --on-dark-soft: rgb(255 248 238 / 0.88);
 
   /* ------------------------------------------------------------ type */
-  --shout: clamp(3.25rem, 15vw, 8rem);
-  --lead: clamp(2rem, 7vw, 3.75rem);
-  --body: clamp(1rem, 3.4vw, 1.125rem);
+  --shout: clamp(3rem, 14vw, 7rem);
+  --lead: clamp(1.9rem, 6.5vw, 3.25rem);
+  --body: clamp(1rem, 3.4vw, 1.0625rem);
 
   /* --------------------------------------------------------- spacing */
   --gutter: clamp(1.5rem, 6vw, 5rem);
-  --band: clamp(4rem, 11vw, 8rem);
+  --band: clamp(2.25rem, 5.5vw, 4rem);
   --measure: 1240px;
 
   /* ---------------------------------------------------------- shapes */
-  --r-sm: 12px;
-  --r-md: 22px;
-  --r-lg: clamp(22px, 5vw, 34px);
+  --r-lg: clamp(20px, 4vw, 30px);
   --r-pill: 999px;
   --edge: 2px;
 
@@ -60,8 +57,7 @@
   overflow-x: clip;
 }
 
-/* Every axis at once: heavy, rounded terminals, alternate letterforms. Any one
-   of them alone still reads as a magazine. */
+/* Every axis at once: heavy, rounded terminals, alternate letterforms. */
 .landing .shout {
   font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
   font-weight: 900;
@@ -82,12 +78,8 @@
 }
 
 /*
- * One measure for the whole page.
- *
- * Every band is full-bleed colour, so the alignment has to come from padding
- * rather than from a wrapper element. Below the measure this is just the
- * gutter; above it, the extra space goes to the margins and the content stops
- * drifting left across a wide screen.
+ * One measure for the whole page. Every band is full-bleed colour, so the
+ * alignment comes from padding rather than a wrapper element.
  */
 .bar,
 .opening,
@@ -116,11 +108,8 @@
 
 /* --------------------------------------------------------------- buttons */
 
-/*
- * Tactile rather than glassy: flat fill, a hard ink edge, and a shadow that is
- * an offset of that edge instead of a blur. It is the one component repeated
- * across four bands, so it carries a lot of the page's personality.
- */
+/* Tactile rather than glassy: flat fill, a hard ink edge, and a shadow that is
+   an offset of that edge instead of a blur. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -141,7 +130,7 @@
 }
 
 .btn-lg {
-  margin-top: clamp(1.75rem, 5vw, 2.5rem);
+  margin-top: clamp(1.5rem, 4vw, 2rem);
   padding: max(0.95rem, calc((44px - 1lh) / 2)) 1.9rem;
   font-size: clamp(1.0625rem, 3.6vw, 1.25rem);
 }
@@ -163,20 +152,41 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-block: clamp(1.1rem, 3.5vw, 1.75rem);
+  padding-block: clamp(1rem, 3vw, 1.5rem);
+}
+
+.bar-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.85rem, 3vw, 1.5rem);
+}
+
+.bar-nav a:not(.btn) {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-cream);
+  text-decoration: none;
+  /* 44px target without changing where the baseline sits. */
+  padding-block: max(0px, calc((44px - 1lh) / 2));
+  margin-block: min(0px, calc((1lh - 44px) / 2));
+}
+
+.bar-nav a:not(.btn):hover {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
 }
 
 .bar-mark {
   display: block;
-  width: clamp(104px, 15vw, 152px);
+  width: clamp(104px, 15vw, 148px);
   height: auto;
 }
 
-/* ------------------------------------------------------------------ opening */
+/* --------------------------------------------------------------- opening */
 
 .opening {
   position: relative;
-  padding-block: clamp(1rem, 4vw, 2.5rem) var(--band);
+  padding-block: clamp(0.5rem, 3vw, 1.5rem) var(--band);
 }
 
 .tag {
@@ -204,21 +214,30 @@
 }
 
 .opening .shout {
-  margin-top: clamp(1.25rem, 4vw, 2rem);
+  margin-top: clamp(1rem, 3.5vw, 1.75rem);
 }
 
 .lede {
-  max-width: 34ch;
-  margin-top: clamp(1.25rem, 4vw, 1.75rem);
-  font-size: clamp(1.0625rem, 3.6vw, 1.3125rem);
+  max-width: 33ch;
+  margin-top: clamp(1.1rem, 3.5vw, 1.5rem);
+  font-size: clamp(1.0625rem, 3.6vw, 1.25rem);
   line-height: 1.5;
   color: var(--on-cream-soft);
 }
 
-.note {
-  max-width: 34ch;
-  margin-top: 1rem;
+.lede-sub {
+  max-width: 33ch;
+  margin-top: 0.6rem;
   font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--on-cream-soft);
+  opacity: 0.85;
+}
+
+.note {
+  max-width: 33ch;
+  margin-top: 0.9rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   color: var(--on-cream-soft);
 }
@@ -226,17 +245,14 @@
 /* ----------------------------------------------------------- the stage */
 
 /*
- * The sentence and the shop it produced, as one object.
- *
- * They overlap rather than sitting side by side, because side by side is two
- * pictures and overlapping is a claim about cause. The burst sits behind both
- * and bleeds off the right edge, which is what stops the composition reading
- * as a centred SaaS screenshot.
+ * The sentence, what it was read as, and the shop that came out — one object.
+ * They overlap rather than sitting side by side, because side by side is three
+ * pictures and overlapping is a claim about cause. The burst bleeds off the
+ * right edge, which is what stops the composition reading as a screenshot.
  */
 .stage {
   position: relative;
-  margin-top: clamp(2.5rem, 8vw, 4rem);
-  padding-bottom: clamp(3rem, 10vw, 0rem);
+  margin-top: clamp(2rem, 6vw, 3rem);
 }
 
 .stage-burst {
@@ -244,7 +260,7 @@
   z-index: 0;
   top: -6%;
   right: -22%;
-  width: clamp(9rem, 40vw, 17rem);
+  width: clamp(8rem, 36vw, 15rem);
   color: var(--coral);
   opacity: 0.9;
 }
@@ -258,8 +274,8 @@
   box-shadow: 6px 8px 0 rgb(32 33 51 / 0.16);
 }
 
-/* Direct child only: the opening's device wraps its capture in `.screen` so the
-   thing can be revealed in bands, and that one is sized below instead. */
+/* Direct child only: the opening's device wraps its capture in `.screen` so it
+   can be revealed in bands, and that one is sized below. */
 .device > img {
   display: block;
   width: 100%;
@@ -275,16 +291,12 @@
 /*
  * The screen, so the shop can arrive in pieces.
  *
- * Three copies of one capture, each clipped to a horizontal band. The bands
- * land a beat apart and read as products appearing row by row — and every
- * pixel is the real renderer's, which is the reason for the whole contrivance.
- * A hand-drawn shop animating into place would be a picture of a product that
- * does not exist, on the one page with the least business showing one.
- *
- * The ink underneath is what a viewer sees before the first band arrives, and
- * it is also the resting state for anyone whose browser skips the animation
- * entirely — so the bands are visible by default and the timeline below is
- * what hides them.
+ * Three copies of one capture, each clipped to a horizontal band. They land a
+ * beat apart and read as products appearing row by row — and every pixel is
+ * the real renderer's, which is the reason for the whole contrivance. The ink
+ * underneath is what shows before the first band arrives, and is also the
+ * resting state for a browser that skips animation, so the bands are visible
+ * by default and the timeline hides them.
  */
 .screen {
   position: relative;
@@ -304,39 +316,86 @@
   object-position: top;
 }
 
-/* Percentages of the visible capture, eyeballed against the shop template's
-   own rhythm: masthead and hero, the first row of cards, the second. */
+/* Percentages of the visible capture, against the shop template's own rhythm:
+   masthead and hero, the first row of cards, the second. */
 .screen-band:nth-child(1) {
   clip-path: inset(0 0 62% 0);
 }
-
 .screen-band:nth-child(2) {
   clip-path: inset(38% 0 30% 0);
 }
-
 .screen-band:nth-child(3) {
   clip-path: inset(70% 0 0 0);
+}
+
+/*
+ * The middle of the mechanic, and the part a finished mockup hides: the
+ * sentence being turned into constraints. Invisible at rest, so a browser that
+ * skips animation never shows a page claiming to be thinking about something.
+ */
+.think {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+  max-width: 92%;
+  opacity: 0;
+}
+
+.think-lead {
+  padding: 0.45rem 0.85rem;
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--cream);
+  box-shadow: 3px 3px 0 var(--purple);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.think-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.think-chips i {
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--r-pill);
+  background: var(--purple);
+  color: var(--cream);
+  font-size: 0.625rem;
+  font-style: normal;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .device-lg {
   position: relative;
   z-index: 1;
-  width: min(19rem, 78%);
+  width: min(17rem, 70%);
   margin-left: auto;
   transform: rotate(2.5deg);
 }
 
 /*
  * The prompt field, shown rather than described. It is not an input: there is
- * nothing behind it yet, and a box that swallows a sentence and does nothing
- * is a worse first impression than an honest picture of one.
+ * nothing behind it, and a box that swallows a sentence and does nothing is a
+ * worse first impression than an honest picture of one.
  */
 .prompt {
   position: relative;
   z-index: 2;
   width: min(23rem, 92%);
   margin-top: -18%;
-  padding: clamp(1.1rem, 3.6vw, 1.5rem) clamp(1.2rem, 4vw, 1.6rem) clamp(1rem, 3.4vw, 1.35rem);
+  padding: clamp(1rem, 3.4vw, 1.4rem) clamp(1.1rem, 3.8vw, 1.5rem) clamp(0.9rem, 3vw, 1.25rem);
   border: var(--edge) solid var(--ink);
   border-radius: var(--r-lg);
   background: #fff;
@@ -346,20 +405,20 @@
 
 .prompt figcaption {
   font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--purple);
 }
 
 .prompt p {
-  margin-top: 0.7rem;
-  font-size: clamp(1.0625rem, 4vw, 1.375rem);
+  margin-top: 0.65rem;
+  font-size: clamp(1rem, 3.8vw, 1.25rem);
   line-height: 1.26;
 }
 
-/* Steady, not blinking: an animated cursor on a still page is a distraction,
-   and it costs a repaint every half second for the whole visit. */
+/* Steady, not blinking: an animated cursor on a still page costs a repaint
+   every half second for the whole visit. */
 .caret {
   display: inline-block;
   width: 3px;
@@ -373,47 +432,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  margin-top: 1rem;
-  padding: 0.45rem 0.95rem;
+  margin-top: 0.9rem;
+  padding: 0.42rem 0.9rem;
   border-radius: var(--r-pill);
   background: var(--purple);
   color: var(--cream);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-}
-
-/*
- * The beat between asking and having.
- *
- * Invisible at rest. Only the timeline brings it in, so a browser that skips
- * animation never shows a page claiming to be thinking about something.
- */
-.think {
-  position: absolute;
-  z-index: 3;
-  left: 50%;
-  top: 44%;
-  transform: translate(-50%, -50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  padding: 0.5rem 0.85rem;
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-pill);
-  background: var(--cream);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  box-shadow: 3px 3px 0 var(--purple);
-  opacity: 0;
-}
-
-.think i {
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 50%;
-  background: var(--purple);
 }
 
 .prompt-burst {
@@ -422,43 +447,39 @@
   color: var(--coral);
 }
 
-/* ------------------------------------------------------------- negations */
+/* ------------------------------------------------------------------- why */
 
-.negations-heading {
-  font-size: clamp(2.75rem, 13vw, 7rem);
+/* Three lines. The visitor has already felt this, and explaining it at length
+   insults them. */
+.why {
+  padding-block: clamp(1.5rem, 3.5vw, 2.25rem);
 }
 
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: clamp(1.75rem, 5vw, 2.5rem);
-  list-style: none;
-}
-
-.pills li {
-  padding: 0.55rem 1.1rem;
-  border: var(--edge) solid var(--cream);
-  border-radius: var(--r-pill);
-  font-size: clamp(0.9375rem, 3.2vw, 1.0625rem);
+.why-line {
+  position: relative;
+  max-width: 24ch;
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.35rem, 4.6vw, 2rem);
   font-weight: 500;
+  line-height: 1.16;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
 }
 
-.negations-note {
-  max-width: 44ch;
-  margin-top: clamp(1.5rem, 4vw, 2rem);
-  font-size: var(--body);
-  line-height: 1.55;
-  color: var(--on-dark-soft);
+.why-squiggle {
+  display: block;
+  width: clamp(5rem, 16vw, 7rem);
+  margin-top: 0.6rem;
+  color: var(--coral);
 }
 
-/* ----------------------------------------------------------- the chain */
+/* ----------------------------------------------------------------- proof */
 
 .lead-note {
-  max-width: 48ch;
-  margin-top: clamp(1.1rem, 3.5vw, 1.6rem);
+  max-width: 44ch;
+  margin-top: clamp(0.9rem, 3vw, 1.25rem);
   font-size: var(--body);
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--on-cream-soft);
 }
 
@@ -467,92 +488,68 @@
   color: var(--on-dark-soft);
 }
 
-.lead-squiggle {
-  display: block;
-  width: clamp(5rem, 18vw, 8rem);
-  margin-top: 0.5rem;
-  color: var(--coral);
-}
-
 .lead-coral {
   color: var(--coral);
 }
-
-/*
- * A chain, drawn as one. The rule runs along the top of each item rather than
- * between them, so the three read as positions on a single line instead of as
- * three cards — the difference between "a layer" and "three features".
- */
-.chain {
-  display: grid;
-  gap: clamp(1.75rem, 5vw, 2.5rem);
-  margin-top: clamp(2rem, 6vw, 3rem);
-  list-style: none;
-}
-
-.chain li {
-  padding-top: 1.1rem;
-  border-top: var(--edge) solid rgb(32 33 51 / 0.16);
-}
-
-/* The middle link is ours, and is the only one lit. */
-.chain li[data-ours] {
-  border-top-color: var(--purple);
-}
-
-.chain-name {
-  font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.25rem, 4.6vw, 1.5rem);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-}
-
-.chain li[data-ours] .chain-name {
-  color: var(--purple);
-}
-
-.chain p {
-  max-width: 34ch;
-  margin-top: 0.55rem;
-  font-size: clamp(0.9375rem, 3.2vw, 1.0625rem);
-  line-height: 1.55;
-  color: var(--on-cream-soft);
-}
-
-/* ------------------------------------------------------------------ proof */
 
 .proof {
   padding-inline: 0;
 }
 
+.proof-say {
+  display: flex;
+  flex-direction: column;
+}
+
+.rail-note {
+  max-width: 44ch;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-dark-soft);
+  opacity: 0.78;
+}
+
+/*
+ * The lead shop, at a size somebody can actually read.
+ *
+ * Hidden on a phone, where the rail below is the whole section and swipes one
+ * shop at a time — a large phone *plus* a rail of five was the single tallest
+ * thing on the page, and it showed the same shop twice.
+ */
+.proof-lead {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.proof-lead .device {
+  width: min(13.5rem, 60%);
+}
+
 .rail {
   display: flex;
   align-items: flex-start;
-  gap: clamp(1rem, 3vw, 1.75rem);
-  margin-top: clamp(2rem, 6vw, 3rem);
-  padding-block: 0.5rem clamp(1rem, 4vw, 3rem);
+  gap: clamp(0.9rem, 2.5vw, 1.5rem);
+  margin-top: clamp(1.5rem, 4vw, 2rem);
+  padding-block: 0.25rem 1rem;
   list-style: none;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   /* The scrollbar is the only affordance saying there is more to the right, so
-     it stays — hiding it is a design that reads better in a screenshot than in
-     a hand. */
+     it stays — hiding it reads better in a screenshot than in a hand. */
   scrollbar-color: rgb(255 248 238 / 0.3) transparent;
 }
 
 .rail li {
   flex: 0 0 auto;
-  width: min(62vw, 15rem);
+  width: min(68vw, 14rem);
   scroll-snap-align: start;
-  /* The collage. One number per shop, applied as a downward offset so the row
-     still starts flush at the top. */
-  padding-top: calc(var(--lift, 0) * clamp(0.5rem, 1.6vw, 1.15rem));
 }
 
-.rail figure {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.rail figure,
+.proof-lead {
+  margin: 0;
 }
 
 .band-ink .device {
@@ -560,10 +557,12 @@
   box-shadow: 6px 8px 0 rgb(0 0 0 / 0.4);
 }
 
-.rail figcaption {
+.rail figcaption,
+.proof-lead figcaption {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
+  margin-top: 0.85rem;
   font-size: 0.9375rem;
   line-height: 1.45;
 }
@@ -573,65 +572,187 @@
   letter-spacing: 0.02em;
 }
 
-.rail figcaption q {
+.rail figcaption q,
+.proof-lead figcaption q {
   color: var(--on-dark-soft);
 }
 
-.rail-note {
-  max-width: 46ch;
-  font-size: 0.9375rem;
+/* ------------------------------------------------------------- negations */
+
+.negations-heading {
+  font-size: clamp(2.5rem, 12vw, 6rem);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: clamp(1.5rem, 4vw, 2rem);
+  list-style: none;
+}
+
+.pills li {
+  padding: 0.5rem 1rem;
+  border: var(--edge) solid var(--cream);
+  border-radius: var(--r-pill);
+  font-size: clamp(0.9375rem, 3.2vw, 1.0625rem);
+  font-weight: 500;
+}
+
+.negations-note {
+  max-width: 40ch;
+  margin-top: clamp(1.25rem, 3.5vw, 1.75rem);
+  font-size: var(--body);
   line-height: 1.55;
   color: var(--on-dark-soft);
+}
+
+/* ----------------------------------------------------------- the chain */
+
+/*
+ * Drawn as one line rather than three cards. The rule runs along the top of
+ * each item, and the arrow between them is the ::after — the difference
+ * between "a layer" and "three features".
+ */
+.chain {
+  display: grid;
+  gap: clamp(1.4rem, 4vw, 2rem);
+  margin-top: clamp(1.75rem, 5vw, 2.5rem);
+  list-style: none;
+}
+
+.chain li {
+  position: relative;
+  padding-top: 1rem;
+  border-top: var(--edge) solid rgb(32 33 51 / 0.16);
+}
+
+.chain li[data-ours] {
+  border-top-color: var(--purple);
+}
+
+.chain-name {
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.2rem, 4.4vw, 1.45rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.chain li[data-ours] .chain-name {
+  color: var(--purple);
+}
+
+.chain p {
+  max-width: 32ch;
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--on-cream-soft);
 }
 
 /* ---------------------------------------------------------------- keep up */
 
 .keep-heading {
-  font-size: clamp(2.5rem, 11vw, 5.5rem);
+  font-size: clamp(2.25rem, 10vw, 4.75rem);
 }
 
 .keep-note {
-  max-width: 52ch;
-  margin-top: clamp(1.25rem, 4vw, 1.75rem);
+  max-width: 46ch;
+  margin-top: clamp(1rem, 3.5vw, 1.5rem);
   font-size: var(--body);
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--on-dark-soft);
 }
 
 /*
- * The rules, as chips somebody could have ticked. Each is a real branch in
- * lib/smart, which is why the sold-out one is worded the way it is: the rule
- * demotes rather than hides, and a chip claiming otherwise would advertise the
- * opposite of what the code does.
+ * The behaviour, shown. Two rows of the same two cards: the sold-out one is
+ * behind the buyable one after a rebuild, not replaced by something else —
+ * the rules never add a product, and a picture of a substitution would
+ * advertise the opposite of what `lib/smart/repair.ts` does.
  */
+.swap {
+  margin-top: clamp(1.75rem, 5vw, 2.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.swap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* On a phone the label takes its own line: sharing the row left the two cards
+   at about 115px each, which wraps "Sold out" onto two lines and makes a
+   comparison of two states look like a layout accident. */
+.swap-when {
+  flex: 0 0 100%;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-dark-soft);
+}
+
+.swap-card {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border: var(--edge) solid var(--cream);
+  border-radius: 14px;
+  background: rgb(255 248 238 / 0.1);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.swap-card em {
+  font-style: normal;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.swap-card.is-out {
+  opacity: 0.55;
+}
+
+@media (min-width: 30rem) {
+  .swap-when {
+    flex: 0 0 4.5rem;
+  }
+}
+
+
 .rules {
   display: grid;
-  gap: 0.75rem;
-  margin-top: clamp(2rem, 6vw, 2.75rem);
+  gap: 0.45rem;
+  margin-top: 1rem;
   list-style: none;
 }
 
 .rules li {
   display: flex;
   align-items: center;
-  gap: 0.85em;
-  padding: 0.85rem 1.2rem;
-  border: var(--edge) solid var(--cream);
-  border-radius: var(--r-pill);
-  background: rgb(255 248 238 / 0.08);
-  font-size: clamp(0.9375rem, 3.2vw, 1.0625rem);
-  font-weight: 500;
+  gap: 0.7em;
+  font-size: 0.9375rem;
+  color: var(--on-dark-soft);
 }
 
-.rules span {
+.rules li::before {
+  content: "✓";
   display: grid;
   place-items: center;
-  width: 1.9em;
-  height: 1.9em;
+  width: 1.5em;
+  height: 1.5em;
   flex: 0 0 auto;
   border-radius: 50%;
   background: var(--coral);
   color: var(--ink);
+  font-size: 0.75em;
   font-weight: 700;
 }
 
@@ -639,33 +760,31 @@
 
 .creators {
   display: grid;
-  gap: clamp(2rem, 6vw, 3.5rem);
+  gap: clamp(1.75rem, 5vw, 3rem);
   align-items: center;
 }
 
 .ticks {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: clamp(1.25rem, 4vw, 1.75rem);
+  gap: 0.45rem;
+  margin-top: clamp(1rem, 3.5vw, 1.5rem);
   list-style: none;
 }
 
 .ticks li {
-  padding: 0.45rem 0.95rem;
+  padding: 0.4rem 0.9rem;
   border: var(--edge) solid var(--ink);
   border-radius: var(--r-pill);
   font-size: 0.9375rem;
   font-weight: 500;
 }
 
-/*
- * The credit, reproduced rather than screenshotted — the same markup and the
- * same words the renderer emits, so this cannot drift from what a shop shows.
- * The badge sample below does the same thing for the same reason.
- */
+/* The credit, reproduced rather than screenshotted — the same markup and words
+   the renderer emits, so it cannot drift from what a shop shows. */
 .credit-sample {
-  padding: clamp(1.5rem, 5vw, 2.25rem);
+  margin: 0;
+  padding: clamp(1.25rem, 4vw, 1.85rem);
   border: var(--edge) solid var(--ink);
   border-radius: var(--r-lg);
   background: #fff;
@@ -675,13 +794,13 @@
 
 .credit-brand {
   font-family: var(--font-brand-display), Georgia, serif;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 500;
 }
 
 .credit-line {
-  margin-top: 1rem;
-  padding: 0.85rem 0;
+  margin-top: 0.9rem;
+  padding: 0.8rem 0;
   border-top: 1px solid rgb(32 33 51 / 0.18);
   border-bottom: 1px solid rgb(32 33 51 / 0.18);
   font-size: 0.72rem;
@@ -691,29 +810,32 @@
 }
 
 .credit-sample figcaption {
-  margin-top: 1.1rem;
+  margin-top: 0.9rem;
   font-size: 0.8125rem;
-  line-height: 1.55;
-  text-align: left;
+  line-height: 1.5;
   color: var(--on-cream-soft);
 }
 
 /* ------------------------------------------------------------------ steps */
 
+.steps {
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+
 .steps ol {
   display: grid;
-  gap: clamp(2rem, 5vw, 2.75rem);
-  margin-top: clamp(2rem, 6vw, 3rem);
+  gap: clamp(1.1rem, 3vw, 1.75rem);
+  margin-top: clamp(1.25rem, 3vw, 1.75rem);
   list-style: none;
 }
 
-/* The number is the illustration. Big, outlined, and in the accent, so the
-   section needs no icons to look like something. */
+/* The number is the illustration. Big, outlined, in the accent — the section
+   needs no icons to look like something. */
 .step-n {
   display: block;
   font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
   font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-size: clamp(3rem, 9vw, 4.5rem);
+  font-size: clamp(2.1rem, 6.5vw, 3.25rem);
   font-weight: 900;
   line-height: 0.9;
   color: transparent;
@@ -721,120 +843,127 @@
 }
 
 .steps h3 {
-  margin-top: 0.6rem;
+  margin-top: 0.5rem;
   font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.375rem, 5vw, 1.75rem);
+  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
   font-weight: 500;
   letter-spacing: -0.015em;
 }
 
 .steps p {
-  max-width: 40ch;
-  margin-top: 0.6rem;
-  font-size: var(--body);
-  line-height: 1.55;
+  max-width: 34ch;
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   color: var(--on-cream-soft);
 }
 
-/* `.steps p` is a class plus a type and outbids a lone class, so this line was
-   silently rendering at body size — the sign-off, set in the same 18px as the
-   paragraph above it. Matched on both rather than reordered, because reordering
-   fixes it only until somebody sorts the file. */
 .steps p.steps-end {
   display: inline-block;
-  margin-top: clamp(2rem, 6vw, 3rem);
+  max-width: none;
+  margin-top: clamp(1.5rem, 4vw, 2.25rem);
   font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
   font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-size: clamp(2rem, 8vw, 3.25rem);
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
   font-weight: 900;
   letter-spacing: -0.03em;
+  color: var(--on-cream);
 }
 
 .steps-squiggle {
   display: block;
-  width: clamp(6rem, 20vw, 9rem);
-  margin-top: 0.35rem;
+  width: clamp(5rem, 18vw, 8rem);
+  margin-top: 0.3rem;
   color: var(--coral);
 }
 
-/* ------------------------------------------------------------------ badge */
+/* ------------------------------------------------------------ early access */
 
-.badge-note {
+.early {
   display: grid;
-  gap: clamp(1.75rem, 5vw, 3rem);
-  align-items: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
 }
 
-/* The badge shown as a shop shows it: on paper, in the merchant's own ink.
-   Reversed out in white it would be a logo, which is the opposite of the
-   point being made. */
-.badge-sample {
+/*
+ * A ledger rather than a disclaimer. What is real and what is not, in the same
+ * list and the same voice, because separating them into a confident section and
+ * an apologetic one is how a page ends up sounding unsure of itself.
+ */
+.ledger {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.ledger li {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.9rem;
-  padding: clamp(1.5rem, 5vw, 2.5rem);
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-lg);
-  background: var(--cream);
-  box-shadow: 8px 10px 0 var(--purple);
-  font-size: clamp(1rem, 3.6vw, 1.25rem);
+  gap: 0.7em;
+  font-size: 0.9375rem;
+  color: var(--on-cream-soft);
+}
+
+.ledger li::before {
+  content: "—";
+  display: grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 0.7em;
+}
+
+.ledger li[data-on] {
+  color: var(--on-cream);
   font-weight: 500;
 }
 
-.badge-sample img {
-  display: block;
-  width: clamp(88px, 22vw, 126px);
-  height: auto;
+.ledger li[data-on]::before {
+  content: "✓";
+  border: none;
+  background: var(--purple);
+  color: var(--cream);
+  font-weight: 700;
+}
+
+.ledger-note {
+  grid-column: 1 / -1;
+  max-width: 52ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-cream-soft);
 }
 
 /* ---------------------------------------------------------------- closing */
 
+.closing {
+  padding-block: clamp(2rem, 5vw, 3.25rem) clamp(1.75rem, 4vw, 2.5rem);
+}
+
 .closing-heading {
-  font-size: clamp(2.5rem, 11vw, 5.5rem);
-}
-
-.status {
-  margin-top: clamp(3.5rem, 10vw, 6rem);
-  padding-top: clamp(1.75rem, 5vw, 2.5rem);
-  border-top: 1px solid rgb(255 248 238 / 0.24);
-}
-
-.status h3 {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--on-dark-soft);
-}
-
-.status p {
-  max-width: 58ch;
-  margin-top: 1rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--on-dark-soft);
+  font-size: clamp(2.25rem, 10vw, 4.75rem);
 }
 
 .foot {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem 1.5rem;
+  gap: 0.9rem 1.5rem;
   align-items: center;
   justify-content: space-between;
-  margin-top: clamp(2.5rem, 7vw, 4rem);
-  padding-top: clamp(1.5rem, 4vw, 2rem);
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  padding-top: clamp(1.1rem, 3vw, 1.5rem);
   border-top: 1px solid rgb(255 248 238 / 0.24);
 }
 
 .foot-line {
   font-family: var(--font-brand-display), Georgia, serif;
-  font-size: 1.0625rem;
+  font-size: 1rem;
   color: var(--on-dark-soft);
 }
 
 .foot a {
-  color: inherit;
   padding-block: max(0px, calc((44px - 1lh) / 2));
   margin-block: min(0px, calc((1lh - 44px) / 2));
   text-decoration: underline;
@@ -844,45 +973,52 @@
 
 /* ------------------------------------------------------------------- wide */
 
-@media (min-width: 900px) {
+@media (min-width: 860px) {
   .chain {
     grid-template-columns: repeat(3, 1fr);
-    gap: clamp(1.5rem, 3vw, 2.5rem);
+    gap: clamp(1.25rem, 3vw, 2rem);
   }
 
-  .rules {
-    grid-template-columns: repeat(2, 1fr);
+  /* The arrow between the links, drawn once and only where there is room for
+     it to mean anything. */
+  .chain li:not(:last-child)::after {
+    content: "→";
+    position: absolute;
+    top: 0.9rem;
+    right: -1.1rem;
+    color: var(--purple);
+    font-size: 1rem;
   }
 
   .steps ol {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .badge-note,
-  .creators {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  .creators,
+  .early {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+
+  .ledger {
+    grid-template-columns: 1fr;
   }
 }
 
-/*
- * Wide screens get the poster's composition rather than a longer column: the
- * sentence on the left, the shop it produced on the right, overlapping.
- */
 @media (min-width: 1000px) {
-  /* The display sizes are set from the viewport, and above this width the
-     viewport stops being what the type has to fit into — the column does. */
+  /* Above this width the viewport stops being what the type has to fit into —
+     the column does. */
   .landing {
-    --shout: clamp(3.5rem, 6.2vw, 5.75rem);
-    --lead: clamp(2.25rem, 3.8vw, 3.5rem);
+    --shout: clamp(3.25rem, 5.8vw, 5.25rem);
+    --lead: clamp(2rem, 3.6vw, 3.25rem);
   }
 
   .negations-heading {
-    font-size: clamp(3.25rem, 6.6vw, 6.25rem);
+    font-size: clamp(3rem, 6.2vw, 5.75rem);
   }
 
   .keep-heading,
   .closing-heading {
-    font-size: clamp(3rem, 5.4vw, 5rem);
+    font-size: clamp(2.75rem, 5vw, 4.5rem);
   }
 
   .opening {
@@ -894,29 +1030,83 @@
 
   .stage {
     margin-top: 0;
-    padding-bottom: 0;
   }
 
   .device-lg {
-    width: min(20rem, 84%);
+    width: min(19rem, 84%);
   }
 
   .prompt {
-    /* Pulled left, out of the phone's column and into the gutter between the
-       two, so the sentence and the shop genuinely overlap rather than merely
-       sitting near one another. */
-    width: min(21rem, 90%);
-    margin-top: -34%;
-    margin-left: -12%;
+    /* Pulled left, out of the phone's column and into the gutter, so the
+       sentence and the shop genuinely overlap rather than sit near one
+       another. */
+    width: min(20rem, 90%);
+    margin-top: -32%;
+    margin-left: -10%;
   }
 
-  /* Five across, inside the measure, so the set can be compared in one look
-     rather than scrolled through one shop at a time. */
+  .why-line {
+    max-width: 30ch;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  /*
+   * Copy and rail down the left, the lead shop down the right across both.
+   *
+   * The first cut put the lead in its own row and left a column of empty ink
+   * beside it — and shrinking the phone to win the height back made the one
+   * shop you are meant to be able to read the hardest one to see. Spanning it
+   * instead fills the space and lets it grow.
+   */
+  .proof {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    column-gap: clamp(2rem, 5vw, 3.5rem);
+    align-items: start;
+  }
+
+  .proof-say {
+    padding-right: 0;
+  }
+
+  .proof-lead {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  /* Its twin in the rail stands down, so neither width shows it twice. */
+  .rail li:first-child {
+    display: none;
+  }
+
+  .proof-lead .device {
+    width: min(15.5rem, 100%);
+  }
+
+  .proof-lead figcaption {
+    align-items: flex-end;
+    max-width: 26ch;
+  }
+
+  .rail {
+    grid-column: 1;
+    margin-top: clamp(1.5rem, 3.5vw, 2.25rem);
+  }
+
   .rail li {
-    width: 13.5rem;
+    width: 10rem;
   }
 
-  .negations {
+  .rail {
+    scroll-snap-type: none;
+  }
+
+  .negations,
+  .keep {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: clamp(2rem, 5vw, 4rem);
@@ -928,33 +1118,18 @@
   }
 
   .pills,
-  .negations-note {
-    margin-top: 0;
-  }
-
-  .negations-note {
-    margin-top: 1.5rem;
-  }
-
-  .keep {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(2rem, 5vw, 4rem);
-    align-items: start;
-  }
-
-  .keep-heading {
-    grid-row: span 2;
-  }
-
+  .negations-note,
   .keep-note,
-  .rules {
+  .swap {
     margin-top: 0;
   }
 
-  .rules {
-    grid-template-columns: 1fr;
-    margin-top: 1.5rem;
+  .negations-note {
+    margin-top: 1.25rem;
+  }
+
+  .keep-note {
+    margin-top: 1rem;
   }
 }
 
@@ -964,7 +1139,7 @@
   }
 
   /* Pressed into the page rather than lifted off it — the shadow is a hard
-     offset, so the honest hover is the one that closes the gap. */
+     offset, so the honest hover closes the gap. */
   .btn:hover {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0 var(--ink);
@@ -977,25 +1152,19 @@
   /* ------------------------------------------------------ the opening plays */
 
   /*
-   * Sentence in, shop out — the whole product, in three and a half seconds.
+   * Sentence in, catalogue read, shop out — the whole product in three and a
+   * half seconds. Every rule here is a *from* state; the page's resting
+   * appearance is the finished one, written above without any of this, which
+   * is what makes the reduced-motion answer "do not run the timeline" rather
+   * than "build a calmer second version".
    *
-   * Every rule here is a *from* state. The page's resting appearance is the
-   * finished one, written above without any of this, which is what makes the
-   * reduced-motion answer "do not run the timeline" rather than "build a
-   * second, calmer version of it".
-   *
-   * It plays once and holds. A loop would be a repaint budget spent forever on
-   * something a visitor understands the first time, and the finished shop is
-   * the state worth resting on anyway. Every animation is `both`, so the last
-   * frame is where things stay.
-   *
-   * The beats, in one place so they can be read as a script rather than
-   * reconstructed from nine delays:
+   * It plays once and holds. A loop is a repaint budget spent forever on
+   * something understood the first time.
    *
    *   0.15s  the card and the empty phone arrive
    *   0.45s  the sentence types itself, a word every 85ms
    *   1.55s  "make it pop" is pressed
-   *   1.80s  reading the catalogue
+   *   1.70s  the catalogue is read, and the constraints appear
    *   2.45s  the masthead lands
    *   2.70s  the first row of products
    *   2.95s  the second row
@@ -1015,10 +1184,8 @@
     animation-delay: calc(450ms + var(--w) * 85ms);
   }
 
-  /* Blinks only while there is typing to do, then stops — three beats, ending
-     on the dark half of the cycle, so it simply is not there afterwards. A
-     cursor that blinks for the rest of the visit costs a repaint every half
-     second for nothing. */
+  /* Blinks while there is typing to do, then stops — three beats ending on the
+     dark half of the cycle, so it simply is not there afterwards. */
   .caret {
     animation: wink 520ms steps(1, end) 400ms 3 both;
   }
@@ -1027,36 +1194,34 @@
     animation: press 260ms cubic-bezier(0.3, 0, 0.2, 1) 1550ms both;
   }
 
-  /* Out by 2450ms, which is when the first band lands — the pill and the shop
-     hand over rather than sharing the screen. */
+  /* Out by 2450ms, which is when the first band lands — the reading and the
+     shop hand over rather than sharing the screen. */
   .think {
     animation: think 750ms ease 1700ms both;
   }
 
-  .think i {
-    animation: bounce 620ms ease-in-out 1800ms 2 both;
+  .think-chips i {
+    animation: chip 260ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
   }
-
-  .think i:nth-of-type(2) {
-    animation-delay: 1900ms;
+  .think-chips i:nth-child(1) {
+    animation-delay: 1850ms;
   }
-
-  .think i:nth-of-type(3) {
-    animation-delay: 2000ms;
+  .think-chips i:nth-child(2) {
+    animation-delay: 1950ms;
+  }
+  .think-chips i:nth-child(3) {
+    animation-delay: 2050ms;
   }
 
   .screen-band {
     animation: land 380ms cubic-bezier(0.2, 0.85, 0.25, 1) both;
   }
-
   .screen-band:nth-child(1) {
     animation-delay: 2450ms;
   }
-
   .screen-band:nth-child(2) {
     animation-delay: 2700ms;
   }
-
   .screen-band:nth-child(3) {
     animation-delay: 2950ms;
   }
@@ -1126,7 +1291,7 @@
   }
 
   /* The centring translate is part of the resting position, so every frame has
-     to carry it — dropping it in one keyframe throws the pill off-centre for
+     to carry it — dropping it in one keyframe throws the group off-centre for
      the length of the animation. */
   @keyframes think {
     0%,
@@ -1141,23 +1306,22 @@
     }
   }
 
-  @keyframes bounce {
-    0%,
-    100% {
-      transform: none;
+  @keyframes chip {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
     }
-    50% {
-      transform: translateY(-0.22rem);
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
 
   /*
-   * A band arrives by growing into its own strip.
-   *
-   * `clip-path` is applied before `transform`, so scaling a clipped band scales
-   * its window too and the strip appears to open outward from where it will
-   * sit — which is why this reads as a row of products appearing rather than a
-   * picture sliding past.
+   * A band arrives by growing into its own strip. `clip-path` applies before
+   * `transform`, so scaling a clipped band scales its window too and the strip
+   * opens outward from where it will sit — which is why this reads as a row of
+   * products appearing rather than a picture sliding past.
    */
   @keyframes land {
     from {

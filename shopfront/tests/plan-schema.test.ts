@@ -116,6 +116,19 @@ describe("the schema handed to the model", () => {
     }
   });
 
+  it("uses no `format` keyword, which would make the grammar uncompilable", () => {
+    // Not a style rule. `format: "uri"` and `format: "date-time"` each compile
+    // to a large regex inside the constrained grammar, and five of them put
+    // this schema over the API's budget: every request 400s with "the compiled
+    // grammar is too large" before the model sees it, which is precisely how
+    // the merchandiser shipped for weeks without a real model ever answering.
+    //
+    // Nothing is lost. URLs are checked against `allowedUrls` — the closed set
+    // read off this store, which `format: "uri"` cannot express — and
+    // `launchesAt` against the merchant's brief, both in validate.ts.
+    expect(JSON.stringify(root)).not.toContain('"format"');
+  });
+
   it("describes every field it asks the model to fill", () => {
     // Descriptions are prompt surface, not documentation — the model reads
     // them while filling the field.
