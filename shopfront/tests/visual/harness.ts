@@ -229,7 +229,25 @@ export async function startHarness(): Promise<Harness> {
         bootLog = `${bootLog}${chunk.toString()}`.slice(-2000);
       });
 
-      base = `http://127.0.0.1:${port}`;
+      /*
+       * `localhost`, not `127.0.0.1`, and the difference is not cosmetic.
+       *
+       * Chromium on Linux reads `http_proxy`/`https_proxy` from the
+       * environment. It always bypasses the *name* `localhost`; a literal
+       * `127.0.0.1` is matched against `no_proxy`, and that matching is not
+       * reliable when the list carries CIDR entries. Inside a sandbox that
+       * sets a proxy — a coding agent, a corporate laptop — the browser sends
+       * requests for this server's own chunks to the proxy, which answers
+       * 403.
+       *
+       * The symptom is brutal to read: the HTML arrives, twenty script tags
+       * are in the DOM, and React never runs, because the one chunk that
+       * failed was its runtime. Every assertion about post-hydration
+       * behaviour then measures server-rendered HTML and reports a product
+       * bug. Confirmed by loading the same page off the same server two ways:
+       * `127.0.0.1` never hydrates, `localhost` hydrates immediately.
+       */
+      base = `http://localhost:${port}`;
     }
 
     try {
@@ -277,24 +295,101 @@ export async function startHarness(): Promise<Harness> {
  * vacuously, which the note in `geometry.test.ts` already warns about. This
  * waits for the precondition and leaves every assertion free to fail.
  */
-export async function waitForHydration(page: Page): Promise<void> {
-  await page.waitForFunction(
+/** Has React attached to this document yet? */
+function hydrated(page: Page, timeout: number): Promise<unknown> {
+  return page.waitForFunction(
     () => {
       const root = document.querySelector(".shop") ?? document.body;
       return Object.keys(root).some((key) => key.startsWith("__reactFiber$"));
     },
     undefined,
-    // Generous: this covers a cold Turbopack compile of a route and its client
-    // chunks on a shared CI runner, and it costs nothing when hydration is
-    // already done.
-    { timeout: 30_000 },
+    // Interval polling, not the default rAF: in headless Chromium only one
+    // page is visible at a time, and a backgrounded page has rAF suspended, so
+    // on a suite that opens pages concurrently the predicate would never run.
+    { polling: 100, timeout },
   );
+}
+
+/**
+ * Wait until React has actually attached, rather than for a number of
+ * milliseconds — and reload once if a cold dev server dropped a chunk.
+ *
+ * This is the fix for a suite that had been red in CI for days while passing
+ * on every developer's machine, which is the worst shape a test can take: the
+ * people who could fix it were the people who could not see it.
+ *
+ * `networkidle` means the network went quiet, not that the page is
+ * interactive. On a dev server that has already compiled the route, hydration
+ * follows within milliseconds, so the old fixed 1.2s settle covered it by
+ * luck. On a cold one it does not, and the assertions then measure
+ * server-rendered HTML — which is why the broken-imagery tests were the ones
+ * failing. They are the only ones asserting on behaviour that requires
+ * hydration, so a page whose JavaScript had not run yet came back looking like
+ * a product bug: no `[data-broken]` marks, a white headline on a pale plate.
+ *
+ * The reload is a bounded safety net for the other way this fails — a client
+ * chunk that never arrives at all. React does not retry a failed chunk, so the
+ * page sits as server-rendered HTML forever and no amount of waiting helps.
+ * One reload fixes a transient miss and reports the rest.
+ *
+ * **The 403 that made this hard to see was the sandbox's proxy, not the dev
+ * server** — see the note on the base URL in `startHarness`, which is the
+ * actual fix for that. It is recorded here because the two symptoms are
+ * identical from inside a test, and the wrong one was chased first: a page
+ * with twenty script tags in the DOM and no React on it looks the same
+ * whether the runtime chunk was blocked or merely late.
+ *
+ * The signal is React's own fiber key on a hydrated host node, deliberately
+ * *not* anything the tests assert on: gating on `[data-broken]` would make the
+ * broken-imagery tests wait for their own conclusion and pass vacuously, which
+ * the note in `geometry.test.ts` already warns about. This waits for the
+ * precondition and leaves every assertion free to fail.
+ */
+export async function waitForHydration(page: Page): Promise<void> {
+  try {
+    // Generous before reaching for the reload. A cold Turbopack compile on a
+    // contended runner is slow but *works*, and reloading at 8s turned every
+    // page on such a runner into two page loads — which is how one CI run
+    // reached seventy minutes without failing. Waiting costs nothing when
+    // hydration is already done, which is the normal case.
+    await hydrated(page, 25_000);
+    return;
+  } catch {
+    // Fall through to the one reload.
+  }
+
+  await page.reload({ waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts.ready);
+
+  await hydrated(page, 20_000).catch(async (error: unknown) => {
+    // A bare "Timeout exceeded" says nothing about which of the causes it was,
+    // and this wait cost an hour of guessing once already.
+    const seen = await page
+      .evaluate(() => ({
+        url: location.pathname,
+        shop: Boolean(document.querySelector(".shop")),
+        scripts: document.querySelectorAll("script").length,
+      }))
+      .catch(() => null);
+    const noise = (page as unknown as { __noise?: string[] }).__noise ?? [];
+    throw new Error(
+      `hydration never completed, even after a reload: ${JSON.stringify(seen)}\n` +
+        `${noise.slice(0, 8).join("\n")}\n(${String(error).slice(0, 120)})`,
+    );
+  });
 }
 
 export async function open(harness: Harness, mood: Mood, viewport: Viewport): Promise<Page> {
   const page = await harness.browser.newPage({
     viewport: { width: viewport.width, height: viewport.height },
   });
+  const noise: string[] = [];
+  page.on("pageerror", (e) => noise.push(`pageerror: ${e.message}`));
+  page.on("console", (m) => {
+    if (m.type() === "error") noise.push(`console: ${m.text().slice(0, 200)}`);
+  });
+  page.on("requestfailed", (r) => noise.push(`failed: ${r.url().slice(-80)}`));
+  (page as unknown as { __noise: string[] }).__noise = noise;
   await page.goto(urlFor(harness.base, mood), { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await waitForHydration(page);
