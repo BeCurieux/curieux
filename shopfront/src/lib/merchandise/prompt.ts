@@ -38,7 +38,9 @@ The merchant's brief is the whole instruction. Read what it says about who is ar
 
 Fewer, better. A shop of eight considered products outsells a shop of thirty, and every product you add dilutes the ones you believe in. Lead with the strongest thing you have: the first product is the one that decides whether the shopper keeps scrolling.
 
-Honour explicit constraints exactly. A price cap means every product you select comes in under it. A named product means it appears, and appears early. A count means that count.
+Leaving products out is the work, not a shortfall in it. An audience is a filter even when the brief names no price and no count — "someone setting up their first workshop" excludes as surely as "under $80" does, and a product you kept only because you could not think of a reason to drop it is one you have no reason to sell. A selection that is most of the catalogue is the storefront rearranged, and it hands the shopper back the same undifferentiated pile they arrived from. The catalogue section tells you the size a good shop from this one lands on: go under it freely, and over it only when the merchant asked for a complete listing.
+
+Honour explicit constraints exactly. A price cap means every product you select comes in under it. A named product means it appears, and appears early. A count means that count. A brief that asks for everything of a kind — what is left, what is in stock, the full range — is asking for a complete listing, and there the whole eligible set is the right answer.
 
 Prefer products with imagery. A card with no photograph is a hole in the page — if a product has NO IMAGE in the catalogue, include it only when the brief specifically calls for it.
 
@@ -65,6 +67,46 @@ Everything else follows the shopper rather than the brand. Mood, typography, den
 The brand's register is the ceiling, not the answer. A brand that writes plainly will not carry \`playful\` at its loudest, but it can still be softer for a gift and tighter for a clearance.
 
 If the audience gives you nothing to go on, leave the theme at the brand's own default and say so by choosing it deliberately. Varying it because variation seems expected is noise, and noise is worse than a default — a merchant who regenerates and gets a different corner radius for no reason learns not to trust the rest.`;
+
+/**
+ * Below this, taking most of the catalogue is not a failure to select.
+ *
+ * A five-product store's shop is more or less the store, and telling the model
+ * to leave two of them out would be worse merchandising, not better.
+ */
+const SELECTION_TARGET_MIN_CATALOGUE = 8;
+
+/** Never suggest a shop longer than this, however large the catalogue. */
+const SELECTION_TARGET_MAX = 12;
+
+/**
+ * The size a good shop from this catalogue tops out at.
+ *
+ * "Fewer, better" is the rule the merchandiser ignored most often, and the
+ * reason is legible in the outputs: on a brief with an explicit filter it had
+ * something to check itself against, and on an open one it had nothing but an
+ * adjective. This turns the adjective into a number the brief states at the
+ * point of the decision.
+ *
+ * A ceiling and never a floor — that distinction was measured, not assumed.
+ * Phrased as a range with a low end of four, this made the under-$100 gift shop
+ * *worse*: only four products in that catalogue come in under the cap, one of
+ * them is sold out, and a stated minimum was enough to pull the unbuyable one
+ * back in to make the number. A brief that narrows the field should be free to
+ * land on two products. Nothing here ever argues for more.
+ *
+ * Soft on the other side too. The best shop this merchandiser has produced took
+ * every in-stock product in the catalogue, because the merchant asked what was
+ * still in stock — so this is guidance the brief can overrule, and `validate.ts`
+ * only warns, at a wide margin above it.
+ *
+ * Sub-linear in catalogue size on purpose: 70% of ten products is a plausible
+ * edit, and 70% of two hundred is not a shop at all.
+ */
+export function selectionCeiling(count: number): number | null {
+  if (count < SELECTION_TARGET_MIN_CATALOGUE) return null;
+  return Math.min(SELECTION_TARGET_MAX, count, Math.max(6, Math.round(count * 0.7)));
+}
 
 export interface BriefOptions {
   catalogue?: CatalogueViewOptions;
@@ -139,12 +181,18 @@ export function buildBrief(ingest: IngestResult, prompt: string, options: BriefO
     ].join("\n"),
   );
 
+  const ceiling = selectionCeiling(catalogue.included);
   const genome = options.catalogue?.genome;
   sections.push(
     [
       "# The catalogue",
       "",
       `${catalogue.included} products${catalogue.omitted > 0 ? ` (of ${catalogue.included + catalogue.omitted}; the rest were not offered)` : ""}. Prices are in ${cat.currency ?? "the shop's own currency, which the storefront did not declare"}.`,
+      ...(ceiling
+        ? [
+            `A good shop from a catalogue this size tops out around ${ceiling} products, and there is no lower bound — if the brief narrows the field to three products worth selling, the shop is three products.`,
+          ]
+        : []),
       ...(genome
         ? [
             "",

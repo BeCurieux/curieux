@@ -331,6 +331,18 @@ describe("whether it selected at all", () => {
     expect(pick(10, "Show everything we sell").warnings.some((w) => w.includes("made the page"))).toBe(false);
   });
 
+  it("stands down for a clearance brief, now that the brief carries a size", () => {
+    // This one was a knowingly-accepted false positive when the check was the
+    // only defence against a whole catalogue shipping as an edit. Since the
+    // brief started stating a ceiling, the open briefs land at six and seven
+    // of ten and no longer trip this — so leaving the clearance shop warning
+    // would make every warning on this catalogue a false one, which is how a
+    // check like this actually dies.
+    const clearance = "what is still in stock and cheapest first, end of season";
+    expect(pick(10, clearance).warnings.some((w) => w.includes("made the page"))).toBe(false);
+    expect(pick(10, "what's left in the sale").warnings.some((w) => w.includes("made the page"))).toBe(false);
+  });
+
   it("keeps its threshold somewhere a person can argue with it", () => {
     // Not a behaviour test. This number is a judgement made against six real
     // generations, and it should stay findable and changeable.

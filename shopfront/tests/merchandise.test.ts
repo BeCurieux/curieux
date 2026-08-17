@@ -163,4 +163,35 @@ describe("the brief handed to the provider", () => {
     await merchandise(noCurrency, PROMPT, { provider });
     expect(provider.requests[0]!.brief).toMatch(/no copy may contain a currency symbol/i);
   });
+
+  it("states how large a good shop from this catalogue is, and that it is a ceiling", async () => {
+    // "Fewer, better" was the most-ignored rule in the prompt, because on an
+    // open brief it was an adjective with nothing to check against. The number
+    // is stated where the decision is made.
+    const wide = makeIngest({
+      catalogue: {
+        ...ingest.catalogue,
+        products: Array.from({ length: 10 }, (_, i) => ({
+          ...ingest.catalogue.products[i % ingest.catalogue.products.length]!,
+          handle: `product-${i}`,
+        })),
+        productCount: 10,
+      },
+    });
+    const provider = scripted([buildPlan(wide, PROMPT)]);
+    await merchandise(wide, PROMPT, { provider });
+
+    const { brief } = provider.requests[0]!;
+    expect(brief).toContain("tops out around 7 products");
+    // The half of the sentence that was learned the expensive way: phrased as a
+    // range with a low end, this pulled a sold-out product back into the
+    // under-$100 gift shop to make the minimum.
+    expect(brief).toMatch(/no lower bound/i);
+  });
+
+  it("says nothing about size for a catalogue too small to have a shape", async () => {
+    const provider = scripted([goodPlan()]);
+    await merchandise(ingest, PROMPT, { provider }); // four products
+    expect(provider.requests[0]!.brief).not.toMatch(/tops out around/);
+  });
 });

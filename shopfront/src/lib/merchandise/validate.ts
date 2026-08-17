@@ -445,7 +445,24 @@ function checkSelection(
   // A brief that asks for the lot is not asking to be edited down. Kept
   // deliberately narrow — this is the one place a clever regex would start
   // guessing at intent, and guessing wrong here silences the check.
-  if (/\b(everything|all of|the whole|entire|full (range|catalogue|catalog))\b/i.test(prompt)) return;
+  //
+  // The stock phrasings were added once the brief started carrying a size
+  // (`selectionCeiling`, prompt.ts). This check was written when it was the
+  // only defence, and accepting a standing false positive on the clearance
+  // brief was the right call then: a warning nobody wanted beat a catalogue
+  // shipped as an edit. With the ceiling preventing the failure at source, the
+  // open briefs now land at six and seven of ten and no longer trip this — so
+  // the clearance shop would have become the *only* thing that ever warned,
+  // and every warning on this catalogue a false one. That is precisely the
+  // "train people to ignore the warning" failure SELECTION_FLOOR exists to
+  // avoid, arriving by a different road.
+  if (
+    /\b(everything|all of|the whole|entire|full (range|catalogue|catalog)|still in stock|what(?:'s| is) (?:still |left)|what(?:'s| is) left)\b/i.test(
+      prompt,
+    )
+  ) {
+    return;
+  }
 
   const share = selected.size / total;
   if (share <= SELECTION_CEILING) return;

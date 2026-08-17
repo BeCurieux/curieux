@@ -146,7 +146,7 @@ This is the part worth reading.
 
 **The "stolen kit" shop selected the entire catalogue.** Ten products out of ten
 on the first run, nine on the second. That is not merchandising — that is the
-catalogue with headings on it. The system prompt is explicit ("Fewer, better…
+catalogue with headings on it. *(Fixed — see §8.)* The system prompt is explicit ("Fewer, better…
 every product you add dilutes the ones you believe in") and the model ignored
 it completely when the brief didn't supply a hard filter. Worse, it included the
 petrol chainsaw — outdoor clearing equipment, not a tradesperson's kit — and
@@ -299,13 +299,13 @@ the demo is the sale prompt, not the pro prompt.
 
 ### What I would fix next, in order
 
-1. ~~**Make "fewer, better" bite when the brief has no filter.**~~ **Done.**
-   `checkSelection` in `validate.ts` warns above 70% of the catalogue. Verified
-   against live generations: the stolen-kit brief fires at 9/10, the gift brief
-   stays silent at 3, and the clearance brief fires at 8/10 — a false positive
-   kept on purpose. It is a warning rather than an error precisely because of
-   that last row: as a hard rule it would have failed the best shop in this
-   report.
+1. ~~**Make "fewer, better" bite when the brief has no filter.**~~ **Done — §8.**
+   Two halves, landed separately and now merged: `checkSelection` in
+   `validate.ts` makes the failure *visible*, and the size the brief now states
+   (`selectionCeiling`) makes it stop *happening* — the stolen-kit shop went
+   from 10 and 9 products to 7 and 7, the first-workshop shop from 9 and 8 to 6
+   and 6. It stays a warning and never an error, because as a hard rule it
+   would have failed the best shop in this report.
 2. ~~**Decide whether theme is a real output.**~~ **Half fixed, half untested.**
    The prompt tied theme to the brand twice over — *"change it only if the brief
    asks for a different feeling"* and *"pick the mood from how the brand
@@ -336,3 +336,83 @@ the demo is the sale prompt, not the pro prompt.
    one with poor photography, and none of that has happened.
 5. **Look at run-to-run variance deliberately** before a merchant discovers it
    by pressing regenerate.
+
+---
+
+## 8. Fixed: "fewer, better" on open-ended briefs
+
+The §4 defect is closed. Sixteen further generations, two runs per brief,
+`--no-genome` so the change is isolated:
+
+| brief | before | after |
+|---|---|---|
+| stolen kit *(open)* | 10, 9 | **7, 7** |
+| first workshop *(open)* | 9, 8 | **6, 6** |
+| gift under $100 *(filtered)* | 4 *(one sold out)*, 3 | **3, 3** |
+| end of season *(enumerative)* | 8, 8 | **8, 8** — unchanged |
+
+**The diagnosis was that "fewer, better" was an adjective with nothing to check
+against.** On a brief with an explicit filter the model had a testable
+condition and honoured it exactly; on an open brief it had only a preference,
+and preferences lose to the pull of a catalogue sitting right there. So the fix
+is not more emphasis — the prompt-audit rule against pressure language applies,
+and shouting at a model that already follows instructions closely mostly causes
+over-triggering. The fix is to make the rule checkable:
+
+- **`selectionCeiling()` puts a number in the brief**, computed from catalogue
+  size and stated where the decision happens: *"A good shop from a catalogue
+  this size tops out around 7 products."* Sub-linear — 70% of ten products is a
+  plausible edit, 70% of two hundred is not a shop — and capped at twelve.
+- **The system prompt names the failure** rather than repeating the preference:
+  an audience is a filter even when it names no price, and a selection that is
+  most of the catalogue is the storefront rearranged.
+- **`validate.ts` warns above 70% of the catalogue** (`checkSelection`), and
+  only when the brief isn't asking for a complete listing. A warning, never an
+  error — see below.
+
+These two halves were built independently and merged. The check makes the
+failure visible; the ceiling makes it stop happening. Keeping both is the point:
+prevention that is never audited drifts, and a warning on a defect nothing
+prevents just documents it every time.
+
+Merging them did move one decision. The check originally accepted a standing
+false positive on the clearance brief, which was right when it was the only
+defence — a warning nobody wanted beat shipping a catalogue as an edit. With the
+ceiling in place the open briefs land at six and seven of ten and no longer trip
+it, so the clearance shop would have become the only thing that ever warned, and
+every warning on this catalogue a false one. Its guard now recognises stock
+phrasings ("still in stock", "what's left") for that reason.
+
+**Two things this deliberately does not do**, both because the measurements
+said so:
+
+**It is a ceiling with no floor.** The first version stated a range — "4 to 7
+products" — and it made the gift shop *worse*: only four products in this
+catalogue come in under $100, one of them is sold out, and a stated minimum was
+enough to pull the unbuyable angle grinder back in to make the number. Both
+runs. That is the exact defect §4 criticised, manufactured by my own fix. The
+brief now says there is no lower bound and that a brief narrowing the field to
+three products gets a shop of three.
+
+On the merged prompt the gift shop ran four times: **3, 3, 3 and one 4 that
+again included the sold-out grinder.** Better than the baseline and much better
+than the floored version, but the §4 defect is reduced rather than closed — it
+is now a minority outcome instead of a coin flip, and a fifth of gift shops
+still ship something unbuyable.
+
+**It never errors.** The best shop this merchandiser produces takes every
+in-stock product in the catalogue, because the merchant asked what was still in
+stock. A rule that rejected breadth outright would reject the good output along
+with the bad. The warning is suppressed on enumerative briefs, and the sale shop
+verified unchanged at 8 of 10 across both runs.
+
+Two secondary effects worth recording. **Run-to-run variance collapsed** on the
+open briefs — 7/7 and 6/6, with the first-workshop shop selecting identical
+membership both times, where before every rerun differed. A checkable target
+appears to stabilise the decision, not just shrink it. And **the Genome now
+compounds with it**: first-workshop lands on 5 products, max $149.99 — drill,
+sockets, laser, gloves, belt, which is a starter kit and nothing else.
+
+What it does not fix: the $549 tool chest still appears in the pro shop (that
+is defensible — quality over price), and the theme is still a constant. §7's
+correction to the pitch stands unchanged.
