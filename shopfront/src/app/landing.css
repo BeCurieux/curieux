@@ -155,6 +155,27 @@
   padding-block: clamp(1rem, 3vw, 1.5rem);
 }
 
+.bar-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.85rem, 3vw, 1.5rem);
+}
+
+.bar-nav a:not(.btn) {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-cream);
+  text-decoration: none;
+  /* 44px target without changing where the baseline sits. */
+  padding-block: max(0px, calc((44px - 1lh) / 2));
+  margin-block: min(0px, calc((1lh - 44px) / 2));
+}
+
+.bar-nav a:not(.btn):hover {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+}
+
 .bar-mark {
   display: block;
   width: clamp(104px, 15vw, 148px);

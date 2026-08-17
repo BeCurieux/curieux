@@ -129,9 +129,15 @@ export default function Landing() {
     <main className={`landing ${displayWonk.variable}`}>
       <header className="bar">
         <img className="bar-mark" src="/brand/popuup.svg" alt="popuup" width={180} height={62} />
-        <a className="btn btn-sm" href={ASK}>
-          Get my shop made <span aria-hidden="true">→</span>
-        </a>
+        {/* One link and one button. "What will this cost" is the second
+            question a merchant asks, and the page that answers it says plainly
+            that nothing is chargeable — so pointing at it costs no honesty. */}
+        <nav className="bar-nav">
+          <a href="/pricing">Pricing</a>
+          <a className="btn btn-sm" href={ASK}>
+            Get my shop made <span aria-hidden="true">→</span>
+          </a>
+        </nav>
       </header>
 
       {/* ------------------------------------------------------------ opening */}
