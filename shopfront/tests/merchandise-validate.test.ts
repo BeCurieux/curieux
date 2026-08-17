@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validatePlan } from "@/lib/merchandise/validate";
+import { SELECTION_CEILING, SELECTION_FLOOR, validatePlan } from "@/lib/merchandise/validate";
 import { collectAllowedUrls } from "@/lib/merchandise/prompt";
 import type { MerchandisingPlan, PlannedBlock } from "@/lib/merchandise/plan";
 import { makeIngest } from "./helpers/ingest";
@@ -260,5 +260,82 @@ describe("warnings, which never trigger a retry", () => {
     const result = check([grid([{ handle: "care-card" }])]);
     expect(result.errors).toEqual([]);
     expect(result.warnings.some((w) => w.includes("no imagery"))).toBe(true);
+  });
+});
+
+/**
+ * Did it merchandise, or put headings on the catalogue?
+ *
+ * From the first real run: given a brief with a constraint to check itself
+ * against the model selects well, and given an open-ended one it returned ten
+ * products out of ten. Nothing caught that — the plan was valid in every other
+ * respect, which is exactly why it needs a check of its own.
+ */
+describe("whether it selected at all", () => {
+  /** The shared fixture is four products; this check needs a real choice. */
+  const wide = makeIngest();
+  const spread = {
+    ...wide,
+    catalogue: {
+      ...wide.catalogue,
+      products: Array.from({ length: 10 }, (_, i) => ({
+        ...wide.catalogue.products[i % wide.catalogue.products.length]!,
+        handle: `thing-${i}`,
+      })),
+      productCount: 10,
+    },
+  };
+  const wideUrls = collectAllowedUrls(spread);
+
+  const pick = (n: number, prompt = "A shop for the knitwear post") =>
+    validatePlan({
+      plan: plan([grid(Array.from({ length: n }, (_, i) => ({ handle: `thing-${i}` })))]),
+      ingest: spread,
+      prompt,
+      allowedUrls: wideUrls,
+    });
+
+  it("says so when most of the catalogue made the page", () => {
+    const result = pick(8);
+    expect(result.warnings.some((w) => w.includes("8 of 10"))).toBe(true);
+  });
+
+  it("stays quiet when a real edit was made", () => {
+    expect(pick(3).warnings.some((w) => w.includes("of 10"))).toBe(false);
+  });
+
+  it("warns rather than failing, so a clearance edit still ships", () => {
+    /*
+     * The design decision, held as a test.
+     *
+     * The obvious implementation rejects and lets the retry loop force a
+     * smaller selection — and it would have failed the best shop the first
+     * real run produced, "still in stock, cheapest first", which legitimately
+     * took every available product because breadth was the brief. Nothing here
+     * can tell that apart from a model that gave up, so it reports and asks
+     * rather than pretending to know.
+     */
+    const result = pick(10);
+    expect(result.errors).toEqual([]);
+  });
+
+  it("says nothing about a catalogue too small to edit", () => {
+    // Four products is not an edit waiting to be made, and warning about it
+    // would train people to ignore the warning — the only thing that can
+    // actually break a check like this.
+    const all = check([grid([{ handle: "oat-crew" }, { handle: "wool-throw" }, { handle: "care-card" }])]);
+    expect(all.warnings.some((w) => w.includes("made the page"))).toBe(false);
+  });
+
+  it("stands down when the brief asked for the lot", () => {
+    expect(pick(10, "Show everything we sell").warnings.some((w) => w.includes("made the page"))).toBe(false);
+  });
+
+  it("keeps its threshold somewhere a person can argue with it", () => {
+    // Not a behaviour test. This number is a judgement made against six real
+    // generations, and it should stay findable and changeable.
+    expect(SELECTION_CEILING).toBeGreaterThan(0.5);
+    expect(SELECTION_CEILING).toBeLessThan(1);
+    expect(SELECTION_FLOOR).toBeGreaterThanOrEqual(2);
   });
 });

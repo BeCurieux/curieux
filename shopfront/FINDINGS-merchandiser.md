@@ -293,9 +293,13 @@ the demo is the sale prompt, not the pro prompt.
 
 ### What I would fix next, in order
 
-1. **Make "fewer, better" bite when the brief has no filter.** This is the
-   defect that most undermines the pitch. Probably a validation warning at first
-   (selection > 70% of a catalogue is a smell), not more prompt emphasis.
+1. ~~**Make "fewer, better" bite when the brief has no filter.**~~ **Done.**
+   `checkSelection` in `validate.ts` warns above 70% of the catalogue. Verified
+   against live generations: the stolen-kit brief fires at 9/10, the gift brief
+   stays silent at 3, and the clearance brief fires at 8/10 — a false positive
+   kept on purpose. It is a warning rather than an error precisely because of
+   that last row: as a hard rule it would have failed the best shop in this
+   report.
 2. **Decide whether theme is a real output.** Either give the model a reason to
    move it (mood is derivable from the audience, not just the brand's voice) or
    stop describing it as something the AI decides.
