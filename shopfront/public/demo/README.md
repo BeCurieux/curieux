@@ -1,14 +1,29 @@
 # Demo photography
 
 Drop product photographs in here and the demo shops use them instead of the
-drawings. Nothing else needs changing:
+drawings:
 
 ```
-pnpm press
+pnpm press               # catalogues, the five mood shops, their screenshots
+pnpm press:edits         # the five front-page shops, re-merchandised
+pnpm press:capture-edits # and their screenshots
+pnpm tsx scripts/demo-fixtures.ts   # freeze them so a fresh checkout has them
 ```
 
-That regenerates the demo catalogues, the shops, and every screenshot the
-marketing site displays.
+Three commands rather than one, and the reason is worth knowing: `pnpm press`
+rebuilds the *mood* shops — one brand each, five templates — which is where the
+hero image comes from. The five phones under "One catalogue. Five shops." are a
+different and stronger claim, one catalogue against five sentences, and they go
+through the real merchandiser. `press:edits` needs `POPUUP_ANTHROPIC_API_KEY`
+and `AI_PROVIDER=anthropic`.
+
+**The merchandiser is not deterministic.** Re-running it against the same
+catalogue and the same five sentences returned four products for the negroni
+kit on one run and five on another. That is a model making a judgement and it
+is fine — but `src/app/page.tsx` types those counts by hand next to each phone,
+so a regeneration can turn "4 pieces" into a lie. `tests/marketing.test.tsx`
+checks every label against its fixture, so this fails loudly rather than
+shipping. Update the `n` values when it does.
 
 ## Why this folder exists
 

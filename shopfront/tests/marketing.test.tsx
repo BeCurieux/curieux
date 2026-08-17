@@ -240,3 +240,56 @@ describe("the examples page", () => {
     expect(examples.html).toMatch(/demo/i);
   });
 });
+
+describe("the front page's five edits", () => {
+  /**
+   * Every product count beside a shop must be that shop's real count.
+   *
+   * `src/app/page.tsx` types `n` by hand next to each phone — "5 pieces",
+   * "3 pieces" — and the whole section argues from those numbers: three for a
+   * first flat against seven for a clearout is the difference it exists to
+   * show. They were correct when written and nothing kept them correct.
+   *
+   * The merchandiser is not deterministic. Re-running `pnpm press:edits`
+   * against the same catalogue and the same five sentences returned four
+   * products for the negroni kit on one run and five on another — which is
+   * fine, it is a model making a judgement, and it means a regeneration
+   * silently turns a true label into a false one. Nothing else would notice:
+   * the page still renders, the screenshot still looks right, and the only
+   * symptom is a number that disagrees with the picture beside it.
+   */
+  const handlesIn = (config: unknown): Set<string> => {
+    const found = new Set<string>();
+    const walk = (value: unknown): void => {
+      if (Array.isArray(value)) return value.forEach(walk);
+      if (value && typeof value === "object") {
+        const record = value as Record<string, unknown>;
+        if (typeof record.handle === "string") found.add(record.handle);
+        Object.values(record).forEach(walk);
+      }
+    };
+    walk((config as { blocks: unknown }).blocks);
+    return found;
+  };
+
+  it("labels each shop with the number of products actually in it", () => {
+    const source = readFileSync(path.join(APP, "page.tsx"), "utf8");
+    const labelled = [...source.matchAll(/slug: "(edit-[a-z]+)"[^}]*?n: (\d+)/g)].map((m) => ({
+      slug: m[1]!,
+      n: Number(m[2]),
+    }));
+
+    // A regex that quietly matched nothing would make this pass while
+    // checking nothing at all.
+    expect(labelled).toHaveLength(5);
+
+    for (const { slug, n } of labelled) {
+      const file = path.join(process.cwd(), "fixtures", "shops", `${slug}.json`);
+      expect(existsSync(file), `${slug} is on the front page but has no fixture`).toBe(true);
+
+      const shop = JSON.parse(readFileSync(file, "utf8")) as { config: unknown };
+      const actual = handlesIn(shop.config).size;
+      expect(actual, `/${slug} shows ${actual} products, the page says ${n}`).toBe(n);
+    }
+  });
+});
