@@ -499,12 +499,18 @@ capture, billing, word-editing and TikTok-URL input are Sprint 3, and they stay
 unbuilt until thirty real merchants have been asked and five actively want their
 shop live.
 
-**One item came off that list early, on the owner's explicit call: creator
-shops, and with them shop refresh.** The gate was overridden rather than routed
-around — the two creator assertions were deleted from `tests/stop-line.test.tsx`
-in the same commit that built the feature, which is the shape an override should
-take. Everything else on the list stays shut and its assertions stay in place.
-See "Creator shops" and "Refresh" below.
+**Two items have come off that list early, both on the owner's explicit call.**
+Each time the gate was overridden rather than routed around: the assertion was
+changed in `tests/stop-line.test.tsx` in the same commit that built the thing,
+which is the shape an override should take.
+
+1. **Creator shops, and with them shop refresh** (2026-08-15). The two creator
+   assertions were deleted. See "Creator shops" and "Refresh" below.
+2. **The Shopify app's offline core** (2026-08-17). The assertion titled "has no
+   Shopify OAuth or Admin API anywhere" was absolute and is now narrower. See
+   "The Shopify app" below and `SHOPIFY-APP.md`.
+
+Everything else on the list stays shut and its assertions stay in place.
 
 Two things exist to hold what is left of that line.
 
@@ -514,14 +520,19 @@ easiest of all of them to break — because none of these features arrives
 announcing itself as Sprint 3. Email capture arrives as "the capture block is
 already in the schema, it's twenty minutes." Word-editing arrives as "`EditMove`
 is defined, we may as well apply it." Each is individually reasonable and
-collectively the reason a kill test never gets run. So seven assertions: no
-Admin API or OAuth token anywhere, no `<form>` or `<input>` in the entire source
-tree, `capture` and `reviews` withheld from the merchandiser while staying in
-the contract, `EditMove` referenced by nothing outside `schema.ts`, no payments,
-nothing reading a TikTok video, and no weights, experiments or scoring — plus
-one added alongside refresh: nothing under `lib/smart` may import the funnel.
+collectively the reason a kill test never gets run. So: no `<form>` or `<input>`
+in the entire source tree, `capture` and `reviews` withheld from the
+merchandiser while staying in the contract, `EditMove` referenced by nothing
+outside `schema.ts`, no payments, nothing reading a TikTok video, no weights,
+experiments or scoring, nothing under `lib/smart` importing the funnel — and,
+since the app's core opened, no OAuth endpoint call, no route wiring the app in,
+and no dependency from the public path onto `lib/shopify`.
+
 Each was checked by injecting the violation and watching it fail — a guard test
-that cannot fail is decoration.
+that cannot fail is decoration. The three newest were checked the same way: an
+`/admin/oauth/access_token` constant, a webhook route importing
+`lib/shopify/hmac`, and an `import` from `lib/ingest` into `lib/shopify`, each
+confirmed red and then removed.
 
 If one of these starts failing, that is not a bug. It is somebody having built
 a Sprint 3 feature, and the honest fix is to delete it or to run the kill test
@@ -654,6 +665,57 @@ not go away when it is dealt with, so a shop already mended went on reporting
 "repair" forever; `pnpm refresh --all --apply` on a schedule would have appended
 an identical version every run.
 
+## The Shopify app
+
+Designed in `SHOPIFY-APP.md`. **Not built** — what exists is the part that could
+be written and tested without ever reaching Shopify, which is `src/lib/shopify/`
+and nothing else. There is no app, no install flow, no route, no credential and
+no persisted token, and none of this is reachable from the running product.
+
+```
+src/lib/shopify/
+  ├── hmac.ts               webhook signatures: constant-time, length-checked, rotation-aware
+  ├── webhook.ts            headers -> a validated delivery, or a reason it is not one
+  ├── idempotency.ts        duplicate suppression, and the separate out-of-order defence
+  ├── token.ts              expiring offline tokens: skew, refresh, needs-reauth
+  └── admin/
+        ├── client.ts       GraphQL Admin API behind an injected transport
+        └── catalogue.ts    an Admin products page -> the ingester's own `Catalogue`
+```
+
+**The point of `catalogue.ts` is that there is no second catalogue type.** An
+Admin response maps into `IngestedProduct`, so the Genome, the merchandiser, the
+renderer, `resolve.ts`, `lib/smart` and the funnel all work on an app-backed
+store with no changes, and a shop can move from the public path to the app
+without being regenerated. That claim is the whole design and it is the one
+thing here that cannot be checked without a real store.
+
+**The app is an upgrade path, not a replacement.** `pnpm ingest` stays
+credential-free, because reading a public `/products.json` is what lets a shop
+be built for a merchant who has agreed to nothing — the kill test and the sales
+motion both depend on it. So OAuth is never the front door: the demo is always
+built from public data and installing is the *conversion* event, not the entry.
+An installation whose refresh token dies degrades back to the public feed and
+drops its liveness claim, rather than going dark. The dependency direction is a
+test, not an intention.
+
+Two findings from the design worth knowing without reading it:
+
+- **`ProductVariant.legacyResourceId`, not `id`.** The Admin API's variant `id`
+  is a `gid://…`; `lib/cart/permalink.ts` needs the numeric one and refuses to
+  build a permalink from anything else. A mapper using the gid would not crash —
+  every card on every app-backed shop would quietly fall back to the product
+  page, and the existing guard would report that as correct.
+- **`lib/claims.ts` becomes a per-store capability.** Its first banned claim is
+  the sync one, and its stated reason is *"It does not yet"*. For an app-backed
+  store it does, and the ban has to lift — but per store, checked at render
+  time, and reinstated the moment the app is uninstalled. That is real work and
+  it belongs in the same stage as uninstall, never earlier.
+
+Everything above `hmac.ts` takes its transport, its clock and its storage as
+arguments, in the manner of `lib/ingest/http.ts`, so all 92 of its tests run
+against fakes. What none of them prove is in "Verification status" below.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront
@@ -682,7 +744,7 @@ fetch and a fake model client; none of them need a network, a browser or a key.
 
 ## Verification status
 
-333 unit and integration tests pass against fixtures, and a further 94 browser
+578 unit and integration tests pass against fixtures, and a further 94 browser
 assertions pass under `pnpm test:visual` — including on a GitHub runner, where
 the `visual` job downloads its own Chromium and reports 94 passed rather than 94
 skipped, which is the distinction that job's `CI` guard exists to enforce.
@@ -699,8 +761,18 @@ moods.
 
 The step-7 guards were verified the only way a guard test can be: by injecting
 each violation — an email form, an `EditMove` applier, a Stripe key, a Shopify
-admin token, a set of experiment weights — and confirming the suite went red for
-it, then removing them. A guard that cannot fail is decoration.
+admin token, a set of experiment weights, and since the app's core opened, an
+`/admin/oauth/access_token` constant, a webhook route importing the app, and an
+import from `lib/ingest` into `lib/shopify` — and confirming the suite went red
+for it, then removing them. A guard that cannot fail is decoration.
+
+The app's own tests were checked the same way, since a test that asserts a
+protocol it has never spoken is the easiest kind to write badly. Four bugs were
+injected and each was caught by the assertion that claims to catch it: the
+mapper falling back to the variant gid (2 failures), the HMAC length check
+removed so a malformed signature throws instead of rejecting (2), the ordering
+comparison always applying (3), and the refresh skew removed so a token is only
+refreshed after it has already expired (3).
 
 The design review used a purpose-built fake store whose photography is
 deliberately bad in seven different ways — landscape studio shot, floating white
@@ -709,7 +781,7 @@ cut-out, underexposed, extremely wide, busy phone snap, blown highlights, a
 mediocre product photography" is not a claim a catalogue of clean shots can
 test.
 
-Three things have **not** been verified, all because this environment's egress
+Four things have **not** been verified, all because this environment's egress
 proxy blocks them:
 
 - **No real catalogue has been ingested.** Storefront hosts are refused at the
@@ -736,3 +808,16 @@ proxy blocks them:
   fresh project and running `pnpm generate` against it is the first thing to do
   next, and the RLS check worth doing by hand is that an anon key can read a
   published shop and cannot read `stores.genome`.
+- **Nothing in `src/lib/shopify/` has touched Shopify.** `shopify.dev` and
+  storefront hosts are both refused at the proxy, so there has been no OAuth
+  round trip, no Admin API call and no webhook delivery. The 92 tests run
+  against fakes and prove the logic; they cannot prove the protocol. The
+  weakest link is `admin/catalogue.ts`, whose fixtures were written from live
+  schema introspection rather than recorded from a real response — so they show
+  the mapper does what it was written to do, not that it does what Shopify does.
+  Stage 1 in `SHOPIFY-APP.md` exists to replace them with a recording and is
+  first among the live stages for that reason. The design's factual claims were
+  checked against shopify.dev's documentation index and the Admin GraphQL
+  schema, both reachable here through an MCP server even though direct HTTP is
+  not; every claim that could not be checked that way is marked unverified in
+  §10 of that document.
