@@ -433,6 +433,54 @@ describeVisual("geometry", () => {
       }
     });
 
+    it.each(MOODS)("%s keeps a long section heading and its count on the page", async (mood) => {
+      // A heading is model output, and its length is not ours to bound.
+      //
+      // `.section-head` is a flex row of heading, rule and count, and the
+      // heading was `flex: 0 0 auto` — it could not shrink. "Still available —
+      // cheapest first" in a mono face measured 437px inside a 390px phone, so
+      // the last three words and the entire count were pushed off the right
+      // edge. Nothing scrolled and nothing looked broken, because an ancestor
+      // clips: the page simply stopped saying how many pieces were in the
+      // section, on a real generated shop, silently.
+      //
+      // The heading is lengthened here rather than in the fixture, for the same
+      // reason the long-product-name test above does it: every other assertion
+      // in this file goes on measuring the shop it was written against.
+      const page = await open(harness, mood, PHONE);
+      try {
+        const outside = await page.evaluate(() => {
+          const heads = [...document.querySelectorAll(".section-head")] as HTMLElement[];
+          if (heads.length === 0) return null;
+
+          const titles = heads.map((head) => head.querySelector("h2")).filter(Boolean) as HTMLElement[];
+          const original = titles.map((t) => t.textContent ?? "");
+          for (const title of titles) title.textContent = "Still available — cheapest first";
+
+          const escaped: string[] = [];
+          for (const head of heads) {
+            for (const el of [head, ...head.querySelectorAll("*")]) {
+              const box = el.getBoundingClientRect();
+              if (box.width === 0 && box.height === 0) continue;
+              if (box.right > window.innerWidth + 1 || box.left < -1) {
+                escaped.push(
+                  `${el.tagName.toLowerCase()}.${el.className} runs ${Math.round(box.left)}→${Math.round(box.right)} in ${window.innerWidth}`,
+                );
+              }
+            }
+          }
+
+          titles.forEach((title, i) => (title.textContent = original[i]!));
+          return escaped;
+        });
+
+        expect(outside).not.toBeNull();
+        expect(outside, outside?.join("; ")).toEqual([]);
+      } finally {
+        await page.close();
+      }
+    });
+
     it.each(MOODS)("%s keeps the grid two-up", async (mood) => {
       // Two, not one. A phone grid of single full-width cards turns eight
       // products into eight screens of scrolling, and the plate is cropped to

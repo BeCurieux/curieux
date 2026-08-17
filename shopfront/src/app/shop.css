@@ -146,9 +146,26 @@
   border-radius: var(--radius-plate);
 }
 
+/*
+ * The heading shrinks and wraps. It used to be `flex: 0 0 auto`, which read as
+ * "the title is the important thing, don't let the rule squeeze it" and was
+ * wrong in the one case that matters.
+ *
+ * A merchandiser writing "Still available — cheapest first" in a mono face on a
+ * 390px phone produced a heading 437px wide. The row does not overflow the
+ * document — an ancestor clips it — so nothing scrolled, nothing looked broken,
+ * and the last three words of the heading plus the entire count were simply not
+ * on the page. A headline is model output: its length is not ours to bound, and
+ * a layout that only works for short ones is a layout that fails silently on a
+ * merchant's shop.
+ *
+ * `min-width: 0` is the part that actually does it — a flex item's automatic
+ * minimum size is its content, so `0 1 auto` alone would still refuse to shrink.
+ */
 .section-head h2 {
   font-size: calc(1.5rem * var(--display-scale));
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 /* A small drawn mark against the title. It is decoration and it is doing one
@@ -166,7 +183,10 @@
 /* The rule runs off to the right margin — a magazine gesture, and it also
    quietly signals "this section continues" on a narrow screen. */
 .section-head .rule {
+  /* A floor, so that a heading long enough to take the whole row leaves a mark
+     rather than a zero-width nothing between the title and the count. */
   flex: 1 1 auto;
+  min-width: var(--space-3);
   height: 0;
   border-top: var(--rule) solid var(--rule-colour);
   transform: translateY(-0.28em);

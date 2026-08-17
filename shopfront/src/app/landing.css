@@ -510,22 +510,6 @@
   opacity: 0.78;
 }
 
-/*
- * The lead shop, at a size somebody can actually read.
- *
- * Hidden on a phone, where the rail below is the whole section and swipes one
- * shop at a time — a large phone *plus* a rail of five was the single tallest
- * thing on the page, and it showed the same shop twice.
- */
-.proof-lead {
-  display: none;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.proof-lead .device {
-  width: min(13.5rem, 60%);
-}
 
 .rail {
   display: flex;
@@ -547,8 +531,7 @@
   scroll-snap-align: start;
 }
 
-.rail figure,
-.proof-lead {
+.rail figure {
   margin: 0;
 }
 
@@ -557,8 +540,7 @@
   box-shadow: 6px 8px 0 rgb(0 0 0 / 0.4);
 }
 
-.rail figcaption,
-.proof-lead figcaption {
+.rail figcaption {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -568,12 +550,33 @@
 }
 
 .rail-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5em;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
-.rail figcaption q,
-.proof-lead figcaption q {
+/* The count is the argument: three pieces against seven off one catalogue is
+   the difference this section exists to show, and it is easy to miss in a
+   screenshot. */
+.rail-brand em {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+/* The collage. One number per shop, as a downward offset so the row still
+   starts flush at the top. */
+.rail li {
+  padding-top: calc(var(--lift, 0) * clamp(0.4rem, 1.2vw, 0.9rem));
+}
+
+.rail figcaption q {
   color: var(--on-dark-soft);
 }
 
@@ -1051,58 +1054,27 @@
   }
 
   /*
-   * Copy and rail down the left, the lead shop down the right across both.
+   * Copy across the top, five shops across the bottom.
    *
-   * The first cut put the lead in its own row and left a column of empty ink
-   * beside it — and shrinking the phone to win the height back made the one
-   * shop you are meant to be able to read the hardest one to see. Spanning it
-   * instead fills the space and lets it grow.
+   * An earlier cut pulled one shop out as a large lead beside the copy. It
+   * filled the column, but it overlapped the row and clipped the fifth shop
+   * mid-caption, and it showed the same shop twice. The comparison is the
+   * content, so all five carry equal weight and the row takes the full measure.
    */
-  .proof {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
-    column-gap: clamp(2rem, 5vw, 3.5rem);
-    align-items: start;
-  }
-
   .proof-say {
-    padding-right: 0;
-  }
-
-  .proof-lead {
-    display: flex;
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
-    align-items: flex-end;
-    text-align: right;
-  }
-
-  /* Its twin in the rail stands down, so neither width shows it twice. */
-  .rail li:first-child {
-    display: none;
-  }
-
-  .proof-lead .device {
-    width: min(15.5rem, 100%);
-  }
-
-  .proof-lead figcaption {
-    align-items: flex-end;
-    max-width: 26ch;
+    max-width: 46rem;
   }
 
   .rail {
-    grid-column: 1;
-    margin-top: clamp(1.5rem, 3.5vw, 2.25rem);
+    margin-top: clamp(2rem, 4vw, 2.75rem);
+    overflow-x: visible;
+    scroll-snap-type: none;
   }
 
   .rail li {
-    width: 10rem;
-  }
-
-  .rail {
-    scroll-snap-type: none;
+    flex: 1 1 0;
+    width: auto;
+    max-width: 15rem;
   }
 
   .negations,
