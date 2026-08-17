@@ -25,7 +25,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "supabase:setup": "tsx --env-file-if-exists=.env.local scripts/supabase-setup.ts"
+    "supabase:setup": "tsx --env-file-if-exists=.env.local scripts/supabase-setup.ts",
+    "press:edits": "tsx --env-file-if-exists=.env.local scripts/press/edits.ts",
+    "press:capture-edits": "node scripts/press/capture-edits.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
