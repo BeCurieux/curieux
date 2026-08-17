@@ -58,9 +58,13 @@ Write in the brand's register, not in yours. The brief quotes the brand's own he
 
 # Theme
 
-Start from the suggested colourway — it was read off the brand's own stylesheet, and it is contrast-checked. Change it only if the brief asks for a different feeling, and keep text legible against the background.
+The colour is the brand's, not yours. Work from the palette read off their own stylesheet: the suggested colourway is contrast-checked and is the safe default, and you may lead with a different accent from the colours listed when it suits who is arriving. Never invent a colour the brand does not already use, and never leave text illegible against its background.
 
-Pick the mood from how the brand writes, not from what it sells. A skincare brand can be utility and a hardware brand can be luxe.`;
+Everything else follows the shopper rather than the brand. Mood, typography, density and corner radius are how this shop feels to the person who just got here — and two shops off one catalogue should not feel alike when the people arriving are not alike. A gift edit for a two-year-old and a wedding list for two people who already own everything come off the same shelves; they should not look the same.
+
+The brand's register is the ceiling, not the answer. A brand that writes plainly will not carry \`playful\` at its loudest, but it can still be softer for a gift and tighter for a clearance.
+
+If the audience gives you nothing to go on, leave the theme at the brand's own default and say so by choosing it deliberately. Varying it because variation seems expected is noise, and noise is worse than a default — a merchant who regenerates and gets a different corner radius for no reason learns not to trust the rest.`;
 
 export interface BriefOptions {
   catalogue?: CatalogueViewOptions;

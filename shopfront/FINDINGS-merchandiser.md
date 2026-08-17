@@ -108,6 +108,12 @@ selection is a pass-through constant.** The pitch says the system "selects,
 merchandises and designs." Three of those are happening. The fourth is
 currently `return brand.suggestedColorway`.
 
+> **Followed up.** The instruction was the cause and is now changed — see the
+> fix list at the end. Mood, typography, density and radius move with the
+> audience on a re-run; colour still does not, but this catalogue has an empty
+> `brand.palette`, so there was never a second colour to move to. That part
+> stands unproven either way until it runs against a store with a homepage.
+
 ---
 
 ## 3. Are the choices defensible?
@@ -300,9 +306,28 @@ the demo is the sale prompt, not the pro prompt.
    kept on purpose. It is a warning rather than an error precisely because of
    that last row: as a hard rule it would have failed the best shop in this
    report.
-2. **Decide whether theme is a real output.** Either give the model a reason to
-   move it (mood is derivable from the audience, not just the brand's voice) or
-   stop describing it as something the AI decides.
+2. ~~**Decide whether theme is a real output.**~~ **Half fixed, half untested.**
+   The prompt tied theme to the brand twice over — *"change it only if the brief
+   asks for a different feeling"* and *"pick the mood from how the brand
+   writes"* — and the brand is constant, so the theme could never move. The
+   model was obeying orders. Colour now stays the brand's while mood,
+   typography, density and radius follow the shopper. Re-run across the same
+   four briefs:
+
+   | | mood | typography | density | radius |
+   |---|---|---|---|---|
+   | first workshop | utility | modern-sans | regular | soft |
+   | gift under $100 | **editorial** | **editorial-serif** | **airy** | soft |
+   | stolen kit | utility | mono-utility | compact | none |
+   | end of season | utility | mono-utility | compact | none |
+
+   Three typographies where there was one, and the density and radius now track
+   the brief instead of drifting between reruns. **Colour still did not move —
+   and on this catalogue it could not have.** `brand.palette` is empty, because
+   the fixture was bridged from a `products.json` with no homepage read, so
+   there was nothing to choose between and echoing the suggested colourway was
+   the right answer. The colour half of §2 above is therefore *untested*, not
+   disproven. It needs a store with a real palette behind it.
 3. **Reconcile the threshold rule** between the system prompt and `validate.ts`
    — currently one says "only if the merchant asked" and the other checks only
    truth.
