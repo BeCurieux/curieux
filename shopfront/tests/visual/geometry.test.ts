@@ -32,6 +32,7 @@ import {
   MOODS,
   PHONE,
   PLATED_MOODS,
+  waitForHydration,
   type Harness,
   type Mood,
   type Viewport,
@@ -264,12 +265,26 @@ describeVisual("geometry", () => {
       await page.route(/\.(png|jpe?g|webp|avif|svg|gif)(\?|$)/i, (route) => route.abort());
       await page.goto(urlFor(harness.base, mood), { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts.ready);
-      // Settle rather than wait for the recovery's own marker. Gating on
-      // `[data-broken]` made both tests below fail at the gate when the fix was
-      // removed, which looks like a pass but proves nothing: the contrast
-      // assertion never ran. Waiting for the page to stop moving lets each test
-      // fail on the thing it is actually about.
-      await page.waitForTimeout(1_200);
+      /*
+       * Wait for hydration, not for a number of milliseconds.
+       *
+       * Still not gating on the recovery's own marker: gating on
+       * `[data-broken]` made both tests below fail at the gate when the fix was
+       * removed, which looks like a pass but proves nothing — the contrast
+       * assertion never ran. That reasoning stands.
+       *
+       * What changed is the other half. The fixed 1.2s settle was a bet that
+       * hydration follows `networkidle` quickly, which holds on a warm dev
+       * server and does not hold on a cold CI runner compiling the route for
+       * the first time. `BrokenImagery` catches images that died before its
+       * listener existed, so it is correct whenever it runs — it just had not
+       * run yet, and these two tests were red in CI for days while passing
+       * locally for exactly that reason.
+       *
+       * `waitForHydration` waits for React's fiber key, which no assertion
+       * here depends on, so both tests still fail on the thing they are about.
+       */
+      await waitForHydration(page);
       return page;
     };
 

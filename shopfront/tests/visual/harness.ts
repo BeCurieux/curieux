@@ -254,12 +254,50 @@ export async function startHarness(): Promise<Harness> {
  * woff2 and text measured before it lands is measured in the fallback, which
  * is a different width and a different height.
  */
+/**
+ * Wait until React has actually attached, rather than for a number of
+ * milliseconds.
+ *
+ * This is the fix for a suite that had been red in CI for days while passing
+ * on every developer's machine, which is the worst shape a test can take: the
+ * people who could fix it were the people who could not see it.
+ *
+ * The cause was a warm cache. `networkidle` means the network went quiet, not
+ * that the page is interactive — and on a dev server that has already compiled
+ * the route, hydration follows within a few milliseconds, so a fixed settle
+ * time covered it. On a cold CI runner the first request for a route compiles
+ * it and its client chunks, hydration lands seconds later, and any assertion
+ * about behaviour that only exists after hydration measured a page that was
+ * still server-rendered HTML. Reproduced locally by deleting `.next` and
+ * killing the dev server: 8 failures, exactly the ones CI reported.
+ *
+ * The signal is React's own fiber key on a hydrated host node. It is
+ * deliberately *not* anything the tests assert on — gating on `[data-broken]`
+ * would make the broken-imagery tests wait for their own conclusion and pass
+ * vacuously, which the note in `geometry.test.ts` already warns about. This
+ * waits for the precondition and leaves every assertion free to fail.
+ */
+export async function waitForHydration(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const root = document.querySelector(".shop") ?? document.body;
+      return Object.keys(root).some((key) => key.startsWith("__reactFiber$"));
+    },
+    undefined,
+    // Generous: this covers a cold Turbopack compile of a route and its client
+    // chunks on a shared CI runner, and it costs nothing when hydration is
+    // already done.
+    { timeout: 30_000 },
+  );
+}
+
 export async function open(harness: Harness, mood: Mood, viewport: Viewport): Promise<Page> {
   const page = await harness.browser.newPage({
     viewport: { width: viewport.width, height: viewport.height },
   });
   await page.goto(urlFor(harness.base, mood), { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
+  await waitForHydration(page);
   return page;
 }
 
