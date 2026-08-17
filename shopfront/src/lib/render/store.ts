@@ -30,6 +30,22 @@ export type ShopRenderInput = z.infer<typeof ShopRenderInput>;
 
 const DIR = path.join(process.cwd(), ".cache", "shop");
 
+/**
+ * The demo shops, committed.
+ *
+ * `.cache/` is gitignored, so on a fresh checkout — or a deployment, which is
+ * always a fresh checkout — there is not a single shop to render. That was
+ * invisible while the only reader was a developer with a warm cache, and it
+ * stopped being invisible the moment `/examples` claimed every image on it
+ * links to a working page.
+ *
+ * So the cache is checked first and this second. Nothing generated locally is
+ * shadowed by a fixture, and a deployment still has the ten shops the
+ * marketing site points at. `scripts/demo-fixtures.ts` writes them and refuses
+ * any store that is not a reserved example domain.
+ */
+const FIXTURES = path.join(process.cwd(), "fixtures", "shops");
+
 export async function saveShop(key: string, input: ShopRenderInput): Promise<string> {
   const file = path.join(DIR, `${safeKey(key)}.json`);
   await mkdir(DIR, { recursive: true });
@@ -38,12 +54,16 @@ export async function saveShop(key: string, input: ShopRenderInput): Promise<str
 }
 
 export async function loadShop(key: string): Promise<ShopRenderInput | null> {
-  try {
-    const raw = await readFile(path.join(DIR, `${safeKey(key)}.json`), "utf8");
-    return ShopRenderInput.parse(JSON.parse(raw));
-  } catch {
-    return null;
+  const safe = safeKey(key);
+  for (const dir of [DIR, FIXTURES]) {
+    try {
+      return ShopRenderInput.parse(JSON.parse(await readFile(path.join(dir, `${safe}.json`), "utf8")));
+    } catch {
+      // Missing here, or unparseable here. Either way try the next directory
+      // before giving up — a half-written cache file must not hide a fixture.
+    }
   }
+  return null;
 }
 
 export interface ShopSummary {

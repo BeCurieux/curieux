@@ -285,3 +285,46 @@ $$;
 
 comment on function public.shop_funnel(text) is
   'Raw events for one shop. Not security definer and not granted to anon: the summary is the merchant''s, not the public''s. Aggregation happens in funnel/store.ts so the file and database adapters cannot compute a different rate.';
+
+-- ---------------------------------------------------- early access requests
+
+-- Somebody asking for a shop, from popuup's own contact form.
+--
+-- **This is the Sprint 3 email-capture gate, opened deliberately (2026-08-17).**
+-- CLAUDE.md records the override. What opened is popuup's own form; what stays
+-- shut is capture inside a generated shop, where a shopper is a different
+-- person consenting to a different thing.
+--
+-- The only table in this schema holding personal data. Everything else popuup
+-- stores is a public product feed or a random session id, so this is the one
+-- worth being careful about:
+--
+--   * No policy at all, and RLS on. Written by the service role from the API
+--     route and read by the service role. An anon key can neither insert a row
+--     nor read anybody's — the same posture as shop_events, for stronger
+--     reasons.
+--   * No unique constraint on email. Somebody who submits twice because they
+--     were not sure it worked has not done anything wrong, and a rejection
+--     they cannot interpret is worse than a duplicate a human clears in a
+--     second.
+--   * No consent or marketing columns. Nothing here is a mailing list, and a
+--     column shaped for one would be the next person's excuse to treat it as
+--     one. This is an inbox with a schema.
+
+create table if not exists public.early_access (
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,
+  email        text not null,
+  -- Normalised to a bare host and path — "nectarandbone.com/collections/new".
+  -- A note for a human to read, not a key anything is looked up by.
+  store        text not null,
+  brief        text,
+  received_at  timestamptz not null default now()
+);
+
+create index if not exists early_access_received_idx on public.early_access(received_at desc);
+
+alter table public.early_access enable row level security;
+
+comment on table public.early_access is
+  'Merchants asking for a shop. Service role only, no policy, no unique constraint on email. The one table here holding personal data.';

@@ -25,7 +25,11 @@ import { describe, expect, it } from "vitest";
 import { parseSqlSchema } from "./helpers/sql-schema";
 
 const SCHEMA = "src/lib/publish/schema.sql";
-const ADAPTERS = ["src/lib/publish/supabase.ts", "src/lib/funnel/store.ts"] as const;
+const ADAPTERS = [
+  "src/lib/publish/supabase.ts",
+  "src/lib/funnel/store.ts",
+  "src/lib/earlyaccess/store.ts",
+] as const;
 
 const schema = parseSqlSchema(SCHEMA);
 
@@ -76,7 +80,13 @@ describe("the schema parse itself", () => {
   // Everything below trusts this. A regex that quietly matched nothing would
   // make every other assertion in the file pass while checking nothing at all.
   it("found the tables the schema declares", () => {
-    expect([...schema.tables.keys()].sort()).toEqual(["shop_events", "shop_versions", "shops", "stores"]);
+    expect([...schema.tables.keys()].sort()).toEqual([
+      "early_access",
+      "shop_events",
+      "shop_versions",
+      "shops",
+      "stores",
+    ]);
   });
 
   it("found their columns", () => {
@@ -84,6 +94,7 @@ describe("the schema parse itself", () => {
     expect(schema.tables.get("shop_versions")).toContain("prompt");
     expect(schema.tables.get("shops")).toContain("current_version_id");
     expect(schema.tables.get("shop_events")).toContain("variant_id");
+    expect(schema.tables.get("early_access")).toContain("received_at");
     for (const [table, columns] of schema.tables) {
       expect(columns.size, `${table} parsed with ${columns.size} columns`).toBeGreaterThan(4);
     }

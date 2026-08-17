@@ -1,0 +1,380 @@
+{
+  "config": {
+    "version": 1,
+    "brand": {
+      "name": "Pip & Pockets",
+      "tagline": "Made for sticky hands.",
+      "storeUrl": "https://example.invalid/pip-and-pockets/"
+    },
+    "theme": {
+      "colorway": {
+        "background": "#FFF2F7",
+        "surface": "#FFD9E7",
+        "text": "#2A0E1A",
+        "accent": "#FF1F6B"
+      },
+      "typography": "editorial-serif",
+      "mood": "playful",
+      "density": "regular",
+      "cornerRadius": "soft"
+    },
+    "blocks": [
+      {
+        "id": "hero",
+        "block": {
+          "type": "hero",
+          "headline": "Made for sticky hands.",
+          "media": {
+            "kind": "productImage",
+            "handle": "cord-dungarees",
+            "imageIndex": 0
+          }
+        }
+      },
+      {
+        "id": "edit",
+        "block": {
+          "type": "productGrid",
+          "title": "The edit",
+          "products": [
+            {
+              "handle": "cord-dungarees"
+            },
+            {
+              "handle": "stripe-tee"
+            },
+            {
+              "handle": "rainbow-socks"
+            },
+            {
+              "handle": "bucket-hat"
+            },
+            {
+              "handle": "puddle-boots"
+            },
+            {
+              "handle": "knit-cardigan"
+            },
+            {
+              "handle": "small-backpack"
+            },
+            {
+              "handle": "patch-set"
+            }
+          ],
+          "layout": "grid"
+        }
+      },
+      {
+        "id": "links",
+        "block": {
+          "type": "linkList",
+          "links": [
+            {
+              "label": "Everyday",
+              "url": "https://example.invalid/pip-and-pockets/collections/everyday"
+            },
+            {
+              "label": "Outdoors",
+              "url": "https://example.invalid/pip-and-pockets/collections/outdoors"
+            },
+            {
+              "label": "Knitwear",
+              "url": "https://example.invalid/pip-and-pockets/collections/knitwear"
+            },
+            {
+              "label": "Hand-me-downs",
+              "url": "https://example.invalid/pip-and-pockets/collections/hand-me-downs"
+            }
+          ]
+        }
+      }
+    ],
+    "meta": {
+      "prompt": "a gift edit for a two-year-old who ruins everything",
+      "generatedAt": "2026-08-14T09:00:00.000Z",
+      "audience": "a gift edit for a two-year-old who ruins everything"
+    }
+  },
+  "catalogue": {
+    "currency": "GBP",
+    "products": [
+      {
+        "handle": "cord-dungarees",
+        "id": "9000",
+        "title": "Cord Dungarees",
+        "description": "Cord Dungarees from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Everyday",
+        "tags": [
+          "everyday"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/cord-dungarees",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA3MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDY2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMzMiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDMkQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGMUY2QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBODBCNDQiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMzMyI+PHBhdGggZD0iTTQwMCA1NzAgdjIwMS42IGg0MDAgdi0yMDEuNiBoLTcwIHYtNzAgaC0yNjAgdjcwIHoKICAgIE00MDAgNzMyIGgxODQgdjMwOCBoLTE0MCB6IE02MTYgNzMyIGgxODQgbC00NCAzMDggaC0xNDAgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNDAwIDU3MCB2MjAxLjYgaDQwMCB2LTIwMS42IGgtNzAgdi03MCBoLTI2MCB2NzAgegogICAgTTQwMCA3MzIgaDE4NCB2MzA4IGgtMTQwIHogTTYxNiA3MzIgaDE4NCBsLTQ0IDMwOCBoLTE0MCB6IiBmaWxsPSJ1cmwoI2YzMykiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjMzMpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iI0E4MEI0NCIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik00MDAgNTcwIHYyMDEuNiBoNDAwIHYtMjAxLjYgaC03MCB2LTcwIGgtMjYwIHY3MCB6CiAgICBNNDAwIDczMiBoMTg0IHYzMDggaC0xNDAgeiBNNjE2IDczMiBoMTg0IGwtNDQgMzA4IGgtMTQwIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxnIGZpbGw9IiNBODBCNDQiPjxyZWN0IHg9IjQ0NCIgeT0iNDgwIiB3aWR0aD0iNDYiIGhlaWdodD0iMTEwIiByeD0iMTYiLz48cmVjdCB4PSI3MTAiIHk9IjQ4MCIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjExMCIgcng9IjE2Ii8+PHJlY3QgeD0iNTU0IiB5PSI2MzAiIHdpZHRoPSI5MiIgaGVpZ2h0PSI4MCIgcng9IjEyIiBvcGFjaXR5PSIwLjUiLz48L2c+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49000",
+            "title": "Default Title",
+            "price": 42,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 42,
+          "max": 42
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "stripe-tee",
+        "id": "9001",
+        "title": "Stripe Tee",
+        "description": "Stripe Tee from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Everyday",
+        "tags": [
+          "everyday"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/stripe-tee",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAyNyIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDIxIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMzQiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDMkQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGMUY2QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBODBCNDQiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMzNCI+PHBhdGggZD0iTTM4MCA1ODUgbC0xNTAgNDAgbC02IDEzMCBsOTMgMjAgbDYgLTEwMAogICAgdjM0MCBoNDQwIHYtMzQwIGw2IDEwMCBsOTMgLTIwIGwtNiAtMTMwIGwtMTUwIC00MCB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik0zODAgNTg1IGwtMTUwIDQwIGwtNiAxMzAgbDkzIDIwIGw2IC0xMDAKICAgIHYzNDAgaDQ0MCB2LTM0MCBsNiAxMDAgbDkzIC0yMCBsLTYgLTEzMCBsLTE1MCAtNDAgeiIgZmlsbD0idXJsKCNmMzQpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzM0KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiNBODBCNDQiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNMzgwIDU4NSBsLTE1MCA0MCBsLTYgMTMwIGw5MyAyMCBsNiAtMTAwCiAgICB2MzQwIGg0NDAgdi0zNDAgbDYgMTAwIGw5MyAtMjAgbC02IC0xMzAgbC0xNTAgLTQwIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxlbGxpcHNlIGN4PSI2MDAiIGN5PSI1ODciIHJ4PSI4OCIgcnk9IjM0IiBmaWxsPSIjQTgwQjQ0Ii8+CiAgICA8ZyBvcGFjaXR5PSIwLjQiIGZpbGw9IiNBODBCNDQiPjxyZWN0IHg9IjM4MCIgeT0iNzE1IiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjM0Ii8+PHJlY3QgeD0iMzgwIiB5PSI4MDUiIHdpZHRoPSI0NDAiIGhlaWdodD0iMzQiLz48L2c+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49001",
+            "title": "Default Title",
+            "price": 18,
+            "compareAtPrice": 26,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 18,
+          "max": 18
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "rainbow-socks",
+        "id": "9002",
+        "title": "Rainbow Socks",
+        "description": "Rainbow Socks from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Everyday",
+        "tags": [
+          "everyday"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/rainbow-socks",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAwMiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSI5OTYiIHJ4PSIxNjgiIHJ5PSIyNS4yIiBmaWxsPSJ1cmwoI2NvbnRhY3QpIi8+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImYzNSIgeDE9IjAuMDgiIHkxPSIwIiB4Mj0iMC45MiIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkMyRDgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQyIiBzdG9wLWNvbG9yPSIjRkYxRjZCIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0E4MEI0NCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iYzM1Ij48cGF0aCBkPSJNNDY1IDU1MCBoMTkwIHYyNjAuNCBxMCA4NCA5NSA5Mi40IGgxMTcuOAogICAgcTY0LjYwMDAwMDAwMDAwMDAxIDAgNjQuNjAwMDAwMDAwMDAwMDEgLTc5LjggcTAgLTc2IC04My42IC04My42IHEtNTcgLTAuMDIgLTgzLjYgLTI1LjIgdi0yNjAuNCB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00NjUgNTUwIGgxOTAgdjI2MC40IHEwIDg0IDk1IDkyLjQgaDExNy44CiAgICBxNjQuNjAwMDAwMDAwMDAwMDEgMCA2NC42MDAwMDAwMDAwMDAwMSAtNzkuOCBxMCAtNzYgLTgzLjYgLTgzLjYgcS01NyAtMC4wMiAtODMuNiAtMjUuMiB2LTI2MC40IHoiIGZpbGw9InVybCgjZjM1KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2MzNSkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjQTgwQjQ0IiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTQ2NSA1NTAgaDE5MCB2MjYwLjQgcTAgODQgOTUgOTIuNCBoMTE3LjgKICAgIHE2NC42MDAwMDAwMDAwMDAwMSAwIDY0LjYwMDAwMDAwMDAwMDAxIC03OS44IHEwIC03NiAtODMuNiAtODMuNiBxLTU3IC0wLjAyIC04My42IC0yNS4yIHYtMjYwLjQgeiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4yNiIgc3Ryb2tlLXdpZHRoPSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDUpIi8+CiAgICA8L2c+PHJlY3QgeD0iNDY1IiB5PSI1NTAiIHdpZHRoPSIxOTAiIGhlaWdodD0iNzAiIHJ4PSIxMCIgZmlsbD0iI0E4MEI0NCIvPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49002",
+            "title": "Default Title",
+            "price": 8,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 8,
+          "max": 8
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "bucket-hat",
+        "id": "9003",
+        "title": "Bucket Hat",
+        "description": "Bucket Hat from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Outdoors",
+        "tags": [
+          "outdoors"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/bucket-hat",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTQyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjkzNiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjM2IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGQzJEOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNGRjFGNkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQTgwQjQ0Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjMzYiPjxwYXRoIGQ9Ik00NTcuNCA2MTAgcTE0Mi42IC00MCAyODUuMiAwIGw0NiAxODYKICAgIHE5MiAyMCA4Mi44IDYwIHEtMjMwIDYwIC00NjAgMCBxLTQgLTQ4IDgyLjggLTYwIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTQ1Ny40IDYxMCBxMTQyLjYgLTQwIDI4NS4yIDAgbDQ2IDE4NgogICAgcTkyIDIwIDgyLjggNjAgcS0yMzAgNjAgLTQ2MCAwIHEtNCAtNDggODIuOCAtNjAgeiIgZmlsbD0idXJsKCNmMzYpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzM2KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiNBODBCNDQiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDU3LjQgNjEwIHExNDIuNiAtNDAgMjg1LjIgMCBsNDYgMTg2CiAgICBxOTIgMjAgODIuOCA2MCBxLTIzMCA2MCAtNDYwIDAgcS00IC00OCA4Mi44IC02MCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cGF0aCBkPSJNNDIwLjYgNzYwIHExNzkuNCA0NCAzNTguOCAwIGw2IDQ2IHEtMTg0IDQ0IC0zNjggMCB6IiBmaWxsPSIjQTgwQjQ0IiBvcGFjaXR5PSIwLjc1Ii8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49003",
+            "title": "Default Title",
+            "price": 16,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 16,
+          "max": 16
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "puddle-boots",
+        "id": "9004",
+        "title": "Puddle Boots",
+        "description": "Puddle Boots from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Outdoors",
+        "tags": [
+          "outdoors"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/puddle-boots",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTgyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk3NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjM3IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGQzJEOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNGRjFGNkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQTgwQjQ0Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjMzciPjxwYXRoIGQ9Ik00MDAgNTcwIGgxNjAgdjI1MC44IGwxMDAgOCBxNDQgNiA0NCA1MiB2MzggaC0zMDQgeiBNNjI0IDU3MCBoMTYwIHYyNTAuOCBsMTAwIDggcTQ0IDYgNDQgNTIgdjM4IGgtMzA0IHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTQwMCA1NzAgaDE2MCB2MjUwLjggbDEwMCA4IHE0NCA2IDQ0IDUyIHYzOCBoLTMwNCB6IE02MjQgNTcwIGgxNjAgdjI1MC44IGwxMDAgOCBxNDQgNiA0NCA1MiB2MzggaC0zMDQgeiIgZmlsbD0idXJsKCNmMzcpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzM3KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiNBODBCNDQiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDAwIDU3MCBoMTYwIHYyNTAuOCBsMTAwIDggcTQ0IDYgNDQgNTIgdjM4IGgtMzA0IHogTTYyNCA1NzAgaDE2MCB2MjUwLjggbDEwMCA4IHE0NCA2IDQ0IDUyIHYzOCBoLTMwNCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49004",
+            "title": "Default Title",
+            "price": 34,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 34,
+          "max": 34
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "knit-cardigan",
+        "id": "9005",
+        "title": "Knit Cardigan",
+        "description": "Knit Cardigan from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Knitwear",
+        "tags": [
+          "knitwear"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/knit-cardigan",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA1MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDQ2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMzgiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDMkQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGMUY2QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBODBCNDQiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMzOCI+PHBhdGggZD0iTTM3MCA1NjAgbC0yNDAgNDAgbC02IDIyMCBsMTQ4LjggMjAgbDYgLTEwMAogICAgdjM5MCBoNDYwIHYtMzkwIGw2IDEwMCBsMTQ4LjggLTIwIGwtNiAtMjIwIGwtMjQwIC00MCB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik0zNzAgNTYwIGwtMjQwIDQwIGwtNiAyMjAgbDE0OC44IDIwIGw2IC0xMDAKICAgIHYzOTAgaDQ2MCB2LTM5MCBsNiAxMDAgbDE0OC44IC0yMCBsLTYgLTIyMCBsLTI0MCAtNDAgeiIgZmlsbD0idXJsKCNmMzgpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzM4KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiNBODBCNDQiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNMzcwIDU2MCBsLTI0MCA0MCBsLTYgMjIwIGwxNDguOCAyMCBsNiAtMTAwCiAgICB2MzkwIGg0NjAgdi0zOTAgbDYgMTAwIGwxNDguOCAtMjAgbC02IC0yMjAgbC0yNDAgLTQwIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxlbGxpcHNlIGN4PSI2MDAiIGN5PSI1NjIiIHJ4PSI5MiIgcnk9IjM0IiBmaWxsPSIjQTgwQjQ0Ii8+CiAgICA8ZyBvcGFjaXR5PSIwLjQiIGZpbGw9IiNBODBCNDQiPjxyZWN0IHg9IjM3MCIgeT0iNjkwIiB3aWR0aD0iNDYwIiBoZWlnaHQ9IjM0Ii8+PHJlY3QgeD0iMzcwIiB5PSI3ODAiIHdpZHRoPSI0NjAiIGhlaWdodD0iMzQiLz48L2c+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49005",
+            "title": "Default Title",
+            "price": 38,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 38,
+          "max": 38
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "small-backpack",
+        "id": "9006",
+        "title": "Small Backpack",
+        "description": "Small Backpack from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Outdoors",
+        "tags": [
+          "outdoors"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/small-backpack",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAyMiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDE2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMzkiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDMkQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGMUY2QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBODBCNDQiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMzOSI+PHBhdGggZD0iTTQxMCA1OTAgcTAgLTYwIDE5MCAtNjAgcTE5MCAwIDE5MCA2MCB2NDAwIHEwIDQ0IC00NCA0NCBoLTI5MiBxLTQ0IDAgLTQ0IC00NCB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00MTAgNTkwIHEwIC02MCAxOTAgLTYwIHExOTAgMCAxOTAgNjAgdjQwMCBxMCA0NCAtNDQgNDQgaC0yOTIgcS00NCAwIC00NCAtNDQgeiIgZmlsbD0idXJsKCNmMzkpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzM5KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiNBODBCNDQiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDEwIDU5MCBxMCAtNjAgMTkwIC02MCBxMTkwIDAgMTkwIDYwIHY0MDAgcTAgNDQgLTQ0IDQ0IGgtMjkyIHEtNDQgMCAtNDQgLTQ0IHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxwYXRoIGQ9Ik01MTAgNTk2IHEwIC0xMjAgOTAgLTEyMCBxOTAgMCA5MCAxMjAgaC01MiBxMCAtNzAgLTM4IC03MCBxLTM4IDAgLTM4IDcwIHoiIGZpbGw9IiNBODBCNDQiLz4KICAgIDxyZWN0IHg9IjQ3NC42IiB5PSI3NjAiIHdpZHRoPSIyNTAuOCIgaGVpZ2h0PSIxNDcuMjAwMDAwMDAwMDAwMDIiIHJ4PSIxOCIgZmlsbD0iI0E4MEI0NCIgb3BhY2l0eT0iMC41NSIvPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49006",
+            "title": "Default Title",
+            "price": 28,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 28,
+          "max": 28
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "patch-set",
+        "id": "9007",
+        "title": "Iron-On Patch Set",
+        "description": "Iron-On Patch Set from Pip & Pockets.",
+        "vendor": "Pip & Pockets",
+        "productType": "Hand-me-downs",
+        "tags": [
+          "hand-me-downs"
+        ],
+        "url": "https://example.invalid/pip-and-pockets/products/patch-set",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMUVDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZDMEQ2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3QTBBMzgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzdBMEEzOCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EwQTM4IiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTQyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjkzNiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz48cmVjdCB4PSI0MDQiIHk9IjU4NiIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSIzMDAiIHJ4PSIxNCIgZmlsbD0iI0E4MEI0NCIgb3BhY2l0eT0iMC40NSIvPjxyZWN0IHg9IjM5MiIgeT0iNTk4IiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjMwMCIgcng9IjE0IiBmaWxsPSIjQTgwQjQ0IiBvcGFjaXR5PSIwLjQ1Ii8+PHJlY3QgeD0iMzgwIiB5PSI2MTAiIHdpZHRoPSI0NDAiIGhlaWdodD0iMzAwIiByeD0iMTQiIGZpbGw9IiNGRjFGNkIiIG9wYWNpdHk9IjEiLz48ZyBmaWxsPSIjQTgwQjQ0IiBvcGFjaXR5PSIwLjUiPjxyZWN0IHg9IjQxMCIgeT0iNjUwIiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjEyIiByeD0iNiIvPjxyZWN0IHg9IjQxMCIgeT0iNzAwIiB3aWR0aD0iMTQwLjgiIGhlaWdodD0iMTIiIHJ4PSI2Ii8+PC9nPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49007",
+            "title": "Default Title",
+            "price": 7,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 7,
+          "max": 7
+        },
+        "available": true,
+        "availabilityKnown": true
+      }
+    ],
+    "productCount": 8,
+    "truncated": false
+  },
+  "ingestedAt": "2026-08-14T09:00:00.000Z"
+}

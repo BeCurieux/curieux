@@ -1,0 +1,223 @@
+/*
+ * Asking for a shop.
+ *
+ * Runs on the landing page's tokens, same as pricing. This file only adds the
+ * form, because the form is the only thing on the site that had no precedent.
+ *
+ * The one decision worth writing down: the inputs are as loud as the buttons.
+ * A hairline box on cream is the default look for a field and it is the wrong
+ * one here — this page's entire job is to get four boxes filled in, and a
+ * field that recedes into the page is a field people skip. So they carry the
+ * same 2px ink edge and offset shadow the buttons do, which also means the
+ * focus ring has somewhere to sit that is visibly different from rest.
+ */
+
+.contact-top {
+  display: grid;
+  gap: clamp(2rem, 6vw, 3rem);
+  padding-block: clamp(0.5rem, 3vw, 1.5rem) clamp(2.5rem, 6vw, 4rem);
+}
+
+/* Shorter than the front door's. This headline is a label on a page somebody
+   arrived at on purpose, not the first thing they ever read about popuup. */
+.contact-heading {
+  font-size: clamp(2.75rem, 13vw, 5rem);
+}
+
+.contact-say .lede {
+  max-width: 40ch;
+}
+
+/* ------------------------------------------------------------------- form */
+
+.ask {
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.25rem);
+  max-width: 34rem;
+  padding: clamp(1.25rem, 4vw, 1.75rem);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--r-lg);
+  background: #fff;
+  box-shadow: 8px 10px 0 var(--lilac);
+}
+
+.ask-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.ask-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-cream-soft);
+}
+
+.ask-optional {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--purple);
+}
+
+.ask input,
+.ask textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: var(--edge) solid var(--ink);
+  border-radius: calc(var(--r-lg) / 2);
+  background: var(--cream);
+  color: var(--on-cream);
+  font: inherit;
+  /* 16px floor. Anything smaller and iOS zooms the page on focus, which on a
+     phone throws the layout sideways under a thumb mid-typing. */
+  font-size: max(1rem, 0.9375rem);
+}
+
+.ask textarea {
+  min-height: 8rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.ask input::placeholder,
+.ask textarea::placeholder {
+  color: rgb(92 93 112 / 0.62);
+}
+
+/* Visible, and visibly not the resting state. The default ring is a hairline
+   that disappears against a 2px border. */
+.ask input:focus-visible,
+.ask textarea:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+
+.ask input[aria-invalid],
+.ask textarea[aria-invalid] {
+  border-color: var(--coral);
+  background: #fff;
+}
+
+.ask-problem {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #b32a20;
+}
+
+.ask-problem-wide {
+  margin-top: -0.25rem;
+}
+
+.ask :disabled {
+  opacity: 0.6;
+}
+
+.ask .btn {
+  justify-self: start;
+  margin-top: 0.25rem;
+}
+
+/* ------------------------------------------------------------------- sent */
+
+.form-done {
+  max-width: 34rem;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--r-lg);
+  background: #fff;
+  /* Coral, because coral appears about five times across the whole site and
+     every one of them is a place the reader is meant to stop. */
+  box-shadow: 8px 10px 0 var(--coral);
+}
+
+.form-done-lead {
+  font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-size: clamp(2rem, 8vw, 2.75rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.form-done p + p {
+  margin-top: 0.85rem;
+  font-size: var(--body);
+  line-height: 1.6;
+  color: var(--on-cream-soft);
+}
+
+.form-done-note a,
+.after-note a {
+  color: var(--purple);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* ------------------------------------------------------------------ after */
+
+.after {
+  display: grid;
+  gap: clamp(1.25rem, 3.5vw, 1.75rem);
+  margin-top: clamp(1.5rem, 4vw, 2rem);
+  padding: 0;
+  list-style: none;
+  counter-reset: after;
+}
+
+.after li {
+  counter-increment: after;
+}
+
+.after-lead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.15rem, 4vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.after-lead::before {
+  content: counter(after, decimal-leading-zero);
+  font-family: var(--font-brand-sans), system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--purple);
+}
+
+.after li p + p {
+  max-width: 46ch;
+  margin-top: 0.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--on-cream-soft);
+}
+
+.after-note {
+  max-width: 62ch;
+  margin-top: clamp(1.5rem, 4vw, 2rem);
+  padding-top: clamp(1rem, 3vw, 1.35rem);
+  border-top: 1px solid rgb(32 33 51 / 0.18);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-cream-soft);
+}
+
+@media (min-width: 900px) {
+  .contact-top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    column-gap: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .after {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+  }
+}

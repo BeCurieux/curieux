@@ -29,13 +29,10 @@
  */
 
 import type { Metadata } from "next";
-import { HOME, INBOX } from "@/lib/origin";
+import { HOME } from "@/lib/origin";
 import { displayWonk } from "./fonts";
+import { SiteBar, SiteFoot, ASK } from "./chrome";
 import "./landing.css";
-
-const ASK = `mailto:${INBOX}?subject=${encodeURIComponent("Make me a shop")}&body=${encodeURIComponent(
-  "My store:\n\nWho the shop is for:\n\n",
-)}`;
 
 /**
  * The shop in the opening, and the sentence that produced it.
@@ -139,18 +136,7 @@ export const metadata: Metadata = {
 export default function Landing() {
   return (
     <main className={`landing ${displayWonk.variable}`}>
-      <header className="bar">
-        <img className="bar-mark" src="/brand/popuup.svg" alt="popuup" width={180} height={62} />
-        {/* One link and one button. "What will this cost" is the second
-            question a merchant asks, and the page that answers it says plainly
-            that nothing is chargeable — so pointing at it costs no honesty. */}
-        <nav className="bar-nav">
-          <a href="/pricing">Pricing</a>
-          <a className="btn btn-sm" href={ASK}>
-            Get my shop made <span aria-hidden="true">→</span>
-          </a>
-        </nav>
-      </header>
+      <SiteBar />
 
       {/* ------------------------------------------------------------ opening */}
       <section className="opening">
@@ -391,6 +377,18 @@ export default function Landing() {
             <span className="swap-card is-out">
               Wrap Coat <em>Sold out</em>
             </span>
+            {/*
+              The one acid mark on the site, and it is doing work rather than
+              decorating: this row is the whole claim of the section and the
+              easiest thing on the page to skim past.
+
+              "Demoted, still there" rather than the "Removed ✓" a mockup would
+              put here. `lib/smart/repair.ts` has exactly two moves — drop what
+              is gone, demote what is sold out — and the product rule is that a
+              sold-out item is shown and marked, never hidden. A sticker
+              claiming removal would advertise the opposite of the code.
+            */}
+            <span className="swap-mark">Demoted, still there</span>
           </div>
           <ul className="rules">
             {RULES.map((rule) => (
@@ -485,11 +483,7 @@ export default function Landing() {
           Get my shop made <span aria-hidden="true">→</span>
         </a>
 
-        <footer className="foot">
-          <img className="bar-mark" src="/brand/popuup-light.svg" alt="popuup" width={132} height={45} />
-          <span className="foot-line">Make a shop in a sentence.</span>
-          <a href={`mailto:${INBOX}`}>{INBOX}</a>
-        </footer>
+        <SiteFoot />
       </section>
     </main>
   );

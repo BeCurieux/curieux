@@ -1,0 +1,3 @@
+/* The terms page runs on the privacy page's stylesheet — one file for both, so
+   the two cannot drift apart visually. See ../privacy/legal.css. */
+@import "../privacy/legal.css";

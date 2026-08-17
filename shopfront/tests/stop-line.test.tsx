@@ -27,6 +27,12 @@
  * it says exactly what was opened, what stays shut, and what would have to be
  * decided again. Nothing was renamed to get past it.
  *
+ * **Email capture was opened the same way (2026-08-17).** "Collects no email
+ * address" banned `<input` and `<form` outright; it now permits them in
+ * `app/contact` and `app/api/early-access` and nowhere else, and the half that
+ * mattered — no generated shop collects anything from a shopper — is now its
+ * own check and is untouched.
+ *
  * Every other check below is untouched and still means what it said, and the
  * last one — the drawer — means it most of all: refresh reads stock, and
  * nothing here may read an outcome.
@@ -145,14 +151,60 @@ describe("the Sprint 3 line holds", () => {
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 
-  it("collects no email address", async () => {
-    // The capture block is in schema.ts and renders nothing. A form that posts
-    // into nothing is the dishonesty the brief rules out, and a form that posts
-    // somewhere real is Sprint 3.
+  /*
+   * **This check was narrowed on purpose, on the owner's call (2026-08-17),
+   * and it used to be absolute.**
+   *
+   * It read "collects no email address" and it banned `<input`, `<form` and
+   * `type="email"` from every file under `src/`. `app/contact/form.tsx` trips
+   * all three, deliberately, and the check is now a boundary rather than a
+   * word list.
+   *
+   * What opened: popuup's own contact form. A merchant types their own address
+   * into a box, it posts to `api/early-access`, and a row lands in
+   * `public.early_access`. The failure path is the reason it was worth
+   * building at all — a 503 says the write failed and shows the address to
+   * email instead, where the mailto link it replaced would silently do
+   * nothing.
+   *
+   * What stays shut, and is what the two assertions below now hold:
+   *
+   *   1. **No shop collects anything.** The `capture` block still renders
+   *      empty and is still absent from `SPRINT_1_BLOCK_TYPES`. This is the
+   *      important half and it is not a technicality: a merchant writing to us
+   *      knows exactly who they are writing to, while a shopper handing an
+   *      address to a shop is a different person consenting to a different
+   *      thing — with a lawful basis, a double opt-in and an unsubscribe that
+   *      none of this builds.
+   *   2. **Nothing outside `app/contact` and `app/api/early-access` has a
+   *      form.** Stated as a location rather than as a word list, for the same
+   *      reason the Shopify and refresh guards are stated as dependencies:
+   *      that is the real boundary. A form appearing anywhere else — inside
+   *      the renderer, on the pricing page, in a block — is the rule breaking,
+   *      and renaming an input does not get past it.
+   *
+   * Going further than this — a mailing list, a marketing column on that
+   * table, capture rendered inside a shop — means opening the gate again.
+   */
+  it("collects an email only through popuup's own contact form", async () => {
     const files = await sourceFiles();
-    const offenders = files.filter(({ text }) => /<input|<form|type="email"/i.test(text));
-    expect(offenders.map((o) => o.file)).toEqual([]);
 
+    const ALLOWED = ["app/contact/", "app/api/early-access/"];
+    const forms = files.filter(({ text }) => /<input|<form|type="email"|<textarea/i.test(text));
+
+    // A guard about an empty set passes for the wrong reason: if the form is
+    // ever deleted this should say so rather than quietly certify nothing.
+    expect(forms.length).toBeGreaterThan(0);
+
+    const offenders = forms.filter(({ file }) => !ALLOWED.some((dir) => file.startsWith(dir)));
+    expect(offenders.map((o) => o.file)).toEqual([]);
+  });
+
+  it("renders no capture block inside a generated shop", async () => {
+    // Untouched by the override above and the part of it that matters most.
+    // The block is in `schema.ts` and renders nothing; a form that posted into
+    // nothing is the dishonesty the brief rules out, and a shop that collected
+    // a shopper's address for real is still Sprint 3.
     const html = renderToStaticMarkup(
       <BlockView
         id="capture"
@@ -161,6 +213,16 @@ describe("the Sprint 3 line holds", () => {
       />,
     );
     expect(html).toBe("");
+
+    // And nothing under the renderer may grow one, whatever the contact page
+    // is allowed to do.
+    const files = await sourceFiles();
+    const inShop = files.filter(
+      ({ file, text }) =>
+        (file.startsWith("components/shop/") || file.startsWith("lib/render/")) &&
+        /<input|<form|type="email"|<textarea/i.test(text),
+    );
+    expect(inShop.map((o) => o.file)).toEqual([]);
   });
 
   it("keeps `capture` and `reviews` out of what the merchandiser may choose", () => {

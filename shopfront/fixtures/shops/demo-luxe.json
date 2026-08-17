@@ -1,0 +1,380 @@
+{
+  "config": {
+    "version": 1,
+    "brand": {
+      "name": "Maison Verre",
+      "tagline": "Cut by hand, in Lyon.",
+      "storeUrl": "https://example.invalid/maison-verre/"
+    },
+    "theme": {
+      "colorway": {
+        "background": "#0C0B0E",
+        "surface": "#191620",
+        "text": "#F6F0E4",
+        "accent": "#E8B23C"
+      },
+      "typography": "editorial-serif",
+      "mood": "luxe",
+      "density": "regular",
+      "cornerRadius": "soft"
+    },
+    "blocks": [
+      {
+        "id": "hero",
+        "block": {
+          "type": "hero",
+          "headline": "Cut by hand, in Lyon.",
+          "media": {
+            "kind": "productImage",
+            "handle": "coupe-glass",
+            "imageIndex": 0
+          }
+        }
+      },
+      {
+        "id": "edit",
+        "block": {
+          "type": "productGrid",
+          "title": "The edit",
+          "products": [
+            {
+              "handle": "coupe-glass"
+            },
+            {
+              "handle": "cut-tumbler"
+            },
+            {
+              "handle": "carafe"
+            },
+            {
+              "handle": "decanter"
+            },
+            {
+              "handle": "highball"
+            },
+            {
+              "handle": "wine-glass"
+            },
+            {
+              "handle": "ice-bucket"
+            },
+            {
+              "handle": "candle-holder"
+            }
+          ],
+          "layout": "grid"
+        }
+      },
+      {
+        "id": "links",
+        "block": {
+          "type": "linkList",
+          "links": [
+            {
+              "label": "Stemware",
+              "url": "https://example.invalid/maison-verre/collections/stemware"
+            },
+            {
+              "label": "Barware",
+              "url": "https://example.invalid/maison-verre/collections/barware"
+            },
+            {
+              "label": "Table",
+              "url": "https://example.invalid/maison-verre/collections/table"
+            },
+            {
+              "label": "Restoration",
+              "url": "https://example.invalid/maison-verre/collections/restoration"
+            }
+          ]
+        }
+      }
+    ],
+    "meta": {
+      "prompt": "a wedding list for two people who already own everything",
+      "generatedAt": "2026-08-14T09:00:00.000Z",
+      "audience": "a wedding list for two people who already own everything"
+    }
+  },
+  "catalogue": {
+    "currency": "GBP",
+    "products": [
+      {
+        "handle": "coupe-glass",
+        "id": "9000",
+        "title": "Coupe",
+        "description": "Coupe from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Stemware",
+        "tags": [
+          "stemware"
+        ],
+        "url": "https://example.invalid/maison-verre/products/coupe-glass",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTkyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk4NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjYxIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRTZBQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNFOEIyM0MiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEE2MzE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNjEiPjxwYXRoIGQ9Ik00MzUgNTYwIGgzMzAgcTAgMTkwIC0xNjUgMTkwIHEtMTY1IDAgLTE2NSAtMTkwIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTQzNSA1NjAgaDMzMCBxMCAxOTAgLTE2NSAxOTAgcS0xNjUgMCAtMTY1IC0xOTAgeiIgZmlsbD0idXJsKCNmNjEpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzYxKSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiM4QTYzMTgiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDM1IDU2MCBoMzMwIHEwIDE5MCAtMTY1IDE5MCBxLTE2NSAwIC0xNjUgLTE5MCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSI1ODUiIHk9Ijc1MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjIxMCIgZmlsbD0iI0U4QjIzQyIvPgogICAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk2MCIgcng9IjExMCIgcnk9IjI0LjIiIGZpbGw9IiM4QTYzMTgiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49000",
+            "title": "Default Title",
+            "price": 64,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 64,
+          "max": 64
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "cut-tumbler",
+        "id": "9001",
+        "title": "Cut Tumbler",
+        "description": "Cut Tumbler from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Barware",
+        "tags": [
+          "barware"
+        ],
+        "url": "https://example.invalid/maison-verre/products/cut-tumbler",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTgyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk3NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjYyIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRTZBQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNFOEIyM0MiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEE2MzE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNjIiPjxwYXRoIGQ9Ik00NjAgNTcwIGgyODAgbC0yNiAzODAgaC0yMjggeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNDYwIDU3MCBoMjgwIGwtMjYgMzgwIGgtMjI4IHoiIGZpbGw9InVybCgjZjYyKSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2M2MikiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEE2MzE4IiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTQ2MCA1NzAgaDI4MCBsLTI2IDM4MCBoLTIyOCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48ZyBvcGFjaXR5PSIwLjMiIGZpbGw9IiM4QTYzMTgiPjxyZWN0IHg9IjQ4NiIgeT0iNjg0IiB3aWR0aD0iMTgiIGhlaWdodD0iMjA5LjAwMDAwMDAwMDAwMDAzIi8+PHJlY3QgeD0iNTkxIiB5PSI2ODQiIHdpZHRoPSIxOCIgaGVpZ2h0PSIyMDkuMDAwMDAwMDAwMDAwMDMiLz48cmVjdCB4PSI2OTYiIHk9IjY4NCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjIwOS4wMDAwMDAwMDAwMDAwMyIvPjwvZz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49001",
+            "title": "Default Title",
+            "price": 48,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 48,
+          "max": 48
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "carafe",
+        "id": "9002",
+        "title": "Carafe",
+        "description": "Carafe from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Table",
+        "tags": [
+          "table"
+        ],
+        "url": "https://example.invalid/maison-verre/products/carafe",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA4MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDc2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmNjMiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFNkFDIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0U4QjIzQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTYzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImM2MyI+PHBhdGggZD0iTTU0MCA0NzAgaDEyMCB2MTAwIHEwIDEwMCAxNDAgMTIwCiAgICBxLTE0IDc2IDAgMjM1LjYgcTAgNjguMzk5OTk5OTk5OTk5OTkgLTIwMCA2OC4zOTk5OTk5OTk5OTk5OSBxLTIwMCAwIC0yMDAgLTY4LjM5OTk5OTk5OTk5OTk5CiAgICBxMCAtMTU5LjYgMCAtMjM1LjYgcTE0MCAtMjAgMTQwIC0xMjAgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNTQwIDQ3MCBoMTIwIHYxMDAgcTAgMTAwIDE0MCAxMjAKICAgIHEtMTQgNzYgMCAyMzUuNiBxMCA2OC4zOTk5OTk5OTk5OTk5OSAtMjAwIDY4LjM5OTk5OTk5OTk5OTk5IHEtMjAwIDAgLTIwMCAtNjguMzk5OTk5OTk5OTk5OTkKICAgIHEwIC0xNTkuNiAwIC0yMzUuNiBxMTQwIC0yMCAxNDAgLTEyMCB6IiBmaWxsPSJ1cmwoI2Y2MykiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNjMpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzhBNjMxOCIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik01NDAgNDcwIGgxMjAgdjEwMCBxMCAxMDAgMTQwIDEyMAogICAgcS0xNCA3NiAwIDIzNS42IHEwIDY4LjM5OTk5OTk5OTk5OTk5IC0yMDAgNjguMzk5OTk5OTk5OTk5OTkgcS0yMDAgMCAtMjAwIC02OC4zOTk5OTk5OTk5OTk5OQogICAgcTAgLTE1OS42IDAgLTIzNS42IHExNDAgLTIwIDE0MCAtMTIwIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49002",
+            "title": "Default Title",
+            "price": 96,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 96,
+          "max": 96
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "decanter",
+        "id": "9003",
+        "title": "Crystal Decanter",
+        "description": "Crystal Decanter from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Barware",
+        "tags": [
+          "barware"
+        ],
+        "url": "https://example.invalid/maison-verre/products/decanter",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA3NyIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDcxIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmNjQiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFNkFDIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0U4QjIzQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTYzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImM2NCI+PHBhdGggZD0iTTU0MCA0NzUgaDEyMCB2ODUgcTAgODUgMTYwIDEwMgogICAgcS0xNiA4MCAwIDI0OCBxMCA3MiAtMjIwIDcyIHEtMjIwIDAgLTIyMCAtNzIKICAgIHEwIC0xNjggMCAtMjQ4IHExNjAgLTE3IDE2MCAtMTAyIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTU0MCA0NzUgaDEyMCB2ODUgcTAgODUgMTYwIDEwMgogICAgcS0xNiA4MCAwIDI0OCBxMCA3MiAtMjIwIDcyIHEtMjIwIDAgLTIyMCAtNzIKICAgIHEwIC0xNjggMCAtMjQ4IHExNjAgLTE3IDE2MCAtMTAyIHoiIGZpbGw9InVybCgjZjY0KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2M2NCkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEE2MzE4IiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTU0MCA0NzUgaDEyMCB2ODUgcTAgODUgMTYwIDEwMgogICAgcS0xNiA4MCAwIDI0OCBxMCA3MiAtMjIwIDcyIHEtMjIwIDAgLTIyMCAtNzIKICAgIHEwIC0xNjggMCAtMjQ4IHExNjAgLTE3IDE2MCAtMTAyIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxwYXRoIGQ9Ik01MTYgNDc1IGgxNjggbC0zMCAtMTEwIGgtMTA4IHoiIGZpbGw9IiM4QTYzMTgiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49003",
+            "title": "Default Title",
+            "price": 240,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 240,
+          "max": 240
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "highball",
+        "id": "9004",
+        "title": "Highball",
+        "description": "Highball from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Barware",
+        "tags": [
+          "barware"
+        ],
+        "url": "https://example.invalid/maison-verre/products/highball",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAyNyIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDIxIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmNjUiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFNkFDIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0U4QjIzQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTYzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImM2NSI+PHBhdGggZD0iTTQ4NSA1MjUgaDIzMCBsLTE0IDQ3MCBoLTIwMiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00ODUgNTI1IGgyMzAgbC0xNCA0NzAgaC0yMDIgeiIgZmlsbD0idXJsKCNmNjUpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzY1KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiM4QTYzMTgiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDg1IDUyNSBoMjMwIGwtMTQgNDcwIGgtMjAyIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxnIG9wYWNpdHk9IjAuMyIgZmlsbD0iIzhBNjMxOCI+PHJlY3QgeD0iNTExIiB5PSI2NjYiIHdpZHRoPSIxOCIgaGVpZ2h0PSIyNTguNSIvPjxyZWN0IHg9IjU5MSIgeT0iNjY2IiB3aWR0aD0iMTgiIGhlaWdodD0iMjU4LjUiLz48cmVjdCB4PSI2NzEiIHk9IjY2NiIgd2lkdGg9IjE4IiBoZWlnaHQ9IjI1OC41Ii8+PC9nPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49004",
+            "title": "Default Title",
+            "price": 44,
+            "compareAtPrice": 60,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 44,
+          "max": 44
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "wine-glass",
+        "id": "9005",
+        "title": "Wine Glass",
+        "description": "Wine Glass from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Stemware",
+        "tags": [
+          "stemware"
+        ],
+        "url": "https://example.invalid/maison-verre/products/wine-glass",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA1OS41IiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjEwNTMuNSIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjY2IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRTZBQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNFOEIyM0MiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEE2MzE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNjYiPjxwYXRoIGQ9Ik00NjUgNTQ1IHEwIDI2Mi41IDEzNSAyNjIuNSBxMTM1IDAgMTM1IC0yNjIuNSB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00NjUgNTQ1IHEwIDI2Mi41IDEzNSAyNjIuNSBxMTM1IDAgMTM1IC0yNjIuNSB6IiBmaWxsPSJ1cmwoI2Y2NikiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNjYpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzhBNjMxOCIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik00NjUgNTQ1IHEwIDI2Mi41IDEzNSAyNjIuNSBxMTM1IDAgMTM1IC0yNjIuNSB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSI1ODUiIHk9IjgwNy41IiB3aWR0aD0iMzAiIGhlaWdodD0iMjIwIiBmaWxsPSIjRThCMjNDIi8+CiAgICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAyNy41IiByeD0iMTAwIiByeT0iMjIiIGZpbGw9IiM4QTYzMTgiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49005",
+            "title": "Default Title",
+            "price": 58,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 58,
+          "max": 58
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "ice-bucket",
+        "id": "9006",
+        "title": "Ice Bucket",
+        "description": "Ice Bucket from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Table",
+        "tags": [
+          "table"
+        ],
+        "url": "https://example.invalid/maison-verre/products/ice-bucket",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTgyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk3NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjY3IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRTZBQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNFOEIyM0MiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEE2MzE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNjciPjxwYXRoIGQ9Ik0zNzAgNTcwIGg0NjAgbC00MCAzODAgaC0zODAgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNMzcwIDU3MCBoNDYwIGwtNDAgMzgwIGgtMzgwIHoiIGZpbGw9InVybCgjZjY3KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2M2NykiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEE2MzE4IiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTM3MCA1NzAgaDQ2MCBsLTQwIDM4MCBoLTM4MCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48ZyBvcGFjaXR5PSIwLjMiIGZpbGw9IiM4QTYzMTgiPjxyZWN0IHg9IjM5NiIgeT0iNjg0IiB3aWR0aD0iMTgiIGhlaWdodD0iMjA5LjAwMDAwMDAwMDAwMDAzIi8+PHJlY3QgeD0iNTkxIiB5PSI2ODQiIHdpZHRoPSIxOCIgaGVpZ2h0PSIyMDkuMDAwMDAwMDAwMDAwMDMiLz48cmVjdCB4PSI3ODYiIHk9IjY4NCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjIwOS4wMDAwMDAwMDAwMDAwMyIvPjwvZz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49006",
+            "title": "Default Title",
+            "price": 180,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 180,
+          "max": 180
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "candle-holder",
+        "id": "9007",
+        "title": "Candle Holder",
+        "description": "Candle Holder from Maison Verre.",
+        "vendor": "Maison Verre",
+        "productType": "Table",
+        "tags": [
+          "table"
+        ],
+        "url": "https://example.invalid/maison-verre/products/candle-holder",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjIxQzI5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEQwQjEwIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTUyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk0NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjY4IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRTZBQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNFOEIyM0MiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEE2MzE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNjgiPjxwYXRoIGQ9Ik01MDUgNjAwIGgxOTAgcTAgMTMwIC05NSAxMzAgcS05NSAwIC05NSAtMTMwIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTUwNSA2MDAgaDE5MCBxMCAxMzAgLTk1IDEzMCBxLTk1IDAgLTk1IC0xMzAgeiIgZmlsbD0idXJsKCNmNjgpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzY4KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiM4QTYzMTgiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNTA1IDYwMCBoMTkwIHEwIDEzMCAtOTUgMTMwIHEtOTUgMCAtOTUgLTEzMCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSI1ODUiIHk9IjczMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjE5MCIgZmlsbD0iI0U4QjIzQyIvPgogICAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjkyMCIgcng9IjExNSIgcnk9IjI1LjMiIGZpbGw9IiM4QTYzMTgiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49007",
+            "title": "Default Title",
+            "price": 72,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 72,
+          "max": 72
+        },
+        "available": true,
+        "availabilityKnown": true
+      }
+    ],
+    "productCount": 8,
+    "truncated": false
+  },
+  "ingestedAt": "2026-08-14T09:00:00.000Z"
+}

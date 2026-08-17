@@ -57,6 +57,9 @@ begin
   insert into public.shop_events (shop_id, version_id, session_id, type)
   values (pub_id, pub_ver, 'rls-probe', 'view');
 
+  insert into public.early_access (name, email, store, brief)
+  values ('RLS Probe', 'probe@rls-probe.invalid', 'rls-probe.invalid', 'seeded by rls-check');
+
   -- ------------------------------------------------------- read, as the public
   set local role anon;
 
@@ -82,6 +85,15 @@ begin
   select count(*) into n from public.shop_funnel('rls-probe-published');
   if n <> 0 then
     raise exception 'anon can read the funnel through shop_funnel() (% rows).', n;
+  end if;
+
+  -- Names, email addresses and store URLs of merchants who wrote in. The only
+  -- personal data in the schema, so this is the assertion with the worst
+  -- consequence behind it — a readable early_access table is a leaked contact
+  -- list, not a leaked product feed.
+  select count(*) into n from public.early_access;
+  if n <> 0 then
+    raise exception 'anon can read public.early_access (% rows). Contact details are exposed.', n;
   end if;
 
   -- The merchant's own words. `shop_versions` carries `prompt` and `audience`,
@@ -149,6 +161,17 @@ begin
   begin
     insert into public.shops (store_id, slug) values (store_id, 'rls-probe-hijack');
     raise exception 'anon can create a shop.';
+  exception
+    when insufficient_privilege then null;
+  end;
+
+  -- The contact form posts to a server route that writes with the service
+  -- role. If anon could insert here directly, the form's size cap and
+  -- validation would be decoration.
+  begin
+    insert into public.early_access (name, email, store)
+    values ('Forged', 'forged@rls-probe.invalid', 'rls-probe.invalid');
+    raise exception 'anon can write to early_access directly.';
   exception
     when insufficient_privilege then null;
   end;

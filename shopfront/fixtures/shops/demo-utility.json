@@ -1,0 +1,380 @@
+{
+  "config": {
+    "version": 1,
+    "brand": {
+      "name": "Bench & Bolt",
+      "tagline": "Tools that outlast the job.",
+      "storeUrl": "https://example.invalid/bench-and-bolt/"
+    },
+    "theme": {
+      "colorway": {
+        "background": "#FAF6EF",
+        "surface": "#F0E7D6",
+        "text": "#141210",
+        "accent": "#FF4A0D"
+      },
+      "typography": "editorial-serif",
+      "mood": "utility",
+      "density": "regular",
+      "cornerRadius": "soft"
+    },
+    "blocks": [
+      {
+        "id": "hero",
+        "block": {
+          "type": "hero",
+          "headline": "Tools that outlast the job.",
+          "media": {
+            "kind": "productImage",
+            "handle": "framing-hammer",
+            "imageIndex": 0
+          }
+        }
+      },
+      {
+        "id": "edit",
+        "block": {
+          "type": "productGrid",
+          "title": "The edit",
+          "products": [
+            {
+              "handle": "framing-hammer"
+            },
+            {
+              "handle": "steel-tape-8m"
+            },
+            {
+              "handle": "hex-bolt-set"
+            },
+            {
+              "handle": "spirit-level"
+            },
+            {
+              "handle": "bench-chisel"
+            },
+            {
+              "handle": "oiled-apron"
+            },
+            {
+              "handle": "carpenter-pencils"
+            },
+            {
+              "handle": "whetstone"
+            }
+          ],
+          "layout": "grid"
+        }
+      },
+      {
+        "id": "links",
+        "block": {
+          "type": "linkList",
+          "links": [
+            {
+              "label": "Hand tools",
+              "url": "https://example.invalid/bench-and-bolt/collections/hand-tools"
+            },
+            {
+              "label": "Workshop",
+              "url": "https://example.invalid/bench-and-bolt/collections/workshop"
+            },
+            {
+              "label": "Sharpening",
+              "url": "https://example.invalid/bench-and-bolt/collections/sharpening"
+            },
+            {
+              "label": "Repairs",
+              "url": "https://example.invalid/bench-and-bolt/collections/repairs"
+            }
+          ]
+        }
+      }
+    ],
+    "meta": {
+      "prompt": "the starter kit for someone setting up their first workshop",
+      "generatedAt": "2026-08-14T09:00:00.000Z",
+      "audience": "the starter kit for someone setting up their first workshop"
+    }
+  },
+  "catalogue": {
+    "currency": "GBP",
+    "products": [
+      {
+        "handle": "framing-hammer",
+        "id": "9000",
+        "title": "Framing Hammer",
+        "description": "Framing Hammer from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Hand tools",
+        "tags": [
+          "hand tools"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/framing-hammer",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA2MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDU2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMSIgeDE9IjAuMDgiIHkxPSIwIiB4Mj0iMC45MiIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkM3QTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQyIiBzdG9wLWNvbG9yPSIjRkY0QTBEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhBMjQwMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iYzEiPjxwYXRoIGQ9Ik01NjYgNjQwIGg2OCB2MzkwIHEwIDMwIC0zNCAzMCBxLTM0IDAgLTM0IC0zMCB6CiAgICBNNDUwIDQ5MCBoMjQwIHE0MCAwIDQwIDQwIHY3MCBxMCA0MCAtNDAgNDAgaC0yNDAgcS00MCAtMzAgLTMwIC03NSBxLTEwIC00NSAzMCAtNzUgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNTY2IDY0MCBoNjggdjM5MCBxMCAzMCAtMzQgMzAgcS0zNCAwIC0zNCAtMzAgegogICAgTTQ1MCA0OTAgaDI0MCBxNDAgMCA0MCA0MCB2NzAgcTAgNDAgLTQwIDQwIGgtMjQwIHEtNDAgLTMwIC0zMCAtNzUgcS0xMCAtNDUgMzAgLTc1IHoiIGZpbGw9InVybCgjZjEpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzEpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzhBMjQwMCIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik01NjYgNjQwIGg2OCB2MzkwIHEwIDMwIC0zNCAzMCBxLTM0IDAgLTM0IC0zMCB6CiAgICBNNDUwIDQ5MCBoMjQwIHE0MCAwIDQwIDQwIHY3MCBxMCA0MCAtNDAgNDAgaC0yNDAgcS00MCAtMzAgLTMwIC03NSBxLTEwIC00NSAzMCAtNzUgeiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4yNiIgc3Ryb2tlLXdpZHRoPSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDUpIi8+CiAgICA8L2c+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49000",
+            "title": "Default Title",
+            "price": 62,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 62,
+          "max": 62
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "steel-tape-8m",
+        "id": "9001",
+        "title": "Steel Tape 8m",
+        "description": "Steel Tape 8m from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Hand tools",
+        "tags": [
+          "hand tools"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/steel-tape-8m",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAwMiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSI5OTYiIHJ4PSIxNjgiIHJ5PSIyNS4yIiBmaWxsPSJ1cmwoI2NvbnRhY3QpIi8+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImYyIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGQzdBOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiNGRjRBMEQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEEyNDAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjMiI+PHBhdGggZD0iTTYwMCA1NTAgYTIxMCAyMTAgMCAxIDEgLTAuMSAwIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTYwMCA1NTAgYTIxMCAyMTAgMCAxIDEgLTAuMSAwIHoiIGZpbGw9InVybCgjZjIpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzIpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzhBMjQwMCIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik02MDAgNTUwIGEyMTAgMjEwIDAgMSAxIC0wLjEgMCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48Y2lyY2xlIGN4PSI2MDAiIGN5PSI3NjAiIHI9IjEwOS4yIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjg1Ii8+PHJlY3QgeD0iNTcwLjYiIHk9Ijg4NiIgd2lkdGg9IjU4LjgwMDAwMDAwMDAwMDAwNCIgaGVpZ2h0PSIxMDUiIHJ4PSIxMCIgZmlsbD0iIzhBMjQwMCIvPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49001",
+            "title": "Default Title",
+            "price": 28,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 28,
+          "max": 28
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "hex-bolt-set",
+        "id": "9002",
+        "title": "Hex Bolt Set",
+        "description": "Hex Bolt Set from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Workshop",
+        "tags": [
+          "workshop"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/hex-bolt-set",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA5NiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDkwIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMyIgeDE9IjAuMDgiIHkxPSIwIiB4Mj0iMC45MiIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkM3QTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQyIiBzdG9wLWNvbG9yPSIjRkY0QTBEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhBMjQwMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iYzMiPjxwYXRoIGQ9Ik03NjQuNSA2NjUuMEw3NjQuNSA4NTUuMEw2MDAuMCA5NTAuMEw0MzUuNSA4NTUuMEw0MzUuNSA2NjUuMEw2MDAuMCA1NzAuMHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTc2NC41IDY2NS4wTDc2NC41IDg1NS4wTDYwMC4wIDk1MC4wTDQzNS41IDg1NS4wTDQzNS41IDY2NS4wTDYwMC4wIDU3MC4weiIgZmlsbD0idXJsKCNmMykiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjMykiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTc2NC41IDY2NS4wTDc2NC41IDg1NS4wTDYwMC4wIDk1MC4wTDQzNS41IDg1NS4wTDQzNS41IDY2NS4wTDYwMC4wIDU3MC4weiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4yNiIgc3Ryb2tlLXdpZHRoPSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDUpIi8+CiAgICA8L2c+PHJlY3QgeD0iNTQzIiB5PSI4OTMiIHdpZHRoPSIxMTQiIGhlaWdodD0iMTcxIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjgiLz48Y2lyY2xlIGN4PSI2MDAiIGN5PSI3NjAiIHI9Ijc5LjgiIGZpbGw9IiM4QTI0MDAiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49002",
+            "title": "Default Title",
+            "price": 14,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 14,
+          "max": 14
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "spirit-level",
+        "id": "9003",
+        "title": "Spirit Level 600mm",
+        "description": "Spirit Level 600mm from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Workshop",
+        "tags": [
+          "workshop"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/spirit-level",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iODU3IiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijg1MSIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjQiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDN0E4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGNEEwRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTI0MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImM0Ij48cGF0aCBkPSJNMjIwIDY5NSBoNzYwIHEyMiAwIDIyIDIyIHY4NiBxMCAyMiAtMjIgMjIgaC03NjAgcS0yMiAwIC0yMiAtMjIgdi04NiBxMCAtMjIgMjIgLTIyIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTIyMCA2OTUgaDc2MCBxMjIgMCAyMiAyMiB2ODYgcTAgMjIgLTIyIDIyIGgtNzYwIHEtMjIgMCAtMjIgLTIyIHYtODYgcTAgLTIyIDIyIC0yMiB6IiBmaWxsPSJ1cmwoI2Y0KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2M0KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiM4QTI0MDAiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNMjIwIDY5NSBoNzYwIHEyMiAwIDIyIDIyIHY4NiBxMCAyMiAtMjIgMjIgaC03NjAgcS0yMiAwIC0yMiAtMjIgdi04NiBxMCAtMjIgMjIgLTIyIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxyZWN0IHg9IjUxMCIgeT0iNzI2IiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjY4IiByeD0iMzQiIGZpbGw9IiM4QTI0MDAiLz48Y2lyY2xlIGN4PSI2MTYiIGN5PSI3NjAiIHI9IjIyIiBmaWxsPSIjRkZDN0E4Ii8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49003",
+            "title": "Default Title",
+            "price": 46,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 46,
+          "max": 46
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "bench-chisel",
+        "id": "9004",
+        "title": "Bench Chisel No.4",
+        "description": "Bench Chisel No.4 from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Sharpening",
+        "tags": [
+          "sharpening"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/bench-chisel",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA1MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDQ2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmNSIgeDE9IjAuMDgiIHkxPSIwIiB4Mj0iMC45MiIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkM3QTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQyIiBzdG9wLWNvbG9yPSIjRkY0QTBEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhBMjQwMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iYzUiPjxwYXRoIGQ9Ik01NTQgNTAwIGg5MiB2MjM5LjIwMDAwMDAwMDAwMDAyIGgtMTYgdjIzOS4yMDAwMDAwMDAwMDAwMiBsLTMwIDQxLjYgbC0zMCAtNDEuNiB2LTIzOS4yMDAwMDAwMDAwMDAwMiBoLTE2IHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTU1NCA1MDAgaDkyIHYyMzkuMjAwMDAwMDAwMDAwMDIgaC0xNiB2MjM5LjIwMDAwMDAwMDAwMDAyIGwtMzAgNDEuNiBsLTMwIC00MS42IHYtMjM5LjIwMDAwMDAwMDAwMDAyIGgtMTYgeiIgZmlsbD0idXJsKCNmNSkiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNSkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTU1NCA1MDAgaDkyIHYyMzkuMjAwMDAwMDAwMDAwMDIgaC0xNiB2MjM5LjIwMDAwMDAwMDAwMDAyIGwtMzAgNDEuNiBsLTMwIC00MS42IHYtMjM5LjIwMDAwMDAwMDAwMDAyIGgtMTYgeiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4yNiIgc3Ryb2tlLXdpZHRoPSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDUpIi8+CiAgICA8L2c+PHJlY3QgeD0iNTQ2IiB5PSI3MTguNCIgd2lkdGg9IjEwOCIgaGVpZ2h0PSI0MCIgcng9IjEyIiBmaWxsPSIjOEEyNDAwIi8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49004",
+            "title": "Default Title",
+            "price": 34,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 34,
+          "max": 34
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "oiled-apron",
+        "id": "9005",
+        "title": "Oiled Canvas Apron",
+        "description": "Oiled Canvas Apron from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Workshop",
+        "tags": [
+          "workshop"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/oiled-apron",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA5MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDg2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmNiIgeDE9IjAuMDgiIHkxPSIwIiB4Mj0iMC45MiIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkM3QTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQyIiBzdG9wLWNvbG9yPSIjRkY0QTBEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhBMjQwMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iYzYiPjxwYXRoIGQ9Ik00NzkuNiA0NjAgaDI0MC44IHYxMjAgbDk0LjYgNzIgdjM3MiBxMCAzNCAtMzQgMzQgaC0zNjIgcS0zNCAwIC0zNCAtMzQgdi0zNzIgbDk0LjYgLTcyIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTQ3OS42IDQ2MCBoMjQwLjggdjEyMCBsOTQuNiA3MiB2MzcyIHEwIDM0IC0zNCAzNCBoLTM2MiBxLTM0IDAgLTM0IC0zNCB2LTM3MiBsOTQuNiAtNzIgeiIgZmlsbD0idXJsKCNmNikiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNikiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTQ3OS42IDQ2MCBoMjQwLjggdjEyMCBsOTQuNiA3MiB2MzcyIHEwIDM0IC0zNCAzNCBoLTM2MiBxLTM0IDAgLTM0IC0zNCB2LTM3MiBsOTQuNiAtNzIgeiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4yNiIgc3Ryb2tlLXdpZHRoPSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDUpIi8+CiAgICA8L2c+PHJlY3QgeD0iMzQ1IiB5PSI2NjQiIHdpZHRoPSI1MTAiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iIzhBMjQwMCIvPjxyZWN0IHg9IjQ2Ni43IiB5PSI3NzIiIHdpZHRoPSIyNjYuNiIgaGVpZ2h0PSIxNDQiIHJ4PSIxMiIgZmlsbD0iIzhBMjQwMCIgb3BhY2l0eT0iMC42Ii8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49005",
+            "title": "Default Title",
+            "price": 78,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 78,
+          "max": 78
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "carpenter-pencils",
+        "id": "9006",
+        "title": "Carpenter Pencils",
+        "description": "Carpenter Pencils from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Workshop",
+        "tags": [
+          "workshop"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/carpenter-pencils",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTEwMiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDk2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPjxnIHRyYW5zZm9ybT0icm90YXRlKC05IDYwMCA3NjApIj4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjciIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDN0E4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGNEEwRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTI0MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImM3Ij48cGF0aCBkPSJNNTU0IDU0MCBsNDYgLTkwIGw0NiA5MCB2NTMwIGgtOTIgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNTU0IDU0MCBsNDYgLTkwIGw0NiA5MCB2NTMwIGgtOTIgeiIgZmlsbD0idXJsKCNmNykiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNykiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTU1NCA1NDAgbDQ2IC05MCBsNDYgOTAgdjUzMCBoLTkyIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxwYXRoIGQ9Ik01NTQgNTQwIGw0NiAtOTAgbDQ2IDkwIHoiIGZpbGw9IiM4QTI0MDAiLz48cmVjdCB4PSI1NTQiIHk9IjkyMS4yIiB3aWR0aD0iOTIiIGhlaWdodD0iNDYiIGZpbGw9IiM4QTI0MDAiIG9wYWNpdHk9IjAuNiIvPjwvZz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49006",
+            "title": "Default Title",
+            "price": 9,
+            "compareAtPrice": 14,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 9,
+          "max": 9
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "whetstone",
+        "id": "9007",
+        "title": "Combination Whetstone",
+        "description": "Combination Whetstone from Bench & Bolt.",
+        "vendor": "Bench & Bolt",
+        "productType": "Sharpening",
+        "tags": [
+          "sharpening"
+        ],
+        "url": "https://example.invalid/bench-and-bolt/products/whetstone",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRUZFNkQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDlDQ0I2Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0QTNBMjIiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzRBM0EyMiIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNEEzQTIyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iODkyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijg4NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjgiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDN0E4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iI0ZGNEEwRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTI0MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImM4Ij48cGF0aCBkPSJNMzIwIDY2MCBoNTYwIHExOCAwIDE4IDE4IHYxNjQgcTAgMTggLTE4IDE4IGgtNTYwIHEtMTggMCAtMTggLTE4IHYtMTY0IHEwIC0xOCAxOCAtMTggeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNMzIwIDY2MCBoNTYwIHExOCAwIDE4IDE4IHYxNjQgcTAgMTggLTE4IDE4IGgtNTYwIHEtMTggMCAtMTggLTE4IHYtMTY0IHEwIC0xOCAxOCAtMTggeiIgZmlsbD0idXJsKCNmOCkiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjOCkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjOEEyNDAwIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTMyMCA2NjAgaDU2MCBxMTggMCAxOCAxOCB2MTY0IHEwIDE4IC0xOCAxOCBoLTU2MCBxLTE4IDAgLTE4IC0xOCB2LTE2NCBxMCAtMTggMTggLTE4IHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxyZWN0IHg9IjMyMCIgeT0iNzU2IiB3aWR0aD0iNTYwIiBoZWlnaHQ9IjgiIGZpbGw9IiM4QTI0MDAiIG9wYWNpdHk9IjAuNSIvPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49007",
+            "title": "Default Title",
+            "price": 52,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 52,
+          "max": 52
+        },
+        "available": true,
+        "availabilityKnown": true
+      }
+    ],
+    "productCount": 8,
+    "truncated": false
+  },
+  "ingestedAt": "2026-08-14T09:00:00.000Z"
+}
