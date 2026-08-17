@@ -1,0 +1,380 @@
+{
+  "config": {
+    "version": 1,
+    "brand": {
+      "name": "Sea Salt Skin",
+      "tagline": "Three steps. Nothing else.",
+      "storeUrl": "https://example.invalid/sea-salt-skin/"
+    },
+    "theme": {
+      "colorway": {
+        "background": "#EDF8F5",
+        "surface": "#D4EFE8",
+        "text": "#06211C",
+        "accent": "#00B08B"
+      },
+      "typography": "editorial-serif",
+      "mood": "clean",
+      "density": "regular",
+      "cornerRadius": "soft"
+    },
+    "blocks": [
+      {
+        "id": "hero",
+        "block": {
+          "type": "hero",
+          "headline": "Three steps. Nothing else.",
+          "media": {
+            "kind": "productImage",
+            "handle": "kelp-cleanser",
+            "imageIndex": 0
+          }
+        }
+      },
+      {
+        "id": "edit",
+        "block": {
+          "type": "productGrid",
+          "title": "The edit",
+          "products": [
+            {
+              "handle": "kelp-cleanser"
+            },
+            {
+              "handle": "salt-scrub"
+            },
+            {
+              "handle": "day-balm"
+            },
+            {
+              "handle": "night-oil"
+            },
+            {
+              "handle": "hand-cream"
+            },
+            {
+              "handle": "clay-mask"
+            },
+            {
+              "handle": "lip-salve"
+            },
+            {
+              "handle": "refill-pouch"
+            }
+          ],
+          "layout": "grid"
+        }
+      },
+      {
+        "id": "links",
+        "block": {
+          "type": "linkList",
+          "links": [
+            {
+              "label": "Cleanse",
+              "url": "https://example.invalid/sea-salt-skin/collections/cleanse"
+            },
+            {
+              "label": "Treat",
+              "url": "https://example.invalid/sea-salt-skin/collections/treat"
+            },
+            {
+              "label": "Protect",
+              "url": "https://example.invalid/sea-salt-skin/collections/protect"
+            },
+            {
+              "label": "Refills",
+              "url": "https://example.invalid/sea-salt-skin/collections/refills"
+            }
+          ]
+        }
+      }
+    ],
+    "meta": {
+      "prompt": "a first routine for someone who has never used skincare",
+      "generatedAt": "2026-08-14T09:00:00.000Z",
+      "audience": "a first routine for someone who has never used skincare"
+    }
+  },
+  "catalogue": {
+    "currency": "GBP",
+    "products": [
+      {
+        "handle": "kelp-cleanser",
+        "id": "9000",
+        "title": "Kelp Cleanser 200ml",
+        "description": "Kelp Cleanser 200ml from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Cleanse",
+        "tags": [
+          "cleanse"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/kelp-cleanser",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTEwNyIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMTAxIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMTciIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjQTlFRUREIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iIzAwQjA4QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDU4NEEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMxNyI+PHBhdGggZD0iTTUzNSA0NDUgaDEzMCB2NjguMiBxMCA0NCA4NSA0NAogICAgdjQxMCBxMCA0MiAtNDIgNDIgaC0yMTYgcS00MiAwIC00MiAtNDIgdi00MTAgcTg1IDAgODUgLTQ0IHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTUzNSA0NDUgaDEzMCB2NjguMiBxMCA0NCA4NSA0NAogICAgdjQxMCBxMCA0MiAtNDIgNDIgaC0yMTYgcS00MiAwIC00MiAtNDIgdi00MTAgcTg1IDAgODUgLTQ0IHoiIGZpbGw9InVybCgjZjE3KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2MxNykiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTUzNSA0NDUgaDEzMCB2NjguMiBxMCA0NCA4NSA0NAogICAgdjQxMCBxMCA0MiAtNDIgNDIgaC0yMTYgcS00MiAwIC00MiAtNDIgdi00MTAgcTg1IDAgODUgLTQ0IHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxyZWN0IHg9IjUxOSIgeT0iMzY1IiB3aWR0aD0iMTYyIiBoZWlnaHQ9IjkyIiByeD0iMTYiIGZpbGw9IiMwMDU4NEEiLz48cmVjdCB4PSI0ODkiIHk9IjczMS44IiB3aWR0aD0iMjIyIiBoZWlnaHQ9IjE1NiIgcng9IjEwIiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjkiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49000",
+            "title": "Default Title",
+            "price": 26,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 26,
+          "max": 26
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "salt-scrub",
+        "id": "9001",
+        "title": "Sea Salt Scrub",
+        "description": "Sea Salt Scrub from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Cleanse",
+        "tags": [
+          "cleanse"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/salt-scrub",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTgyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk3NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjE4IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0E5RUVERCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMwMEIwOEIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDA1ODRBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjMTgiPjxwYXRoIGQ9Ik0zOTAgNjMwIGg0MjAgdjI4NiBxMCAzNCAtMzQgMzQgaC0zNTIgcS0zNCAwIC0zNCAtMzQgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNMzkwIDYzMCBoNDIwIHYyODYgcTAgMzQgLTM0IDM0IGgtMzUyIHEtMzQgMCAtMzQgLTM0IHoiIGZpbGw9InVybCgjZjE4KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2MxOCkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTM5MCA2MzAgaDQyMCB2Mjg2IHEwIDM0IC0zNCAzNCBoLTM1MiBxLTM0IDAgLTM0IC0zNCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSIzNzYiIHk9IjU1NiIgd2lkdGg9IjQ0OCIgaGVpZ2h0PSI4NCIgcng9IjE4IiBmaWxsPSIjMDA1ODRBIi8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49001",
+            "title": "Default Title",
+            "price": 22,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 22,
+          "max": 22
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "day-balm",
+        "id": "9002",
+        "title": "Day Balm SPF30",
+        "description": "Day Balm SPF30 from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Protect",
+        "tags": [
+          "protect"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/day-balm",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTExNiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMTEwIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMTkiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjQTlFRUREIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iIzAwQjA4QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDU4NEEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMxOSI+PHBhdGggZD0iTTQ5NSA1MDAgaDIxMCB2NDk0IHEwIDI2IC0yNiAyNiBoLTE1OCBxLTI2IDAgLTI2IC0yNiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00OTUgNTAwIGgyMTAgdjQ5NCBxMCAyNiAtMjYgMjYgaC0xNTggcS0yNiAwIC0yNiAtMjYgeiIgZmlsbD0idXJsKCNmMTkpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzE5KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiMwMDU4NEEiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDk1IDUwMCBoMjEwIHY0OTQgcTAgMjYgLTI2IDI2IGgtMTU4IHEtMjYgMCAtMjYgLTI2IHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxyZWN0IHg9IjQ5NSIgeT0iNTAwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjI2IiByeD0iOCIgZmlsbD0iIzAwNTg0QSIvPgogICAgPHJlY3QgeD0iNTM0LjkiIHk9IjEwMTIiIHdpZHRoPSIxMzAuMiIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMDA1ODRBIi8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49002",
+            "title": "Default Title",
+            "price": 32,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 32,
+          "max": 32
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "night-oil",
+        "id": "9003",
+        "title": "Night Oil",
+        "description": "Night Oil from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Treat",
+        "tags": [
+          "treat"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/night-oil",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA3NyIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDcxIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMjAiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjQTlFRUREIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iIzAwQjA4QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDU4NEEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMyMCI+PHBhdGggZD0iTTU1NSA0NzUgaDkwIHY5MyBxMCA2MCA4MCA2MAogICAgdjI3MCBxMCA0MiAtNDIgNDIgaC0xNjYgcS00MiAwIC00MiAtNDIgdi0yNzAgcTgwIDAgODAgLTYwIHoiLz48L2NsaXBQYXRoPgogICAgPHBhdGggZD0iTTU1NSA0NzUgaDkwIHY5MyBxMCA2MCA4MCA2MAogICAgdjI3MCBxMCA0MiAtNDIgNDIgaC0xNjYgcS00MiAwIC00MiAtNDIgdi0yNzAgcTgwIDAgODAgLTYwIHoiIGZpbGw9InVybCgjZjIwKSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2MyMCkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTU1NSA0NzUgaDkwIHY5MyBxMCA2MCA4MCA2MAogICAgdjI3MCBxMCA0MiAtNDIgNDIgaC0xNjYgcS00MiAwIC00MiAtNDIgdi0yNzAgcTgwIDAgODAgLTYwIHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxyZWN0IHg9IjUzOSIgeT0iNDE1IiB3aWR0aD0iMTIyIiBoZWlnaHQ9IjcyIiByeD0iMTYiIGZpbGw9IiMwMDU4NEEiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49003",
+            "title": "Default Title",
+            "price": 44,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 44,
+          "max": 44
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "hand-cream",
+        "id": "9004",
+        "title": "Hand Cream",
+        "description": "Hand Cream from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Protect",
+        "tags": [
+          "protect"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/hand-cream",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA3MSIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDY1IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMjEiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjQTlFRUREIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iIzAwQjA4QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDU4NEEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMyMSI+PHBhdGggZD0iTTUxMCA1NDUgaDE4MCB2NDA0IHEwIDI2IC0yNiAyNiBoLTEyOCBxLTI2IDAgLTI2IC0yNiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik01MTAgNTQ1IGgxODAgdjQwNCBxMCAyNiAtMjYgMjYgaC0xMjggcS0yNiAwIC0yNiAtMjYgeiIgZmlsbD0idXJsKCNmMjEpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzIxKSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiMwMDU4NEEiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNTEwIDU0NSBoMTgwIHY0MDQgcTAgMjYgLTI2IDI2IGgtMTI4IHEtMjYgMCAtMjYgLTI2IHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxyZWN0IHg9IjUxMCIgeT0iNTQ1IiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjI2IiByeD0iOCIgZmlsbD0iIzAwNTg0QSIvPgogICAgPHJlY3QgeD0iNTQ0LjIiIHk9Ijk2NyIgd2lkdGg9IjExMS42IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwMDU4NEEiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49004",
+            "title": "Default Title",
+            "price": 16,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 16,
+          "max": 16
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "clay-mask",
+        "id": "9005",
+        "title": "Rock Clay Mask",
+        "description": "Rock Clay Mask from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Treat",
+        "tags": [
+          "treat"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/clay-mask",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTU3IiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk1MSIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjIyIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0E5RUVERCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMwMEIwOEIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDA1ODRBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjMjIiPjxwYXRoIGQ9Ik00MTAgNjU1IGgzODAgdjIzNiBxMCAzNCAtMzQgMzQgaC0zMTIgcS0zNCAwIC0zNCAtMzQgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNDEwIDY1NSBoMzgwIHYyMzYgcTAgMzQgLTM0IDM0IGgtMzEyIHEtMzQgMCAtMzQgLTM0IHoiIGZpbGw9InVybCgjZjIyKSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2MyMikiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTQxMCA2NTUgaDM4MCB2MjM2IHEwIDM0IC0zNCAzNCBoLTMxMiBxLTM0IDAgLTM0IC0zNCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSIzOTYiIHk9IjU4OSIgd2lkdGg9IjQwOCIgaGVpZ2h0PSI3NiIgcng9IjE4IiBmaWxsPSIjMDA1ODRBIi8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49005",
+            "title": "Default Title",
+            "price": 28,
+            "compareAtPrice": 36,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 28,
+          "max": 28
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "lip-salve",
+        "id": "9006",
+        "title": "Lip Salve",
+        "description": "Lip Salve from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Protect",
+        "tags": [
+          "protect"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/lip-salve",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iODg3IiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijg4MSIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjIzIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0E5RUVERCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMwMEIwOEIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDA1ODRBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjMjMiPjxwYXRoIGQ9Ik01MDAgNzI1IGgyMDAgdjEwNiBxMCAyNCAtMjQgMjQgaC0xNTIgcS0yNCAwIC0yNCAtMjQgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNTAwIDcyNSBoMjAwIHYxMDYgcTAgMjQgLTI0IDI0IGgtMTUyIHEtMjQgMCAtMjQgLTI0IHoiIGZpbGw9InVybCgjZjIzKSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2MyMykiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTUwMCA3MjUgaDIwMCB2MTA2IHEwIDI0IC0yNCAyNCBoLTE1MiBxLTI0IDAgLTI0IC0yNCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSI0ODYiIHk9IjY3NSIgd2lkdGg9IjIyOCIgaGVpZ2h0PSI2MCIgcng9IjE4IiBmaWxsPSIjMDA1ODRBIi8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49006",
+            "title": "Default Title",
+            "price": 9,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 9,
+          "max": 9
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "refill-pouch",
+        "id": "9007",
+        "title": "Cleanser Refill",
+        "description": "Cleanser Refill from Sea Salt Skin.",
+        "vendor": "Sea Salt Skin",
+        "productType": "Refills",
+        "tags": [
+          "refills"
+        ],
+        "url": "https://example.invalid/sea-salt-skin/products/refill-pouch",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRENGMEVCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjlERUQ1Ii8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwODQyM0EiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzA4NDIzQSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg0MjNBIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAxMiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDA2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmMjQiIHgxPSIwLjA4IiB5MT0iMCIgeDI9IjAuOTIiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjQTlFRUREIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC40MiIgc3RvcC1jb2xvcj0iIzAwQjA4QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDU4NEEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImMyNCI+PHBhdGggZD0iTTQzMCA2MDAgcTAgLTYwIDE3MCAtNjAgcTE3MCAwIDE3MCA2MCB2MzgwIHEwIDQ0IC00NCA0NCBoLTI1MiBxLTQ0IDAgLTQ0IC00NCB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00MzAgNjAwIHEwIC02MCAxNzAgLTYwIHExNzAgMCAxNzAgNjAgdjM4MCBxMCA0NCAtNDQgNDQgaC0yNTIgcS00NCAwIC00NCAtNDQgeiIgZmlsbD0idXJsKCNmMjQpIi8+CiAgICA8ZyBjbGlwLXBhdGg9InVybCgjYzI0KSI+CiAgICAgIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSI2MTAiIHJ4PSIxNzAiIHJ5PSIzODAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMjIiIGZpbHRlcj0idXJsKCNzaGVlbikiLz4KICAgICAgPGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEyMDAiIHJ4PSI1MjAiIHJ5PSIxNTAiIGZpbGw9IiMwMDU4NEEiIG9wYWNpdHk9IjAuMzQiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogICAgICA8cGF0aCBkPSJNNDMwIDYwMCBxMCAtNjAgMTcwIC02MCBxMTcwIDAgMTcwIDYwIHYzODAgcTAgNDQgLTQ0IDQ0IGgtMjUyIHEtNDQgMCAtNDQgLTQ0IHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjYiIHN0cm9rZS13aWR0aD0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCA1KSIvPgogICAgPC9nPjxwYXRoIGQ9Ik01MTAgNjA2IHEwIC0xMjAgOTAgLTEyMCBxOTAgMCA5MCAxMjAgaC01MiBxMCAtNzAgLTM4IC03MCBxLTM4IDAgLTM4IDcwIHoiIGZpbGw9IiMwMDU4NEEiLz4KICAgIDxyZWN0IHg9IjQ4Ny44IiB5PSI3NjAiIHdpZHRoPSIyMjQuNCIgaGVpZ2h0PSIxNDAuOCIgcng9IjE4IiBmaWxsPSIjMDA1ODRBIiBvcGFjaXR5PSIwLjU1Ii8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49007",
+            "title": "Default Title",
+            "price": 18,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 18,
+          "max": 18
+        },
+        "available": true,
+        "availabilityKnown": true
+      }
+    ],
+    "productCount": 8,
+    "truncated": false
+  },
+  "ingestedAt": "2026-08-14T09:00:00.000Z"
+}

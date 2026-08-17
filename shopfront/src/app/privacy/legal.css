@@ -1,0 +1,122 @@
+/*
+ * The two legal pages.
+ *
+ * One file, imported by both, because privacy and terms diverging visually
+ * would be two things to keep in sync for no benefit.
+ *
+ * These are the only pages on the site meant to be *read* rather than
+ * scanned, and that is the whole design: one column at a comfortable measure,
+ * generous leading, headings that are obviously headings. The display face is
+ * used once, on the h1, and then it gets out of the way — a legal page set in
+ * an expressive serif is a legal page nobody finishes.
+ */
+
+/* One column, undoing `.opening`'s two-column desktop grid — see the same
+   note in examples.css. Three children dealt into two columns put the eyebrow
+   beside the headline and stretched it across half the page. */
+.legal-top {
+  display: block;
+  padding-block: clamp(0.5rem, 3vw, 1.5rem) clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.legal-heading {
+  font-size: clamp(2.75rem, 13vw, 5rem);
+}
+
+.legal-top .lede {
+  max-width: 48ch;
+}
+
+.legal {
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.legal-body {
+  max-width: 68ch;
+}
+
+.legal-body h2 {
+  margin-top: clamp(2rem, 5vw, 2.75rem);
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: clamp(1.35rem, 4.5vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1.15;
+}
+
+.legal-body h2:first-child {
+  margin-top: 0;
+}
+
+.legal-body p,
+.legal-body li {
+  margin-top: 0.9rem;
+  font-size: var(--body);
+  line-height: 1.7;
+  color: var(--on-cream-soft);
+}
+
+.legal-body strong {
+  font-weight: 600;
+  color: var(--on-cream);
+}
+
+.legal-body ul {
+  margin-top: 0.5rem;
+  padding-left: 1.15rem;
+}
+
+.legal-body li {
+  margin-top: 0.6rem;
+  padding-left: 0.25rem;
+}
+
+.legal-body li::marker {
+  color: var(--coral);
+}
+
+/*
+ * No padded tap target here, deliberately, and it is the opposite of the rule
+ * the nav links follow.
+ *
+ * The site pads standalone links out to 44px. Doing it to a link inside a
+ * sentence does not work and makes things worse: an inline box's height comes
+ * from the font, not the line box, so 8px of padding on a 27px line produces a
+ * 38px hit area that still misses 44 while overlapping the lines above and
+ * below — so a tap aimed at one line can land on a link in another.
+ *
+ * WCAG 2.5.8 exempts targets in a sentence for this reason. What an inline
+ * link actually needs is to be unmistakably a link, which is what the weight
+ * and the underline are for.
+ */
+.legal-body a {
+  color: var(--purple);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.legal-body code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--lilac);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.9em;
+  color: var(--on-cream);
+}
+
+/*
+ * The admission at the foot of each page.
+ *
+ * Set apart rather than buried, because "not reviewed by a lawyer" is the one
+ * sentence on these pages a reader most deserves to see, and the convention
+ * for a sentence like that is to make it the smallest thing on the screen.
+ */
+.legal-note {
+  margin-top: clamp(2rem, 5vw, 2.75rem);
+  padding: clamp(1rem, 3vw, 1.35rem) clamp(1.1rem, 3.5vw, 1.5rem);
+  border-left: 3px solid var(--coral);
+  background: var(--lilac);
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  font-size: 0.9375rem;
+}

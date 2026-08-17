@@ -104,10 +104,11 @@ roles and default grants reproduced:
 | `shop_events`, `shop_funnel()` | 0 rows |
 | `shops` | 0 rows |
 | `shop_versions`, incl. `prompt` and `audience` | 0 rows |
+| `early_access`, incl. name, email and store | 0 rows |
 | `get_published_shop('<published>')` | 1 row — the one public path |
 | `get_published_shop('<draft>')` | 0 rows |
 | `genome` in the function's column list | absent |
-| insert event / insert shop | `insufficient_privilege` |
+| insert event / insert shop / insert early_access | `insufficient_privilege` |
 | update shop / update store / delete version | 0 rows affected |
 
 And verified to fail, which matters more:
@@ -117,6 +118,17 @@ And verified to fail, which matters more:
 | `select` policy on `stores` | *anon can read public.stores (2 rows). The Genome is exposed.* |
 | `genome` added to the function | *get_published_shop returns a genome column: …* |
 | both old policies restored | *anon can read public.shop_versions (2 rows). Merchant prompts are exposed.* |
+| `select` policy on `early_access` | *anon can read public.early_access (1 rows). Contact details are exposed.* |
+| `insert` policy on `early_access` | *anon can write to early_access directly.* |
+
+**`early_access` is new, and it is the only table here holding personal data.**
+An existing project needs `schema.sql` re-run before the check will pass — the
+statements are `create table if not exists`, so re-running is safe on a project
+with merchants in it. Everything else popuup stores is a public product feed or
+a random session id; this one is names, email addresses and store URLs of
+people who wrote in, which is why it gets probes from both directions rather
+than a read check alone. Both of the new rows above were confirmed to fail by
+adding the policy, running the check, and dropping it again.
 
 That last one was checked by hand as well as by assertion: with both policies
 back, `select prompt, audience from public.shop_versions` as `anon` returns

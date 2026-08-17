@@ -32,6 +32,7 @@ import {
   MOODS,
   PHONE,
   PLATED_MOODS,
+  waitForHydration,
   type Harness,
   type Mood,
   type Viewport,
@@ -264,12 +265,26 @@ describeVisual("geometry", () => {
       await page.route(/\.(png|jpe?g|webp|avif|svg|gif)(\?|$)/i, (route) => route.abort());
       await page.goto(urlFor(harness.base, mood), { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts.ready);
-      // Settle rather than wait for the recovery's own marker. Gating on
-      // `[data-broken]` made both tests below fail at the gate when the fix was
-      // removed, which looks like a pass but proves nothing: the contrast
-      // assertion never ran. Waiting for the page to stop moving lets each test
-      // fail on the thing it is actually about.
-      await page.waitForTimeout(1_200);
+      /*
+       * Wait for hydration, not for a number of milliseconds.
+       *
+       * Still not gating on the recovery's own marker: gating on
+       * `[data-broken]` made both tests below fail at the gate when the fix was
+       * removed, which looks like a pass but proves nothing — the contrast
+       * assertion never ran. That reasoning stands.
+       *
+       * What changed is the other half. The fixed 1.2s settle was a bet that
+       * hydration follows `networkidle` quickly, which holds on a warm dev
+       * server and does not hold on a cold CI runner compiling the route for
+       * the first time. `BrokenImagery` catches images that died before its
+       * listener existed, so it is correct whenever it runs — it just had not
+       * run yet, and these two tests were red in CI for days while passing
+       * locally for exactly that reason.
+       *
+       * `waitForHydration` waits for React's fiber key, which no assertion
+       * here depends on, so both tests still fail on the thing they are about.
+       */
+      await waitForHydration(page);
       return page;
     };
 
@@ -428,6 +443,54 @@ describeVisual("geometry", () => {
 
         expect(worst).not.toBeNull();
         expect(worst, `a 40-character name wraps onto ${worst} lines`).toBeLessThanOrEqual(3);
+      } finally {
+        await page.close();
+      }
+    });
+
+    it.each(MOODS)("%s keeps a long section heading and its count on the page", async (mood) => {
+      // A heading is model output, and its length is not ours to bound.
+      //
+      // `.section-head` is a flex row of heading, rule and count, and the
+      // heading was `flex: 0 0 auto` — it could not shrink. "Still available —
+      // cheapest first" in a mono face measured 437px inside a 390px phone, so
+      // the last three words and the entire count were pushed off the right
+      // edge. Nothing scrolled and nothing looked broken, because an ancestor
+      // clips: the page simply stopped saying how many pieces were in the
+      // section, on a real generated shop, silently.
+      //
+      // The heading is lengthened here rather than in the fixture, for the same
+      // reason the long-product-name test above does it: every other assertion
+      // in this file goes on measuring the shop it was written against.
+      const page = await open(harness, mood, PHONE);
+      try {
+        const outside = await page.evaluate(() => {
+          const heads = [...document.querySelectorAll(".section-head")] as HTMLElement[];
+          if (heads.length === 0) return null;
+
+          const titles = heads.map((head) => head.querySelector("h2")).filter(Boolean) as HTMLElement[];
+          const original = titles.map((t) => t.textContent ?? "");
+          for (const title of titles) title.textContent = "Still available — cheapest first";
+
+          const escaped: string[] = [];
+          for (const head of heads) {
+            for (const el of [head, ...head.querySelectorAll("*")]) {
+              const box = el.getBoundingClientRect();
+              if (box.width === 0 && box.height === 0) continue;
+              if (box.right > window.innerWidth + 1 || box.left < -1) {
+                escaped.push(
+                  `${el.tagName.toLowerCase()}.${el.className} runs ${Math.round(box.left)}→${Math.round(box.right)} in ${window.innerWidth}`,
+                );
+              }
+            }
+          }
+
+          titles.forEach((title, i) => (title.textContent = original[i]!));
+          return escaped;
+        });
+
+        expect(outside).not.toBeNull();
+        expect(outside, outside?.join("; ")).toEqual([]);
       } finally {
         await page.close();
       }

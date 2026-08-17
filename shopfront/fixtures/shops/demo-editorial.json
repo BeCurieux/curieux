@@ -1,0 +1,380 @@
+{
+  "config": {
+    "version": 1,
+    "brand": {
+      "name": "Folio Press",
+      "tagline": "Paper worth keeping.",
+      "storeUrl": "https://example.invalid/folio-press/"
+    },
+    "theme": {
+      "colorway": {
+        "background": "#F5F3ED",
+        "surface": "#E7E3D7",
+        "text": "#0F0F13",
+        "accent": "#1B23E8"
+      },
+      "typography": "editorial-serif",
+      "mood": "editorial",
+      "density": "regular",
+      "cornerRadius": "soft"
+    },
+    "blocks": [
+      {
+        "id": "hero",
+        "block": {
+          "type": "hero",
+          "headline": "Paper worth keeping.",
+          "media": {
+            "kind": "productImage",
+            "handle": "casebound-notebook",
+            "imageIndex": 0
+          }
+        }
+      },
+      {
+        "id": "edit",
+        "block": {
+          "type": "productGrid",
+          "title": "The edit",
+          "products": [
+            {
+              "handle": "casebound-notebook"
+            },
+            {
+              "handle": "blue-black-ink"
+            },
+            {
+              "handle": "pocket-diary"
+            },
+            {
+              "handle": "letter-set"
+            },
+            {
+              "handle": "steel-ruler"
+            },
+            {
+              "handle": "pencil-b"
+            },
+            {
+              "handle": "blotter"
+            },
+            {
+              "handle": "index-cards"
+            }
+          ],
+          "layout": "grid"
+        }
+      },
+      {
+        "id": "links",
+        "block": {
+          "type": "linkList",
+          "links": [
+            {
+              "label": "Notebooks",
+              "url": "https://example.invalid/folio-press/collections/notebooks"
+            },
+            {
+              "label": "Ink",
+              "url": "https://example.invalid/folio-press/collections/ink"
+            },
+            {
+              "label": "Desk",
+              "url": "https://example.invalid/folio-press/collections/desk"
+            },
+            {
+              "label": "Archive",
+              "url": "https://example.invalid/folio-press/collections/archive"
+            }
+          ]
+        }
+      }
+    ],
+    "meta": {
+      "prompt": "a desk set for someone who has started writing by hand again",
+      "generatedAt": "2026-08-14T09:00:00.000Z",
+      "audience": "a desk set for someone who has started writing by hand again"
+    }
+  },
+  "catalogue": {
+    "currency": "GBP",
+    "products": [
+      {
+        "handle": "casebound-notebook",
+        "id": "9000",
+        "title": "Casebound Notebook",
+        "description": "Casebound Notebook from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Notebooks",
+        "tags": [
+          "notebooks"
+        ],
+        "url": "https://example.invalid/folio-press/products/casebound-notebook",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTA4MiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDc2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPjxyZWN0IHg9IjQwMiIgeT0iNDkyIiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjU4MCIgcng9IjE2IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjQiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjQ3IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNDciPjxwYXRoIGQ9Ik0zODAgNDcwIGg0NDAgcTE2IDAgMTYgMTYgdjU0OCBxMCAxNiAtMTYgMTYgaC00NDAgcS0xNiAwIC0xNiAtMTYgdi01NDggcTAgLTE2IDE2IC0xNiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik0zODAgNDcwIGg0NDAgcTE2IDAgMTYgMTYgdjU0OCBxMCAxNiAtMTYgMTYgaC00NDAgcS0xNiAwIC0xNiAtMTYgdi01NDggcTAgLTE2IDE2IC0xNiB6IiBmaWxsPSJ1cmwoI2Y0NykiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNDcpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik0zODAgNDcwIGg0NDAgcTE2IDAgMTYgMTYgdjU0OCBxMCAxNiAtMTYgMTYgaC00NDAgcS0xNiAwIC0xNiAtMTYgdi01NDggcTAgLTE2IDE2IC0xNiB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSIzODAiIHk9IjQ3MCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjU4MCIgcng9IjE0IiBmaWxsPSIjMEEwRjdBIi8+PHJlY3QgeD0iNDkwIiB5PSI2NDQiIHdpZHRoPSIyNDIuMDAwMDAwMDAwMDAwMDMiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM1Ii8+PHJlY3QgeD0iNDkwIiB5PSI2OTgiIHdpZHRoPSIyNDIuMDAwMDAwMDAwMDAwMDMiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM1Ii8+PHJlY3QgeD0iNDkwIiB5PSI3NTIiIHdpZHRoPSIyNDIuMDAwMDAwMDAwMDAwMDMiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM1Ii8+PHJlY3QgeD0iNDkwIiB5PSI4MDYiIHdpZHRoPSIyNDIuMDAwMDAwMDAwMDAwMDMiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM1Ii8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49000",
+            "title": "Default Title",
+            "price": 24,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 24,
+          "max": 24
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "blue-black-ink",
+        "id": "9001",
+        "title": "Blue-Black Ink 50ml",
+        "description": "Blue-Black Ink 50ml from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Ink",
+        "tags": [
+          "ink"
+        ],
+        "url": "https://example.invalid/folio-press/products/blue-black-ink",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTMyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjkyNiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjQ4IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNDgiPjxwYXRoIGQ9Ik00NTAgNjcwIHEwIC01MCAxNTAgLTUwIHExNTAgMCAxNTAgNTAgdjIzMCBxMCAyNiAtMjYgMjYgaC0yNDggcS0yNiAwIC0yNiAtMjYgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNNDUwIDY3MCBxMCAtNTAgMTUwIC01MCBxMTUwIDAgMTUwIDUwIHYyMzAgcTAgMjYgLTI2IDI2IGgtMjQ4IHEtMjYgMCAtMjYgLTI2IHoiIGZpbGw9InVybCgjZjQ4KSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2M0OCkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTQ1MCA2NzAgcTAgLTUwIDE1MCAtNTAgcTE1MCAwIDE1MCA1MCB2MjMwIHEwIDI2IC0yNiAyNiBoLTI0OCBxLTI2IDAgLTI2IC0yNiB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSI1MDgiIHk9IjU0NCIgd2lkdGg9IjE4NCIgaGVpZ2h0PSI4NiIgcng9IjE4IiBmaWxsPSIjMEEwRjdBIi8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49001",
+            "title": "Default Title",
+            "price": 19,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 19,
+          "max": 19
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "pocket-diary",
+        "id": "9002",
+        "title": "Pocket Diary",
+        "description": "Pocket Diary from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Notebooks",
+        "tags": [
+          "notebooks"
+        ],
+        "url": "https://example.invalid/folio-press/products/pocket-diary",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTAyNyIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDIxIiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPjxyZWN0IHg9IjQ1NyIgeT0iNTQ3IiB3aWR0aD0iMzMwIiBoZWlnaHQ9IjQ3MCIgcng9IjE2IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjQiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjQ5IiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNDkiPjxwYXRoIGQ9Ik00MzUgNTI1IGgzMzAgcTE2IDAgMTYgMTYgdjQzOCBxMCAxNiAtMTYgMTYgaC0zMzAgcS0xNiAwIC0xNiAtMTYgdi00MzggcTAgLTE2IDE2IC0xNiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik00MzUgNTI1IGgzMzAgcTE2IDAgMTYgMTYgdjQzOCBxMCAxNiAtMTYgMTYgaC0zMzAgcS0xNiAwIC0xNiAtMTYgdi00MzggcTAgLTE2IDE2IC0xNiB6IiBmaWxsPSJ1cmwoI2Y0OSkiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNDkpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik00MzUgNTI1IGgzMzAgcTE2IDAgMTYgMTYgdjQzOCBxMCAxNiAtMTYgMTYgaC0zMzAgcS0xNiAwIC0xNiAtMTYgdi00MzggcTAgLTE2IDE2IC0xNiB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSI0MzUiIHk9IjUyNSIgd2lkdGg9IjUyIiBoZWlnaHQ9IjQ3MCIgcng9IjE0IiBmaWxsPSIjMEEwRjdBIi8+PHJlY3QgeD0iNTE3LjUiIHk9IjY2NiIgd2lkdGg9IjE4MS41MDAwMDAwMDAwMDAwMyIgaGVpZ2h0PSIxMCIgcng9IjUiIGZpbGw9IiMwQTBGN0EiIG9wYWNpdHk9IjAuMzUiLz48cmVjdCB4PSI1MTcuNSIgeT0iNzIwIiB3aWR0aD0iMTgxLjUwMDAwMDAwMDAwMDAzIiBoZWlnaHQ9IjEwIiByeD0iNSIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC4zNSIvPjxyZWN0IHg9IjUxNy41IiB5PSI3NzQiIHdpZHRoPSIxODEuNTAwMDAwMDAwMDAwMDMiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM1Ii8+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49002",
+            "title": "Default Title",
+            "price": 16,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 16,
+          "max": 16
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "letter-set",
+        "id": "9003",
+        "title": "Letter Set",
+        "description": "Letter Set from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Archive",
+        "tags": [
+          "archive"
+        ],
+        "url": "https://example.invalid/folio-press/products/letter-set",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTgyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk3NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjUwIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNTAiPjxwYXRoIGQ9Ik0zMzAgNTcwIGg1NDAgcTE2IDAgMTYgMTYgdjM0OCBxMCAxNiAtMTYgMTYgaC01NDAgcS0xNiAwIC0xNiAtMTYgdi0zNDggcTAgLTE2IDE2IC0xNiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik0zMzAgNTcwIGg1NDAgcTE2IDAgMTYgMTYgdjM0OCBxMCAxNiAtMTYgMTYgaC01NDAgcS0xNiAwIC0xNiAtMTYgdi0zNDggcTAgLTE2IDE2IC0xNiB6IiBmaWxsPSJ1cmwoI2Y1MCkiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNTApIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik0zMzAgNTcwIGg1NDAgcTE2IDAgMTYgMTYgdjM0OCBxMCAxNiAtMTYgMTYgaC01NDAgcS0xNiAwIC0xNiAtMTYgdi0zNDggcTAgLTE2IDE2IC0xNiB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cGF0aCBkPSJNMzMwIDU3OCBsMjcwIDIxMi44IGwyNzAgLTIxMi44IiBmaWxsPSJub25lIiBzdHJva2U9IiMwQTBGN0EiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIG9wYWNpdHk9IjAuNzUiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49003",
+            "title": "Default Title",
+            "price": 14,
+            "compareAtPrice": 21,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 14,
+          "max": 14
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "steel-ruler",
+        "id": "9004",
+        "title": "Steel Ruler 30cm",
+        "description": "Steel Ruler 30cm from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Desk",
+        "tags": [
+          "desk"
+        ],
+        "url": "https://example.invalid/folio-press/products/steel-ruler",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iODM3IiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjgzMSIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjUxIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNTEiPjxwYXRoIGQ9Ik0yMDAgNzE1IGg4MDAgcTIyIDAgMjIgMjIgdjQ2IHEwIDIyIC0yMiAyMiBoLTgwMCBxLTIyIDAgLTIyIC0yMiB2LTQ2IHEwIC0yMiAyMiAtMjIgeiIvPjwvY2xpcFBhdGg+CiAgICA8cGF0aCBkPSJNMjAwIDcxNSBoODAwIHEyMiAwIDIyIDIyIHY0NiBxMCAyMiAtMjIgMjIgaC04MDAgcS0yMiAwIC0yMiAtMjIgdi00NiBxMCAtMjIgMjIgLTIyIHoiIGZpbGw9InVybCgjZjUxKSIvPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2M1MSkiPgogICAgICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iNjEwIiByeD0iMTcwIiByeT0iMzgwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjIyIiBmaWx0ZXI9InVybCgjc2hlZW4pIi8+CiAgICAgIDxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMjAwIiByeD0iNTIwIiByeT0iMTUwIiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjM0IiBmaWx0ZXI9InVybCgjc29mdCkiLz4KICAgICAgPHBhdGggZD0iTTIwMCA3MTUgaDgwMCBxMjIgMCAyMiAyMiB2NDYgcTAgMjIgLTIyIDIyIGgtODAwIHEtMjIgMCAtMjIgLTIyIHYtNDYgcTAgLTIyIDIyIC0yMiB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49004",
+            "title": "Default Title",
+            "price": 11,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 11,
+          "max": 11
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "pencil-b",
+        "id": "9005",
+        "title": "Pencil B, box of 12",
+        "description": "Pencil B, box of 12 from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Desk",
+        "tags": [
+          "desk"
+        ],
+        "url": "https://example.invalid/folio-press/products/pencil-b",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMTEwMiIgcng9IjM2OS42IiByeT0iNjQuNCIgZmlsbD0idXJsKCNjYXN0KSIvPgogIDxlbGxpcHNlIGN4PSI2MDAiIGN5PSIxMDk2IiByeD0iMTY4IiByeT0iMjUuMiIgZmlsbD0idXJsKCNjb250YWN0KSIvPjxnIHRyYW5zZm9ybT0icm90YXRlKC05IDYwMCA3NjApIj4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjUyIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNTIiPjxwYXRoIGQ9Ik01NTQgNTQwIGw0NiAtOTAgbDQ2IDkwIHY1MzAgaC05MiB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik01NTQgNTQwIGw0NiAtOTAgbDQ2IDkwIHY1MzAgaC05MiB6IiBmaWxsPSJ1cmwoI2Y1MikiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNTIpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik01NTQgNTQwIGw0NiAtOTAgbDQ2IDkwIHY1MzAgaC05MiB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cGF0aCBkPSJNNTU0IDU0MCBsNDYgLTkwIGw0NiA5MCB6IiBmaWxsPSIjMEEwRjdBIi8+PHJlY3QgeD0iNTU0IiB5PSI5MjEuMiIgd2lkdGg9IjkyIiBoZWlnaHQ9IjQ2IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjYiLz48L2c+PC9nPgo8L3N2Zz4=",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49005",
+            "title": "Default Title",
+            "price": 12,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 12,
+          "max": 12
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "blotter",
+        "id": "9006",
+        "title": "Desk Blotter",
+        "description": "Desk Blotter from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Desk",
+        "tags": [
+          "desk"
+        ],
+        "url": "https://example.invalid/folio-press/products/blotter",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTgyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9Ijk3NiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZjUzIiB4MT0iMC4wOCIgeTE9IjAiIHgyPSIwLjkyIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I5QkRGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNDIiIHN0b3AtY29sb3I9IiMxQjIzRTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMEEwRjdBIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGNsaXBQYXRoIGlkPSJjNTMiPjxwYXRoIGQ9Ik0yODAgNTcwIGg2NDAgcTE4IDAgMTggMTggdjM0NCBxMCAxOCAtMTggMTggaC02NDAgcS0xOCAwIC0xOCAtMTggdi0zNDQgcTAgLTE4IDE4IC0xOCB6Ii8+PC9jbGlwUGF0aD4KICAgIDxwYXRoIGQ9Ik0yODAgNTcwIGg2NDAgcTE4IDAgMTggMTggdjM0NCBxMCAxOCAtMTggMTggaC02NDAgcS0xOCAwIC0xOCAtMTggdi0zNDQgcTAgLTE4IDE4IC0xOCB6IiBmaWxsPSJ1cmwoI2Y1MykiLz4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNjNTMpIj4KICAgICAgPGVsbGlwc2UgY3g9IjQzMCIgY3k9IjYxMCIgcng9IjE3MCIgcnk9IjM4MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yMiIgZmlsdGVyPSJ1cmwoI3NoZWVuKSIvPgogICAgICA8ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTIwMCIgcng9IjUyMCIgcnk9IjE1MCIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC4zNCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+CiAgICAgIDxwYXRoIGQ9Ik0yODAgNTcwIGg2NDAgcTE4IDAgMTggMTggdjM0NCBxMCAxOCAtMTggMTggaC02NDAgcS0xOCAwIC0xOCAtMTggdi0zNDQgcTAgLTE4IDE4IC0xOCB6IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjI2IiBzdHJva2Utd2lkdGg9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNSkiLz4KICAgIDwvZz48cmVjdCB4PSIyODAiIHk9Ijc1NiIgd2lkdGg9IjY0MCIgaGVpZ2h0PSI4IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjUiLz48L2c+Cjwvc3ZnPg==",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49006",
+            "title": "Default Title",
+            "price": 38,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 38,
+          "max": 38
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "index-cards",
+        "id": "9007",
+        "title": "Index Cards",
+        "description": "Index Cards from Folio Press.",
+        "vendor": "Folio Press",
+        "productType": "Archive",
+        "tags": [
+          "archive"
+        ],
+        "url": "https://example.invalid/folio-press/products/index-cards",
+        "images": [
+          {
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIAogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjM1IiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTlFNkRDIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0ZDQUJBIi8+PC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGl0IiBjeD0iMC4zMiIgY3k9IjAuMiIgcj0iMC44Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjYXN0IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImNvbnRhY3QiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMTgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9InZpZ25ldHRlIiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC43MiI+PHN0b3Agb2Zmc2V0PSIwLjU1IiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMC4xNiIvPjwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN1cmZhY2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxQjFCMkUiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMC4yNCIgc3RvcC1jb2xvcj0iIzFCMUIyRSIgc3RvcC1vcGFjaXR5PSIwLjEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUIxQjJFIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz48L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdCIgeD0iLTQwJSIgeT0iLTQwJSIgd2lkdGg9IjE4MCUiIGhlaWdodD0iMTgwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMjYiLz48L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNoZWVuIiB4PSItNjAlIiB5PSItNjAlIiB3aWR0aD0iMjIwJSIgaGVpZ2h0PSIyMjAlIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3MiIvPjwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iMTUwMCIgZmlsbD0idXJsKCNsaXQpIi8+CiAgPCEtLSBBIGhvcml6b24uIFdpdGhvdXQgaXQgZXZlcnkgb2JqZWN0IGZsb2F0cyBvbiBhIHdhbGw7IHdpdGggaXQgdGhleSBzaXQgb24KICAgICAgIHNvbWV0aGluZywgd2hpY2ggaXMgbW9zdCBvZiB3aGF0IHNlcGFyYXRlcyBhIHByb2R1Y3Qgc2hvdCBmcm9tIGFuIGljb24uCiAgICAgICBJdCBmYWRlcyBpbiByYXRoZXIgdGhhbiBzdGFydGluZyBhdCBmdWxsIHN0cmVuZ3RoIOKAlCBhIGhhcmQgZWRnZSBhY3Jvc3MKICAgICAgIHRoZSBiYWNrZHJvcCByZWFkcyBhcyBhIGJhbmQgb2YgY29sb3VyLCBub3QgYXMgYSB0YWJsZS4gLS0+CiAgPHJlY3QgeT0iNzYwIiB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI3NDAiIGZpbGw9InVybCgjc3VyZmFjZSkiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSIxNTAwIiBmaWxsPSJ1cmwoI3ZpZ25ldHRlKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYwMCA3NjApIHNjYWxlKDEuMzQpIHRyYW5zbGF0ZSgtNjAwIC03NjApIj4KICA8ZWxsaXBzZSBjeD0iNjAwIiBjeT0iOTQyIiByeD0iMzY5LjYiIHJ5PSI2NC40IiBmaWxsPSJ1cmwoI2Nhc3QpIi8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjkzNiIgcng9IjE2OCIgcnk9IjI1LjIiIGZpbGw9InVybCgjY29udGFjdCkiLz48cmVjdCB4PSI0MDQiIHk9IjU4NiIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSIzMDAiIHJ4PSIxNCIgZmlsbD0iIzBBMEY3QSIgb3BhY2l0eT0iMC40NSIvPjxyZWN0IHg9IjM5MiIgeT0iNTk4IiB3aWR0aD0iNDQwIiBoZWlnaHQ9IjMwMCIgcng9IjE0IiBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjQ1Ii8+PHJlY3QgeD0iMzgwIiB5PSI2MTAiIHdpZHRoPSI0NDAiIGhlaWdodD0iMzAwIiByeD0iMTQiIGZpbGw9IiMxQjIzRTgiIG9wYWNpdHk9IjEiLz48ZyBmaWxsPSIjMEEwRjdBIiBvcGFjaXR5PSIwLjUiPjxyZWN0IHg9IjQxMCIgeT0iNjUwIiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjEyIiByeD0iNiIvPjxyZWN0IHg9IjQxMCIgeT0iNzAwIiB3aWR0aD0iMTQwLjgiIGhlaWdodD0iMTIiIHJ4PSI2Ii8+PC9nPjwvZz4KPC9zdmc+",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49007",
+            "title": "Default Title",
+            "price": 8,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 8,
+          "max": 8
+        },
+        "available": true,
+        "availabilityKnown": true
+      }
+    ],
+    "productCount": 8,
+    "truncated": false
+  },
+  "ingestedAt": "2026-08-14T09:00:00.000Z"
+}

@@ -39,3 +39,27 @@ Development stores and hand-written catalogues. Not a merchant's. If a real
 storefront's data is ever needed for a test, bridge it locally with
 `scripts/bridge-products.ts` and leave it in `.cache/`, where `.gitignore` has
 always meant it to stay.
+
+## `shops/` — the demo shops the marketing site points at
+
+Ten `ShopRenderInput` files, committed for the same reason and against the same
+rule. `/preview/<key>` serves each of them, and `/examples` links to all ten.
+
+That page says of itself that every image links to the page it was taken from.
+It was false everywhere except the machine that generated them: shops live in
+`.cache/`, `.cache/` is gitignored, and a deployment is always a fresh
+checkout. Six pages of careful honesty undone by a 404.
+
+Every store here is `example.invalid` or `maisonverre.example` — reserved
+names, selling to nobody, with hand-drawn SVG products. Their screenshots have
+been in `public/press/` for weeks; this is the input that produced them.
+
+Regenerate with:
+
+```
+pnpm tsx scripts/demo-fixtures.ts
+```
+
+It refuses any store that is not a reserved example domain, and
+`tests/marketing.test.tsx` asserts the same thing from the other side — so a
+real merchant's catalogue cannot be frozen in here by accident.

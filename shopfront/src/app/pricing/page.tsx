@@ -23,14 +23,11 @@
  */
 
 import type { Metadata } from "next";
-import { HOME, INBOX } from "@/lib/origin";
+import { HOME } from "@/lib/origin";
 import { displayWonk } from "../fonts";
+import { SiteBar, SiteFoot, ASK } from "../chrome";
 import "../landing.css";
 import "./pricing.css";
-
-const ASK = `mailto:${INBOX}?subject=${encodeURIComponent("Make me a shop")}&body=${encodeURIComponent(
-  "My store:\n\nWho the shop is for:\n\n",
-)}`;
 
 /**
  * `built` is not decoration. It is the difference between describing a product
@@ -121,14 +118,7 @@ export const metadata: Metadata = {
 export default function Pricing() {
   return (
     <main className={`landing ${displayWonk.variable}`}>
-      <header className="bar">
-        <a href="/" aria-label="popuup">
-          <img className="bar-mark" src="/brand/popuup.svg" alt="popuup" width={180} height={62} />
-        </a>
-        <a className="btn btn-sm" href={ASK}>
-          Get my shop made <span aria-hidden="true">→</span>
-        </a>
-      </header>
+      <SiteBar />
 
       <section className="opening pricing-top">
         <h1 className="shout">
@@ -220,11 +210,7 @@ export default function Pricing() {
           Get my shop made <span aria-hidden="true">→</span>
         </a>
 
-        <footer className="foot">
-          <img className="bar-mark" src="/brand/popuup-light.svg" alt="popuup" width={132} height={45} />
-          <a href="/">Back to the front</a>
-          <a href={`mailto:${INBOX}`}>{INBOX}</a>
-        </footer>
+        <SiteFoot />
       </section>
     </main>
   );

@@ -29,6 +29,20 @@
   --ink: #202133;
   --ink-deep: #16172a;
   --lilac: #e9e0ff;
+  /*
+   * Acid, and it appears exactly once on the site.
+   *
+   * A fourth colour is a liability: purple is popuup's voice, coral is where
+   * the reader is meant to stop, and adding a third accent for general use
+   * would make both mean less. It earns its place on one job — the annotation
+   * that says a shop rebuilt itself — because that is the one claim on the
+   * page a reader is most likely to skim past, and it is the only place a
+   * colour nobody has seen yet is doing work rather than decorating.
+   *
+   * Ink on acid, never cream: at this luminance white text fails contrast
+   * badly enough that it would be a legibility bug rather than a taste one.
+   */
+  --acid: #dfff38;
 
   /* Two inks and two creams, so "quieter" never means "grey". */
   --on-cream: var(--ink);
@@ -161,6 +175,18 @@
   gap: clamp(0.85rem, 3vw, 1.5rem);
 }
 
+/*
+ * Two text links plus a button is more than a 320px phone has room for beside
+ * a wordmark. "Examples" is the one that goes: a merchant who wants to see one
+ * has the whole front page of them, and the button is the thing this bar is
+ * for.
+ */
+@media (max-width: 420px) {
+  .bar-nav a[href="/examples"] {
+    display: none;
+  }
+}
+
 .bar-nav a:not(.btn) {
   font-size: 0.9375rem;
   font-weight: 500;
@@ -182,6 +208,23 @@
   height: auto;
 }
 
+/*
+ * The wordmark is a link home, and it was a 32px one.
+ *
+ * Measured rather than noticed: the anchor wraps an image and takes its
+ * height, and at 320px that image is 25px tall. It is the link a merchant taps
+ * to get back to the front of the site, and it was the smallest target on
+ * every page.
+ *
+ * A flex box with a floor rather than padding, because padding on the anchor
+ * would push the wordmark off the bar's optical centre.
+ */
+.bar a:has(.bar-mark) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 /* --------------------------------------------------------------- opening */
 
 .opening {
@@ -191,6 +234,9 @@
 
 .tag {
   display: inline-flex;
+  /* Belt and braces: `inline-flex` hugs in normal flow but stretches as a grid
+     or flex item, which is how this pill ended up half a page wide. */
+  width: fit-content;
   align-items: center;
   gap: 0.5em;
   padding: 0.4rem 0.9rem 0.4rem 0.6rem;
@@ -510,22 +556,6 @@
   opacity: 0.78;
 }
 
-/*
- * The lead shop, at a size somebody can actually read.
- *
- * Hidden on a phone, where the rail below is the whole section and swipes one
- * shop at a time — a large phone *plus* a rail of five was the single tallest
- * thing on the page, and it showed the same shop twice.
- */
-.proof-lead {
-  display: none;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.proof-lead .device {
-  width: min(13.5rem, 60%);
-}
 
 .rail {
   display: flex;
@@ -547,8 +577,7 @@
   scroll-snap-align: start;
 }
 
-.rail figure,
-.proof-lead {
+.rail figure {
   margin: 0;
 }
 
@@ -557,8 +586,7 @@
   box-shadow: 6px 8px 0 rgb(0 0 0 / 0.4);
 }
 
-.rail figcaption,
-.proof-lead figcaption {
+.rail figcaption {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -568,12 +596,33 @@
 }
 
 .rail-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5em;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
-.rail figcaption q,
-.proof-lead figcaption q {
+/* The count is the argument: three pieces against seven off one catalogue is
+   the difference this section exists to show, and it is easy to miss in a
+   screenshot. */
+.rail-brand em {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+/* The collage. One number per shop, as a downward offset so the row still
+   starts flush at the top. */
+.rail li {
+  padding-top: calc(var(--lift, 0) * clamp(0.4rem, 1.2vw, 0.9rem));
+}
+
+.rail figcaption q {
   color: var(--on-dark-soft);
 }
 
@@ -718,6 +767,43 @@
 
 .swap-card.is-out {
   opacity: 0.55;
+}
+
+/*
+ * The one acid mark on the site.
+ *
+ * A hand-written annotation rather than a chip: tilted, ink on acid, sitting
+ * across the row it is describing. It reads as somebody having drawn on the
+ * page, which is exactly the register a note explaining what just happened
+ * wants — and it is the only place a fourth colour appears, so it cannot be
+ * mistaken for a system.
+ *
+ * Ink on acid and never cream. White on #dfff38 fails contrast badly enough to
+ * be a legibility bug rather than a taste one.
+ */
+.swap-mark {
+  flex: 0 0 auto;
+  align-self: center;
+  padding: 0.4rem 0.7rem;
+  border: var(--edge) solid var(--ink);
+  border-radius: 8px;
+  background: var(--acid);
+  color: var(--ink);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transform: rotate(-3deg);
+  box-shadow: 3px 3px 0 var(--purple-deep);
+}
+
+/* Under 30rem the two cards already fill the row; a third item would squeeze
+   both. It takes its own line rather than shrinking the comparison. */
+@media (max-width: 29.999rem) {
+  .swap-mark {
+    align-self: flex-start;
+    margin-top: 0.15rem;
+  }
 }
 
 @media (min-width: 30rem) {
@@ -957,10 +1043,50 @@
   border-top: 1px solid rgb(255 248 238 / 0.24);
 }
 
+/*
+ * A link in prose on a dark band.
+ *
+ * Nothing styled these, so they fell through to the browser's own link colour
+ * — `#0000EE`, or `#551A8B` once visited — against near-black ink. The contact
+ * page's "write to us instead" address rendered as dark purple on dark ink and
+ * was very nearly invisible, which is a bad outcome for the one link on the
+ * page offering a way round a form that failed.
+ *
+ * Scoped to prose so the buttons, the gallery tiles and the foot keep their
+ * own treatments. `:where()` keeps the specificity low enough that any of them
+ * can still override it.
+ */
+.band-ink :where(p, li, dd) a:not(.btn),
+.band-purple :where(p, li, dd) a:not(.btn) {
+  color: var(--cream);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
 .foot-line {
   font-family: var(--font-brand-display), Georgia, serif;
   font-size: 1rem;
   color: var(--on-dark-soft);
+}
+
+/*
+ * Where the legal pages live.
+ *
+ * In the foot rather than the bar, because that is where people look for them
+ * and because a six-page marketing site does not need six links across the
+ * top. It wraps rather than scrolls: five short links on a 320px screen is two
+ * comfortable rows, and a horizontally scrolling footer is a footer nobody
+ * finds the last item in.
+ */
+.foot-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+}
+
+.foot-nav a {
+  font-size: 0.9375rem;
 }
 
 .foot a {
@@ -1051,58 +1177,27 @@
   }
 
   /*
-   * Copy and rail down the left, the lead shop down the right across both.
+   * Copy across the top, five shops across the bottom.
    *
-   * The first cut put the lead in its own row and left a column of empty ink
-   * beside it — and shrinking the phone to win the height back made the one
-   * shop you are meant to be able to read the hardest one to see. Spanning it
-   * instead fills the space and lets it grow.
+   * An earlier cut pulled one shop out as a large lead beside the copy. It
+   * filled the column, but it overlapped the row and clipped the fifth shop
+   * mid-caption, and it showed the same shop twice. The comparison is the
+   * content, so all five carry equal weight and the row takes the full measure.
    */
-  .proof {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
-    column-gap: clamp(2rem, 5vw, 3.5rem);
-    align-items: start;
-  }
-
   .proof-say {
-    padding-right: 0;
-  }
-
-  .proof-lead {
-    display: flex;
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
-    align-items: flex-end;
-    text-align: right;
-  }
-
-  /* Its twin in the rail stands down, so neither width shows it twice. */
-  .rail li:first-child {
-    display: none;
-  }
-
-  .proof-lead .device {
-    width: min(15.5rem, 100%);
-  }
-
-  .proof-lead figcaption {
-    align-items: flex-end;
-    max-width: 26ch;
+    max-width: 46rem;
   }
 
   .rail {
-    grid-column: 1;
-    margin-top: clamp(1.5rem, 3.5vw, 2.25rem);
+    margin-top: clamp(2rem, 4vw, 2.75rem);
+    overflow-x: visible;
+    scroll-snap-type: none;
   }
 
   .rail li {
-    width: 10rem;
-  }
-
-  .rail {
-    scroll-snap-type: none;
+    flex: 1 1 0;
+    width: auto;
+    max-width: 15rem;
   }
 
   .negations,
