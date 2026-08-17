@@ -72,9 +72,9 @@ const EDITS = [
 ];
 
 const CHAIN = [
-  { name: "Attention", body: "A post, a creator, a campaign. Someone arrived for a reason." },
-  { name: "popuup", body: "Your catalogue, selected and ordered and written for that reason." },
-  { name: "Your checkout", body: "Shopify handles the sale. Your store keeps the customer." },
+  { name: "The post", body: "A reel, a creator, a campaign. Somebody clicked for a specific reason." },
+  { name: "The shop", body: "Your products, picked and ordered and written for that reason." },
+  { name: "Your checkout", body: "Shopify takes the money. The customer is yours, exactly as before." },
 ];
 
 /**
@@ -86,15 +86,15 @@ const CHAIN = [
  */
 const RULES = [
   "What you can still sell comes first",
-  "Anything delisted leaves the page",
-  "Sold out stays, and says so",
-  "Too much moved? It asks to be remade",
+  "Products you’ve deleted drop off the page",
+  "Sold-out ones stay, and say so",
+  "If too much has changed, we ask before rebuilding",
 ];
 
 const STEPS = [
-  { n: "01", title: "Say who is coming", body: "One sentence about the person, or the moment that sent them." },
-  { n: "02", title: "popuup merchandises", body: "It reads your catalogue and chooses what belongs in this shop." },
-  { n: "03", title: "Share the shop", body: "Behind a post, a creator, an email, a campaign. Anywhere the click starts." },
+  { n: "01", title: "Write a sentence", body: "Say what the link is for. “A wedding list for two people who already own everything.”" },
+  { n: "02", title: "We build the shop", body: "We read your catalogue and pick the products that fit, then order and write them." },
+  { n: "03", title: "Put the link in the post", body: "In a bio, an email, an ad, a creator’s story. Wherever the click starts." },
 ];
 
 /**
@@ -124,7 +124,7 @@ function Squiggle({ className }: { className?: string }) {
 export const metadata: Metadata = {
   title: "popuup — every click deserves its own shop",
   description:
-    "The merchandising layer between social attention and your Shopify checkout. Tell popuup who is arriving; it reads your catalogue and builds the shop for them. No page builder.",
+    "Write one sentence about the post you're linking from, and get a small shop built from your Shopify catalogue with just the products that match it. No page builder.",
   openGraph: {
     title: "popuup",
     description: "Every click deserves its own shop.",
@@ -154,16 +154,49 @@ export default function Landing() {
             own <span className="shout-mark">shop.</span>
           </h1>
 
+          {/*
+            The example is the copy. It is not decoration around an
+            explanation.
+
+            This paragraph used to read "Tell popuup who is arriving", and the
+            owner's reaction to it is the reason for this rewrite: *what does
+            that actually mean?* It is a metaphor about guests at a house, and
+            it has to be unpacked before it means anything. Worse, it is
+            abstract in the one place that can least afford it — nobody types
+            a *person* into the box. They type a sentence about a post they
+            are linking from.
+
+            So the mechanic is spelled out with a real one: the post, the
+            sentence, the shop. A merchant should be able to substitute their
+            own reel into it without being told how.
+          */}
           <p className="lede">
-            Tell popuup who is arriving. It reads your Shopify catalogue and builds the shop for them — products, order
-            and copy included.
+            You post a reel about linen shirts. The link in your bio goes to a homepage with four hundred products on
+            it.
           </p>
-          <p className="lede-sub">For posts, creators, campaigns, emails, ads. Whatever sent the click.</p>
+          {/*
+            The last line points at the demo on purpose.
+
+            An earlier draft put its own example here — a linen reel, nothing
+            over 150 — while the box alongside showed a wedding list. Two
+            different worked examples touching each other is its own kind of
+            confusing, and it wasted the strongest thing on the page: that
+            sentence is real, and the shop behind it is what the merchandiser
+            actually returned for it.
+          */}
+          <p className="lede-sub">
+            Write one sentence instead, and we&rsquo;ll build a small shop from your Shopify catalogue with just the
+            products that fit — in an order that makes sense, with words that match the post. The sentence in the box
+            is a real one, and the shop behind it is what came back.
+          </p>
 
           <a className="btn btn-lg" href={ASK}>
             Get my shop made <span aria-hidden="true">→</span>
           </a>
-          <p className="note">Early access. Free while we make these with a small group of Shopify brands.</p>
+          <p className="note">
+            Works for a post, a creator, an email, an ad — anything you put a link in. Free while we&rsquo;re building
+            these with a small group of Shopify brands.
+          </p>
         </div>
 
         {/*
@@ -229,7 +262,8 @@ export default function Landing() {
           already felt this, and explaining it at length insults them. */}
       <section className="band why">
         <p className="why-line">
-          A reel about linen and a gift search in December are not the same person. They land on the same page anyway.
+          Someone who just watched your linen reel and someone hunting for a Christmas gift aren&rsquo;t the same
+          shopper. Right now they both land on the same page.
           <Squiggle className="why-squiggle" />
         </p>
       </section>
@@ -254,12 +288,14 @@ export default function Landing() {
             Five shops.
           </h2>
           <p className="lead-note">
-            Eight products underneath, five sentences over them. Three pieces for the first flat, seven for the end of
-            season, and a wedding list that leads with the one thing nobody buys themselves.
+            All five of these shops sell the same eight products. One sentence each, and they come out completely
+            different: three pieces for someone furnishing a first flat, seven for an end-of-season clearout, and a
+            wedding list that opens with the thing nobody buys for themselves.
           </p>
           <p className="rail-note">
-            Same colours, same type, same voice in all five — it is one brand, and popuup does not get to repaint it.
-            A demo store, so nobody&rsquo;s products are borrowed to sell something. The pages are the real renderer.
+            The colours and lettering never change, because it&rsquo;s still one brand and it isn&rsquo;t ours to
+            repaint. This is a made-up shop rather than a real merchant&rsquo;s, so we&rsquo;re not borrowing anyone&rsquo;s
+            products to sell you something — but the shops themselves are real, built by the same code yours would be.
           </p>
         </div>
 
@@ -308,7 +344,8 @@ export default function Landing() {
           <li>No afternoon lost</li>
         </ul>
         <p className="negations-note">
-          A campaign should not cost you an afternoon in a builder. Tell popuup who is coming. That is the brief.
+          A campaign shouldn&rsquo;t cost you an afternoon of dragging blocks around. Write the sentence, get the
+          shop. That&rsquo;s the whole job.
         </p>
       </section>
 
@@ -321,7 +358,7 @@ export default function Landing() {
           <br />
           and the checkout
         </h2>
-        <p className="lead-note">That gap is the whole job.</p>
+        <p className="lead-note">Everything popuup does happens in that gap.</p>
         <ol className="chain">
           {CHAIN.map((link, index) => (
             <li key={link.name} data-ours={index === 1 ? "" : undefined}>
@@ -351,8 +388,9 @@ export default function Landing() {
             shops that keep up.
           </h2>
           <p className="keep-note">
-            A page you built in March is still selling March. Read the catalogue again and the shop re-orders itself
-            around what you can still sell — by rules you can read, not a model&rsquo;s opinion on the day.
+            A page you built in March is still selling March. Read your catalogue again and the shop reorders itself
+            around what you can actually still sell. The rules are fixed and written down — it&rsquo;s not a model&rsquo;s
+            opinion on the day.
           </p>
         </div>
 
@@ -388,7 +426,7 @@ export default function Landing() {
               sold-out item is shown and marked, never hidden. A sticker
               claiming removal would advertise the opposite of the code.
             */}
-            <span className="swap-mark">Demoted, still there</span>
+            <span className="swap-mark">Moved down, not hidden</span>
           </div>
           <ul className="rules">
             {RULES.map((rule) => (
@@ -407,12 +445,12 @@ export default function Landing() {
             their <span className="lead-coral">own shop.</span>
           </h2>
           <p className="lead-note">
-            Their picks. Their name. Their link. Your catalogue and checkout underneath.
+            Their picks and their name, on their own link — running on your catalogue and your checkout.
           </p>
           <ul className="ticks">
             <li>Their audience</li>
             <li>Your products</li>
-            <li>Their own address</li>
+            <li>Their own link</li>
           </ul>
         </div>
         {/* The credit reproduced as markup rather than screenshotted, so it
@@ -455,8 +493,8 @@ export default function Landing() {
             Where this is
           </h2>
           <p className="lead-note">
-            Early, on purpose. We are making shops with a small number of Shopify brands to find out whether this is
-            genuinely useful before building the rest of it.
+            Early, on purpose. We&rsquo;re building shops with a handful of Shopify brands to find out whether they&rsquo;re
+            genuinely useful before we build the rest.
           </p>
         </div>
         <ul className="ledger">
