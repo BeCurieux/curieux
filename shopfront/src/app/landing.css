@@ -548,6 +548,18 @@
    * point. 33vw leaves about 50px of the phone showing.
    */
   --panel: clamp(8.25rem, 33vw, 15rem);
+  /*
+   * The shop is bigger than the two panels feeding it, and that asymmetry is
+   * the point.
+   *
+   * Three equal panels read as three equal steps, which undersells the one
+   * that is the payoff — and it was the smallest thing in the row, because a
+   * phone is tall and narrow while the cards beside it are not. The reference
+   * poster made the phone roughly half again as wide as the post card, and it
+   * is right: the eye should land on the shop and read the other two as the
+   * cheap inputs that produced it.
+   */
+  --shop-panel: calc(var(--panel) * 1.8);
   /* Flex rather than grid: the three panels are a fixed width and the two
      arrows are whatever they are, which is two track sizes, not one. */
   display: flex;
@@ -586,6 +598,10 @@
   justify-items: start;
   flex: none;
   width: var(--panel);
+}
+
+.mech .mech-shop {
+  width: var(--shop-panel);
 }
 
 .mech-arrow {
@@ -1482,7 +1498,7 @@
 
 @media (min-width: 60rem) {
   .opening {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
     align-items: center;
     gap: clamp(2rem, 5vw, 4rem);
     padding-block: clamp(3.5rem, 7vw, 6rem) clamp(3rem, 6vw, 4.5rem);
@@ -1503,6 +1519,12 @@
   .mech figure {
     flex: 1 1 var(--panel);
     max-width: var(--panel);
+    width: auto;
+  }
+
+  .mech .mech-shop {
+    flex: 1 1 var(--shop-panel);
+    max-width: var(--shop-panel);
     width: auto;
   }
 
