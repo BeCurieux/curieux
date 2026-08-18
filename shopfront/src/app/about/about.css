@@ -1,0 +1,189 @@
+/*
+ * About.
+ *
+ * Almost all of this page is type, so it borrows from `landing.css` and adds
+ * only what a page of argument needs that a page of product does not: a
+ * two-column prose layout, a pull-quote for the one architectural rule, and a
+ * numbered list of refusals.
+ *
+ * The refusals are the one place the page spends any design budget. They are
+ * the spine — a list of what a product will not do is worth more than a list
+ * of features on something this early, because features arrive next week and
+ * refusals describe judgement — so they get the purple band and the numerals.
+ */
+
+.about-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: 1.1rem;
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.about-heading {
+  max-width: 15ch;
+}
+
+.about-top .lede {
+  max-width: 34ch;
+}
+
+/* ------------------------------------------------------------ two columns */
+
+/*
+ * Heading in the first column, prose in the second — the shape a long argument
+ * wants, and the reason it is not `.band-top`: a centred heading over a full
+ * measure of body copy gives a 100-character line, which is the one thing that
+ * reliably stops people reading.
+ */
+.about-two {
+  display: grid;
+  gap: clamp(1.25rem, 4vw, 3rem);
+  align-items: start;
+}
+
+.about-prose {
+  display: grid;
+  gap: 1rem;
+  max-width: 62ch;
+}
+
+.about-prose p {
+  margin: 0;
+  color: var(--on-cream-soft);
+}
+
+.about-prose em {
+  font-style: italic;
+  color: var(--on-cream);
+}
+
+.about-prose a {
+  color: var(--purple-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1.5px;
+}
+
+.about-write {
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--line);
+}
+
+.about-sources-note {
+  margin-top: 0.9rem;
+}
+
+@media (min-width: 54rem) {
+  .about-two {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+  }
+
+  /* Two prose columns side by side rather than heading-and-prose. */
+  .about-two-tight {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+  }
+}
+
+/* ------------------------------------------------------------- the rule */
+
+/*
+ * The one architectural rule, set as the largest thing on the page.
+ *
+ * It earns that because it is the most useful sentence a sceptical reader can
+ * be handed: it explains in nine words why these shops look designed rather
+ * than generated, which is the question anybody who has seen AI-built pages is
+ * actually asking.
+ */
+.creed {
+  margin: 0 0 clamp(2rem, 5vw, 3rem);
+  display: grid;
+  justify-items: center;
+}
+
+.creed blockquote {
+  margin: 0;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 3rem);
+  max-width: 22ch;
+  border-radius: var(--r-lg);
+  background: var(--cream);
+  border: 1px solid var(--line);
+  text-align: center;
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 40, "opsz" 144;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  letter-spacing: -0.028em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.creed em {
+  font-style: normal;
+  color: var(--purple);
+}
+
+/* ---------------------------------------------------------- the refusals */
+
+/*
+ * Three across at width, not four.
+ *
+ * There are five refusals, and `minmax(16rem, …)` tiled them 4 + 1 — one card
+ * alone under three empty columns, which reads as a list that ran out rather
+ * than a set. 18rem caps the row at three, so it breaks 3 + 2. Neither divides
+ * evenly; one orphan is better than three.
+ */
+.refusals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: refusal;
+}
+
+.refusals > li {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding-top: 2.6rem;
+  position: relative;
+  counter-increment: refusal;
+}
+
+/* The numeral, hairline-ruled off the text it belongs to. */
+.refusals > li::before {
+  content: counter(refusal, decimal-leading-zero);
+  position: absolute;
+  inset: 0 0 auto;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgb(253 248 239 / 0.28);
+  width: 100%;
+  font-size: var(--micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--coral);
+}
+
+.refusals h3 {
+  margin: 0;
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 40, "opsz" 100;
+  font-size: clamp(1.25rem, 3.2vw, 1.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+.refusals p {
+  margin: 0;
+  font-size: var(--small);
+  color: var(--on-dark-soft);
+}
+
+.about-refuse-heading {
+  font-size: clamp(2.1rem, 6.5vw, 3.4rem);
+  text-align: center;
+}
