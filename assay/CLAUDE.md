@@ -1,7 +1,11 @@
-# CLAUDE.md — assay (working name TBD)
+# CLAUDE.md — Franca
 
 Read BRIEF.md before doing anything. This file is the short version that must
 never be violated.
+
+The product is **Franca** (chosen 2026-08-18, §11 item 1). The directory is
+still `assay/` — renaming it moves every path filter in CI and would bury a
+review under a rename, so it is a separate commit after PR #31 lands.
 
 ## North star
 

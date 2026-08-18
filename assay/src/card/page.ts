@@ -27,6 +27,7 @@ import {
   MARKET_LABEL,
   SEVERITY_LABEL,
   SEVERITY_MARK,
+  WORDMARK,
   fontFaces,
   longDate,
   paletteCss,
@@ -40,11 +41,10 @@ export type CardOptions = {
   /** Taken, never read off the clock, so a card renders the same in a year. */
   reviewedOn: Date;
   /**
-   * What to print in the masthead. Left out by default: the product has no
-   * name yet (BRIEF.md §11, item 1), and a placeholder in the masthead is how
-   * a placeholder becomes the name. `pnpm card --wordmark` exists so the kill
-   * test can put a candidate name in front of thirty real founders, which is a
-   * better way to choose one than a spreadsheet.
+   * What to print in the masthead. Defaults to `WORDMARK`. Override it with
+   * `pnpm card --wordmark` to put a different name in front of a founder —
+   * the reason that flag exists, and the reason it stays now the name is
+   * settled.
    */
   wordmark?: string;
   /**
@@ -350,7 +350,7 @@ export function resultPage(options: CardOptions): string {
 <div class="sheet">
 
   <header class="masthead">
-    <div class="masthead__mark">${wordmark ? esc(wordmark) : ""}</div>
+    <div class="masthead__mark">${esc(wordmark ?? WORDMARK)}</div>
     <div class="label">${esc(longDate(reviewedOn))}</div>
   </header>
   <hr class="rule">

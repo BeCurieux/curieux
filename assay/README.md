@@ -1,11 +1,12 @@
-# assay — the claim engine, and the artefact it produces
+# Franca — the claim engine, and the artefact it produces
 
 Marketing copy in; findings that cite a named instrument, a score whose every
 deducted point traces to a rule, and a card beautiful enough that sending it to
 a stranger is not embarrassing.
 
-Steps 1 and 2 of the build order in `CLAUDE.md`. There is no URL fetching, no
-model call and no database yet. There is also no configuration, no API key and
+Steps 1 and 2 of the build order in `CLAUDE.md`, plus two rungs of step 4
+opened early on the owner's call — URL fetching and rewrite drafting. There is
+no database. Scanning still needs no configuration, no API key and
 no network access, which is the property that matters most right now: the kill
 test in §10 of the brief runs before any of that exists, and it runs on this.
 
@@ -48,7 +49,7 @@ Read              2 claims, 5 findings
 | `pnpm scan --url https://… --whole` | Scan the whole page, carousels and all |
 | `pnpm scan --file page.txt --json` | The whole `ScanResult`, as JSON |
 | `pnpm card --file page.txt --out ./cards/x` | The result page, the share card and the badge |
-| `pnpm card … --wordmark VOUCH` | Put a candidate name in the masthead |
+| `pnpm card … --wordmark SORREL` | Override the masthead with another name |
 | `pnpm card … --rewrite` | Draft the replacements too — exact fixes offline, rest via the model |
 | `pnpm card … --png` | Rasterise the share card, if a Chromium is around |
 | `pnpm calibrate` | Is the corpus loud in the right places? Eight invented pages |
@@ -206,13 +207,20 @@ appearing. `mayDisplayBadge` gates it: `clear` band only, which means a page
 carrying a phrase that draws attention reliably cannot display a mark at any
 score.
 
-### Naming, via the kill test
+### The name
 
-`--wordmark` puts a candidate name in the masthead. The product does not have
-one (§11, item 1), and the masthead defaults to empty rather than to a
-placeholder, because a placeholder in a masthead is how a placeholder becomes
-the name. Thirty real founders reacting to thirty real cards is a better name
-test than a shortlist.
+**Franca**, chosen 2026-08-18 and resolving §11 item 1. *Lingua franca* — the
+common language — for a product about the language of claims.
+
+It asserts nothing, which is the point. The badge already says "Claims
+Verified"; a name that also claimed truth — *Vouch*, *Attest*, *Verily* — would
+say it twice and widen the §9 exposure that was read down once already. The
+marks this product is modelled on do the same thing: Vanta, Oeko-Tex and B Corp
+all leave the claim to the badge line and keep it out of the name.
+
+`WORDMARK` in `src/card/tokens.ts` is the single place it is written, and the
+masthead takes it by default. `--wordmark` still overrides, because a name is
+cheaper to change before thirty founders have seen it than after.
 
 
 ## The score

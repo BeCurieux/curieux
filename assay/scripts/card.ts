@@ -8,13 +8,13 @@
  *
  *   pnpm card --url https://brand.example/products/serum --out ./cards/aurelia
  *   pnpm card --file page.txt --out ./cards/aurelia
- *   pnpm card --text "Clinically proven…" --markets AU,EU --wordmark VOUCH
+ *   pnpm card --text "Clinically proven…" --markets AU,EU --wordmark SORREL
  *   pnpm card --file page.txt --rewrite      # draft the replacements too
  *   pnpm card --file page.txt --png          # needs a Chromium, see below
  *
- * `--wordmark` exists because the product has no name (BRIEF.md §11, item 1).
- * Thirty real founders reacting to thirty real cards is a better name test
- * than a shortlist, so the masthead is an argument rather than a constant.
+ * The masthead says Franca by default (`WORDMARK`, src/card/tokens.ts).
+ * `--wordmark` overrides it — kept now the name is settled, because trying
+ * another one in front of a founder should stay a flag rather than an edit.
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";

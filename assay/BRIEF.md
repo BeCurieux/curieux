@@ -1,4 +1,4 @@
-# Build Brief — [WORKING NAME TBD]
+# Build Brief — Franca
 ### The design-led claim scanner for beautiful brands
 
 **Status:** Draft v3 · August 2026 · greenfield build — fully independent of ClaimKind
@@ -143,7 +143,7 @@ Post-launch checkpoints:
 ## 11. Open decisions
 
 0. **Founder attention split.** ClaimKind's funnel and kill-clock run independently — but a solo founder authoring a fresh rule corpus while running a PLG launch has no spare capacity. Decide how much (if any) active ClaimKind outreach continues during the scanner build, or whether its November kill criterion simply adjudicates it
-1. **Name** — needs to sound like a beauty brand, not a legal tool. Direction: short, warm, confident. Early sparks to test: *Vouch, Candor, Trueform, Attest, Clara, Verily*-adjacent territory (all need availability checks)
+1. ~~**Name**~~ — resolved 2026-08-18: **Franca**. *Lingua franca*, the common language. Chosen over the sparks below partly because it asserts nothing: the badge already says "Claims Verified", and *Vouch*, *Attest* and *Verily* would each have claimed truth a second time in the name. (Original direction: short, warm, confident; sparks *Vouch, Candor, Trueform, Attest, Clara, Verily*.) **Availability checks — domain and trademark classes 3, 9 and 42 — are still outstanding.**
 2. Score scale presentation (0–100 vs letter grade vs three-state)
 3. ~~Launch jurisdiction set~~ — resolved in §7: AU + US + EU at launch, UK and Quebec as post-launch expansions
 4. Badge visual system — needs its own mini design sprint

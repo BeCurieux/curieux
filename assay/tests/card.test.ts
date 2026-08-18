@@ -15,6 +15,7 @@ import { resultPage } from "@/card/page.js";
 import { shareCard, wrapText, OG_WIDTH } from "@/card/og.js";
 import { annotate } from "@/card/annotate.js";
 import { esc, escXml, safeUrl } from "@/card/escape.js";
+import { WORDMARK } from "@/card/tokens.js";
 import { FONT_FILES, loadEmbeddedFonts, resolveFont } from "@/card/fonts.js";
 import { DISCLAIMER } from "@/engine/framing.js";
 import { AURELIA_PDP } from "./fixtures/pdp.js";
@@ -60,6 +61,13 @@ describe("escaping", () => {
 
   it("escapes the wordmark, which is user input on the CLI", () => {
     expect(page(CLEAN_COPY, clean, { wordmark: "<b>VOUCH</b>" })).not.toContain("<b>VOUCH</b>");
+  });
+
+  it("puts the name in the masthead without being asked, and lets a flag override it", () => {
+    // Pinned because an unnamed masthead is how a card goes out anonymous, and
+    // because the override is what the kill test uses to try another name.
+    expect(page(CLEAN_COPY, clean)).toContain(WORDMARK);
+    expect(page(CLEAN_COPY, clean, { wordmark: "SORREL" })).toContain("SORREL");
   });
 
   it("handles the five characters and leaves everything else alone", () => {

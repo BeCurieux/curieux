@@ -19,6 +19,20 @@
  * and white reads as a dialog box.
  */
 
+/**
+ * The product's name, and the masthead default.
+ *
+ * Chosen 2026-08-18, resolving BRIEF.md §11 item 1. *Lingua franca* — the
+ * common language — for a product about the language of claims. It matters
+ * that it asserts nothing: the badge already says "Claims Verified", and a
+ * name that also claimed truth would say it twice and widen the §9 exposure
+ * that was read down once already.
+ *
+ * `--wordmark` still overrides it, because a name is cheaper to change before
+ * thirty founders have seen it than after.
+ */
+export const WORDMARK = "Franca";
+
 export const PALETTE = {
   paper: "#F4F1EA",
   paperRaised: "#FBF9F5",

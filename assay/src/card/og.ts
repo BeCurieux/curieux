@@ -23,6 +23,7 @@ import {
   FONTS,
   MARKET_LABEL,
   PALETTE,
+  WORDMARK,
   fontFaces,
   longDate,
   type EmbeddedFonts,
@@ -35,7 +36,7 @@ export type ShareCardOptions = {
   text: string;
   result: ScanResult;
   reviewedOn: Date;
-  /** Masthead. Left out by default; the product has no name yet. */
+  /** Masthead. Defaults to `WORDMARK`. */
   wordmark?: string;
   /**
    * Faces inlined into the SVG itself, for the renderer that honours them.
@@ -152,7 +153,7 @@ export function shareCard(options: ShareCardOptions): string {
   );
 
   // ------------------------------------------------------------- masthead
-  parts.push(text((wordmark ?? "Claim confidence").toUpperCase(), M, M + 22, MONO(13, PALETTE.ink, 4.4)));
+  parts.push(text((wordmark ?? WORDMARK).toUpperCase(), M, M + 22, MONO(13, PALETTE.ink, 4.4)));
   parts.push(
     text(longDate(reviewedOn).toUpperCase(), OG_WIDTH - M, M + 22, {
       ...MONO(12, PALETTE.inkFaint),
