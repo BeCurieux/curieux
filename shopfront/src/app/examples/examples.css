@@ -34,15 +34,16 @@
   max-width: 52ch;
 }
 
-.examples-band + .examples-band {
-  border-top: 1px solid rgb(32 33 51 / 0.12);
-}
-
-/* The second band sits on cream, where `.lead-note`'s dark-band colour would
-   be unreadable. Stated rather than inherited, so the two bands cannot drift. */
-.lead-note-dark {
-  color: var(--on-cream-soft);
-}
+/*
+ * There is only one band now.
+ *
+ * A rule separating consecutive `.examples-band`s and a `.lead-note-dark`
+ * override for the second one both went with the "five brands, one renderer"
+ * gallery — three of those brands had no photographs, so it was advertising
+ * drawn placeholders on a page that promises real generations. Left in place
+ * they would be rules nothing selects, which is how a stylesheet becomes
+ * something nobody dares delete from.
+ */
 
 /* --------------------------------------------------------------- gallery */
 
@@ -70,9 +71,8 @@
   box-shadow: 6px 8px 0 rgb(0 0 0 / 0.4);
 }
 
-.device-light {
-  box-shadow: 6px 8px 0 rgb(32 33 51 / 0.16);
-}
+/* `.device-light` went with it: the cut gallery was the only light-ground
+   device on the page. `landing.css` still defines the base class. */
 
 @media (prefers-reduced-motion: no-preference) {
   .gallery a:hover .device,

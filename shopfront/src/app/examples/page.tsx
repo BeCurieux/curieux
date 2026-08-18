@@ -8,18 +8,29 @@
  * them out of the running renderer, so a change to the template shows up here
  * without anybody redrawing anything.
  *
- * Two arguments, in order of which is harder to make.
- *
  * **One catalogue, five shops.** Five real generations off a single ingest of
- * Maison Verre — same eight products underneath, five sentences over them, and
- * the same colourway in all five because popuup does not get to repaint a
- * merchant's brand per audience. This is the claim the product rests on and it
- * is the one a mockup gets wrong: five differently-coloured phones would be a
- * better poster and a worse promise.
+ * Casa Lino — same eight products underneath, five sentences over them, and the
+ * same colour in all five because popuup does not get to repaint a merchant's
+ * brand per audience. This is the claim the product rests on and it is the one
+ * a mockup gets wrong: five differently-coloured phones would be a better
+ * poster and a worse promise.
  *
- * **Five brands, one renderer.** The same template under five different
- * moods. This is the easier claim — a template flexing across merchants — and
- * it goes second for that reason.
+ * **What used to go second, and why it is gone.** A "five brands, one renderer"
+ * gallery followed — the same template under five moods. It was always the
+ * weaker argument and this comment said so: a template flexing across merchants
+ * is less interesting than one catalogue producing five different shops, which
+ * is the thing nothing else does.
+ *
+ * It also could not be shown honestly. Three of those five brands have no
+ * photographs, so the renderer drew SVG placeholders for their products. Those
+ * were real renders — the template genuinely produced them — but of
+ * invented-looking goods, on a page whose first sentence promises every image is
+ * a real generation. Three fake-looking phones cost more than the argument was
+ * worth.
+ *
+ * The five mood shops still exist and still serve at `/preview/demo-<mood>`.
+ * They are simply not advertised. Photograph a brand — eight files into
+ * `public/demo/<key>/`, see that folder's README — and it earns its place back.
  *
  * Everything on the page is a demo store. Nobody's real products are borrowed
  * to sell something, and every card says so rather than relying on the
@@ -91,14 +102,6 @@ const EDITS = [
   },
 ];
 
-/** The same template under five moods, across five demo brands. */
-const BRANDS = [
-  { href: "/preview/demo-luxe", shot: "/press/shop-luxe.jpg", name: "Maison Verre", mood: "luxe", what: "Hand-cut glass" },
-  { href: "/preview/demo-clean", shot: "/press/shop-clean.jpg", name: "Sea Salt Skin", mood: "clean", what: "Three-step skincare" },
-  { href: "/preview/demo-editorial", shot: "/press/shop-editorial.jpg", name: "Casa Lino", mood: "editorial", what: "Linen and swim" },
-  { href: "/preview/demo-playful", shot: "/press/shop-playful.jpg", name: "Pip & Pockets", mood: "playful", what: "Kids' clothing" },
-  { href: "/preview/demo-utility", shot: "/press/shop-utility.jpg", name: "Bench & Bolt", mood: "utility", what: "Hand tools" },
-];
 
 export default function Examples() {
   return (
@@ -142,38 +145,6 @@ export default function Examples() {
                   </span>
                   <q>{edit.prompt}</q>
                   <span className="gallery-note">{edit.note}</span>
-                  <span className="gallery-go" aria-hidden="true">
-                    Open the shop →
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* ------------------------------------------------- five brands */}
-      <section className="band examples-band" aria-labelledby="brands-heading">
-        <h2 id="brands-heading" className="lead">
-          Five brands. One renderer.
-        </h2>
-        <p className="lead-note lead-note-dark">
-          The same hand-built template under five moods. Nothing here is a theme somebody picked — the mood follows the
-          brand and the shopper, and the colour is always the brand&rsquo;s own.
-        </p>
-
-        <ul className="gallery gallery-brands">
-          {BRANDS.map((brand) => (
-            <li key={brand.href}>
-              <a href={brand.href}>
-                <span className="device device-light">
-                  <img src={brand.shot} alt={`${brand.name}, rendered by popuup`} width={780} height={1690} loading="lazy" />
-                </span>
-                <span className="gallery-say">
-                  <span className="gallery-title">
-                    {brand.name} <em>{brand.mood}</em>
-                  </span>
-                  <span className="gallery-note">{brand.what} · demo store</span>
                   <span className="gallery-go" aria-hidden="true">
                     Open the shop →
                   </span>
