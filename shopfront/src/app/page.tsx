@@ -68,8 +68,22 @@ const EDITS = [
   { slug: "edit-first", title: "The first glass", prompt: "for someone moving into their own place, nothing over 60", n: 3, lift: 3 },
   { slug: "edit-bar", title: "The negroni kit", prompt: "for someone who has started making cocktails at home", n: 4, lift: 1 },
   { slug: "edit-gift", title: "The host gift", prompt: "for a host who has everything, under 80", n: 4, lift: 4 },
-  { slug: "edit-sale", title: "End of season", prompt: "what is left, cheapest first", n: 7, lift: 2 },
+  { slug: "edit-sale", title: "End of season", prompt: "what is left, cheapest first", n: 5, lift: 2 },
 ];
+
+/**
+ * Counts for the prose, taken from the labels rather than typed again.
+ *
+ * The paragraph above the rail argues from these numbers — three pieces for a
+ * first flat against five for a clearout is the comparison the section exists
+ * to make — and they were typed by hand. A regeneration moved the clearout
+ * from seven to five and the sentence went on saying seven, beside a label
+ * that said five, above a screenshot that showed five.
+ *
+ * `tests/marketing.test.tsx` checks every label against its fixture, so
+ * reading the prose off the same array means one check now covers both.
+ */
+const pieces = (slug: string): number => EDITS.find((edit) => edit.slug === slug)!.n;
 
 const CHAIN = [
   { name: "The post", body: "A reel, a creator, a campaign. Somebody clicked for a specific reason." },
@@ -289,8 +303,9 @@ export default function Landing() {
           </h2>
           <p className="lead-note">
             All five of these shops sell the same eight products. One sentence each, and they come out completely
-            different: three pieces for someone furnishing a first flat, seven for an end-of-season clearout, and a
-            wedding list that opens with the thing nobody buys for themselves.
+            different: {pieces("edit-first")} pieces for someone furnishing a first flat,{" "}
+            {pieces("edit-sale")} for an end-of-season clearout, and a wedding list that opens with the thing nobody
+            buys for themselves.
           </p>
           <p className="rail-note">
             The colours and lettering never change, because it&rsquo;s still one brand and it isn&rsquo;t ours to

@@ -408,10 +408,33 @@ function photoFor(brandKey, handle) {
   return null;
 }
 
+/**
+ * Has this brand been photographed at all?
+ *
+ * It decides what a *missing* photograph means. Before any real photography
+ * exists, every product gets a drawing and the set is at least consistent.
+ * Once some products have photographs, a drawing beside them reads as a bug
+ * rather than a fallback — and it is also a lie about the catalogue, because
+ * the honest state of a product with no photograph is *no image*, not a
+ * picture somebody drew for it.
+ *
+ * The renderer already has a considered answer for that: the product's initial,
+ * set large in the display face, which is a deliberate treatment rather than a
+ * broken one. Leaving these imageless is what puts that on the demo instead of
+ * only in a test — which is what `public/demo/README.md` asks for when it says
+ * to leave one product without a file.
+ */
+function brandHasPhotos(brandKey, products) {
+  return products.some(([handle]) => photoFor(brandKey, handle) !== null);
+}
+
 mkdirSync(resolve(import.meta.dirname, "../../.cache/press"), { recursive: true });
 
 for (const brand of BRANDS) {
+  const photographed = brandHasPhotos(brand.key, brand.products);
+
   const products = brand.products.map(([handle, title, price, type, art], index) => {
+    const photo = photoFor(brand.key, handle);
     const available = !brand.soldOut.includes(handle);
     const was = brand.sale.handle === handle ? brand.sale.was : undefined;
     return {
@@ -419,14 +442,12 @@ for (const brand of BRANDS) {
       description: `${title} from ${brand.name}.`,
       vendor: brand.name, productType: type, tags: [type.toLowerCase()],
       url: `https://example.invalid/${brand.key}/products/${handle}`,
-      images: [
-        {
-          // A photograph beats a drawing. `photoFor` returns null until one exists.
-          url: photoFor(brand.key, handle) ?? draw(brand.palette, art(brand.ink)),
-          width: 1200,
-          height: 1500,
-        },
-      ],
+      images: photo
+        ? [{ url: photo, width: 1200, height: 1500 }]
+        : photographed
+          ? // Genuinely missing, not drawn over. See `brandHasPhotos`.
+            []
+          : [{ url: draw(brand.palette, art(brand.ink)), width: 1200, height: 1500 }],
       // Not part of the catalogue — see below.
       variants: [{ id: String(49000 + index), title: "Default Title", price, ...(was ? { compareAtPrice: was } : {}), available, options: [] }],
       price: { min: price, max: price },

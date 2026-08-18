@@ -55,7 +55,7 @@ const EDITS = [
     title: "The wedding list",
     prompt: "for two people who already own everything",
     n: 5,
-    note: "Leads with the decanter — the one thing nobody buys themselves, and it is out of stock, so it is marked rather than hidden.",
+    note: "The sold-out decanter is one of the five — marked, not dropped, because a wedding list is exactly where you still want to see it.",
   },
   {
     href: "/preview/edit-first",
@@ -63,7 +63,7 @@ const EDITS = [
     title: "The first glass",
     prompt: "for someone moving into their own place, nothing over 60",
     n: 3,
-    note: "Three pieces out of eight. The ceiling in the sentence did most of the work, and the shop did not pad itself back out.",
+    note: "Three pieces out of eight. The ceiling in the sentence did the work, and the shop did not pad itself back out.",
   },
   {
     href: "/preview/edit-bar",
@@ -71,7 +71,7 @@ const EDITS = [
     title: "The negroni kit",
     prompt: "for someone who has started making cocktails at home",
     n: 4,
-    note: "Ordered as a sequence — batch, ice, serve — because the products are steps rather than options.",
+    note: "It split itself in two — the glasses, then the rest of the bar. Nothing in the sentence asked for that division.",
   },
   {
     href: "/preview/edit-gift",
@@ -79,15 +79,15 @@ const EDITS = [
     title: "The host gift",
     prompt: "for a host who has everything, under 80",
     n: 4,
-    note: "Same price ceiling shape as the first flat, entirely different four pieces.",
+    note: "Three of these four are in the first-flat shop too. Same products, a different reason to be on the page.",
   },
   {
     href: "/preview/edit-sale",
     shot: "/press/edit-sale.jpg",
     title: "End of season",
     prompt: "what is left, cheapest first",
-    n: 7,
-    note: "Seven of eight, low to high, in a mono face. Nothing asked for that typeface — the shopper's reason did.",
+    n: 5,
+    note: "Cheapest first, and the sold-out decanter is gone. This is the one shop where \u201cwhat is left\u201d has to mean it.",
   },
 ];
 
