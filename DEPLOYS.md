@@ -78,6 +78,29 @@ To scope a project added later, add to its Root Directory's `vercel.json`:
 
 and set the Root Directory to match. Both halves are required.
 
+## It has now been observed working, once
+
+On `a30a7ff` — a commit touching only `assay/KILLTEST.md` — Vercel reported:
+
+```
+curieux-rifc   Ignored     (root directory: waterline)
+```
+
+listed under *1 Skipped Deployment* rather than as a build. That is the first
+time the Ignored Build Step has actually run: every attempt before it was
+rejected by the quota before Vercel got as far as cloning.
+
+The other three projects showed *Ready* in the same comment, which looks like a
+contradiction and is not. Their deployment IDs were unchanged from hours
+earlier — those rows are the last deployment that succeeded, not a new one.
+All three were rate-limited on that commit. `curieux-rifc` was the only project
+with quota left, so it was the only one that got far enough to skip.
+
+Still unresolved: whether an *Ignored* deployment consumes one of the hundred.
+It was not rate-limited while its three siblings were, which is consistent with
+ignored builds being cheap — and equally consistent with the quota simply being
+counted per project. One observation cannot separate those.
+
 ## Checking it worked
 
 Push a commit touching one directory and watch the PR: only that project should
