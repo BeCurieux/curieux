@@ -189,17 +189,18 @@ audit tool and the brief's whole position is that this is not one. Severity is
 a ruled mark and a weight; the accent is spent on the words the scan is talking
 about and on the pointer saying which market the headline came from.
 
-Colour does multiply in one place: `MARKET_ACCENT` gives AU, US and EU a hue
-each — blue, purple, pink — carried on the by-market ledger and on every market
+Colour does multiply in one place: `MARKET_ACCENT` gives AU, EU and US a hue
+each — aqua, blue, purple — carried on the by-market ledger and on every market
 chip, over a violet-tinted near-black ground. It is safe precisely because it
 is orthogonal to the verdict: a market keeps its colour whatever the finding
 beside it says, and a clean page shows the same three hues as a bad one. The
 arc contains no red, amber or green, so a chip cannot be misread as a pass.
 
-The accent stays warm coral against that cool arc, deliberately. A pink accent
-would sit a few degrees from the US chip, and the one colour a reader is meant
-to follow must never be mistakable for a label. A clean page is still not
-green. It is still quiet.
+**The accent is pink, and it is the only hot colour on the page.** Pink was a
+market first; when it became the accent the whole market arc rotated cooler,
+and that was the condition of the change rather than a consequence of it. The
+one colour a reader is meant to follow must never be mistakable for a label. A
+clean page is still not green. It is still quiet.
 
 **"Claims Verified", with the description underneath.** The mark was built as
 "Claims reviewed" first: §4 of the brief names it "Claims Verified" and §9

@@ -52,11 +52,13 @@ export const PALETTE = {
   inkFaint: "#847E93",
   rule: "#302A3D",
   ruleFaint: "#211C2B",
-  /** The one accent. Warm coral: confident against the dark, not alarm-red. */
-  accent: "#FF7A4D",
+  /** The one accent. Pink: the colour the reader follows, and the only hot
+   *  thing on a cool page. Not alarm-red, and not a market. */
+  accent: "#FF5CA8",
   /** The accent at wash strength, behind a flagged phrase. Dark enough to keep
-   *  the copy readable through it, warm enough to survive a phone screenshot. */
-  accentWash: "#3A1F14",
+   *  the copy readable through it — 13.5:1 for body ink — and saturated enough
+   *  to survive a phone screenshot. */
+  accentWash: "#3D1A2E",
 } as const;
 
 /**
@@ -120,17 +122,20 @@ export const BADGE_NIGHT_PALETTE = {
  * seventeen findings. That is the difference between colour as identity and
  * colour as verdict, and only the second one turns this into an audit tool.
  *
- * Blue, purple, pink: one arc of the wheel, containing no red, no amber and no
- * green, so nobody has to reason about whether a chip means "pass". The accent
- * stays reserved — flagged words and the weakest-market pointer, nothing else
- * — and it stays *warm* against this cool arc on purpose. A pink accent would
- * sit a few degrees from the US chip, and the one colour a reader is meant to
- * follow should never be mistakable for a label.
+ * Aqua, blue, purple: one arc of the wheel, containing no red, no amber and no
+ * green, so nobody has to reason about whether a chip means "pass".
+ *
+ * The arc rotated cooler when the accent went pink (owner's call, 2026-08-18),
+ * and that was the condition of the change rather than a side effect. Pink was
+ * a market before it was the accent, and the one colour a reader is meant to
+ * follow must never be mistakable for a label. So pink belongs to the accent
+ * alone: every market is cool, the accent is the only hot thing on the page,
+ * and no chip can be confused for a flagged phrase.
  */
 export const MARKET_ACCENT: Record<string, string> = {
-  AU: "#6FA8FF",
-  EU: "#B77DFF",
-  US: "#FF8FC7",
+  AU: "#5FD4E8",
+  EU: "#6FA8FF",
+  US: "#B77DFF",
   GB: "#8FC4FF",
   CA_QC: "#D3A0FF",
 };

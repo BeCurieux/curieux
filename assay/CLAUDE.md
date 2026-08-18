@@ -219,11 +219,14 @@ the moment any of it is skipped.
   hue, added 2026-08-18 on the owner's call for a more colourful card. It is
   allowed because a market keeps its colour whatever the finding under it says,
   and a clean page shows the same three hues as a page with seventeen findings.
-  The triad is blue, purple and pink over a violet-tinted ground: one arc of
+  The triad is aqua, blue and purple over a violet-tinted ground: one arc of
   the wheel with no red, no amber and no green in it, so nobody has to work out
-  whether a chip means "pass". The accent stays warm against that cool arc — a
-  pink accent would sit a few degrees from the US chip, and the colour the
-  reader follows must never be mistakable for a label. `tests/card.test.ts` asserts the hues appear for every selected market
+  whether a chip means "pass".
+- **The accent owns pink, and every market stays cool.** The accent went pink
+  on the owner's call and the market arc rotated off pink in the same commit —
+  that rotation is the condition of the change, not decoration. The colour the
+  reader follows must never be mistakable for a label, so if a future market
+  wants a warm hue, the accent moves first or the market does not get it. `tests/card.test.ts` asserts the hues appear for every selected market
   in both a clean and a bad scan, which is the check that would fail the moment
   a colour started tracking severity or band. Do not add a fourth colour system
   and do not let a hue depend on a `Severity` or a `ScoreBand`.
