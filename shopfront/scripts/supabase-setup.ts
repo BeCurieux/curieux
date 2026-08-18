@@ -48,6 +48,29 @@ const PROBE_STORE = "https://supabase-setup-probe.invalid";
 const PROBE_SLUG = `setup-probe-${randomUUID().slice(0, 8)}`;
 const PROBE_EMAIL = "probe@supabase-setup-probe.invalid";
 
+/**
+ * `--no-psql`: run step 3 alone, against a database whose SQL was applied by
+ * hand.
+ *
+ * Steps 1 and 2 shell out to `psql`, which is not on a Windows machine unless
+ * somebody installed PostgreSQL on it — and the person setting this project up
+ * is on Windows. Installing a database server to apply two files that the
+ * Supabase dashboard has a SQL editor for is a poor trade, and it was enough
+ * friction to leave `/contact` answering 503 for a day.
+ *
+ * So this flag skips both, and the flag matters because **step 3 is the part
+ * nothing else does**: `schema.sql` in the SQL editor proves the tables exist,
+ * and proves nothing about whether `upsert` with `onConflict` behaves the way
+ * `supabase.ts` assumes, or whether the embedded select comes back in the shape
+ * `listPublished` unwraps. Those need PostgREST on the other end. Losing them
+ * because psql was missing would be losing the reason the script exists.
+ *
+ * What it costs: the RLS proof in step 2 does not run, so `rls-check.sql` has
+ * to be pasted into the editor too — it reports its own pass, and this prints
+ * the reminder rather than assuming somebody remembered.
+ */
+const NO_PSQL = process.argv.includes("--no-psql");
+
 function required(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -115,25 +138,63 @@ function probeConfig(): ShopConfig {
   } as unknown as ShopConfig;
 }
 
+/**
+ * Delete the probe rows, with or without psql.
+ *
+ * The `finally` that calls this is the promise that this script touches
+ * nothing it did not create, so it cannot be the thing that needs psql. Both
+ * deletes are keyed to the reserved `.invalid` names above, and `shops` and
+ * `shop_versions` cascade from `stores` at the database level — which is a
+ * foreign key, so it holds through PostgREST exactly as it does through psql.
+ */
+async function removeProbes(dbUrl: string | null): Promise<void> {
+  if (dbUrl) {
+    psql(dbUrl, [
+      "-c",
+      `delete from public.stores where store_url = '${PROBE_STORE}';
+       delete from public.early_access where email = '${PROBE_EMAIL}';`,
+    ]);
+    return;
+  }
+
+  const client = serviceRoleClient();
+  const stores = await client.from("stores").delete().eq("store_url", PROBE_STORE);
+  const emails = await client.from("early_access").delete().eq("email", PROBE_EMAIL);
+  const failure = stores.error ?? emails.error;
+  if (failure) throw new Error(`probe rows could not be deleted: ${failure.message}`);
+}
+
 async function main(): Promise<void> {
-  const dbUrl = required("SUPABASE_DB_URL");
+  const dbUrl = NO_PSQL ? null : required("SUPABASE_DB_URL");
   required("SUPABASE_URL");
   required("SUPABASE_SERVICE_ROLE_KEY");
 
-  step("1. Applying the schema");
-  psql(dbUrl, ["-f", "src/lib/publish/schema.sql"]);
-  ok("schema.sql applied. It is `create table if not exists` throughout, so this is safe to re-run.");
+  if (dbUrl) {
+    step("1. Applying the schema");
+    psql(dbUrl, ["-f", "src/lib/publish/schema.sql"]);
+    ok("schema.sql applied. It is `create table if not exists` throughout, so this is safe to re-run.");
 
-  step("2. Proving row-level security");
-  // The check raises on the first failure and rolls itself back. A silent
-  // `RLS check passed` notice is the pass; anything else throws out of psql.
-  const rls = psql(dbUrl, ["-f", "src/lib/publish/rls-check.sql"]);
-  if (!/RLS check passed/.test(rls)) {
-    bad("rls-check.sql did not report a pass. Output:\n" + rls.slice(-800));
-    process.exit(1);
+    step("2. Proving row-level security");
+    // The check raises on the first failure and rolls itself back. A silent
+    // `RLS check passed` notice is the pass; anything else throws out of psql.
+    const rls = psql(dbUrl, ["-f", "src/lib/publish/rls-check.sql"]);
+    if (!/RLS check passed/.test(rls)) {
+      bad("rls-check.sql did not report a pass. Output:\n" + rls.slice(-800));
+      process.exit(1);
+    }
+    ok("anon reads published shops and nothing else, and writes nothing.");
+    ok("early_access is unreadable and unwritable by anon — the one table holding personal data.");
+  } else {
+    step("1-2. Skipped — --no-psql");
+    process.stdout.write(
+      "  Run these two in the Supabase dashboard's SQL editor, in this order:\n" +
+        "    src/lib/publish/schema.sql     — creates the tables. Safe to re-run.\n" +
+        "    src/lib/publish/rls-check.sql  — must print `RLS check passed`. Rolls itself back.\n" +
+        "  Step 3 below fails against a database that has not had the first one applied,\n" +
+        "  so it is not possible to skip that by accident. The RLS proof is not covered\n" +
+        "  by anything here — read the notice the second file prints yourself.\n",
+    );
   }
-  ok("anon reads published shops and nothing else, and writes nothing.");
-  ok("early_access is unreadable and unwritable by anon — the one table holding personal data.");
 
   step("3. Exercising the adapter against real PostgREST");
   const store = createSupabaseStore();
@@ -204,13 +265,7 @@ async function main(): Promise<void> {
     ok("the contact form's table accepts a row and reads it back.");
   } finally {
     step("4. Removing the probe rows");
-    // By store URL and by email, so this can only ever delete what it wrote.
-    // `shops` and `shop_versions` cascade from `stores`.
-    psql(dbUrl, [
-      "-c",
-      `delete from public.stores where store_url = '${PROBE_STORE}';
-       delete from public.early_access where email = '${PROBE_EMAIL}';`,
-    ]);
+    await removeProbes(dbUrl);
     ok("probe rows deleted. Nothing this script did not create was touched.");
   }
 
