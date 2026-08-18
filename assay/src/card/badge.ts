@@ -1,12 +1,13 @@
 /**
  * The badge — the thing the whole product is for.
  *
- * BRIEF.md §5 makes it the core bet and §9 fixes its language: "claims
- * reviewed against [markets] on [date]", descriptive and never a warranty. So
- * the words on it are generated from the scan rather than written by anybody,
- * and `tests/badge.test.ts` asserts that the warranty vocabulary — approved,
- * certified, compliant, guaranteed, safe — never appears on it in any state.
- * That test is the badge's whole legal defence and it should not be relaxed.
+ * BRIEF.md §5 makes it the core bet and §9 fixes its language: descriptive,
+ * never a warranty. So the words on it are generated from the scan rather than
+ * written by anybody, and `tests/badge.test.ts` asserts that the warranty
+ * vocabulary — approved, certified, compliant, guaranteed, safe — never
+ * appears on it in any state. That test is most of the badge's legal defence
+ * and it should not be relaxed further than it already has been; see
+ * BADGE_HEADLINE.
  *
  * Two states. Live, while the scan is current. Lapsed, when it is not: the
  * Vanta-style retention loop the brief describes, where cancelling greys the
@@ -37,10 +38,16 @@ export type BadgeOptions = {
   href?: string;
 };
 
-export const BADGE_WIDTH = 288;
+export const BADGE_WIDTH = 320;
 export const BADGE_HEIGHT = 78;
 
-/** Words this mark may never carry, in any state. Enforced by test. */
+/**
+ * Words this mark may never carry, in any state. Enforced by test.
+ *
+ * "verified" was on this list and is not any more — see BADGE_HEADLINE. Every
+ * other member stays, and each is a different way of saying the thing this
+ * product cannot say: that somebody with authority looked and approved.
+ */
 export const BADGE_FORBIDDEN = [
   "approved",
   "certified",
@@ -49,24 +56,40 @@ export const BADGE_FORBIDDEN = [
   "compliance",
   "guarantee",
   "guaranteed",
-  "verified",
   "safe",
   "endorsed",
   "passed",
 ] as const;
 
 /**
- * "Claims reviewed", not "Claims verified".
+ * "Claims Verified", as BRIEF.md §4 names it.
  *
- * BRIEF.md §4 calls it a "Claims Verified" badge and §9 requires the badge to
- * be descriptive and not a warranty. Those pull against each other and §9 is
- * the one marked non-negotiable, so this resolves to "reviewed": verified says
- * the claims were checked against the world, and all that was checked is the
- * wording against a rulebook on a date. If the other word is wanted later that
- * is a decision for somebody with a lawyer, taken deliberately — hence the
- * constant, and hence the test.
+ * This was built as "Claims reviewed" first, on the reading that §4's name and
+ * §9's descriptive-not-a-warranty requirement pull against each other and that
+ * §9 wins because it is the section marked non-negotiable. The owner was shown
+ * that argument and kept §4's wording. Recorded here rather than argued again,
+ * because a decision somebody reversed on purpose should not read like an
+ * oversight to whoever opens this file next.
+ *
+ * What carries §9 now that the headline does not:
+ *
+ *   - the line under it says what actually happened — reviewed against these
+ *     markets, in this month — so the mark still describes an act on a date
+ *     rather than a status;
+ *   - the rest of BADGE_FORBIDDEN stands, so nothing on the mark says
+ *     approved, certified, compliant, guaranteed or safe;
+ *   - the score page it links to opens with the disclaimer, which is a field
+ *     on ScanResult and cannot be omitted by a surface;
+ *   - `mayDisplayBadge` still refuses the mark to anything but a clear reading
+ *     in every market checked; and
+ *   - a lapsed mark still says lapsed.
+ *
+ * The exposure this leaves is real and worth naming for the T&Cs review in §9:
+ * "verified" invites a reader to think an outside body checked, and nothing
+ * did. It is the sentence a plaintiff's lawyer would read aloud. Worth putting
+ * in front of counsel with the pack and the rules, not settled in this file.
  */
-export const BADGE_HEADLINE = "Claims reviewed";
+export const BADGE_HEADLINE = "Claims Verified";
 
 /** Advance width of one mono character at a size, with its letter-spacing. */
 const monoWidth = (chars: number, size: number, spacing: number) => chars * (size * 0.6 + spacing);
@@ -86,7 +109,10 @@ export function badgeLines(options: BadgeOptions): {
   const when = monthYear(reviewedOn);
   return {
     headline: BADGE_HEADLINE,
-    markets,
+    // "Reviewed against" rather than the bare market list: with the headline
+    // naming a status, this line is where the mark says what was actually
+    // done, which is the §9 requirement the headline stopped carrying.
+    markets: `Reviewed against ${markets}`,
     when: live ? when : `Lapsed — ${when}`,
   };
 }
@@ -97,7 +123,7 @@ export function badgeSvg(options: BadgeOptions): string {
   const ink = live ? PALETTE.ink : PALETTE.inkFaint;
   const soft = live ? PALETTE.inkSoft : PALETTE.inkFaint;
   const label =
-    `${lines.headline} against ${result.jurisdictions.join(", ")}, ${lines.when}. ` +
+    `${lines.headline}. Reviewed against ${result.jurisdictions.join(", ")}, ${lines.when}. ` +
     `Score ${result.score.value} out of 100.`;
 
   const scoreSize = 36;
@@ -122,10 +148,10 @@ export function badgeSvg(options: BadgeOptions): string {
     `stroke="${live ? PALETTE.rule : PALETTE.ruleFaint}"/>` +
     `<text x="${textX}" y="30" font-family='${escXml(FONTS.mono)}' font-size="9.5" ` +
     `letter-spacing="1.7" fill="${ink}">${escXml(lines.headline.toUpperCase())}</text>` +
-    `<text x="${textX}" y="46" font-family='${escXml(FONTS.mono)}' font-size="9" ` +
-    `letter-spacing="1.1" fill="${soft}">${escXml(lines.markets.toUpperCase())}</text>` +
-    `<text x="${textX}" y="61" font-family='${escXml(FONTS.mono)}' font-size="9" ` +
-    `letter-spacing="1.1" fill="${PALETTE.inkFaint}">${escXml(lines.when.toUpperCase())}</text>`;
+    `<text x="${textX}" y="46" font-family='${escXml(FONTS.mono)}' font-size="8.5" ` +
+    `letter-spacing="0.9" fill="${soft}">${escXml(lines.markets.toUpperCase())}</text>` +
+    `<text x="${textX}" y="61" font-family='${escXml(FONTS.mono)}' font-size="8.5" ` +
+    `letter-spacing="0.9" fill="${PALETTE.inkFaint}">${escXml(lines.when.toUpperCase())}</text>`;
 
   // Through `safeUrl` rather than straight in: this mark is embedded on other
   // people's pages, and the one attribute it carries is the one an attacker
@@ -147,8 +173,8 @@ export function badgeTextFits(options: BadgeOptions): boolean {
   const room = BADGE_WIDTH - (108 + 18) - 14;
   return (
     monoWidth(lines.headline.length, 9.5, 1.7) <= room &&
-    monoWidth(lines.markets.length, 9, 1.1) <= room &&
-    monoWidth(lines.when.length, 9, 1.1) <= room
+    monoWidth(lines.markets.length, 8.5, 0.9) <= room &&
+    monoWidth(lines.when.length, 8.5, 0.9) <= room
   );
 }
 

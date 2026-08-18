@@ -6,6 +6,12 @@
  * strangers' product pages, so it is checked here across every state the mark
  * has, in the visible text and in the accessible label alike. Relaxing this
  * file is a legal decision, not a test fix.
+ *
+ * It has been relaxed once, deliberately: "verified" came off the forbidden
+ * list when the owner kept §4's "Claims Verified" over the reading that §9
+ * required "reviewed". The tests below pin both halves of that decision — the
+ * headline is the brief's wording, and the mark still carries the descriptive
+ * line saying what was actually done — so neither can drift back by accident.
  */
 
 import { describe, expect, it } from "vitest";
@@ -53,15 +59,43 @@ describe("the mark never warrants anything", () => {
     });
   }
 
-  it("says reviewed, which is the thing that actually happened", () => {
-    expect(BADGE_HEADLINE).toBe("Claims reviewed");
-    expect(everyWord(states[0][1])).toContain("claims reviewed");
+  it("says what BRIEF.md §4 names it, which the owner kept on purpose", () => {
+    expect(BADGE_HEADLINE).toBe("Claims Verified");
+    expect(everyWord(states[0][1])).toContain("claims verified");
+  });
+
+  it("still says what was actually done, under the name", () => {
+    // The headline names a status; this line is where §9's descriptive
+    // requirement lives now. Losing it would leave the mark asserting a state
+    // with nothing on it saying what produced the state.
+    for (const [state, svg] of states) {
+      expect(everyWord(svg), state).toContain("reviewed against");
+    }
   });
 
   it("keeps the forbidden list populated, which is how this test stops working", () => {
     expect(BADGE_FORBIDDEN.length).toBeGreaterThan(6);
     expect(BADGE_FORBIDDEN).toContain("certified");
     expect(BADGE_FORBIDDEN).toContain("compliant");
+    expect(BADGE_FORBIDDEN).toContain("approved");
+  });
+
+  it("has exactly one word removed from it, and it is the one that was decided", () => {
+    // A guard against the list quietly shrinking again. Anything else coming
+    // off is a legal decision and should fail here until it is taken as one.
+    expect(BADGE_FORBIDDEN).not.toContain("verified");
+    expect([...BADGE_FORBIDDEN].sort()).toEqual([
+      "approved",
+      "certificate",
+      "certified",
+      "compliance",
+      "compliant",
+      "endorsed",
+      "guarantee",
+      "guaranteed",
+      "passed",
+      "safe",
+    ]);
   });
 });
 
@@ -81,7 +115,7 @@ describe("what the mark states", () => {
   it("counts markets instead of listing them once a list would overrun", () => {
     const many = { ...clean, jurisdictions: ["AU", "US", "EU", "GB"] as const };
     expect(badgeLines({ result: { ...many, jurisdictions: [...many.jurisdictions] }, reviewedOn: ON }).markets).toBe(
-      "4 markets",
+      "Reviewed against 4 markets",
     );
   });
 

@@ -152,7 +152,7 @@ describe("the badge is offered only when it is earned", () => {
 
   it("is present on a page that can", () => {
     const html = page(CLEAN_COPY, clean);
-    expect(html).toContain("CLAIMS REVIEWED");
+    expect(html).toContain("CLAIMS VERIFIED");
     expect(html).not.toContain("The mark is not offered");
   });
 });

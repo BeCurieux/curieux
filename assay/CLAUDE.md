@@ -46,8 +46,12 @@ and puts a badge on it.
   Users scan their own properties, at their own initiation. The viral mechanic
   is self-scan and voluntary share. The Yuka precedents are in the brief and
   they are the reason; a solo founder does not play that game.
-- Badge language is descriptive, never a warranty: "claims reviewed against
-  [markets] on [date]". Not "approved", not "certified", not "compliant".
+- Badge language is descriptive, never a warranty. The brief's own phrasing is
+  "claims reviewed against [markets] on [date]"; on the mark that sentence now
+  sits under the headline rather than being it, because the owner kept §4's
+  "Claims Verified" as the name. See "Rules about the card" below — that is the
+  one place §9 has been read down, it was read down deliberately, and nothing
+  else on the mark may say "approved", "certified" or "compliant".
 - No rule cites an instrument it has not read. A plausible-looking wrong
   citation is worse than no citation, because it is the part a brand's lawyer
   checks first.
@@ -114,10 +118,19 @@ has said yes to the cheap half.
   `src/card/` and there must never be one.
 - **Renderers are pure and take the date.** No `new Date()` inside one: a card
   has to render identically in a test, in CI, and in a year.
-- **The badge says "reviewed", never "verified".** §4 of the brief and §9 pull
-  against each other and §9 wins. `BADGE_FORBIDDEN` and `tests/badge.test.ts`
-  hold the line across every state of the mark, visible text and accessible
-  label alike. Relaxing that file is a legal decision, not a test fix.
+- **The badge says "Claims Verified", per §4 — decided by the owner.** It was
+  built as "Claims reviewed" on the reading that §9's descriptive-not-a-
+  warranty rule beats §4's name; the owner was shown that argument and kept
+  §4. Do not re-litigate it in code. What holds §9 up instead: the line under
+  the headline says *reviewed against [markets], [month]*, the rest of
+  `BADGE_FORBIDDEN` stands, the score page opens with the disclaimer,
+  `mayDisplayBadge` still refuses anything but a clear reading, and a lapsed
+  mark still says lapsed. `tests/badge.test.ts` pins both halves.
+- **Nothing else comes off `BADGE_FORBIDDEN`.** The list is asserted whole, so
+  removing another word fails CI until somebody takes it as the legal decision
+  it is. "Verified" invites a reader to think an outside body checked and none
+  did — that exposure goes to counsel with the §9 T&Cs review, not into a
+  commit.
 - **A card never says more than the scan found.** "Clear" and "nothing was
   found" are different states and the copy must not conflate them; `bandNote`
   exists because it once did.

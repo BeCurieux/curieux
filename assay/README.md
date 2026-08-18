@@ -161,14 +161,24 @@ that this is not one. Severity is a ruled mark and a weight; the single accent
 is spent on the words the scan is talking about, and on the one pointer saying
 which market the headline came from. A clean page is not green. It is quiet.
 
-**"Claims reviewed", not "Claims verified".** §4 of the brief names the badge
-"Claims Verified" and §9 requires it to be descriptive rather than a warranty.
-Those pull against each other, and §9 is the one marked non-negotiable — so the
-mark says *reviewed*. Verified says the claims were checked against the world;
-all that was checked is the wording against a rulebook on a date. Changing it
-back is a decision for somebody with a lawyer, which is why it is a constant
-with a test around it (`tests/badge.test.ts`) rather than a string in a
-template.
+**"Claims Verified", with the description underneath.** The mark was built as
+"Claims reviewed" first: §4 of the brief names it "Claims Verified" and §9
+requires the badge to be descriptive rather than a warranty, those pull against
+each other, and §9 is the section marked non-negotiable. The owner was shown
+that argument and kept §4's wording, so the headline is the brief's.
+
+What carries §9 now that the headline does not: the line under it reads
+*reviewed against AU · US · EU*, so the mark still states an act on a date
+rather than a status; the rest of `BADGE_FORBIDDEN` stands, so nothing on it
+says approved, certified, compliant, guaranteed or safe; the score page it
+links to opens with the disclaimer; `mayDisplayBadge` refuses the mark to
+anything but a clear reading in every market checked; and a lapsed mark says
+lapsed. `tests/badge.test.ts` asserts the forbidden list *whole*, so another
+word coming off fails CI until it is taken as the legal decision it is.
+
+The residual exposure is worth naming rather than burying: "verified" invites a
+reader to think an outside body checked, and none did. That belongs in the §9
+T&Cs review with counsel, alongside the citations.
 
 **The mark greys rather than vanishing.** A lapsed badge still names its date
 and still links to its page. A mark that quietly goes on asserting a score
@@ -178,11 +188,11 @@ the brief describes.
 ### The badge
 
 ```
-┌──────────────────────────────────────┐
-│▌  96 /100  │  CLAIMS REVIEWED        │
-│            │  AU · US · EU           │
-│            │  AUGUST 2026            │
-└──────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│▌  96 /100  │  CLAIMS VERIFIED              │
+│            │  REVIEWED AGAINST AU · US · EU│
+│            │  AUGUST 2026                  │
+└────────────────────────────────────────────┘
 ```
 
 Live and lapsed differ by one accent stroke going grey and one line of text
