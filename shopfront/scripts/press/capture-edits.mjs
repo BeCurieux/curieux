@@ -20,6 +20,24 @@ import path from "node:path";
 
 const SLUGS = ["edit-wedding", "edit-first", "edit-bar", "edit-gift", "edit-sale"];
 
+/**
+ * The phone in the hero, and why it is a second shot of a shop already here.
+ *
+ * The hero used `shop-luxe.jpg`, framed on the top of the page — which for a
+ * luxe mood is a full-bleed tagline, so the advert for "we build you a shop"
+ * was a dark slab with one line of type on it. The products, which are the
+ * entire point, were below the fold of the capture.
+ *
+ * `edit-wedding` came from the identical sentence to the one printed in the
+ * box beside it, so this is the shop that sentence actually produced — and
+ * unlike `demo-luxe` it holds only photographed products, so the grid is
+ * glassware rather than two initials standing in for missing pictures.
+ *
+ * Framed on the *second* product block: the first leads with one large
+ * sold-out decanter, which is a good picture and a poor advert.
+ */
+const HERO = { slug: "edit-wedding", block: 1, out: "hero.jpg" };
+
 /** 390x845 at 2x — a phone, because that is what these shops are opened on. */
 const VIEWPORT = { width: 390, height: 845 };
 
@@ -77,5 +95,19 @@ for (const slug of SLUGS) {
   await page.close();
 }
 
+{
+  const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 2 });
+  await page.goto(`${base}/preview/${HERO.slug}`, { waitUntil: "networkidle" });
+  await page.evaluate((n) => {
+    const blocks = [...document.querySelectorAll(".block")].filter((b) => b.querySelector(".card"));
+    (blocks[n] ?? blocks[0] ?? document.body).scrollIntoView({ block: "start" });
+    window.scrollBy(0, -12);
+  }, HERO.block);
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `public/press/${HERO.out}`, type: "jpeg", quality: 88 });
+  process.stdout.write(`  ${HERO.out.padEnd(14)} (hero, from ${HERO.slug})\n`);
+  await page.close();
+}
+
 await browser.close();
-process.stdout.write("\n  Five shots written to public/press/.\n\n");
+process.stdout.write("\n  Six shots written to public/press/.\n\n");

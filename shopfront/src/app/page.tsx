@@ -43,6 +43,21 @@ import "./landing.css";
  * mean showing a prompt and a shop that never met.
  */
 const LEAD = {
+  /*
+   * `hero.jpg` rather than `shop-luxe.jpg`.
+   *
+   * The old shot was framed on the top of the page, and for a luxe mood that
+   * is a full-bleed tagline — so the advert for "we build you a shop" was a
+   * dark slab with one line of type on it, and the products were below the
+   * fold of the capture. `scripts/press/capture-edits.mjs` now frames the hero
+   * on a product grid instead.
+   *
+   * It is `edit-wedding`, which came from the identical sentence to the one
+   * printed in the box beside it. So the phone really is what that sentence
+   * produced — which is what the paragraph above it claims, and was already
+   * true of the old shot for the same reason.
+   */
+  shot: "/press/hero.jpg",
   mood: "luxe",
   prompt: "a wedding list for two people who already own everything",
   // What the merchandiser is actually working from. Chips rather than a
@@ -234,7 +249,7 @@ export default function Landing() {
             */}
             <span className="screen">
               {[0, 1, 2].map((band) => (
-                <img key={band} className="screen-band" src={`/press/shop-${LEAD.mood}.jpg`} alt="" width={780} height={1690} />
+                <img key={band} className="screen-band" src={LEAD.shot} alt="" width={780} height={1690} />
               ))}
 
               {/* The middle of the mechanic, and the part a finished mockup
