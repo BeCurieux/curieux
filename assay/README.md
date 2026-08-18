@@ -1,17 +1,18 @@
-# assay — the claim engine
+# assay — the claim engine, and the artefact it produces
 
-Marketing copy in; findings that cite a named instrument, and a score whose
-every deducted point traces to a rule, out.
+Marketing copy in; findings that cite a named instrument, a score whose every
+deducted point traces to a rule, and a card beautiful enough that sending it to
+a stranger is not embarrassing.
 
-This is step 1 of the build order in `CLAUDE.md`: the engine that everything
-else in `BRIEF.md` sits on top of. It has no UI yet, no URL fetching, no model
-call and no database. It also has no configuration, no API key and no network
-access, which is the property that matters most right now — the kill test in
-§10 of the brief runs before any of that exists, and it runs on this.
+Steps 1 and 2 of the build order in `CLAUDE.md`. There is no URL fetching, no
+model call and no database yet. There is also no configuration, no API key and
+no network access, which is the property that matters most right now: the kill
+test in §10 of the brief runs before any of that exists, and it runs on this.
 
 ```
 pnpm install
 pnpm scan --text "Clinically proven to clear acne in 7 days. Eco-friendly, too."
+pnpm card --file page.txt --out ./cards/aurelia
 ```
 
 ```
@@ -43,9 +44,12 @@ Read              2 claims, 5 findings
 |---|---|
 | `pnpm scan --text "…"` | Scan pasted copy against every market |
 | `pnpm scan --file page.txt --markets AU,EU` | Scan a file against selected markets |
-| `pnpm scan --file page.txt --json` | The whole `ScanResult`, for a score card to render |
+| `pnpm scan --file page.txt --json` | The whole `ScanResult`, as JSON |
+| `pnpm card --file page.txt --out ./cards/x` | The result page, the share card and the badge |
+| `pnpm card … --wordmark VOUCH` | Put a candidate name in the masthead |
+| `pnpm card … --png` | Rasterise the share card, if a Chromium is around |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 108 tests, no network, no key |
+| `pnpm test` · `pnpm typecheck` | 170 tests, no network, no key |
 
 ## How a scan works
 
@@ -136,6 +140,65 @@ the rules they are about:
 | Clears acne without the sting. | Leaves congested skin looking calmer and less shiny. |
 | Australia's number one retinol. | Our own bestselling retinol, three years running. |
 
+## The card
+
+`pnpm card` writes four files from one scan: the result page, the share card at
+OG size, and the badge in both of its states. No key, no account, no network —
+which is the point, because this is the kill test's entire toolchain.
+
+The form is the argument. Rather than a list of problems beside a page, the
+card reproduces **the brand's own copy with the flagged phrases underlined and
+numbered**, and puts the notes below as an apparatus, each citing its
+instrument. A critical edition of a product page. It is the right shape for a
+product about language, it reads as editorial rather than as an audit, and it
+is the reason a founder screenshots it instead of closing it.
+
+Three decisions inside it are worth arguing with.
+
+**No traffic lights.** Not red for severity, not green for a pass. Red-amber-
+green is the visual grammar of an audit tool and the brief's whole position is
+that this is not one. Severity is a ruled mark and a weight; the single accent
+is spent on the words the scan is talking about, and on the one pointer saying
+which market the headline came from. A clean page is not green. It is quiet.
+
+**"Claims reviewed", not "Claims verified".** §4 of the brief names the badge
+"Claims Verified" and §9 requires it to be descriptive rather than a warranty.
+Those pull against each other, and §9 is the one marked non-negotiable — so the
+mark says *reviewed*. Verified says the claims were checked against the world;
+all that was checked is the wording against a rulebook on a date. Changing it
+back is a decision for somebody with a lawyer, which is why it is a constant
+with a test around it (`tests/badge.test.ts`) rather than a string in a
+template.
+
+**The mark greys rather than vanishing.** A lapsed badge still names its date
+and still links to its page. A mark that quietly goes on asserting a score
+nobody stands behind any more is the dishonest version of the retention loop
+the brief describes.
+
+### The badge
+
+```
+┌──────────────────────────────────────┐
+│▌  96 /100  │  CLAIMS REVIEWED        │
+│            │  AU · US · EU           │
+│            │  AUGUST 2026            │
+└──────────────────────────────────────┘
+```
+
+Live and lapsed differ by one accent stroke going grey and one line of text
+appearing. `mayDisplayBadge` gates it: `clear` band only, which means a page
+carrying a phrase that draws attention reliably cannot display a mark at any
+score.
+
+### Naming, via the kill test
+
+`--wordmark` puts a candidate name in the masthead. The product does not have
+one (§11, item 1), and the masthead defaults to empty rather than to a
+placeholder, because a placeholder in a masthead is how a placeholder becomes
+the name. Thirty real founders reacting to thirty real cards is a better name
+test than a shortlist.
+
+
 ## The score
 
 100, minus arithmetic that ships with the result. `ScoreBand` is `clear`,
@@ -184,6 +247,15 @@ Read this section before showing anything from this engine to a brand.
   §7 asked for. `pnpm rules` is the honest picture, and it should be run before
   a market is promised to anybody.
 - **Nothing here fetches a URL.** Paste or a file, for now.
+- **The rewrites are not written yet.** Every note shows the rule's remedy —
+  what would settle it — rather than a drafted alternative in the brand's
+  voice. Drafting those is the model's job in step 4, and `resultPage` already
+  takes them (`rewrites`, keyed by `rewriteKey`). Until then the card says what
+  it can support and nothing more.
+- **The share card wraps text by estimate.** SVG has no layout engine and the
+  face is not measurable from here, so `wrapText` approximates and errs narrow.
+  A phrase that breaks one word early looks considered; the alternative
+  overruns the frame.
 
 ## What this is not
 
@@ -208,7 +280,17 @@ src/engine/evaluate.ts    the scan
 src/engine/registry.ts    which markets are answered for, and the refusal
 src/extract/deterministic.ts   segmentation, with no model in it
 src/packs/                21 rules, three markets
-scripts/scan.ts           the CLI the kill test runs on
+
+src/card/tokens.ts        the palette, the two faces, and why there is no red
+src/card/annotate.ts      findings merged into numbered marks over the copy
+src/card/page.ts          the result page, as one standalone HTML file
+src/card/og.ts            the 1200×630 share card
+src/card/badge.ts         the mark, live and lapsed
+src/card/escape.ts        the security boundary, since the copy is not ours
+src/card/fonts.ts         the only file here that touches the disk
+
+scripts/scan.ts           findings in a terminal
+scripts/card.ts           the kill test's whole toolchain
 scripts/rules.ts          coverage, printed
-tests/                    108 tests, none of which need a network
+tests/                    170 tests, none of which need a network
 ```

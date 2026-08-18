@@ -2,21 +2,25 @@
   "name": "assay",
   "private": true,
   "version": "0.1.0",
-  "description": "The claim engine — marketing copy in, guidance-framed findings and a Claim Confidence Score out.",
+  "description": "The claim engine, and the card it renders — copy in, cited findings, an explainable score, and a shareable artefact out.",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "scan": "tsx --env-file-if-exists=.env.local scripts/scan.ts",
+    "card": "tsx --env-file-if-exists=.env.local scripts/card.ts",
     "rules": "tsx --env-file-if-exists=.env.local scripts/rules.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.7.0",
+    "playwright-core": "^1.62.1",
     "tsx": "^4.23.6",
     "typescript": "^5.6.3",
     "vitest": "^4.1.10"

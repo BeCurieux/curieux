@@ -8,6 +8,10 @@ node_modules/
 # real brands that have agreed to nothing — it does not belong in the repository.
 .cache/
 
+# `pnpm card` output. Same reason, one step worse: a rendered card is a named
+# brand's copy with a score attached to it.
+cards/
+
 # The kill-test ledger: thirty named brands, what was found on their pages, and
 # what their founders said back. The example file is the only one here that may
 # be committed.

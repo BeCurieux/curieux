@@ -69,3 +69,11 @@ jobs:
       # every fixture, and fails loudly if a rule was added without one.
       - name: Corpus
         run: pnpm rules
+
+      # And `pnpm card` is the smoke test for the artefact: it exercises the
+      # font-inlining path, which the unit tests deliberately do not — they
+      # render without embedded faces so they stay fast and stay pure. A
+      # renamed file inside @fontsource would otherwise only be discovered by
+      # a founder mid-kill-test.
+      - name: Card
+        run: pnpm card --text "Clinically proven, eco-friendly, carbon neutral." --out "$RUNNER_TEMP/smoke" --date 2026-01-01

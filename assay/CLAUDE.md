@@ -65,14 +65,15 @@ No other services without asking.
 1. **The engine.** Text in, cited findings and an explainable score out. No
    network, no key, no model. *Done — `src/`, `pnpm scan`.*
 2. **The score card.** The result rendered as the beautiful object the brief
-   describes, from a `ScanResult`. This is simultaneously the kill-test
-   instrument and the product's front door, which is why it comes before the
-   pipeline that fills it.
+   describes, from a `ScanResult`. Simultaneously the kill-test instrument and
+   the product's front door, which is why it came before the pipeline that
+   fills it. *Done — `src/card/`, `pnpm card`.*
 3. **The kill test.** Thirty real PDPs, hand-read, presented as score cards.
    §10's gate: 8+/30 wanting the live product, or 3+ offering to pay.
 4. **Everything after step 3 is gated on step 3.** URL fetch, LLM extraction,
-   rule-constrained rewrites, the result page, accounts, the Shopify app, the
-   badge embed, billing, monitoring, the ad checker, retailer packs.
+   rule-constrained rewrites filling the card's `rewrites`, accounts, the
+   hosted score page, the Shopify app, the badge embed, billing, monitoring,
+   the ad checker, retailer packs.
 5. **Stop.** OCR packaging, UK and Quebec packs, and anything in §4's
    "explicitly out of V1" list are later decisions, not sprint overflow.
 
@@ -95,6 +96,32 @@ has said yes to the cheap half.
   `evaluate` runs the corpus over the whole document; claims group and
   attribute findings, they do not gate them.
 
+## Rules about the card
+
+- **No traffic lights.** Not red for severity, not green for a pass. That is
+  the visual grammar of an audit tool and this product is not one. Severity is
+  a ruled mark and a weight.
+- **The accent is spent on the words the scan is talking about**, and on the
+  one pointer naming the market the headline score came from. Nothing else
+  gets it. A clean page is not green; it is quiet.
+- **The card reproduces the brand's copy exactly** — every character, once, in
+  order, with the flagged phrases marked. `tests/annotate.test.ts` asserts the
+  round trip. Copy that silently loses a sentence between two underlines is
+  worse than no card.
+- **Everything that reaches a template is escaped.** The copy arrives from a
+  page we do not control and the output is a file sent to strangers and later
+  served from our own domain. There is no "insert this as HTML" path in
+  `src/card/` and there must never be one.
+- **Renderers are pure and take the date.** No `new Date()` inside one: a card
+  has to render identically in a test, in CI, and in a year.
+- **The badge says "reviewed", never "verified".** §4 of the brief and §9 pull
+  against each other and §9 wins. `BADGE_FORBIDDEN` and `tests/badge.test.ts`
+  hold the line across every state of the mark, visible text and accessible
+  label alike. Relaxing that file is a legal decision, not a test fix.
+- **A card never says more than the scan found.** "Clear" and "nothing was
+  found" are different states and the copy must not conflate them; `bandNote`
+  exists because it once did.
+
 ## Product rules
 
 - Score presentation is undecided (§11, item 2). The engine returns a 0–100
@@ -109,6 +136,14 @@ has said yes to the cheap half.
   thing this product could ship.
 - Copy tone: confident, warm, editorial. Never legal-scary. The brand should
   feel like something a Glossier-tier founder would screenshot.
+
+## Definition of done for step 2
+
+`pnpm card --file page.txt` writes a result page, a share card and a badge that
+a beauty founder would screenshot rather than close — from a `ScanResult`,
+offline, deterministically, with the brand's own copy reproduced exactly and
+every note citing a named instrument. **Met.** What remains is the rewrite
+text, which is step 4's model, and a design sprint on the badge (§11, item 4).
 
 ## Definition of done for step 1
 
