@@ -86,7 +86,7 @@ body{
    between a screenshot that looks printed and one that looks like a modal. */
 body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:9;
-  opacity:.05;background-image:url("${GRAIN}");
+  opacity:.035;background-image:url("${GRAIN}");
 }
 .sheet{max-width:58rem;margin:0 auto;padding:clamp(1.5rem,5vw,4.5rem) clamp(1.25rem,5vw,4rem) 6rem}
 
@@ -99,7 +99,7 @@ body::after{
 
 /* --------------------------------------------------------------- masthead */
 .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;padding-bottom:.9rem}
-.masthead__mark{font-family:${FONTS.mono};font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink)}
+.masthead__mark{font-family:${FONTS.mono};font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--accent)}
 
 /* ------------------------------------------------------------------ score */
 .head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(1.5rem,5vw,4rem);
@@ -111,11 +111,11 @@ body::after{
      lines up with everything below it. */
   margin-left:-.06em}
 .score__value{
-  font-family:${FONTS.display};font-weight:400;font-size:clamp(6.5rem,20vw,13rem);
-  line-height:.76;letter-spacing:-.035em;font-variant-numeric:lining-nums;
+  font-family:${FONTS.display};font-weight:400;font-size:clamp(7rem,24vw,16rem);
+  line-height:.74;letter-spacing:-.05em;font-variant-numeric:lining-nums;
 }
 .score__of{font-family:${FONTS.display};font-size:clamp(1.1rem,3vw,1.6rem);color:var(--ink-faint)}
-.score__band{font-family:${FONTS.display};font-size:clamp(1.5rem,4.5vw,2.3rem);line-height:1.1;margin:.9rem 0 .35rem}
+.score__band{font-family:${FONTS.display};font-size:clamp(1.6rem,5vw,2.6rem);line-height:1.1;margin:.9rem 0 .35rem}
 .score__note{color:var(--ink-soft);max-width:32ch;margin:0}
 
 .ledger{min-width:15rem}
@@ -140,9 +140,9 @@ body::after{
   margin:1.75rem 0 0;hyphens:none;
 }
 mark{
-  background:linear-gradient(transparent 64%,var(--accent-wash) 64%);
-  color:inherit;box-shadow:inset 0 -1px 0 var(--accent);
-  padding:0 .04em;
+  background:var(--accent-wash);color:inherit;
+  box-shadow:inset 0 -1px 0 var(--accent);
+  padding:.06em .12em;border-radius:2px;
 }
 .copy sup{
   font-family:${FONTS.mono};font-size:9px;letter-spacing:.02em;color:var(--accent);
@@ -163,13 +163,14 @@ mark{
 .note__phrase::after{content:"\\201D"}
 .note__chips{display:flex;flex-wrap:wrap;gap:.4rem;padding:.45rem 0 .9rem}
 .chip{font-family:${FONTS.mono};font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-  border:1px solid var(--rule);border-radius:999px;padding:.24rem .55rem;color:var(--ink-soft)}
+  border:1px solid var(--rule);border-radius:999px;padding:.24rem .55rem;color:var(--ink-soft);
+  background:var(--paper-raised)}
 .chip--severity{border-color:var(--accent);color:var(--accent);letter-spacing:.04em}
 .finding{padding:.75rem 0 0;max-width:44rem}
 .finding+.finding{margin-top:.85rem;padding-top:.85rem;border-top:1px dashed var(--rule-faint)}
 .finding__headline{margin:0 0 .45rem;font-size:17px}
 .finding__body{margin:0 0 .45rem;color:var(--ink-soft);font-size:16px}
-.finding__instead{margin:.55rem 0 0;padding-left:.9rem;border-left:2px solid var(--accent-wash);font-size:16px}
+.finding__instead{margin:.55rem 0 0;padding-left:.9rem;border-left:2px solid var(--accent);font-size:16px}
 .finding__instead b{font-weight:600}
 .finding__cite{font-family:${FONTS.mono};font-size:10px;line-height:1.6;color:var(--ink-faint);
   margin:.6rem 0 0;word-break:break-word}
@@ -200,7 +201,13 @@ mark{
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 @media print{
-  body{background:#fff}
+  /* Ink on paper, whatever the screen does. A printer asked for a black page
+     produces a black page, and the copy on it is unreadable. */
+  :root{--paper:#fff;--paper-raised:#fff;--ink:#111;--ink-soft:#444;--ink-faint:#777;
+        --rule:#bbb;--rule-faint:#ddd;--accent:#9E3B2A;--accent-wash:#EBD2C4}
+  html{color-scheme:light}
+  body{background:#fff;color:#111}
+  mark{background:var(--accent-wash);box-shadow:inset 0 -1px 0 var(--accent)}
   body::after{display:none}
   .sheet{max-width:none;padding:0}
   .note,.section{break-inside:avoid}

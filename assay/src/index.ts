@@ -50,7 +50,8 @@ export {
 } from "./card/annotate.js";
 export {
   PALETTE,
-  DARK,
+  BADGE_PALETTE,
+  WORDMARK,
   FONTS,
   BAND_LABEL,
   SEVERITY_LABEL,

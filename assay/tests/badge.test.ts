@@ -27,7 +27,7 @@ import {
 } from "@/card/badge.js";
 import { scan } from "@/engine/evaluate.js";
 import { supportedJurisdictions } from "@/engine/registry.js";
-import { PALETTE } from "@/card/tokens.js";
+import { BADGE_PALETTE, PALETTE } from "@/card/tokens.js";
 import { AURELIA_PDP } from "./fixtures/pdp.js";
 
 const ON = new Date("2026-08-18T00:00:00Z");
@@ -143,8 +143,8 @@ describe("lapsing", () => {
 
   it("greys out — no accent anywhere on it", () => {
     const lapsed = badgeSvg({ result: clean, reviewedOn: ON, live: false });
-    expect(lapsed).not.toContain(PALETTE.accent);
-    expect(badgeSvg({ result: clean, reviewedOn: ON, live: true })).toContain(PALETTE.accent);
+    expect(lapsed).not.toContain(BADGE_PALETTE.accent);
+    expect(badgeSvg({ result: clean, reviewedOn: ON, live: true })).toContain(BADGE_PALETTE.accent);
   });
 });
 
@@ -192,5 +192,16 @@ describe("the object itself", () => {
 
   it("renders the same mark twice", () => {
     expect(badgeSvg({ result: clean, reviewedOn: ON })).toBe(badgeSvg({ result: clean, reviewedOn: ON }));
+  });
+
+  it("does not follow the product's dark ground onto somebody else's page", () => {
+    // The page and the share card are near-black. The badge is not, and this
+    // is the assertion that keeps it that way: it renders inside a merchant's
+    // PDP, which is usually pale, and a black rectangle dropped into one is
+    // worse than a mark that simply looks like a stamp.
+    const mark = badgeSvg({ result: clean, reviewedOn: ON, live: true });
+    expect(mark).toContain(BADGE_PALETTE.paperRaised);
+    expect(mark).not.toContain(PALETTE.paper);
+    expect(mark).not.toContain(PALETTE.accent);
   });
 });

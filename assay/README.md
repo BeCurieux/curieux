@@ -160,7 +160,21 @@ instrument. A critical edition of a product page. It is the right shape for a
 product about language, it reads as editorial rather than as an audit, and it
 is the reason a founder screenshots it instead of closing it.
 
-Three decisions inside it are worth arguing with.
+Four decisions inside it are worth arguing with.
+
+**A dark ground, and a badge that ignores it.** The result page and the share
+card sit on near-black with a warm coral accent — chosen 2026-08-18 over the
+warm-paper original, which read as a dialog box at thumbnail size once the
+texture carrying it disappeared. The page no longer follows the reader's colour
+scheme either: it is the artefact, and an artefact that looks different in
+everybody's screenshot is not one.
+
+The **badge** does not follow, and `BADGE_PALETTE` is where that is kept. It
+renders inside a merchant's own product page — somebody else's design, usually
+pale — and a near-black rectangle dropped into one is worse than a mark that
+reads as a stamp. `tests/badge.test.ts` asserts the separation, so the two
+palettes cannot quietly converge. Print is light too; a printer asked for a
+black page produces one.
 
 **No traffic lights.** Not red for severity, not green for a pass. Red-amber-
 green is the visual grammar of an audit tool and the brief's whole position is

@@ -23,7 +23,7 @@
 import type { ScanResult } from "../engine/types.js";
 import { badgeEligible } from "../engine/score.js";
 import { escXml, safeUrl } from "./escape.js";
-import { FONTS, PALETTE, monthYear } from "./tokens.js";
+import { BADGE_PALETTE as PALETTE, FONTS, monthYear } from "./tokens.js";
 
 export type BadgeOptions = {
   result: ScanResult;

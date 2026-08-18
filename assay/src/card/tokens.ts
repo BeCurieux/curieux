@@ -14,9 +14,15 @@
  * score came from. Nothing else gets it. A page with nothing found is not
  * green — it is quiet.
  *
- * The ground is warm uncoated paper rather than white, because the artefact is
- * going to be screenshotted into a feed beside somebody's product photography,
- * and white reads as a dialog box.
+ * The ground is near-black rather than white. The artefact is going to be
+ * screenshotted into a feed beside somebody's product photography, and white
+ * reads as a dialog box — but so, it turned out, does warm paper at thumbnail
+ * size, where the texture that carries it disappears. Ink on a dark ground
+ * survives the shrink, and it is what the mark looks like at eleven at night,
+ * which is when founders actually read their messages.
+ *
+ * The badge does not follow. It renders on a merchant's own product page,
+ * which is somebody else's design and usually light — see `BADGE_PALETTE`.
  */
 
 /**
@@ -34,6 +40,34 @@
 export const WORDMARK = "Franca";
 
 export const PALETTE = {
+  paper: "#0E0E0D",
+  paperRaised: "#171715",
+  ink: "#F5F2EA",
+  inkSoft: "#A8A398",
+  inkFaint: "#6F6B62",
+  rule: "#2A2925",
+  ruleFaint: "#1D1C19",
+  /** The one accent. Warm coral: confident against the dark, not alarm-red. */
+  accent: "#FF7A4D",
+  /** The accent at wash strength, behind a flagged phrase. Dark enough to keep
+   *  the copy readable through it, warm enough to survive a phone screenshot. */
+  accentWash: "#3A1F14",
+} as const;
+
+/**
+ * The badge, and only the badge.
+ *
+ * Nothing here follows the reader's colour scheme, and the badge does not
+ * follow the product's either. It renders inside a merchant's product page —
+ * somebody else's design, usually light, occasionally dark, never ours to
+ * predict. A mark that inverts depending on where it lands is a support
+ * ticket, and a near-black rectangle dropped into a pale PDP is worse.
+ *
+ * So the mark keeps the warm paper the rest of the system moved off. It reads
+ * as a stamp on the merchant's page rather than a window onto ours, which is
+ * what a trust mark is supposed to be.
+ */
+export const BADGE_PALETTE = {
   paper: "#F4F1EA",
   paperRaised: "#FBF9F5",
   ink: "#17150F",
@@ -41,29 +75,8 @@ export const PALETTE = {
   inkFaint: "#918A7A",
   rule: "#DCD5C6",
   ruleFaint: "#E9E4D9",
-  /** The one accent. Deep madder: warm, editorial, confident, not alarm-red. */
   accent: "#9E3B2A",
-  /** The accent at wash strength, behind a flagged phrase. Light enough to
-   *  read through, dark enough to survive a screenshot on a phone. */
   accentWash: "#EBD2C4",
-} as const;
-
-/**
- * The result page adapts to the reader's scheme; the share card and the badge
- * do not. An artefact somebody screenshots has to look the same in everyone's
- * screenshot, and a badge that changes colour on a merchant's dark PDP is a
- * support ticket.
- */
-export const DARK = {
-  paper: "#15130F",
-  paperRaised: "#1D1A15",
-  ink: "#F2EEE4",
-  inkSoft: "#B5AD9C",
-  inkFaint: "#7E7768",
-  rule: "#332E25",
-  ruleFaint: "#26221B",
-  accent: "#D4715C",
-  accentWash: "#3A241E",
 } as const;
 
 /**
@@ -104,7 +117,7 @@ export function fontFaces(fonts: EmbeddedFonts | undefined): string {
   return faces.join("");
 }
 
-function vars(palette: typeof PALETTE | typeof DARK): string {
+function vars(palette: typeof PALETTE | typeof BADGE_PALETTE): string {
   return Object.entries(palette)
     .map(([key, value]) => `--${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}:${value}`)
     .join(";");
@@ -112,7 +125,12 @@ function vars(palette: typeof PALETTE | typeof DARK): string {
 
 /** The custom properties, light by default and swapped under a dark scheme. */
 export function paletteCss(): string {
-  return `:root{${vars(PALETTE)}}@media (prefers-color-scheme:dark){:root{${vars(DARK)}}}`;
+  // One palette, no media query. The page does not follow the reader's scheme
+  // any more: it is the artefact, and an artefact that looks different in
+  // everybody's screenshot is not one. `color-scheme` tells the browser to
+  // match its own furniture — scrollbars, form controls, the flash before CSS
+  // lands — to a page it can no longer infer from the media query.
+  return `html{color-scheme:dark}:root{${vars(PALETTE)}}`;
 }
 
 /**
