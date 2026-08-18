@@ -69,3 +69,17 @@ To test the command's decision locally, from inside a project directory:
 ```
 git diff --quiet HEAD^ HEAD -- . && echo SKIP || echo BUILD
 ```
+
+## While the quota is exhausted, none of this runs
+
+The ignore command is part of a **build**, and a rate-limited deployment never
+gets that far — Vercel rejects it before cloning, so the command is never
+opened and every project reports:
+
+```
+Vercel – <project>  failure  Deployment rate limited — retry in 24 hours.
+```
+
+Four red checks in that state are not evidence that the scoping failed. They
+are the reason it was added. The first push after the window resets is the
+first one that actually tests it.
