@@ -15,7 +15,7 @@ import { resultPage } from "@/card/page.js";
 import { shareCard, wrapText, OG_WIDTH } from "@/card/og.js";
 import { annotate } from "@/card/annotate.js";
 import { esc, escXml, safeUrl } from "@/card/escape.js";
-import { WORDMARK } from "@/card/tokens.js";
+import { MARKET_ACCENT, WORDMARK } from "@/card/tokens.js";
 import { FONT_FILES, loadEmbeddedFonts, resolveFont } from "@/card/fonts.js";
 import { DISCLAIMER } from "@/engine/framing.js";
 import { AURELIA_PDP } from "./fixtures/pdp.js";
@@ -61,6 +61,29 @@ describe("escaping", () => {
 
   it("escapes the wordmark, which is user input on the CLI", () => {
     expect(page(CLEAN_COPY, clean, { wordmark: "<b>VOUCH</b>" })).not.toContain("<b>VOUCH</b>");
+  });
+
+  it("colours by market and never by severity", () => {
+    // The rule this pins is the one in CLAUDE.md: colour is identity, not
+    // verdict. A market keeps its hue whether the finding under it is high or
+    // low severity, and a clean page shows the same hues as a bad one. The
+    // moment a colour starts tracking severity or band, the card is an audit
+    // tool with traffic lights, which is the thing the positioning is not.
+    const markets = ["AU", "US", "EU"] as const;
+    const bad = scan({ text: AURELIA_PDP, source: { kind: "paste" }, jurisdictions: [...markets] });
+    const quiet = scan({ text: CLEAN_COPY, source: { kind: "paste" }, jurisdictions: [...markets] });
+
+    const hues = (html: string) =>
+      markets.filter((m) => html.includes(MARKET_ACCENT[m] as string)).sort();
+
+    // Every market on the page carries its hue, in both directions.
+    expect(hues(page(AURELIA_PDP, bad))).toEqual([...markets].sort());
+    expect(hues(page(CLEAN_COPY, quiet))).toEqual([...markets].sort());
+
+    // And no hue belongs to a severity or a band.
+    for (const word of ["high", "medium", "low", "clear", "review", "rework"]) {
+      expect(Object.values(MARKET_ACCENT)).not.toContain(word);
+    }
   });
 
   it("puts the name in the masthead without being asked, and lets a flag override it", () => {

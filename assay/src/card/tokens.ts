@@ -105,6 +105,34 @@ export const BADGE_NIGHT_PALETTE = {
   accentWash: "#3A1F14",
 } as const;
 
+/**
+ * A hue per market, and the one place colour is allowed to multiply.
+ *
+ * Added 2026-08-18 on the owner's call — the card wanted more colour. What it
+ * does **not** do is the thing CLAUDE.md forbids: no hue here tracks severity
+ * or band. A market keeps its colour whether the finding under it is high or
+ * low, and a page with nothing found shows the same three hues as a page with
+ * seventeen findings. That is the difference between colour as identity and
+ * colour as verdict, and only the second one turns this into an audit tool.
+ *
+ * Cyan, periwinkle, violet: one arc of the wheel, containing no red, no amber
+ * and no green, so nobody has to reason about whether a chip means "pass".
+ * The accent stays reserved — flagged words and the weakest-market pointer,
+ * nothing else — because that is the colour the reader is meant to follow.
+ */
+export const MARKET_ACCENT: Record<string, string> = {
+  AU: "#4FC9D9",
+  EU: "#8AA6FF",
+  US: "#C08BFA",
+  GB: "#9FD2E8",
+  CA_QC: "#A9B4FF",
+};
+
+/** The market's hue, or the muted ink for one we have no colour for. */
+export function marketAccent(market: string): string {
+  return MARKET_ACCENT[market] ?? PALETTE.inkSoft;
+}
+
 /** Which ground the mark is being dropped onto. The merchant's call. */
 export type BadgeTheme = "paper" | "night";
 

@@ -183,11 +183,19 @@ list that asserts `BADGE_FORBIDDEN`, so a variant cannot quietly acquire
 language nothing checks. Print is light too; a printer asked for a black page
 produces one.
 
-**No traffic lights.** Not red for severity, not green for a pass. Red-amber-
-green is the visual grammar of an audit tool and the brief's whole position is
-that this is not one. Severity is a ruled mark and a weight; the single accent
-is spent on the words the scan is talking about, and on the one pointer saying
-which market the headline came from. A clean page is not green. It is quiet.
+**No traffic lights, and colour that means identity instead.** Not red for
+severity, not green for a pass — red-amber-green is the visual grammar of an
+audit tool and the brief's whole position is that this is not one. Severity is
+a ruled mark and a weight; the accent is spent on the words the scan is talking
+about and on the pointer saying which market the headline came from.
+
+Colour does multiply in one place: `MARKET_ACCENT` gives AU, US and EU a hue
+each, carried on the by-market ledger and on every market chip. It is safe
+precisely because it is orthogonal to the verdict — a market keeps its colour
+whatever the finding beside it says, and a clean page shows the same three hues
+as a bad one. The triad is cyan, periwinkle and violet, an arc containing no
+red, amber or green, so a chip cannot be misread as a pass. A clean page is
+still not green. It is still quiet.
 
 **"Claims Verified", with the description underneath.** The mark was built as
 "Claims reviewed" first: §4 of the brief names it "Claims Verified" and §9

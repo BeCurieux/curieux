@@ -213,7 +213,18 @@ the moment any of it is skipped.
 
 - **No traffic lights.** Not red for severity, not green for a pass. That is
   the visual grammar of an audit tool and this product is not one. Severity is
-  a ruled mark and a weight.
+  a ruled mark and a weight. This rule survived the card getting more colour
+  and it is the reason that change was safe — see below.
+- **Colour is identity, never verdict.** `MARKET_ACCENT` gives each market a
+  hue, added 2026-08-18 on the owner's call for a more colourful card. It is
+  allowed because a market keeps its colour whatever the finding under it says,
+  and a clean page shows the same three hues as a page with seventeen findings.
+  The triad is cyan, periwinkle and violet: one arc of the wheel with no red,
+  no amber and no green in it, so nobody has to work out whether a chip means
+  "pass". `tests/card.test.ts` asserts the hues appear for every selected market
+  in both a clean and a bad scan, which is the check that would fail the moment
+  a colour started tracking severity or band. Do not add a fourth colour system
+  and do not let a hue depend on a `Severity` or a `ScoreBand`.
 - **The page and the share card are dark; the badge has its own two grounds.**
   Chosen by the owner 2026-08-18 over the warm-paper original. `PALETTE` is the
   near-black system. The badge takes `theme: "paper" | "night"` and neither is

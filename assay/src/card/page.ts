@@ -25,6 +25,7 @@ import {
   bandNote,
   FONTS,
   MARKET_LABEL,
+  marketAccent,
   SEVERITY_LABEL,
   SEVERITY_MARK,
   WORDMARK,
@@ -120,9 +121,12 @@ body::after{
 
 .ledger{min-width:15rem}
 .ledger__row{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:1rem;
-  padding:.5rem 0;border-top:1px solid var(--rule-faint)}
+  padding:.5rem 0 .5rem .85rem;border-top:1px solid var(--rule-faint);
+  /* A hairline in the market's own colour. Identity, never severity — it is
+     the same hue whatever the score beside it says. */
+  box-shadow:inset 2px 0 0 var(--market,transparent)}
 .ledger__row:first-of-type{border-top:1px solid var(--rule)}
-.ledger__name{font-size:15px}
+.ledger__name{font-size:15px;color:var(--market,var(--ink))}
 .ledger__value{font-family:${FONTS.display};font-size:1.55rem;line-height:1;font-variant-numeric:lining-nums}
 .ledger__weakest{color:var(--accent)}
 .ledger__flag{font-family:${FONTS.mono};font-size:9px;letter-spacing:.14em;text-transform:uppercase;
@@ -166,6 +170,7 @@ mark{
   border:1px solid var(--rule);border-radius:999px;padding:.24rem .55rem;color:var(--ink-soft);
   background:var(--paper-raised)}
 .chip--severity{border-color:var(--accent);color:var(--accent);letter-spacing:.04em}
+.chip--market{border-color:var(--market);color:var(--market)}
 .finding{padding:.75rem 0 0;max-width:44rem}
 .finding+.finding{margin-top:.85rem;padding-top:.85rem;border-top:1px dashed var(--rule-faint)}
 .finding__headline{margin:0 0 .45rem;font-size:17px}
@@ -221,7 +226,7 @@ function ledger(result: ScanResult): string {
     const score = result.byJurisdiction[jurisdiction];
     const isWeakest = jurisdiction === weakest && result.jurisdictions.length > 1;
     return (
-      `<div class="ledger__row">` +
+      `<div class="ledger__row" style="--market:${marketAccent(jurisdiction)}">` +
       `<div class="ledger__name">${esc(MARKET_LABEL[jurisdiction] ?? jurisdiction)}` +
       (isWeakest ? `<span class="ledger__flag">headline</span>` : "") +
       `</div>` +
@@ -277,7 +282,10 @@ function noteBlock(mark: Mark, rewrites: Record<string, string>): string {
   const chips = [
     `<span class="chip chip--severity" title="${esc(SEVERITY_LABEL[worst.severity])}">` +
       `${SEVERITY_MARK[worst.severity]}&nbsp;${esc(SEVERITY_LABEL[worst.severity])}</span>`,
-    ...marketsOf(mark).map((market) => `<span class="chip">${esc(market)}</span>`),
+    ...marketsOf(mark).map(
+      (market) =>
+        `<span class="chip chip--market" style="--market:${marketAccent(market)}">${esc(market)}</span>`,
+    ),
     ...[...new Set(mark.findings.flatMap((f) => f.categories))].map(
       (category) => `<span class="chip">${esc(category.replace("_", " "))}</span>`,
     ),

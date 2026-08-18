@@ -22,6 +22,7 @@ import {
   BAND_LABEL,
   FONTS,
   MARKET_LABEL,
+  marketAccent,
   PALETTE,
   WORDMARK,
   fontFaces,
@@ -185,7 +186,15 @@ export function shareCard(options: ShareCardOptions): string {
     parts.push(
       `<line x1="${ledgerX}" y1="${row}" x2="${OG_WIDTH - M}" y2="${row}" stroke="${PALETTE.ruleFaint}"/>`,
     );
-    parts.push(text(MARKET_LABEL[jurisdiction] ?? jurisdiction, ledgerX, row + 34, BODY(22, PALETTE.inkSoft)));
+    // A short tick in the market's own hue, then the name in it. Identity,
+    // not severity: the same colour whatever the number to its right says.
+    parts.push(
+      `<line x1="${ledgerX}" y1="${row}" x2="${ledgerX + 26}" y2="${row}" ` +
+        `stroke="${marketAccent(jurisdiction)}" stroke-width="2"/>`,
+    );
+    parts.push(
+      text(MARKET_LABEL[jurisdiction] ?? jurisdiction, ledgerX, row + 34, BODY(22, marketAccent(jurisdiction))),
+    );
     parts.push(
       text(String(score?.value ?? "—"), OG_WIDTH - M, row + 36, {
         ...DISPLAY(40, isWeakest ? PALETTE.accent : PALETTE.ink),
