@@ -246,6 +246,67 @@ service key reaching exactly the two files it should, and Next's image
 optimiser staying off so no merchant CDN needs allowlisting before their
 photographs load.
 
+### When production is behind `main`
+
+Merging is not deploying, and nothing in this repository records which commit
+production is actually serving. The only source of truth is the project's
+**Deployments** list: the top row marked `Production` names the commit, and
+everything below it marked `Preview` is a branch build that is serving nobody.
+
+Three things make that gap easy to miss, and all three happened here on one
+day.
+
+**A refused deployment is not retried.** Vercel's Hobby plan caps deployments
+per account per day. Over the cap, a push produces no deployment at all — not a
+failed one, not a queued one. Nothing. The merge lands in `main`, CI goes
+green, the PR closes, and production keeps serving whatever it had. There is no
+error anywhere a developer looks, because the thing that failed never started.
+Two merges were lost this way and the symptom was "the site still looks old".
+
+**The cap is per account, and this repository holds six apps.** Every push to
+every branch of `haunted`, `lattice`, `ordinary-tuesday`, `qotidia`,
+`shopfront` and `waterline` can trigger a build in whichever projects watch
+this repo. A day of ordinary work across several branches reaches a hundred
+without anybody doing anything unusual. Scope each project with **Settings →
+Git → Ignored Build Step** so it only builds when its own directory changed;
+for this one, when `shopfront/**` changed.
+
+**Redeploy rebuilds that deployment's commit, not the latest one.** The button
+on a deployment row re-runs *that* build. It is the right tool for a flaky
+build or a changed environment variable — environment variables are baked in at
+build time, so a variable added after a deployment does nothing until something
+rebuilds — and it is the wrong tool for shipping newer commits. To move
+production forward you need a new push to the production branch. Promoting an
+existing preview works too and skips the build entirely, which is the way
+through when the cap is the problem.
+
+The confusing case is worth stating because the obvious inference was wrong
+once: production may sit on a commit that *is* recent while still missing the
+work you are looking for. A file uploaded through GitHub's web interface lands
+on `main` as its own commit, and if that one deploys it carries every merge
+beneath it. Production was therefore several merges ahead of where the missing
+deployments suggested — and still two behind `main`. Read the commit on the
+Production row and compare it with `git log`; do not infer it from which PRs
+did or did not get a Vercel check.
+
+### The domain is two hostnames
+
+`example.com` and `www.example.com` are different names and need separate DNS
+records. Vercel serving one while only the other resolves produces a domain
+that does not load at all, with nothing wrong on the Vercel side to find:
+
+```sh
+getent hosts getpopuup.com          # apex → Vercel's address
+getent hosts www.getpopuup.com      # nothing at all
+```
+
+That was the state here — the apex pointed at Vercel and was not an assigned
+domain, while the assigned domain was `www`, which had no record. Vercel
+redirected the apex to a hostname that did not exist. Whichever is canonical,
+both should resolve and `PUBLIC_ORIGIN` should be the canonical one: it is what
+every published shop URL is built from, so a `PUBLIC_ORIGIN` naming a hostname
+that does not resolve hands merchants links that cannot open.
+
 ## 2. Four real catalogues
 
 ```sh
