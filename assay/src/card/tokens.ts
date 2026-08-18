@@ -108,7 +108,15 @@ export const BADGE_NIGHT_PALETTE = {
   inkFaint: "#807A6F",
   rule: "#3C3A34",
   ruleFaint: "#2B2925",
-  accent: "#FF7A4D",
+  /**
+   * The page's pink, and the only value here that follows it (owner's call,
+   * 2026-08-18). It clears 5.58:1 on this ground. The paper mark deliberately
+   * did **not** follow: the same pink measures 2.72:1 on its near-white
+   * ground, so matching the two would have meant an invisible accent or a
+   * second, darker pink — and the accent going grey is the live/lapsed signal,
+   * which is worth more than the two grounds rhyming.
+   */
+  accent: "#FF5CA8",
   accentWash: "#3A1F14",
 } as const;
 
