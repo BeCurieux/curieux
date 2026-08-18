@@ -1,0 +1,71 @@
+# Does the claim engine still typecheck and pass its tests?
+#
+# Scoped to assay/, in the same spirit as the other workflows here: this
+# repository holds several independent products side by side, and each decides
+# its own checks rather than inheriting a sibling's.
+#
+# No secrets and no network, and that is not a precaution — the engine takes no
+# configuration and calls nothing. A run here exercises the same code path a
+# founder gets on a laptop with no accounts, which is the path the kill test
+# depends on.
+
+name: assay
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assay/**"
+      - ".github/workflows/assay.yml"
+  pull_request:
+    paths:
+      - "assay/**"
+      - ".github/workflows/assay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: assay-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: assay
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from the `packageManager` field, so the runner and a
+      # developer's machine cannot drift apart without the change being visible.
+      #
+      # `package_json_file` is required: `defaults.run.working-directory` above
+      # applies to `run:` steps only, so this action still looks for a
+      # package.json at the repository root, which this repo does not have.
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: assay/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: assay/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # Separate steps so a red run names what broke on the summary page.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      # The corpus report is also a smoke test: it loads every pack, resolves
+      # every fixture, and fails loudly if a rule was added without one.
+      - name: Corpus
+        run: pnpm rules

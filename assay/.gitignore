@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+
+# Scanned copy, cached while iterating on the rules. Real marketing text from
+# real brands that have agreed to nothing — it does not belong in the repository.
+.cache/
+
+# The kill-test ledger: thirty named brands, what was found on their pages, and
+# what their founders said back. The example file is the only one here that may
+# be committed.
+killtest/*
+!killtest/targets.example.txt
