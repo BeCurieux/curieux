@@ -34,7 +34,7 @@ import path from "node:path";
 import { merchandise } from "../../src/lib/merchandise/index";
 import { saveShop } from "../../src/lib/render/store";
 import { hasAnthropicKey, MISSING_KEY } from "../../src/lib/anthropic-key";
-import type { IngestResult } from "../../src/lib/ingest/types";
+import { BrandContext, IngestResult } from "../../src/lib/ingest/types";
 
 /**
  * The five sentences, and the slugs they publish to.
@@ -45,22 +45,24 @@ import type { IngestResult } from "../../src/lib/ingest/types";
  * is the exact dishonesty the section exists to disprove.
  */
 const EDITS = [
-  { slug: "edit-wedding", prompt: "a wedding list for two people who already own everything" },
-  { slug: "edit-first", prompt: "for someone moving into their own place, nothing over 60" },
-  { slug: "edit-bar", prompt: "for someone who has started making cocktails at home" },
-  { slug: "edit-gift", prompt: "for a host who has everything, under 80" },
+  { slug: "edit-ibiza", prompt: "the Ibiza edit — swim first, linen next, nothing over 180" },
+  { slug: "edit-escape", prompt: "for someone going somewhere hot in February" },
+  { slug: "edit-wedding", prompt: "for a wedding abroad, and I am a guest" },
+  { slug: "edit-budget", prompt: "everything under 80" },
   { slug: "edit-sale", prompt: "what is left, cheapest first" },
 ];
 
 const CACHE = path.join(process.cwd(), ".cache");
-const INGEST = path.join(CACHE, "ingest", "maisonverre.example.json");
-const SOURCE = path.join(CACHE, "shop", "demo-luxe.json");
+/** The demo store. Reserved by RFC 2606, so it can never be a real merchant. */
+const STORE = "https://casalino.example";
+const INGEST = path.join(CACHE, "ingest", "casalino.example.json");
+const SOURCE = path.join(CACHE, "shop", "demo-editorial.json");
 
 /**
  * Rebuild the ingest fixture from the demo catalogue.
  *
  * This is the step that carries the photographs. `scripts/press/shops.mjs`
- * writes `demo-luxe.json` with whatever is in `public/demo/maison-verre/`, and
+ * writes `demo-editorial.json` with whatever is in `public/demo/casa-lino/`, and
  * this copies that catalogue into the shape the merchandiser reads. Skip it
  * and the five shops keep whatever imagery they were built with, however long
  * ago.
@@ -68,7 +70,10 @@ const SOURCE = path.join(CACHE, "shop", "demo-luxe.json");
 async function refreshIngest(): Promise<IngestResult> {
   const demo = JSON.parse(await readFile(SOURCE, "utf8")) as {
     catalogue: IngestResult["catalogue"];
-    config: { brand: { name: string; tagline?: string; storeUrl: string } };
+    config: {
+      brand: { name: string; tagline?: string; storeUrl: string };
+      theme: { colorway: BrandContext["suggestedColorway"] };
+    };
   };
 
   let existing: IngestResult | null = null;
@@ -78,28 +83,85 @@ async function refreshIngest(): Promise<IngestResult> {
     // First run. Everything below is rebuilt from the demo anyway.
   }
 
+  /*
+   * The fallback brand, built to the type rather than to a guess.
+   *
+   * This branch had never actually run. It wrote `voice: null`, `logo: null`
+   * and a `tagline` of `null`, none of which `BrandContext` permits — and it
+   * went unnoticed for as long as a fixture existed on disk from a previous
+   * run, because the `existing?.brand ?? …` above kept choosing the file.
+   * Pointing the pipeline at a new demo brand deleted that cover and the
+   * merchandiser died dereferencing `brand.voice.headings`.
+   *
+   * So it is parsed through the schema now. A fallback that is only exercised
+   * on a first run is exactly the code that should be checked by something
+   * other than being run.
+   */
   const ingestedAt = new Date().toISOString();
-  const result: IngestResult = {
-    ...(existing ?? ({} as IngestResult)),
+  const brand: BrandContext =
+    existing?.brand ??
+    BrandContext.parse({
+      name: demo.config.brand.name,
+      storeUrl: STORE,
+      tagline: demo.config.brand.tagline,
+      /*
+       * Deliberately empty: the merchandiser must not drift a brand's colour
+       * per audience, and an empty palette is the honest input for a demo
+       * store with no homepage to read one from. `suggestedColorway` carries
+       * the brand's actual colours instead, so all five edits come out in the
+       * same one — which is the claim the section on the front page makes.
+       */
+      palette: [],
+      suggestedColorway: demo.config.theme.colorway,
+      /*
+       * No voice evidence, stated as four empty lists rather than as null.
+       * There is no homepage to read headings off; the prompt builder handles
+       * an empty section and does not handle a missing one.
+       */
+      voice: { headings: [], sentences: [], navLabels: [], buttonLabels: [] },
+      links: [],
+      socialLinks: [],
+    });
+
+  /*
+   * Parsed, not cast.
+   *
+   * `as IngestResult` was doing the damage. It told the compiler this object
+   * was a complete ingest while it was in fact `{...existing}` plus three
+   * fields — so every part the spread was silently supplying went unchecked,
+   * and pointing the pipeline at a brand with no fixture on disk produced a
+   * crash per missing field, one run at a time: first `brand.voice`, then
+   * `reviews.note`, with `diagnostics` waiting behind it.
+   *
+   * Parsing states the whole thing once and fails on the first run with every
+   * problem named, rather than on the fifth with the last of them.
+   */
+  const result = IngestResult.parse({
     store: {
-      inputUrl: "https://maisonverre.example",
-      storeUrl: "https://maisonverre.example",
+      inputUrl: STORE,
+      storeUrl: STORE,
       platform: "shopify",
       catalogueSource: "products.json",
       ingestedAt,
     },
-    brand: existing?.brand ?? {
-      name: demo.config.brand.name,
-      tagline: demo.config.brand.tagline ?? null,
-      // Deliberately empty: the merchandiser must not drift the brand's colour
-      // per audience, and an empty palette is the honest input for a demo
-      // store that has no homepage to read one from.
-      palette: [],
-      voice: null,
-      logo: null,
-    },
+    brand,
     catalogue: demo.catalogue,
-  } as IngestResult;
+    /*
+     * Not ingestable, and said so rather than omitted. The brief is explicit:
+     * a reviews block built from a store whose reviews were never read would
+     * be a page claiming social proof nobody has. A demo store has no review
+     * platform to detect, so the answer is a flat no.
+     */
+    reviews: existing?.reviews ?? {
+      available: false,
+      platformDetected: null,
+      note: "This is a demo catalogue with no storefront behind it, so no reviews were read.",
+    },
+    diagnostics: existing?.diagnostics ?? {
+      warnings: [],
+      trace: [{ step: "demo-catalogue", outcome: "ok", detail: "Assembled by scripts/press/shops.mjs, not fetched." }],
+    },
+  });
 
   await mkdir(path.dirname(INGEST), { recursive: true });
   await writeFile(INGEST, `${JSON.stringify(result, null, 2)}\n`);

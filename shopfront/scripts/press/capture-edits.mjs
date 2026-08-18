@@ -18,7 +18,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-const SLUGS = ["edit-wedding", "edit-first", "edit-bar", "edit-gift", "edit-sale"];
+const SLUGS = ["edit-ibiza", "edit-escape", "edit-wedding", "edit-budget", "edit-sale"];
 
 /**
  * The phone in the hero, and why it is a second shot of a shop already here.
@@ -36,7 +36,7 @@ const SLUGS = ["edit-wedding", "edit-first", "edit-bar", "edit-gift", "edit-sale
  * Framed on the *second* product block: the first leads with one large
  * sold-out decanter, which is a good picture and a poor advert.
  */
-const HERO = { slug: "edit-wedding", block: 1, out: "hero.jpg" };
+const HERO = { slug: "edit-ibiza", block: 1, out: "hero.jpg" };
 
 /** 390x845 at 2x — a phone, because that is what these shops are opened on. */
 const VIEWPORT = { width: 390, height: 845 };

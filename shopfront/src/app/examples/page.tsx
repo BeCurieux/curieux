@@ -50,44 +50,44 @@ export const metadata: Metadata = {
  */
 const EDITS = [
   {
+    href: "/preview/edit-ibiza",
+    shot: "/press/edit-ibiza.jpg",
+    title: "The Ibiza edit",
+    prompt: "the Ibiza edit \u2014 swim first, linen next, nothing over 180",
+    n: 6,
+    note: "It split itself in two — \u201cSwim first\u201d, then \u201cLinen next\u201d. The sentence said the order and the shop was built in that order.",
+  },
+  {
+    href: "/preview/edit-escape",
+    shot: "/press/edit-escape.jpg",
+    title: "The February suitcase",
+    prompt: "for someone going somewhere hot in February",
+    n: 7,
+    note: "Seven of the eight. Nothing in the sentence mentioned a season, a garment or a price, and it still came back as a packing list.",
+  },
+  {
     href: "/preview/edit-wedding",
     shot: "/press/edit-wedding.jpg",
-    title: "The wedding list",
-    prompt: "for two people who already own everything",
-    n: 5,
-    note: "The sold-out decanter is one of the five — marked, not dropped, because a wedding list is exactly where you still want to see it.",
+    title: "A wedding abroad",
+    prompt: "for a wedding abroad, and I am a guest",
+    n: 7,
+    note: "It opens with the slip dress, which is sold out — shown and marked rather than dropped, because it is exactly what somebody came for.",
   },
   {
-    href: "/preview/edit-first",
-    shot: "/press/edit-first.jpg",
-    title: "The first glass",
-    prompt: "for someone moving into their own place, nothing over 60",
-    n: 3,
-    note: "Three pieces out of eight. The ceiling in the sentence did the work, and the shop did not pad itself back out.",
-  },
-  {
-    href: "/preview/edit-bar",
-    shot: "/press/edit-bar.jpg",
-    title: "The negroni kit",
-    prompt: "for someone who has started making cocktails at home",
+    href: "/preview/edit-budget",
+    shot: "/press/edit-budget.jpg",
+    title: "Under 80",
+    prompt: "everything under 80",
     n: 4,
-    note: "It split itself in two — the glasses, then the rest of the bar. Nothing in the sentence asked for that division.",
-  },
-  {
-    href: "/preview/edit-gift",
-    shot: "/press/edit-gift.jpg",
-    title: "The host gift",
-    prompt: "for a host who has everything, under 80",
-    n: 4,
-    note: "Three of these four are in the first-flat shop too. Same products, a different reason to be on the page.",
+    note: "Four pieces, and they are precisely the four under 80. The ceiling in the sentence did the work and the shop did not pad itself back out.",
   },
   {
     href: "/preview/edit-sale",
     shot: "/press/edit-sale.jpg",
-    title: "End of season",
+    title: "What is left",
     prompt: "what is left, cheapest first",
-    n: 5,
-    note: "Cheapest first, and the sold-out decanter is gone. This is the one shop where \u201cwhat is left\u201d has to mean it.",
+    n: 7,
+    note: "Cheapest first, the sold-out dress gone, and set in a mono face — the one shop that chose different lettering for itself.",
   },
 ];
 
@@ -95,7 +95,7 @@ const EDITS = [
 const BRANDS = [
   { href: "/preview/demo-luxe", shot: "/press/shop-luxe.jpg", name: "Maison Verre", mood: "luxe", what: "Hand-cut glass" },
   { href: "/preview/demo-clean", shot: "/press/shop-clean.jpg", name: "Sea Salt Skin", mood: "clean", what: "Three-step skincare" },
-  { href: "/preview/demo-editorial", shot: "/press/shop-editorial.jpg", name: "Folio Press", mood: "editorial", what: "Paper and print" },
+  { href: "/preview/demo-editorial", shot: "/press/shop-editorial.jpg", name: "Casa Lino", mood: "editorial", what: "Linen and swim" },
   { href: "/preview/demo-playful", shot: "/press/shop-playful.jpg", name: "Pip & Pockets", mood: "playful", what: "Kids' clothing" },
   { href: "/preview/demo-utility", shot: "/press/shop-utility.jpg", name: "Bench & Bolt", mood: "utility", what: "Hand tools" },
 ];
@@ -124,8 +124,9 @@ export default function Examples() {
           One catalogue. Five shops.
         </h2>
         <p className="lead-note">
-          Eight products underneath, five sentences over them. Same colours and same type in all five: it is one brand,
-          and popuup does not get to repaint it. What changes is what is in the shop and how it is built.
+          Eight products underneath, five sentences over them. The same colour in all five — it is one brand, and
+          popuup does not get to repaint it. What changes is what is in the shop, how it is built, and occasionally
+          the lettering, when the shop&rsquo;s job calls for it.
         </p>
 
         <ul className="gallery">

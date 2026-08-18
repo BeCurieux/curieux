@@ -4,7 +4,7 @@
     "brand": {
       "name": "Casa Lino",
       "tagline": "Cut for the heat.",
-      "storeUrl": "https://example.invalid/casa-lino/"
+      "storeUrl": "https://casalino.example"
     },
     "theme": {
       "colorway": {
@@ -23,77 +23,50 @@
         "id": "hero",
         "block": {
           "type": "hero",
-          "headline": "Cut for the heat.",
+          "headline": "Four summer pieces, all under £80",
+          "subline": "Linen, raffia and straw — the lighter end of the range.",
           "media": {
             "kind": "productImage",
-            "handle": "linen-shirt",
+            "handle": "linen-skirt",
             "imageIndex": 0
+          },
+          "cta": {
+            "label": "Shop the edit",
+            "targetBlockId": "under-80"
           }
         }
       },
       {
-        "id": "edit",
+        "id": "under-80",
         "block": {
           "type": "productGrid",
-          "title": "The edit",
+          "title": "Under £80",
           "products": [
             {
-              "handle": "linen-shirt"
+              "handle": "linen-skirt",
+              "blurb": "Full-length linen that moves in still air."
             },
             {
-              "handle": "bikini-top"
+              "handle": "bikini-top",
+              "blurb": "Sienna, cut to sit under an open shirt."
             },
             {
-              "handle": "linen-skirt"
+              "handle": "straw-hat",
+              "blurb": "Wide brim, built for midday."
             },
             {
-              "handle": "raffia-tote"
-            },
-            {
-              "handle": "strap-sandal"
-            },
-            {
-              "handle": "linen-trouser"
-            },
-            {
-              "handle": "slip-dress"
-            },
-            {
-              "handle": "straw-hat"
+              "handle": "raffia-tote",
+              "blurb": "Woven raffia, roomy enough for a towel."
             }
           ],
           "layout": "grid"
         }
-      },
-      {
-        "id": "links",
-        "block": {
-          "type": "linkList",
-          "links": [
-            {
-              "label": "Swim",
-              "url": "https://example.invalid/casa-lino/collections/swim"
-            },
-            {
-              "label": "Linen",
-              "url": "https://example.invalid/casa-lino/collections/linen"
-            },
-            {
-              "label": "Dresses",
-              "url": "https://example.invalid/casa-lino/collections/dresses"
-            },
-            {
-              "label": "Accessories",
-              "url": "https://example.invalid/casa-lino/collections/accessories"
-            }
-          ]
-        }
       }
     ],
     "meta": {
-      "prompt": "the Ibiza edit — swim first, linen next, nothing over 180",
-      "generatedAt": "2026-08-14T09:00:00.000Z",
-      "audience": "the Ibiza edit — swim first, linen next, nothing over 180"
+      "prompt": "everything under 80",
+      "generatedAt": "2026-08-18T05:40:53.234Z",
+      "audience": "Summer shoppers working to a budget, scanning for the pieces that land under £80."
     }
   },
   "catalogue": {
@@ -376,5 +349,5 @@
     "productCount": 8,
     "truncated": false
   },
-  "ingestedAt": "2026-08-14T09:00:00.000Z"
+  "ingestedAt": "2026-08-18T05:40:00.101Z"
 }

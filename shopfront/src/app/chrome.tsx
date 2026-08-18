@@ -42,6 +42,7 @@ export function SiteBar({ cta = "Get my shop made" }: { cta?: string } = {}) {
       <nav className="bar-nav">
         <a href="/examples">Examples</a>
         <a href="/pricing">Pricing</a>
+        <a href="/about">About</a>
         <a className="btn btn-sm" href={ASK}>
           {cta} <span aria-hidden="true">→</span>
         </a>
@@ -69,6 +70,7 @@ export function SiteFoot() {
       <nav className="foot-nav">
         <a href="/examples">Examples</a>
         <a href="/pricing">Pricing</a>
+        <a href="/about">About</a>
         <a href="/contact">Contact</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>

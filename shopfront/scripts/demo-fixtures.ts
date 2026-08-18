@@ -34,7 +34,7 @@ const CACHE = path.join(process.cwd(), ".cache");
 const OUT = path.join(process.cwd(), "fixtures", "shops");
 
 /** Reserved and example-only. A store outside this set is somebody's. */
-const DEMO_HOSTS = [/(^|\.)example\.invalid$/i, /(^|\.)maisonverre\.example$/i];
+const DEMO_HOSTS = [/(^|\.)example\.invalid$/i, /(^|\.)maisonverre\.example$/i, /(^|\.)casalino\.example$/i];
 
 function isDemo(storeUrl: string): boolean {
   try {
@@ -42,12 +42,6 @@ function isDemo(storeUrl: string): boolean {
   } catch {
     return false;
   }
-}
-
-interface PublishedDb {
-  stores?: { id: string; storeUrl: string; catalogue: unknown; ingestedAt: string }[];
-  shops?: { id: string; slug: string; storeId: string }[];
-  versions?: { shopId: string; config: unknown }[];
 }
 
 async function main(): Promise<void> {
@@ -66,7 +60,6 @@ async function main(): Promise<void> {
    * shops. The published branch below is kept as a fallback for anything not
    * found here.
    */
-  const fromCache = new Set<string>();
   for (const file of await readdir(path.join(CACHE, "shop")).catch(() => [])) {
     if (!/^(demo|edit)-/.test(file) || !file.endsWith(".json")) continue;
 
@@ -76,38 +69,23 @@ async function main(): Promise<void> {
     }
 
     await writeFile(path.join(OUT, file), `${JSON.stringify(parsed, null, 2)}\n`);
-    fromCache.add(file.replace(/\.json$/, ""));
     written.push(file.replace(/\.json$/, ""));
   }
 
-  // The published edits, assembled from three tables.
-  const db = JSON.parse(await readFile(path.join(CACHE, "published", "db.json"), "utf8")) as PublishedDb;
-  const stores = new Map((db.stores ?? []).map((store) => [store.id, store]));
-
-  for (const shop of db.shops ?? []) {
-    if (!shop.slug.startsWith("edit-")) continue;
-    // The cache won. See the note above.
-    if (fromCache.has(shop.slug)) continue;
-
-    const store = stores.get(shop.storeId);
-    if (!store) continue;
-    if (!isDemo(store.storeUrl)) {
-      throw new Error(`${shop.slug} belongs to ${store.storeUrl}, which is not a demo store. Refusing to commit it.`);
-    }
-
-    // Last version wins: that is the one the slug currently serves.
-    const version = (db.versions ?? []).filter((v) => v.shopId === shop.id).pop();
-    if (!version) continue;
-
-    const parsed = ShopRenderInput.parse({
-      config: version.config,
-      catalogue: store.catalogue,
-      ingestedAt: store.ingestedAt,
-    });
-
-    await writeFile(path.join(OUT, `${shop.slug}.json`), `${JSON.stringify(parsed, null, 2)}\n`);
-    written.push(shop.slug);
-  }
+  /*
+   * The published-database fallback is gone, and its absence is the fix.
+   *
+   * It existed for when the five edits lived only as published shops.
+   * `pnpm press:edits` writes them through `saveShop` now, so the published
+   * table was already the stale copy — and it did worse than sit there. Moving
+   * the demo brand from glassware to linen renamed three of the five slugs, and
+   * this branch put `edit-bar`, `edit-first` and `edit-gift` straight back into
+   * `fixtures/` from a run weeks old. Three dead shops, in the repository,
+   * linked from nowhere, describing a catalogue the site no longer sells.
+   *
+   * A fallback that can only ever be more stale than the thing it backs up is
+   * not a safety net.
+   */
 
   written.sort();
   for (const key of written) console.log(`fixtures/shops/${key}.json`);

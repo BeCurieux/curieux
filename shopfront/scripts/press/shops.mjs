@@ -336,22 +336,44 @@ const BRANDS = [
     soldOut: ["puddle-boots"], sale: { handle: "stripe-tee", was: 26 },
   },
   {
-    key: "folio-press", mood: "editorial", name: "Folio Press", tagline: "Paper worth keeping.",
-    prompt: "a desk set for someone who has started writing by hand again",
-    colorway: { background: "#F5F3ED", surface: "#E7E3D7", text: "#0F0F13", accent: "#1B23E8" },
-    palette: { g1: "#E9E6DC", g2: "#CFCABA", tone: "#1B1B2E" }, ink: { body: "#1B23E8", dark: "#0A0F7A", light: "#B9BDFF" },
-    collections: ["Notebooks", "Ink", "Desk", "Archive"],
+    /*
+     * Casa Lino, and why it took the editorial slot rather than the luxe one.
+     *
+     * The front page's five edits are generated from *one* of these
+     * catalogues, and it was Maison Verre — so the hero said "you post a reel
+     * about linen shirts" above a photograph of a decanter. The owner spotted
+     * the mismatch. A resort-linen label is also simply closer to who popuup
+     * is for: brands whose traffic arrives off a reel, not a gift shop.
+     *
+     * It replaced Folio Press instead of Maison Verre because Folio Press was
+     * one of the four brands still rendering *drawn shapes* — the glassware has
+     * real photographs, and displacing it would have thrown those away to fix a
+     * different problem. Two of the five demo brands are now photographed and
+     * the mood set keeps its five.
+     *
+     * A light colourway on `editorial`. The mood governs type and rhythm; the
+     * colour is the brand's, and these flat-lays sit on warm sand, so the shop
+     * is built on the ground the photographs were shot against rather than
+     * fighting it.
+     */
+    key: "casa-lino", mood: "editorial", name: "Casa Lino", tagline: "Cut for the heat.",
+    prompt: "the Ibiza edit — swim first, linen next, nothing over 180",
+    colorway: { background: "#F2EADF", surface: "#FBF6EF", text: "#2A211B", accent: "#A2542F" },
+    palette: { g1: "#EFE4D5", g2: "#D8C7B2", tone: "#2A211B" }, ink: { body: "#A2542F", dark: "#6B331A", light: "#E8C3A6" },
+    collections: ["Swim", "Linen", "Dresses", "Accessories"],
     products: [
-      ["casebound-notebook", "Casebound Notebook", 24, "Notebooks", (i) => book(i, {})],
-      ["blue-black-ink", "Blue-Black Ink 50ml", 19, "Ink", (i) => inkpot(i, {})],
-      ["pocket-diary", "Pocket Diary", 16, "Notebooks", (i) => book(i, { w: 330, h: 470, rules: 3 })],
-      ["letter-set", "Letter Set", 14, "Archive", (i) => envelope(i, {})],
-      ["steel-ruler", "Steel Ruler 30cm", 11, "Desk", (i) => bar(i, { w: 800, h: 90, window: false })],
-      ["pencil-b", "Pencil B, box of 12", 12, "Desk", (i) => pencil(i, {})],
-      ["blotter", "Desk Blotter", 38, "Desk", (i) => stone(i, { w: 640, h: 380 })],
-      ["index-cards", "Index Cards", 8, "Archive", (i) => cards(i, {})],
+      ["linen-shirt", "Oversized Linen Shirt", 98, "Linen", (i) => tee(i, { long: true })],
+      ["bikini-top", "Sienna Bikini Top", 64, "Swim", (i) => tee(i, { w: 360, h: 300, sleeve: 90 })],
+      ["linen-skirt", "Linen Maxi Skirt", 72, "Linen", (i) => dungarees(i, {})],
+      ["raffia-tote", "Raffia Tote", 46, "Accessories", (i) => bag(i, {})],
+      ["strap-sandal", "Leather Strap Sandal", 88, "Accessories", (i) => boot(i, { w: 260, h: 240 })],
+      ["linen-trouser", "Wide Linen Trouser", 84, "Linen", (i) => dungarees(i, { w: 440, h: 600 })],
+      ["slip-dress", "Cotton Slip Dress", 120, "Dresses", (i) => tee(i, { w: 380, h: 620, sleeve: 60, long: true })],
+      ["straw-hat", "Wide Brim Straw Hat", 52, "Accessories", (i) => hat(i, {})],
     ],
-    soldOut: ["blotter"], sale: { handle: "letter-set", was: 21 },
+    // Sold out on purpose: the most wanted thing in the catalogue is the one
+    // worth proving is shown and marked rather than quietly dropped.
+    soldOut: ["slip-dress"], sale: { handle: "straw-hat", was: 68 },
   },
   {
     key: "maison-verre", mood: "luxe", name: "Maison Verre", tagline: "Cut by hand, in Lyon.",

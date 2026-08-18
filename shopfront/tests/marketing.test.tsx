@@ -2,7 +2,7 @@
  * The invariants that hold across every marketing page, not just the front door.
  *
  * `landing.test.tsx` guards `/` and was written when `/` was the only page
- * with claims on it. There are now six, and the ways a marketing page starts
+ * with claims on it. There are now seven, and the ways a marketing page starts
  * lying do not get gentler as you add pages — they get easier to miss, because
  * nobody re-reads `/terms` after writing it once.
  *
@@ -29,6 +29,7 @@ import Landing from "@/app/page";
 import Pricing from "@/app/pricing/page";
 import Contact from "@/app/contact/page";
 import Examples from "@/app/examples/page";
+import About from "@/app/about/page";
 import Privacy from "@/app/privacy/page";
 import Terms from "@/app/terms/page";
 
@@ -49,13 +50,14 @@ const PAGES: Page[] = [
   { route: "/pricing", html: renderToStaticMarkup(<Pricing />), mayQuotePrices: true },
   { route: "/contact", html: renderToStaticMarkup(<Contact />), mayHaveForm: true },
   { route: "/examples", html: renderToStaticMarkup(<Examples />) },
+  { route: "/about", html: renderToStaticMarkup(<About />) },
   { route: "/privacy", html: renderToStaticMarkup(<Privacy />) },
   { route: "/terms", html: renderToStaticMarkup(<Terms />) },
 ];
 
 /** Every route the app actually serves, read off the filesystem. */
 const ROUTES = new Set(["/"]);
-for (const entry of ["pricing", "contact", "examples", "privacy", "terms"]) {
+for (const entry of ["pricing", "contact", "examples", "about", "privacy", "terms"]) {
   if (existsSync(path.join(APP, entry, "page.tsx"))) ROUTES.add(`/${entry}`);
 }
 
@@ -108,7 +110,7 @@ describe("every marketing page", () => {
 
   it.each(PAGES)("$route links only to routes that exist", (page: Page) => {
     /*
-     * Six pages cross-linking through a shared footer is exactly the shape
+     * Seven pages cross-linking through a shared footer is exactly the shape
      * where a rename leaves a 404 that nothing notices — the page still
      * renders, the build still passes, and the only symptom is a visitor
      * landing on nothing.
@@ -238,7 +240,7 @@ describe("the examples page", () => {
       const shop = await loadShop(key);
       const host = new URL(shop!.config.brand.storeUrl).hostname;
       expect(host, `/preview/${key} is ${host}, which is not a reserved example domain`).toMatch(
-        /(^|\.)(example\.invalid|maisonverre\.example)$/,
+        /(^|\.)(example\.invalid|maisonverre\.example|casalino\.example)$/,
       );
     }
   });

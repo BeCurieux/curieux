@@ -4,7 +4,7 @@
     "brand": {
       "name": "Casa Lino",
       "tagline": "Cut for the heat.",
-      "storeUrl": "https://example.invalid/casa-lino/"
+      "storeUrl": "https://casalino.example"
     },
     "theme": {
       "colorway": {
@@ -15,7 +15,7 @@
       },
       "typography": "editorial-serif",
       "mood": "editorial",
-      "density": "regular",
+      "density": "airy",
       "cornerRadius": "soft"
     },
     "blocks": [
@@ -23,77 +23,78 @@
         "id": "hero",
         "block": {
           "type": "hero",
-          "headline": "Cut for the heat.",
+          "headline": "The Ibiza edit: swim first, linen after",
+          "subline": "Six pieces for heat, salt and long evenings. Nothing over 180.",
           "media": {
             "kind": "productImage",
-            "handle": "linen-shirt",
+            "handle": "bikini-top",
             "imageIndex": 0
+          },
+          "cta": {
+            "label": "Start with swim",
+            "targetBlockId": "swim"
           }
         }
       },
       {
-        "id": "edit",
+        "id": "swim",
         "block": {
           "type": "productGrid",
-          "title": "The edit",
+          "title": "Swim first",
           "products": [
             {
-              "handle": "linen-shirt"
+              "handle": "bikini-top",
+              "blurb": "Worn from the boat to the beach club, dry by dinner."
+            }
+          ],
+          "layout": "stack"
+        }
+      },
+      {
+        "id": "linen",
+        "block": {
+          "type": "productGrid",
+          "title": "Linen next",
+          "products": [
+            {
+              "handle": "linen-shirt",
+              "blurb": "Thrown over wet swim, sleeves pushed up."
             },
             {
-              "handle": "bikini-top"
+              "handle": "linen-skirt",
+              "blurb": "Long enough for the walk into town."
             },
             {
-              "handle": "linen-skirt"
-            },
-            {
-              "handle": "raffia-tote"
-            },
-            {
-              "handle": "strap-sandal"
-            },
-            {
-              "handle": "linen-trouser"
-            },
-            {
-              "handle": "slip-dress"
-            },
-            {
-              "handle": "straw-hat"
+              "handle": "linen-trouser",
+              "blurb": "Loose through the leg for still, hot afternoons."
             }
           ],
           "layout": "grid"
         }
       },
       {
-        "id": "links",
+        "id": "finish",
         "block": {
-          "type": "linkList",
-          "links": [
+          "type": "productGrid",
+          "title": "Sun and shade",
+          "products": [
             {
-              "label": "Swim",
-              "url": "https://example.invalid/casa-lino/collections/swim"
+              "handle": "straw-hat",
+              "blurb": "Brim wide enough to mean it at midday."
             },
             {
-              "label": "Linen",
-              "url": "https://example.invalid/casa-lino/collections/linen"
-            },
-            {
-              "label": "Dresses",
-              "url": "https://example.invalid/casa-lino/collections/dresses"
-            },
-            {
-              "label": "Accessories",
-              "url": "https://example.invalid/casa-lino/collections/accessories"
+              "handle": "raffia-tote",
+              "blurb": "Towel, book, everything else."
             }
-          ]
+          ],
+          "layout": "grid"
         }
       }
     ],
     "meta": {
       "prompt": "the Ibiza edit — swim first, linen next, nothing over 180",
-      "generatedAt": "2026-08-14T09:00:00.000Z",
-      "audience": "the Ibiza edit — swim first, linen next, nothing over 180"
+      "generatedAt": "2026-08-18T05:40:14.686Z",
+      "audience": "Someone packing for Ibiza — swim to wear all day, linen to throw over it, nothing above £180."
     }
   },
   "catalogue": {
@@ -376,5 +377,5 @@
     "productCount": 8,
     "truncated": false
   },
-  "ingestedAt": "2026-08-14T09:00:00.000Z"
+  "ingestedAt": "2026-08-18T05:40:00.101Z"
 }

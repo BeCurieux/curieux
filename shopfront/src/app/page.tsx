@@ -42,16 +42,23 @@ import "./landing.css";
 /**
  * The shop in the opening, and the sentence that produced it.
  *
- * `hero.jpg` is `edit-wedding` framed on a product grid rather than on the top
- * of the page — a full-bleed hero fills a phone viewport entirely, so a capture
+ * `hero.jpg` is `edit-ibiza` framed on a product grid rather than on the top of
+ * the page — a full-bleed hero fills a phone viewport entirely, so a capture
  * from the top of the document is a photograph of one product, which
  * demonstrates nothing about merchandising.
  */
 const LEAD = {
   shot: "/press/hero.jpg",
-  prompt: "a wedding list for two people who already own everything",
-  /** The demo brand's own photograph, in a post card drawn here. */
-  post: "/demo/maison-verre/decanter.jpg",
+  prompt: "the Ibiza edit \u2014 swim first, linen next, nothing over 180",
+  /**
+   * The demo brand's own photograph, in a post card drawn here.
+   *
+   * An on-body shot rather than a flat-lay, because this panel is standing in
+   * for somebody's reel. A product cut-out in an Instagram card reads as an
+   * advert, which is the thing the shop is downstream of, not the thing that
+   * produced the click.
+   */
+  post: "/demo/casa-lino/linen-trouser.jpg",
 };
 
 /**
@@ -63,11 +70,11 @@ const LEAD = {
  * rather than that the merchandising flexes across audiences.
  */
 const EDITS = [
-  { slug: "edit-wedding", title: "The wedding list", prompt: "for two people who already own everything", n: 5 },
-  { slug: "edit-first", title: "The first glass", prompt: "for someone moving into their own place, nothing over 60", n: 3 },
-  { slug: "edit-bar", title: "The negroni kit", prompt: "for someone who has started making cocktails at home", n: 4 },
-  { slug: "edit-gift", title: "The host gift", prompt: "for a host who has everything, under 80", n: 4 },
-  { slug: "edit-sale", title: "End of season", prompt: "what is left, cheapest first", n: 5 },
+  { slug: "edit-ibiza", title: "The Ibiza edit", prompt: "swim first, linen next, nothing over 180", n: 6 },
+  { slug: "edit-escape", title: "The February suitcase", prompt: "for someone going somewhere hot in February", n: 7 },
+  { slug: "edit-wedding", title: "A wedding abroad", prompt: "for a wedding abroad, and I am a guest", n: 7 },
+  { slug: "edit-budget", title: "Under 80", prompt: "everything under 80", n: 4 },
+  { slug: "edit-sale", title: "What is left", prompt: "what is left, cheapest first", n: 7 },
 ];
 
 /**
@@ -319,10 +326,10 @@ export default function Landing() {
           <figure>
             <figcaption>The post</figcaption>
             <div className="mech-post">
-              <img src={LEAD.post} alt="A decanter, photographed for the demo brand Maison Verre" width={1200} height={1500} />
+              <img src={LEAD.post} alt="Wide linen trousers, photographed for the demo brand Casa Lino" width={1200} height={1500} />
               <span className="mech-post-say">
-                <b>Everything on the table this year was made by hand.</b>
-                <span>Six weeks of cutting, for one afternoon of glassware.</span>
+                <b>The linen we wore all week in Formentera.</b>
+                <span>Shot on the last morning, before the wind got up.</span>
                 <em>Demo brand</em>
               </span>
             </div>
@@ -341,7 +348,7 @@ export default function Landing() {
             <div className="mech-prompt">
               <Burst className="mech-prompt-burst" />
               <p>
-                Make a shop for {LEAD.prompt.split(" ").map((word, index) => (
+                {LEAD.prompt.split(" ").map((word, index) => (
                   // The space is a text node between the spans, not inside
                   // them: a trailing space inside an inline-block collapses
                   // away and the sentence renders as onelongword.
@@ -353,8 +360,6 @@ export default function Landing() {
                 ))}
                 <span className="caret" aria-hidden="true" />
               </p>
-              <hr />
-              <p>The decanter first. Nothing they&rsquo;d buy themselves.</p>
             </div>
           </figure>
 
@@ -364,7 +369,7 @@ export default function Landing() {
             <figcaption>The shop</figcaption>
             <Burst className="mech-burst" />
             <span className="device">
-              <img src={LEAD.shot} alt="The wedding-list shop popuup generated from that sentence" width={780} height={1690} />
+              <img src={LEAD.shot} alt="The Ibiza edit, the shop popuup generated from that sentence" width={780} height={1690} />
             </span>
           </figure>
         </div>
@@ -397,19 +402,19 @@ export default function Landing() {
 
               {index === 0 && (
                 <span className="howto-fig">
-                  <q>a wedding list for two people who already own everything</q>
+                  <q>the Ibiza edit — swim first, linen next, nothing over 180</q>
                 </span>
               )}
               {index === 1 && (
                 <span className="howto-fig howto-mini">
-                  <img src="/demo/maison-verre/decanter.jpg" alt="" width={1200} height={1500} loading="lazy" />
-                  <img src="/demo/maison-verre/cut-tumbler.jpg" alt="" width={1200} height={1500} loading="lazy" />
-                  <img src="/demo/maison-verre/ice-bucket.jpg" alt="" width={1200} height={1500} loading="lazy" />
+                  <img src="/demo/casa-lino/bikini-top.jpg" alt="" width={1200} height={1500} loading="lazy" />
+                  <img src="/demo/casa-lino/linen-shirt.jpg" alt="" width={1200} height={1500} loading="lazy" />
+                  <img src="/demo/casa-lino/raffia-tote.jpg" alt="" width={1200} height={1500} loading="lazy" />
                 </span>
               )}
               {index === 2 && (
                 <span className="howto-fig">
-                  <b>maisonverre.popuup.shop/wedding</b>
+                  <b>casalino.popuup.shop/ibiza</b>
                 </span>
               )}
 
@@ -462,8 +467,8 @@ export default function Landing() {
           </h2>
           <p className="lead-note">
             All five sell the same eight products. One sentence each, and they come out completely different:{" "}
-            {pieces("edit-first")} pieces for someone furnishing a first flat, {pieces("edit-sale")} for an
-            end-of-season clearout, and a wedding list that opens with the thing nobody buys for themselves.
+            {pieces("edit-budget")} pieces when the sentence caps the price, {pieces("edit-escape")} for a February
+            suitcase, and a wedding shop that opens with the one dress that is sold out — marked, not dropped.
           </p>
         </div>
 
@@ -492,10 +497,11 @@ export default function Landing() {
         </ul>
 
         <p className="rail-note">
-          The colours and lettering never change, because it&rsquo;s still one brand and it isn&rsquo;t ours to repaint.
-          This is a made-up shop rather than a real merchant&rsquo;s, so we&rsquo;re not borrowing anyone&rsquo;s
-          products to sell you something — but the shops are real, built by the same code yours would be.{" "}
-          <a href="/examples">Open any of them</a>.
+          The colour never changes, because it&rsquo;s still one brand and it isn&rsquo;t ours to repaint. The
+          lettering can: the clearance shop set itself in a mono face, which is a decision about that shop&rsquo;s job
+          rather than about the brand. This is a made-up shop rather than a real merchant&rsquo;s, so we&rsquo;re not
+          borrowing anyone&rsquo;s products to sell you something — but the shops are real, built by the same code
+          yours would be. <a href="/examples">Open any of them</a>.
         </p>
       </section>
 
