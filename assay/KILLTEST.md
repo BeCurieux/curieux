@@ -263,11 +263,38 @@ the work; the card does the rest. Never open with a fine.
 >
 > Is a live version of this something you would want?
 
-### The rules for all three
+### The control group, with no pain to name
+
+The hardest of the four, because there is no event to open on. Do not invent
+one. Open on the copy itself, which is the only specific thing you have.
+
+> **Subject: a second read on your [product] copy**
+>
+> Hi [name] — your [product] page is genuinely well written, which is why one
+> line stood out: [specific phrase]. It is the shape of claim the [FTC's Green
+> Guides / TGA's advertising code] gives as its own worked example, and most
+> brands using it have never been told.
+>
+> Card attached: your copy, that phrase and [n] others marked, the rule beside
+> each. An opinion about language, not legal advice.
+>
+> No ask — I am building the live version and want to know if this is useful
+> enough to want. Is it?
+
+If this bucket converts at the same rate as the acute three, the pain is much
+broader than §2 assumes and the product is bigger than the wedge. If it
+converts at zero, the wedge is real and the positioning has to stay narrow.
+Either result is worth three slots.
+
+### The rules for all four
 
 - **Name a real phrase from their real page.** The card only lands because it
   is specific. A generic pitch with a beautiful attachment is still a generic
   pitch.
+- **Subject lines, for the ones above that do not have one:** *"[platform]
+  knocked back your ad — it is probably one word"* for a disapproval, and
+  *"the [retailer] claims form, mostly pre-filled"* for onboarding. Both name
+  the thing already on their mind. Neither mentions a scanner.
 - **Never say they are breaking the law.** You do not know that and neither
   does the scanner. "Likely to be flagged", "may be unsubstantiated" — the same
   register the card uses.
@@ -278,6 +305,81 @@ the work; the card does the rest. Never open with a fine.
   worth more than any of it.
 - **Do not offer a discount.** You are testing whether they want it, not
   whether they want it cheap.
+
+### The channel changes the message, not the specifics
+
+The templates above are email-shaped. Most of these founders are easier to
+reach in an Instagram or LinkedIn DM, and a DM cannot carry an attachment or
+eight lines.
+
+> Hi [name] — I built a thing that reads product copy against ad rules and ran
+> your [product] page through it. [Specific phrase] is the one that stood out
+> — it is the FTC's own worked example. Made you a card showing your copy with
+> the phrases marked and the rule beside each. Want me to send it over?
+
+Two sentences of specific, then ask permission to send the card. The permission
+step is not politeness: an unsolicited attachment is a sales pitch, and a card
+somebody asked for is a conversation. It also gives you a cleaner `replied`
+column, because a yes to *"want me to send it?"* is unambiguous.
+
+Whatever the channel, the phrase you name has to be one you read on their page
+with your own eyes.
+
+### One follow-up, and only one
+
+Most of the thirty will not reply. A single follow-up roughly doubles that, and
+the difference between six replies and twelve is the difference between a gate
+you can read and a gate you cannot.
+
+Send it **four to six working days** later, on the same channel, and make it
+shorter than the first:
+
+> Hi [name] — following up once in case this got buried. The card is attached
+> either way, no reply needed. If it is useful I would genuinely like to know;
+> if it is not, that is just as useful and I will leave you alone.
+
+Then stop. A second follow-up converts almost nobody and is the thing that gets
+you blocked and posted about. Silence after one follow-up is data: record it as
+contacted, not replied, and move on.
+
+### The four replies you will actually get
+
+**"Who are you / is this a sales pitch?"** Answer plainly and do not soften it.
+You are building a product, this is not a free audit, and you are asking
+whether they would want the live version. Founders forgive being sold to. They
+do not forgive being handled.
+
+**"Our lawyer already signed off on this copy."** Good — say so and mean it,
+then ask the one question that is still open: whether the sign-off covered the
+EU specifically, and whether it gets re-run every time the copy changes. The
+product is not "your lawyer was wrong", it is "this runs on every edit and your
+lawyer does not".
+
+**"Is this saying we are breaking the law?"** No, and the answer is on the
+card. Every finding is framed as guidance and the disclaimer is on the result
+itself. Say the same sentence you have been saying: it is an opinion about
+language, not legal advice. If they push, offer to remove them from the list
+and delete their copy — and then actually do it.
+
+**"How did you get my page / why are you scanning my site?"** The one to have
+ready, because it is the only reply that can become a public post. The honest
+answer is short and it is all true: the page is public, it was read once,
+robots.txt was honoured, the request identified you by name and email, nothing
+was stored beyond the copy on your own laptop, and nothing about them is
+published anywhere. Offer to delete it. Then delete it, and take them out of
+`targets.txt`.
+
+That answer only exists if none of it was skipped. It is the reason `--own` is
+not the default and `SCAN_CONTACT` is worth setting.
+
+### Before you send, check three things
+
+- **The phrase is really on the page**, in the words you are quoting. A founder
+  who cannot find your quote on their own site stops reading, and rightly.
+- **The name is the right person.** "Hi there" to a founder whose name is in
+  the About page is a message that says you did not look.
+- **The card is the one for their brand.** Thirty cards in one folder, named by
+  slug, and the failure mode is obvious and unrecoverable.
 
 ---
 
