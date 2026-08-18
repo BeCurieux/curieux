@@ -240,7 +240,7 @@ describe("the examples page", () => {
       const shop = await loadShop(key);
       const host = new URL(shop!.config.brand.storeUrl).hostname;
       expect(host, `/preview/${key} is ${host}, which is not a reserved example domain`).toMatch(
-        /(^|\.)(example\.invalid|maisonverre\.example)$/,
+        /(^|\.)(example\.invalid|maisonverre\.example|casalino\.example)$/,
       );
     }
   });

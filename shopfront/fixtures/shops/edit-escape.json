@@ -4,7 +4,7 @@
     "brand": {
       "name": "Casa Lino",
       "tagline": "Cut for the heat.",
-      "storeUrl": "https://example.invalid/casa-lino/"
+      "storeUrl": "https://casalino.example"
     },
     "theme": {
       "colorway": {
@@ -15,7 +15,7 @@
       },
       "typography": "editorial-serif",
       "mood": "editorial",
-      "density": "regular",
+      "density": "airy",
       "cornerRadius": "soft"
     },
     "blocks": [
@@ -23,77 +23,72 @@
         "id": "hero",
         "block": {
           "type": "hero",
-          "headline": "Cut for the heat.",
+          "headline": "Pack for heat in the middle of February",
+          "subline": "Six pieces that cover a week of sun and fit in one bag.",
           "media": {
             "kind": "productImage",
             "handle": "linen-shirt",
             "imageIndex": 0
+          },
+          "cta": {
+            "label": "See the six",
+            "targetBlockId": "suitcase"
           }
         }
       },
       {
-        "id": "edit",
+        "id": "suitcase",
         "block": {
           "type": "productGrid",
-          "title": "The edit",
+          "title": "The February suitcase",
           "products": [
             {
-              "handle": "linen-shirt"
+              "handle": "linen-shirt",
+              "blurb": "Open over swimwear at noon, buttoned for dinner."
             },
             {
-              "handle": "bikini-top"
+              "handle": "linen-trouser",
+              "blurb": "Wide enough to move air; creases read as intentional."
             },
             {
-              "handle": "linen-skirt"
+              "handle": "bikini-top",
+              "blurb": "The piece the rest of the bag is built around."
             },
             {
-              "handle": "raffia-tote"
+              "handle": "linen-skirt",
+              "blurb": "Beach to table without a change of clothes."
             },
             {
-              "handle": "strap-sandal"
+              "handle": "strap-sandal",
+              "blurb": "One pair of shoes for the whole trip."
             },
             {
-              "handle": "linen-trouser"
-            },
-            {
-              "handle": "slip-dress"
-            },
-            {
-              "handle": "straw-hat"
+              "handle": "straw-hat",
+              "blurb": "Wide brim for the hours you shouldn't be out in."
             }
           ],
           "layout": "grid"
         }
       },
       {
-        "id": "links",
+        "id": "carry-on",
         "block": {
-          "type": "linkList",
-          "links": [
+          "type": "productGrid",
+          "title": "Carried, not packed",
+          "products": [
             {
-              "label": "Swim",
-              "url": "https://example.invalid/casa-lino/collections/swim"
-            },
-            {
-              "label": "Linen",
-              "url": "https://example.invalid/casa-lino/collections/linen"
-            },
-            {
-              "label": "Dresses",
-              "url": "https://example.invalid/casa-lino/collections/dresses"
-            },
-            {
-              "label": "Accessories",
-              "url": "https://example.invalid/casa-lino/collections/accessories"
+              "handle": "raffia-tote",
+              "blurb": "Holds a towel and a book; goes straight from plane to sand."
             }
-          ]
+          ],
+          "layout": "stack"
         }
       }
     ],
     "meta": {
-      "prompt": "the Ibiza edit — swim first, linen next, nothing over 180",
-      "generatedAt": "2026-08-14T09:00:00.000Z",
-      "audience": "the Ibiza edit — swim first, linen next, nothing over 180"
+      "prompt": "for someone going somewhere hot in February",
+      "generatedAt": "2026-08-18T05:40:24.696Z",
+      "audience": "Someone escaping a British February for a hot climate, packing light for a week of sun."
     }
   },
   "catalogue": {
@@ -376,5 +371,5 @@
     "productCount": 8,
     "truncated": false
   },
-  "ingestedAt": "2026-08-14T09:00:00.000Z"
+  "ingestedAt": "2026-08-18T05:40:00.101Z"
 }

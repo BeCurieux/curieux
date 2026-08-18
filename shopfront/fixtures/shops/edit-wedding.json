@@ -2,110 +2,153 @@
   "config": {
     "version": 1,
     "brand": {
-      "name": "Maison Verre",
-      "tagline": "Cut by hand, in Lyon.",
-      "storeUrl": "https://maisonverre.example"
+      "name": "Casa Lino",
+      "tagline": "Cut for the heat.",
+      "storeUrl": "https://casalino.example"
     },
     "theme": {
       "colorway": {
-        "background": "#0C0B0E",
-        "surface": "#191620",
-        "text": "#F6F0E4",
-        "accent": "#E8B23C"
+        "background": "#F2EADF",
+        "surface": "#FBF6EF",
+        "text": "#2A211B",
+        "accent": "#A2542F"
       },
       "typography": "editorial-serif",
-      "mood": "luxe",
+      "mood": "editorial",
       "density": "airy",
-      "cornerRadius": "none"
+      "cornerRadius": "soft"
     },
     "blocks": [
       {
         "id": "hero",
         "block": {
           "type": "hero",
-          "headline": "For the couple who need nothing",
-          "subline": "A short list of hand-cut pieces, chosen to be given once and kept for decades.",
+          "headline": "Dressed for someone else's big day",
+          "subline": "Linen and leather for a ceremony in the heat, a long lunch after, and one small suitcase.",
           "media": {
             "kind": "productImage",
-            "handle": "ice-bucket",
+            "handle": "linen-skirt",
             "imageIndex": 0
           },
           "cta": {
-            "label": "See the list",
-            "targetBlockId": "statement"
+            "label": "Shop the edit",
+            "targetBlockId": "ceremony"
           }
         }
       },
       {
-        "id": "statement",
+        "id": "ceremony",
         "block": {
           "type": "productGrid",
-          "title": "The two big ones",
+          "title": "For the ceremony",
           "products": [
             {
-              "handle": "decanter",
-              "blurb": "The gift to go in on together — heavy lead crystal, cut by hand.",
-              "leadImageIndex": 0
+              "handle": "slip-dress",
+              "blurb": "The plainest possible answer to a wedding in the heat."
             },
             {
-              "handle": "ice-bucket",
-              "blurb": "Earns its place on the table long after the wedding.",
-              "leadImageIndex": 0
-            }
-          ],
-          "layout": "stack"
-        }
-      },
-      {
-        "id": "table",
-        "block": {
-          "type": "productGrid",
-          "title": "To round out the table",
-          "products": [
-            {
-              "handle": "candle-holder",
-              "blurb": "Cut glass and candlelight — the reason people stay at the table.",
-              "leadImageIndex": 0
+              "handle": "linen-skirt",
+              "blurb": "Full length, no creasing worth worrying about."
             },
             {
-              "handle": "wine-glass",
-              "blurb": "For the bottles they've been saving.",
-              "leadImageIndex": 0
+              "handle": "linen-shirt",
+              "blurb": "Cover the shoulders in church, open it at the table."
             },
             {
-              "handle": "cut-tumbler",
-              "blurb": "Weighted, faceted, better than the pair they already have.",
-              "leadImageIndex": 0
+              "handle": "linen-trouser",
+              "blurb": "For the guest who would rather not wear a dress."
             }
           ],
           "layout": "grid"
         }
+      },
+      {
+        "id": "finish",
+        "block": {
+          "type": "productGrid",
+          "title": "Finish it",
+          "products": [
+            {
+              "handle": "strap-sandal",
+              "blurb": "Flat leather that survives grass, gravel and dancing."
+            },
+            {
+              "handle": "straw-hat",
+              "blurb": "Shade through a midday ceremony."
+            },
+            {
+              "handle": "raffia-tote",
+              "blurb": "Holds the shoes you change out of."
+            }
+          ],
+          "layout": "carousel"
+        }
       }
     ],
     "meta": {
-      "prompt": "a wedding list for two people who already own everything",
-      "generatedAt": "2026-08-18T02:28:33.589Z",
-      "audience": "Couples registering for a wedding who already have the everyday things — they want one or two hand-cut objects worth keeping."
+      "prompt": "for a wedding abroad, and I am a guest",
+      "generatedAt": "2026-08-18T05:40:42.227Z",
+      "audience": "A guest dressing for a hot-weather wedding abroad — ceremony to long lunch, packed in one bag."
     }
   },
   "catalogue": {
     "currency": "GBP",
     "products": [
       {
-        "handle": "coupe-glass",
+        "handle": "linen-shirt",
         "id": "9000",
-        "title": "Coupe",
-        "description": "Coupe from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Stemware",
+        "title": "Oversized Linen Shirt",
+        "description": "Oversized Linen Shirt from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Linen",
         "tags": [
-          "stemware"
+          "linen"
         ],
-        "url": "https://example.invalid/maison-verre/products/coupe-glass",
-        "images": [],
+        "url": "https://example.invalid/casa-lino/products/linen-shirt",
+        "images": [
+          {
+            "url": "/demo/casa-lino/linen-shirt.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
         "variants": [
           {
             "id": "49000",
+            "title": "Default Title",
+            "price": 98,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 98,
+          "max": 98
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "bikini-top",
+        "id": "9001",
+        "title": "Sienna Bikini Top",
+        "description": "Sienna Bikini Top from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Swim",
+        "tags": [
+          "swim"
+        ],
+        "url": "https://example.invalid/casa-lino/products/bikini-top",
+        "images": [
+          {
+            "url": "/demo/casa-lino/bikini-top.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49001",
             "title": "Default Title",
             "price": 64,
             "available": true,
@@ -120,225 +163,26 @@
         "availabilityKnown": true
       },
       {
-        "handle": "cut-tumbler",
-        "id": "9001",
-        "title": "Cut Tumbler",
-        "description": "Cut Tumbler from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Barware",
+        "handle": "linen-skirt",
+        "id": "9002",
+        "title": "Linen Maxi Skirt",
+        "description": "Linen Maxi Skirt from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Linen",
         "tags": [
-          "barware"
+          "linen"
         ],
-        "url": "https://example.invalid/maison-verre/products/cut-tumbler",
+        "url": "https://example.invalid/casa-lino/products/linen-skirt",
         "images": [
           {
-            "url": "/demo/maison-verre/cut-tumbler.jpg",
+            "url": "/demo/casa-lino/linen-skirt.jpg",
             "width": 1200,
             "height": 1500
           }
         ],
-        "variants": [
-          {
-            "id": "49001",
-            "title": "Default Title",
-            "price": 48,
-            "available": true,
-            "options": []
-          }
-        ],
-        "price": {
-          "min": 48,
-          "max": 48
-        },
-        "available": true,
-        "availabilityKnown": true
-      },
-      {
-        "handle": "carafe",
-        "id": "9002",
-        "title": "Carafe",
-        "description": "Carafe from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Table",
-        "tags": [
-          "table"
-        ],
-        "url": "https://example.invalid/maison-verre/products/carafe",
-        "images": [],
         "variants": [
           {
             "id": "49002",
-            "title": "Default Title",
-            "price": 96,
-            "available": true,
-            "options": []
-          }
-        ],
-        "price": {
-          "min": 96,
-          "max": 96
-        },
-        "available": true,
-        "availabilityKnown": true
-      },
-      {
-        "handle": "decanter",
-        "id": "9003",
-        "title": "Crystal Decanter",
-        "description": "Crystal Decanter from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Barware",
-        "tags": [
-          "barware"
-        ],
-        "url": "https://example.invalid/maison-verre/products/decanter",
-        "images": [
-          {
-            "url": "/demo/maison-verre/decanter.jpg",
-            "width": 1200,
-            "height": 1500
-          }
-        ],
-        "variants": [
-          {
-            "id": "49003",
-            "title": "Default Title",
-            "price": 240,
-            "available": false,
-            "options": []
-          }
-        ],
-        "price": {
-          "min": 240,
-          "max": 240
-        },
-        "available": false,
-        "availabilityKnown": true
-      },
-      {
-        "handle": "highball",
-        "id": "9004",
-        "title": "Highball",
-        "description": "Highball from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Barware",
-        "tags": [
-          "barware"
-        ],
-        "url": "https://example.invalid/maison-verre/products/highball",
-        "images": [
-          {
-            "url": "/demo/maison-verre/highball.jpg",
-            "width": 1200,
-            "height": 1500
-          }
-        ],
-        "variants": [
-          {
-            "id": "49004",
-            "title": "Default Title",
-            "price": 44,
-            "compareAtPrice": 60,
-            "available": true,
-            "options": []
-          }
-        ],
-        "price": {
-          "min": 44,
-          "max": 44
-        },
-        "available": true,
-        "availabilityKnown": true
-      },
-      {
-        "handle": "wine-glass",
-        "id": "9005",
-        "title": "Wine Glass",
-        "description": "Wine Glass from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Stemware",
-        "tags": [
-          "stemware"
-        ],
-        "url": "https://example.invalid/maison-verre/products/wine-glass",
-        "images": [
-          {
-            "url": "/demo/maison-verre/wine-glass.jpg",
-            "width": 1200,
-            "height": 1500
-          }
-        ],
-        "variants": [
-          {
-            "id": "49005",
-            "title": "Default Title",
-            "price": 58,
-            "available": true,
-            "options": []
-          }
-        ],
-        "price": {
-          "min": 58,
-          "max": 58
-        },
-        "available": true,
-        "availabilityKnown": true
-      },
-      {
-        "handle": "ice-bucket",
-        "id": "9006",
-        "title": "Ice Bucket",
-        "description": "Ice Bucket from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Table",
-        "tags": [
-          "table"
-        ],
-        "url": "https://example.invalid/maison-verre/products/ice-bucket",
-        "images": [
-          {
-            "url": "/demo/maison-verre/ice-bucket.jpg",
-            "width": 1200,
-            "height": 1500
-          }
-        ],
-        "variants": [
-          {
-            "id": "49006",
-            "title": "Default Title",
-            "price": 180,
-            "available": true,
-            "options": []
-          }
-        ],
-        "price": {
-          "min": 180,
-          "max": 180
-        },
-        "available": true,
-        "availabilityKnown": true
-      },
-      {
-        "handle": "candle-holder",
-        "id": "9007",
-        "title": "Candle Holder",
-        "description": "Candle Holder from Maison Verre.",
-        "vendor": "Maison Verre",
-        "productType": "Table",
-        "tags": [
-          "table"
-        ],
-        "url": "https://example.invalid/maison-verre/products/candle-holder",
-        "images": [
-          {
-            "url": "/demo/maison-verre/candle-holder.jpg",
-            "width": 1200,
-            "height": 1500
-          }
-        ],
-        "variants": [
-          {
-            "id": "49007",
             "title": "Default Title",
             "price": 72,
             "available": true,
@@ -351,10 +195,181 @@
         },
         "available": true,
         "availabilityKnown": true
+      },
+      {
+        "handle": "raffia-tote",
+        "id": "9003",
+        "title": "Raffia Tote",
+        "description": "Raffia Tote from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Accessories",
+        "tags": [
+          "accessories"
+        ],
+        "url": "https://example.invalid/casa-lino/products/raffia-tote",
+        "images": [
+          {
+            "url": "/demo/casa-lino/raffia-tote.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49003",
+            "title": "Default Title",
+            "price": 46,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 46,
+          "max": 46
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "strap-sandal",
+        "id": "9004",
+        "title": "Leather Strap Sandal",
+        "description": "Leather Strap Sandal from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Accessories",
+        "tags": [
+          "accessories"
+        ],
+        "url": "https://example.invalid/casa-lino/products/strap-sandal",
+        "images": [
+          {
+            "url": "/demo/casa-lino/strap-sandal.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49004",
+            "title": "Default Title",
+            "price": 88,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 88,
+          "max": 88
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "linen-trouser",
+        "id": "9005",
+        "title": "Wide Linen Trouser",
+        "description": "Wide Linen Trouser from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Linen",
+        "tags": [
+          "linen"
+        ],
+        "url": "https://example.invalid/casa-lino/products/linen-trouser",
+        "images": [
+          {
+            "url": "/demo/casa-lino/linen-trouser.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49005",
+            "title": "Default Title",
+            "price": 84,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 84,
+          "max": 84
+        },
+        "available": true,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "slip-dress",
+        "id": "9006",
+        "title": "Cotton Slip Dress",
+        "description": "Cotton Slip Dress from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Dresses",
+        "tags": [
+          "dresses"
+        ],
+        "url": "https://example.invalid/casa-lino/products/slip-dress",
+        "images": [
+          {
+            "url": "/demo/casa-lino/slip-dress.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49006",
+            "title": "Default Title",
+            "price": 120,
+            "available": false,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 120,
+          "max": 120
+        },
+        "available": false,
+        "availabilityKnown": true
+      },
+      {
+        "handle": "straw-hat",
+        "id": "9007",
+        "title": "Wide Brim Straw Hat",
+        "description": "Wide Brim Straw Hat from Casa Lino.",
+        "vendor": "Casa Lino",
+        "productType": "Accessories",
+        "tags": [
+          "accessories"
+        ],
+        "url": "https://example.invalid/casa-lino/products/straw-hat",
+        "images": [
+          {
+            "url": "/demo/casa-lino/straw-hat.jpg",
+            "width": 1200,
+            "height": 1500
+          }
+        ],
+        "variants": [
+          {
+            "id": "49007",
+            "title": "Default Title",
+            "price": 52,
+            "compareAtPrice": 68,
+            "available": true,
+            "options": []
+          }
+        ],
+        "price": {
+          "min": 52,
+          "max": 52
+        },
+        "available": true,
+        "availabilityKnown": true
       }
     ],
     "productCount": 8,
     "truncated": false
   },
-  "ingestedAt": "2026-08-18T02:28:19.195Z"
+  "ingestedAt": "2026-08-18T05:40:00.101Z"
 }
