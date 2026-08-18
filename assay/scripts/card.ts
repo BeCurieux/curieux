@@ -2,9 +2,10 @@
  * `pnpm card` — a scan, rendered as the artefact.
  *
  * This is the kill test's whole toolchain. A founder points it at a page of
- * copy and gets back three files: the result page to read and send, the share
- * card at OG size to attach to a DM, and the badge as it would look on the
- * merchant's PDP. No key, no account, no network.
+ * copy and gets back the result page to read and send, the share card at OG
+ * size to attach to a DM, and the mark in all four of its states — live and
+ * lapsed, on paper and on night — because which one a merchant needs depends
+ * on their own page. No key, no account, no network.
  *
  *   pnpm card --url https://brand.example/products/serum --out ./cards/aurelia
  *   pnpm card --file page.txt --out ./cards/aurelia
@@ -203,19 +204,22 @@ async function main() {
   const badge = badgeSvg({ result, reviewedOn: options.reviewedOn, live: true });
   const lapsed = badgeSvg({ result, reviewedOn: options.reviewedOn, live: false });
   const badgeNight = badgeSvg({ result, reviewedOn: options.reviewedOn, live: true, theme: "night" });
+  const lapsedNight = badgeSvg({ result, reviewedOn: options.reviewedOn, live: false, theme: "night" });
 
   writeFileSync(`${base}.html`, page);
   writeFileSync(`${base}.card.svg`, card);
   writeFileSync(`${base}.badge.svg`, badge);
-  writeFileSync(`${base}.badge-night.svg`, badgeNight);
   writeFileSync(`${base}.badge-lapsed.svg`, lapsed);
+  writeFileSync(`${base}.badge-night.svg`, badgeNight);
+  writeFileSync(`${base}.badge-night-lapsed.svg`, lapsedNight);
 
   const written = [
     `${base}.html`,
     `${base}.card.svg`,
     `${base}.badge.svg`,
-    `${base}.badge-night.svg`,
     `${base}.badge-lapsed.svg`,
+    `${base}.badge-night.svg`,
+    `${base}.badge-night-lapsed.svg`,
   ];
 
   if (options.png) {
