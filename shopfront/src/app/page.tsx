@@ -327,8 +327,16 @@ export default function Landing() {
             <figcaption>The post</figcaption>
             <div className="mech-post">
               <img src={LEAD.post} alt="Wide linen trousers, photographed for the demo brand Casa Lino" width={1200} height={1500} />
+              {/*
+                The place in this caption has to be the place in the sentence
+                beside it. It said Formentera while the sentence said Ibiza,
+                which quietly broke the only thing the three panels claim: that
+                this post produced that sentence, which produced that shop. Two
+                islands is two unrelated pictures with arrows drawn between
+                them.
+              */}
               <span className="mech-post-say">
-                <b>The linen we wore all week in Formentera.</b>
+                <b>The linen we wore all week in Ibiza.</b>
                 <span>Shot on the last morning, before the wind got up.</span>
                 <em>Demo brand</em>
               </span>
