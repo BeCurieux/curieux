@@ -197,15 +197,26 @@ async function main() {
     wordmark: options.wordmark,
     fonts,
   });
+  // Both grounds, every time. Which one a merchant needs depends on their own
+  // page, and finding out that the mark disappears into it after you have
+  // pasted the embed is a bad way to learn there was a choice.
   const badge = badgeSvg({ result, reviewedOn: options.reviewedOn, live: true });
   const lapsed = badgeSvg({ result, reviewedOn: options.reviewedOn, live: false });
+  const badgeNight = badgeSvg({ result, reviewedOn: options.reviewedOn, live: true, theme: "night" });
 
   writeFileSync(`${base}.html`, page);
   writeFileSync(`${base}.card.svg`, card);
   writeFileSync(`${base}.badge.svg`, badge);
+  writeFileSync(`${base}.badge-night.svg`, badgeNight);
   writeFileSync(`${base}.badge-lapsed.svg`, lapsed);
 
-  const written = [`${base}.html`, `${base}.card.svg`, `${base}.badge.svg`, `${base}.badge-lapsed.svg`];
+  const written = [
+    `${base}.html`,
+    `${base}.card.svg`,
+    `${base}.badge.svg`,
+    `${base}.badge-night.svg`,
+    `${base}.badge-lapsed.svg`,
+  ];
 
   if (options.png) {
     try {

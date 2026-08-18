@@ -80,6 +80,40 @@ export const BADGE_PALETTE = {
 } as const;
 
 /**
+ * The mark for a dark product page, chosen by the merchant rather than by us.
+ *
+ * Not the page palette. A badge is a small object on somebody else's ground,
+ * and the values that make a full page comfortable make a 320×78 stamp
+ * disappear into a dark PDP: the near-black in `PALETTE` is darker than most
+ * dark themes, so the mark would read as a hole. This ground is deliberately
+ * *lighter* than the page's — it has to sit on top of a dark page, not match
+ * it — and the rule is bright enough to draw the edge of the stamp.
+ *
+ * Same words, same layout, same forbidden list. A theme is a palette here and
+ * nothing else, and `tests/badge.test.ts` asserts that by stripping the colour
+ * from both and requiring the remainder to be identical.
+ */
+export const BADGE_NIGHT_PALETTE = {
+  paper: "#1A1A18",
+  paperRaised: "#222220",
+  ink: "#F5F2EA",
+  inkSoft: "#ABA69B",
+  inkFaint: "#807A6F",
+  rule: "#3C3A34",
+  ruleFaint: "#2B2925",
+  accent: "#FF7A4D",
+  accentWash: "#3A1F14",
+} as const;
+
+/** Which ground the mark is being dropped onto. The merchant's call. */
+export type BadgeTheme = "paper" | "night";
+
+export const BADGE_THEME = {
+  paper: BADGE_PALETTE,
+  night: BADGE_NIGHT_PALETTE,
+} as const;
+
+/**
  * Display is Instrument Serif — high contrast and tight, and at display size
  * it makes the score the object the brief asks for rather than a number in a
  * box. Text is Newsreader, drawn for reading, which matters because half this

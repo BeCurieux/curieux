@@ -27,7 +27,7 @@ import {
 } from "@/card/badge.js";
 import { scan } from "@/engine/evaluate.js";
 import { supportedJurisdictions } from "@/engine/registry.js";
-import { BADGE_PALETTE, PALETTE } from "@/card/tokens.js";
+import { BADGE_NIGHT_PALETTE, BADGE_PALETTE, PALETTE } from "@/card/tokens.js";
 import { AURELIA_PDP } from "./fixtures/pdp.js";
 
 const ON = new Date("2026-08-18T00:00:00Z");
@@ -49,6 +49,10 @@ describe("the mark never warrants anything", () => {
     ["live", badgeSvg({ result: clean, reviewedOn: ON, live: true })],
     ["lapsed", badgeSvg({ result: clean, reviewedOn: ON, live: false })],
     ["linked", badgeSvg({ result: clean, reviewedOn: ON, href: "https://example.com/s/aurelia" })],
+    // The dark ground is a state of the mark, not a separate mark, so it takes
+    // every §9 assertion in this block rather than a suite of its own.
+    ["night", badgeSvg({ result: clean, reviewedOn: ON, live: true, theme: "night" })],
+    ["night lapsed", badgeSvg({ result: clean, reviewedOn: ON, live: false, theme: "night" })],
   ] as const;
 
   for (const [state, svg] of states) {
@@ -192,6 +196,32 @@ describe("the object itself", () => {
 
   it("renders the same mark twice", () => {
     expect(badgeSvg({ result: clean, reviewedOn: ON })).toBe(badgeSvg({ result: clean, reviewedOn: ON }));
+  });
+
+  it("offers a dark ground the merchant opts into, without becoming the page", () => {
+    const night = badgeSvg({ result: clean, reviewedOn: ON, live: true, theme: "night" });
+    expect(night).toContain(BADGE_NIGHT_PALETTE.paperRaised);
+    // Lighter than the page, deliberately: the mark sits on top of a dark PDP
+    // rather than matching one, and the page's near-black would read as a hole.
+    expect(night).not.toContain(PALETTE.paper);
+    expect(night).not.toContain(BADGE_PALETTE.paperRaised);
+  });
+
+  it("changes the colours and nothing else", () => {
+    // The guard on the whole idea of a theme. Strip every fill and stroke from
+    // both marks and what is left must be identical — same words, same layout,
+    // same aria-label. A variant that could say something different is a
+    // second badge with no test around its language.
+    const strip = (svg: string) => svg.replace(/(?:fill|stroke)="[^"]*"/g, "");
+    const paper = badgeSvg({ result: clean, reviewedOn: ON, live: true });
+    const night = badgeSvg({ result: clean, reviewedOn: ON, live: true, theme: "night" });
+    expect(strip(night)).toBe(strip(paper));
+  });
+
+  it("greys a lapsed mark on the dark ground too", () => {
+    const lapsed = badgeSvg({ result: clean, reviewedOn: ON, live: false, theme: "night" });
+    expect(lapsed).toContain("LAPSED");
+    expect(lapsed).not.toContain(BADGE_NIGHT_PALETTE.accent);
   });
 
   it("does not follow the product's dark ground onto somebody else's page", () => {

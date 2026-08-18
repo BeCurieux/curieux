@@ -23,7 +23,7 @@
 import type { ScanResult } from "../engine/types.js";
 import { badgeEligible } from "../engine/score.js";
 import { escXml, safeUrl } from "./escape.js";
-import { BADGE_PALETTE as PALETTE, FONTS, monthYear } from "./tokens.js";
+import { BADGE_THEME, FONTS, monthYear, type BadgeTheme } from "./tokens.js";
 
 export type BadgeOptions = {
   result: ScanResult;
@@ -36,6 +36,16 @@ export type BadgeOptions = {
   live?: boolean;
   /** The public score page this mark links back to. */
   href?: string;
+  /**
+   * Which ground the mark is landing on. The merchant's choice, not ours, and
+   * `paper` by default because most product pages are pale and a default that
+   * is wrong is worse than one a merchant has to opt out of.
+   *
+   * This changes colours and nothing else. The words are generated from the
+   * scan either way, `BADGE_FORBIDDEN` applies to both, and a lapsed mark says
+   * lapsed in both.
+   */
+  theme?: BadgeTheme;
 };
 
 export const BADGE_WIDTH = 320;
@@ -118,7 +128,8 @@ export function badgeLines(options: BadgeOptions): {
 }
 
 export function badgeSvg(options: BadgeOptions): string {
-  const { result, live = true, href } = options;
+  const { result, live = true, href, theme = "paper" } = options;
+  const PALETTE = BADGE_THEME[theme];
   const lines = badgeLines(options);
   const ink = live ? PALETTE.ink : PALETTE.inkFaint;
   const soft = live ? PALETTE.inkSoft : PALETTE.inkFaint;

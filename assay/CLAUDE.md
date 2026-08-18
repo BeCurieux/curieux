@@ -214,14 +214,20 @@ the moment any of it is skipped.
 - **No traffic lights.** Not red for severity, not green for a pass. That is
   the visual grammar of an audit tool and this product is not one. Severity is
   a ruled mark and a weight.
-- **The page and the share card are dark; the badge is not.** Chosen by the
-  owner 2026-08-18 over the warm-paper original. `PALETTE` is the near-black
-  system, `BADGE_PALETTE` is the warm paper the mark kept, and they are
-  separate because the badge renders on a merchant's page rather than ours —
-  a near-black rectangle in a pale PDP is worse than no mark. Do not collapse
-  them into one palette, and do not reintroduce a `prefers-color-scheme`
-  branch on the page: an artefact that looks different in everybody's
-  screenshot is not an artefact. Print is the one exception, and it is light.
+- **The page and the share card are dark; the badge has its own two grounds.**
+  Chosen by the owner 2026-08-18 over the warm-paper original. `PALETTE` is the
+  near-black system. The badge takes `theme: "paper" | "night"` and neither is
+  `PALETTE` — a mark sits *on top of* a merchant's page rather than matching
+  it, so `BADGE_NIGHT_PALETTE` is lighter than the page's ground. `paper` is
+  the default because most PDPs are pale and a wrong default is worse than an
+  opt-out. Do not collapse the palettes, and do not reintroduce a
+  `prefers-color-scheme` branch on the page: an artefact that looks different
+  in everybody's screenshot is not an artefact. Print is the one exception.
+- **A badge theme is a palette and nothing else.** Both grounds sit in the
+  `states` list in `tests/badge.test.ts`, so both take every §9 assertion, and
+  a separate test strips the colour from each and requires what is left to be
+  identical. A theme that can change a word is a second badge with no test
+  around its language.
 - **The accent is spent on the words the scan is talking about**, and on the
   one pointer naming the market the headline score came from. Nothing else
   gets it. A clean page is not green; it is quiet.

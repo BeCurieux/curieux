@@ -169,12 +169,19 @@ texture carrying it disappeared. The page no longer follows the reader's colour
 scheme either: it is the artefact, and an artefact that looks different in
 everybody's screenshot is not one.
 
-The **badge** does not follow, and `BADGE_PALETTE` is where that is kept. It
-renders inside a merchant's own product page — somebody else's design, usually
-pale — and a near-black rectangle dropped into one is worse than a mark that
-reads as a stamp. `tests/badge.test.ts` asserts the separation, so the two
-palettes cannot quietly converge. Print is light too; a printer asked for a
-black page produces one.
+The **badge** does not follow. It renders inside a merchant's own product page
+— somebody else's design — so it ships in two grounds and the merchant picks:
+`paper` by default, `night` for a dark PDP. Neither is the page palette;
+`BADGE_NIGHT_PALETTE` is deliberately *lighter* than `PALETTE`, because a mark
+sits on top of a dark page rather than matching it, and the page's near-black
+would read as a hole.
+
+A theme is a palette and nothing else. `tests/badge.test.ts` strips every fill
+and stroke from both marks and requires the remainder to be identical — same
+words, same layout, same `aria-label` — and both grounds appear in the state
+list that asserts `BADGE_FORBIDDEN`, so a variant cannot quietly acquire
+language nothing checks. Print is light too; a printer asked for a black page
+produces one.
 
 **No traffic lights.** Not red for severity, not green for a pass. Red-amber-
 green is the visual grammar of an audit tool and the brief's whole position is
