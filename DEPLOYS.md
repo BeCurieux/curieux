@@ -78,57 +78,33 @@ To scope a project added later, add to its Root Directory's `vercel.json`:
 
 and set the Root Directory to match. Both halves are required.
 
-## It has now been observed working, once
+## Confirmed working, on all four projects
 
-On `a30a7ff` — a commit touching only `assay/KILLTEST.md` — Vercel reported:
-
-```
-curieux-rifc   Ignored     (root directory: waterline)
-```
-
-listed under *1 Skipped Deployment* rather than as a build. That is the first
-time the Ignored Build Step has actually run: every attempt before it was
-rejected by the quota before Vercel got as far as cloning.
-
-The other three projects showed *Ready* in the same comment, which looks like a
-contradiction and is not. Their deployment IDs were unchanged from hours
-earlier — those rows are the last deployment that succeeded, not a new one.
-All three were rate-limited on that commit. `curieux-rifc` was the only project
-with quota left, so it was the only one that got far enough to skip.
-
-Still unresolved: whether an *Ignored* deployment consumes one of the hundred.
-It was not rate-limited while its three siblings were, which is consistent with
-ignored builds being cheap — and equally consistent with the quota simply being
-counted per project. One observation cannot separate those.
-
-## Checking it worked
-
-Push a commit touching one directory and watch the PR: only that project should
-report a deployment. The others should show *skipped*, not *failed* — a skipped
-build is a green check with no deployment behind it.
-
-To test the command's decision locally, from inside a project directory:
+On `af7d9cc` — a commit touching only `assay/` and two markdown files — Vercel
+reported:
 
 ```
-git diff --quiet HEAD^ HEAD -- . && echo SKIP || echo BUILD
+4 Skipped Deployments
+  curieux        Ignored   (haunted)
+  curieux-rifc   Ignored   (waterline)
+  popuup         Ignored   (shopfront)
+  waterline      Ignored   (waterline)
 ```
 
-## What this does not certainly fix
+Four projects, four skips, zero builds. That is the whole mechanism working as
+intended, and it is the first commit since the daily allowance reset — every
+attempt before it was rejected by the quota before Vercel got as far as cloning,
+which is why this took a day to observe.
 
-The limit that was hit is `api-deployments-free-per-day` — *more than 100*. It
-counts **deployments created**, not builds run, and an Ignored Build Step
-cancels the build *after* the deployment exists. So this reliably saves build
-minutes; whether it decreases the number that counter is measuring is
-unverified, and cannot be tested while the window is exhausted.
+A single earlier skip had been seen on `a30a7ff`, but only for `curieux-rifc`:
+it was the one project with quota left, so it was the only one that got far
+enough to run the command at all.
 
-Two changes certainly do reduce the count, and both are owner decisions:
-
-- **Delete the duplicate.** `curieux-rifc` and `waterline` build the same
-  directory, so one of them is a quarter of every push's deployments spent
-  twice on the same site. Decided; pending the dashboard action above.
-- **Stop deploying every branch.** Vercel → Settings → Git will limit a project
-  to its production branch. Preview deployments on every push to every branch
-  are what makes a hundred a day reachable at all.
+**Still not settled: whether an *Ignored* deployment consumes one of the
+hundred.** The deployment record exists before the build is cancelled, so it
+may. What is now certain is that four builds no longer run for a one-directory
+commit, which was the stated goal; whether the counter agrees is a separate
+question and needs a day's worth of pushes to answer.
 
 ## While the quota is exhausted, none of this runs
 
