@@ -36,18 +36,27 @@ Build & Deployment → Root Directory:
 |---|---|---|
 | `waterline` | `waterline` | yes — framework, build, rewrites, ignore |
 | `popuup` | `shopfront` | yes — ignore only; the framework is auto-detected |
-| `curieux` | **unconfirmed** | not yet added |
-| `curieux-rifc` | **unconfirmed** | not yet added |
+| `curieux` | `haunted` | yes — ignore only |
+| `curieux-rifc` | `waterline` | shares `waterline/vercel.json` |
 
-The last two are named after the repository rather than after a product, which
-is what a project created by connecting the repo without choosing a Root
-Directory looks like. Until somebody confirms which directory each is meant to
-build — or that they are duplicates and one should be deleted — they have been
-left alone. Scoping a project to the wrong directory stops it deploying at all,
-and nothing reports that; it is discovered the next time somebody needs the
-site.
+Every Root Directory above is **already set** — this half needed no work. The
+values are not guesses: Vercel's own PR comment carries a base64 payload naming
+each project's `rootDirectory`, which is where these came from.
 
-To scope one once its directory is known, add to `<directory>/vercel.json`:
+## `curieux-rifc` is a second project on the same directory
+
+`curieux-rifc` and `waterline` both build `waterline/`. Two projects, one app,
+two deployments per push — and on a hundred-a-day ceiling that is a quarter of
+the budget spent on a duplicate. It is scoped now, because it reads the same
+`waterline/vercel.json`, so it is no longer *waking* for unrelated commits. It
+is still deploying the same site twice.
+
+Deleting it is an owner's decision and has not been made here: the name suggests
+it was created first and something may still point at its domain. Check whether
+any DNS record or link targets `curieux-rifc`, and if nothing does, delete the
+project in Vercel → Settings → Advanced.
+
+To scope a project added later, add to its Root Directory's `vercel.json`:
 
 ```json
 {
