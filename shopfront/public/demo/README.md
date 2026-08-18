@@ -46,8 +46,18 @@ public/demo/<brand-key>/<handle>.<ext>
 ```
 
 `.jpg`, `.jpeg`, `.png`, `.webp` and `.avif` all work, checked in that order.
-Anything without a matching file falls back to the drawing, so a half-finished
-set is fine — it degrades one product at a time rather than all at once.
+Anything without a matching file falls back to the drawing **until the brand
+has at least one real photograph**. After that, a product with no file is
+treated as genuinely having no photograph, because a drawing sitting beside a
+photograph reads as a bug rather than a fallback.
+
+Worth knowing what that does, because it surprised us: the merchandiser stops
+selecting imageless products. Across five regenerations it picked none of them,
+having happily used them when they had drawings. That is defensible
+merchandising — do not lead with a product you cannot show — but it means the
+no-photograph treatment does not appear in the demo at all. If you want it
+visible, the way to get it is a ninth product nobody photographs, not a gap in
+these eight.
 
 The brand keys and handles are in `scripts/press/shops.mjs`. For example:
 

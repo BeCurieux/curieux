@@ -54,9 +54,21 @@ async function main(): Promise<void> {
   await mkdir(OUT, { recursive: true });
   const written: string[] = [];
 
-  // The mood set, already in render shape.
+  /*
+   * Everything already in render shape.
+   *
+   * This used to take `demo-*` from here and the five `edit-*` from
+   * `.cache/published/db.json`, which was right when the edits only existed as
+   * published shops. `pnpm press:edits` now writes them here through
+   * `saveShop`, so the published table is the stale copy — and freezing from it
+   * silently overwrote a fresh generation with an older one, leaving the
+   * committed screenshots and the committed fixtures describing different
+   * shops. The published branch below is kept as a fallback for anything not
+   * found here.
+   */
+  const fromCache = new Set<string>();
   for (const file of await readdir(path.join(CACHE, "shop")).catch(() => [])) {
-    if (!file.startsWith("demo-") || !file.endsWith(".json")) continue;
+    if (!/^(demo|edit)-/.test(file) || !file.endsWith(".json")) continue;
 
     const parsed = ShopRenderInput.parse(JSON.parse(await readFile(path.join(CACHE, "shop", file), "utf8")));
     if (!isDemo(parsed.config.brand.storeUrl)) {
@@ -64,6 +76,7 @@ async function main(): Promise<void> {
     }
 
     await writeFile(path.join(OUT, file), `${JSON.stringify(parsed, null, 2)}\n`);
+    fromCache.add(file.replace(/\.json$/, ""));
     written.push(file.replace(/\.json$/, ""));
   }
 
@@ -73,6 +86,8 @@ async function main(): Promise<void> {
 
   for (const shop of db.shops ?? []) {
     if (!shop.slug.startsWith("edit-")) continue;
+    // The cache won. See the note above.
+    if (fromCache.has(shop.slug)) continue;
 
     const store = stores.get(shop.storeId);
     if (!store) continue;

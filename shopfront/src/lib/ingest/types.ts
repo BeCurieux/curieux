@@ -19,8 +19,42 @@ import { z } from "zod";
 
 // ---------- Products ----------
 
+/**
+ * An absolute URL, or a path on this site.
+ *
+ * `z.string().url()` alone rejects `/demo/maison-verre/cut-tumbler.jpg`, which
+ * is how the demo catalogue refers to photographs committed under `public/`.
+ * It accepted the drawn placeholders only because a `data:` URI happens to
+ * parse as an absolute URL — so the schema was never really enforcing "a real
+ * image somewhere", and the first actual photograph is what exposed that.
+ *
+ * The allowance is narrow on purpose. A leading slash means one thing —
+ * same-origin, served by us — and nothing a merchant's `/products.json`
+ * returns looks like that; Shopify gives absolute CDN URLs. So this cannot
+ * quietly accept a malformed merchant URL, and if it ever did, the image would
+ * 404 visibly rather than resolve to something wrong.
+ *
+ * The renderer already coped: `sizedImageUrl` returns the string unchanged
+ * when `new URL()` throws. This only stops the contract from being stricter
+ * than the thing it describes.
+ */
+const ImageSource = z
+  .string()
+  .refine(
+    (value) => {
+      if (value.startsWith("/") && !value.startsWith("//")) return true;
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message: "Must be an absolute URL or a root-relative path on this site." },
+  );
+
 export const IngestedImage = z.object({
-  url: z.string().url(),
+  url: ImageSource,
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
   /** Storefronts almost never set this. When they do it is worth having. */
