@@ -189,10 +189,12 @@ async function main(): Promise<void> {
     process.stdout.write(
       "  Run these two in the Supabase dashboard's SQL editor, in this order:\n" +
         "    src/lib/publish/schema.sql     — creates the tables. Safe to re-run.\n" +
-        "    src/lib/publish/rls-check.sql  — must print `RLS check passed`. Rolls itself back.\n" +
-        "  Step 3 below fails against a database that has not had the first one applied,\n" +
-        "  so it is not possible to skip that by accident. The RLS proof is not covered\n" +
-        "  by anything here — read the notice the second file prints yourself.\n",
+        "    src/lib/publish/rls-check.sql  — must return one row reading `RLS check passed`.\n" +
+        "                                     Rolls itself back, so it changes nothing.\n" +
+        "  Step 3 below fails against a database that has not had the first one applied, so\n" +
+        "  it is not possible to skip that by accident. The RLS proof is not covered by\n" +
+        "  anything here — read the row the second file returns yourself. A result grid\n" +
+        "  saying `Success. No rows returned` means you ran an older copy of that file.\n",
     );
   }
 
