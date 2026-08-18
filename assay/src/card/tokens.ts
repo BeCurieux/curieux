@@ -14,7 +14,12 @@
  * score came from. Nothing else gets it. A page with nothing found is not
  * green — it is quiet.
  *
- * The ground is near-black rather than white. The artefact is going to be
+ * The ground is a violet-tinted near-black rather than white.
+ *
+ * `inkFaint` is set by contrast rather than by taste: it carries 9px mono
+ * labels, and the value that looked right sat at 3.82:1, which is below the
+ * 4.5:1 small-text threshold. It is 4.94:1 now. A card nobody can read the
+ * dates on is not a nicer card. The artefact is going to be
  * screenshotted into a feed beside somebody's product photography, and white
  * reads as a dialog box — but so, it turned out, does warm paper at thumbnail
  * size, where the texture that carries it disappears. Ink on a dark ground
@@ -40,13 +45,13 @@
 export const WORDMARK = "Franca";
 
 export const PALETTE = {
-  paper: "#0E0E0D",
-  paperRaised: "#171715",
-  ink: "#F5F2EA",
-  inkSoft: "#A8A398",
-  inkFaint: "#6F6B62",
-  rule: "#2A2925",
-  ruleFaint: "#1D1C19",
+  paper: "#100D16",
+  paperRaised: "#1A1623",
+  ink: "#F4F0F7",
+  inkSoft: "#A9A2B6",
+  inkFaint: "#847E93",
+  rule: "#302A3D",
+  ruleFaint: "#211C2B",
   /** The one accent. Warm coral: confident against the dark, not alarm-red. */
   accent: "#FF7A4D",
   /** The accent at wash strength, behind a flagged phrase. Dark enough to keep
@@ -115,17 +120,19 @@ export const BADGE_NIGHT_PALETTE = {
  * seventeen findings. That is the difference between colour as identity and
  * colour as verdict, and only the second one turns this into an audit tool.
  *
- * Cyan, periwinkle, violet: one arc of the wheel, containing no red, no amber
- * and no green, so nobody has to reason about whether a chip means "pass".
- * The accent stays reserved — flagged words and the weakest-market pointer,
- * nothing else — because that is the colour the reader is meant to follow.
+ * Blue, purple, pink: one arc of the wheel, containing no red, no amber and no
+ * green, so nobody has to reason about whether a chip means "pass". The accent
+ * stays reserved — flagged words and the weakest-market pointer, nothing else
+ * — and it stays *warm* against this cool arc on purpose. A pink accent would
+ * sit a few degrees from the US chip, and the one colour a reader is meant to
+ * follow should never be mistakable for a label.
  */
 export const MARKET_ACCENT: Record<string, string> = {
-  AU: "#4FC9D9",
-  EU: "#8AA6FF",
-  US: "#C08BFA",
-  GB: "#9FD2E8",
-  CA_QC: "#A9B4FF",
+  AU: "#6FA8FF",
+  EU: "#B77DFF",
+  US: "#FF8FC7",
+  GB: "#8FC4FF",
+  CA_QC: "#D3A0FF",
 };
 
 /** The market's hue, or the muted ink for one we have no colour for. */
