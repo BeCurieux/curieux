@@ -83,6 +83,78 @@ Write the reason down for each. `pnpm killtest` refuses a target without one,
 which is not pedantry: a target with no reason gets a generic message and a
 silence that teaches nothing, and you only get thirty.
 
+### Size is the filter that matters most
+
+The instinct is to aim high, and it is wrong in both directions.
+
+A brand everybody has heard of has counsel, or an agency with counsel. The
+founder does not read their own DMs, nobody can buy a tool without procurement,
+and the reply — if it comes — is from someone whose job is to say the copy is
+fine. That is a wasted target dressed as a good one.
+
+Below roughly $500k the founder agrees enthusiastically and cannot pay for
+anything. Enthusiasm from someone with no budget reads exactly like a yes in
+the ledger, and §10's gate is a count of yeses. **Those are the two ways this
+test lies to you**, and they lie in the same direction.
+
+The target is a brand where one person writes the copy, ships the product and
+answers the messages, and where a bad month of ad disapprovals costs real
+money. Practically: 1–20 people, Shopify, a founder whose face is on the About
+page.
+
+### Finding them, per bucket
+
+The buckets are not equally hard. Two can be filled from a sofa; one has to be
+hunted, and it is the most valuable one.
+
+**Recently disapproved (~12) — hunted, and time-sensitive.** This is not
+searchable from a brand's own site, because a disapproval is invisible from
+outside. It surfaces where founders complain: DTC and beauty founder groups on
+LinkedIn, Slack and Discord, r/shopify and r/PPC, and the replies under any
+Meta policy-change post. Look for a dated, specific complaint — *"our whole ad
+account went down over one word"* — and take the brand from the profile. A
+complaint from more than about eight weeks ago is stale: they have either
+solved it or stopped caring, and both are a no.
+
+**Selling into the EU (~10) — filterable from the site.** Check the shipping
+page or add to cart and look for an EU destination. Non-EU brands that ship
+into the EU are the sharper half of this bucket: an EU-native brand has
+probably already heard about the ECGT from their distributor, while an
+Australian or American brand shipping into Germany often has not, and the
+27 September date is genuinely news to them.
+
+**Mid retailer onboarding (~5) — public.** Clean at Sephora, Credo and Ulta
+Conscious Beauty all publish their brand lists, and each has a submission
+standard with claim-substantiation language in it. Brands recently added, or
+publicly saying they have applied, are in the window where somebody is already
+asking them to prove things.
+
+**Loud copy, no known pain (~3) — the control group, and do not skip it.**
+Pick these from claim language alone: a PDP saying *clinically proven*,
+*non-toxic*, *reef safe*, *eco-friendly* or *chemical free* with nothing
+behind it. If the control group converts at the same rate as the acute ones,
+the pain is much broader than §2 assumes and that changes the whole product.
+If only the acute ones convert, the wedge is real but narrow, and that changes
+the pricing.
+
+### Triage before you commit a slot
+
+Do not spend a slot on a page you have not read. Collect fifty or sixty
+candidate URLs first, run them, and cut to thirty on what comes back:
+
+```
+pnpm killtest --fetch      # with all sixty in targets.txt
+```
+
+Anything scoring in the **clear** band is a bad target — not because the brand
+is uninteresting, but because the card will say *nothing here trips a rule*,
+which is a true and completely unpersuasive thing to send a stranger. Anything
+**thin** is a JavaScript shell and costs an afternoon of hand-pasting. What is
+left, sorted by how badly it reads, is the thirty.
+
+Then delete the other thirty from `targets.txt`. Nothing about a brand you are
+not contacting should sit on your disk.
+
 ---
 
 ## Running it
