@@ -100,24 +100,18 @@ A single earlier skip had been seen on `a30a7ff`, but only for `curieux-rifc`:
 it was the one project with quota left, so it was the only one that got far
 enough to run the command at all.
 
-### It does not skip every time, and the pattern is not yet understood
+### Building is not a result — read the final state, not the first
 
-The very next commit, `30d5fde`, touched **only this file** — nothing inside
-any project's directory — and all four projects **built**. By the logic above
-it should have skipped, exactly as `af7d9cc` did.
+`30d5fde` touched only this file and every project reported **Building**
+seconds after the push, which looks like the scoping failing. It was not. The
+ignore command runs *inside* the build phase, so a deployment that is about to
+be skipped shows Building first and flips to Ignored a few seconds later. The
+final state for that commit was four Ignored, the same as `af7d9cc`.
 
-Both commits are outside every Root Directory, so the difference is not in the
-diff. The one thing that distinguishes them: `af7d9cc`'s four deployments were
-themselves *Ignored*, and an ignored build serves the previous deployment's
-output. If there is no previous output to reuse — because the previous
-deployment was also ignored — Vercel may have no choice but to build. That
-would mean skips cannot chain, and every run of ignored commits costs one real
-build at the end of it.
-
-That is a hypothesis and it is not confirmed. What would distinguish it: a
-second consecutive commit touching nothing in any project directory. If it
-skips, the theory is wrong and something else is going on. If it builds again,
-skips genuinely cannot follow skips.
+Worth writing down because the webhook stream shows every intermediate state,
+and acting on the first one produces a confident wrong answer. If you are
+checking whether a skip worked, wait for the comment to settle — the summary
+line reads `N Skipped Deployments` when it is done.
 
 **Also still not settled: whether an *Ignored* deployment consumes one of the
 hundred.** The deployment record exists before the build is cancelled, so it
