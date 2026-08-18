@@ -42,6 +42,27 @@ export const GENOME_READS = 160;
 /** Under this share in stock, a shop is mostly a museum. */
 export const MIN_AVAILABLE_SHARE = 0.5;
 
+/**
+ * Below this share of primary images sharing one shape, the catalogue was not
+ * shot to a template.
+ *
+ * A studio session produces one crop repeated: every card is 4:5, or every card
+ * is square. A merchant photographing on a kitchen table produces a mix of
+ * portrait, landscape and square, and that mix is what forces the renderer to
+ * cope rather than to be flattered by its input. 0.7 is loose on purpose — a
+ * studio catalogue with a few lifestyle shots still clears it.
+ */
+export const FRAMING_CONSISTENCY = 0.7;
+
+/**
+ * Under this longest edge, a primary image cannot fill a phone card cleanly.
+ *
+ * 1000px is roughly a 390pt viewport at 2x with nothing spare. Below it the
+ * renderer is upscaling, which is the other half of "mediocre photography" and
+ * is invisible in a product count.
+ */
+export const LOW_RESOLUTION = 1000;
+
 export type Screen = "good" | "workable" | "wrong-test";
 
 export interface ScreenResult {
@@ -54,6 +75,15 @@ export interface ScreenResult {
   richImagery: number;
   /** Products with no image at all. `BrokenImagery` territory. */
   noImagery: number;
+  /**
+   * Share of measurable primary images sharing the catalogue's commonest shape.
+   * Null when the feed carried no dimensions to compare.
+   */
+  framingConsistency: number | null;
+  /** Median longest edge of the primary images, in pixels. Null if unmeasurable. */
+  medianLongEdge: number | null;
+  /** True when this catalogue looks like a hard case for the renderer to flatter. */
+  hardPhotography: boolean;
   priceRange: { min: number; max: number } | null;
   verdict: Screen;
   /** Why, in the order a person would want to read them. */
@@ -74,12 +104,15 @@ export function screen(storeUrl: string, catalogue: Catalogue | null): ScreenRes
     availableCount: available.length,
     richImagery: products.filter((p) => p.images.length >= 2).length,
     noImagery: products.filter((p) => p.images.length === 0).length,
+    framingConsistency: framingConsistency(products),
+    medianLongEdge: medianLongEdge(products),
     priceRange: priceRange(products),
   };
 
   if (!catalogue || products.length === 0) {
     return {
       ...base,
+      hardPhotography: false,
       verdict: "wrong-test",
       notes: ["nothing readable — feed closed, or not Shopify"],
       line: `# ${storeUrl}  # NOTHING READABLE — check by hand before including`,
@@ -112,11 +145,33 @@ export function screen(storeUrl: string, catalogue: Catalogue | null): ScreenRes
     demote("workable", `${base.noImagery} products with no image`);
   }
 
-  // The photography rule, inverted. A catalogue of single studio cut-outs is
-  // the renderer's easiest case; the brief asks for a handful of hard ones, so
-  // a thin-imagery store is a *reason to include*, flagged rather than demoted.
-  if (base.richImagery === 0 && products.length > 0) {
-    notes.push("one image per product — a candidate for the mediocre-photography sample");
+  /*
+   * The photography rule, inverted — and widened, because the first version of
+   * it did not work.
+   *
+   * It asked one question: does any product carry two images? Sixty candidates
+   * later the answer was yes for every single one, so the sample the brief asks
+   * for came back empty. That is not a shortage of badly-photographed
+   * merchants. It is a count of *uploads*, and a merchant who shoots four
+   * mediocre pictures on a phone scores identically to a studio.
+   *
+   * So it now reads shape and size as well. None of these measures whether a
+   * photograph is any good — nothing readable from a feed can. What they catch
+   * is a catalogue that was not shot to a template: mixed crops, small files,
+   * or a single image per product. Each is a *reason to include*, flagged
+   * rather than demoted, and each is printed with the number it came from so a
+   * person can overrule it by looking at the store.
+   */
+  const hard: string[] = [];
+  if (base.richImagery === 0) hard.push("one image per product");
+  if (base.framingConsistency !== null && base.framingConsistency < FRAMING_CONSISTENCY) {
+    hard.push(`only ${Math.round(base.framingConsistency * 100)}% of images share a crop`);
+  }
+  if (base.medianLongEdge !== null && base.medianLongEdge < LOW_RESOLUTION) {
+    hard.push(`images around ${base.medianLongEdge}px — the card will upscale them`);
+  }
+  if (hard.length > 0) {
+    notes.push(`${hard.join("; ")} — a candidate for the mediocre-photography sample`);
   }
 
   if (!catalogue.currency) {
@@ -127,7 +182,14 @@ export function screen(storeUrl: string, catalogue: Catalogue | null): ScreenRes
     demote("workable", "feed was truncated — the catalogue is larger than what was read");
   }
 
-  return { ...base, verdict, notes, line: targetLine(storeUrl, base, verdict, notes) };
+  const hardPhotography = hard.length > 0;
+  return {
+    ...base,
+    hardPhotography,
+    verdict,
+    notes,
+    line: targetLine(storeUrl, { ...base, hardPhotography }, verdict, notes),
+  };
 }
 
 function priceRange(products: IngestedProduct[]): { min: number; max: number } | null {
@@ -139,6 +201,41 @@ function priceRange(products: IngestedProduct[]): { min: number; max: number } |
 }
 
 /**
+ * The primary images, which are the ones the grid shows.
+ *
+ * Dimensions are optional in the feed and often absent, so everything below
+ * returns null rather than a made-up number when there is nothing to measure —
+ * an unmeasured store must not read as a well-photographed one.
+ */
+function primaries(products: IngestedProduct[]): { width: number; height: number }[] {
+  return products.flatMap((product) => {
+    const image = product.images[0];
+    return image?.width && image.height ? [{ width: image.width, height: image.height }] : [];
+  });
+}
+
+/** Bucketed to 0.05, which keeps 3:4 and 4:5 apart without splitting a crop in two. */
+function shape(image: { width: number; height: number }): number {
+  return Math.round((image.width / image.height) * 20) / 20;
+}
+
+function framingConsistency(products: IngestedProduct[]): number | null {
+  const images = primaries(products);
+  if (images.length === 0) return null;
+
+  const counts = new Map<number, number>();
+  for (const image of images) counts.set(shape(image), (counts.get(shape(image)) ?? 0) + 1);
+  return Math.max(...counts.values()) / images.length;
+}
+
+function medianLongEdge(products: IngestedProduct[]): number | null {
+  const edges = primaries(products)
+    .map((image) => Math.max(image.width, image.height))
+    .sort((a, b) => a - b);
+  return edges.length === 0 ? null : edges[Math.floor(edges.length / 2)]!;
+}
+
+/**
  * The line for the targets file.
  *
  * Commented out when it is the wrong test, so a screened batch can be pasted
@@ -147,12 +244,12 @@ function priceRange(products: IngestedProduct[]): { min: number; max: number } |
  */
 function targetLine(
   storeUrl: string,
-  base: Pick<ScreenResult, "productCount" | "richImagery">,
+  base: Pick<ScreenResult, "productCount" | "hardPhotography">,
   verdict: Screen,
   notes: string[],
 ): string {
   const parts = [`~${base.productCount} products`];
-  if (base.richImagery === 0) parts.push("POOR PHOTOGRAPHY");
+  if (base.hardPhotography) parts.push("POOR PHOTOGRAPHY");
   if (verdict === "workable" && notes.length > 0) parts.push(notes[0]!);
 
   const url = storeUrl.padEnd(42);
