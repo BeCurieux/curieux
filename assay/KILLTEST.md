@@ -4,9 +4,13 @@ BRIEF.md §10, as a thing you can actually do on a Tuesday.
 
 Two weeks, thirty brands, no accounts and no infrastructure. It answers one
 question — *is this pain acute enough that a founder wants a self-serve tool
-for it* — and it answers it before a single line of URL fetching, model
-plumbing or Shopify OAuth gets written. That ordering is the point. A no is
+for it* — and it answers it before the model plumbing, the accounts, the
+Shopify app or the billing get written. That ordering is the point. A no is
 cheap now and expensive after four weeks of pipeline.
+
+There is now a page fetcher, opened ahead of its place in the build order so
+that collecting thirty pages is a command rather than an afternoon. It changes
+what you type and nothing about what the test asks.
 
 **The gate.** Proceed on **8+ of 30** actively wanting the live product, or
 **3+** offering to pay on the spot. Anything else is polite silence, and §10 is
@@ -29,9 +33,13 @@ The half it cannot do is the half that matters, and it is all yours:
 - writing to a real person, in your own words, about their own page
 - reading what comes back
 
-Nothing in this repository sends a message. Nothing in it fetches a page. Both
-are deliberate: the outreach is the test, and a scan of somebody's page that
-they did not ask for is a thing you did, not a thing a script did on its own.
+Nothing in this repository sends a message, and nothing fetches a page unless
+you type `--fetch`. Both are deliberate. The outreach is the test, and reading
+somebody's page is a thing you decided to do rather than a side effect of
+asking for cards to be re-rendered — which is also why the fetcher obeys
+robots.txt, pauses between requests, and puts `SCAN_CONTACT` in every one of
+them. The first message you send is about their copy only if none of that was
+skipped.
 
 ---
 
@@ -89,10 +97,29 @@ One line per brand, tab-separated — slug, product-page URL, why:
 lumen	https://lumen.example/products/immunity-drops	Meta account disapproved in July, said so on LinkedIn
 ```
 
-Then, for each, **read the page yourself** and paste its copy into
-`killtest/copy/<slug>.txt`. Product title, hero, bullets, description, any
-sustainability paragraph, the reviews if they carry claims. Skip navigation,
-shipping tables and the cookie banner.
+Then collect the copy. Either paste it into `killtest/copy/<slug>.txt` by hand,
+or:
+
+```
+export SCAN_CONTACT=you@yourdomain.example
+pnpm killtest --fetch
+```
+
+which writes the same files for you. Set `SCAN_CONTACT` first — every page read
+carries it, and an anonymous crawler in a founder's logs is the first thing
+that conversation ends up being about.
+
+**Either way, read the page yourself.** The fetched file is a draft of that
+reading, not a replacement for it, and it is an ordinary text file precisely so
+you can fix it. Two things to check every time:
+
+- The fetcher prefers the product description, which is exactly this product
+  and nothing about its neighbours. That means it misses the hero line and the
+  "our promise" block. It tells you when it did — `elsewhere on the page…` —
+  and those lines usually need pasting in, because that is where the
+  environmental claims are.
+- A page that builds itself in the browser comes back `THIN`. Paste that one by
+  hand.
 
 Reading it first is not a formality. The scanner is 21 rules over three
 markets, and you know things it does not. If the card misses something obvious
@@ -103,7 +130,8 @@ the ledger's notes column and it becomes a rule.
 pnpm killtest
 ```
 
-Cards land in `killtest/out/<slug>.html`, `.card.svg` and `.badge.svg`. Open
+Run it again without `--fetch` once you have edited the copy. Cards land in
+`killtest/out/<slug>.html`, `.card.svg` and `.badge.svg`. Open
 the HTML, read it as the founder will, and screenshot the share card for the
 DM. `pnpm card --file ... --png` will rasterise one if a Chromium is around.
 

@@ -87,6 +87,38 @@ Steps 1–3 need no accounts, no API keys and no Shopify approval. That is the
 point of the ordering: the expensive half is not begun until a real founder
 has said yes to the cheap half.
 
+### The thing opened early
+
+Recorded here because the alternative is a rule that quietly stopped being
+true. The gate was overridden, not routed around, and step 4's line above was
+left standing rather than edited to pretend this was always allowed.
+
+**URL fetching, on the owner's call (2026-08-18).** Step 4 says URL fetch waits
+for the kill-test result. It did not. The argument for opening it is that it is
+the cheap end of step 4 and it *serves* step 3 rather than jumping past it —
+no accounts, no keys, no model, no OAuth, and it removes the only real friction
+in running the test, which was pasting thirty pages by hand. The argument
+against is the one the gate exists for, and it still applies to everything else
+on the step-4 list.
+
+What opened: `src/fetch/` — robots.txt, an extraction ladder, and text
+extraction, all pure above one file, all offline-testable. `--url` on `pnpm
+scan` and `pnpm card`, and `--fetch` on `pnpm killtest`.
+
+What did **not** open, and stays shut until the gate is met: the LLM extractor,
+rewrite generation, accounts, the hosted score page, the Shopify app, the badge
+embed, billing, monitoring, the ad checker and retailer packs. A model is still
+not in the scan path and law 1 is untouched.
+
+**The boundary that came with it, and it is not negotiable: reading somebody's
+page is conduct, not a feature.** robots.txt is obeyed and a 5xx on it fails
+closed, because we read a stranger's page and then write to that stranger about
+it. Requests are serialised with a pause and honour `Crawl-delay`. The agent
+string identifies the tool and carries `SCAN_CONTACT` when set. `--own` skips
+the robots check and is only ever legitimate for a site the user owns. None of
+this is politeness theatre: the kill test's first message is about our conduct
+the moment any of it is skipped.
+
 ## Rules about rules
 
 - A rule with no fixture in `tests/fixtures/triggers.ts` fails CI. A rule that
@@ -108,6 +140,26 @@ has said yes to the cheap half.
 - A false positive costs more than a false negative here, and the arithmetic is
   simple: a missed claim is a claim the founder already had, and a wrong mark
   is the moment they decide the scanner cannot tell a problem from a sentence.
+
+## Rules about fetching
+
+- **The whole page is never the default scan input.** A PDP carries a
+  related-products carousel and a review widget, both full of claims about
+  other products, and a card marking a phrase the founder cannot find on their
+  page is the fastest way to lose them. Structured sources first; `--whole` is
+  an opt-in.
+- **But say what was left out.** A structured source misses the hero line and
+  the "our promise" block, which is where environmental claims live. The
+  coverage check scans the rest of the page and names the phrases, because
+  measuring the gap in characters was tried and was useless — the sentence that
+  mattered was 118 characters long.
+- **Fetching is pure above one file.** `src/fetch/fetch.ts` is the only thing
+  that touches the network; everything else takes an injected transport, and
+  the suite needs no network. A test suite depending on thirty storefronts
+  being up is a suite that goes red for reasons unrelated to the commit.
+- **A thin result is reported, never scanned.** A page that builds itself in
+  the browser returns a nav bar, and scoring a nav bar produces a number that
+  is worse than no number.
 
 ## Rules about the card
 

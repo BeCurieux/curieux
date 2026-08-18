@@ -6,6 +6,7 @@
  * card at OG size to attach to a DM, and the badge as it would look on the
  * merchant's PDP. No key, no account, no network.
  *
+ *   pnpm card --url https://brand.example/products/serum --out ./cards/aurelia
  *   pnpm card --file page.txt --out ./cards/aurelia
  *   pnpm card --text "Clinically proven…" --markets AU,EU --wordmark VOUCH
  *   pnpm card --file page.txt --png          # needs a Chromium, see below
@@ -23,10 +24,13 @@ import { badgeSvg, mayDisplayBadge } from "../src/card/badge.js";
 import { shareCard, OG_HEIGHT, OG_WIDTH } from "../src/card/og.js";
 import { resultPage } from "../src/card/page.js";
 import { loadEmbeddedFonts } from "../src/card/fonts.js";
+import { fetchCopy } from "../src/fetch/fetch.js";
+import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
 import type { Jurisdiction } from "../src/engine/types.js";
 
 type Options = {
-  text: string;
+  text?: string;
+  url?: string;
   reference?: string;
   markets: Jurisdiction[];
   out: string;
@@ -37,6 +41,7 @@ type Options = {
 
 function parse(argv: string[]): Options {
   let text: string | undefined;
+  let url: string | undefined;
   let reference: string | undefined;
   let markets = supportedJurisdictions();
   let out = "./cards/scan";
@@ -52,6 +57,10 @@ function parse(argv: string[]): Options {
       text = readFileSync(next, "utf8");
       reference = next;
       i += 1;
+    } else if (arg === "--url" && next !== undefined) {
+      url = next;
+      reference = next;
+      i += 1;
     } else if (arg === "--markets" && next !== undefined) {
       markets = next.split(",").map((m) => m.trim().toUpperCase()) as Jurisdiction[];
       i += 1;
@@ -65,14 +74,14 @@ function parse(argv: string[]): Options {
     } else if (arg === "--png") png = true;
   }
 
-  if (text === undefined) {
+  if (text === undefined && url === undefined) {
     throw new Error(
-      'Nothing to render. Pass --file ./page.txt or --text "…".\n' +
+      'Nothing to render. Pass --file ./page.txt, --text "…", or --url https://….\n' +
         `Markets available: ${supportedJurisdictions().join(", ")}.`,
     );
   }
   if (Number.isNaN(reviewedOn.getTime())) throw new Error("--date wants YYYY-MM-DD.");
-  return { text, reference, markets, out, wordmark, png, reviewedOn };
+  return { text, url, reference, markets, out, wordmark, png, reviewedOn };
 }
 
 /**
@@ -100,11 +109,37 @@ async function rasterise(svg: string, to: string, width: number, height: number)
 
 async function main() {
   const options = parse(process.argv.slice(2));
+
+  let text = options.text;
+  if (text === undefined && options.url) {
+    const fetched = await fetchCopy(options.url, {
+      own: process.argv.includes("--own"),
+      contact: process.env.SCAN_CONTACT?.trim() || undefined,
+    });
+    for (const attempt of fetched.trace) {
+      console.log(
+        `  ${attempt.rung.padEnd(22)} ${attempt.outcome}` +
+          (attempt.chars === undefined ? "" : ` (${attempt.chars} chars)`),
+      );
+    }
+    const note = process.argv.includes("--whole")
+      ? null
+      : coverageNote(coverageGap(fetched.text, fetched.pageText, options.markets));
+    if (note) console.log(`  ${note}\n`);
+    else console.log("");
+    if (fetched.thin) {
+      throw new Error(
+        `${options.url} gave back ${fetched.text.length} characters — almost certainly a page that ` +
+          `builds itself in the browser. Copy the text by hand and use --file.`,
+      );
+    }
+    text = process.argv.includes("--whole") ? fetched.pageText : fetched.text;
+  }
+  const copy = text ?? "";
+
   const result = scan({
-    text: options.text,
-    source: options.reference
-      ? { kind: "url", reference: options.reference }
-      : { kind: "paste" },
+    text: copy,
+    source: options.reference ? { kind: "url", reference: options.reference } : { kind: "paste" },
     jurisdictions: options.markets,
   });
 
@@ -113,14 +148,14 @@ async function main() {
 
   const fonts = loadEmbeddedFonts();
   const page = resultPage({
-    text: options.text,
+    text: copy,
     result,
     reviewedOn: options.reviewedOn,
     wordmark: options.wordmark,
     fonts,
   });
   const card = shareCard({
-    text: options.text,
+    text: copy,
     result,
     reviewedOn: options.reviewedOn,
     wordmark: options.wordmark,

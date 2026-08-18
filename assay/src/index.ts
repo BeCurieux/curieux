@@ -65,6 +65,45 @@ export {
 } from "./card/tokens.js";
 export { esc, escXml, safeUrl } from "./card/escape.js";
 
+// ------------------------------------------------------------------ fetching
+
+export {
+  fetchCopy,
+  robotsFor,
+  clearRobotsCache,
+  RobotsDisallowed,
+  AGENT,
+  DEFAULT_DELAY_MS,
+  type Attempt,
+  type FetchedCopy,
+  type FetchOptions,
+  type Transport,
+} from "./fetch/fetch.js";
+export { parseRobots, isAllowed, ALLOW_ALL, type Robots, type RobotsRule } from "./fetch/robots.js";
+export {
+  fromShopifyProduct,
+  fromJsonLd,
+  fromHtml,
+  wholePageText,
+  shopifyEndpoints,
+  THIN_TEXT,
+  type Extracted,
+  type Via,
+} from "./fetch/extract.js";
+export {
+  decodeEntities,
+  fragmentToText,
+  htmlToText,
+  jsonLdBlocks,
+  findProduct,
+  mainRegion,
+  titleOf,
+  tidy,
+} from "./fetch/html.js";
+export { coverageGap, coverageNote, type Coverage } from "./fetch/coverage.js";
+
 // `fonts.ts` reads from disk and is deliberately not re-exported here: the
 // renderers are pure, and a surface that pulls node:fs into a browser bundle
-// by importing the index is a bad afternoon.
+// by importing the index is a bad afternoon. `fetch/fetch.ts` is the network
+// and is exported, because a caller has to be able to reach it on purpose —
+// but nothing above it imports it, so the engine still runs with no network.

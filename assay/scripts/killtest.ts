@@ -21,7 +21,7 @@
  * can be tested), and only the scan columns are refreshed.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { scan } from "../src/engine/evaluate.js";
 import { supportedJurisdictions } from "../src/engine/registry.js";
@@ -30,6 +30,8 @@ import { badgeSvg, mayDisplayBadge } from "../src/card/badge.js";
 import { shareCard } from "../src/card/og.js";
 import { resultPage } from "../src/card/page.js";
 import { loadEmbeddedFonts } from "../src/card/fonts.js";
+import { fetchCopy, RobotsDisallowed } from "../src/fetch/fetch.js";
+import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
 import {
   GATE,
   mergeRows,
@@ -45,6 +47,7 @@ const COPY = join(ROOT, "copy");
 const OUT = join(ROOT, "out");
 const TARGETS = join(ROOT, "targets.txt");
 const LEDGER = join(ROOT, "ledger.md");
+const FETCH_LOG = join(ROOT, "fetch.log");
 
 type Target = { slug: string; url: string; why: string };
 
@@ -76,7 +79,62 @@ function readTargets(): Target[] {
   return targets;
 }
 
-function main() {
+/**
+ * Collect the copy for any target that has none.
+ *
+ * Opt-in with `--fetch` rather than automatic. Reading thirty strangers' pages
+ * is an outward-facing act, and it should be a word the founder typed, not a
+ * side effect of asking for cards to be re-rendered.
+ *
+ * What lands is an ordinary editable text file, on purpose: KILLTEST.md asks
+ * the founder to read each page before the scanner does, and the fetched text
+ * is a draft of that reading rather than a replacement for it. Fix it in
+ * place, re-run without `--fetch`, and the card follows the file.
+ */
+async function collect(targets: Target[], own: boolean, markets: Jurisdiction[]): Promise<void> {
+  const contact = process.env.SCAN_CONTACT?.trim() || undefined;
+  if (!contact) {
+    console.log("(SCAN_CONTACT is unset — set it so the stores you read can see who you are.)");
+  }
+
+  for (const target of targets) {
+    const copyPath = join(COPY, `${target.slug}.txt`);
+    if (existsSync(copyPath)) continue;
+    try {
+      const fetched = await fetchCopy(target.url, { own, contact });
+      writeFileSync(copyPath, `${fetched.text}\n`);
+      appendFileSync(
+        FETCH_LOG,
+        [
+          `# ${target.slug} — ${new Date().toISOString()}`,
+          `requested: ${target.url}`,
+          ...fetched.trace.map(
+            (a) => `  ${a.rung.padEnd(22)} ${a.outcome}${a.chars === undefined ? "" : ` (${a.chars} chars)`}`,
+          ),
+          "",
+        ].join("\n"),
+      );
+      const flags = [
+        fetched.thin ? "THIN — probably a JavaScript shell, paste the copy by hand" : "",
+        coverageNote(coverageGap(fetched.text, fetched.pageText, markets)) ?? "",
+      ].filter(Boolean);
+      console.log(
+        `  fetched ${target.slug.padEnd(20)} ${String(fetched.text.length).padStart(5)} chars  via ${fetched.via}` +
+          (flags.length > 0 ? `\n           ${flags.join("\n           ")}` : ""),
+      );
+    } catch (error) {
+      const why =
+        error instanceof RobotsDisallowed
+          ? "robots.txt disallows it — pass --own only if this is your own site"
+          : error instanceof Error
+            ? (error.message.split("\n")[0] ?? "failed")
+            : "failed";
+      console.log(`  skipped ${target.slug.padEnd(20)} ${why}`);
+    }
+  }
+}
+
+async function main() {
   const flag = process.argv.indexOf("--markets");
   const markets = (
     flag === -1
@@ -86,6 +144,12 @@ function main() {
   const reviewedOn = new Date();
 
   const targets = readTargets();
+  if (process.argv.includes("--fetch")) {
+    mkdirSync(COPY, { recursive: true });
+    console.log(`fetching copy for targets that have none…`);
+    await collect(targets, process.argv.includes("--own"), markets);
+    console.log("");
+  }
   const known = parseLedger(existsSync(LEDGER) ? readFileSync(LEDGER, "utf8") : "");
   const fonts = loadEmbeddedFonts();
   mkdirSync(OUT, { recursive: true });
@@ -136,7 +200,10 @@ function main() {
   }
   if (missing.length > 0) {
     console.log("");
-    console.log(`No copy saved yet for ${missing.length} — put the page's text in ${COPY}/<slug>.txt:`);
+    console.log(
+      `No copy saved yet for ${missing.length} — run again with --fetch, ` +
+        `or put the page's text in ${COPY}/<slug>.txt:`,
+    );
     for (const line of missing) console.log(`  ${line}`);
   }
   console.log("");
@@ -150,9 +217,7 @@ function main() {
   console.log(`ledger: ${LEDGER}`);
 }
 
-try {
-  main();
-} catch (error) {
+main().catch((error) => {
   console.error(error instanceof Error ? error.message : error);
   process.exitCode = 1;
-}
+});

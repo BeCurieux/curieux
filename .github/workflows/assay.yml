@@ -4,10 +4,11 @@
 # repository holds several independent products side by side, and each decides
 # its own checks rather than inheriting a sibling's.
 #
-# No secrets and no network, and that is not a precaution — the engine takes no
-# configuration and calls nothing. A run here exercises the same code path a
-# founder gets on a laptop with no accounts, which is the path the kill test
-# depends on.
+# No secrets and no network. The engine takes no configuration and calls
+# nothing, and the fetcher's tests inject their own transport — so a run here
+# never touches a real storefront. That is deliberate rather than incidental: a
+# suite depending on somebody else's shop being up goes red for reasons
+# unrelated to the commit, and this one would depend on thirty of them.
 
 name: assay
 

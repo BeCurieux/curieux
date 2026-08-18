@@ -9,20 +9,25 @@
  *
  *   pnpm scan --text "Clinically proven to clear acne in 7 days."
  *   pnpm scan --file ./page.txt --markets AU,EU
+ *   pnpm scan --url https://brand.example/products/serum
+ *   pnpm scan --url https://… --whole    # the whole page, carousels and all
  *   pnpm scan --file ./page.txt --json > result.json
  */
 
 import { readFileSync } from "node:fs";
+import { fetchCopy } from "../src/fetch/fetch.js";
+import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
 import { scan, weakestMarket } from "../src/engine/evaluate.js";
 import { badgeEligible } from "../src/engine/score.js";
 import { supportedJurisdictions } from "../src/engine/registry.js";
 import { citationLabel } from "../src/engine/framing.js";
 import type { Jurisdiction, ScanResult } from "../src/engine/types.js";
 
-type Options = { text: string; markets: Jurisdiction[]; json: boolean; reference?: string };
+type Options = { text?: string; url?: string; markets: Jurisdiction[]; json: boolean; reference?: string };
 
 function parse(argv: string[]): Options {
   let text: string | undefined;
+  let url: string | undefined;
   let reference: string | undefined;
   let markets = supportedJurisdictions();
   let json = false;
@@ -40,6 +45,10 @@ function parse(argv: string[]): Options {
     } else if (arg === "--markets" && next !== undefined) {
       markets = next.split(",").map((m) => m.trim().toUpperCase()) as Jurisdiction[];
       i += 1;
+    } else if (arg === "--url" && next !== undefined) {
+      url = next;
+      reference = next;
+      i += 1;
     } else if (arg === "--json") {
       json = true;
     } else if (arg && !arg.startsWith("--") && text === undefined) {
@@ -47,13 +56,14 @@ function parse(argv: string[]): Options {
     }
   }
 
-  if (text === undefined) {
+  if (text === undefined && url === undefined) {
     throw new Error(
-      "Nothing to scan. Pass copy as --text \"…\", a path as --file ./page.txt, or the copy as the first argument.\n" +
+      "Nothing to scan. Pass copy as --text \"…\", a path as --file ./page.txt, a page as " +
+        "--url https://…, or the copy as the first argument.\n" +
         `Markets available: ${supportedJurisdictions().join(", ")}.`,
     );
   }
-  return { text, markets, json, reference };
+  return { text, url, markets, json, reference };
 }
 
 const BAR = "─".repeat(72);
@@ -107,19 +117,50 @@ function render(result: ScanResult): string {
   return lines.join("\n");
 }
 
-function main() {
+async function main() {
   const options = parse(process.argv.slice(2));
+
+  let text = options.text;
+  if (text === undefined && options.url) {
+    const fetched = await fetchCopy(options.url, {
+      own: process.argv.includes("--own"),
+      contact: process.env.SCAN_CONTACT?.trim() || undefined,
+    });
+    text = process.argv.includes("--whole") ? fetched.pageText : fetched.text;
+    if (!options.json) {
+      for (const attempt of fetched.trace) {
+        console.log(
+          `  ${attempt.rung.padEnd(22)} ${attempt.outcome}` +
+            (attempt.chars === undefined ? "" : ` (${attempt.chars} chars)`),
+        );
+      }
+      const note = process.argv.includes("--whole")
+        ? null
+        : coverageNote(coverageGap(text, fetched.pageText, options.markets));
+      if (note) console.log(`  ${note}\n`);
+      else console.log("");
+    }
+    if (fetched.thin) {
+      throw new Error(
+        `${options.url} gave back ${fetched.text.length} characters — almost certainly a page that ` +
+          `builds itself in the browser. Copy the text by hand and use --file.`,
+      );
+    }
+  }
+
   const result = scan({
-    text: options.text,
-    source: options.reference ? { kind: "upload", reference: options.reference } : { kind: "paste" },
+    text: text ?? "",
+    source: options.url
+      ? { kind: "url", reference: options.url }
+      : options.reference
+        ? { kind: "upload", reference: options.reference }
+        : { kind: "paste" },
     jurisdictions: options.markets,
   });
   console.log(options.json ? JSON.stringify(result, null, 2) : render(result));
 }
 
-try {
-  main();
-} catch (error) {
+main().catch((error) => {
   console.error(error instanceof Error ? error.message : error);
   process.exitCode = 1;
-}
+});

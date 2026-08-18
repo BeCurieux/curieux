@@ -44,14 +44,17 @@ Read              2 claims, 5 findings
 |---|---|
 | `pnpm scan --text "…"` | Scan pasted copy against every market |
 | `pnpm scan --file page.txt --markets AU,EU` | Scan a file against selected markets |
+| `pnpm scan --url https://…` | Fetch a page and scan it |
+| `pnpm scan --url https://… --whole` | Scan the whole page, carousels and all |
 | `pnpm scan --file page.txt --json` | The whole `ScanResult`, as JSON |
 | `pnpm card --file page.txt --out ./cards/x` | The result page, the share card and the badge |
 | `pnpm card … --wordmark VOUCH` | Put a candidate name in the masthead |
 | `pnpm card … --png` | Rasterise the share card, if a Chromium is around |
 | `pnpm calibrate` | Is the corpus loud in the right places? Eight invented pages |
 | `pnpm killtest` | Run the §10 targets, render the cards, keep the ledger |
+| `pnpm killtest --fetch` | …collecting the copy for any target that has none |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 202 tests, no network, no key |
+| `pnpm test` · `pnpm typecheck` | 245 tests, no network, no key |
 
 ## How a scan works
 
@@ -236,6 +239,59 @@ prints every market's score and names which one the headline came from.
 requires the `clear` band, and the band rule keeps a page carrying a
 high-severity finding out of `clear` regardless of arithmetic.
 
+## Fetching a page
+
+```
+pnpm scan --url https://brand.example/products/serum
+pnpm killtest --fetch
+```
+
+Opened ahead of its place in the build order, deliberately — see CLAUDE.md.
+
+**The ladder.** Shopify's product endpoint first, then JSON-LD, then the page's
+`<main>`, then the whole document. Structured sources win because a PDP carries
+a related-products carousel and a review widget full of claims about *other*
+products, and a card marking a phrase the founder cannot find on their page is
+the fastest way to lose them. Every rung lands in the trace whether it worked
+or not — "why did this come back empty" is the question thirty targets will
+ask.
+
+**And it says what it left out.** A product description has no hero line and no
+"our promise" block, which is exactly where environmental claims live. So the
+whole page comes back too, the corpus runs over both, and the difference is
+named:
+
+```
+  shopify product json   product found (232 chars)
+  page                   fetched (1058 chars)
+  elsewhere on the page, outside the product description: "eco-friendly",
+  "heals". Add those lines to the copy, or rescan with --whole.
+```
+
+The first version of that check compared character counts against a threshold.
+It was useless in the only case that mattered: the page that prompted it held
+one extra sentence, 118 characters long, and the sentence was "we are a carbon
+neutral, eco-friendly brand". What matters is not how much was missed but
+whether the missed part trips anything.
+
+**Reading somebody's page is conduct, not a feature.** The kill test reads a
+stranger's page and then writes to that stranger about it, so:
+
+- robots.txt is obeyed, and a 5xx on it fails closed rather than open
+- requests are serialised with a pause, and `Crawl-delay` is honoured
+- the agent string names the tool, and carries `SCAN_CONTACT` when it is set
+- `--own` skips the robots check, and is only ever legitimate for your own site
+
+No dependency was added for any of it. The parsing is careful string work with
+tests on the cases that break it — a `</script>` inside a script, entities that
+would split a phrase in half, and block elements that need a newline so
+"Firms skinBrightens" never reaches the scanner.
+
+**What it cannot do.** A page that builds itself in the browser returns a nav
+bar; that comes back marked thin and refuses to be scanned rather than scoring
+the navigation. Paste those by hand.
+
+
 ## Calibration
 
 `pnpm calibrate` runs the corpus over eight invented pages spanning the buyer's
@@ -305,7 +361,6 @@ Read this section before showing anything from this engine to a brand.
 - **21 rules is a slice, not coverage.** It is the wedge, authored in the order
   §7 asked for. `pnpm rules` is the honest picture, and it should be run before
   a market is promised to anybody.
-- **Nothing here fetches a URL.** Paste or a file, for now.
 - **The rewrites are not written yet.** Every note shows the rule's remedy —
   what would settle it — rather than a drafted alternative in the brand's
   voice. Drafting those is the model's job in step 4, and `resultPage` already
@@ -348,6 +403,12 @@ src/card/badge.ts         the mark, live and lapsed
 src/card/escape.ts        the security boundary, since the copy is not ours
 src/card/fonts.ts         the only file here that touches the disk
 
+src/fetch/robots.ts       obeyed, because we write to the people we read
+src/fetch/html.ts         markup to words, with no parser dependency
+src/fetch/extract.ts      the ladder — structured sources before the page
+src/fetch/coverage.ts     what a structured fetch left behind, by scanning it
+src/fetch/fetch.ts        the only file here that touches the network
+
 src/killtest/ledger.ts    the gate's arithmetic, and a round trip that is tested
 
 scripts/scan.ts           findings in a terminal
@@ -355,5 +416,5 @@ scripts/card.ts           one page, three artefacts
 scripts/killtest.ts       thirty pages, thirty cards, one ledger
 scripts/calibrate.ts      the corpus read at volume
 scripts/rules.ts          coverage, printed
-tests/                    202 tests, none of which need a network
+tests/                    245 tests, none of which need a network
 ```
