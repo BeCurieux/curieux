@@ -60,7 +60,7 @@ export default function Contact() {
         <div className="contact-say">
           <p className="tag">Early access</p>
           <h1 className="shout contact-heading">
-            ask for a<br />
+            Ask for a<br />
             <span className="shout-mark">shop.</span>
           </h1>
           <p className="lede">
@@ -93,11 +93,9 @@ export default function Contact() {
         </p>
       </section>
 
-      <section className="band band-ink closing">
+      <section className="band band-lilac closing">
         <h2 className="shout closing-heading">
-          or just
-          <br />
-          write to us.
+          Or just <span className="shout-mark">write to us.</span>
         </h2>
         <p className="lead-note">
           Some people would rather send an email than fill in a box. <a href={`mailto:${INBOX}`}>{INBOX}</a> reaches the

@@ -39,7 +39,7 @@ export default function Terms() {
       <section className="opening legal-top">
         <p className="tag">Terms</p>
         <h1 className="shout legal-heading">
-          where this
+          Where this
           <br />
           <span className="shout-mark">stands.</span>
         </h1>
@@ -127,7 +127,7 @@ export default function Terms() {
         </div>
       </section>
 
-      <section className="band band-ink closing">
+      <section className="band band-lilac closing">
         <SiteFoot />
       </section>
     </main>

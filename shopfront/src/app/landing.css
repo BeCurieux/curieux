@@ -1,104 +1,238 @@
 /*
- * The front door.
+ * The marketing site.
  *
- * Cream ground with purple fields cut into it — a decision about the product
- * rather than about taste. A site that is violet from top to bottom makes every
- * shop on it look like a popuup product, and the whole argument here is that a
- * generated shop looks like the merchant. Purple is where popuup speaks in its
- * own voice; coral punctuates and appears perhaps five times on the page.
+ * Rewritten against the owner's reference boards. The old page was a set of
+ * full-bleed colour bands with very large lowercase type — good-looking, and
+ * structurally nothing like a site a merchant has seen before, which made it
+ * hard to read as a product. This is the conventional shape done properly:
+ * cream ground, white cards on it, a two-tone serif headline, numbered steps
+ * with arrows between them, an icon row, a comparison table.
  *
- * Colour, type, spacing and radii are tokens at the top. Nothing below invents
- * a value.
+ * What did *not* come across from the boards is every invented fact on them —
+ * the logo wall, the star rating, the "1,000+ stores", the analytics card, the
+ * "live and syncing" chip, the plans with a Start-for-free button on a product
+ * that cannot take money. Those are the reason `tests/marketing.test.tsx`
+ * exists. Each one has a true replacement in the page, and the layout that was
+ * holding it is kept.
  *
- * The bands are deliberately tighter than they were. The page was eight and a
- * half viewports of well-spaced content, which is a different problem from
- * cramped: every scroll should land on something intentional, and three of them
- * were landing on the gap between two ideas.
+ * Palette unchanged, because it was already the boards': purple is popuup's
+ * own voice, coral is where a reader is meant to stop, cream is the ground. A
+ * site that is purple everywhere makes every shop on it look like a popuup
+ * product, and the whole argument is that a generated shop looks like the
+ * merchant — so purple is used in fields and marks, not as the page.
  *
- * Mobile-first. The one exception is the rail of shops, horizontal at every
- * width — four phones stacked vertically is four separate pictures, and the
- * argument is that they do not look alike.
+ * Tokens at the top. Nothing below invents a value.
+ *
+ * Mobile-first. The two exceptions are the rail of five shops and the mechanic
+ * in the opening, both horizontal at every width: they are comparisons, and a
+ * comparison stacked vertically is a list of separate pictures.
  */
 
 .landing {
   /* ---------------------------------------------------------- colour */
   --purple: #6d3cf5;
-  --purple-deep: #3f1aa8;
+  --purple-deep: #4a1fc0;
+  --purple-ink: #3b1596;
   --coral: #ff6b61;
-  --cream: #fff8ee;
-  --ink: #202133;
-  --ink-deep: #16172a;
-  --lilac: #e9e0ff;
-  /*
-   * Acid, and it appears exactly once on the site.
-   *
-   * A fourth colour is a liability: purple is popuup's voice, coral is where
-   * the reader is meant to stop, and adding a third accent for general use
-   * would make both mean less. It earns its place on one job — the annotation
-   * that says a shop rebuilt itself — because that is the one claim on the
-   * page a reader is most likely to skim past, and it is the only place a
-   * colour nobody has seen yet is doing work rather than decorating.
-   *
-   * Ink on acid, never cream: at this luminance white text fails contrast
-   * badly enough that it would be a legibility bug rather than a taste one.
-   */
-  --acid: #dfff38;
+  --coral-deep: #e8483d;
+  --cream: #fdf8ef;
+  --paper: #ffffff;
+  --ink: #16172a;
+  --ink-mid: #202133;
+  --lilac: #efe9ff;
+  --lilac-deep: #e2d8ff;
+  /* The sticky note, and the only yellow on the site. */
+  --butter: #f7ea6a;
 
-  /* Two inks and two creams, so "quieter" never means "grey". */
-  --on-cream: var(--ink);
+  /* Two inks, so "quieter" never means "grey". */
+  --on-cream: var(--ink-mid);
   --on-cream-soft: #5c5d70;
-  --on-dark: var(--cream);
-  --on-dark-soft: rgb(255 248 238 / 0.88);
+  --on-dark: #fdf8ef;
+  --on-dark-soft: rgb(253 248 239 / 0.86);
+
+  --line: rgb(22 23 42 / 0.1);
+  --line-soft: rgb(22 23 42 / 0.06);
+
+  /* --------------------------------------------------------- surfaces */
+  /*
+   * Two lifts, not five. A card that is merely on the page uses the first; a
+   * card the page wants read first uses the second. Anything needing a third
+   * is a layout problem wearing a shadow.
+   */
+  --lift: 0 1px 2px rgb(22 23 42 / 0.04), 0 10px 26px -16px rgb(22 23 42 / 0.22);
+  --lift-hi: 0 2px 4px rgb(22 23 42 / 0.05), 0 26px 52px -22px rgb(22 23 42 / 0.32);
 
   /* ------------------------------------------------------------ type */
-  --shout: clamp(3rem, 14vw, 7rem);
-  --lead: clamp(1.9rem, 6.5vw, 3.25rem);
-  --body: clamp(1rem, 3.4vw, 1.0625rem);
+  --shout: clamp(2.7rem, 9.4vw, 4.75rem);
+  --lead: clamp(1.85rem, 5.6vw, 2.9rem);
+  --sub: clamp(1.15rem, 3.6vw, 1.4rem);
+  --body: clamp(1rem, 3.2vw, 1.0625rem);
+  --small: 0.875rem;
+  --micro: 0.75rem;
 
   /* --------------------------------------------------------- spacing */
-  --gutter: clamp(1.5rem, 6vw, 5rem);
-  --band: clamp(2.25rem, 5.5vw, 4rem);
-  --measure: 1240px;
+  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --band: clamp(3rem, 7vw, 5.5rem);
+  --measure: 1180px;
 
   /* ---------------------------------------------------------- shapes */
-  --r-lg: clamp(20px, 4vw, 30px);
+  --r-sm: 12px;
+  --r: 18px;
+  --r-lg: 26px;
   --r-pill: 999px;
-  --edge: 2px;
 
   background: var(--cream);
   color: var(--on-cream);
   font-family: var(--font-brand-sans), system-ui, sans-serif;
+  font-size: var(--body);
+  line-height: 1.62;
   overflow-x: clip;
 }
 
-/* Every axis at once: heavy, rounded terminals, alternate letterforms. */
+/*
+ * Images never widen the thing holding them.
+ *
+ * A grid or flex item's automatic minimum size is its *content's* min-content
+ * width, and for an `<img>` that is the intrinsic pixel width of the file —
+ * `width: 100%` does not enter into it. Every photograph on this site is
+ * 1200px or wider, so a track holding one resolves to 1200px and drags the
+ * whole row with it. It renders as a column of enormous white boxes and it is
+ * completely silent: no overflow, no warning, and the page still passes a
+ * horizontal-scroll check because the grid simply grew.
+ *
+ * Stated once, here, rather than as `min-width: 0` sprinkled through twelve
+ * component rules where the next person deletes one of them.
+ */
+/*
+ * `height: auto` is not tidiness. It is the half that makes `aspect-ratio`
+ * work at all.
+ *
+ * Every `<img>` here carries `width`/`height` attributes, which the ingester
+ * needs and which reserve space so nothing jumps as photographs arrive. Those
+ * attributes are *presentational hints*: they set the CSS `width` and `height`
+ * properties, not just an intrinsic ratio. So `width: 100%` narrowed each
+ * image to its column and the height stayed at the attribute's 1500px, an
+ * `aspect-ratio` beside it was ignored because neither dimension was auto, and
+ * a 240px-wide card came out 1628px tall. Silently: no overflow, no warning.
+ */
+.landing img {
+  max-width: 100%;
+  height: auto;
+}
+
+.landing :is(.mech, .howto, .rail, .flow, .flow-out, .duo, .gains, .tiers) > * {
+  min-width: 0;
+}
+
+.landing :is(.howto-fig, .howto-mini, .mech-post, .flow-out a, .rail figure, .device) {
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------ type */
+
+/*
+ * The display face, sentence case and tight.
+ *
+ * The previous setting ran every axis at once — WONK on, SOFT at 100, 7rem of
+ * lowercase — which read as a poster rather than as a headline. WONK is off
+ * and the size is halved, so the words are the loud part.
+ */
 .landing .shout {
   font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
-  font-weight: 900;
-  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
-  letter-spacing: -0.034em;
-  line-height: 0.88;
+  font-weight: 800;
+  font-variation-settings: "SOFT" 40, "WONK" 0, "opsz" 144;
   font-size: var(--shout);
+  letter-spacing: -0.032em;
+  line-height: 0.96;
   text-wrap: balance;
+  margin: 0;
+}
+
+/* The second half of a two-tone headline. Always the last clause, never the
+   first: the purple is the turn, and a turn cannot come first. */
+.landing .shout-mark {
+  color: var(--purple);
 }
 
 .landing .lead {
   font-family: var(--font-brand-display), Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 40, "opsz" 100;
   font-size: var(--lead);
-  font-weight: 500;
-  letter-spacing: -0.022em;
-  line-height: 1.02;
+  letter-spacing: -0.024em;
+  line-height: 1.06;
   text-wrap: balance;
+  margin: 0;
 }
 
-/*
- * One measure for the whole page. Every band is full-bleed colour, so the
- * alignment comes from padding rather than a wrapper element.
- */
+.landing .lede {
+  font-size: var(--sub);
+  line-height: 1.5;
+  color: var(--on-cream-soft);
+  max-width: 30ch;
+  margin: 0;
+}
+
+.landing .lede-sub {
+  font-size: var(--body);
+  color: var(--on-cream-soft);
+  max-width: 46ch;
+  margin: 0;
+}
+
+.landing .lead-note {
+  font-size: var(--body);
+  color: var(--on-dark-soft);
+  max-width: 56ch;
+  margin: 0;
+}
+
+/* The same note on cream rather than on a dark band. */
+.landing .lead-note-dark {
+  color: var(--on-cream-soft);
+}
+
+/* The eyebrow pill. A bordered capsule, not a bare line of small caps. */
+.landing .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+  padding: 0.45rem 0.95rem 0.45rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  box-shadow: var(--lift);
+  font-size: var(--micro);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple-deep);
+}
+
+.landing .tag-burst {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--coral);
+}
+
+/* Screen-reader-only headings, where the visual order already says it. */
+.landing .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- measure */
+
 .bar,
 .opening,
-.band,
-.proof > * {
+.band {
   padding-inline: max(var(--gutter), calc((100% - var(--measure)) / 2));
 }
 
@@ -112,487 +246,791 @@
 }
 
 .band-ink {
-  background: var(--ink-deep);
+  background: var(--ink);
   color: var(--on-dark);
 }
 
+/*
+ * Every page closes on lilac.
+ *
+ * It used to close on ink, and the foot carried the light wordmark for that
+ * reason. Six pages ending on the same ground means one foot, one wordmark and
+ * one set of colours rather than a prop threaded through all of them — so the
+ * copy classes written for a dark band are restated here instead of each page
+ * remembering to swap them.
+ */
 .band-lilac {
   background: var(--lilac);
+  color: var(--on-cream);
 }
 
-/* --------------------------------------------------------------- buttons */
+.band-lilac :is(.lead-note, .rail q, .rail-note, .foot-line, .negations-note) {
+  color: var(--on-cream-soft);
+}
 
-/* Tactile rather than glassy: flat fill, a hard ink edge, and a shadow that is
-   an offset of that edge instead of a blur. */
-.btn {
+.band-paper {
+  background: var(--paper);
+}
+
+/* A centred heading block above a grid. Used four times. */
+.band-top {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  text-align: center;
+  margin-bottom: clamp(2rem, 5vw, 3.25rem);
+}
+
+.band-top .lead-note,
+.band-top .lede-sub {
+  max-width: 52ch;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------- the buttons */
+
+.landing .btn {
   display: inline-flex;
   align-items: center;
   gap: 0.55em;
-  border: var(--edge) solid var(--ink);
+  padding: 0.8rem 1.35rem;
+  border: 0;
   border-radius: var(--r-pill);
   background: var(--purple);
-  color: var(--cream);
+  color: #fff;
+  font: inherit;
   font-weight: 600;
+  font-size: var(--small);
   text-decoration: none;
-  box-shadow: 4px 4px 0 var(--ink);
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(74 31 192 / 0.24), 0 12px 24px -14px rgb(74 31 192 / 0.7);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
-.btn-sm {
-  /* 44px minimum, derived rather than typed. */
-  padding: max(0.55rem, calc((44px - 1lh) / 2)) 1.1rem;
-  font-size: 0.9375rem;
+.landing .btn:hover {
+  background: var(--purple-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgb(74 31 192 / 0.26), 0 18px 32px -16px rgb(74 31 192 / 0.8);
 }
 
-.btn-lg {
-  margin-top: clamp(1.5rem, 4vw, 2rem);
-  padding: max(0.95rem, calc((44px - 1lh) / 2)) 1.9rem;
-  font-size: clamp(1.0625rem, 3.6vw, 1.25rem);
+.landing .btn:active {
+  transform: translateY(0);
 }
 
-.btn-coral {
+.landing .btn-lg {
+  padding: 1.05rem 1.8rem;
+  font-size: var(--body);
+}
+
+.landing .btn-sm {
+  padding: 0.62rem 1.1rem;
+}
+
+.landing .btn-coral {
   background: var(--coral);
   color: var(--ink);
+  box-shadow: 0 1px 2px rgb(232 72 61 / 0.22), 0 12px 24px -14px rgb(232 72 61 / 0.7);
 }
 
-.band-purple .btn {
-  border-color: var(--cream);
-  box-shadow: 4px 4px 0 var(--purple-deep);
+.landing .btn-coral:hover {
+  background: var(--coral-deep);
+  color: #fff;
+}
+
+/* Outline button, for the second action beside a filled one. */
+.landing .btn-ghost {
+  background: transparent;
+  color: var(--purple-deep);
+  border: 1.5px solid var(--purple);
+  box-shadow: none;
+}
+
+.landing .btn-ghost:hover {
+  background: var(--lilac);
+  color: var(--purple-deep);
+  box-shadow: none;
+}
+
+/* On a dark or purple band the filled purple button disappears. */
+.band-purple .btn-ghost,
+.band-ink .btn-ghost {
+  color: var(--on-dark);
+  border-color: rgb(253 248 239 / 0.5);
+}
+
+.band-purple .btn-ghost:hover,
+.band-ink .btn-ghost:hover {
+  background: rgb(253 248 239 / 0.12);
+  color: var(--on-dark);
 }
 
 /* ------------------------------------------------------------------- bar */
 
 .bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-block: clamp(1rem, 3vw, 1.5rem);
+  padding-block: 0.85rem;
+  background: rgb(253 248 239 / 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+/* The hairline only appears once the page has moved under it. */
+@supports (animation-timeline: scroll()) {
+  .bar {
+    animation: bar-settle linear both;
+    animation-timeline: scroll();
+    animation-range: 0 120px;
+  }
+
+  @keyframes bar-settle {
+    to {
+      border-bottom-color: var(--line);
+    }
+  }
+}
+
+/*
+ * Specificity, not style. `.landing img` above sets `height: auto`, which at
+ * (0,1,1) outranks a bare `.bar-mark` at (0,1,0) — so the wordmark fell back to
+ * its `height` attribute and the footer logo rendered five times its size. The
+ * class is qualified so the two rules cannot race.
+ */
+.landing .bar-mark {
+  display: block;
+  width: auto;
+  height: clamp(28px, 6vw, 34px);
+}
+
+.landing .foot .bar-mark {
+  height: clamp(24px, 5vw, 30px);
 }
 
 .bar-nav {
   display: flex;
   align-items: center;
-  gap: clamp(0.85rem, 3vw, 1.5rem);
-}
-
-/*
- * Two text links plus a button is more than a 320px phone has room for beside
- * a wordmark. "Examples" is the one that goes: a merchant who wants to see one
- * has the whole front page of them, and the button is the thing this bar is
- * for.
- */
-@media (max-width: 420px) {
-  .bar-nav a[href="/examples"] {
-    display: none;
-  }
+  gap: clamp(0.5rem, 2.4vw, 1.9rem);
 }
 
 .bar-nav a:not(.btn) {
-  font-size: 0.9375rem;
-  font-weight: 500;
   color: var(--on-cream);
   text-decoration: none;
-  /* 44px target without changing where the baseline sits. */
-  padding-block: max(0px, calc((44px - 1lh) / 2));
-  margin-block: min(0px, calc((1lh - 44px) / 2));
+  font-size: var(--small);
+  font-weight: 500;
+  transition: color 0.16s ease;
 }
 
 .bar-nav a:not(.btn):hover {
-  text-decoration: underline;
-  text-underline-offset: 0.35em;
+  color: var(--purple);
 }
 
-.bar-mark {
-  display: block;
-  width: clamp(104px, 15vw, 148px);
-  height: auto;
-}
-
-/*
- * The wordmark is a link home, and it was a 32px one.
- *
- * Measured rather than noticed: the anchor wraps an image and takes its
- * height, and at 320px that image is 25px tall. It is the link a merchant taps
- * to get back to the front of the site, and it was the smallest target on
- * every page.
- *
- * A flex box with a floor rather than padding, because padding on the anchor
- * would push the wordmark off the bar's optical centre.
- */
-.bar a:has(.bar-mark) {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+/* Below the fold of a phone the nav links crowd the mark out. The action
+   survives; the links are in the foot, which is where they get used anyway. */
+@media (max-width: 33rem) {
+  .bar-nav a:not(.btn) {
+    display: none;
+  }
 }
 
 /* --------------------------------------------------------------- opening */
 
 .opening {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2rem, 5vw, 3.5rem);
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  justify-items: start;
+}
+
+.opening-say {
+  display: grid;
+  gap: 1.15rem;
+  justify-items: start;
+  max-width: 34ch;
+}
+
+/* The headline, its squiggle, and the space the squiggle needs under it. */
+.opening-head {
   position: relative;
-  padding-block: clamp(0.5rem, 3vw, 1.5rem) var(--band);
+  padding-bottom: 0.5em;
 }
 
-.tag {
-  display: inline-flex;
-  /* Belt and braces: `inline-flex` hugs in normal flow but stretches as a grid
-     or flex item, which is how this pill ended up half a page wide. */
-  width: fit-content;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.4rem 0.9rem 0.4rem 0.6rem;
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-pill);
-  background: var(--lilac);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.tag-burst {
-  width: 0.95em;
-  height: 0.95em;
+.opening-squiggle {
+  position: absolute;
+  left: 0.06em;
+  bottom: 0.06em;
+  width: min(52%, 15rem);
+  height: auto;
   color: var(--coral);
 }
 
-.shout-mark {
-  color: var(--purple);
+.opening-do {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
 }
 
-.opening .shout {
-  margin-top: clamp(1rem, 3.5vw, 1.75rem);
+/*
+ * The three checks under the action.
+ *
+ * Every one of them is a fact about what runs today. The board this replaces
+ * had "Always in stock" here, which is the opposite of the product rule — a
+ * sold-out product is shown and marked, never hidden — so it says that instead.
+ */
+.ticks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.35rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: var(--small);
+  font-weight: 500;
 }
 
-.lede {
-  max-width: 33ch;
-  margin-top: clamp(1.1rem, 3.5vw, 1.5rem);
-  font-size: clamp(1.0625rem, 3.6vw, 1.25rem);
-  line-height: 1.5;
-  color: var(--on-cream-soft);
+.ticks li {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
 }
 
-.lede-sub {
-  max-width: 33ch;
-  margin-top: 0.6rem;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: var(--on-cream-soft);
-  opacity: 0.85;
+.ticks li::before {
+  content: "";
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: 50%;
+  background: var(--purple) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center / 0.72em no-repeat;
+}
+
+.band-purple .ticks li::before,
+.band-ink .ticks li::before {
+  background-color: var(--coral);
 }
 
 .note {
-  max-width: 33ch;
-  margin-top: 0.9rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: var(--small);
   color: var(--on-cream-soft);
+  max-width: 44ch;
+  margin: 0;
 }
 
-/* ----------------------------------------------------------- the stage */
+/* ------------------------------------------------------------ the mechanic */
 
 /*
- * The sentence, what it was read as, and the shop that came out — one object.
- * They overlap rather than sitting side by side, because side by side is three
- * pictures and overlapping is a claim about cause. The burst bleeds off the
- * right edge, which is what stops the composition reading as a screenshot.
- */
-.stage {
-  position: relative;
-  margin-top: clamp(2rem, 6vw, 3rem);
-}
-
-.stage-burst {
-  position: absolute;
-  z-index: 0;
-  top: -6%;
-  right: -22%;
-  width: clamp(8rem, 36vw, 15rem);
-  color: var(--coral);
-  opacity: 0.9;
-}
-
-.device {
-  display: block;
-  padding: 7px;
-  border: var(--edge) solid var(--ink);
-  border-radius: 34px;
-  background: var(--ink);
-  box-shadow: 6px 8px 0 rgb(32 33 51 / 0.16);
-}
-
-/* Direct child only: the opening's device wraps its capture in `.screen` so it
-   can be revealed in bands, and that one is sized below. */
-.device > img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 27px;
-  /* The captures are the top of a page, not a whole one. Clipping to a device
-     aspect keeps every shop the same height whatever it put in its hero. */
-  aspect-ratio: 39 / 68;
-  object-fit: cover;
-  object-position: top;
-}
-
-/*
- * The screen, so the shop can arrive in pieces.
+ * The post, the sentence, the shop — as one object with arrows between.
  *
- * Three copies of one capture, each clipped to a horizontal band. They land a
- * beat apart and read as products appearing row by row — and every pixel is
- * the real renderer's, which is the reason for the whole contrivance. The ink
- * underneath is what shows before the first band arrives, and is also the
- * resting state for a browser that skips animation, so the bands are visible
- * by default and the timeline hides them.
+ * This is the whole product in one picture and it is the thing the reference
+ * board got most right. Three panels rather than a phone on its own: a phone
+ * alone shows an outcome, and the outcome is not the surprising part. The
+ * surprising part is that the middle panel is all the work there is.
+ *
+ * Everything in it is real except the post, which is our own demo brand's
+ * photograph in a card drawn here — nobody's actual post is borrowed, and the
+ * caption says so. The sentence is the demo config's own, and the phone is
+ * `pnpm press` output from the shop that sentence produced.
  */
-.screen {
-  position: relative;
-  display: block;
-  aspect-ratio: 39 / 68;
-  border-radius: 27px;
-  overflow: hidden;
-  background: var(--ink);
-}
-
-.screen-band {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-}
-
-/* Percentages of the visible capture, against the shop template's own rhythm:
-   masthead and hero, the first row of cards, the second. */
-.screen-band:nth-child(1) {
-  clip-path: inset(0 0 62% 0);
-}
-.screen-band:nth-child(2) {
-  clip-path: inset(38% 0 30% 0);
-}
-.screen-band:nth-child(3) {
-  clip-path: inset(70% 0 0 0);
-}
-
-/*
- * The middle of the mechanic, and the part a finished mockup hides: the
- * sentence being turned into constraints. Invisible at rest, so a browser that
- * skips animation never shows a page claiming to be thinking about something.
- */
-.think {
-  position: absolute;
-  z-index: 3;
-  left: 50%;
-  top: 44%;
-  transform: translate(-50%, -50%);
+.mech {
+  /*
+   * Sized so the third panel *peeks* on a phone.
+   *
+   * At 27vw the post and the sentence exactly filled a 390px viewport and the
+   * shop began one pixel past the edge — a scroll container with no indication
+   * that it scrolls, which reads as a two-step mechanic that stops before the
+   * point. 33vw leaves about 50px of the phone showing.
+   */
+  --panel: clamp(8.25rem, 33vw, 15rem);
+  /* Flex rather than grid: the three panels are a fixed width and the two
+     arrows are whatever they are, which is two track sizes, not one. */
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  width: max-content;
-  max-width: 92%;
-  opacity: 0;
+  justify-content: flex-start;
+  gap: clamp(0.5rem, 1.6vw, 1.1rem);
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-block: 0.5rem 1rem;
+  /* The arrows sit between panels, so the row needs its own inline padding
+     back when it scrolls out of the measure on a phone. */
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
 }
 
-.think-lead {
-  padding: 0.45rem 0.85rem;
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-pill);
-  background: var(--cream);
-  box-shadow: 3px 3px 0 var(--purple);
-  font-size: 0.7rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.think-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.3rem;
-}
-
-.think-chips i {
-  padding: 0.25rem 0.55rem;
-  border-radius: var(--r-pill);
-  background: var(--purple);
-  color: var(--cream);
-  font-size: 0.625rem;
-  font-style: normal;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.device-lg {
-  position: relative;
-  z-index: 1;
-  width: min(17rem, 70%);
-  margin-left: auto;
-  transform: rotate(2.5deg);
+.mech::-webkit-scrollbar {
+  display: none;
 }
 
 /*
- * The prompt field, shown rather than described. It is not an input: there is
- * nothing behind it, and a box that swallows a sentence and does nothing is a
- * worse first impression than an honest picture of one.
+ * Fixed-width and scrolling on a phone; shrinking to fit from the width the
+ * opening becomes two columns.
+ *
+ * Three panels at their natural size are wider than the column they sit in at
+ * 1280, and `overflow-x: clip` on the page meant the third one — the shop,
+ * which is the payoff — was simply cut off at the viewport edge with nothing
+ * to indicate it. Nothing reports that: the document never scrolls sideways,
+ * so an overflow check passes.
  */
-.prompt {
-  position: relative;
-  z-index: 2;
-  width: min(23rem, 92%);
-  margin-top: -18%;
-  padding: clamp(1rem, 3.4vw, 1.4rem) clamp(1.1rem, 3.8vw, 1.5rem) clamp(0.9rem, 3vw, 1.25rem);
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-lg);
-  background: #fff;
-  box-shadow: 8px 10px 0 var(--purple);
-  transform: rotate(-1.5deg);
+.mech figure {
+  margin: 0;
+  display: grid;
+  gap: 0.55rem;
+  justify-items: start;
+  flex: none;
+  width: var(--panel);
 }
 
-.prompt figcaption {
-  font-size: 0.6875rem;
+.mech-arrow {
+  flex: none;
+}
+
+.mech figcaption {
+  order: -1;
+  font-size: var(--micro);
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--purple);
 }
 
-.prompt p {
-  margin-top: 0.65rem;
-  font-size: clamp(1rem, 3.8vw, 1.25rem);
-  line-height: 1.26;
+/* The arrow between two panels. */
+.mech-arrow {
+  width: clamp(1.5rem, 4vw, 2.6rem);
+  height: auto;
+  color: var(--coral);
+  align-self: center;
+  /* Optically centred against the panels, whose captions sit above them. */
+  margin-top: 1.1rem;
 }
 
-/* Steady, not blinking: an animated cursor on a still page costs a repaint
-   every half second for the whole visit. */
+/* --- the post ------------------------------------------------------------ */
+
+.mech-post {
+  width: 100%;
+  border-radius: var(--r);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
+  overflow: hidden;
+}
+
+.mech-post img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.mech-post-say {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.7rem 0.75rem 0.8rem;
+}
+
+.mech-post-say b {
+  font-size: var(--small);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mech-post-say span {
+  font-size: var(--micro);
+  color: var(--on-cream-soft);
+  line-height: 1.45;
+}
+
+/* Says "demo" where somebody reads it, rather than in a comment. */
+.mech-post-say em {
+  font-style: normal;
+  font-size: var(--micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-cream-soft);
+  opacity: 0.75;
+}
+
+/* --- the prompt ---------------------------------------------------------- */
+
+/*
+ * The panel that is a figure and not an input.
+ *
+ * There is nothing behind it: a box that swallows a sentence and does nothing
+ * is a worse first impression than an honest picture of one. The real field is
+ * on `/contact`, which is where the button in the opening goes.
+ */
+.mech-prompt {
+  position: relative;
+  width: 100%;
+  padding: 1rem 1rem 1.1rem;
+  border-radius: var(--r);
+  background: var(--paper);
+  border: 1.5px solid var(--purple);
+  box-shadow: 4px 5px 0 var(--purple);
+  display: grid;
+  gap: 0.7rem;
+}
+
+.mech-prompt-burst {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--coral);
+}
+
+.mech-prompt p {
+  margin: 0;
+  font-size: var(--small);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.mech-prompt hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+/* Each word arriving a beat apart, then the caret. Motion is the only thing
+   here that says a person typed it. */
+.typed {
+  display: inline-block;
+  animation: typed 0.01s linear both;
+  animation-delay: calc(var(--w) * 0.07s + 0.35s);
+  opacity: 0;
+}
+
+@keyframes typed {
+  to {
+    opacity: 1;
+  }
+}
+
 .caret {
   display: inline-block;
-  width: 3px;
-  height: 0.86em;
-  margin-left: 0.28em;
-  background: var(--coral);
-  transform: translateY(0.13em);
-}
-
-.prompt-go {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  margin-top: 0.9rem;
-  padding: 0.42rem 0.9rem;
-  border-radius: var(--r-pill);
+  width: 1.5px;
+  height: 1em;
+  vertical-align: -0.13em;
   background: var(--purple);
-  color: var(--cream);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  animation: caret 1.05s steps(1) infinite;
 }
 
-.prompt-burst {
-  width: 0.8em;
-  height: 0.8em;
-  color: var(--coral);
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
 }
 
-/* ------------------------------------------------------------------- why */
-
-/* Three lines. The visitor has already felt this, and explaining it at length
-   insults them. */
-.why {
-  padding-block: clamp(1.5rem, 3.5vw, 2.25rem);
+@media (prefers-reduced-motion: reduce) {
+  .typed,
+  .caret {
+    animation: none;
+    opacity: 1;
+  }
 }
 
-.why-line {
+/* --- the shop ------------------------------------------------------------ */
+
+/*
+ * A phone, drawn in CSS around a real screenshot.
+ *
+ * `.device` is shared with `/examples`, which is why the bezel lives here
+ * rather than in a page file. The burst behind it is the one piece of pure
+ * decoration on the page and it marks the panel that is the payoff.
+ */
+.device {
   position: relative;
-  max-width: 24ch;
-  font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.35rem, 4.6vw, 2rem);
-  font-weight: 500;
-  line-height: 1.16;
-  letter-spacing: -0.018em;
-  text-wrap: balance;
-}
-
-.why-squiggle {
   display: block;
-  width: clamp(5rem, 16vw, 7rem);
-  margin-top: 0.6rem;
-  color: var(--coral);
+  width: 100%;
+  border-radius: clamp(14px, 3.4vw, 26px);
+  padding: 0.36rem;
+  background: var(--ink);
+  box-shadow: var(--lift-hi);
 }
 
-/* ----------------------------------------------------------------- proof */
+.device img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 390 / 845;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: clamp(10px, 2.6vw, 20px);
+  background: var(--cream);
+}
 
-.lead-note {
-  max-width: 44ch;
-  margin-top: clamp(0.9rem, 3vw, 1.25rem);
-  font-size: var(--body);
-  line-height: 1.55;
+/* On a light ground the ink bezel is heavy; `/examples` uses this. */
+.device-light {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
+}
+
+.mech-shop {
+  position: relative;
+}
+
+.mech-burst {
+  position: absolute;
+  top: -0.9rem;
+  right: -1.1rem;
+  width: clamp(2.6rem, 7vw, 4.25rem);
+  height: auto;
+  color: var(--coral);
+  z-index: -1;
+}
+
+/* ------------------------------------------------------- the sticky note */
+
+/*
+ * "Different post. Different shop." — the one annotation on the page.
+ *
+ * Straight from the board, and it earns its place: it is the sentence the
+ * three panels are arguing, said once, where somebody skimming will catch it.
+ */
+/*
+ * Grouped with the mechanic rather than dropped into `.opening` directly: the
+ * opening is a two-column grid at width, and a third grid child lands wherever
+ * auto-placement puts it — which was under the copy, a column away from the
+ * thing it annotates.
+ */
+.opening-fig {
+  display: grid;
+  justify-items: end;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.stick {
+  display: inline-grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.95rem;
+  background: var(--butter);
+  color: var(--ink);
+  border-radius: 3px 12px 4px 10px;
+  font-size: var(--small);
+  font-weight: 600;
+  line-height: 1.3;
+  rotate: -2.2deg;
+  box-shadow: var(--lift);
+}
+
+/* ------------------------------------------------------------- three steps */
+
+.howto {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  grid-template-columns: 1fr;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.howto > li {
+  position: relative;
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+  align-content: start;
+  text-align: center;
+}
+
+.howto-n {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--lilac);
+  color: var(--purple-deep);
+  font-weight: 700;
+  font-size: var(--small);
+}
+
+.howto h3 {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.howto p {
+  margin: 0;
+  font-size: var(--small);
   color: var(--on-cream-soft);
+  max-width: 30ch;
 }
 
-.band-purple .lead-note,
-.band-ink .lead-note {
+/* The figure under each step: a quoted sentence, a small grid, a bag. */
+.howto-fig {
+  width: min(100%, 15rem);
+  margin-top: 0.35rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: var(--lift);
+  font-size: var(--small);
+  text-align: left;
+}
+
+.howto-fig q {
+  quotes: "\201C" "\201D";
+  font-weight: 500;
+}
+
+/* The three product thumbnails under step two. */
+.howto-mini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+
+.howto-mini img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--lilac);
+}
+
+/*
+ * The dashed connector between two steps.
+ *
+ * Absolutely positioned out of its own step rather than sitting in the grid as
+ * a sibling: an `<svg>` is not a legal child of `<ol>`, and a decorative `<li>`
+ * would put two extra items into a list a screen reader reads as "3 items".
+ * Hidden on the last step and whenever the steps stack.
+ */
+.howto-link {
+  display: none;
+  position: absolute;
+  top: 0.85rem;
+  left: 100%;
+  translate: -50% 0;
+  width: clamp(1.75rem, 5vw, 4rem);
+  height: auto;
+  color: var(--purple);
+  opacity: 0.5;
+}
+
+@media (min-width: 52rem) {
+  .howto {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .howto > li {
+    padding-inline: clamp(0.5rem, 1.5vw, 1.25rem);
+  }
+
+  .howto > li:not(:last-child) .howto-link {
+    display: block;
+  }
+}
+
+/* ----------------------------------------------------------- what you get */
+
+.gains {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gains > li {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  align-content: start;
+}
+
+.gain-mark {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  background: var(--lilac);
+  color: var(--purple-deep);
+  margin-bottom: 0.25rem;
+}
+
+.gain-mark svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+/* Coral on the one that is the north star, so the row has a subject. */
+.gains > li[data-key] .gain-mark {
+  background: #ffe9e7;
+  color: var(--coral-deep);
+}
+
+.gains h3 {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.gains p {
+  margin: 0;
+  font-size: var(--small);
+  color: var(--on-cream-soft);
+  max-width: 32ch;
+}
+
+.band-ink .gains p,
+.band-purple .gains p {
   color: var(--on-dark-soft);
 }
 
-.lead-coral {
-  color: var(--coral);
-}
-
-.proof {
-  padding-inline: 0;
-}
-
-.proof-say {
-  display: flex;
-  flex-direction: column;
-}
-
-.rail-note {
-  max-width: 44ch;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--on-dark-soft);
-  opacity: 0.78;
-}
-
+/* ------------------------------------------------------ five shops, one rail */
 
 .rail {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(0.9rem, 2.5vw, 1.5rem);
-  margin-top: clamp(1.5rem, 4vw, 2rem);
-  padding-block: 0.25rem 1rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(11rem, 14.5rem);
+  gap: clamp(0.85rem, 2.4vw, 1.5rem);
   list-style: none;
+  padding: 0 var(--gutter) 0.5rem;
+  margin: clamp(1.75rem, 4vw, 2.75rem) calc(var(--gutter) * -1) 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
-  /* The scrollbar is the only affordance saying there is more to the right, so
-     it stays — hiding it reads better in a screenshot than in a hand. */
-  scrollbar-color: rgb(255 248 238 / 0.3) transparent;
+  scrollbar-width: none;
 }
 
-.rail li {
-  flex: 0 0 auto;
-  width: min(68vw, 14rem);
-  scroll-snap-align: start;
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail > li {
+  scroll-snap-align: center;
 }
 
 .rail figure {
   margin: 0;
-}
-
-.band-ink .device {
-  border-color: var(--cream);
-  box-shadow: 6px 8px 0 rgb(0 0 0 / 0.4);
+  display: grid;
+  gap: 0.7rem;
 }
 
 .rail figcaption {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 0.3rem;
-  margin-top: 0.85rem;
-  font-size: 0.9375rem;
-  line-height: 1.45;
 }
 
 .rail-brand {
@@ -601,404 +1039,278 @@
   align-items: baseline;
   gap: 0.5em;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: var(--small);
 }
 
-/* The count is the argument: three pieces against seven off one catalogue is
-   the difference this section exists to show, and it is easy to miss in a
-   screenshot. */
 .rail-brand em {
   font-style: normal;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: var(--micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--coral);
 }
 
-/* The collage. One number per shop, as a downward offset so the row still
-   starts flush at the top. */
-.rail li {
-  padding-top: calc(var(--lift, 0) * clamp(0.4rem, 1.2vw, 0.9rem));
-}
-
-.rail figcaption q {
+.rail q {
+  font-size: var(--micro);
+  line-height: 1.5;
   color: var(--on-dark-soft);
+  quotes: "\201C" "\201D";
 }
 
-/* ------------------------------------------------------------- negations */
+.rail-note {
+  margin: clamp(1.5rem, 3vw, 2rem) 0 0;
+  font-size: var(--small);
+  color: var(--on-dark-soft);
+  max-width: 62ch;
+}
 
-.negations-heading {
-  font-size: clamp(2.5rem, 12vw, 6rem);
+/* Links inside body copy, on either ground. */
+.rail-note a,
+.ledger-note a,
+.negations-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: var(--coral);
+}
+
+.ledger-note a {
+  text-decoration-color: var(--purple);
+}
+
+.rail-note a:hover,
+.ledger-note a:hover {
+  text-decoration-thickness: 3px;
+}
+
+/* --------------------------------------------------------- no page builder */
+
+.negations {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: center;
+  text-align: center;
 }
 
 .pills {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.55rem;
-  margin-top: clamp(1.5rem, 4vw, 2rem);
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .pills li {
   padding: 0.5rem 1rem;
-  border: var(--edge) solid var(--cream);
   border-radius: var(--r-pill);
-  font-size: clamp(0.9375rem, 3.2vw, 1.0625rem);
+  border: 1px solid rgb(253 248 239 / 0.38);
+  font-size: var(--small);
   font-weight: 500;
 }
 
 .negations-note {
-  max-width: 40ch;
-  margin-top: clamp(1.25rem, 3.5vw, 1.75rem);
+  margin: 0;
   font-size: var(--body);
-  line-height: 1.55;
   color: var(--on-dark-soft);
+  max-width: 50ch;
 }
 
-/* ----------------------------------------------------------- the chain */
+/* ----------------------------------------------------------- the two extras */
 
-/*
- * Drawn as one line rather than three cards. The rule runs along the top of
- * each item, and the arrow between them is the ::after — the difference
- * between "a layer" and "three features".
- */
-.chain {
+.duo {
   display: grid;
-  gap: clamp(1.4rem, 4vw, 2rem);
-  margin-top: clamp(1.75rem, 5vw, 2.5rem);
-  list-style: none;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
 }
 
-.chain li {
-  position: relative;
-  padding-top: 1rem;
-  border-top: var(--edge) solid rgb(32 33 51 / 0.16);
+.duo > article {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding: clamp(1.25rem, 3vw, 1.85rem);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
 }
 
-.chain li[data-ours] {
-  border-top-color: var(--purple);
-}
-
-.chain-name {
+.duo h3 {
+  margin: 0;
   font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.2rem, 4.4vw, 1.45rem);
-  font-weight: 500;
-  letter-spacing: -0.015em;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 40, "opsz" 100;
+  font-size: clamp(1.4rem, 3.6vw, 1.75rem);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
-.chain li[data-ours] .chain-name {
-  color: var(--purple);
-}
-
-.chain p {
-  max-width: 32ch;
-  margin-top: 0.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.5;
+.duo p {
+  margin: 0;
+  font-size: var(--small);
   color: var(--on-cream-soft);
 }
 
-/* ---------------------------------------------------------------- keep up */
+/* --- what a rebuild does ------------------------------------------------- */
 
-.keep-heading {
-  font-size: clamp(2.25rem, 10vw, 4.75rem);
-}
-
-.keep-note {
-  max-width: 46ch;
-  margin-top: clamp(1rem, 3.5vw, 1.5rem);
-  font-size: var(--body);
-  line-height: 1.55;
-  color: var(--on-dark-soft);
-}
-
-/*
- * The behaviour, shown. Two rows of the same two cards: the sold-out one is
- * behind the buyable one after a rebuild, not replaced by something else —
- * the rules never add a product, and a picture of a substitution would
- * advertise the opposite of what `lib/smart/repair.ts` does.
- */
 .swap {
-  margin-top: clamp(1.75rem, 5vw, 2.25rem);
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 .swap-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
-/* On a phone the label takes its own line: sharing the row left the two cards
-   at about 115px each, which wraps "Sold out" onto two lines and makes a
-   comparison of two states look like a layout accident. */
 .swap-when {
-  flex: 0 0 100%;
-  font-size: 0.6875rem;
+  flex: none;
+  width: 4.25rem;
+  font-size: var(--micro);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--on-dark-soft);
+  color: var(--on-cream-soft);
 }
 
 .swap-card {
-  flex: 1 1 0;
-  min-width: 0;
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.7rem 0.9rem;
-  border: var(--edge) solid var(--cream);
-  border-radius: 14px;
-  background: rgb(255 248 238 / 0.1);
-  font-size: 0.875rem;
+  gap: 0.5em;
+  padding: 0.42rem 0.7rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--cream);
+  font-size: var(--micro);
   font-weight: 600;
 }
 
 .swap-card em {
   font-style: normal;
   font-weight: 500;
-  opacity: 0.8;
+  color: var(--on-cream-soft);
 }
 
 .swap-card.is-out {
-  opacity: 0.55;
+  opacity: 0.62;
+}
+
+.swap-card.is-out em {
+  color: var(--coral-deep);
 }
 
 /*
- * The one acid mark on the site.
+ * The one acid-free annotation that is doing work rather than decorating.
  *
- * A hand-written annotation rather than a chip: tilted, ink on acid, sitting
- * across the row it is describing. It reads as somebody having drawn on the
- * page, which is exactly the register a note explaining what just happened
- * wants — and it is the only place a fourth colour appears, so it cannot be
- * mistaken for a system.
- *
- * Ink on acid and never cream. White on #dfff38 fails contrast badly enough to
- * be a legibility bug rather than a taste one.
+ * "Moved down, not hidden" rather than the "Removed ✓" a mockup would put
+ * here. `lib/smart/repair.ts` has exactly two moves — drop what is gone, demote
+ * what is sold out — and the product rule is that a sold-out item is shown and
+ * marked. A sticker claiming removal would advertise the opposite of the code.
  */
 .swap-mark {
-  flex: 0 0 auto;
-  align-self: center;
-  padding: 0.4rem 0.7rem;
-  border: var(--edge) solid var(--ink);
-  border-radius: 8px;
-  background: var(--acid);
-  color: var(--ink);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  transform: rotate(-3deg);
-  box-shadow: 3px 3px 0 var(--purple-deep);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--r-pill);
+  background: var(--butter);
+  font-size: var(--micro);
+  font-weight: 700;
 }
-
-/* Under 30rem the two cards already fill the row; a third item would squeeze
-   both. It takes its own line rather than shrinking the comparison. */
-@media (max-width: 29.999rem) {
-  .swap-mark {
-    align-self: flex-start;
-    margin-top: 0.15rem;
-  }
-}
-
-@media (min-width: 30rem) {
-  .swap-when {
-    flex: 0 0 4.5rem;
-  }
-}
-
 
 .rules {
   display: grid;
-  gap: 0.45rem;
-  margin-top: 1rem;
+  gap: 0.35rem;
   list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  font-size: var(--micro);
+  color: var(--on-cream-soft);
 }
 
 .rules li {
   display: flex;
-  align-items: center;
-  gap: 0.7em;
-  font-size: 0.9375rem;
-  color: var(--on-dark-soft);
+  gap: 0.5em;
 }
 
 .rules li::before {
-  content: "✓";
-  display: grid;
-  place-items: center;
-  width: 1.5em;
-  height: 1.5em;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--coral);
-  color: var(--ink);
-  font-size: 0.75em;
+  content: "·";
+  color: var(--purple);
   font-weight: 700;
 }
 
-/* --------------------------------------------------------------- creators */
+/* --- the creator credit -------------------------------------------------- */
 
-.creators {
-  display: grid;
-  gap: clamp(1.75rem, 5vw, 3rem);
-  align-items: center;
-}
-
-.ticks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: clamp(1rem, 3.5vw, 1.5rem);
-  list-style: none;
-}
-
-.ticks li {
-  padding: 0.4rem 0.9rem;
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-pill);
-  font-size: 0.9375rem;
-  font-weight: 500;
-}
-
-/* The credit, reproduced rather than screenshotted — the same markup and words
-   the renderer emits, so it cannot drift from what a shop shows. */
+/*
+ * Reproduced as markup rather than screenshotted, so it cannot drift from what
+ * a shop actually renders.
+ */
 .credit-sample {
-  margin: 0;
-  padding: clamp(1.25rem, 4vw, 1.85rem);
-  border: var(--edge) solid var(--ink);
-  border-radius: var(--r-lg);
-  background: #fff;
-  box-shadow: 8px 10px 0 var(--coral);
+  margin: 0.25rem 0 0;
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--r);
+  background: var(--cream);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 0.15rem;
+  justify-items: center;
   text-align: center;
 }
 
 .credit-brand {
   font-family: var(--font-brand-display), Georgia, serif;
   font-size: 1.2rem;
-  font-weight: 500;
-}
-
-.credit-line {
-  margin-top: 0.9rem;
-  padding: 0.8rem 0;
-  border-top: 1px solid rgb(32 33 51 / 0.18);
-  border-bottom: 1px solid rgb(32 33 51 / 0.18);
-  font-size: 0.72rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--on-cream-soft);
-}
-
-.credit-sample figcaption {
-  margin-top: 0.9rem;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--on-cream-soft);
-}
-
-/* ------------------------------------------------------------------ steps */
-
-.steps {
-  padding-block: clamp(2rem, 5vw, 3.5rem);
-}
-
-.steps ol {
-  display: grid;
-  gap: clamp(1.1rem, 3vw, 1.75rem);
-  margin-top: clamp(1.25rem, 3vw, 1.75rem);
-  list-style: none;
-}
-
-/* The number is the illustration. Big, outlined, in the accent — the section
-   needs no icons to look like something. */
-.step-n {
-  display: block;
-  font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-size: clamp(2.1rem, 6.5vw, 3.25rem);
-  font-weight: 900;
-  line-height: 0.9;
-  color: transparent;
-  -webkit-text-stroke: 2px var(--purple);
-}
-
-.steps h3 {
-  margin-top: 0.5rem;
-  font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.015em;
 }
 
-.steps p {
-  max-width: 34ch;
-  margin-top: 0.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: var(--on-cream-soft);
+.credit-line {
+  margin: 0;
+  font-size: var(--micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--coral-deep);
+  font-weight: 600;
 }
 
-.steps p.steps-end {
-  display: inline-block;
-  max-width: none;
-  margin-top: clamp(1.5rem, 4vw, 2.25rem);
-  font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-size: clamp(1.75rem, 7vw, 2.75rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  color: var(--on-cream);
-}
-
-.steps-squiggle {
-  display: block;
-  width: clamp(5rem, 18vw, 8rem);
-  margin-top: 0.3rem;
-  color: var(--coral);
-}
-
-/* ------------------------------------------------------------ early access */
-
-.early {
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 2.5rem);
-}
+/* ------------------------------------------------------------- where we are */
 
 /*
- * A ledger rather than a disclaimer. What is real and what is not, in the same
- * list and the same voice, because separating them into a confident section and
- * an apologetic one is how a page ends up sounding unsure of itself.
+ * The ledger, which is where the reference boards put a logo wall.
+ *
+ * A logo wall of merchants we do not have is the single most common lie on a
+ * launch page and `tests/marketing.test.tsx` refuses it. This is the honest
+ * thing in the same slot and it does the same job: it is the section a
+ * sceptical reader is looking for, and being told what is *not* built buys
+ * more trust than eight grey wordmarks.
  */
 .ledger {
   display: grid;
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.6rem 1.5rem;
   list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: var(--small);
 }
 
 .ledger li {
   display: flex;
-  align-items: center;
-  gap: 0.7em;
-  font-size: 0.9375rem;
+  gap: 0.6em;
+  align-items: flex-start;
+  padding-block: 0.15rem;
   color: var(--on-cream-soft);
 }
 
 .ledger li::before {
   content: "—";
-  display: grid;
-  place-items: center;
-  width: 1.5em;
-  height: 1.5em;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  border: 1.5px solid currentColor;
-  font-size: 0.7em;
+  flex: none;
+  width: 1.15em;
+  color: var(--on-cream-soft);
+  font-weight: 700;
 }
 
 .ledger li[data-on] {
@@ -1007,436 +1319,198 @@
 }
 
 .ledger li[data-on]::before {
-  content: "✓";
-  border: none;
-  background: var(--purple);
-  color: var(--cream);
-  font-weight: 700;
+  content: "";
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: 0.28em;
+  border-radius: 50%;
+  background: var(--purple) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center / 0.72em no-repeat;
 }
 
 .ledger-note {
-  grid-column: 1 / -1;
-  max-width: 52ch;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  margin: 1.5rem 0 0;
+  font-size: var(--small);
   color: var(--on-cream-soft);
+  max-width: 58ch;
 }
 
-/* ---------------------------------------------------------------- closing */
+/* ---------------------------------------------------------- the flow, closing */
 
 .closing {
-  padding-block: clamp(2rem, 5vw, 3.25rem) clamp(1.75rem, 4vw, 2.5rem);
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  align-items: center;
+}
+
+.closing-say {
+  display: grid;
+  gap: 1.1rem;
+  justify-items: start;
 }
 
 .closing-heading {
-  font-size: clamp(2.25rem, 10vw, 4.75rem);
+  max-width: 14ch;
 }
 
-.foot {
+.closing-do {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.9rem 1.5rem;
+  gap: 0.75rem;
   align-items: center;
-  justify-content: space-between;
-  margin-top: clamp(1.75rem, 4vw, 2.5rem);
-  padding-top: clamp(1.1rem, 3vw, 1.5rem);
-  border-top: 1px solid rgb(255 248 238 / 0.24);
 }
 
 /*
- * A link in prose on a dark band.
- *
- * Nothing styled these, so they fell through to the browser's own link colour
- * — `#0000EE`, or `#551A8B` once visited — against near-black ink. The contact
- * page's "write to us instead" address rendered as dark purple on dark ink and
- * was very nearly invisible, which is a bad outcome for the one link on the
- * page offering a way round a form that failed.
- *
- * Scoped to prose so the buttons, the gallery tiles and the foot keep their
- * own treatments. `:where()` keeps the specificity low enough that any of them
- * can still override it.
+ * Catalogue in, shops out. The diagram from the board, with the invented
+ * product photographs replaced by the real screenshots we already ship.
  */
-.band-ink :where(p, li, dd) a:not(.btn),
-.band-purple :where(p, li, dd) a:not(.btn) {
-  color: var(--cream);
+.flow {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: clamp(0.4rem, 1.6vw, 0.9rem);
+}
+
+.flow-node {
+  display: grid;
+  place-items: center;
+  width: clamp(3.25rem, 9vw, 4.5rem);
+  height: clamp(3.25rem, 9vw, 4.5rem);
+  border-radius: var(--r);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
+  font-size: var(--micro);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--ink);
+  padding: 0.35rem;
+  line-height: 1.15;
+}
+
+.flow-arrow {
+  width: clamp(1.1rem, 3.4vw, 2rem);
+  height: auto;
+  color: var(--purple);
+  opacity: 0.6;
+}
+
+.flow-out {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.flow-out a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0.75rem 0.4rem 0.4rem;
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
+  text-decoration: none;
+  color: var(--ink);
+  font-size: var(--micro);
   font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 0.22em;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.flow-out a:hover {
+  transform: translateX(2px);
+  box-shadow: var(--lift-hi);
+}
+
+.flow-out img {
+  display: block;
+  width: 2.1rem;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 6px;
+  background: var(--cream);
+}
+
+/* ------------------------------------------------------------------- foot */
+
+/*
+ * The foot sits inside the closing band, which is a two-column grid at width.
+ * Without this it is auto-placed as an ordinary child and lands *beside* the
+ * closing headline in the second column.
+ */
+.foot {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  padding-top: clamp(1.5rem, 4vw, 2.25rem);
+  border-top: 1px solid rgb(253 248 239 / 0.2);
+  font-size: var(--small);
+}
+
+.band-lilac .foot {
+  border-top-color: var(--line);
 }
 
 .foot-line {
-  font-family: var(--font-brand-display), Georgia, serif;
-  font-size: 1rem;
   color: var(--on-dark-soft);
 }
 
-/*
- * Where the legal pages live.
- *
- * In the foot rather than the bar, because that is where people look for them
- * and because a six-page marketing site does not need six links across the
- * top. It wraps rather than scrolls: five short links on a 320px screen is two
- * comfortable rows, and a horizontally scrolling footer is a footer nobody
- * finds the last item in.
- */
+.band-lilac .foot-line {
+  color: var(--on-cream-soft);
+}
+
 .foot-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 1.1rem;
-}
-
-.foot-nav a {
-  font-size: 0.9375rem;
+  gap: 0.5rem 1.35rem;
 }
 
 .foot a {
-  padding-block: max(0px, calc((44px - 1lh) / 2));
-  margin-block: min(0px, calc((1lh - 44px) / 2));
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-  color: var(--on-dark-soft);
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.16s ease;
 }
 
-/* ------------------------------------------------------------------- wide */
-
-@media (min-width: 860px) {
-  .chain {
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(1.25rem, 3vw, 2rem);
-  }
-
-  /* The arrow between the links, drawn once and only where there is room for
-     it to mean anything. */
-  .chain li:not(:last-child)::after {
-    content: "→";
-    position: absolute;
-    top: 0.9rem;
-    right: -1.1rem;
-    color: var(--purple);
-    font-size: 1rem;
-  }
-
-  .steps ol {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .creators,
-  .early {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  }
-
-  .ledger {
-    grid-template-columns: 1fr;
-  }
+.foot a:hover {
+  border-bottom-color: currentColor;
 }
 
-@media (min-width: 1000px) {
-  /* Above this width the viewport stops being what the type has to fit into —
-     the column does. */
-  .landing {
-    --shout: clamp(3.25rem, 5.8vw, 5.25rem);
-    --lead: clamp(2rem, 3.6vw, 3.25rem);
-  }
+/* ------------------------------------------------------------ wider screens */
 
-  .negations-heading {
-    font-size: clamp(3rem, 6.2vw, 5.75rem);
-  }
-
-  .keep-heading,
-  .closing-heading {
-    font-size: clamp(2.75rem, 5vw, 4.5rem);
-  }
-
+@media (min-width: 60rem) {
   .opening {
-    display: grid;
-    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
-    column-gap: clamp(2rem, 5vw, 4rem);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     align-items: center;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-block: clamp(3.5rem, 7vw, 6rem) clamp(3rem, 6vw, 4.5rem);
   }
 
-  .stage {
-    margin-top: 0;
+  .opening-say {
+    max-width: none;
   }
 
-  .device-lg {
-    width: min(19rem, 84%);
+  /* The mechanic returns to the measure and shrinks to fit its column. */
+  .mech {
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    justify-content: flex-end;
   }
 
-  .prompt {
-    /* Pulled left, out of the phone's column and into the gutter, so the
-       sentence and the shop genuinely overlap rather than sit near one
-       another. */
-    width: min(20rem, 90%);
-    margin-top: -32%;
-    margin-left: -10%;
-  }
-
-  .why-line {
-    max-width: 30ch;
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
-  }
-
-  /*
-   * Copy across the top, five shops across the bottom.
-   *
-   * An earlier cut pulled one shop out as a large lead beside the copy. It
-   * filled the column, but it overlapped the row and clipped the fifth shop
-   * mid-caption, and it showed the same shop twice. The comparison is the
-   * content, so all five carry equal weight and the row takes the full measure.
-   */
-  .proof-say {
-    max-width: 46rem;
-  }
-
-  .rail {
-    margin-top: clamp(2rem, 4vw, 2.75rem);
-    overflow-x: visible;
-    scroll-snap-type: none;
-  }
-
-  .rail li {
-    flex: 1 1 0;
+  .mech figure {
+    flex: 1 1 var(--panel);
+    max-width: var(--panel);
     width: auto;
-    max-width: 15rem;
   }
 
-  .negations,
-  .keep {
-    display: grid;
+  .mech-arrow {
+    margin-top: 1.4rem;
+  }
+
+  .closing {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(2rem, 5vw, 4rem);
-    align-items: start;
-  }
-
-  .negations-heading {
-    grid-row: span 2;
-  }
-
-  .pills,
-  .negations-note,
-  .keep-note,
-  .swap {
-    margin-top: 0;
-  }
-
-  .negations-note {
-    margin-top: 1.25rem;
-  }
-
-  .keep-note {
-    margin-top: 1rem;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .btn {
-    transition: transform 140ms ease, box-shadow 140ms ease;
-  }
-
-  /* Pressed into the page rather than lifted off it — the shadow is a hard
-     offset, so the honest hover closes the gap. */
-  .btn:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 var(--ink);
-  }
-
-  .band-purple .btn:hover {
-    box-shadow: 2px 2px 0 var(--purple-deep);
-  }
-
-  /* ------------------------------------------------------ the opening plays */
-
-  /*
-   * Sentence in, catalogue read, shop out — the whole product in three and a
-   * half seconds. Every rule here is a *from* state; the page's resting
-   * appearance is the finished one, written above without any of this, which
-   * is what makes the reduced-motion answer "do not run the timeline" rather
-   * than "build a calmer second version".
-   *
-   * It plays once and holds. A loop is a repaint budget spent forever on
-   * something understood the first time.
-   *
-   *   0.15s  the card and the empty phone arrive
-   *   0.45s  the sentence types itself, a word every 85ms
-   *   1.55s  "make it pop" is pressed
-   *   1.70s  the catalogue is read, and the constraints appear
-   *   2.45s  the masthead lands
-   *   2.70s  the first row of products
-   *   2.95s  the second row
-   *   3.15s  the burst
-   */
-  .prompt {
-    animation: pop-in 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) 150ms both;
-  }
-
-  .device-lg {
-    animation: rise 480ms cubic-bezier(0.2, 0.8, 0.25, 1) 150ms both;
-  }
-
-  .typed {
-    display: inline-block;
-    animation: word 240ms ease-out both;
-    animation-delay: calc(450ms + var(--w) * 85ms);
-  }
-
-  /* Blinks while there is typing to do, then stops — three beats ending on the
-     dark half of the cycle, so it simply is not there afterwards. */
-  .caret {
-    animation: wink 520ms steps(1, end) 400ms 3 both;
-  }
-
-  .prompt-go {
-    animation: press 260ms cubic-bezier(0.3, 0, 0.2, 1) 1550ms both;
-  }
-
-  /* Out by 2450ms, which is when the first band lands — the reading and the
-     shop hand over rather than sharing the screen. */
-  .think {
-    animation: think 750ms ease 1700ms both;
-  }
-
-  .think-chips i {
-    animation: chip 260ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
-  }
-  .think-chips i:nth-child(1) {
-    animation-delay: 1850ms;
-  }
-  .think-chips i:nth-child(2) {
-    animation-delay: 1950ms;
-  }
-  .think-chips i:nth-child(3) {
-    animation-delay: 2050ms;
-  }
-
-  .screen-band {
-    animation: land 380ms cubic-bezier(0.2, 0.85, 0.25, 1) both;
-  }
-  .screen-band:nth-child(1) {
-    animation-delay: 2450ms;
-  }
-  .screen-band:nth-child(2) {
-    animation-delay: 2700ms;
-  }
-  .screen-band:nth-child(3) {
-    animation-delay: 2950ms;
-  }
-
-  .stage-burst {
-    animation: burst 520ms cubic-bezier(0.2, 0.9, 0.3, 1.3) 3150ms both;
-  }
-
-  @keyframes pop-in {
-    from {
-      opacity: 0;
-      transform: rotate(-1.5deg) scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: rotate(-1.5deg) scale(1);
-    }
-  }
-
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: rotate(2.5deg) translateY(2rem);
-    }
-    to {
-      opacity: 1;
-      transform: rotate(2.5deg) translateY(0);
-    }
-  }
-
-  @keyframes word {
-    from {
-      opacity: 0;
-      filter: blur(4px);
-      transform: translateY(0.18em);
-    }
-    to {
-      opacity: 1;
-      filter: none;
-      transform: none;
-    }
-  }
-
-  @keyframes wink {
-    0%,
-    50% {
-      opacity: 1;
-    }
-    51%,
-    100% {
-      opacity: 0;
-    }
-  }
-
-  /* Pressed, not bounced: the button has a hard offset shadow, so the honest
-     way to push it is to close the gap the same way hover does. */
-  @keyframes press {
-    0% {
-      transform: none;
-    }
-    45% {
-      transform: translate(2px, 2px) scale(0.96);
-    }
-    100% {
-      transform: none;
-    }
-  }
-
-  /* The centring translate is part of the resting position, so every frame has
-     to carry it — dropping it in one keyframe throws the group off-centre for
-     the length of the animation. */
-  @keyframes think {
-    0%,
-    100% {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.9);
-    }
-    20%,
-    76% {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-  }
-
-  @keyframes chip {
-    from {
-      opacity: 0;
-      transform: scale(0.7);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  /*
-   * A band arrives by growing into its own strip. `clip-path` applies before
-   * `transform`, so scaling a clipped band scales its window too and the strip
-   * opens outward from where it will sit — which is why this reads as a row of
-   * products appearing rather than a picture sliding past.
-   */
-  @keyframes land {
-    from {
-      opacity: 0;
-      transform: scale(0.94) translateY(0.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @keyframes burst {
-    from {
-      opacity: 0;
-      transform: scale(0.2) rotate(-40deg);
-    }
-    to {
-      opacity: 0.9;
-      transform: none;
-    }
   }
 }

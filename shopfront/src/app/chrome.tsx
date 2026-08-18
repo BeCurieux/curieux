@@ -51,14 +51,20 @@ export function SiteBar({ cta = "Get my shop made" }: { cta?: string } = {}) {
 }
 
 /**
- * Sits inside a dark band on every page, which is why its colours are stated
- * against `--on-dark` rather than switched on a prop. A foot that changed
- * ground per page would be a second thing to keep in sync.
+ * One foot, on one ground.
+ *
+ * It used to sit in a dark band on every page and carried the light wordmark
+ * for that reason. The closing band is lilac now, and the light mark on lilac
+ * is a pale smudge — legible enough to survive a glance at a screenshot and
+ * not legible at all on a phone in daylight. Stated as the dark mark rather
+ * than switched on a prop: a foot that changed ground per page is a second
+ * thing to keep in sync, and `landing.css` already states the text colours for
+ * both grounds off `.band-lilac`.
  */
 export function SiteFoot() {
   return (
     <footer className="foot">
-      <img className="bar-mark" src="/brand/popuup-light.svg" alt="popuup" width={132} height={45} />
+      <img className="bar-mark" src="/brand/popuup.svg" alt="popuup" width={180} height={62} />
       <span className="foot-line">Make a shop in a sentence.</span>
       <nav className="foot-nav">
         <a href="/examples">Examples</a>

@@ -1,199 +1,396 @@
 /*
  * What it will cost.
  *
- * Runs on the landing page's tokens — same cream, same purple, same two faces —
- * because a pricing page that looks like a different product is its own small
- * dishonesty. This file only adds what the front door had no use for.
+ * Rebuilt to the reference board's shape: eyebrow pill, two-tone headline with
+ * a squiggle, three plan cards with the middle one raised, a comparison table,
+ * an FAQ row, a closing band. Every convention of that form is the visual
+ * language of *something you can buy right now*, and nothing here is buyable —
+ * so the caveat is not a footnote. It is the first thing under the headline,
+ * before any number, and every card carries the marks that say which of its
+ * lines exists.
  *
- * The one deliberate departure from the convention: no highlighted middle tier.
- * A recommended plan is a nudge toward a purchase, and there is no purchase to
- * nudge anybody toward. The three cards sit at the same weight until one of
- * them can actually be bought.
+ * Two things from the board are not here. The monthly/yearly toggle, because
+ * there is no yearly price to honour and a switch that changes a figure nobody
+ * can pay is theatre. And "100% — enterprise-grade security, we never store
+ * your passwords", because there are no passwords: popuup has no accounts.
+ *
+ * The raised card is Free rather than the middle tier. On the board the middle
+ * one is raised and labelled MOST POPULAR, which is a claim about merchants we
+ * do not have. Free is raised and labelled with the actual offer, which is a
+ * term we can honour and count.
  */
 
+/*
+ * One centred column, stated at every width.
+ *
+ * `.opening` becomes a two-column grid from 60rem because the front page's
+ * hero is copy beside a picture. This page has four stacked children and no
+ * picture, so it inherited that split and auto-placed them into a scatter: the
+ * pill in one column, the headline in the other, the caveat back in the first.
+ * `grid-template-columns` has to be reset, not just the alignment.
+ */
 .pricing-top {
-  padding-block: clamp(0.5rem, 3vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+  gap: 1.1rem;
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.pricing-head {
+  position: relative;
+  padding-bottom: 0.42em;
+  max-width: 16ch;
+}
+
+.pricing-squiggle {
+  position: absolute;
+  left: 50%;
+  bottom: 0.04em;
+  translate: -50% 0;
+  width: min(58%, 16rem);
+  height: auto;
+  color: var(--coral);
 }
 
 /*
- * The caveat, sized to be read rather than skipped.
+ * The caveat, in the slot the board gives to "Start free. Upgrade any time."
  *
- * It carries the coral edge because coral appears perhaps five times across the
- * whole site and every one of them is a place the reader is meant to stop.
+ * A reader who takes one thing from this page should take this, and a reader
+ * who takes the numbers instead should have had to scroll past it to do so.
+ *
+ * The offer is a real term, not urgency dressing: ten is a number we can count,
+ * the kill-test ledger already tracks who has been asked and who said yes, and
+ * it is deliberately stated without a live counter — a "3 of 10 gone" ticker on
+ * a page that cannot read that ledger would be exactly the kind of theatre the
+ * rest of the site refuses.
  */
 .caveat {
-  max-width: 52ch;
-  margin-top: clamp(1.5rem, 4vw, 2rem);
-  padding: clamp(1.1rem, 3.5vw, 1.5rem) clamp(1.2rem, 4vw, 1.6rem);
-  border: var(--edge) solid var(--ink);
+  display: grid;
+  gap: 0.7rem;
+  max-width: 62ch;
+  padding: clamp(1.15rem, 3vw, 1.6rem) clamp(1.25rem, 3vw, 1.9rem);
   border-radius: var(--r-lg);
-  background: #fff;
-  box-shadow: 8px 10px 0 var(--coral);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
+  text-align: left;
+}
+
+.caveat p {
+  margin: 0;
+  font-size: var(--small);
+  color: var(--on-cream-soft);
 }
 
 .caveat-lead {
   font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.15rem, 4vw, 1.4rem);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  font-variation-settings: "SOFT" 40, "opsz" 100;
+  font-size: clamp(1.25rem, 3.4vw, 1.6rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--on-cream) !important;
 }
 
-.caveat p + p,
-.caveat-lead + p {
-  margin-top: 0.7rem;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--on-cream-soft);
+/* The handwritten-looking annotation from the board, pointing at the cards. */
+.aside-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-size: var(--small);
+  font-weight: 500;
+  color: var(--purple-deep);
+  rotate: -1.5deg;
+}
+
+.aside-note svg {
+  width: 1.9rem;
+  height: auto;
+  color: var(--purple);
+  opacity: 0.7;
 }
 
 /* ------------------------------------------------------------------ tiers */
 
-.tiers-band {
-  padding-block: clamp(2rem, 5vw, 3.5rem);
-}
-
 .tiers {
   display: grid;
-  gap: clamp(1rem, 3vw, 1.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  align-items: start;
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .tier {
-  display: flex;
-  flex-direction: column;
-  padding: clamp(1.25rem, 4vw, 1.75rem);
-  border: var(--edge) solid var(--ink);
+  position: relative;
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  padding: clamp(1.35rem, 3vw, 1.85rem);
   border-radius: var(--r-lg);
-  background: var(--lilac);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--lift);
+}
+
+/*
+ * The raised card. Free, because that is the real offer today.
+ *
+ * Extra top padding rather than a negative margin: the ribbon sits inside the
+ * card, so a card that is taller than its neighbours does not drag the row's
+ * baseline with it.
+ */
+.tier-lead {
+  padding-top: clamp(2.6rem, 5vw, 3.1rem);
+  border-color: var(--purple);
+  box-shadow: var(--lift-hi);
+  overflow: hidden;
+}
+
+.tier-ribbon {
+  position: absolute;
+  inset: 0 0 auto;
+  padding: 0.5rem 1rem;
+  background: var(--purple);
+  color: #fff;
+  font-size: var(--micro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .tier-name {
-  font-size: 0.6875rem;
+  font-size: var(--small);
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--purple);
+  letter-spacing: 0.02em;
+}
+
+.tier-who {
+  margin: 0;
+  font-size: var(--small);
+  color: var(--on-cream-soft);
+  min-height: 2.9em;
 }
 
 .tier-price {
   display: flex;
   align-items: baseline;
-  gap: 0.5em;
-  margin-top: 0.5rem;
-  font-family: var(--font-brand-wonk), var(--font-brand-display), Georgia, serif;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-size: clamp(2.25rem, 8vw, 3rem);
-  font-weight: 900;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: var(--font-brand-display), Georgia, serif;
+  font-variation-settings: "SOFT" 40, "opsz" 144;
+  font-weight: 700;
+  font-size: clamp(2.4rem, 7vw, 3.1rem);
+  letter-spacing: -0.035em;
   line-height: 1;
-  letter-spacing: -0.03em;
-  /* Digits in a row of three cards want to line up. */
-  font-variant-numeric: tabular-nums;
 }
 
 .tier-per {
   font-family: var(--font-brand-sans), system-ui, sans-serif;
-  font-size: 0.8125rem;
+  font-size: var(--small);
   font-weight: 500;
   letter-spacing: 0;
   color: var(--on-cream-soft);
 }
 
-.tier-who {
-  margin-top: 0.6rem;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: var(--on-cream-soft);
+/* Every tier's button says the one thing that can actually be done today. */
+.tier .btn {
+  justify-content: center;
+  width: 100%;
+  margin-block: 0.35rem;
 }
 
 .tier-lines {
   display: grid;
   gap: 0.5rem;
-  margin-top: clamp(1rem, 3vw, 1.35rem);
-  padding-top: clamp(1rem, 3vw, 1.35rem);
-  border-top: 1px solid rgb(32 33 51 / 0.18);
   list-style: none;
-  font-size: 0.9375rem;
-  line-height: 1.45;
+  padding: 0.9rem 0 0;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--small);
 }
 
-/*
- * Built and not-built read differently on purpose.
- *
- * A tick against something that does not exist is the exact lie this page is
- * arranged to avoid, so the mark is the thing that carries the distinction and
- * the label spells it out for anybody who cannot see the difference.
- */
 .tier-lines li {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.6em;
+  gap: 0.4em 0.5em;
+  padding-left: 1.7em;
+  position: relative;
   color: var(--on-cream-soft);
 }
 
+/* Built: a purple check. Not built: a hollow ring, and the words. */
 .tier-lines li::before {
-  content: "○";
-  flex: 0 0 auto;
-  color: var(--on-cream-soft);
-  font-size: 0.8em;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  border: 1.5px dashed rgb(22 23 42 / 0.28);
+}
+
+.tier-lines li[data-built]::before {
+  border: 0;
+  background: var(--purple) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center / 0.7em no-repeat;
 }
 
 .tier-lines li[data-built] {
   color: var(--on-cream);
 }
 
-.tier-lines li[data-built]::before {
-  content: "✓";
+/*
+ * `not built yet`, and it is the most important text on the page.
+ *
+ * A feature list is where a page like this does its lying: the reader assumes
+ * everything above the fold exists, and several of these do not.
+ */
+.tier-lines em {
+  font-style: normal;
+  flex: none;
+  padding: 0.05rem 0.45rem;
+  border-radius: var(--r-pill);
+  background: #ffe9e7;
+  color: var(--coral-deep);
+  font-size: var(--micro);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.tiers-note {
+  margin: clamp(1.25rem, 3vw, 1.75rem) auto 0;
+  max-width: 64ch;
+  text-align: center;
+  font-size: var(--small);
+  color: var(--on-cream-soft);
+}
+
+/* -------------------------------------------------------------- the table */
+
+/*
+ * The comparison table from the board, which is worth having for one reason:
+ * it is the only place the three tiers are readable against each other in a
+ * single glance, and it is where a marked line is hardest to hide.
+ */
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  font-size: var(--small);
+}
+
+.compare th,
+.compare td {
+  padding: 0.8rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.compare tbody tr:last-child th,
+.compare tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.compare thead th {
+  font-weight: 700;
+  background: var(--cream);
+  border-bottom-color: var(--line);
+}
+
+.compare tbody th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--on-cream-soft);
+}
+
+.compare thead th:first-child {
+  text-align: left;
+  color: var(--purple-deep);
+}
+
+/* A check, a dash, or a value. The dash is a real em-dash so a screen reader
+   does not read an empty cell and leave the row ambiguous. */
+.compare-yes {
   color: var(--purple);
   font-weight: 700;
 }
 
-.tier-lines em {
-  font-style: normal;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--coral);
-  white-space: nowrap;
+.compare-no {
+  color: rgb(22 23 42 / 0.35);
 }
 
-.tiers-note {
-  max-width: 56ch;
-  margin-top: clamp(1.25rem, 3.5vw, 1.75rem);
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--on-cream-soft);
+/* Same marker as the tier cards, so "not built" means one thing on the page. */
+.compare em {
+  font-style: normal;
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border-radius: var(--r-pill);
+  background: #ffe9e7;
+  color: var(--coral-deep);
+  font-size: var(--micro);
+  font-weight: 700;
+}
+
+/* The table is the one thing on the site allowed its own horizontal scroll. */
+.compare-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+}
+
+.compare-wrap > table {
+  min-width: 34rem;
 }
 
 /* ---------------------------------------------------------------- answers */
 
-.answers dl {
+.answers {
   display: grid;
-  gap: clamp(1.25rem, 3.5vw, 1.75rem);
-  margin-top: clamp(1.5rem, 4vw, 2rem);
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.answers > div {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
+
+.answer-mark {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 12px;
+  background: var(--lilac);
+  color: var(--purple-deep);
+  margin-bottom: 0.2rem;
+}
+
+.answer-mark svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .answers dt {
-  font-family: var(--font-brand-display), Georgia, serif;
-  font-size: clamp(1.05rem, 3.6vw, 1.2rem);
-  font-weight: 500;
-  letter-spacing: -0.012em;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
 }
 
 .answers dd {
-  max-width: 58ch;
-  margin: 0.45rem 0 0;
-  font-size: 0.9375rem;
-  line-height: 1.6;
+  margin: 0;
+  font-size: var(--small);
   color: var(--on-cream-soft);
-}
-
-@media (min-width: 860px) {
-  .tiers {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .answers dl {
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: clamp(2rem, 5vw, 3.5rem);
-  }
 }
