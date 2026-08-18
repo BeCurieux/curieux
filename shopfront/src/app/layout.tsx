@@ -5,6 +5,7 @@ import "./globals.css";
 import "./brand.css";
 import "./shop.css";
 import "./marketing-visuals.css";
+import "./actual-visuals.css";
 
 /**
  * Where a relative image in a page's metadata is resolved from.
