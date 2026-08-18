@@ -37,7 +37,7 @@ Build & Deployment → Root Directory:
 | `waterline` | `waterline` | yes — framework, build, rewrites, ignore |
 | `popuup` | `shopfront` | yes — ignore only; the framework is auto-detected |
 | `curieux` | `haunted` | yes — ignore only |
-| `curieux-rifc` | `waterline` | shares `waterline/vercel.json` |
+| `curieux-rifc` | `waterline` | shares `waterline/vercel.json` — being deleted, see below |
 
 Every Root Directory above is **already set** — this half needed no work. The
 values are not guesses: Vercel's own PR comment carries a base64 payload naming
@@ -51,10 +51,21 @@ the budget spent on a duplicate. It is scoped now, because it reads the same
 `waterline/vercel.json`, so it is no longer *waking* for unrelated commits. It
 is still deploying the same site twice.
 
-Deleting it is an owner's decision and has not been made here: the name suggests
-it was created first and something may still point at its domain. Check whether
-any DNS record or link targets `curieux-rifc`, and if nothing does, delete the
-project in Vercel → Settings → Advanced.
+**The owner has decided to delete it (2026-08-18).** It could not be done from
+the build environment — `api.vercel.com` is refused by the egress policy, so
+there is no path to the Vercel API from here with or without a token. It is a
+dashboard action: Vercel → `curieux-rifc` → Settings → Advanced → Delete
+Project.
+
+One check first, because it is the half that can take a site down. Open Settings
+→ Domains on **both** projects. `waterline` should hold the live domain and
+`curieux-rifc` should hold only its `*.vercel.app` preview URLs. If a real
+domain is attached to `curieux-rifc`, move it to `waterline` before deleting,
+or the site goes dark at the moment of deletion.
+
+Nothing in this repository references the project, so no code change is needed
+either before or after — `waterline/vercel.json` stays exactly as it is and
+keeps serving the `waterline` project.
 
 To scope a project added later, add to its Root Directory's `vercel.json`:
 
@@ -91,7 +102,7 @@ Two changes certainly do reduce the count, and both are owner decisions:
 
 - **Delete the duplicate.** `curieux-rifc` and `waterline` build the same
   directory, so one of them is a quarter of every push's deployments spent
-  twice on the same site.
+  twice on the same site. Decided; pending the dashboard action above.
 - **Stop deploying every branch.** Vercel → Settings → Git will limit a project
   to its production branch. Preview deployments on every push to every branch
   are what makes a hundred a day reachable at all.
