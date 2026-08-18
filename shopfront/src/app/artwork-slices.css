@@ -1,0 +1,115 @@
+/*
+ * The supplied POPUUP campaign artwork was delivered as four composite image
+ * files containing ten individual designs. This layer crops those composites
+ * into ten normal responsive figures instead of scaling each whole contact
+ * sheet into a giant background.
+ */
+
+.artwork-group {
+  width: min(100% - (2 * var(--gutter)), 72rem);
+  margin: clamp(2rem, 5vw, 4.5rem) auto 0;
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: start;
+}
+
+.artwork-group-mechanic,
+.artwork-group-post {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.artwork-group-catalogue {
+  grid-template-columns: 1fr;
+  width: min(100% - (2 * var(--gutter)), 68rem);
+}
+
+.artwork-group-creators {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100% - (2 * var(--gutter)), 54rem);
+}
+
+.art-slice {
+  min-width: 0;
+  margin: 0;
+}
+
+.art-slice-window {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--slice-aspect);
+  overflow: hidden;
+  border-radius: clamp(14px, 2vw, 24px);
+  background: var(--cream);
+  box-shadow: 0 14px 36px rgb(32 33 51 / 0.09);
+}
+
+.art-slice-window img {
+  position: absolute;
+  display: block;
+  width: calc(var(--cols) * 100%);
+  max-width: none;
+  height: auto;
+  left: calc(var(--col) * -100%);
+  top: calc(var(--row) * -100%);
+}
+
+/* Row-based composites keep full width; moving down one crop-window height
+   reveals the next supplied design without resampling it. */
+.art-slice[style*="--rows: 2"] .art-slice-window img {
+  width: 100%;
+  top: calc(var(--row) * -100%);
+}
+
+.art-slice figcaption {
+  margin-top: 0.55rem;
+  color: var(--ink);
+  opacity: 0.45;
+  font-size: 0.67rem;
+  font-weight: 750;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.band-ink .art-slice figcaption,
+.band-purple .art-slice figcaption {
+  color: var(--cream);
+  opacity: 0.58;
+}
+
+/* Keep campaign artwork intentionally smaller than the section itself. These
+   are editorial proof points, not full-bleed posters. */
+.artwork-group-mechanic .art-slice,
+.artwork-group-post .art-slice {
+  max-width: 23rem;
+  justify-self: center;
+}
+
+.artwork-group-creators .art-slice {
+  max-width: 25rem;
+  justify-self: center;
+}
+
+@media (max-width: 800px) {
+  .artwork-group-mechanic,
+  .artwork-group-post {
+    grid-template-columns: 1fr;
+    width: min(100% - (2 * var(--gutter)), 27rem);
+  }
+
+  .artwork-group-creators {
+    grid-template-columns: 1fr;
+    width: min(100% - (2 * var(--gutter)), 27rem);
+  }
+
+  .artwork-group-catalogue {
+    width: min(100% - (2 * var(--gutter)), 42rem);
+  }
+
+  .art-slice,
+  .artwork-group-mechanic .art-slice,
+  .artwork-group-post .art-slice,
+  .artwork-group-creators .art-slice {
+    width: 100%;
+    max-width: none;
+  }
+}
