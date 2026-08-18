@@ -38,6 +38,42 @@ const DROP_WHOLE = [
 const DROP_CHROME = ["nav", "footer", "form"];
 
 /**
+ * Consent banners, by the names they actually ship under.
+ *
+ * Nearly every EU-facing store has one, which makes them the single most
+ * common piece of boilerplate on the pages this product is aimed at — and
+ * theirs said "you agree to our cruelty free cookie policy", which the corpus
+ * dutifully flagged as an ECGT problem the brand did not have.
+ *
+ * Matched on compound tokens and vendor names rather than the bare word
+ * "cookie". A clean-label biscuit brand — squarely inside the buyer profile in
+ * BRIEF.md §2 — will have `.cookie-card` and `.cookie-grid` all over its
+ * markup, and silently deleting a food brand's actual products is a far worse
+ * failure than leaving a consent notice in.
+ */
+const CONSENT_TOKENS = [
+  "cookie-banner",
+  "cookie-consent",
+  "cookie-notice",
+  "cookie-policy",
+  "cookiebanner",
+  "cookieconsent",
+  "consent-banner",
+  "consent-modal",
+  "consent-dialog",
+  "consent-manager",
+  "gdpr",
+  "onetrust",
+  "cookiebot",
+  "usercentrics",
+  "klaro",
+  "truste",
+  "cmpbox",
+];
+
+const CONSENT_CONTAINERS = ["div", "section", "aside", "dialog"];
+
+/**
  * Vertical space, in the two sizes HTML actually means.
  *
  * Everything gets at least a newline, so two blocks of text never fuse into
@@ -125,6 +161,44 @@ function dropElements(html: string, tags: string[]): string {
   return out;
 }
 
+/**
+ * Remove an element identified by an attribute token, with its contents.
+ *
+ * Regex cannot match balanced tags, so this finds the opening tag and then
+ * walks forward counting opens and closes of the same tag name. It gives up
+ * rather than guessing if the markup is unbalanced, because deleting to the
+ * end of a malformed document would take the product copy with it.
+ */
+function dropByToken(html: string, tokens: string[]): string {
+  let out = html;
+  for (const tag of CONSENT_CONTAINERS) {
+    const opener = new RegExp(`<${tag}\\b[^>]*\\b(?:id|class)\\s*=\\s*["'][^"']*(?:${tokens.join("|")})[^"']*["'][^>]*>`, "i");
+    // Re-scanned from the top each time: removing one span shifts every offset
+    // after it, and a consent stack often nests two of these.
+    for (let guard = 0; guard < 20; guard += 1) {
+      const match = opener.exec(out);
+      if (!match || match.index === undefined) break;
+      const start = match.index;
+      const scanner = new RegExp(`<(/?)${tag}\\b`, "gi");
+      scanner.lastIndex = start + match[0].length;
+      let depth = 1;
+      let end = -1;
+      for (let step = 0; step < 5000; step += 1) {
+        const next = scanner.exec(out);
+        if (!next) break;
+        depth += next[1] === "/" ? -1 : 1;
+        if (depth === 0) {
+          end = out.indexOf(">", next.index);
+          break;
+        }
+      }
+      if (end === -1) break; // unbalanced: leave it rather than eat the page
+      out = `${out.slice(0, start)}\n${out.slice(end + 1)}`;
+    }
+  }
+  return out;
+}
+
 function breakBlocks(html: string): string {
   return (
     html
@@ -167,7 +241,8 @@ export function fragmentToText(html: string): string {
 /** A whole page to text, chrome removed. */
 export function htmlToText(html: string): string {
   const withoutComments = html.replace(/<!--[\s\S]*?-->/g, "");
-  const withoutDrops = dropElements(withoutComments, [...DROP_WHOLE, ...DROP_CHROME]);
+  const withoutConsent = dropByToken(withoutComments, CONSENT_TOKENS);
+  const withoutDrops = dropElements(withoutConsent, [...DROP_WHOLE, ...DROP_CHROME]);
   return tidy(decodeEntities(breakBlocks(withoutDrops).replace(/<[^>]*>/g, "")));
 }
 

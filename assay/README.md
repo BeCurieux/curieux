@@ -54,7 +54,7 @@ Read              2 claims, 5 findings
 | `pnpm killtest` | Run the §10 targets, render the cards, keep the ledger |
 | `pnpm killtest --fetch` | …collecting the copy for any target that has none |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 245 tests, no network, no key |
+| `pnpm test` · `pnpm typecheck` | 256 tests, no network, no key |
 
 ## How a scan works
 
@@ -291,6 +291,19 @@ would split a phrase in half, and block elements that need a newline so
 bar; that comes back marked thin and refuses to be scanned rather than scoring
 the navigation. Paste those by hand.
 
+**What it has been run against.** A real page over the real network — 344KB of
+GitHub markup down to 3.7KB of words, `<main>` correctly preferred, and their
+robots.txt correctly refusing `/search` and `*/commits/`. Then a 15KB
+Dawn-shaped product page carrying every trap worth having: 120 script tags, a
+minified bundle with `</script>` inside a string, the inline
+`application/json` variant blob that repeats the description, a `<noscript>`
+fallback, a consent banner, a mega-menu full of other products' claims, a
+review widget, a related-products carousel, and `eco&#8209;friendly` written
+with a non-breaking hyphen. All of it is in `tests/fetch.test.ts` now. The one
+thing that got through on the first run was the consent banner, whose text
+said "you agree to our cruelty free cookie policy" — flagged, correctly by the
+rules and uselessly for the brand.
+
 
 ## Calibration
 
@@ -416,5 +429,5 @@ scripts/card.ts           one page, three artefacts
 scripts/killtest.ts       thirty pages, thirty cards, one ledger
 scripts/calibrate.ts      the corpus read at volume
 scripts/rules.ts          coverage, printed
-tests/                    245 tests, none of which need a network
+tests/                    256 tests, none of which need a network
 ```

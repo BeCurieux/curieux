@@ -18,6 +18,7 @@ import { fromJsonLd, fromShopifyProduct, shopifyEndpoints } from "@/fetch/extrac
 import { AGENT, clearRobotsCache, fetchCopy, RobotsDisallowed, type Transport } from "@/fetch/fetch.js";
 import { coverageGap, coverageNote } from "@/fetch/coverage.js";
 import type { Jurisdiction } from "@/engine/types.js";
+import { scan } from "@/engine/evaluate.js";
 
 // ------------------------------------------------------------------- helpers
 
@@ -416,5 +417,91 @@ describe("what a structured fetch left behind", () => {
     const note = coverageNote(coverageGap("A serum.", page, markets));
     expect(note).toContain("and");
     expect(note?.match(/"/g)?.length).toBe(8);
+  });
+});
+
+// ------------------------------------------------ what a real page throws at it
+
+describe("the traps a real product page sets", () => {
+  it("survives a `</script>` inside a string inside a script", () => {
+    // A minified analytics bundle ends a naive regex block early, and whatever
+    // follows — usually a shop config object full of marketing strings —
+    // lands in the scanned copy.
+    const html = `<script>var t="<\\/script>",e="eco-friendly";boot()</script><p>The serum.</p>`;
+    expect(htmlToText(html)).toBe("The serum.");
+  });
+
+  it("drops the inline JSON blob a theme uses for variant data", () => {
+    // Dawn ships the description again as application/json. Scanned, every
+    // claim on the page is counted twice.
+    const html = `<p>Clinically proven.</p>
+      <script type="application/json" id="ProductJson">{"description":"Clinically proven."}</script>`;
+    expect(htmlToText(html)).toBe("Clinically proven.");
+  });
+
+  it("drops the noscript fallback, which repeats the copy", () => {
+    expect(htmlToText(`<p>Real.</p><noscript><p>Clinically proven fallback.</p></noscript>`)).toBe("Real.");
+  });
+
+  it("drops a consent banner, which nearly every EU-facing store has", () => {
+    const html = `<div id="cookie-banner" role="dialog"><p>You agree to our cruelty free cookie policy.</p></div>
+      <main><p>The serum.</p></main>`;
+    expect(htmlToText(html)).not.toContain("cruelty free");
+    expect(htmlToText(html)).toContain("The serum.");
+  });
+
+  it("drops the named consent vendors too", () => {
+    for (const token of ["onetrust-banner-sdk", "CybotCookiebotDialog", "usercentrics-root", "gdpr-notice"]) {
+      const html = `<div class="${token}"><p>Cookie notice text.</p></div><main><p>The serum.</p></main>`;
+      expect(htmlToText(html), token).not.toContain("Cookie notice text.");
+    }
+  });
+
+  it("leaves a food brand's own cookies alone", () => {
+    // The buyer profile includes clean-label food. Deleting a biscuit brand's
+    // products because their CSS says "cookie" is a far worse failure than
+    // leaving a consent notice in.
+    const html = `<main><div class="cookie-card"><h2>Oat Cookie</h2><p>All natural, no nasties.</p></div></main>`;
+    const text = htmlToText(html);
+    expect(text).toContain("Oat Cookie");
+    expect(text).toContain("All natural");
+  });
+
+  it("handles a nested consent stack without eating the page", () => {
+    const html = `<div class="cookie-consent"><div class="inner"><div>Deep</div></div></div>
+      <main><p>The serum.</p></main>`;
+    const text = htmlToText(html);
+    expect(text).not.toContain("Deep");
+    expect(text).toContain("The serum.");
+  });
+
+  it("leaves unbalanced markup alone rather than deleting to the end", () => {
+    // Bailing out beats guessing: the alternative is a card for a brand whose
+    // theme has one stray tag showing none of their copy.
+    const html = `<div id="cookie-banner"><p>Notice</p><main><p>The serum, quietly made.</p></main>`;
+    expect(htmlToText(html)).toContain("The serum, quietly made.");
+  });
+
+  it("keeps a phrase matchable across a non-breaking hyphen", () => {
+    // A theme writes eco&#8209;friendly to stop the word breaking over a line.
+    // Decoded it is U+2011, not the hyphen anybody types.
+    const text = htmlToText("<p>An eco&#8209;friendly serum.</p>");
+    expect(text).toContain("eco‑friendly");
+    const found = scan({ text, source: { kind: "paste" }, jurisdictions: ["EU"] }).findings;
+    expect(found.map((f) => f.ruleId)).toContain("eu-ecgt-generic-environmental");
+  });
+
+  it("keeps a phrase matchable across a non-breaking space", () => {
+    const text = htmlToText("<p>We ship carbon&nbsp;neutral.</p>");
+    const found = scan({ text, source: { kind: "paste" }, jurisdictions: ["EU"] }).findings;
+    expect(found.map((f) => f.ruleId)).toContain("eu-ecgt-offset-neutrality");
+  });
+
+  it("reduces a script-heavy page to its words", () => {
+    const bulk = Array.from({ length: 200 }, (_, i) => `<script src="/b-${i}.js"></script>`).join("");
+    const styles = Array.from({ length: 50 }, (_, i) => `<style>.s${i}{color:red}</style>`).join("");
+    const html = `<html><head>${bulk}${styles}</head><body><main><p>The serum.</p></main></body></html>`;
+    expect(html.length).toBeGreaterThan(6000);
+    expect(htmlToText(html)).toBe("The serum.");
   });
 });
