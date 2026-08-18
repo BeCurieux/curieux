@@ -100,11 +100,30 @@ A single earlier skip had been seen on `a30a7ff`, but only for `curieux-rifc`:
 it was the one project with quota left, so it was the only one that got far
 enough to run the command at all.
 
-**Still not settled: whether an *Ignored* deployment consumes one of the
+### It does not skip every time, and the pattern is not yet understood
+
+The very next commit, `30d5fde`, touched **only this file** — nothing inside
+any project's directory — and all four projects **built**. By the logic above
+it should have skipped, exactly as `af7d9cc` did.
+
+Both commits are outside every Root Directory, so the difference is not in the
+diff. The one thing that distinguishes them: `af7d9cc`'s four deployments were
+themselves *Ignored*, and an ignored build serves the previous deployment's
+output. If there is no previous output to reuse — because the previous
+deployment was also ignored — Vercel may have no choice but to build. That
+would mean skips cannot chain, and every run of ignored commits costs one real
+build at the end of it.
+
+That is a hypothesis and it is not confirmed. What would distinguish it: a
+second consecutive commit touching nothing in any project directory. If it
+skips, the theory is wrong and something else is going on. If it builds again,
+skips genuinely cannot follow skips.
+
+**Also still not settled: whether an *Ignored* deployment consumes one of the
 hundred.** The deployment record exists before the build is cancelled, so it
-may. What is now certain is that four builds no longer run for a one-directory
-commit, which was the stated goal; whether the counter agrees is a separate
-question and needs a day's worth of pushes to answer.
+may. What is certain is that a one-directory commit no longer runs four builds
+— the stated goal — but "no longer runs four builds" is weaker than "runs
+none", and the paragraph above is why.
 
 ## While the quota is exhausted, none of this runs
 
