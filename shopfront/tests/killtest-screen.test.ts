@@ -76,6 +76,75 @@ describe("screening a storefront", () => {
     expect(result.line).toMatch(/POOR PHOTOGRAPHY/);
   });
 
+  /*
+   * The widening, and the run that forced it.
+   *
+   * The rule above asked one question — does any product carry two images —
+   * and across sixty real candidates the answer was yes every time, so the
+   * sample came back empty and the screener said so. Counting uploads is not
+   * measuring photography: four phone pictures score the same as a studio.
+   */
+  describe("photography, past the image count", () => {
+    /** A studio: one crop, repeated, at a size the card does not have to upscale. */
+    const studio = { images: [{ url: "a", width: 1600, height: 2000 }, { url: "b" }] as never };
+
+    it("does not flag a catalogue shot to a template", () => {
+      const result = screen("https://studio.com", catalogue(40, studio));
+      expect(result.hardPhotography).toBe(false);
+      expect(result.framingConsistency).toBe(1);
+      expect(result.line).not.toMatch(/POOR PHOTOGRAPHY/);
+    });
+
+    it("flags a catalogue photographed in mixed crops", () => {
+      // Portrait, landscape and square in one grid is a merchant with a phone,
+      // and it is exactly the input the renderer has to cope with.
+      const shapes = [
+        { width: 1600, height: 2000 },
+        { width: 2000, height: 1500 },
+        { width: 1800, height: 1800 },
+      ];
+      const products = Array.from({ length: 42 }, (_, i) => ({
+        ...product({ handle: `p${i}` }),
+        images: [{ url: "a", ...shapes[i % 3]! }, { url: "b" }],
+      }));
+
+      const result = screen("https://mixed.com", { currency: "GBP", products, productCount: 42, truncated: false });
+      expect(result.verdict).toBe("good");
+      expect(result.hardPhotography).toBe(true);
+      expect(result.notes.join(" ")).toMatch(/share a crop/);
+      expect(result.line).toMatch(/POOR PHOTOGRAPHY/);
+    });
+
+    it("flags images too small for the card to fill", () => {
+      const result = screen("https://small.com", {
+        ...catalogue(30, { images: [{ url: "a", width: 600, height: 750 }, { url: "b" }] as never }),
+      });
+      expect(result.medianLongEdge).toBe(750);
+      expect(result.hardPhotography).toBe(true);
+      expect(result.notes.join(" ")).toMatch(/upscale/);
+    });
+
+    it("reads an unmeasurable feed as unknown, never as well photographed", () => {
+      // Dimensions are optional in `/products.json` and often absent. Treating
+      // silence as a pass would quietly re-create the bug this widening fixes.
+      const result = screen("https://nodims.com", catalogue(40, { images: [{ url: "a" }, { url: "b" }] as never }));
+      expect(result.framingConsistency).toBeNull();
+      expect(result.medianLongEdge).toBeNull();
+      expect(result.hardPhotography).toBe(false);
+    });
+
+    it("tolerates a studio catalogue carrying a few lifestyle shots", () => {
+      // The threshold is loose on purpose: a handful of odd crops is a normal
+      // product page, not a merchant without a studio.
+      const products = Array.from({ length: 40 }, (_, i) => ({
+        ...product({ handle: `p${i}` }),
+        images: [{ url: "a", width: 1600, height: i < 4 ? 1600 : 2000 }, { url: "b" }],
+      }));
+      const result = screen("https://mostly.com", { currency: "GBP", products, productCount: 40, truncated: false });
+      expect(result.hardPhotography).toBe(false);
+    });
+  });
+
   it("flags a catalogue larger than the Genome reads, without rejecting it", () => {
     const result = screen("https://big.com", catalogue(GENOME_READS + 40));
     expect(result.verdict).toBe("workable");

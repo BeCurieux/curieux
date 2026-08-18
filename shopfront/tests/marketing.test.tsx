@@ -118,9 +118,18 @@ describe("every marketing page", () => {
      * being checked against the app directory: `/edit-sale` is a shop, not a
      * route file, and `examples.test`-style coverage for those lives in the
      * examples check below.
+     *
+     * Assets are excluded by *being* assets, rather than by a list of the
+     * directories they currently live in. React emits a `<link rel="preload"
+     * as="image" href="…">` for every `<img>` it server-renders, so every
+     * picture on the page arrives here as an href — and the old filter named
+     * `/press/` and `/brand/`, which is fine right up until a photograph is
+     * added under a third directory. Anything that resolves to a real file in
+     * `public/` is a file; the check above already proves those exist, and a
+     * route path never has one.
      */
     const hrefs = [...page.html.matchAll(/href="(\/[^"#]*)"/g)].map((m) => m[1]!);
-    const internal = hrefs.filter((href) => !href.startsWith("/press/") && !href.startsWith("/brand/"));
+    const internal = hrefs.filter((href) => !existsSync(path.join(PUBLIC, href)));
 
     // Shops and previews are data, not routes. They are checked separately.
     const marketing = internal.filter(

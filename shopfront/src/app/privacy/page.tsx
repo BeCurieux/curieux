@@ -45,7 +45,7 @@ export default function Privacy() {
       <section className="opening legal-top">
         <p className="tag">Privacy</p>
         <h1 className="shout legal-heading">
-          what we
+          What we
           <br />
           <span className="shout-mark">collect.</span>
         </h1>
@@ -145,7 +145,7 @@ export default function Privacy() {
         </div>
       </section>
 
-      <section className="band band-ink closing">
+      <section className="band band-lilac closing">
         <SiteFoot />
       </section>
     </main>

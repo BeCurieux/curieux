@@ -147,9 +147,23 @@ describe("the landing page", () => {
   });
 
   it("shows the wordmark as the generated file, not a second drawing of it", () => {
-    // Two copies of a logo is how a logo ends up with two letterspacings.
-    // `scripts/press/logo.mjs` writes both colourways from one geometry.
-    expect(sources).toContain("/brand/popuup-light.svg");
+    /*
+     * Two copies of a logo is how a logo ends up with two letterspacings.
+     * `scripts/press/logo.mjs` writes both colourways from one geometry, and
+     * that agreement is what this test is really for.
+     *
+     * It used to also require the *light* colourway on this page, which was a
+     * fact about the old design rather than about the wordmark: the foot sat in
+     * an ink band. Every page now closes on lilac, so both marks on the page
+     * are the dark one — and asserting the light file appears would have meant
+     * shipping a pale smudge on a pale ground to keep a test green. The check
+     * that survives is the one that matters: the page uses a generated file,
+     * and the two files are the same drawing.
+     */
+    expect(sources.filter((src) => src.startsWith("/brand/")).length).toBeGreaterThan(0);
+    for (const src of sources.filter((s) => s.startsWith("/brand/"))) {
+      expect(src, "the wordmark must be an svg from scripts/press/logo.mjs").toMatch(/^\/brand\/popuup(-light)?\.svg$/);
+    }
 
     const light = readFileSync(path.join(PUBLIC, "brand/popuup-light.svg"), "utf8");
     const dark = readFileSync(path.join(PUBLIC, "brand/popuup.svg"), "utf8");

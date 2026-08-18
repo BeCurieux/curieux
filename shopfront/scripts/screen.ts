@@ -81,13 +81,13 @@ for (const [index, url] of candidates.entries()) {
 const good = results.filter((r) => r.verdict === "good");
 const workable = results.filter((r) => r.verdict === "workable");
 const wrong = results.filter((r) => r.verdict === "wrong-test");
-const thin = results.filter((r) => r.verdict !== "wrong-test" && r.richImagery === 0);
+const thin = results.filter((r) => r.verdict !== "wrong-test" && r.hardPhotography);
 
 process.stderr.write(
   [
     "",
     `  ${good.length} good · ${workable.length} workable · ${wrong.length} not this test`,
-    `  ${thin.length} with one image per product — the mediocre-photography sample`,
+    `  ${thin.length} shot without a studio template — the mediocre-photography sample`,
     "",
   ].join("\n"),
 );
@@ -101,7 +101,14 @@ if (usable < 30) {
 
 if (thin.length === 0 && usable > 0) {
   process.stderr.write(
-    "  Every candidate has multiple images per product. The brief asks the template to flatter mediocre photography, and this list would never test that.\n\n",
+    [
+      "  Every candidate was shot to a template. The brief asks the renderer to flatter",
+      "  mediocre photography, and this list would never test that. Screen a batch of",
+      "  smaller makers before starting — the shape of merchant who photographs their own",
+      "  stock is the one this sample is missing.",
+      "",
+      "",
+    ].join("\n"),
   );
 }
 

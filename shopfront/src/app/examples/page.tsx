@@ -108,7 +108,7 @@ export default function Examples() {
       <section className="opening examples-top">
         <p className="tag">Demo shops</p>
         <h1 className="shout examples-heading">
-          shops you
+          Shops you
           <br />
           can <span className="shout-mark">open.</span>
         </h1>
@@ -183,11 +183,9 @@ export default function Examples() {
         </ul>
       </section>
 
-      <section className="band band-ink closing">
+      <section className="band band-lilac closing">
         <h2 className="shout closing-heading">
-          yours next,
-          <br />
-          then.
+          Yours next, <span className="shout-mark">then.</span>
         </h2>
         <p className="lead-note">
           Send your store and a sentence about who the shop is for. If your storefront is public we can read its product
