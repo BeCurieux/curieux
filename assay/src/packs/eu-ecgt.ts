@@ -54,6 +54,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Swap the generic adjective for one concrete, verifiable attribute the brand already holds " +
       "evidence for. Keep the sentence's rhythm and length. Never substitute a different vague word.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "An eco-friendly serum, made in small batches.",
+      quiet: "A serum made in small batches, 92% bio-based by weight.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -98,6 +103,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Convert the neutrality assertion into a reduction statement with a figure and a baseline. " +
       "If the brand has no figure, drop the environmental sentence rather than softening it.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Every order ships carbon neutral.",
+      quiet: "Shipping emissions are down 41% against our 2023 baseline.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -137,6 +147,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Rewrite so the statement reads as reassurance about category norms, not as a differentiator. " +
       "Drop comparative framing entirely.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Cruelty free, always — unlike the big houses.",
+      quiet: "Cruelty free, certified by Leaping Bunny.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -176,6 +191,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "If a scheme exists, name it inline. If none does, rewrite the seal's wording into a first-" +
       "person commitment sentence with no badge language.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Look for our sustainability seal on the pack.",
+      quiet: "Our sustainability seal is awarded under COSMOS Organic.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -216,6 +236,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Insert the specific component the claim applies to. Keep every other word. If the component " +
       "is unknown, mark the sentence for the brand to complete rather than picking one.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Fully recyclable, inside and out.",
+      quiet: "The outer carton is recyclable.",
+    },
     match: {
       kind: "phrase",
       any: ["recyclable", "compostable", "biodegradable", "plastic free", "zero waste"],
@@ -278,6 +303,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Keep the pledge only if a linkable plan exists; otherwise rewrite it as a description of " +
       "what the brand does today. Never invent a target year.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "We will be plastic free by 2027.",
+      quiet: "Our refill programme has replaced 40,000 bottles since 2025.",
+    },
     match: {
       kind: "pattern",
       source: "\\b(net[\\s-]?zero|carbon[\\s-]?neutral|plastic[\\s-]?free|fully sustainable)\\b[^.]{0,60}\\b(by|before)\\s+20\\d{2}",
@@ -308,6 +338,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Add the conditions and the standard when the brand has them. When they are missing, narrow " +
       "the word rather than deleting the sentence.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "The formula is biodegradable.",
+      quiet: "Biodegradable in industrial composting within 90 days, to EN 13432.",
+    },
     match: {
       kind: "phrase",
       any: ["biodegradable", "degrades naturally", "breaks down naturally", "returns to the earth"],

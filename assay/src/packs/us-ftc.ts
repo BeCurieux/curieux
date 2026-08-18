@@ -51,6 +51,11 @@ const rules: Rule[] = [
       "Move the sentence from clinical to observational. Keep the customer benefit and the brand's " +
       "voice; drop the condition name and every treat/cure/prevent verb. Do not swap in a synonym " +
       "for the same medical meaning.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Clears acne without the sting.",
+      quiet: "Leaves congested skin looking calmer and less shiny.",
+    },
     match: {
       kind: "any",
       of: [
@@ -100,6 +105,11 @@ const rules: Rule[] = [
       "Replace 'proven' with the study's own finding and its cohort where the brand has supplied " +
       "one. Where no study is supplied, rewrite to a consumer-perception or sensory claim and mark " +
       "it as needing the brand's confirmation. Never invent a sample size.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Clinically proven to reduce fine lines.",
+      quiet: "In a 12-week study of 42 women, 87% reported smoother-looking skin.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -134,6 +144,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Separate the testing statement from the benefit statement so neither borrows the other's " +
       "authority. Add the measured endpoint if the brand supplied one.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Dermatologist tested for sensitive skin.",
+      quiet: "Assessed for skin tolerance on 30 volunteers over four weeks.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -168,6 +183,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Retain the customer's voice and remove the quantified outcome, or replace the figure with " +
       "the brand's own substantiated average where one was supplied.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "In 7 days my dark spots were gone.",
+      quiet: "I have used it every morning since March and I would not swap it.",
+    },
     match: {
       kind: "pattern",
       source:
@@ -197,6 +217,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Attach the specific, substantiated attribute in the same sentence. Keep it to one attribute; " +
       "a list of three reads as the general claim again.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "An eco-friendly formula from an eco-friendly brand.",
+      quiet: "A formula with 92% naturally derived ingredients.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -232,6 +257,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Convert the adjective into the specific exclusion list the brand can evidence. Never carry " +
       "over an implication of safety that the list does not support.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "100% natural and non-toxic.",
+      quiet: "Formulated without parabens, sulfates or synthetic fragrance.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -268,6 +298,14 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Add the availability qualifier in the same sentence. Keep the component named if the copy " +
       "already names one.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "The bottle is recyclable.",
+      quiet: "The bottle is recyclable where facilities exist.",
+    },
+    // The Guides ask for an availability qualifier and name this wording; the
+    // rewrite is the qualifier, and nothing about it needs deciding.
+    mechanical: { kind: "qualify", suffix: " where facilities exist" },
     match: {
       kind: "phrase",
       any: ["recyclable", "widely recycled", "fully recyclable"],

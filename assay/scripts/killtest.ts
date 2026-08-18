@@ -32,6 +32,8 @@ import { resultPage } from "../src/card/page.js";
 import { loadEmbeddedFonts } from "../src/card/fonts.js";
 import { fetchCopy, RobotsDisallowed } from "../src/fetch/fetch.js";
 import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
+import { rewriteAll } from "../src/rewrite/rewrite.js";
+import { anthropicDrafter, apiKey } from "../src/rewrite/model.js";
 import {
   GATE,
   mergeRows,
@@ -150,6 +152,12 @@ async function main() {
     await collect(targets, process.argv.includes("--own"), markets);
     console.log("");
   }
+  const wantsRewrites = process.argv.includes("--rewrite");
+  const drafter = wantsRewrites && apiKey() ? anthropicDrafter() : undefined;
+  if (wantsRewrites && !drafter) {
+    console.log("(--rewrite needs ASSAY_ANTHROPIC_API_KEY; the cards will carry each rule's remedy instead.)");
+  }
+
   const known = parseLedger(existsSync(LEDGER) ? readFileSync(LEDGER, "utf8") : "");
   const fonts = loadEmbeddedFonts();
   mkdirSync(OUT, { recursive: true });
@@ -176,7 +184,14 @@ async function main() {
     const { marks } = annotate(text, result.findings);
     const base = join(OUT, target.slug);
 
-    writeFileSync(`${base}.html`, resultPage({ text, result, reviewedOn, fonts }));
+    // Opt-in, and per target rather than per finding: thirty pages of drafts
+    // is thirty pages of API calls, and the card is already useful without
+    // them — every note carries the rule's own remedy.
+    const rewrites = drafter
+      ? (await rewriteAll(text, marks, { drafter, jurisdictions: markets })).rewrites
+      : {};
+
+    writeFileSync(`${base}.html`, resultPage({ text, result, reviewedOn, rewrites, fonts }));
     writeFileSync(`${base}.card.svg`, shareCard({ text, result, reviewedOn, fonts }));
     writeFileSync(`${base}.badge.svg`, badgeSvg({ result, reviewedOn }));
 

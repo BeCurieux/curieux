@@ -49,12 +49,13 @@ Read              2 claims, 5 findings
 | `pnpm scan --file page.txt --json` | The whole `ScanResult`, as JSON |
 | `pnpm card --file page.txt --out ./cards/x` | The result page, the share card and the badge |
 | `pnpm card … --wordmark VOUCH` | Put a candidate name in the masthead |
+| `pnpm card … --rewrite` | Draft the replacements too — exact fixes offline, rest via the model |
 | `pnpm card … --png` | Rasterise the share card, if a Chromium is around |
 | `pnpm calibrate` | Is the corpus loud in the right places? Eight invented pages |
 | `pnpm killtest` | Run the §10 targets, render the cards, keep the ledger |
 | `pnpm killtest --fetch` | …collecting the copy for any target that has none |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 256 tests, no network, no key |
+| `pnpm test` · `pnpm typecheck` | 292 tests, no network, no key |
 
 ## How a scan works
 
@@ -305,6 +306,77 @@ said "you agree to our cruelty free cookie policy" — flagged, correctly by the
 rules and uselessly for the brand.
 
 
+## Rewrites
+
+```
+pnpm card --file page.txt --rewrite
+```
+
+Every note already carries its rule's remedy — *what* would settle it. A
+rewrite is the sentence itself, in the brand's voice.
+
+**The model drafts; the rules dispose.** Every draft is re-scanned by the same
+deterministic engine that raised the finding, and accepted only if that rule is
+gone *and* nothing new has appeared. A draft that reads beautifully and still
+trips the rule is discarded. That is law 1 holding with a model in the room:
+nothing a model writes becomes a finding, a score, or a verdict — a rewrite is
+advice attached to a finding, checked by the same rules that produced it.
+
+**Per mark, not per finding.** "Eco-friendly" answers to the ECGT, the Green
+Guides and the ACCC at once. One draft has to satisfy all three, and one that
+clears Europe while still tripping the Green Guides has moved the problem
+across the Atlantic rather than fixed it.
+
+### Never invent evidence
+
+The single worst thing this product could ship. Ask a model to make "clinically
+proven to reduce fine lines" defensible and the helpful thing to write is *"in
+a 12-week study, 87% of women reported smoother skin"* — a better sentence,
+clears the rule, and a claim the brand cannot support and never made. They then
+publish it, on our advice, on a page carrying our mark.
+
+So `fabrication.ts` extracts every figure, duration, certification scheme,
+study word and ranking from a draft and rejects it if any of them was not
+already on the page. Deliberately over-broad: a false positive costs a retry, a
+false negative costs a brand a claim it cannot defend.
+
+**A blank is a good answer.** Some fixes need a fact only the brand has — which
+scheme certified them, what the study measured, which component the claim is
+about. The draft writes `[name your scheme]` rather than guessing, and
+placeholders are stripped before evidence is counted. Without that valve,
+"never invent" collapses into "always delete the claim", and a model with only
+two moves reaches for the invention.
+
+### Two fixes need no model
+
+A permitted-indication verb and an availability qualifier are exact, so they
+run offline, cost nothing, and still go through the same gate:
+
+```
+  rewrote "Boosts immunity" → "Supports immunity" [mechanical]
+  rewrote "recyclable" → "recyclable where facilities exist" [mechanical]
+```
+
+Everything else returns nothing rather than guessing. "No nasties" becomes the
+brand's own exclusion list and nothing here knows what is in it.
+
+### When nothing clears the gate
+
+It says so, and keeps the remedy — which was already correct. A wrong draft
+displacing a correct remedy is worse than no draft:
+
+```
+  kept the remedy for "Fully recyclable" — the exact fix did not clear the gate
+             "Fully recyclable where facilities exist": still trips
+             eu-ecgt-whole-product-from-one-part
+```
+
+That one is the design working. The Green Guides want an availability
+qualifier and the ECGT wants the component named; the mechanical fix answers
+the first and not the second, so the mark keeps its remedy until a draft
+answers both.
+
+
 ## Calibration
 
 `pnpm calibrate` runs the corpus over eight invented pages spanning the buyer's
@@ -374,11 +446,12 @@ Read this section before showing anything from this engine to a brand.
 - **21 rules is a slice, not coverage.** It is the wedge, authored in the order
   §7 asked for. `pnpm rules` is the honest picture, and it should be run before
   a market is promised to anybody.
-- **The rewrites are not written yet.** Every note shows the rule's remedy —
-  what would settle it — rather than a drafted alternative in the brand's
-  voice. Drafting those is the model's job in step 4, and `resultPage` already
-  takes them (`rewrites`, keyed by `rewriteKey`). Until then the card says what
-  it can support and nothing more.
+- **The drafter has never run against the real API.** The request shape is
+  asserted against a fake client — model, adaptive thinking, cached system
+  prompt, the rule's guidance and example in the prompt — but no credentials
+  were available where this was built, so whether a real model writes copy a
+  founder would use is unmeasured. The gate around it is fully tested; the
+  taste is not.
 - **The share card wraps text by estimate.** SVG has no layout engine and the
   face is not measurable from here, so `wrapText` approximates and errs narrow.
   A phrase that breaks one word early looks considered; the alternative
@@ -422,6 +495,12 @@ src/fetch/extract.ts      the ladder — structured sources before the page
 src/fetch/coverage.ts     what a structured fetch left behind, by scanning it
 src/fetch/fetch.ts        the only file here that touches the network
 
+src/rewrite/fabrication.ts  the one thing a draft may never do
+src/rewrite/validate.ts     the gate: the rules decide, not the model
+src/rewrite/deterministic.ts  the two fixes that are exact
+src/rewrite/model.ts        the only file that sends a model anything
+src/rewrite/rewrite.ts      draft per mark, gate everything, report the misses
+
 src/killtest/ledger.ts    the gate's arithmetic, and a round trip that is tested
 
 scripts/scan.ts           findings in a terminal
@@ -429,5 +508,5 @@ scripts/card.ts           one page, three artefacts
 scripts/killtest.ts       thirty pages, thirty cards, one ledger
 scripts/calibrate.ts      the corpus read at volume
 scripts/rules.ts          coverage, printed
-tests/                    256 tests, none of which need a network
+tests/                    292 tests, none of which need a network
 ```

@@ -9,7 +9,6 @@
 import { allPacks, supportedJurisdictions } from "../src/engine/registry.js";
 import { CLAIM_CATEGORIES, LAUNCH_JURISDICTIONS, SEVERITY_WEIGHT } from "../src/engine/types.js";
 import type { Jurisdiction } from "../src/engine/types.js";
-import { TRIGGERS } from "../tests/fixtures/triggers.js";
 
 const packs = allPacks();
 const width = 62;
@@ -23,10 +22,10 @@ for (const pack of packs) {
   console.log(`${pack.jurisdiction}  ${pack.label}`);
   console.log(`    pack version ${pack.version} · ${pack.rules.length} rules`);
   for (const rule of pack.rules) {
-    const fixture = TRIGGERS[rule.id] ? "" : "   ← no fixture";
+    const mechanical = rule.mechanical ? "   · exact rewrite" : "";
     console.log(
       `    ${rule.severity.padEnd(6)} −${String(SEVERITY_WEIGHT[rule.severity]).padStart(2)}  ` +
-        `${rule.title}${fixture}`,
+        `${rule.title}${mechanical}`,
     );
     console.log(`            ${rule.categories.join(", ")} · ${rule.id}`);
   }

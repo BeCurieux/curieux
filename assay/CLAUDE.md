@@ -58,11 +58,13 @@ and puts a badge on it.
 
 ## Stack (fixed)
 
-TypeScript everywhere. The engine has no dependencies beyond `zod` and needs no
-configuration — it runs on a laptop with no accounts, which is what makes the
-kill test possible before anything is built. The app around it, when it exists:
-Next.js (App Router) · Supabase · Shopify Billing · Anthropic API · Vercel.
-No other services without asking.
+TypeScript everywhere. `zod` and `@anthropic-ai/sdk`, and the second is reached
+by exactly one file. **Scanning still needs no key and no configuration** — the
+drafter is injected, and without one the engine, the card and the kill test all
+run on a laptop with no accounts, which is what makes step 3 possible before
+step 4 exists. The app around it, when it exists: Next.js (App Router) ·
+Supabase · Shopify Billing · Anthropic API · Vercel. No other services without
+asking.
 
 ## Build order (derived from §7 and §10 — not given in the brief)
 
@@ -76,10 +78,10 @@ No other services without asking.
    §10's gate: 8+/30 wanting the live product, or 3+ offering to pay.
    *Tooling done — `pnpm killtest`, `pnpm calibrate`, KILLTEST.md. The
    outreach itself is the founder's, and is the actual test.*
-4. **Everything after step 3 is gated on step 3.** URL fetch, LLM extraction,
-   rule-constrained rewrites filling the card's `rewrites`, accounts, the
-   hosted score page, the Shopify app, the badge embed, billing, monitoring,
-   the ad checker, retailer packs.
+4. **Everything after step 3 is gated on step 3.** LLM extraction, accounts,
+   the hosted score page, the Shopify app, the badge embed, billing,
+   monitoring, the ad checker, retailer packs. Two rungs have been opened
+   early on the owner's call — see below.
 5. **Stop.** OCR packaging, UK and Quebec packs, and anything in §4's
    "explicitly out of V1" list are later decisions, not sprint overflow.
 
@@ -105,10 +107,22 @@ What opened: `src/fetch/` — robots.txt, an extraction ladder, and text
 extraction, all pure above one file, all offline-testable. `--url` on `pnpm
 scan` and `pnpm card`, and `--fetch` on `pnpm killtest`.
 
-What did **not** open, and stays shut until the gate is met: the LLM extractor,
-rewrite generation, accounts, the hosted score page, the Shopify app, the badge
-embed, billing, monitoring, the ad checker and retailer packs. A model is still
-not in the scan path and law 1 is untouched.
+What did **not** open with it: the LLM extractor, accounts, the hosted score
+page, the Shopify app, the badge embed, billing, monitoring, the ad checker and
+retailer packs. A model is still not in the scan path and law 1 is untouched.
+
+**Rewrite generation, on the owner's call (2026-08-18).** Also step 4, also
+opened before the gate. It is the first thing in this project that sends a
+model anything, and the whole design is about that being safe: the drafter
+proposes, `src/rewrite/validate.ts` re-scans with the same engine, and a draft
+the rules still flag is discarded however well it reads. Law 1 is not bent —
+no finding, score or verdict has a model anywhere near it, and a rewrite is
+advice attached to a finding rather than part of one.
+
+What opened: `src/rewrite/` and `--rewrite` on `pnpm card` and `pnpm killtest`.
+Rewrites are opt-in, the scan never depends on them, and with no key the exact
+fixes still run and the rest of the notes keep their remedy. Still shut: every
+other item on the step-4 list.
 
 **The boundary that came with it, and it is not negotiable: reading somebody's
 page is conduct, not a feature.** robots.txt is obeyed and a 5xx on it fails
@@ -121,11 +135,18 @@ the moment any of it is skipped.
 
 ## Rules about rules
 
-- A rule with no fixture in `tests/fixtures/triggers.ts` fails CI. A rule that
-  has never matched anything is the failure mode this corpus dies of.
-- Every fixture is a pair: copy that trips the rule, and the same claim
-  rewritten so it does not. The quiet half is the more valuable one — it is the
-  rewrite engine's specification, written before the rewrite engine.
+- Every rule carries an `example` pair: copy that trips it, and copy that does
+  not. `tests/corpus.test.ts` asserts both halves behave, so a rule that has
+  never matched anything — the failure mode this corpus dies of — fails CI.
+- The pair lives on the rule rather than in a fixture file because it is the
+  rule's boundary drawn from both sides, and the rewriter is shown it next to
+  `rewriteGuidance`. The quiet half is sometimes the same claim written well
+  and sometimes adjacent copy that correctly passes; it is an illustration of
+  where the rule stops, not a template to imitate.
+- A rule whose fix is exact carries `mechanical`. Two do. Do not generalise
+  that field to make a third case expressible — the temptation is to make it
+  expressive enough to express a bad rewrite, and a wrong draft displaces a
+  correct remedy.
 - Rule ids are permanent. A rule whose meaning changes gets a new id, because
   a badge earned last month records the pack version it was earned under.
 - Pack versions bump whenever a rule is added, removed, or changed in a way
@@ -160,6 +181,29 @@ the moment any of it is skipped.
 - **A thin result is reported, never scanned.** A page that builds itself in
   the browser returns a nav bar, and scoring a nav bar produces a number that
   is worse than no number.
+
+## Rules about rewrites
+
+- **The model drafts; the rules dispose.** Every draft is re-scanned by the
+  same engine that raised the finding, and accepted only if the rule is gone
+  and nothing new has appeared. That is law 1, and it is why the drafter
+  returns candidates rather than an answer.
+- **Never invent evidence.** No study, figure, sample size, duration, scheme
+  or ranking that was not already on the page. `src/rewrite/fabrication.ts` is
+  that rule checked, and it is deliberately over-broad: a rejected draft costs
+  a retry, a fabricated one costs the brand a claim it cannot defend — on our
+  advice, on a card carrying our mark.
+- **A blank is a good answer.** Where the honest fix needs a fact only the
+  brand has, the draft says `[name your scheme]` rather than guessing one.
+  Without that valve, "never invent" collapses into "always delete the claim",
+  and the model reaches for the invention.
+- **Draft per mark, not per finding.** One phrase trips three markets and the
+  brand needs one sentence that answers all of them. A draft that clears the
+  ECGT and still trips the Green Guides has moved the problem, not fixed it.
+- **No rewrite is better than a wrong one.** Every note already carries its
+  rule's remedy, which is correct. A bad draft displaces it. When nothing
+  clears the gate, say so and keep the remedy.
+- Rewrites are opt-in (`--rewrite`) and the scan never depends on them.
 
 ## Rules about the card
 

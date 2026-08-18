@@ -172,8 +172,45 @@ export type Rule = {
   remedy: string;
   /** Constrains the rewrite: what a compliant alternative must and must not do. */
   rewriteGuidance: string;
+  /**
+   * One worked example: copy that trips this rule, and the same claim written
+   * so it does not.
+   *
+   * These began as test fixtures and moved here, because they were never
+   * really tests: the pair is this rule's boundary, drawn from both sides, and
+   * it is what the rewriter is shown alongside `rewriteGuidance`.
+   *
+   * The quiet half is sometimes the same claim written well and sometimes
+   * adjacent copy that correctly passes — "green tea" beside "sustainable"
+   * demonstrates where this rule stops, and that is worth showing a model even
+   * though it is not a rewrite of anything. So it is an illustration of the
+   * boundary, not a template to imitate; the corpus suite proves it lands on
+   * the right side of the line, which is the property it actually has.
+   */
+  example: { trips: string; quiet: string };
+  /**
+   * A rewrite that needs no model, for the rules where the fix is mechanical.
+   *
+   * Most are not: "no nasties" becomes the brand's own exclusion list, and
+   * nothing here knows what is in it. But a permitted-indication verb swap and
+   * an availability qualifier are exact, and an exact rewrite should never
+   * wait on a network call or cost a token.
+   */
+  mechanical?: MechanicalRewrite;
   match: Matcher;
 };
+
+/**
+ * The two mechanical shapes that actually recur. Deliberately not a general
+ * transform language — a third case should be looked at before it is
+ * generalised, because the temptation is to make this expressive enough to
+ * express a bad rewrite.
+ */
+export type MechanicalRewrite =
+  /** Swap one word for another, case-preserving. The permitted-indication fix. */
+  | { kind: "swap"; from: string[]; to: string }
+  /** Add a qualifier after the matched phrase. The availability fix. */
+  | { kind: "qualify"; suffix: string };
 
 /** A versioned bundle of rules for one jurisdiction. */
 export type RulePack = {

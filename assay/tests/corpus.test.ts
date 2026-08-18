@@ -12,7 +12,6 @@ import { allPacks, allRules, isSupported, packFor, supportedJurisdictions } from
 import { findingsFor } from "@/engine/evaluate.js";
 import { extractClaims } from "@/extract/deterministic.js";
 import { LAUNCH_JURISDICTIONS, CLAIM_CATEGORIES } from "@/engine/types.js";
-import { TRIGGERS } from "./fixtures/triggers.js";
 
 const rules = allRules();
 
@@ -84,27 +83,28 @@ describe("rule content", () => {
 });
 
 describe("every rule earns its place", () => {
-  it("has a fixture", () => {
-    const missing = rules.filter((rule) => !TRIGGERS[rule.id]).map((rule) => rule.id);
-    expect(missing, "rules with no fixture in tests/fixtures/triggers.ts").toEqual([]);
-  });
-
-  it("has no fixture for a rule that no longer exists", () => {
-    const ids = new Set(rules.map((r) => r.id));
-    expect(Object.keys(TRIGGERS).filter((id) => !ids.has(id))).toEqual([]);
+  // The example lives on the rule rather than in a fixture file, because it
+  // was never really a test fixture: the quiet half is what the rewriter is
+  // shown as the worked example for this rule, and this suite is what proves
+  // the thing we show a model actually works.
+  it("carries a worked example", () => {
+    for (const rule of rules) {
+      expect(rule.example.trips.length, rule.id).toBeGreaterThan(10);
+      expect(rule.example.quiet.length, rule.id).toBeGreaterThan(10);
+      expect(rule.example.trips, rule.id).not.toBe(rule.example.quiet);
+    }
   });
 
   for (const rule of rules) {
-    const fixture = TRIGGERS[rule.id];
-    if (!fixture) continue;
-
     it(`${rule.id} fires on the copy it is about`, () => {
-      const found = findingsFor(rule.jurisdiction, fixture.trips, extractClaims(fixture.trips));
+      const { trips } = rule.example;
+      const found = findingsFor(rule.jurisdiction, trips, extractClaims(trips));
       expect(found.map((f) => f.ruleId)).toContain(rule.id);
     });
 
     it(`${rule.id} stays quiet once the copy is fixed`, () => {
-      const found = findingsFor(rule.jurisdiction, fixture.quiet, extractClaims(fixture.quiet));
+      const { quiet } = rule.example;
+      const found = findingsFor(rule.jurisdiction, quiet, extractClaims(quiet));
       expect(found.map((f) => f.ruleId)).not.toContain(rule.id);
     });
   }

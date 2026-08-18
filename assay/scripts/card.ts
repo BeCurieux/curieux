@@ -9,6 +9,7 @@
  *   pnpm card --url https://brand.example/products/serum --out ./cards/aurelia
  *   pnpm card --file page.txt --out ./cards/aurelia
  *   pnpm card --text "Clinically proven…" --markets AU,EU --wordmark VOUCH
+ *   pnpm card --file page.txt --rewrite      # draft the replacements too
  *   pnpm card --file page.txt --png          # needs a Chromium, see below
  *
  * `--wordmark` exists because the product has no name (BRIEF.md §11, item 1).
@@ -26,6 +27,9 @@ import { resultPage } from "../src/card/page.js";
 import { loadEmbeddedFonts } from "../src/card/fonts.js";
 import { fetchCopy } from "../src/fetch/fetch.js";
 import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
+import { annotate } from "../src/card/annotate.js";
+import { rewriteAll } from "../src/rewrite/rewrite.js";
+import { anthropicDrafter, apiKey } from "../src/rewrite/model.js";
 import type { Jurisdiction } from "../src/engine/types.js";
 
 type Options = {
@@ -146,12 +150,44 @@ async function main() {
   const base = resolve(options.out);
   mkdirSync(dirname(base), { recursive: true });
 
+  // Rewrites are opt-in. Without `--rewrite` the notes show each rule's own
+  // remedy, which is correct and costs nothing; with it, the exact fixes run
+  // offline and the rest go to the model — every draft through the same gate.
+  const rewrites: Record<string, string> = {};
+  if (process.argv.includes("--rewrite")) {
+    const { marks } = annotate(copy, result.findings);
+    const key = apiKey();
+    if (!key) {
+      console.log("(no ASSAY_ANTHROPIC_API_KEY — drafting the exact fixes only, and saying so.)");
+    }
+    const run = await rewriteAll(copy, marks, {
+      drafter: key ? anthropicDrafter() : undefined,
+      jurisdictions: options.markets,
+    });
+    Object.assign(rewrites, run.rewrites);
+    for (const accepted of run.accepted) {
+      console.log(`  rewrote ${JSON.stringify(accepted.claim)} → ${JSON.stringify(accepted.text)} [${accepted.source}]`);
+    }
+    for (const miss of run.missed) {
+      // The rejection reason is the useful half: "the exact fix did not clear
+      // the gate" is not actionable, and "it still trips the EU whole-product
+      // rule, which needs the component named" is.
+      const why = miss.rejected.at(-1);
+      console.log(
+        `  kept the remedy for ${JSON.stringify(miss.claim)} — ${miss.reason}` +
+          (why ? `\n${" ".repeat(13)}${JSON.stringify(why.text)}: ${why.reason}` : ""),
+      );
+    }
+    if (run.accepted.length + run.missed.length > 0) console.log("");
+  }
+
   const fonts = loadEmbeddedFonts();
   const page = resultPage({
     text: copy,
     result,
     reviewedOn: options.reviewedOn,
     wordmark: options.wordmark,
+    rewrites,
     fonts,
   });
   const card = shareCard({

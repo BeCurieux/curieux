@@ -107,3 +107,44 @@ export { coverageGap, coverageNote, type Coverage } from "./fetch/coverage.js";
 // by importing the index is a bad afternoon. `fetch/fetch.ts` is the network
 // and is exported, because a caller has to be able to reach it on purpose —
 // but nothing above it imports it, so the engine still runs with no network.
+
+// ------------------------------------------------------------------ rewrites
+
+export {
+  rewriteAll,
+  rewriteMark,
+  contextAround,
+  type Rewrite,
+  type NoRewrite,
+  type MarkOutcome,
+  type RewriteRun,
+  type RewriteOptions,
+  type RewriteSource,
+} from "./rewrite/rewrite.js";
+export {
+  validateRewrite,
+  topicOverlap,
+  LENGTH_BAND,
+  MIN_TOPIC_OVERLAP,
+  TOPIC_CHECK_MIN_WORDS,
+  type Validation,
+  type RejectionCode,
+} from "./rewrite/validate.js";
+export {
+  evidenceIn,
+  fabricatedEvidence,
+  fabricationReason,
+  PLACEHOLDER,
+  type Evidence,
+} from "./rewrite/fabrication.js";
+export { mechanicalRewrite } from "./rewrite/deterministic.js";
+export {
+  anthropicDrafter,
+  apiKey,
+  SYSTEM,
+  DEFAULT_MODEL,
+  DEFAULT_CANDIDATES,
+  type Drafter,
+  type DraftRequest,
+  type AnthropicDrafterOptions,
+} from "./rewrite/model.js";

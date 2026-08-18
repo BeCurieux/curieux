@@ -43,6 +43,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Remove the condition and rebuild the sentence around the everyday experience the customer " +
       "recognises. Do not substitute a euphemism that carries the same meaning.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "A gentle daily ritual for hands living with arthritis.",
+      quiet: "A gentle daily ritual for hands that ache after a long day.",
+    },
     match: {
       kind: "pattern",
       source:
@@ -99,6 +104,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Recast each therapeutic verb as an appearance or sensory observation. Keep the specificity " +
       "the copy has — vague replacements read as evasive and sell worse.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Heals cracked skin overnight.",
+      quiet: "Softens and comforts cracked-looking skin overnight.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -142,6 +152,18 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Substitute the permitted verb, preserve every other word, and never widen the body system " +
       "referred to while doing it.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Boosts immunity through winter.",
+      quiet: "Maintains immune system health through winter.",
+    },
+    // Exact, so it never waits on a model: the permitted-indications list is
+    // worded around "maintain" and "support", and the fix is the verb.
+    mechanical: {
+      kind: "swap",
+      from: ["boosts", "boost", "boosting", "increases", "increase", "enhances", "enhance", "supercharges", "maximises", "maximizes"],
+      to: "supports",
+    },
     match: {
       kind: "pattern",
       source:
@@ -172,6 +194,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Replace the adjective with the substantiated specific. Where the brand has supplied no " +
       "specific, cut the claim rather than qualifying it into vagueness.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "A sustainable skincare ritual.",
+      quiet: "Our green tea extract is grown on one farm in Uji.",
+    },
     match: {
       kind: "phrase",
       any: [
@@ -215,6 +242,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Add scheme and scope where the brand has them. Where they are absent, convert to a " +
       "reduction statement with a figure, or remove.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Every parcel we send is carbon neutral.",
+      quiet: "Every parcel we send is carbon neutral, certified under Climate Active.",
+    },
     match: {
       kind: "phrase",
       any: ["carbon neutral", "climate neutral", "net zero", "carbon positive", "climate positive"],
@@ -242,6 +274,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Add the measure and source when supplied. Otherwise replace the ranking with a first-person " +
       "statement — bestselling within the brand's own range, and say so.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "Australia's number one retinol.",
+      quiet: "Our own bestselling retinol, three years running.",
+    },
     match: {
       kind: "pattern",
       source:
@@ -270,6 +307,11 @@ const rules: Rule[] = [
     rewriteGuidance:
       "Retain the list verbatim and neutralise the heading above it. Do not add a safety assertion " +
       "in its place.",
+    /** The worked example the rewriter is shown for this rule. */
+    example: {
+      trips: "No nasties, ever.",
+      quiet: "No parabens, no phthalates, no added fragrance.",
+    },
     match: {
       kind: "phrase",
       any: ["no nasties", "free from nasties", "nothing nasty", "no harsh chemicals", "toxin free", "clean formula"],
