@@ -79,6 +79,23 @@ To test the command's decision locally, from inside a project directory:
 git diff --quiet HEAD^ HEAD -- . && echo SKIP || echo BUILD
 ```
 
+## What this does not certainly fix
+
+The limit that was hit is `api-deployments-free-per-day` — *more than 100*. It
+counts **deployments created**, not builds run, and an Ignored Build Step
+cancels the build *after* the deployment exists. So this reliably saves build
+minutes; whether it decreases the number that counter is measuring is
+unverified, and cannot be tested while the window is exhausted.
+
+Two changes certainly do reduce the count, and both are owner decisions:
+
+- **Delete the duplicate.** `curieux-rifc` and `waterline` build the same
+  directory, so one of them is a quarter of every push's deployments spent
+  twice on the same site.
+- **Stop deploying every branch.** Vercel → Settings → Git will limit a project
+  to its production branch. Preview deployments on every push to every branch
+  are what makes a hundred a day reachable at all.
+
 ## While the quota is exhausted, none of this runs
 
 The ignore command is part of a **build**, and a rate-limited deployment never
