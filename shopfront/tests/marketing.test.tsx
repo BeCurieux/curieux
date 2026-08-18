@@ -204,7 +204,13 @@ describe("the examples page", () => {
      * laptop for exactly the reason the bug existed.
      */
     const links = [...examples.html.matchAll(/href="\/preview\/([a-z0-9-]+)"/g)].map((m) => m[1]!);
-    expect(links.length).toBeGreaterThanOrEqual(10);
+    // Five, not ten. The page carried a second gallery of five mood shops and
+    // it was cut: three of those brands have no photographs, so the renderer
+    // drew placeholders for their products — real renders of invented-looking
+    // goods, on a page promising every image is a real generation. The floor
+    // stays because a regex that quietly matched nothing would pass every
+    // assertion below for the wrong reason.
+    expect(links.length).toBeGreaterThanOrEqual(5);
 
     for (const key of links) {
       const file = path.join(process.cwd(), "fixtures", "shops", `${key}.json`);
