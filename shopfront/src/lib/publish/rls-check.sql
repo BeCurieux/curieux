@@ -199,3 +199,25 @@ begin
 end $$;
 
 rollback;
+
+-- The pass, as a row.
+--
+-- `raise notice` above is how this reported for psql, and psql shows notices.
+-- The Supabase dashboard's SQL editor does not: it renders the result grid of
+-- the *last* statement, and the last statement was `rollback`, which returns
+-- nothing. So a full pass and a file that did nothing at all both came out as
+-- "Success. No rows returned", and the operator was left inferring which one
+-- they had from the absence of a red error.
+--
+-- That is a poor property for the one check standing between a merchant's
+-- campaign briefs and anybody holding the publishable key. It is stated as a
+-- row so the pass is *shown* rather than deduced.
+--
+-- After the rollback rather than before it, because the editor displays the
+-- last statement's result and the rollback has to be the last thing that
+-- touches data. The transaction is already closed here, so this select is an
+-- ordinary read of a constant and undoes nothing.
+--
+-- psql keeps working unchanged: it prints this to stdout as well as the notice
+-- to stderr, and `supabase-setup.ts` joins both streams before matching.
+select 'RLS check passed: the anon key reads published shops and nothing else, and writes nothing.' as result;

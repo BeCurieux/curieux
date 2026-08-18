@@ -79,16 +79,24 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f src/lib/publish/schema.sql
 pnpm rls:check                 # or: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f src/lib/publish/rls-check.sql
 ```
 
-One trap if you run `rls:check` by hand and script around it: the pass is a
-`raise notice`, which psql writes to **stderr**. Matching on stdout alone reads
-a passing check as a failure — which is exactly what `supabase:setup` did on
-its first run against a real database.
+Two traps if you script around `rls:check`. The pass is *both* a `raise notice`
+and a returned row: psql writes the notice to **stderr**, so matching on stdout
+alone reads a passing check as a failure — which is exactly what
+`supabase:setup` did on its first run against a real database.
+
+The row exists because of the second trap. Run without psql — pasted into the
+Supabase dashboard's SQL editor, which is the route when PostgreSQL client
+tools are not installed — notices are not shown at all, and the editor renders
+only the last statement's result. That statement is the `rollback`, so a full
+pass and a file that did nothing both came out as `Success. No rows returned`,
+and the operator was left inferring which they had from the absence of a red
+error. The file now ends with a `select` after the rollback, so a pass is one
+visible row in either tool.
 
 The second command is the one that matters. It inserts probe rows, re-reads
 them as `anon`, asserts what may and may not come back, and rolls the whole
 thing back — safe against a live project, and it raises on the first failure
-rather than printing a report nobody reads to the end. A silent
-`RLS check passed` notice is the pass.
+rather than printing a report nobody reads to the end.
 
 Two things it protects. The **Genome** — a model's reading of a merchant's
 catalogue, which reads like page copy and is not page copy. And the merchant's
