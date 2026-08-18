@@ -1,24 +1,31 @@
-# Kill-test targets — the example. The real list is not committed.
+# Kill-test targets — the example. The real list is killtest/targets.txt and is
+# not committed.
 #
 # BRIEF.md §10: thirty real aesthetic DTC brands, hand-read, presented as score
 # cards, over two weeks. Over-index on brands recently hit by an ad disapproval
 # and brands selling into the EU, because those two carry the acute version of
 # the pain.
 #
-# One target per line: a product page URL, then a tab, then why this brand is
-# on the list. The "why" is the part that makes the outreach message specific,
-# and a target with no "why" is a target that gets a generic DM and a silence
-# that teaches nothing.
+# One target per line, tab-separated:
 #
-# What is NOT recorded anywhere in this repository: the findings for a named
-# brand, or a score for one. BRIEF.md §9 and CLAUDE.md both hold that line —
-# these brands have agreed to nothing, and a repository full of graded
-# strangers is the Yuka problem with a git history. Scan into a local file
-# outside the repo, send the card to the founder, keep the reply in the ledger.
+#     slug ⇥ product-page URL ⇥ why this brand is on the list
 #
-# The ledger — killtest/ledger.md, also uncommitted — records only: date,
-# brand, contacted how, replied yes/no/silence, asked price, offered to pay.
-# Those are the numbers §10's gate is made of.
+# The slug names the files: put the page's copy in killtest/copy/<slug>.txt and
+# `pnpm killtest` writes killtest/out/<slug>.html and the card beside it.
+#
+# The "why" is not optional and the script rejects a line without one. It is
+# what makes the outreach message specific, and a target with no reason gets a
+# generic DM and a silence that teaches nothing.
+#
+# What is NOT committed anywhere in this repository: the copy, the findings for
+# a named brand, or a score for one. BRIEF.md §9 and CLAUDE.md both hold that
+# line — these brands have agreed to nothing, and a repository full of graded
+# strangers is the Yuka problem with a git history. `.gitignore` keeps all of
+# killtest/ out except this file.
+#
+# The ledger — killtest/ledger.md, written by the script — records the scan and
+# then, in columns you fill in by hand, what each founder said back. Those are
+# the numbers §10's gate is made of, and re-running the script preserves them.
 
-https://example-brand.com/products/renewal-serum	EU market, "carbon neutral" in the hero, ECGT deadline applies
-https://example-two.com/products/immunity-drops	Supplement, ad account disapproved on Meta in July
+example-brand	https://example-brand.com/products/renewal-serum	EU market, "carbon neutral" in the hero, ECGT applies from 27 Sept
+example-two	https://example-two.com/products/immunity-drops	Supplement, Meta ad account disapproved in July

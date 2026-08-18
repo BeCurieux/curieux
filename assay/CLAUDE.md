@@ -74,6 +74,8 @@ No other services without asking.
    fills it. *Done — `src/card/`, `pnpm card`.*
 3. **The kill test.** Thirty real PDPs, hand-read, presented as score cards.
    §10's gate: 8+/30 wanting the live product, or 3+ offering to pay.
+   *Tooling done — `pnpm killtest`, `pnpm calibrate`, KILLTEST.md. The
+   outreach itself is the founder's, and is the actual test.*
 4. **Everything after step 3 is gated on step 3.** URL fetch, LLM extraction,
    rule-constrained rewrites filling the card's `rewrites`, accounts, the
    hosted score page, the Shopify app, the badge embed, billing, monitoring,
@@ -99,6 +101,13 @@ has said yes to the cheap half.
 - Match against the wording, never against the extractor's category guess.
   `evaluate` runs the corpus over the whole document; claims group and
   attribute findings, they do not gate them.
+- **Run `pnpm calibrate` after touching any rule, and treat a louder reading as
+  a failure.** Precision is the product; recall can be bought later with more
+  rules. A corpus only ever drifts louder, because every rule is added for
+  something that was missed and none is ever added for something over-flagged.
+- A false positive costs more than a false negative here, and the arithmetic is
+  simple: a missed claim is a claim the founder already had, and a wrong mark
+  is the moment they decide the scanner cannot tell a problem from a sentence.
 
 ## Rules about the card
 

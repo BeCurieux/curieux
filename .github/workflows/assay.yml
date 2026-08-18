@@ -70,6 +70,12 @@ jobs:
       - name: Corpus
         run: pnpm rules
 
+      # Precision, at volume. `pnpm test` covers the same bands, but this
+      # prints the marks, so a red run here names the page and the phrase
+      # rather than only the count.
+      - name: Calibration
+        run: pnpm calibrate
+
       # And `pnpm card` is the smoke test for the artefact: it exercises the
       # font-inlining path, which the unit tests deliberately do not — they
       # render without embedded faces so they stay fast and stay pure. A

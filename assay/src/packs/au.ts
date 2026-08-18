@@ -48,6 +48,33 @@ const rules: Rule[] = [
       source:
         "\\b(cancer|tumou?rs?|diabetes|heart disease|stroke|alzheimer'?s|dementia|depression|anxiety disorder|arthritis|osteoporosis|infertility|hiv|hepatitis|epilepsy|asthma)\\b",
       flags: "i",
+      // Naming a serious condition in order to warn about it is the opposite
+      // of representing something about it, and a caution panel is the most
+      // responsible thing on a supplement page. Flagging "speak to your doctor
+      // before use if you have asthma" as a therapeutic claim is the kind of
+      // false positive a founder needs to see exactly once before deciding the
+      // scanner cannot tell a problem from a sentence. Found by
+      // `pnpm calibrate`, on the page written to catch precisely this.
+      unless: [
+        "speak to your doctor",
+        "consult your doctor",
+        "consult a doctor",
+        "consult your gp",
+        "consult a health professional",
+        "seek medical advice",
+        "medical advice",
+        "before use if",
+        "do not use if",
+        "do not use",
+        "discontinue use",
+        "not suitable",
+        "taking medication",
+        "under medical supervision",
+        "if you are pregnant",
+        "pregnant or breastfeeding",
+        "always read the label",
+      ],
+      window: 120,
     },
   },
   {
@@ -252,7 +279,7 @@ const rules: Rule[] = [
 
 export const auPack: RulePack = {
   jurisdiction: "AU",
-  version: "2026.08.1",
+  version: "2026.08.2",
   label: "AU — TGA Advertising Code and ACCC environmental-claims enforcement",
   rules,
 };

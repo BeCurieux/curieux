@@ -222,7 +222,33 @@ const rules: Rule[] = [
       // The component has to be near the claim, not merely somewhere on the
       // page: "recyclable" in the hero is a claim about the product even when
       // the word "carton" appears four hundred words below in the shipping tab.
-      unless: ["packaging", "carton", "bottle", "tube", "outer", "box", "wrap", "film", "cap", "jar", "pouch", "label"],
+      // The list is every container word a beauty or food page actually uses.
+      // "Our cans are recyclable" names its component perfectly and was being
+      // flagged for not naming one, because nobody had written "can" down —
+      // found by `pnpm calibrate` on the food-and-bev page.
+      unless: [
+        "packaging",
+        "carton",
+        "bottle",
+        "tube",
+        "outer",
+        "box",
+        "wrap",
+        "film",
+        "cap",
+        "lid",
+        "jar",
+        "pouch",
+        "sachet",
+        "label",
+        "can",
+        "cans",
+        "tin",
+        "sleeve",
+        "bag",
+        "pump",
+        "refill",
+      ],
       window: 60,
     },
   },
@@ -292,7 +318,7 @@ const rules: Rule[] = [
 
 export const euEcgtPack: RulePack = {
   jurisdiction: "EU",
-  version: "2026.08.1",
+  version: "2026.08.2",
   label: "EU — Empowering Consumers for the Green Transition (from 27 September 2026)",
   rules,
 };

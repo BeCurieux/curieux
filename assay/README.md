@@ -48,8 +48,10 @@ Read              2 claims, 5 findings
 | `pnpm card --file page.txt --out ./cards/x` | The result page, the share card and the badge |
 | `pnpm card … --wordmark VOUCH` | Put a candidate name in the masthead |
 | `pnpm card … --png` | Rasterise the share card, if a Chromium is around |
+| `pnpm calibrate` | Is the corpus loud in the right places? Eight invented pages |
+| `pnpm killtest` | Run the §10 targets, render the cards, keep the ledger |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 170 tests, no network, no key |
+| `pnpm test` · `pnpm typecheck` | 202 tests, no network, no key |
 
 ## How a scan works
 
@@ -234,6 +236,53 @@ prints every market's score and names which one the headline came from.
 requires the `clear` band, and the band rule keeps a page carrying a
 high-severity finding out of `clear` regardless of arithmetic.
 
+## Calibration
+
+`pnpm calibrate` runs the corpus over eight invented pages spanning the buyer's
+categories — careful skincare, the median PDP, a supplement page, clean-beauty
+free-from copy, an EU sustainability page, clean-label food, a Meta ad, and a
+safety-warning panel — and checks the marks per page against the band a
+specialist would set.
+
+The bands fail in **both** directions, which is the unusual half. A rule corpus
+only ever drifts louder: every rule is added because something was missed,
+never because something was over-flagged. And the kill test does not fail
+because the scanner missed something — it fails because a founder opens a card,
+sees their whole page underlined, and decides the thing cannot tell a problem
+from a sentence.
+
+It has already earned itself twice:
+
+- **`au-tga-serious-condition` flagged a caution panel.** "Speak to your doctor
+  before use if you have asthma" is the most responsible sentence on a
+  supplement page, and it was being marked high-severity as a therapeutic
+  claim. The rule now suppresses inside a warning frame, and still fires on
+  "for hands living with arthritis".
+- **"Our cans are recyclable" was flagged for not naming a component.** It
+  names one perfectly; nobody had written "can" into the rule's list.
+
+`tests/calibration.test.ts` holds the same bands, so CI is where the next one
+gets caught.
+
+## The kill test
+
+`pnpm killtest` reads `killtest/targets.txt`, renders a card per target, and
+keeps `killtest/ledger.md` — whose arithmetic is BRIEF.md §10's gate: 8+ of 30
+wanting the live product, or 3+ offering to pay. Re-running preserves the
+outreach columns you fill in by hand, which `tests/ledger.test.ts` exists to
+guarantee: a re-run that silently ate a fortnight of replies would leave a file
+that still looked right.
+
+**Nothing under `killtest/` is committed** except the example target list. Not
+the copy, not the findings, not a score. These brands have agreed to nothing.
+
+The runbook — how to pick the thirty, what to say, what counts as a yes, and
+how to read the result — is [KILLTEST.md](KILLTEST.md). What the tooling
+deliberately does **not** do is fetch a page or send a message: the outreach is
+the test, and a scan of somebody's page they did not ask for is a thing a
+person did, not a thing a script did on its own.
+
+
 ## Honest limitations
 
 Read this section before showing anything from this engine to a brand.
@@ -299,8 +348,12 @@ src/card/badge.ts         the mark, live and lapsed
 src/card/escape.ts        the security boundary, since the copy is not ours
 src/card/fonts.ts         the only file here that touches the disk
 
+src/killtest/ledger.ts    the gate's arithmetic, and a round trip that is tested
+
 scripts/scan.ts           findings in a terminal
-scripts/card.ts           the kill test's whole toolchain
+scripts/card.ts           one page, three artefacts
+scripts/killtest.ts       thirty pages, thirty cards, one ledger
+scripts/calibrate.ts      the corpus read at volume
 scripts/rules.ts          coverage, printed
-tests/                    170 tests, none of which need a network
+tests/                    202 tests, none of which need a network
 ```

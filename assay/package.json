@@ -8,6 +8,8 @@
   "scripts": {
     "scan": "tsx --env-file-if-exists=.env.local scripts/scan.ts",
     "card": "tsx --env-file-if-exists=.env.local scripts/card.ts",
+    "killtest": "tsx --env-file-if-exists=.env.local scripts/killtest.ts",
+    "calibrate": "tsx --env-file-if-exists=.env.local scripts/calibrate.ts",
     "rules": "tsx --env-file-if-exists=.env.local scripts/rules.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
