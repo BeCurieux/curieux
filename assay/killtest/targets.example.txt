@@ -8,7 +8,17 @@
 #
 # One target per line, tab-separated:
 #
-#     slug ⇥ product-page URL ⇥ why this brand is on the list
+#     slug ⇥ product-page URL ⇥ why this brand is on the list ⇥ name (optional)
+#
+# The fourth field overrides the name printed on that founder's card. Leave it
+# empty and the card says Franca. It exists so a name can be tried on a slice
+# of the thirty without anybody having to remember afterwards who saw what —
+# the ledger records the name each founder actually looked at, because a name
+# that puts people off would otherwise read as a product that puts people off.
+#
+# Exactly these fields, no more. A tab inside the "why" used to be harmless and
+# now would become somebody's card masthead, so the script rejects a fifth
+# field rather than guessing.
 #
 # The slug names the files: put the page's copy in killtest/copy/<slug>.txt and
 # `pnpm killtest` writes killtest/out/<slug>.html and the card beside it.
@@ -28,4 +38,4 @@
 # the numbers §10's gate is made of, and re-running the script preserves them.
 
 example-brand	https://example-brand.com/products/renewal-serum	EU market, "carbon neutral" in the hero, ECGT applies from 27 Sept
-example-two	https://example-two.com/products/immunity-drops	Supplement, Meta ad account disapproved in July
+example-two	https://example-two.com/products/immunity-drops	Supplement, Meta ad account disapproved in July	SORREL

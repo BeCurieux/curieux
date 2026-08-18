@@ -30,6 +30,7 @@ import { badgeSvg, mayDisplayBadge } from "../src/card/badge.js";
 import { shareCard } from "../src/card/og.js";
 import { resultPage } from "../src/card/page.js";
 import { loadEmbeddedFonts } from "../src/card/fonts.js";
+import { WORDMARK } from "../src/card/tokens.js";
 import { fetchCopy, RobotsDisallowed } from "../src/fetch/fetch.js";
 import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
 import { rewriteAll } from "../src/rewrite/rewrite.js";
@@ -51,7 +52,7 @@ const TARGETS = join(ROOT, "targets.txt");
 const LEDGER = join(ROOT, "ledger.md");
 const FETCH_LOG = join(ROOT, "fetch.log");
 
-type Target = { slug: string; url: string; why: string };
+type Target = { slug: string; url: string; why: string; wordmark?: string };
 
 function readTargets(): Target[] {
   if (!existsSync(TARGETS)) {
@@ -65,10 +66,20 @@ function readTargets(): Target[] {
   for (const [i, raw] of readFileSync(TARGETS, "utf8").split("\n").entries()) {
     const line = raw.trim();
     if (!line || line.startsWith("#")) continue;
-    const [slug, url, ...rest] = line.split("\t").map((part) => part.trim());
+    const fields = line.split("\t").map((part) => part.trim());
+    const [slug, url, why, wordmark] = fields;
     if (!slug || !url) throw new Error(`${TARGETS}:${i + 1} — wants slug, tab, url, tab, why.`);
     if (seen.has(slug)) throw new Error(`${TARGETS}:${i + 1} — "${slug}" is already used; slugs name files.`);
-    const why = rest.join(" ").trim();
+    if (fields.length > 4) {
+      // Loud rather than lenient. The old parser joined every trailing field
+      // into the why, which was harmless until the fourth field started
+      // meaning something — a stray tab in a sentence would silently become
+      // the name printed on somebody's card.
+      throw new Error(
+        `${TARGETS}:${i + 1} (${slug}) — ${fields.length} tab-separated fields, expected at most 4 ` +
+          `(slug, url, why, name). A tab inside the "why" will do this; use spaces.`,
+      );
+    }
     if (!why) {
       // Not pedantry. A target with no reason gets a generic message and a
       // silence that teaches nothing, which spends one of thirty chances —
@@ -76,7 +87,7 @@ function readTargets(): Target[] {
       throw new Error(`${TARGETS}:${i + 1} (${slug}) — needs a reason. A generic DM is a wasted target.`);
     }
     seen.add(slug);
-    targets.push({ slug, url, why });
+    targets.push({ slug, url, why, wordmark: wordmark || undefined });
   }
   return targets;
 }
@@ -171,7 +182,14 @@ async function main() {
     const copyPath = join(COPY, `${target.slug}.txt`);
     if (!existsSync(copyPath)) {
       missing.push(`${target.slug}  ${target.url}`);
-      scans.push({ slug: target.slug, why: target.why, score: null, marks: null, badge: null });
+      scans.push({
+        slug: target.slug,
+        why: target.why,
+        score: null,
+        marks: null,
+        badge: null,
+        wordmark: target.wordmark ?? WORDMARK,
+      });
       continue;
     }
 
@@ -191,8 +209,9 @@ async function main() {
       ? (await rewriteAll(text, marks, { drafter, jurisdictions: markets })).rewrites
       : {};
 
-    writeFileSync(`${base}.html`, resultPage({ text, result, reviewedOn, rewrites, fonts }));
-    writeFileSync(`${base}.card.svg`, shareCard({ text, result, reviewedOn, fonts }));
+    const wordmark = target.wordmark ?? WORDMARK;
+    writeFileSync(`${base}.html`, resultPage({ text, result, reviewedOn, rewrites, fonts, wordmark }));
+    writeFileSync(`${base}.card.svg`, shareCard({ text, result, reviewedOn, fonts, wordmark }));
     writeFileSync(`${base}.badge.svg`, badgeSvg({ result, reviewedOn }));
 
     bands[result.score.band] += 1;
@@ -202,6 +221,7 @@ async function main() {
       score: result.score.value,
       marks: marks.length,
       badge: mayDisplayBadge(result),
+      wordmark,
     });
   }
 

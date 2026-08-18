@@ -36,6 +36,16 @@ export type ScanRow = {
   score: number | null;
   marks: number | null;
   badge: boolean | null;
+  /**
+   * The name printed on the card this founder saw.
+   *
+   * Always the name as rendered, never the override that produced it, so the
+   * ledger answers "what did they actually look at" without anybody
+   * cross-referencing targets.txt. It matters because §10's gate is a count of
+   * people: a name that puts founders off would otherwise be read as a product
+   * that puts founders off, and the two have very different consequences.
+   */
+  wordmark: string;
 };
 
 export type LedgerRow = ScanRow & { outreach: Outreach };
@@ -55,6 +65,7 @@ export const COLUMNS = [
   "score",
   "marks",
   "badge",
+  "name shown",
   "contacted",
   "replied",
   "wants it live",
@@ -102,23 +113,52 @@ function splitRow(line: string): string[] {
   return cells.slice(1, -1).map(unescapeCell);
 }
 
-/** Every outreach column already written down, keyed by slug. */
+/** Which outreach field each column header holds. */
+const OUTREACH_COLUMN: Record<string, keyof Outreach> = {
+  contacted: "contacted",
+  replied: "replied",
+  "wants it live": "wantsItLive",
+  "asked price": "askedPrice",
+  "offered to pay": "offeredToPay",
+  notes: "notes",
+};
+
+/**
+ * Every outreach column already written down, keyed by slug.
+ *
+ * Read by **header name**, not by column offset. The offsets were fine until
+ * a column was inserted, at which point every ledger written by the previous
+ * version would have been read one cell to the left — replies landing in the
+ * wrong fields, silently, in the file the gate is computed from. Adding "name
+ * shown" is what surfaced it; parsing by header means the next column costs
+ * nothing.
+ */
 export function parseLedger(markdown: string): Map<string, Outreach> {
   const found = new Map<string, Outreach>();
+  let header: string[] | null = null;
+
   for (const line of markdown.split("\n")) {
     if (!line.trimStart().startsWith("|")) continue;
     const cells = splitRow(line.trim());
-    if (cells.length < COLUMNS.length) continue;
-    const slug = cells[0] ?? "";
-    if (!slug || slug === "brand" || /^-{2,}$/.test(slug)) continue;
-    found.set(slug, {
-      contacted: cells[5] ?? "",
-      replied: cells[6] ?? "",
-      wantsItLive: cells[7] ?? "",
-      askedPrice: cells[8] ?? "",
-      offeredToPay: cells[9] ?? "",
-      notes: cells.slice(10).join(" ").trim(),
-    });
+    const first = (cells[0] ?? "").trim();
+
+    if (first === "brand") {
+      header = cells.map((cell) => cell.trim().toLowerCase());
+      continue;
+    }
+    if (!first || /^-{2,}$/.test(first) || header === null) continue;
+
+    const outreach = { ...EMPTY_OUTREACH };
+    for (const [index, name] of header.entries()) {
+      const field = OUTREACH_COLUMN[name];
+      if (!field) continue;
+      // Notes is last, and it soaks up any trailing cells. A founder typing a
+      // reply into the file by hand will eventually type an unescaped pipe,
+      // and losing the tail of what somebody said is worse than a scruffy cell.
+      outreach[field] =
+        index === header.length - 1 ? cells.slice(index).join(" ").trim() : (cells[index] ?? "");
+    }
+    found.set(first, outreach);
   }
   return found;
 }
@@ -165,6 +205,7 @@ function renderRow(row: LedgerRow): string {
     row.score === null ? "—" : String(row.score),
     row.marks === null ? "—" : String(row.marks),
     row.badge === null ? "—" : row.badge ? "yes" : "no",
+    row.wordmark,
     row.outreach.contacted,
     row.outreach.replied,
     row.outreach.wantsItLive,

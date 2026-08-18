@@ -27,6 +27,7 @@ const scanRow = (slug: string, score: number | null = 72): ScanRow => ({
   score,
   marks: score === null ? null : 4,
   badge: score === null ? null : false,
+  wordmark: "Franca",
 });
 
 const withReplies = (slug: string, replies: Partial<LedgerRow["outreach"]>): LedgerRow => ({
@@ -35,6 +36,39 @@ const withReplies = (slug: string, replies: Partial<LedgerRow["outreach"]>): Led
 });
 
 const roundTrip = (rows: LedgerRow[]) => parseLedger(renderLedger(rows, tally(rows)));
+
+describe("the ledger records the name that was on the card", () => {
+  it("writes the name shown next to the scan", () => {
+    const rows = [{ ...scanRow("aurelia"), outreach: EMPTY_OUTREACH }];
+    expect(renderLedger(rows, tally(rows))).toContain("| Franca |");
+  });
+
+  it("keeps a per-target override, so a name test is legible afterwards", () => {
+    const rows: LedgerRow[] = [
+      { ...scanRow("aurelia"), wordmark: "SORREL", outreach: { ...EMPTY_OUTREACH, wantsItLive: "y" } },
+    ];
+    const rendered = renderLedger(rows, tally(rows));
+    expect(rendered).toContain("SORREL");
+    // The reply still round-trips with the extra column in place — the whole
+    // reason the parser reads by header rather than by offset.
+    expect(parseLedger(rendered).get("aurelia")?.wantsItLive).toBe("y");
+  });
+
+  it("reads replies by column name, so an inserted column cannot shift them", () => {
+    // A ledger written by a future version with one more scan column. Under
+    // the old positional parser every reply here would come back one cell to
+    // the left, quietly, in the file the gate is computed from.
+    const future = [
+      "| brand | why | score | marks | badge | name shown | pack | contacted | replied | wants it live | asked price | offered to pay | notes |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| aurelia | EU launch | 24 | 17 | no | Franca | 2026.08.2 | 19 Aug DM | y | y |  |  | wants it for their EU launch |",
+    ].join("\n");
+    const parsed = parseLedger(future).get("aurelia");
+    expect(parsed?.contacted).toBe("19 Aug DM");
+    expect(parsed?.wantsItLive).toBe("y");
+    expect(parsed?.notes).toBe("wants it for their EU launch");
+  });
+});
 
 describe("a re-run does not eat a fortnight of replies", () => {
   it("returns every outreach column exactly as it went in", () => {
@@ -76,22 +110,20 @@ describe("a re-run does not eat a fortnight of replies", () => {
     expect([...parsed.keys()]).toEqual(["nocturne"]);
   });
 
-  it("keeps the column order it parses by", () => {
-    // parseLedger reads by position. If the columns are reordered and this is
-    // not, every reply lands in the wrong field and the gate counts nonsense.
-    expect([...COLUMNS]).toEqual([
-      "brand",
-      "why",
-      "score",
-      "marks",
-      "badge",
-      "contacted",
-      "replied",
-      "wants it live",
-      "asked price",
-      "offered to pay",
-      "notes",
-    ]);
+  it("has a header for every field it reads back", () => {
+    // The order no longer matters — parseLedger reads by header name. What
+    // does matter is that the two lists cannot drift apart: a renamed column
+    // that nothing reads back is a reply silently dropped on the next re-run.
+    const rows = [withReplies("nocturne", { contacted: "a", replied: "b", wantsItLive: "c", askedPrice: "d", offeredToPay: "e", notes: "f" })];
+    expect(roundTrip(rows).get("nocturne")).toEqual({
+      contacted: "a",
+      replied: "b",
+      wantsItLive: "c",
+      askedPrice: "d",
+      offeredToPay: "e",
+      notes: "f",
+    });
+    expect(COLUMNS[0]).toBe("brand");
   });
 });
 
