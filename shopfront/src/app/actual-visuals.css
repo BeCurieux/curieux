@@ -1,0 +1,74 @@
+/*
+ * The approved POPUUP campaign artwork, used as real visual content rather
+ * than as loose art direction. Each composite contains the supplied artwork
+ * itself. These sit beside the live renderer demonstrations, not instead of
+ * them, so the page can carry both the aspirational campaign language and the
+ * product truth.
+ */
+
+.why::before,
+.proof::after,
+.chain-band::after,
+.creators::after {
+  content: "";
+  display: block;
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-lg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  box-shadow: 7px 8px 0 rgb(32 33 51 / 0.14);
+}
+
+/* Three supplied Make-a-shop / Wedding Guest graphics, immediately after the
+   animated hero so the new campaign look is unmistakably visible above fold. */
+.why::before {
+  aspect-ratio: 1000 / 862;
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+  background-color: var(--cream);
+  background-image: url("/visuals/mechanic.svg");
+}
+
+/* Both supplied One catalogue / many shops graphics. */
+.proof::after {
+  aspect-ratio: 1000 / 562;
+  max-width: min(100% - (2 * var(--gutter)), 72rem);
+  margin: clamp(1.75rem, 4vw, 2.75rem) auto 0;
+  border-color: var(--cream);
+  background-color: var(--cream);
+  background-image: url("/visuals/catalogue.svg");
+  box-shadow: 7px 8px 0 rgb(0 0 0 / 0.34);
+}
+
+/* The supplied Ibiza, lavender and Every click deserves its own shop assets. */
+.chain-band::after {
+  aspect-ratio: 1000 / 422;
+  margin-top: clamp(1.75rem, 4vw, 2.75rem);
+  background-color: var(--cream);
+  background-image: url("/visuals/post.svg");
+}
+
+/* Both supplied creator-shop campaign graphics. */
+.creators::after {
+  grid-column: 1 / -1;
+  aspect-ratio: 640 / 324;
+  margin-top: clamp(0.5rem, 2vw, 1rem);
+  background-color: var(--cream);
+  background-image: url("/visuals/creators.svg");
+}
+
+@media (max-width: 639px) {
+  .why::before,
+  .proof::after,
+  .chain-band::after,
+  .creators::after {
+    border-width: 1.5px;
+    border-radius: 18px;
+    box-shadow: 4px 5px 0 rgb(32 33 51 / 0.12);
+  }
+
+  .proof::after {
+    max-width: calc(100% - (2 * var(--gutter)));
+  }
+}
