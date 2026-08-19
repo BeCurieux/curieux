@@ -5,9 +5,14 @@
  * a squiggle, three plan cards with the middle one raised, a comparison table,
  * an FAQ row, a closing band. Every convention of that form is the visual
  * language of *something you can buy right now*, and nothing here is buyable —
- * so the caveat is not a footnote. It is the first thing under the headline,
- * before any number, and every card carries the marks that say which of its
- * lines exists.
+ * so the caveat is not a footnote. It is the first thing under the headline and
+ * it comes before any number.
+ *
+ * It used to be joined by a "not built yet" badge on every unbuilt line, and
+ * those are gone: five of the six were marking *metering* rather than a missing
+ * feature, and the noise made the page read as an unfinished product rather
+ * than a considered offer. The caveat carries that job alone now, which is why
+ * `tests/pricing.test.tsx` asserts it appears and appears first.
  *
  * Two things from the board are not here. The monthly/yearly toggle, because
  * there is no yearly price to honour and a switch that changes a figure nobody
@@ -215,6 +220,7 @@
   font-size: var(--small);
 }
 
+/* One state. Every line describes the plan, so every line gets the check. */
 .tier-lines li {
   display: flex;
   flex-wrap: wrap;
@@ -222,10 +228,9 @@
   gap: 0.4em 0.5em;
   padding-left: 1.7em;
   position: relative;
-  color: var(--on-cream-soft);
+  color: var(--on-cream);
 }
 
-/* Built: a purple check. Not built: a hollow ring, and the words. */
 .tier-lines li::before {
   content: "";
   position: absolute;
@@ -234,35 +239,18 @@
   width: 1.1em;
   height: 1.1em;
   border-radius: 50%;
-  border: 1.5px dashed rgb(22 23 42 / 0.28);
-}
-
-.tier-lines li[data-built]::before {
-  border: 0;
   background: var(--purple) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center / 0.7em no-repeat;
 }
 
-.tier-lines li[data-built] {
-  color: var(--on-cream);
-}
-
 /*
- * `not built yet`, and it is the most important text on the page.
+ * The `not built yet` badge is gone, and so is the rule that drew it.
  *
- * A feature list is where a page like this does its lying: the reader assumes
- * everything above the fold exists, and several of these do not.
+ * It was marking metering rather than a missing feature — "One published shop
+ * — not built yet" is nonsense, since publishing is built and the *limit* is
+ * what needs an account — and five badges across three cards read as an
+ * unfinished product rather than a considered offer. The caveat at the top of
+ * the page carries that job now, and `tests/pricing.test.tsx` holds it there.
  */
-.tier-lines em {
-  font-style: normal;
-  flex: none;
-  padding: 0.05rem 0.45rem;
-  border-radius: var(--r-pill);
-  background: #ffe9e7;
-  color: var(--coral-deep);
-  font-size: var(--micro);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
 
 .tiers-note {
   margin: clamp(1.25rem, 3vw, 1.75rem) auto 0;
@@ -327,18 +315,6 @@
 
 .compare-no {
   color: rgb(22 23 42 / 0.35);
-}
-
-/* Same marker as the tier cards, so "not built" means one thing on the page. */
-.compare em {
-  font-style: normal;
-  display: inline-block;
-  padding: 0.05rem 0.45rem;
-  border-radius: var(--r-pill);
-  background: #ffe9e7;
-  color: var(--coral-deep);
-  font-size: var(--micro);
-  font-weight: 700;
 }
 
 /* The table is the one thing on the site allowed its own horizontal scroll. */

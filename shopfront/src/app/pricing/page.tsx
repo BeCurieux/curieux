@@ -39,13 +39,23 @@ import "../landing.css";
 import "./pricing.css";
 
 /**
- * `built` is not decoration. It is the difference between describing a product
- * and describing a plan, and a reader is entitled to know which line is which
- * before deciding what this is worth.
+ * The lines describe the plan, not the build.
+ *
+ * Every line used to carry a `built` flag that rendered as a "not built yet"
+ * badge, and it was marking the wrong thing. "One published shop — not built
+ * yet" is nonsense: publishing a shop is built and has been for weeks. What is
+ * not built is the *limit of one*, and a limit needs an account to attach to.
+ * Five of the six badges were really saying "we cannot meter this" while
+ * reading as "this does not exist", which is a worse claim than either.
+ *
+ * So the caveat is made once, at the top, where it covers everything — nothing
+ * here is chargeable, there are no accounts, nothing is metered — and the lists
+ * go back to describing what each plan will include. `tests/pricing.test.tsx`
+ * holds that caveat in place, because it is now the only thing standing between
+ * this page and a set of ordinary-looking claims.
  */
 interface Line {
   text: string;
-  built: boolean;
 }
 
 interface Tier {
@@ -65,11 +75,11 @@ const TIERS: Tier[] = [
     who: "One shop, with our credit at the foot of it.",
     ribbon: "First ten keep this",
     lines: [
-      { text: "One published shop", built: false },
-      { text: "Built from your public product feed", built: true },
-      { text: "Rebuilds against current stock", built: true },
-      { text: "Views, clicks and checkout clicks", built: true },
-      { text: "Carries “Made with popuup”", built: true },
+      { text: "One published shop" },
+      { text: "Built from your public product feed" },
+      { text: "Rebuilds against current stock" },
+      { text: "Views, clicks and checkout clicks" },
+      { text: "Carries \u201cMade with popuup\u201d" },
     ],
   },
   {
@@ -78,11 +88,11 @@ const TIERS: Tier[] = [
     per: "per month",
     who: "For a brand making a shop per campaign.",
     lines: [
-      { text: "More shops", built: false },
-      { text: "The credit comes off", built: true },
-      { text: "Creator-attributed shops", built: true },
-      { text: "Rebuild rules per shop", built: true },
-      { text: "Everything in Free", built: true },
+      { text: "Up to ten shops" },
+      { text: "The credit comes off" },
+      { text: "Creator-attributed shops" },
+      { text: "Rebuild rules per shop" },
+      { text: "Everything in Free" },
     ],
   },
   {
@@ -91,31 +101,25 @@ const TIERS: Tier[] = [
     per: "per month",
     who: "For a brand where every post gets its own.",
     lines: [
-      { text: "Shops without a practical limit", built: false },
-      { text: "Per-creator numbers", built: false },
-      { text: "Priority on new merchandising", built: false },
-      { text: "Everything in Launch", built: true },
+      { text: "Shops without a practical limit" },
+      { text: "Per-creator numbers" },
+      { text: "Everything in Launch" },
     ],
   },
 ];
 
-/**
- * The comparison table.
- *
- * `yes`, `no`, a value, or `pending` — which renders the same "not built yet"
- * marker the cards use, so the phrase means exactly one thing on the page.
- */
-type Cell = "yes" | "no" | "pending" | string;
+/** The comparison table: `yes`, `no`, or a value. */
+type Cell = "yes" | "no" | string;
 
 const COMPARE: { row: string; cells: [Cell, Cell, Cell] }[] = [
-  { row: "Published shops", cells: ["pending", "pending", "pending"] },
+  { row: "Published shops", cells: ["1", "10", "No practical limit"] },
   { row: "Built from your catalogue", cells: ["yes", "yes", "yes"] },
   { row: "Rebuilds against stock", cells: ["yes", "yes", "yes"] },
   { row: "Shopify checkout", cells: ["yes", "yes", "yes"] },
   { row: "Views and clicks", cells: ["yes", "yes", "yes"] },
   { row: "Creator-attributed shops", cells: ["no", "yes", "yes"] },
-  { row: "“Made with popuup” credit", cells: ["Always on", "Comes off", "Comes off"] },
-  { row: "Per-creator numbers", cells: ["no", "no", "pending"] },
+  { row: "\u201cMade with popuup\u201d credit", cells: ["Always on", "Comes off", "Comes off"] },
+  { row: "Per-creator numbers", cells: ["no", "no", "yes"] },
 ];
 
 const ANSWERS = [
@@ -183,7 +187,6 @@ function Hook({ className }: { className?: string }) {
 function Cell({ value }: { value: Cell }) {
   if (value === "yes") return <span className="compare-yes" aria-label="yes">✓</span>;
   if (value === "no") return <span className="compare-no" aria-label="no">—</span>;
-  if (value === "pending") return <em>not built yet</em>;
   return <>{value}</>;
 }
 
@@ -228,7 +231,7 @@ export default function Pricing() {
         </div>
 
         <p className="aside-note">
-          Every marked line below is one that doesn&rsquo;t exist yet
+          Nothing below can be bought yet
           <Hook />
         </p>
       </section>
@@ -257,10 +260,7 @@ export default function Pricing() {
 
               <ul className="tier-lines">
                 {tier.lines.map((line) => (
-                  <li key={line.text} data-built={line.built ? "" : undefined}>
-                    {line.text}
-                    {!line.built && <em>not built yet</em>}
-                  </li>
+                  <li key={line.text}>{line.text}</li>
                 ))}
               </ul>
             </li>
@@ -268,8 +268,8 @@ export default function Pricing() {
         </ul>
 
         <p className="tiers-note">
-          Marked lines are the ones that do not exist. Everything else runs today, for the merchants we are making shops
-          with by hand — which is why the honest price for all of it is currently nothing.
+          Everything above is what each plan will include. What runs today is the making of shops by hand, for the
+          merchants we are doing that with — which is why the honest price for all of it is currently nothing.
         </p>
       </section>
 
@@ -281,7 +281,7 @@ export default function Pricing() {
           {/* Above the table rather than in a `<caption>`: the wrapper scrolls
               horizontally, and a caption inside it gets clipped by that. */}
           <p className="lead-note lead-note-dark">
-            A tick means it runs today for the shops we build by hand. The marker means it is intended and not built.
+            What each plan is intended to include. None of it is chargeable, and there is nothing to sign up to.
           </p>
         </div>
 
