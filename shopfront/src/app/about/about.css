@@ -48,6 +48,13 @@
   max-width: 62ch;
 }
 
+/* The rule's prose sits under a centred heading and a centred pull-quote, so
+   it is centred too rather than hanging off the left edge of a band whose
+   other two elements are not. */
+.about-rule-prose {
+  margin-inline: auto;
+}
+
 .about-prose p {
   margin: 0;
   color: var(--on-cream-soft);
