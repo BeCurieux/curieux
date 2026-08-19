@@ -1,0 +1,164 @@
+# Kill-test candidates — raw, unverified, deliberately over-length.
+#
+# Run this through the screener on a machine with network access:
+#
+#   pnpm screen killtest/candidates.txt > killtest/targets.txt
+#
+# Then edit `targets.txt` by hand: the screener checks feeds, product counts,
+# stock and photography, and it decides nothing about whether a merchant is the
+# right *kind* of merchant. That judgement is yours and the standard for it is
+# in `targets.example.txt`.
+#
+# ---------------------------------------------------------------- provenance
+#
+# EVERY LINE HERE IS UNVERIFIED. This file was written in an environment with
+# no outbound network — `supabase.com`, `shopify.dev` and every storefront
+# return 000 through the egress proxy — so nothing below has been checked
+# against reality. It comes from training data, which means:
+#
+#   · some of these no longer exist, or have been acquired;
+#   · some are not on Shopify, or have closed `/products.json`;
+#   · some are far outside US$20k–500k/month in either direction;
+#   · some now have an in-house developer, which disqualifies them.
+#
+# That is not an apology, it is the division of labour. Sixty rough names is
+# exactly the input `pnpm screen` was written for, and a name that fails is
+# commented out rather than dropped so you can reconsider it. What you should
+# NOT do is treat this as a contact list and start sending — screen first, then
+# apply the standard, then send.
+#
+# Roughly 70 candidates for a 30-target list, because the screener will reject
+# a good third on feed and product count alone, and the standard will cut more.
+#
+# ------------------------------------------------------------------- balance
+#
+# Weighted toward the profile rather than toward brands I can name. A list of
+# famous DTC brands would be a list of companies with design teams, landing
+# pages and a developer — the exact merchant popuup is not for. The ones worth
+# the most here are the ones you have half-heard of.
+#
+# The photography rule matters and cannot be pre-judged from memory: the brief
+# asks the renderer to flatter mediocre photography, and thirty catalogues of
+# clean studio cut-outs test its easiest case thirty times. `pnpm screen`
+# reports a thin-photography flag per store — keep the ones it flags rather
+# than dropping them. They are the sample, not the rejects.
+
+# --- beauty and skincare ---------------------------------------------------
+
+https://wearewild.com                  # refillable deodorant, UK
+https://typology.com                   # skincare, FR
+https://bubbleskincare.com             # gen-z skincare, heavy TikTok
+https://frankbody.com                  # body scrubs, AU, Instagram-native
+https://herbivorebotanicals.com        # skincare, US
+https://beautybakerie.com              # cosmetics, US
+https://getfussy.com                   # refillable deodorant, UK
+https://kinshipnyc.com                 # skincare, US
+https://uglydrinks.com                 # drinks, UK — category test
+https://byhumankind.com                # refillable personal care, US
+https://triumphanddisaster.com         # men's grooming, NZ
+https://baynz.com                      # skincare, NZ
+
+# --- fashion and clothing --------------------------------------------------
+
+https://lucyandyak.com                 # dungarees, UK, strong Instagram
+https://rapanuiclothing.com            # organic tees, UK
+https://percivalclo.com                # menswear, UK
+https://waxlondon.com                  # menswear, UK
+https://kestin.co                      # menswear, UK
+https://communityclothing.co.uk        # UK manufacturing
+https://birdsong.london                # womenswear, UK, ethical
+https://baukjen.com                    # womenswear, UK
+https://thugclub.co                    # streetwear
+https://olderbrother.us                # naturally dyed, US
+https://kotn.com                       # basics, CA
+https://asket.com                      # basics, SE
+
+# --- jewellery and accessories ---------------------------------------------
+
+https://astridandmiyu.com              # jewellery, UK, piercing studios
+https://otiumberg.com                  # jewellery, UK
+https://daisyjewellery.com             # jewellery, UK
+https://edgeofember.com                # jewellery, UK
+https://wolfandmoon.com                # jewellery, UK, likely thin photography
+https://tatty-devine.com               # jewellery, UK
+https://laceyryan.com                  # jewellery
+https://mejuri.com                     # jewellery, CA — probably too big, screen it
+
+# --- homewares and home fragrance ------------------------------------------
+
+https://nkuku.com                      # homewares, UK
+https://earlofeast.com                 # candles, UK
+https://evermore.london                # candles, UK
+https://st-eval.com                    # candles, UK
+https://bowercollective.com            # refills, UK
+https://ourlittlehomeshop.com          # homewares
+https://greatjonesgoods.com            # cookware, US
+https://yielddesign.co                 # homewares, US
+https://hemonline.com                  # furniture — likely too big
+https://lucyandbeau.co.uk              # homewares, UK, small
+
+# --- food, drink and coffee ------------------------------------------------
+
+https://pactcoffee.com                 # coffee subscription, UK
+https://grind.co.uk                    # coffee, UK, very Instagram
+https://birdandblendtea.com            # tea, UK, frequent drops
+https://crukafe.com                    # coffee, UK
+https://doisyanddam.com                # chocolate, UK
+https://dash-water.com                 # drinks, UK
+https://cheeseposte.com                # cheese gifting, UK
+https://bermondseystreetbees.co.uk     # honey, UK, small
+https://minorfigures.com               # oat milk, UK
+https://rubiesintherubble.com          # condiments, UK
+
+# --- gifting and stationery ------------------------------------------------
+
+https://papier.com                     # stationery, UK — screen for size
+https://ohsquirrel.co.uk               # gifting, UK, small
+https://scribbler.com                  # cards, UK
+https://thecompletist.com              # prints, UK
+https://katiescarlett.co.uk            # gifting, UK
+
+# --- kids and baby ---------------------------------------------------------
+
+https://welovefrugi.com                # kidswear, UK
+https://littlegreenradicals.co.uk      # kidswear, UK
+https://tobiasandthebear.com           # kidswear, UK, small
+https://mori.com                       # baby, UK
+https://kidly.co.uk                    # kids marketplace — may fail the standard
+
+# --- pet -------------------------------------------------------------------
+
+https://lordsandlabradors.co.uk        # pet homewares, UK
+https://bellaandduke.com               # dog food, UK
+https://scrumbles.co.uk                # pet food, UK
+https://houndworthy.com                # pet accessories, UK, small
+
+# --- outdoor and lifestyle -------------------------------------------------
+
+https://passenger-clothing.com         # outdoor apparel, UK
+https://finisterre.com                 # outdoor, UK — screen for size
+https://twothirds.com                  # apparel, ES
+https://stubble-co.com                 # grooming, UK
+
+# --- creators --------------------------------------------------------------
+#
+# Harder to propose from memory than merchants, and the reason is worth saying:
+# a creator's storefront changes name and platform far more often than a
+# brand's, so anything I could recall is more likely to be stale. These are
+# shapes rather than names — the useful move is to pull them from your own
+# feed, where you can see the audience size and the posting cadence that
+# actually decide it.
+#
+# The bar from the standard: a public product feed with something real behind
+# it. Merch, a small line, digital goods. Someone posting only affiliate links
+# has nothing to ingest, and the shop that produces demonstrates the wrong
+# thing.
+#
+# Creators do not count toward the 5-of-30. `pnpm killtest status` prints them
+# underneath the verdict, never inside it.
+
+# https://                             # <handle>, <audience size>, drops every <n> weeks
+# https://                             # <handle>, <audience size>, merch line
+# https://                             # <handle>, <audience size>, digital goods
+# https://                             # <handle>, <audience size>, small apparel line
+# https://                             # <handle>, <audience size>, collab drops

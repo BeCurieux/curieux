@@ -13,8 +13,18 @@ next-env.d.ts
 .env.local
 
 # The real kill-test target list — businesses that have agreed to nothing.
-# The example is the only file in killtest/ that may be committed; everything
-# else there is either a real target list or a ledger of what real people said.
+#
+# `targets.txt` and the run ledger stay out: those accumulate what real people
+# said when they were asked, which is theirs and not ours to commit.
+#
+# The *candidate* lists are committed, deliberately. They are unverified public
+# storefront URLs — closer to a bookmark file than a contact list, and nobody on
+# them has been approached. Ignoring them cost more than it protected: the
+# screener runs on a machine with network access, this one has none, and every
+# batch had to be hand-carried to that machine as an attachment. That failed
+# twice, the second time as an ENOENT halfway through a run.
 killtest-targets.txt
 killtest/*
 !killtest/targets.example.txt
+!killtest/candidates.txt
+!killtest/candidates-makers.txt
