@@ -25,6 +25,7 @@ import {
   badgeTextFits,
   mayDisplayBadge,
 } from "@/card/badge.js";
+import { badgeEligible } from "@/engine/score.js";
 import { scan } from "@/engine/evaluate.js";
 import { supportedJurisdictions } from "@/engine/registry.js";
 import { BADGE_NIGHT_PALETTE, BADGE_PALETTE, PALETTE } from "@/card/tokens.js";
@@ -173,6 +174,34 @@ describe("eligibility", () => {
   });
 
   it("offers it to a page that reads clear in every market checked", () => {
+    expect(mayDisplayBadge(clean)).toBe(true);
+  });
+
+  /**
+   * The regression this exists for: a kill-test run whose fetches all failed
+   * wrote thirty empty copy files, scanned them, and rendered thirty
+   * "Claims Verified · 100/100" marks for thirty named brands. Empty copy has
+   * nothing to deduct for, so it scores 100, and 100 is `clear`.
+   */
+  it("refuses the mark to copy that was never read, however high it scores", () => {
+    for (const nothing of ["", "   ", "\n\t\n"]) {
+      const empty = scan({ text: nothing, source: paste, jurisdictions: ["AU", "US", "EU"] });
+      expect(empty.score.value).toBe(100);
+      expect(empty.score.band).toBe("clear");
+      expect(badgeEligible(empty.score)).toBe(true);
+      expect(empty.readChars).toBe(0);
+      expect(mayDisplayBadge(empty)).toBe(false);
+    }
+  });
+
+  /**
+   * The floor is empty, not short. Copy can legitimately be one sentence and
+   * carry no claims the lexicon recognises — that page is the mark's whole
+   * customer, and an over-eager guard would refuse exactly the wrong brand.
+   */
+  it("still offers it to short, careful copy that trips nothing", () => {
+    expect(clean.claims).toHaveLength(0);
+    expect(clean.readChars).toBeGreaterThan(0);
     expect(mayDisplayBadge(clean)).toBe(true);
   });
 });

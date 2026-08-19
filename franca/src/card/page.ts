@@ -13,13 +13,13 @@
  * the brief asked for and what a founder will actually screenshot.
  */
 
-import { badgeEligible } from "../engine/score.js";
+
 import type { Finding, ScanResult } from "../engine/types.js";
 import { weakestOf } from "../engine/evaluate.js";
 import { citationLabel } from "../engine/framing.js";
 import { annotate, marketsOf, type Mark } from "./annotate.js";
 import { esc, safeUrl } from "./escape.js";
-import { badgeSvg } from "./badge.js";
+import { badgeSvg, mayDisplayBadge } from "./badge.js";
 import {
   BAND_LABEL,
   bandNote,
@@ -327,7 +327,7 @@ function arithmetic(result: ScanResult): string {
 }
 
 function badgeBlock(result: ScanResult, reviewedOn: Date): string {
-  if (badgeEligible(result.score)) {
+  if (mayDisplayBadge(result)) {
     return (
       `<div class="badgebox">${badgeSvg({ result, reviewedOn })}` +
       `<p class="badgebox__note">This copy can carry the mark. It records what was checked and when — ` +

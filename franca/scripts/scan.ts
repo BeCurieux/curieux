@@ -18,7 +18,7 @@ import { readFileSync } from "node:fs";
 import { fetchCopy } from "../src/fetch/fetch.js";
 import { coverageGap, coverageNote } from "../src/fetch/coverage.js";
 import { scan, weakestMarket } from "../src/engine/evaluate.js";
-import { badgeEligible } from "../src/engine/score.js";
+import { mayDisplayBadge } from "../src/card/badge.js";
 import { supportedJurisdictions } from "../src/engine/registry.js";
 import { citationLabel } from "../src/engine/framing.js";
 import type { Jurisdiction, ScanResult } from "../src/engine/types.js";
@@ -79,7 +79,7 @@ function render(result: ScanResult): string {
       .map((j) => `${j} ${result.byJurisdiction[j]?.value ?? "—"}`)
       .join("   ")}   (headline is ${weakest}, the weakest)`,
   );
-  lines.push(`Badge             ${badgeEligible(result.score) ? "eligible" : "not eligible"}`);
+  lines.push(`Badge             ${mayDisplayBadge(result) ? "eligible" : "not eligible"}`);
   lines.push(`Read              ${result.claims.length} claims, ${result.findings.length} findings`);
   lines.push(BAR);
 

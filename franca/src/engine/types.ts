@@ -279,6 +279,14 @@ export type ScanResult = {
   claims: Claim[];
   findings: Finding[];
   /**
+   * Characters of copy this scan actually read, whitespace trimmed.
+   *
+   * On the result because a result asserting "reviewed against three markets"
+   * has to be able to say what it reviewed. Zero means nothing was read, which
+   * scores 100 and must never earn a mark — see `mayDisplayBadge`.
+   */
+  readChars: number;
+  /**
    * The headline score: the *lowest* of the per-jurisdiction scores, not a sum
    * and not an average.
    *

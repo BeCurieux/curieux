@@ -505,3 +505,43 @@ describe("the traps a real product page sets", () => {
     expect(htmlToText(html)).toBe("The serum.");
   });
 });
+
+/**
+ * A fetch that never got the page and a page that came back thin are the same
+ * empty string, and they were reported the same way: `via: "whole-page"`,
+ * `text: ""`, no error. The kill test believed it, wrote thirty empty copy
+ * files, and scored thirty brands 100/100. `retrieved` is the difference.
+ */
+describe("a page that was never read", () => {
+  it("reports retrieved false when the request fails outright", async () => {
+    const boom: Transport = async (url) => {
+      if (url.endsWith("/robots.txt")) return { status: 404, headers: { get: () => null }, text: async () => "" };
+      throw new Error("connect ECONNREFUSED");
+    };
+    const got = await fetchCopy("https://brand.example/products/x", {
+      transport: boom,
+      sleep: noSleep,
+      delayMs: 0,
+    });
+    expect(got.retrieved).toBe(false);
+    expect(got.text).toBe("");
+    expect(got.trace.some((a) => a.outcome.includes("ECONNREFUSED"))).toBe(true);
+  });
+
+  it("reports retrieved false for a status the page never recovers from", async () => {
+    const got = await run("https://brand.example/products/x", {
+      "https://brand.example/products/x": { status: 503, body: "" },
+    });
+    expect(got.retrieved).toBe(false);
+    expect(got.thin).toBe(true);
+  });
+
+  /** The distinction that matters: a JS shell answered, so it WAS read. */
+  it("reports retrieved true for a thin page that really did answer", async () => {
+    const got = await run("https://brand.example/products/x", {
+      "https://brand.example/products/x": { body: "<html><body><div id=\"root\"></div></body></html>" },
+    });
+    expect(got.retrieved).toBe(true);
+    expect(got.thin).toBe(true);
+  });
+});

@@ -92,6 +92,7 @@ export function scan(input: ScanInput): ScanResult {
     packVersions,
     claims,
     findings,
+    readChars: input.text.trim().length,
     score: byJurisdiction[weakest] ?? { value: 100, band: "clear", deductions: [] },
     byJurisdiction,
     disclaimer: DISCLAIMER,
