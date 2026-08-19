@@ -16,7 +16,7 @@ where exit `0` means *skip this build* and any other exit means *build*.
 
 `git diff --quiet` exits 0 when there is no difference. Run from the project's
 own directory, that reads as: *nothing here changed in this commit, so do not
-rebuild.* A commit under `assay/` no longer wakes the `shopfront` project.
+rebuild.* A commit under `franca/` no longer wakes the `shopfront` project.
 
 It fails in the safe direction. On a root commit, or a shallow clone that did
 not fetch the parent, `HEAD^` does not resolve and git exits non-zero — which
@@ -80,7 +80,8 @@ and set the Root Directory to match. Both halves are required.
 
 ## Confirmed working, on all four projects
 
-On `af7d9cc` — a commit touching only `assay/` and two markdown files — Vercel
+On `af7d9cc` — a commit touching only the scanner (then `assay/`) and two
+markdown files — Vercel
 reported:
 
 ```

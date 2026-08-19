@@ -5,11 +5,11 @@
 **One-liner:** Say it beautifully — and legally.
 **Internal north star:** The badge is the product. The scan is the funnel.
 
-> *On the directory name.* This lives in `assay/` because the product has no
-> name yet (§11, open decision 1) and a folder called `claim-scanner` would
-> quietly become the name. An assay is the test of purity that a hallmark is
-> stamped on the strength of, which is the shape of this product — but it is a
-> codename, not a candidate. Nothing customer-facing uses it.
+> *On the directory name.* This lived in `assay/` until the product had a name
+> — §11 item 1 was open, and a folder called `claim-scanner` would quietly have
+> become the name. An assay is the test of purity a hallmark is stamped on the
+> strength of, which was the right shape for a codename. The name is **Franca**
+> and the directory follows it.
 
 ---
 

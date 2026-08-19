@@ -1,5 +1,5 @@
 {
-  "name": "assay",
+  "name": "franca",
   "private": true,
   "version": "0.1.0",
   "description": "The claim engine, and the card it renders — copy in, cited findings, an explainable score, and a shareable artefact out.",

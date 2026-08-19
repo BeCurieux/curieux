@@ -1,6 +1,6 @@
 # Does the claim engine still typecheck and pass its tests?
 #
-# Scoped to assay/, in the same spirit as the other workflows here: this
+# Scoped to franca/, in the same spirit as the other workflows here: this
 # repository holds several independent products side by side, and each decides
 # its own checks rather than inheriting a sibling's.
 #
@@ -10,25 +10,25 @@
 # suite depending on somebody else's shop being up goes red for reasons
 # unrelated to the commit, and this one would depend on thirty of them.
 
-name: assay
+name: franca
 
 on:
   push:
     branches: [main]
     paths:
-      - "assay/**"
-      - ".github/workflows/assay.yml"
+      - "franca/**"
+      - ".github/workflows/franca.yml"
   pull_request:
     paths:
-      - "assay/**"
-      - ".github/workflows/assay.yml"
+      - "franca/**"
+      - ".github/workflows/franca.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: assay-${{ github.ref }}
+  group: franca-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: assay
+        working-directory: franca
 
     steps:
       - uses: actions/checkout@v5
@@ -49,13 +49,13 @@ jobs:
       # package.json at the repository root, which this repo does not have.
       - uses: pnpm/action-setup@v5
         with:
-          package_json_file: assay/package.json
+          package_json_file: franca/package.json
 
       - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: pnpm
-          cache-dependency-path: assay/pnpm-lock.yaml
+          cache-dependency-path: franca/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
