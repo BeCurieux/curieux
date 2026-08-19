@@ -23,6 +23,10 @@ Underlying direction (architecture, not launch pitch): don't tell us what page t
 
 Next.js (App Router) · TypeScript · Supabase · Stripe · Anthropic API · Vercel. Playwright for any scraping that `/products.json` can't cover. No other services without asking.
 
+**Asked and added: Resend, for one email, on the owner's call (2026-08-19).** `/contact` wrote a row and told nobody, which is a complete record and a useless workflow — a contact form nobody watches loses the merchants it exists to catch. It sends one plain-text message to `INBOX` when a row is written, with the merchant's own address as reply-to.
+
+The boundary: **the row is the system of record and the email is a convenience over it.** A send that fails is logged and the request still answers 201, because by then the merchant's message is already safe and a 503 would ask them to write again for our benefit. No key configured is a normal state, not an error. Nothing else may start sending: no sequences, no marketing, nothing to a shopper — the capture gate in step 7 opened for one form and this does not widen it.
+
 ## Build order (do not reorder)
 
 1. **Ingester** — store URL → public catalogue (`/products.json` first; fall back to scraping), brand context (name, logo, colours, voice) from the homepage. No Shopify OAuth in this phase.

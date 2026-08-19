@@ -19,6 +19,7 @@
 
 import { NextResponse } from "next/server";
 import { EarlyAccessRequest, recordEarlyAccess } from "@/lib/earlyaccess/index";
+import { notifyEarlyAccess } from "@/lib/earlyaccess/notify";
 import { INBOX } from "@/lib/origin";
 
 export const runtime = "nodejs";
@@ -56,8 +57,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
+  let record;
   try {
-    await recordEarlyAccess(parsed.data);
+    record = await recordEarlyAccess(parsed.data);
   } catch (error) {
     // Logged in full, reported in outline. The person needs to know it failed
     // and what to do instead; a database error message is neither.
@@ -66,6 +68,25 @@ export async function POST(request: Request): Promise<NextResponse> {
       { ok: false, error: `We could not save that. Email ${INBOX} and we will pick it up there.` },
       { status: 503 },
     );
+  }
+
+  /*
+   * The notification, and why its failure is not the merchant's problem.
+   *
+   * The row exists by this point. That is the durable record and the reason
+   * the form is allowed to say "Got it." — so an email we could not send is a
+   * gap in *our* workflow, not in theirs, and there is nothing they could do
+   * about it if we told them. Turning it into a 503 would ask somebody to
+   * write again when we already have what they sent.
+   *
+   * Awaited rather than left dangling: this runs on a serverless function, and
+   * a promise still in flight when the response returns may simply never be
+   * finished. A send takes a few hundred milliseconds on a form somebody has
+   * just spent a minute filling in.
+   */
+  const notified = await notifyEarlyAccess(record);
+  if (notified.outcome === "failed") {
+    console.error(`[early-access] row saved, notification failed: ${notified.reason}`);
   }
 
   return NextResponse.json({ ok: true }, { status: 201 });
