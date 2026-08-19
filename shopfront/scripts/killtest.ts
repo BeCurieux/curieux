@@ -4,6 +4,7 @@
  *
  *   check                          preflight only — is this test allowed to run?
  *   generate <targets-file>        a shop per merchant, recorded in the ledger
+ *                                  (stores that already have one are skipped)
  *   log <store-url> --stage <s>    what a merchant actually said
  *   status                         the count, and the call
  *
@@ -40,7 +41,7 @@ import {
 
 const usage = `Usage:
   pnpm killtest check <targets-file>
-  pnpm killtest generate <targets-file> [--prompt "<prompt>"] [--dry-run]
+  pnpm killtest generate <targets-file> [--prompt "<prompt>"] [--dry-run] [--regenerate]
   pnpm killtest log <store-url> --stage <${STAGES.join("|")}> [--outcome <${OUTCOMES.join("|")}>] [--said "..."]
   pnpm killtest status`;
 
@@ -83,8 +84,20 @@ function reportPreflight(targets: TargetInput[]): boolean {
  * Sequential rather than parallel on purpose: this crawls thirty storefronts
  * belonging to people who have not asked us to, and hammering them in parallel
  * is both rude and the fastest way to get rate-limited off the test.
+ *
+ * **A store that already has a shop is skipped**, because this command costs
+ * real money and the natural way to run the test is not once. Screening comes
+ * in batches, credit is topped up between them, and the sane first move is ten
+ * stores rather than fifty — so the same targets file gets pointed at this
+ * command more than once, and every store in it that already generated would
+ * pay for a second Genome pass and a second merchandiser call to produce a
+ * shop nobody asked for. The ledger already knows which stores have one.
+ *
+ * `--regenerate` does it anyway, which is what you want after a prompt change
+ * or a renderer change. It is a flag rather than the default because the
+ * expensive direction should be the one somebody typed.
  */
-async function generate(file: string, prompt: string, dryRun: boolean): Promise<void> {
+async function generate(file: string, prompt: string, dryRun: boolean, regenerate: boolean): Promise<void> {
   const targets = await readTargets(file);
   if (!reportPreflight(targets)) process.exit(1);
   if (dryRun) {
@@ -95,9 +108,19 @@ async function generate(file: string, prompt: string, dryRun: boolean): Promise<
   const now = new Date();
   let ledger = addTargets((await loadLedger()) ?? emptyLedger(now), targets, now);
 
+  const done = new Set(ledger.targets.filter((t) => t.shopUrl).map((t) => t.storeUrl));
+  const skipped = regenerate ? 0 : targets.filter((t) => done.has(t.storeUrl)).length;
+  if (skipped > 0) {
+    process.stderr.write(
+      `  ${skipped} of ${targets.length} already have a shop and are skipped. --regenerate rebuilds them.\n\n`,
+    );
+  }
+
   for (const [index, target] of targets.entries()) {
     const { storeUrl } = target;
     const tag = target.segment === "creator" ? "  creator" : "";
+
+    if (!regenerate && done.has(storeUrl)) continue;
     process.stderr.write(`  ${String(index + 1).padStart(2)}/${targets.length}  ${storeUrl}${tag}\n`);
 
     const run = spawnSync("pnpm", ["generate", storeUrl, prompt, "--quiet"], { encoding: "utf8" });
@@ -229,13 +252,15 @@ async function main(): Promise<void> {
       if (!file) throw new Error(usage);
       let prompt = "a clean bio shop for the people arriving from their social links";
       let dryRun = false;
+      let regenerate = false;
       for (let i = 1; i < rest.length; i++) {
         if (rest[i] === "--prompt") prompt = rest[++i] ?? prompt;
         else if (rest[i] === "--dry-run") dryRun = true;
+        else if (rest[i] === "--regenerate") regenerate = true;
         else throw new Error(`Unknown option: ${rest[i]}`);
       }
       process.stderr.write("\n");
-      await generate(file, prompt, dryRun);
+      await generate(file, prompt, dryRun, regenerate);
       return;
     }
 
