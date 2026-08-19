@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { badgeEligible, bandFor, PER_RULE_CAP_MULTIPLIER, scoreFindings } from "@/engine/score.js";
+import {
+  BAND_THRESHOLDS,
+  badgeEligible,
+  bandFor,
+  PER_RULE_CAP_MULTIPLIER,
+  scoreFindings,
+} from "@/engine/score.js";
 import { SEVERITY_WEIGHT, type Finding, type Severity } from "@/engine/types.js";
 
 let n = 0;
@@ -24,6 +30,40 @@ describe("a clean page", () => {
     const score = scoreFindings([]);
     expect(score).toEqual({ value: 100, band: "clear", deductions: [] });
     expect(badgeEligible(score)).toBe(true);
+  });
+});
+
+describe("where the bands sit, and where the badge sits with them", () => {
+  const low = [finding("a", "low")];
+
+  it("puts the boundary at 80, inclusive", () => {
+    // Pinned because it moved once — 85 to 80 — and nothing failed, which
+    // meant the number a brand's badge depends on was not written down
+    // anywhere a reviewer would see it.
+    expect(BAND_THRESHOLDS.clear).toBe(80);
+    expect(bandFor(80, low)).toBe("clear");
+    expect(bandFor(79, low)).toBe("review");
+    expect(bandFor(60, low)).toBe("review");
+    expect(bandFor(59, low)).toBe("rework");
+  });
+
+  it("gives the badge no bar of its own", () => {
+    // The coupling is the point, and it is one of the four things CLAUDE.md
+    // names as holding §9 up now the mark says "Claims Verified". A page whose
+    // card reads *worth a look* while its PDP carries a mark reading *Claims
+    // Verified* is the mark asserting what the card qualifies. Whoever gives
+    // the badge a separate threshold has made a legal decision, and this test
+    // is where they find that out.
+    for (const value of [100, 90, 80, 79, 61, 60, 59, 0]) {
+      const clear = bandFor(value, low) === "clear";
+      expect(badgeEligible({ value, band: bandFor(value, low), deductions: [] })).toBe(clear);
+    }
+  });
+
+  it("still refuses a high-severity page at any number", () => {
+    // Unchanged by the move, and the reason the move was safe.
+    expect(bandFor(99, [finding("b", "high")])).not.toBe("clear");
+    expect(badgeEligible(scoreFindings([finding("b", "high")]))).toBe(false);
   });
 });
 

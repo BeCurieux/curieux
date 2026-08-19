@@ -264,7 +264,20 @@ cheaper to change before thirty founders have seen it than after.
 number, letter or three-state — is still open, and the engine should not settle
 it by only computing one.
 
-Three decisions worth knowing about:
+**Clear starts at 80, and the badge starts there too.** It was 85 until
+carefully written copy — real ingredient claims, a qualified recyclable, a
+substantiated trial figure — landed at 82 and could not display the mark. A
+funnel that says *scan, fix, badge* and then withholds the badge from copy a
+specialist would sign off is selling something it does not hand over.
+
+The badge is not given a bar of its own. `badgeEligible` is `band === "clear"`,
+and `tests/score.test.ts` asserts that across the whole range, because a page
+whose card reads *worth a look* while its PDP carries a mark reading *Claims
+Verified* is the mark asserting exactly what the card qualifies. Lowering one
+lowers both, deliberately. A high-severity finding still refuses the mark at
+any number.
+
+Three more decisions worth knowing about:
 
 **Repeats decay.** First trip of a rule costs its full weight, later ones cost
 a third, and a single rule can cost at most twice its weight however often it

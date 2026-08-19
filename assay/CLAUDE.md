@@ -283,6 +283,14 @@ the moment any of it is skipped.
   selling into three countries must not score worse than the same copy sold
   into one.
 - A page carrying a high-severity finding is not badge-eligible at any number.
+- **The badge has no threshold of its own.** `badgeEligible` is `band ===
+  "clear"`, and `BAND_THRESHOLDS.clear` is 80 (lowered from 85 by the owner on
+  2026-08-18, because copy a specialist would sign off scored 82 and could not
+  display the mark). Do not give the badge a separate bar: a card reading
+  *worth a look* beside a PDP mark reading *Claims Verified* is the mark
+  asserting what the card qualifies, and `mayDisplayBadge` refusing anything
+  but a clear reading is one of the four things holding §9 up. Moving the
+  number is a product decision; decoupling the two is a legal one.
 - Never invent a study, a figure, a sample size or a certification when
   drafting a rewrite. A rewrite that fabricates evidence is the single worst
   thing this product could ship.

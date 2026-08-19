@@ -16,7 +16,22 @@ export const PER_RULE_CAP_MULTIPLIER = 2;
 /** What each repeat of an already-counted rule costs, as a share of the first. */
 export const REPEAT_SHARE = 1 / 3;
 
-export const BAND_THRESHOLDS = { clear: 85, review: 60 } as const;
+/**
+ * Where the bands sit, and therefore where the badge sits.
+ *
+ * `clear` was 85 and is 80 (owner's call, 2026-08-18). The reason for moving
+ * it: carefully written copy — real ingredient claims, a qualified recyclable,
+ * a substantiated trial figure — landed at 82 and could not display the mark.
+ * A funnel that says "scan, fix, badge" and then withholds the badge from
+ * copy a specialist would sign off is selling something it does not hand over.
+ *
+ * The badge threshold and the band threshold are deliberately the same number.
+ * `badgeEligible` is `band === "clear"` and is not given a separate bar,
+ * because a page whose own card says *worth a look* while its PDP carries a
+ * mark reading *Claims Verified* is the §9 problem in miniature — the mark
+ * asserting what the card qualifies. Lower one and you lower both, on purpose.
+ */
+export const BAND_THRESHOLDS = { clear: 80, review: 60 } as const;
 
 /**
  * Repeats decay, and here is why. A product page says "eco-friendly" in the
