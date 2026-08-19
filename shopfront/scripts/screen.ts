@@ -27,6 +27,7 @@
 import { readFile } from "node:fs/promises";
 import { ingestStore } from "../src/lib/ingest/index";
 import { parseCandidates, screen, type ScreenResult } from "../src/lib/killtest/screen";
+import { TARGET_MERCHANTS } from "../src/lib/killtest/types";
 
 const file = process.argv[2];
 if (!file) {
@@ -89,11 +90,30 @@ process.stderr.write(
   ].join("\n"),
 );
 
-// The bar is thirty merchants. Said here because the alternative is finding out
-// after the DMs have gone.
+/*
+ * The bar is thirty merchants. Said here because the alternative is finding out
+ * after the DMs have gone.
+ *
+ * **This counts one run, and it must say so.** It did not, and the sentence it
+ * printed — "10 short of thirty" — was read exactly as it was written: as the
+ * state of the whole list. It was the state of the second batch. The first had
+ * already cleared the bar on its own, the two together were nearly double it,
+ * and the message asked for more screening that was not needed.
+ *
+ * A run cannot know the total, because batches are appended to the targets file
+ * and this script never reads it. So it reports its own arithmetic and names
+ * the one command that does count everything.
+ */
 const usable = good.length + workable.length;
-if (usable < 30) {
-  process.stderr.write(`  ${30 - usable} short of thirty. Screen more candidates before starting.\n\n`);
+if (usable < TARGET_MERCHANTS) {
+  process.stderr.write(
+    [
+      `  ${usable} usable in this batch — ${TARGET_MERCHANTS - usable} short of ${TARGET_MERCHANTS} on its own.`,
+      "  Batches add up: `pnpm killtest check killtest/targets.txt` counts the whole file.",
+      "",
+      "",
+    ].join("\n"),
+  );
 }
 
 if (thin.length === 0 && usable > 0) {
