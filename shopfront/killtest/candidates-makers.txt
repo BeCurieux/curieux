@@ -1,0 +1,139 @@
+# Kill-test candidates, second batch — merchants who photograph their own stock.
+#
+#   pnpm screen killtest/candidates-makers.txt >> killtest/targets.txt
+#
+# ------------------------------------------------------------------ why this
+#
+# The first batch screened 13 good · 24 workable, which clears thirty. It also
+# came back with an empty mediocre-photography sample, and the brief is
+# explicit that the renderer "must flatter mediocre product photography". A run
+# across thirty studio catalogues tests the easy case thirty times and tells us
+# nothing about the hard one.
+#
+# Two things were wrong, and only one of them is this file.
+#
+# The screener's photography test asked whether any product carried two images.
+# That counts uploads, not photography — a maker who shoots four flat pictures
+# on a phone scores identically to a studio session — so it now reads crop
+# consistency and image size as well, and reports what it measured. Re-running
+# the first batch through it will find hard candidates that the old flag missed,
+# and that costs nothing but the screening time.
+#
+# The other thing wrong is the list. Every name in the first batch was a brand
+# I could half-name from memory, and a brand at that size has usually paid a
+# photographer at least once. This one is aimed at the other shape of merchant:
+# small enough to shoot their own stock on a table by a window, established
+# enough to have twenty products to merchandise. That second half is the hard
+# constraint — most one-person makers will fail the product floor, so this list
+# is long and its expected reject rate is much higher than the first.
+#
+# ---------------------------------------------------------------- provenance
+#
+# EVERY LINE HERE IS UNVERIFIED, on the same terms as the first batch. It was
+# written with no outbound network — every storefront returns 000 through the
+# egress proxy — so this is training-data recall, not a checked list. Some are
+# gone, some were never on Shopify, some closed their feed. Screen first.
+#
+# What is *not* a guess is the shape being aimed at, and that is the part worth
+# keeping if you replace half these names with better ones: makers, studios,
+# single-operator shops, and small-batch food and drink. If you know ten of
+# these yourself, yours are better than mine — the value here is the profile.
+#
+# --------------------------------------------------------------- the profile
+#
+#   · sells a thing they make, or a tight edit they chose by hand;
+#   · 20-200 products, so there is something to select from;
+#   · photographs it themselves, in daylight, against whatever was nearest;
+#   · sells off Instagram, and has no developer.
+#
+# A store whose grid is visibly inconsistent — some products cropped square,
+# some portrait, some on a white sweep and some on a wooden bench — is the one
+# to keep. The screener will flag it POOR PHOTOGRAPHY. That is a reason to
+# include it, not a defect, and it is the single most useful thing in the list.
+
+# --- ceramics and tableware ------------------------------------------------
+
+https://ceramicagirasole.com           # hand-painted Italian tableware
+https://thepotteryshop.co.uk           # studio pottery, UK
+https://ohmydiaries.com                # small homeware maker
+https://minimalgoods.co                # tableware, small batch
+https://commonclay.co.uk               # studio ceramics, UK
+https://kanaldesign.com                # ceramics and glass
+https://stilllifeceramics.com          # thrown tableware
+https://claytonpottery.co.uk           # UK studio pottery
+https://sohomeco.com                   # small homeware edit
+https://theceramicshouse.co.uk         # ceramics, UK
+
+# --- candles, soap and small-batch home ------------------------------------
+
+https://earlofeast.com                 # candles, UK, Instagram-native
+https://ovoandco.com                   # candles, small batch
+https://stjudesfabrics.co.uk           # printed fabric and homeware, UK
+https://thesoapcollective.co.uk        # cold-process soap, UK
+https://roseandgrey.co.uk              # homeware, UK
+https://wildlondon.co.uk               # candles and home fragrance
+https://mrsjoneshome.co.uk             # small homeware, UK
+https://theaugustshop.co.uk            # home and gift, UK
+https://littlepieceoflondon.com        # gift and home, UK
+
+# --- jewellery and small accessories ---------------------------------------
+
+https://wolfandmoon.com                # laser-cut jewellery, UK, maker-run
+https://tattydevine.com                # acrylic jewellery, UK
+https://hannahbourn.com                # jewellery, UK maker
+https://aliceandbird.co.uk             # small jewellery studio
+https://rachelentwistle.com            # jewellery, UK
+https://otiumberg.com                  # fine jewellery, UK, small team
+https://marthajackson.co.uk            # jewellery, UK maker
+https://silverandsage.co.uk            # small jewellery shop
+
+# --- print, paper and stationery -------------------------------------------
+
+https://oldenglishcompany.co.uk        # cards and prints, UK, maker-run
+https://katiecardew.com                # illustrated stationery, UK
+https://kindredfoxstudio.com           # illustration and print
+https://theprintedpeanut.co.uk         # illustrated goods, UK
+https://olalisboa.com                  # print and paper
+https://papierhaus.co.uk               # stationery, small
+https://blackbirdletterpress.com       # letterpress, US, single studio
+
+# --- textiles, yarn and haberdashery ---------------------------------------
+
+https://thefibreco.com                 # hand-dyed yarn — mixed photography likely
+https://loopknittingshop.com           # yarn shop, London
+https://wildwoolstudio.co.uk           # hand-dyed yarn, UK
+https://raystitch.co.uk                # haberdashery, London
+https://merchantandmills.com           # sewing supplies, UK
+https://thefabricstore.co.uk           # fabric, UK
+
+# --- small-batch food and drink --------------------------------------------
+
+https://cornishseaweed.co.uk           # small-batch food, UK
+https://borough22.com                  # doughnuts, UK, single kitchen
+https://theethicalbutcher.co.uk        # meat box, UK
+https://hodmedods.co.uk                # British pulses and grains
+https://spicekitchenuk.com             # spice blends, UK, family-run
+https://cheekypanda.com                # household, UK
+https://droughtcoffee.co.uk            # small roaster
+https://girlsandboysroasters.com       # small coffee roaster
+https://gooddrop.co.uk                 # small drinks shop
+
+# --- plants, garden and outdoors -------------------------------------------
+
+https://prickllondon.com               # cacti and succulents, London
+https://botanicalboysshop.co.uk        # plants and dried flowers, UK
+https://thestemshop.co.uk              # dried flowers, UK
+https://sarahravensgarden.co.uk        # seeds and garden, UK
+https://forgegarden.co.uk              # garden tools, small
+
+# --- vintage, secondhand and one-off edits ---------------------------------
+#
+# Worth a look and likely to fail the product floor or the availability floor,
+# because a one-off is sold out the moment it sells. Screened rather than
+# dropped: a catalogue that is half sold out is a real test of the marked
+# sold-out rule, which no studio catalogue will exercise.
+
+https://glassonionvintage.co.uk        # vintage clothing, UK
+https://thevintagelist.co.uk           # vintage homeware
+https://rewindvintage.co.uk            # vintage clothing
+https://loveandluxury.co.uk            # secondhand designer
