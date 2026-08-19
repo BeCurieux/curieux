@@ -33,7 +33,7 @@
  */
 
 import type { Metadata } from "next";
-import { HOME, INBOX } from "@/lib/origin";
+import { HOME } from "@/lib/origin";
 import { displayWonk } from "../fonts";
 import { SiteBar, SiteFoot, ASK } from "../chrome";
 import "../landing.css";
