@@ -15,6 +15,7 @@ import { stockState } from "@/lib/render/resolve";
 import { CARD_WIDTHS, imageAttrs } from "@/lib/render/image";
 import { formatFrom, formatMoney } from "@/lib/render/money";
 import { cartPermalink } from "@/lib/cart/permalink";
+import { isReachable } from "@/lib/render/reachable";
 
 export interface CardContext {
   currency: string | null;
@@ -39,14 +40,21 @@ export interface CardContext {
  * to a cart it cannot fill, which would be the most annoying possible dead end.
  * And a product with sizes has no single right answer, so the shopper picks; see
  * `chooseCartVariant` in render/resolve.ts.
+ *
+ * **A null href is a third answer, and it means the card is not a link at all.**
+ * The demo catalogues live on reserved names — `casalino.example`,
+ * `example.invalid` — which RFC 2606 guarantees can never resolve, so every
+ * card in them was offering a tap that lands nowhere. On the pages a sceptic
+ * actually clicks, that is worse than a card that does not pretend to go
+ * anywhere. It costs a real merchant nothing: their host is not reserved.
  */
 export function cardTarget(
   product: ResolvedProduct,
   context: CardContext,
-): { href: string; event: "product_click" | "checkout_start"; variantId?: string } {
+): { href: string | null; event: "product_click" | "checkout_start"; variantId?: string } {
   const soldOut = stockState(product) === "sold-out";
 
-  if (!soldOut && product.cartVariantId && context.storeUrl) {
+  if (!soldOut && product.cartVariantId && context.storeUrl && isReachable(context.storeUrl)) {
     const href = cartPermalink({
       storeUrl: context.storeUrl,
       variantId: product.cartVariantId,
@@ -55,6 +63,7 @@ export function cardTarget(
     if (href) return { href, event: "checkout_start", variantId: product.cartVariantId };
   }
 
+  if (!isReachable(product.url)) return { href: null, event: "product_click" };
   return { href: product.url, event: "product_click" };
 }
 
@@ -115,15 +124,30 @@ export function ProductCard({
   const soldOut = stockState(product) === "sold-out";
   const target = cardTarget(product, context);
 
+  /*
+   * A card with nowhere to go is a `<div>`, not an `<a href="">`.
+   *
+   * An anchor without an href is still focusable in some assistive tech and
+   * still reads as a link, which would be the same lie in a quieter voice. The
+   * funnel attributes go with it: a click that cannot leave the page is not a
+   * `product_click`, and counting one would put invented rows in the table the
+   * kill test reads.
+   */
+  const Card = target.href ? "a" : "div";
+
   return (
-    <a
+    <Card
       className={`card${soldOut ? " card--soldout" : ""}`}
-      href={target.href}
-      // Read by the delegated listener in Funnel.tsx. Plain attributes on a
-      // plain link, so the card stays a server component.
-      data-fnl={target.event}
-      data-fnl-handle={product.handle}
-      {...(target.variantId ? { "data-fnl-variant": target.variantId } : {})}
+      {...(target.href
+        ? {
+            href: target.href,
+            // Read by the delegated listener in Funnel.tsx. Plain attributes on
+            // a plain link, so the card stays a server component.
+            "data-fnl": target.event,
+            "data-fnl-handle": product.handle,
+            ...(target.variantId ? { "data-fnl-variant": target.variantId } : {}),
+          }
+        : {})}
     >
       <Plate product={product} sizes={sizes} {...(eager ? { eager } : {})} />
       <div className="card-meta" data-layout={context.cardMeta ?? "stacked"}>
@@ -138,7 +162,7 @@ export function ProductCard({
             : formatMoney(product.price, context.currency, context.locale)}
         </p>
       </div>
-    </a>
+    </Card>
   );
 }
 

@@ -15,6 +15,7 @@ type Block = z.infer<typeof BlockSchema>;
 import type { Catalogue } from "@/lib/ingest/types";
 import { resolveAll, resolveProduct } from "@/lib/render/resolve";
 import { HERO_WIDTHS, imageAttrs } from "@/lib/render/image";
+import { isReachable } from "@/lib/render/reachable";
 import { ProductCard, Plate, cardTarget, type CardContext } from "./ProductCard";
 import { HeartScribble, Sparkle } from "./marks";
 import { OfferCode } from "./OfferCode";
@@ -253,16 +254,23 @@ function StepLink({
   children: React.ReactNode;
 }) {
   const target = cardTarget(product, context);
+  // Same rule as ProductCard: no href means no anchor and no funnel event.
+  const Step = target.href ? "a" : "div";
+
   return (
-    <a
+    <Step
       className="card step-body"
-      href={target.href}
-      data-fnl={target.event}
-      data-fnl-handle={product.handle}
-      {...(target.variantId ? { "data-fnl-variant": target.variantId } : {})}
+      {...(target.href
+        ? {
+            href: target.href,
+            "data-fnl": target.event,
+            "data-fnl-handle": product.handle,
+            ...(target.variantId ? { "data-fnl-variant": target.variantId } : {}),
+          }
+        : {})}
     >
       {children}
-    </a>
+    </Step>
   );
 }
 
@@ -276,10 +284,21 @@ function Offer({ block }: { block: Extract<Block, { type: "offer" }> }) {
   );
 }
 
+/**
+ * The merchant's own navigation, demoted to nothing when it cannot be followed.
+ *
+ * Filtered rather than rendered unclickable: a collection link with no
+ * destination is not information the way a product card is — the card still
+ * carries a photograph, a title and a price, and the link list carries only the
+ * promise of going somewhere. An empty list renders no nav at all.
+ */
 function LinkList({ block }: { block: Extract<Block, { type: "linkList" }> }) {
+  const links = block.links.filter((link) => isReachable(link.url));
+  if (links.length === 0) return null;
+
   return (
     <nav className="links">
-      {block.links.map((link) => (
+      {links.map((link) => (
         <a key={link.url} href={link.url}>
           <span>{link.label}</span>
           <span aria-hidden="true">→</span>
