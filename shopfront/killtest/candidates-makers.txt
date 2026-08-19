@@ -50,6 +50,22 @@
 # some portrait, some on a white sweep and some on a wooden bench — is the one
 # to keep. The screener will flag it POOR PHOTOGRAPHY. That is a reason to
 # include it, not a defect, and it is the single most useful thing in the list.
+#
+# --------------------------------------------------------- the batch-1 overlap
+#
+# Three names below are commented out because they are already in
+# `candidates.txt`: earlofeast.com, wolfandmoon.com, otiumberg.com. Written from
+# memory, twice, they turned up in both lists — which is invisible here and
+# fatal two commands later. `pnpm screen` reads one file and knows nothing about
+# the other, so both runs emitted the same three lines, both were appended to
+# `targets.txt`, and the kill test refused to start: `Duplicate targets. Thirty
+# merchants means thirty merchants.` The whole point of that check is that
+# thirty means thirty rather than twenty-seven counted generously, so it is
+# right to refuse and the list is the thing to fix.
+#
+# The screener cannot fix this for you. It never reads the targets file, and
+# giving it the ability to would mean it decides what is already in the run —
+# which is the person's job, not the tool's.
 
 # --- ceramics and tableware ------------------------------------------------
 
@@ -66,7 +82,7 @@ https://theceramicshouse.co.uk         # ceramics, UK
 
 # --- candles, soap and small-batch home ------------------------------------
 
-https://earlofeast.com                 # candles, UK, Instagram-native
+# https://earlofeast.com               # ALREADY IN BATCH 1 — see the note at the top
 https://ovoandco.com                   # candles, small batch
 https://stjudesfabrics.co.uk           # printed fabric and homeware, UK
 https://thesoapcollective.co.uk        # cold-process soap, UK
@@ -78,12 +94,12 @@ https://littlepieceoflondon.com        # gift and home, UK
 
 # --- jewellery and small accessories ---------------------------------------
 
-https://wolfandmoon.com                # laser-cut jewellery, UK, maker-run
+# https://wolfandmoon.com              # ALREADY IN BATCH 1 — see the note at the top
 https://tattydevine.com                # acrylic jewellery, UK
 https://hannahbourn.com                # jewellery, UK maker
 https://aliceandbird.co.uk             # small jewellery studio
 https://rachelentwistle.com            # jewellery, UK
-https://otiumberg.com                  # fine jewellery, UK, small team
+# https://otiumberg.com                # ALREADY IN BATCH 1 — see the note at the top
 https://marthajackson.co.uk            # jewellery, UK maker
 https://silverandsage.co.uk            # small jewellery shop
 
