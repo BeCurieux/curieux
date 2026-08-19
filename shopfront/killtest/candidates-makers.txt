@@ -1,6 +1,8 @@
 # Kill-test candidates, second batch — merchants who photograph their own stock.
 #
-#   pnpm screen killtest/candidates-makers.txt >> killtest/targets.txt
+#   pnpm --silent screen killtest/candidates-makers.txt >> killtest/targets.txt
+#
+# `--silent` is not optional — see the note in candidates.txt.
 #
 # ------------------------------------------------------------------ why this
 #

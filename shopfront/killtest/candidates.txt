@@ -2,7 +2,12 @@
 #
 # Run this through the screener on a machine with network access:
 #
-#   pnpm screen killtest/candidates.txt > killtest/targets.txt
+#   pnpm --silent screen killtest/candidates.txt > killtest/targets.txt
+#
+# `--silent` is not optional. Without it pnpm writes a two-line banner to stdout
+# before the screener runs, the redirect captures it into the targets file, and
+# the kill test then refuses to start with a message about duplicate targets
+# that names two lines of shell output.
 #
 # Then edit `targets.txt` by hand: the screener checks feeds, product counts,
 # stock and photography, and it decides nothing about whether a merchant is the

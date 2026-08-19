@@ -129,7 +129,17 @@ if (thin.length === 0 && usable > 0) {
   );
 }
 
-// stdout is the file content, so this composes: `pnpm screen list.txt >> killtest/targets.txt`
+/*
+ * stdout is the file content, so this composes:
+ *
+ *   pnpm --silent screen list.txt >> killtest/targets.txt
+ *
+ * `--silent` is load-bearing. pnpm prints its own two-line banner to stdout
+ * before running the script, and a redirect captures that into the targets
+ * file, where nothing starting with `>` is a comment. `parseTargets` now
+ * refuses those lines by name — but not writing them is better than being told
+ * about them.
+ */
 process.stdout.write("[merchants]\n");
 for (const result of [...good, ...workable, ...wrong]) process.stdout.write(`${result.line}\n`);
 process.stdout.write("\n[creators]\n");

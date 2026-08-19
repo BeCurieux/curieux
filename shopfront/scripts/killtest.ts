@@ -23,6 +23,7 @@ import {
   addTargets,
   emptyLedger,
   loadLedger,
+  parseTargets,
   preflight,
   recordOutcome,
   saveLedger,
@@ -31,9 +32,7 @@ import {
   OUTCOMES,
   THRESHOLD_COUNT,
   TARGET_MERCHANTS,
-  SEGMENTS,
   type Ledger,
-  type Segment,
   type TargetInput,
   type Outcome,
   type Stage,
@@ -48,44 +47,12 @@ const usage = `Usage:
 /**
  * One storefront per line, under a `[merchants]` or `[creators]` heading.
  *
- * Two things the first version got wrong. It only stripped lines that *begin*
- * with `#`, while the example file's own notation puts the note after the URL
- * — so uncommenting a line from the example handed the ingester
- * "https://store.com   # beauty, ~80 products" as a URL. And it had nowhere to
- * say who somebody is, which is the whole point of this change.
- *
- * Headings rather than a per-line tag because a human maintains this file, and
- * a heading shows the split of the list at a glance instead of requiring it to
- * be counted.
+ * The parsing lives in `lib/killtest/targets` rather than here, for the reason
+ * written at the top of that file: it has to refuse a line that is not a store,
+ * and a rule that decides whether a run happens is worth a test.
  */
 async function readTargets(file: string): Promise<TargetInput[]> {
-  const raw = await readFile(file, "utf8");
-  const targets: TargetInput[] = [];
-  let segment: Segment = "merchant";
-
-  for (const line of raw.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0 || trimmed.startsWith("#")) continue;
-
-    const heading = /^\[(\w+)]$/.exec(trimmed);
-    if (heading) {
-      const name = heading[1]!.toLowerCase().replace(/s$/, "");
-      if (!SEGMENTS.includes(name as Segment)) {
-        throw new Error(`Unknown section [${heading[1]}] in ${file}. Use ${SEGMENTS.map((s) => `[${s}s]`).join(" or ")}.`);
-      }
-      segment = name as Segment;
-      continue;
-    }
-
-    const hash = trimmed.indexOf("#");
-    const storeUrl = (hash === -1 ? trimmed : trimmed.slice(0, hash)).trim();
-    const note = hash === -1 ? "" : trimmed.slice(hash + 1).trim();
-    if (storeUrl.length === 0) continue;
-
-    targets.push({ storeUrl, segment, ...(note ? { note } : {}) });
-  }
-
-  return targets;
+  return parseTargets(await readFile(file, "utf8"), { file });
 }
 
 function reportPreflight(targets: TargetInput[]): boolean {

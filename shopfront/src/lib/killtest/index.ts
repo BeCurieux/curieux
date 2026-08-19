@@ -24,4 +24,6 @@ export {
 } from "./ledger";
 export { segmentOf } from "./ledger";
 export type { Update, TargetInput } from "./ledger";
+export { parseTargets } from "./targets";
+export type { ParseTargetsOptions } from "./targets";
 export * from "./types";
