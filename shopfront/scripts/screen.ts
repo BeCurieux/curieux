@@ -26,7 +26,7 @@
 
 import { readFile } from "node:fs/promises";
 import { ingestStore } from "../src/lib/ingest/index";
-import { screen, type ScreenResult } from "../src/lib/killtest/screen";
+import { parseCandidates, screen, type ScreenResult } from "../src/lib/killtest/screen";
 
 const file = process.argv[2];
 if (!file) {
@@ -45,10 +45,7 @@ if (!file) {
   process.exit(2);
 }
 
-const candidates = (await readFile(file, "utf8"))
-  .split("\n")
-  .map((line) => line.replace(/#.*$/, "").trim())
-  .filter(Boolean);
+const candidates = parseCandidates(await readFile(file, "utf8"));
 
 if (candidates.length === 0) {
   process.stderr.write(`No URLs in ${file}.\n`);

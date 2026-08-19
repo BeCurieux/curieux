@@ -92,6 +92,38 @@ export interface ScreenResult {
   line: string;
 }
 
+/**
+ * The candidate list, as a person wrote it.
+ *
+ * One store per line; blank lines and `#` comments ignored, so a rough list can
+ * be pasted in and annotated as it is worked through. Both a whole-line comment
+ * and a note after a URL are stripped.
+ *
+ * **Split on `\r?\n`, and that is the entire reason this function exists.**
+ * It was three chained calls inline in `scripts/screen.ts`, splitting on `"\n"`
+ * alone, and it broke the day the candidate files were committed. Git for
+ * Windows converts line endings on checkout — this repository asks it to, in
+ * `.gitattributes` — so every line arrived with a trailing carriage return. In
+ * a JavaScript regex `.` does not match `\r`, and `$` without the `m` flag
+ * matches only the true end of the string, so `/#.*$/` found nothing to strip
+ * and quietly returned the line unchanged.
+ *
+ * The failure was total and looked like a network problem: comment-only lines
+ * became candidates, every URL kept its trailing note, and the screener
+ * reported 123 unreachable stores out of 123 with `Not a URL` beside each one.
+ * Nothing in that output pointed at line endings.
+ *
+ * `readTargets` in `scripts/killtest.ts` was never affected — it trims before
+ * testing for `#`, which removes the carriage return first. That is luck rather
+ * than design, and it is why this one is tested.
+ */
+export function parseCandidates(text: string): string[] {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.replace(/#.*$/, "").trim())
+    .filter(Boolean);
+}
+
 export function screen(storeUrl: string, catalogue: Catalogue | null): ScreenResult {
   const products = catalogue?.products ?? [];
   const available = products.filter((p) => p.available);

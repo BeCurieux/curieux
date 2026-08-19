@@ -14,7 +14,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { GENOME_READS, MIN_PRODUCTS, screen } from "@/lib/killtest/screen";
+import { GENOME_READS, MIN_PRODUCTS, parseCandidates, screen } from "@/lib/killtest/screen";
 import type { Catalogue, IngestedProduct } from "@/lib/ingest/types";
 
 function product(over: Partial<IngestedProduct> = {}): IngestedProduct {
@@ -37,6 +37,61 @@ function catalogue(count: number, over: Partial<IngestedProduct> = {}, rest: Par
   const products = Array.from({ length: count }, (_, i) => product({ ...over, handle: `p${i}` }));
   return { currency: "USD", products, productCount: products.length, truncated: false, ...rest };
 }
+
+/*
+ * The candidate list, and the day committing it broke the screener.
+ *
+ * The parsing was three chained calls inline in the script and it split on
+ * `"\n"` alone. That was fine for as long as the candidate files were
+ * gitignored and hand-carried, and it failed completely the moment they were
+ * committed: Git for Windows converts line endings on checkout — this
+ * repository asks it to — so every line arrived with a trailing carriage
+ * return, `/#.*$/` matched nothing, and 123 of 123 candidates came back as
+ * "unreachable · Not a URL". Nothing in that output pointed at line endings.
+ */
+describe("reading a candidate list", () => {
+  const LIST = [
+    "# Kill-test candidates — raw, unverified.",
+    "",
+    "# --- ceramics ---------------------------------------------",
+    "https://commonclay.co.uk               # studio ceramics, UK",
+    "https://thepotteryshop.co.uk",
+    "",
+    "https://wolfandmoon.com                # laser-cut jewellery",
+  ];
+
+  it("takes the URLs and drops the commentary", () => {
+    expect(parseCandidates(LIST.join("\n"))).toEqual([
+      "https://commonclay.co.uk",
+      "https://thepotteryshop.co.uk",
+      "https://wolfandmoon.com",
+    ]);
+  });
+
+  it("reads a file with Windows line endings identically", () => {
+    // The regression. `.` does not match `\r` and `$` without `m` matches only
+    // the true end of the string, so a trailing carriage return made every
+    // comment unstrippable — including whole-line ones, which then became
+    // candidates in their own right.
+    expect(parseCandidates(LIST.join("\r\n"))).toEqual(parseCandidates(LIST.join("\n")));
+  });
+
+  it("never returns a line that still carries a comment", () => {
+    const parsed = parseCandidates(LIST.join("\r\n"));
+    expect(parsed.length).toBeGreaterThan(0);
+    for (const url of parsed) {
+      expect(url, `${url} kept its note`).not.toContain("#");
+      expect(url, `${url} kept a carriage return`).not.toMatch(/\r/);
+      // Every survivor must parse, which is the property the screener needs
+      // and the one that failed 123 times in a row.
+      expect(() => new URL(url)).not.toThrow();
+    }
+  });
+
+  it("returns nothing for a file that is only commentary", () => {
+    expect(parseCandidates("# just notes\r\n\r\n# and more\r\n")).toEqual([]);
+  });
+});
 
 describe("screening a storefront", () => {
   it("passes a store with enough to merchandise", () => {
