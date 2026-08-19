@@ -1,0 +1,798 @@
+/* ---- Type ---------------------------------------------------------
+   Bricolage Grotesque, served from this origin. See public/fonts/README.md
+   for why it isn't a Google Fonts link. Variable across weight and optical
+   size, so one file covers 400 through 800 and the display sizes tighten
+   themselves without a second file.
+
+   `swap` on purpose: a blank page while a font decides is worse than a
+   moment of the fallback (§6). Served from this origin, that moment is
+   short. */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-grotesque-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-grotesque-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+
+/* ---- Fonts a customer can pick for their widget --------------------
+   The Design tab offers these by name, so the product has to actually
+   have them — before this they were names in a dropdown that resolved to
+   whatever the visitor happened to have installed. Declaring a face costs
+   nothing until something is rendered in it, so all five sit here and the
+   browser fetches only the one a given widget uses. Latin subset only. */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Poppins is not a variable font, so bold is a second file rather than a
+   synthesised smear of the regular. */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/poppins-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/poppins-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-navy antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-bold tracking-tight;
+  }
+
+  /* Visible focus everywhere (§37). Colour is never the only signal. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-purple ring-offset-2 ring-offset-canvas;
+  }
+
+  /* §38: motion is a garnish, not a requirement. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* ---- Buttons (§7: 12–18px radius) ----------------------------------
+     Actions are deep navy; purple stays the accent — it marks state
+     (selection, progress, the headline word) rather than "press me". Two
+     inks competing for attention is what makes a page feel busy. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-btn bg-navy px-5 py-3
+           text-sm font-semibold text-white transition
+           hover:bg-[#2C3157] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-lg {
+    @apply px-6 py-4 text-base;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-btn border border-rule bg-white
+           px-5 py-3 text-sm font-semibold text-navy transition
+           hover:border-muted hover:bg-lavender active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm
+           font-medium text-slate transition hover:bg-lavender hover:text-navy;
+  }
+  .btn-soft {
+    @apply inline-flex items-center justify-center gap-2 rounded-btn bg-purple-soft px-5 py-3
+           text-sm font-semibold text-purple transition hover:bg-purple-mid/60;
+  }
+
+  /* ---- Surfaces ------------------------------------------------------ */
+  .card {
+    @apply rounded-card border border-rule bg-white shadow-soft;
+  }
+  .panel {
+    @apply rounded-panel border border-rule bg-lavender;
+  }
+
+  /* ---- Form controls ------------------------------------------------- */
+  .input {
+    @apply w-full rounded-btn border border-rule bg-white px-4 py-3 text-sm text-navy
+           placeholder:text-muted focus:border-purple focus:shadow-focus focus:outline-none;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-rule bg-white px-3.5 py-1.5
+           text-sm font-medium text-slate transition hover:border-purple-mid hover:text-purple;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-purple-soft px-3 py-1
+           text-xs font-bold uppercase tracking-wide text-purple;
+  }
+
+  /* Small decorative label used above section headings. */
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.14em] text-muted;
+  }
+}
+
+@layer utilities {
+  /* Hides scrollbars on horizontal chip rows without hiding the scroll. */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+}
+
+/* ==================================================================
+   The widget runtime.
+
+   Everything below is namespaced under `.qw` and styled only from the
+   `--w-*` custom properties that src/lib/widget/themes.ts emits. No theme
+   name appears here, so a new preset is a data change, not a CSS change —
+   and two differently-themed widgets can share one page without collision.
+
+   This block is loaded by the builder preview, the hosted page and the
+   embed alike, which is what makes "what you see is what they get" true
+   rather than aspirational (§15).
+   ================================================================== */
+
+.qw {
+  font-family: var(--w-font);
+  color: var(--w-text);
+  background: var(--w-bg);
+  -webkit-font-smoothing: antialiased;
+  container-type: inline-size;
+}
+
+.qw *,
+.qw *::before,
+.qw *::after {
+  box-sizing: border-box;
+}
+
+.qw-surface {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius-card);
+  box-shadow: var(--w-shadow);
+}
+
+.qw-panel {
+  background: var(--w-panel);
+}
+
+.qw-muted {
+  color: var(--w-muted);
+}
+
+.qw-faint {
+  color: var(--w-faint);
+}
+
+/* ---- Shell and rail ---------------------------------------------- */
+
+.qw-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius-card);
+  box-shadow: var(--w-shadow);
+}
+
+.qw-rail {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--w-border);
+}
+
+/* The "Made with" credit sits at the foot of the rail, out of the way of the
+   questions — only once the rail is tall enough to have a foot. */
+.qw-rail-foot {
+  display: none;
+}
+
+.qw-rail-steps {
+  flex: 1;
+}
+
+.qw-rail-head {
+  min-width: 0;
+}
+
+/* Under 720px the rail is a compact progress header: title, "Step 2 of 5",
+   bar. The step list is redundant at that width and costs half a screen. */
+.qw-rail-list {
+  display: none;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qw-main {
+  min-width: 0;
+  padding: 24px 20px 28px;
+}
+
+/* 600px is where a rail plus a readable question column both fit. Below it
+   the rail would steal more width than the step names are worth. */
+@container (min-width: 600px) {
+  .qw-layout {
+    /* Wide enough for a glyph, two lines of question and a state mark. */
+    grid-template-columns: 214px minmax(0, 1fr);
+  }
+  .qw-rail {
+    border-bottom: 0;
+    border-right: 1px solid var(--w-border);
+  }
+  .qw-rail-list {
+    display: block;
+  }
+  .qw-rail-foot {
+    display: block;
+    margin: 16px -6px -4px;
+  }
+  .qw-main {
+    padding: 28px 28px 32px;
+  }
+}
+
+@container (min-width: 860px) {
+  .qw-layout {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+  .qw-main {
+    padding: 32px 40px 36px;
+  }
+}
+
+/* ---- The growth badge (§22) -------------------------------------- */
+
+.qw-badge-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+}
+
+/* A compact rounded product label, not a corporate logo bolted on. Outlined
+   rather than filled so it sits quietly on whatever background the host page
+   gives it, and keeps its own shape on a dark widget theme. */
+.qw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px 4px 5px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--w-muted);
+  text-decoration: none;
+  border: 1px solid var(--w-border);
+  border-radius: 999px;
+  background: var(--w-surface);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.qw-badge-mark {
+  flex: none;
+  border-radius: 5px;
+}
+
+.qw-badge-text strong {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--w-text);
+}
+
+.qw-badge:hover {
+  color: var(--w-text);
+  border-color: var(--w-muted);
+}
+
+.qw-badge strong {
+  font-weight: 700;
+}
+
+/* ---- Answer cards ------------------------------------------------ */
+
+.qw-grid-1,
+.qw-grid-2,
+.qw-grid-3 {
+  display: grid;
+  gap: 12px;
+}
+
+.qw-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.qw-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.qw-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 100px;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--w-surface);
+  border: var(--w-option-weight) solid var(--w-border);
+  border-radius: var(--w-radius-option);
+  color: var(--w-text);
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* §36: touch targets never below 44px, on any layout. */
+.qw-option--row {
+  flex-direction: row;
+  justify-content: flex-start;
+  min-height: 56px;
+  text-align: left;
+  padding: 14px 16px;
+}
+
+.qw-option:hover {
+  border-color: var(--w-accent-mid);
+}
+
+.qw-option:active {
+  transform: scale(0.985);
+}
+
+.qw-option[data-selected="true"] {
+  border-color: var(--w-accent);
+  background: var(--w-accent-soft);
+}
+
+/* The real control sits behind the card, so keyboard and screen-reader
+   behaviour is the browser's, not ours (§37). */
+.qw-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.qw-option:has(input:focus-visible) {
+  outline: 2px solid var(--w-accent);
+  outline-offset: 2px;
+}
+
+/* Selection is never signalled by colour alone (§37). */
+.qw-tick {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--w-accent);
+  color: var(--w-on-accent);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 140ms ease,
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.qw-option[data-selected="true"] .qw-tick {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---- Buttons ----------------------------------------------------- */
+
+.qw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 22px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--w-btn-bg);
+  color: var(--w-btn-fg);
+  border: 1.5px solid var(--w-btn-border);
+  border-radius: var(--w-radius-button);
+  transition:
+    background-color 150ms ease,
+    transform 120ms ease,
+    opacity 150ms ease;
+}
+
+.qw-btn:hover:not(:disabled) {
+  background: var(--w-btn-hover);
+}
+
+.qw-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.qw-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.qw-btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 500;
+  color: var(--w-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--w-radius-button);
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.qw-btn-quiet:hover {
+  color: var(--w-text);
+  background: var(--w-panel);
+}
+
+/* ---- Fields ------------------------------------------------------ */
+
+.qw-field {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  font: inherit;
+  color: var(--w-text);
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius-button);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.qw-field::placeholder {
+  color: var(--w-faint);
+}
+
+.qw-field:focus {
+  outline: none;
+  border-color: var(--w-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--w-accent) 22%, transparent);
+}
+
+/* ---- Slider ------------------------------------------------------ */
+
+.qw-slider {
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.qw-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--w-accent-soft);
+}
+
+.qw-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--w-accent-soft);
+}
+
+.qw-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -9px;
+  border-radius: 999px;
+  background: var(--w-accent);
+  border: 3px solid var(--w-surface);
+  box-shadow: 0 2px 8px rgba(27, 31, 59, 0.25);
+}
+
+.qw-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--w-accent);
+  border: 3px solid var(--w-surface);
+}
+
+/* ---- Toggle ------------------------------------------------------ */
+
+.qw-switch {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--w-border);
+  transition: background-color 160ms ease;
+}
+
+.qw-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--w-surface);
+  box-shadow: 0 1px 3px rgba(27, 31, 59, 0.3);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-on="true"] > .qw-switch {
+  background: var(--w-accent);
+}
+
+[data-on="true"] > .qw-switch::after {
+  transform: translateX(22px);
+}
+
+/* ---- Progress ---------------------------------------------------- */
+
+.qw-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--w-border);
+  overflow: hidden;
+}
+
+.qw-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--w-accent);
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.qw-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 8px;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  color: var(--w-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--w-radius-button);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.qw-rail-item:hover:not(:disabled) {
+  background: var(--w-surface);
+  color: var(--w-text);
+}
+
+.qw-rail-item:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.qw-rail-item[data-state="current"] {
+  color: var(--w-text);
+  font-weight: 600;
+  background: var(--w-surface);
+}
+
+/* A line glyph hinting at what the question is about, inferred from its
+   wording. Colour carries the state; the mark on the right carries it a
+   second time, so this is never the only signal (§37). */
+.qw-rail-dot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--w-faint);
+}
+
+.qw-rail-num {
+  font-variant-numeric: tabular-nums;
+  color: var(--w-faint);
+}
+
+.qw-rail-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--w-accent);
+}
+
+.qw-rail-item[data-state="current"] .qw-rail-dot,
+.qw-rail-item[data-state="current"] .qw-rail-num {
+  color: var(--w-accent);
+}
+
+/* A finished step gets a green tick rather than another purple mark — it
+   reads as "done" at a glance instead of competing with the current step. */
+.qw-rail-item[data-state="done"] .qw-rail-dot {
+  color: var(--w-done);
+}
+
+.qw-rail-item[data-state="done"] .qw-rail-mark {
+  color: #ffffff;
+  background: var(--w-done);
+  border-radius: 999px;
+}
+
+/* ---- Screen transitions (§38) ------------------------------------ */
+
+@keyframes qw-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes qw-step-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes qw-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.qw-screen {
+  animation: qw-step-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.qw-screen[data-direction="back"] {
+  animation-name: qw-step-in-back;
+}
+
+.qw-screen[data-direction="result"] {
+  animation: qw-result-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ---- Narrow layouts (§36) ---------------------------------------- */
+
+/* Container queries, not viewport queries: an embedded widget in a 360px
+   column on a desktop page has to behave like a phone. The answer grid is
+   measured against the *widget*, so a rail-plus-content layout at 620px still
+   gets two columns rather than three cramped ones. */
+@container (max-width: 620px) {
+  .qw-grid-3,
+  .qw-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .qw-option {
+    min-height: 92px;
+  }
+}
+
+@container (max-width: 360px) {
+  .qw-grid-3,
+  .qw-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .qw-option {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 56px;
+  }
+}
