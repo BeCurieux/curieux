@@ -248,13 +248,13 @@ function DashArrow({ className }: { className?: string }) {
 
 export const metadata: Metadata = {
   metadataBase: new URL(HOME),
-  title: "popuup — this post deserved its own shop",
+  title: "popuup — your post deserves its own shop",
   description:
     "Write one sentence about the post you're linking from, and get a small shop built from your Shopify catalogue with just the products that match it. No page builder.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "popuup",
-    description: "This post deserved its own shop.",
+    description: "Your post deserves its own shop.",
     url: HOME,
     images: [{ url: "/press/og.jpg", width: 1200, height: 630 }],
   },
@@ -274,7 +274,7 @@ export default function Landing() {
           </p>
 
           <h1 className="shout opening-head">
-            This post deserved its <span className="shout-mark">own shop.</span>
+            Your post deserves its <span className="shout-mark">own shop.</span>
             <Squiggle className="opening-squiggle" />
           </h1>
 

@@ -6,19 +6,25 @@
  * popuup has none of those to show, and the rest of the site is built on not
  * claiming what it hasn't got — so this page is the argument instead.
  *
- * Three things worth a page, in the order somebody deciding whether to trust us
- * would want them:
+ * **Two sections, and it used to be five.** The owner's verdict on the longer
+ * version was "too much", and they were right for a reason worth recording:
+ * three of those five said again what the front page already says. An opening
+ * about homepages being bad landing pages, a list of what a shop is built
+ * from, and a ledger of what is and is not built — the front page carries all
+ * three, closer to where somebody decides. A second page repeating them is not
+ * a longer argument, it is the same argument read twice by somebody who is
+ * now less inclined to believe it.
  *
- *   1. What we think is wrong. A homepage is a bad landing page for a post,
- *      and every merchant already knows it — they just can't build one per
- *      campaign by hand.
- *   2. How the thing actually works, stated as the one architectural rule.
- *      "The AI fills a schema, it never writes markup" is the reason these
- *      shops look designed rather than generated, and it is the single most
- *      useful thing a sceptical reader can be told.
- *   3. What we refuse to build. This is the spine. A list of refusals is worth
- *      more than a list of features on a product this early, because features
- *      can be added next week and refusals are a description of judgement.
+ * What survived is what only this page says:
+ *
+ *   1. The one architectural rule. "The AI fills a schema, it never writes
+ *      markup" answers in nine words the question anybody who has seen an
+ *      AI-built page is actually asking — why don't these look generated? —
+ *      and it appears nowhere else on the site.
+ *   2. What we refuse to build. On a product this early a list of refusals is
+ *      worth more than a list of features: features arrive next week, refusals
+ *      describe judgement. Every one is held by a test rather than an
+ *      intention, which is what makes them worth printing.
  *
  * **The gap, stated rather than filled.** There is no founder, location,
  * headcount or founding date on this page, because nobody has told me any of
@@ -73,15 +79,6 @@ const REFUSALS = [
   },
 ];
 
-/** What a shop is built from, and what it is not. */
-const SOURCES = [
-  { on: true, text: "Your public product feed — titles, prices, stock, imagery" },
-  { on: true, text: "Your homepage, for colours, type and the way you write" },
-  { on: true, text: "One sentence from you about who the shop is for" },
-  { on: false, text: "Nothing from your orders, your customers or your admin" },
-  { on: false, text: "Nothing syncs on its own — a shop changes when somebody asks it to" },
-  { on: false, text: "No account, no install, no permissions to grant" },
-];
 
 export default function About() {
   return (
@@ -99,32 +96,6 @@ export default function About() {
       </section>
 
       {/* ------------------------------------------------------ the argument */}
-      <section className="band" aria-labelledby="why-heading">
-        <div className="about-two">
-          <h2 id="why-heading" className="lead">
-            What&rsquo;s actually wrong
-          </h2>
-          <div className="about-prose">
-            <p>
-              You post a reel about linen shirts. Somebody watches all of it, taps the link, and arrives at four hundred
-              products and a cookie banner. They came for one thing and they have to go and find it. Most of them
-              don&rsquo;t.
-            </p>
-            <p>
-              The fix has been known for twenty years: send the click to a page built for the click. Every serious
-              advertiser does it. What they have that a small brand doesn&rsquo;t is somebody whose job it is to build
-              those pages — and even they build one per campaign, not one per post, because it costs an afternoon each.
-            </p>
-            <p>
-              So the interesting problem was never &ldquo;how do we make a landing page&rdquo;. It was: what would have
-              to be true for a brand to have one per post, per creator, per week, without anybody sitting down to build
-              them?
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* -------------------------------------------------------- the method */}
       <section className="band band-paper" aria-labelledby="rule-heading">
         <div className="band-top">
           <h2 id="rule-heading" className="lead">
@@ -140,32 +111,18 @@ export default function About() {
           </blockquote>
         </figure>
 
-        <div className="about-two about-two-tight">
-          <div className="about-prose">
-            <p>
-              This is the whole architecture and it is the reason these shops don&rsquo;t look like they came out of a
-              machine. The model reads your catalogue and your sentence and makes the decisions a merchandiser would
-              make — which products, in what order, grouped how, described with which words, in which of your own
-              brand&rsquo;s colours. It returns those decisions as structured data, and nothing else.
-            </p>
-            <p>
-              The page itself comes from one hand-built template that has been designed properly, once, by people
-              looking at it. Every response is checked against the schema before anything is rendered; if it comes back
-              wrong it is rejected and asked again, never shown.
-            </p>
-          </div>
-          <div className="about-prose">
-            <p>
-              The practical consequence is the bit worth caring about: the design quality of your shop does not depend
-              on what the model felt like producing that day. It cannot invent a layout, cannot write its own CSS,
-              cannot decide your brand is purple now. It gets to choose <em>what goes in the shop</em>. It does not get
-              to choose what a shop looks like.
-            </p>
-            <p>
-              It also means the template gets better for everybody at once. A change to how a product card handles a
-              badly-lit photograph improves every shop already published, without regenerating any of them.
-            </p>
-          </div>
+        <div className="about-prose about-rule-prose">
+          <p>
+            The model reads your catalogue and your sentence and makes the decisions a merchandiser would make — which
+            products, in what order, grouped how, described with which words, in which of your own brand&rsquo;s
+            colours. It returns those decisions as structured data, and nothing else. The page comes from one
+            hand-built template that was designed properly, once, by people looking at it.
+          </p>
+          <p>
+            So the design quality of your shop does not depend on what the model felt like producing that day. It
+            cannot invent a layout, write its own CSS, or decide your brand is purple now. It chooses{" "}
+            <em>what goes in the shop</em>. It does not choose what a shop looks like.
+          </p>
         </div>
       </section>
 
@@ -192,58 +149,6 @@ export default function About() {
       </section>
 
       {/* --------------------------------------------------- what it reads */}
-      <section className="band" aria-labelledby="sources-heading">
-        <div className="about-two">
-          <div>
-            <h2 id="sources-heading" className="lead">
-              What a shop is made from
-            </h2>
-            <p className="lead-note lead-note-dark about-sources-note">
-              All of it public, or given to us in a sentence. A shop can be built for a merchant who has agreed to
-              nothing and installed nothing — which is deliberate, because it is the only way to show somebody the thing
-              rather than describe it.
-            </p>
-          </div>
-          <ul className="ledger">
-            {SOURCES.map((source) => (
-              <li key={source.text} data-on={source.on ? "" : undefined}>
-                {source.text}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------- the stage */}
-      {/*
-        The honest bit, and the place a founder story would go if there were
-        one on file. Left out rather than invented: a page arguing against
-        claiming what you haven't got cannot open with a fabricated origin.
-      */}
-      <section className="band band-paper" aria-labelledby="stage-heading">
-        <div className="about-two">
-          <h2 id="stage-heading" className="lead">
-            Where this is
-          </h2>
-          <div className="about-prose">
-            <p>
-              Early, and small. Shops are made by hand, one at a time, for a first group of Shopify brands — there is no
-              sign-up, no billing and no queue to be in. Onboarding being a person rather than a funnel is not a
-              temporary embarrassment; at this stage it is the point, because the thing being collected is whether a
-              merchant actually wants the shop once they can see it.
-            </p>
-            <p>
-              That is a real question with a real answer, and we have committed to it: if enough of the first merchants
-              look at what we built them and say no, we stop rather than iterate. Publishing that intention costs
-              nothing with the people worth having early, and it is the only honest reason to ask for your time now.
-            </p>
-            <p className="about-write">
-              If you want to argue with any of the above, <a href={`mailto:${INBOX}`}>{INBOX}</a> reaches a person.
-            </p>
-          </div>
-        </div>
-      </section>
-
       <section className="band band-lilac closing" aria-labelledby="closing-heading">
         <div className="closing-say">
           <h2 id="closing-heading" className="shout closing-heading">
