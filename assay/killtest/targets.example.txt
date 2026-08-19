@@ -1,0 +1,41 @@
+# Kill-test targets — the example. The real list is killtest/targets.txt and is
+# not committed.
+#
+# BRIEF.md §10: thirty real aesthetic DTC brands, hand-read, presented as score
+# cards, over two weeks. Over-index on brands recently hit by an ad disapproval
+# and brands selling into the EU, because those two carry the acute version of
+# the pain.
+#
+# One target per line, tab-separated:
+#
+#     slug ⇥ product-page URL ⇥ why this brand is on the list ⇥ name (optional)
+#
+# The fourth field overrides the name printed on that founder's card. Leave it
+# empty and the card says Franca. It exists so a name can be tried on a slice
+# of the thirty without anybody having to remember afterwards who saw what —
+# the ledger records the name each founder actually looked at, because a name
+# that puts people off would otherwise read as a product that puts people off.
+#
+# Exactly these fields, no more. A tab inside the "why" used to be harmless and
+# now would become somebody's card masthead, so the script rejects a fifth
+# field rather than guessing.
+#
+# The slug names the files: put the page's copy in killtest/copy/<slug>.txt and
+# `pnpm killtest` writes killtest/out/<slug>.html and the card beside it.
+#
+# The "why" is not optional and the script rejects a line without one. It is
+# what makes the outreach message specific, and a target with no reason gets a
+# generic DM and a silence that teaches nothing.
+#
+# What is NOT committed anywhere in this repository: the copy, the findings for
+# a named brand, or a score for one. BRIEF.md §9 and CLAUDE.md both hold that
+# line — these brands have agreed to nothing, and a repository full of graded
+# strangers is the Yuka problem with a git history. `.gitignore` keeps all of
+# killtest/ out except this file.
+#
+# The ledger — killtest/ledger.md, written by the script — records the scan and
+# then, in columns you fill in by hand, what each founder said back. Those are
+# the numbers §10's gate is made of, and re-running the script preserves them.
+
+example-brand	https://example-brand.com/products/renewal-serum	EU market, "carbon neutral" in the hero, ECGT applies from 27 Sept
+example-two	https://example-two.com/products/immunity-drops	Supplement, Meta ad account disapproved in July	SORREL

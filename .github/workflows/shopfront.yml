@@ -38,7 +38,7 @@ jobs:
         working-directory: shopfront
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Version comes from the `packageManager` field, so the runner and a
       # developer's machine cannot drift apart without the change being visible.
@@ -47,11 +47,11 @@ jobs:
       # `defaults.run.working-directory` above applies to `run:` steps only, so
       # this action still looks for `package.json` at the repository root — which
       # this repo does not have, because it holds several apps side by side.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           package_json_file: shopfront/package.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: pnpm
@@ -90,13 +90,13 @@ jobs:
         working-directory: shopfront
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           package_json_file: shopfront/package.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: pnpm
@@ -116,7 +116,7 @@ jobs:
 
       - name: Cache the browser
         id: browser-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}

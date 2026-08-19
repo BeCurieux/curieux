@@ -1,0 +1,151 @@
+/** The engine's public surface. Everything a scan, a score page or a badge needs. */
+
+export * from "./engine/types.js";
+export { scan, findingsFor, weakestMarket, weakestOf } from "./engine/evaluate.js";
+export { scoreFindings, badgeEligible, bandFor, BAND_THRESHOLDS } from "./engine/score.js";
+export { match, normaliseSpans, DEFAULT_QUALIFIER_WINDOW } from "./engine/match.js";
+export {
+  headline,
+  citationLabel,
+  absolutesIn,
+  BANNED_ABSOLUTES,
+  CLAIM_DIRECTED_FIELDS,
+  DISCLAIMER,
+} from "./engine/framing.js";
+export {
+  packFor,
+  allPacks,
+  allRules,
+  ruleById,
+  isSupported,
+  supportedJurisdictions,
+  UnsupportedJurisdictionError,
+} from "./engine/registry.js";
+export { extractClaims, categoriesOf } from "./extract/deterministic.js";
+
+// ------------------------------------------------------------------- the card
+
+export { resultPage, rewriteKey, type CardOptions } from "./card/page.js";
+export { shareCard, wrapText, OG_WIDTH, OG_HEIGHT, type ShareCardOptions } from "./card/og.js";
+export {
+  badgeSvg,
+  badgeLines,
+  badgeTextFits,
+  mayDisplayBadge,
+  BADGE_FORBIDDEN,
+  BADGE_HEADLINE,
+  BADGE_WIDTH,
+  BADGE_HEIGHT,
+  type BadgeOptions,
+} from "./card/badge.js";
+export {
+  annotate,
+  annotateResult,
+  marksFor,
+  marketsOf,
+  headlineMark,
+  type Annotated,
+  type Mark,
+  type Piece,
+} from "./card/annotate.js";
+export {
+  PALETTE,
+  BADGE_PALETTE,
+  WORDMARK,
+  FONTS,
+  BAND_LABEL,
+  SEVERITY_LABEL,
+  SEVERITY_MARK,
+  MARKET_LABEL,
+  bandNote,
+  longDate,
+  monthYear,
+  paletteCss,
+  fontFaces,
+  type EmbeddedFonts,
+} from "./card/tokens.js";
+export { esc, escXml, safeUrl } from "./card/escape.js";
+
+// ------------------------------------------------------------------ fetching
+
+export {
+  fetchCopy,
+  robotsFor,
+  clearRobotsCache,
+  RobotsDisallowed,
+  AGENT,
+  DEFAULT_DELAY_MS,
+  type Attempt,
+  type FetchedCopy,
+  type FetchOptions,
+  type Transport,
+} from "./fetch/fetch.js";
+export { parseRobots, isAllowed, ALLOW_ALL, type Robots, type RobotsRule } from "./fetch/robots.js";
+export {
+  fromShopifyProduct,
+  fromJsonLd,
+  fromHtml,
+  wholePageText,
+  shopifyEndpoints,
+  THIN_TEXT,
+  type Extracted,
+  type Via,
+} from "./fetch/extract.js";
+export {
+  decodeEntities,
+  fragmentToText,
+  htmlToText,
+  jsonLdBlocks,
+  findProduct,
+  mainRegion,
+  titleOf,
+  tidy,
+} from "./fetch/html.js";
+export { coverageGap, coverageNote, type Coverage } from "./fetch/coverage.js";
+
+// `fonts.ts` reads from disk and is deliberately not re-exported here: the
+// renderers are pure, and a surface that pulls node:fs into a browser bundle
+// by importing the index is a bad afternoon. `fetch/fetch.ts` is the network
+// and is exported, because a caller has to be able to reach it on purpose —
+// but nothing above it imports it, so the engine still runs with no network.
+
+// ------------------------------------------------------------------ rewrites
+
+export {
+  rewriteAll,
+  rewriteMark,
+  contextAround,
+  type Rewrite,
+  type NoRewrite,
+  type MarkOutcome,
+  type RewriteRun,
+  type RewriteOptions,
+  type RewriteSource,
+} from "./rewrite/rewrite.js";
+export {
+  validateRewrite,
+  topicOverlap,
+  LENGTH_BAND,
+  MIN_TOPIC_OVERLAP,
+  TOPIC_CHECK_MIN_WORDS,
+  type Validation,
+  type RejectionCode,
+} from "./rewrite/validate.js";
+export {
+  evidenceIn,
+  fabricatedEvidence,
+  fabricationReason,
+  PLACEHOLDER,
+  type Evidence,
+} from "./rewrite/fabrication.js";
+export { mechanicalRewrite } from "./rewrite/deterministic.js";
+export {
+  anthropicDrafter,
+  apiKey,
+  SYSTEM,
+  DEFAULT_MODEL,
+  DEFAULT_CANDIDATES,
+  type Drafter,
+  type DraftRequest,
+  type AnthropicDrafterOptions,
+} from "./rewrite/model.js";
