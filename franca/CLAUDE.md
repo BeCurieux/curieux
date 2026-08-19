@@ -44,6 +44,22 @@ UI for a market that has none. The failure this prevents is the one that ends
 the company: a brand selects a market we never wrote, scores 100 on silence,
 and puts a badge on it.
 
+**A page with no copy is the same failure, and it has already happened.** A
+kill-test run whose fetches were all refused by the network wrote thirty empty
+copy files, scanned them, and rendered thirty `Claims Verified · 100/100` marks
+for thirty named brands — because empty copy has nothing to deduct for, and 100
+is `clear`. Three things hold that shut, and none of them is optional:
+
+- `mayDisplayBadge` is the **single** badge gate. Every surface calls it, never
+  `badgeEligible`, and it refuses `readChars === 0`. Two functions answering
+  "may this display a mark" is one more than can be kept in agreement.
+- `fetchCopy` reports `retrieved` alongside `thin`. A JS shell that answered 200
+  and a request the network refused are both an empty string, and only one of
+  them was read. Anything that writes a file from a fetch checks `retrieved`.
+- The floor is **empty, not short**. A one-line product description with no
+  claims the lexicon recognises is exactly the brand the mark is for; a guard
+  that refuses it is worse than the bug. `tests/badge.test.ts` pins both sides.
+
 ## The guardrails, from BRIEF.md §9 — non-negotiable
 
 - The disclaimer rides on `ScanResult`, not on each surface remembering it.

@@ -192,10 +192,28 @@ export function badgeTextFits(options: BadgeOptions): boolean {
 /**
  * Whether this result may display a mark at all.
  *
- * Re-exported here rather than left to each caller to remember, because the
- * one place this product must not be lenient is between a scan and a public
- * claim about that scan.
+ * The single gate. Every surface asks this rather than `badgeEligible`,
+ * because the one place this product must not be lenient is between a scan
+ * and a public claim about that scan, and two functions answering that
+ * question is one more than can be kept in agreement.
+ *
+ * Two conditions, and the second one is not obvious:
+ *
+ *   1. A clear reading in every market checked — `badgeEligible`.
+ *   2. **There was copy to read.** Empty copy scores 100 — there is nothing to
+ *      deduct for — and 100 is `clear`. Thirty pages that failed to download
+ *      once produced thirty `Claims Verified · 100/100` marks and a ledger
+ *      saying every brand was clean. That is law 3's failure — a page scoring
+ *      100 on silence — arriving through the fetcher rather than through a
+ *      missing pack, and this is the last thing standing between silence and
+ *      a mark on somebody's storefront.
+ *
+ * The floor is deliberately zero rather than a minimum length. "You cannot
+ * certify a blank page" costs no legitimate case. Anything stricter — refusing
+ * a one-line product description — is a product decision, and it belongs to
+ * whoever owns the mark, not to this function.
  */
 export function mayDisplayBadge(result: ScanResult): boolean {
+  if (result.readChars === 0) return false;
   return badgeEligible(result.score);
 }

@@ -115,6 +115,16 @@ async function collect(targets: Target[], own: boolean, markets: Jurisdiction[])
     if (existsSync(copyPath)) continue;
     try {
       const fetched = await fetchCopy(target.url, { own, contact });
+      // Nothing was read — the request timed out, was refused, or 404'd. Write
+      // no file. An empty copy file is worse than none: its existence makes
+      // every later `--fetch` skip this target, and empty copy scans as
+      // 100/100 clear. Thirty unreachable stores once produced thirty clean
+      // ledger rows this way.
+      if (!fetched.retrieved) {
+        const why = fetched.trace.findLast((a) => a.rung === "page")?.outcome ?? "nothing came back";
+        console.log(`  skipped ${target.slug.padEnd(20)} ${why}`);
+        continue;
+      }
       writeFileSync(copyPath, `${fetched.text}\n`);
       appendFileSync(
         FETCH_LOG,
@@ -199,6 +209,24 @@ async function main() {
       source: { kind: "url", reference: target.url },
       jurisdictions: markets,
     });
+
+    // An empty file is a file nobody read — a failed fetch saved by an older
+    // version of this script, or a paste that lost its body. It scores 100
+    // because there was nothing to deduct for, and a ledger row reading 100
+    // for a page nobody read is the one number in this file that must never
+    // be wrong. Note the floor is empty, not thin: a page really can be short.
+    if (result.readChars === 0) {
+      missing.push(`${target.slug}  ${target.url}  (${copyPath} is empty)`);
+      scans.push({
+        slug: target.slug,
+        why: target.why,
+        score: null,
+        marks: null,
+        badge: null,
+        wordmark: target.wordmark ?? WORDMARK,
+      });
+      continue;
+    }
     const { marks } = annotate(text, result.findings);
     const base = join(OUT, target.slug);
 

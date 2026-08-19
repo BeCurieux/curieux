@@ -49,6 +49,16 @@ export type FetchedCopy = {
   /** Too little text to be a real page — usually a JS shell or a redirect. */
   thin: boolean;
   /**
+   * Did any rung come back with markup at all?
+   *
+   * Distinct from `thin`, and the distinction is the whole point. A JS shell
+   * answers 200 with nothing useful in it: retrieved, thin, and a fact worth
+   * reporting. A page that timed out, was refused by the network, or 404'd
+   * gives the same empty string — but nothing was read, and calling that a
+   * fetch is how thirty unreachable stores became thirty clean scores.
+   */
+  retrieved: boolean;
+  /**
    * Characters the page holds that the chosen source did not.
    */
   unseenPageChars: number;
@@ -286,6 +296,7 @@ export async function fetchCopy(pageUrl: string, options: FetchOptions = {}): Pr
       via: "whole-page",
       trace,
       thin: true,
+      retrieved: false,
       unseenPageChars: 0,
       pageText,
     };
@@ -308,6 +319,7 @@ export async function fetchCopy(pageUrl: string, options: FetchOptions = {}): Pr
     via: extracted.via,
     trace,
     thin: extracted.text.length < THIN_TEXT,
+    retrieved: true,
     unseenPageChars,
     pageText,
   };
