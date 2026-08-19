@@ -15,6 +15,7 @@ import { BlockView } from "./blocks";
 import { Badge } from "./Badge";
 import { BrokenImagery } from "./BrokenImagery";
 import { Funnel } from "./Funnel";
+import { isReachable } from "@/lib/render/reachable";
 
 export interface ShopProps {
   config: ShopConfig;
@@ -136,7 +137,11 @@ export function Shop({
         */}
         <footer className="colophon">
           <span>{config.brand.name}</span>
-          <a href={config.brand.storeUrl}>Visit the full store →</a>
+          {/* Offered only when there is a store to visit. The demo brands are on
+              reserved names that cannot resolve, so this would be an invitation
+              to a 404 from the one line of the page that speaks for the
+              merchant. */}
+          {isReachable(config.brand.storeUrl) && <a href={config.brand.storeUrl}>Visit the full store →</a>}
           {ingestedAt && (
             <span className="asof">
               Prices and availability as of{" "}
