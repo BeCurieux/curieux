@@ -3,9 +3,10 @@
 Read BRIEF.md before doing anything. This file is the short version that must
 never be violated.
 
-The product is **Franca** (chosen 2026-08-18, §11 item 1). The directory is
-still `assay/` — renaming it moves every path filter in CI and would bury a
-review under a rename, so it is a separate commit after PR #31 lands.
+The product is **Franca** (chosen 2026-08-18, §11 item 1), and so is the
+directory. It was `assay/` while the name was open; the rename landed on its
+own after #31, so the review of the product and the review of a rename never
+had to happen in the same diff.
 
 ## North star
 
