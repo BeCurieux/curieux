@@ -1,0 +1,98 @@
+# Does Subscribundle still lint, typecheck, migrate and pass its tests?
+#
+# Scoped to subscribundle/, like the other workflows here: each product in this
+# repository decides its own checks.
+#
+# No secrets. Postgres runs as a service container so the checked-in
+# migrations are applied to a real database on every run, and the schema is
+# diffed against them — a model changed without a migration fails here. The
+# Playwright smoke test boots the built server with placeholder Shopify
+# credentials; flows against a development store come later (M10).
+
+name: subscribundle
+
+on:
+  push:
+    paths:
+      - "subscribundle/**"
+      - ".github/workflows/subscribundle.yml"
+  pull_request:
+    paths:
+      - "subscribundle/**"
+      - ".github/workflows/subscribundle.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: subscribundle-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: subscribundle
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: subscribundle
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/subscribundle
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/subscribundle
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: subscribundle/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Schema matches migrations
+        run: >-
+          npx prisma migrate diff
+          --from-schema-datasource db/schema.prisma
+          --to-schema-datamodel db/schema.prisma
+          --exit-code
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end smoke
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: subscribundle/test-results/
+          retention-days: 7
