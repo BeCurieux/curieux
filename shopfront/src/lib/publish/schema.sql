@@ -517,3 +517,71 @@ where gv.dimension not in ('margin_band', 'style_register')
   and (gv.provenance in ('human_reviewed', 'merchant_declared', 'deterministic_rule') or gv.confidence >= 0.8)
   and (gv.evidence_state is null or gv.evidence_state = 'evidenced')
   and (gv.layer = 'global' or gv.comparison_scope is null or gv.comparison_scope = 'global_reference' or gv.comparison_n >= 10);
+
+-- ============================================================ POPs (v5 M2)
+--
+-- A POP is a standing merchandising instruction: a merchant's sentence, the
+-- brief it was settled into, and the rules it must keep. It publishes as an
+-- ordinary shop (`shops`, `shop_versions`), so the renderer and the funnel
+-- serve it unchanged. These tables hold what a shop row cannot: the brief,
+-- and why each product is on the page (HANDOFF §5, §7).
+--
+-- Opened on the owner's call (2026-09-26) as M2's engine. Service role only,
+-- like every table here that holds a merchant's words.
+
+create table if not exists public.pops (
+  id                uuid primary key default gen_random_uuid(),
+  shop_slug         text not null unique references public.shops(slug) on delete cascade,
+  sentence          text not null,
+  -- The brief as the merchant confirmed it: who, why, goal, rules, targets.
+  brief             jsonb not null,
+  status            text not null default 'live' check (status in ('draft', 'live', 'paused', 'ended')),
+  locked_handles    text[] not null default '{}',
+  excluded_handles  text[] not null default '{}',
+  created_at        timestamptz not null default now(),
+  ended_at          timestamptz
+);
+
+-- One per published version, immutable: the brief it was generated from, the
+-- ranked shortlist the model saw, what the filter excluded and why, and any
+-- repair the guard made. Enough to answer "why is this on the page?" for any
+-- version ever served.
+create table if not exists public.pop_versions (
+  id                    uuid primary key default gen_random_uuid(),
+  pop_id                uuid not null references public.pops(id) on delete cascade,
+  shop_version_id       uuid not null references public.shop_versions(id) on delete cascade,
+  version               integer not null,
+  brief                 jsonb not null,
+  shortlist             jsonb not null,
+  excluded              jsonb not null,
+  repairs               jsonb not null default '[]'::jsonb,
+  taxonomy_version      text not null,
+  brief_prompt_version  text,
+  created_at            timestamptz not null default now(),
+  unique (pop_id, version)
+);
+
+-- What POPUUP chose to show, per product per version (Genome rule 6: kept
+-- apart from whatever happened after). `is_exploration` is constrained to
+-- false: reserved exposure (D7) waits on its own ruling, and allowing it will
+-- take a migration that someone has to decide to write.
+create table if not exists public.pop_decisions (
+  id                bigint generated always as identity primary key,
+  pop_version_id    uuid not null references public.pop_versions(id) on delete cascade,
+  handle            text not null,
+  position          integer not null,
+  role              text not null check (role in ('hero', 'supporting', 'add_on')),
+  reason            text not null,
+  concepts          text[] not null default '{}',
+  score             numeric,
+  is_exploration    boolean not null default false check (is_exploration = false),
+  decision_source   text not null check (decision_source in ('engine', 'merchant_lock', 'maintenance_replacement')),
+  unique (pop_version_id, position)
+);
+
+create index if not exists pop_versions_pop_idx on public.pop_versions(pop_id);
+create index if not exists pop_decisions_version_idx on public.pop_decisions(pop_version_id);
+
+alter table public.pops          enable row level security;
+alter table public.pop_versions  enable row level security;
+alter table public.pop_decisions enable row level security;

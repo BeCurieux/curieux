@@ -747,6 +747,35 @@ src/lib/genome/v1/
 The labelling page is `/label/<token>`: blind, `noindex`, no JavaScript, and
 reached only by invite link. Operating it end to end is `RUNBOOK.md` §4.
 
+## POPs: the campaign-shop engine (v5, M2)
+
+A POP is a standing merchandising instruction: an audience, an objective and
+commercial rules, attached to a live catalogue. `src/lib/pop/` turns a sentence
+into one, and publishes it as an ordinary shop.
+
+```
+pnpm pop brief <store-url> "Make a Father's Day shop for dads who boat. Under $120." --out brief.json
+pnpm pop generate <store-url> --brief brief.json [--lock h1,h2] [--exclude h3] [--slug s]
+pnpm pop show <slug>
+```
+
+```
+sentence ─ parse.ts ─▶ brief (who, why, goal, rules, Genome targets)   ← the merchant checks and edits
+             price caps settled by pattern, not by the model; model-only rules refused until confirmed
+brief ─ filter.ts ─▶ candidates    buyable, under the cap per item (straddlers pinned to a variant under it)
+      ─ score.ts ──▶ shortlist     Genome v1 concept match × measured confidence, goal, locks; hand-set points
+      ─ merchandise() on a catalogue of *only* the shortlist ─▶ ShopConfig
+      ─ guard.ts ──▶ re-checked in code, repaired, repairs recorded
+      ─ decisions.ts ─▶ one row per product: position, role, why, concepts, source
+```
+
+The model can only choose from the shortlist because the shortlist is the
+entire catalogue it is given, not because a prompt asks it to. Rules the public
+path cannot check (margin floors, stock minimums, ship-by dates, basket totals)
+are refused, never ignored. Nothing here reads a shopper event. The embedded
+admin that will do this with chips needs the installed app (M0) and waits for
+the kill test.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront

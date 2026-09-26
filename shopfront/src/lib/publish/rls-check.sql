@@ -34,6 +34,8 @@ declare
   prod_id   uuid;
   item_id   uuid;
   lab_id    uuid;
+  pop_id    uuid;
+  pop_ver   uuid;
   tbl       text;
 begin
   -- ------------------------------------------------------------- probe rows
@@ -80,12 +82,23 @@ begin
   insert into public.gold_labels (item_id, labeller_id, dimension, labels, taxonomy_version)
   values (item_id, lab_id, 'gift_role', array['practical'], 'rls-probe-version');
 
+  -- A POP holds the merchant's sentence and brief, the same words
+  -- `shop_versions.prompt` is protected for.
+  insert into public.pops (shop_slug, sentence, brief)
+  values ('rls-probe-published', 'rls probe POP sentence', '{}'::jsonb)
+  returning id into pop_id;
+  insert into public.pop_versions (pop_id, shop_version_id, version, brief, shortlist, excluded, taxonomy_version)
+  values (pop_id, pub_ver, 1, '{}'::jsonb, '[]'::jsonb, '[]'::jsonb, 'rls-probe-version')
+  returning id into pop_ver;
+  insert into public.pop_decisions (pop_version_id, handle, position, role, reason, decision_source)
+  values (pop_ver, 'rls-probe-product', 1, 'hero', 'probe', 'engine');
+
   -- ------------------------------------------------------- read, as the public
   set local role anon;
 
   foreach tbl in array array['taxonomy_versions', 'taxonomy_values', 'price_band_references', 'products',
                              'genome_values', 'genome_values_eligible', 'taxonomy_gate', 'gold_items',
-                             'labellers', 'gold_labels', 'eval_runs'] loop
+                             'labellers', 'gold_labels', 'eval_runs', 'pops', 'pop_versions', 'pop_decisions'] loop
     execute format('select count(*) from public.%I', tbl) into n;
     if n <> 0 then
       raise exception 'anon can read public.% (% rows). Genome v1 tables are service-role only.', tbl, n;

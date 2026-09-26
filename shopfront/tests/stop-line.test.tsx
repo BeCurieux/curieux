@@ -290,10 +290,16 @@ describe("the kill-test line holds (v5, re-pointed)", () => {
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 
-  it("has no learned weights, experiments or scoring — the drawer stays shut", async () => {
+  it("has no learned weights, experiments or outcome-driven scoring — the drawer stays shut", async () => {
     // PULSE. The funnel logs faithfully and nothing reads it back into a
     // decision; a column or a constant shaped for one would be the whole rule
     // broken quietly.
+    //
+    // Renamed with v5's M2 (2026-09-26), not narrowed: the POP engine ranks
+    // candidates with hand-set points on Genome concepts (`lib/pop/score.ts`),
+    // which the handoff requires and the owner opened. That is scoring from
+    // the catalogue and the brief. What this check and the one below it hold
+    // shut is scoring from outcomes: a learned weight, an experiment, a bandit.
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
       /\bexperiment\b|\bvariant_?group|\bab_?test|\bbandit\b|\bweights?\s*[:=]\s*[[{]|\bpulse\b/i.test(code(text)),
@@ -313,9 +319,33 @@ describe("the kill-test line holds (v5, re-pointed)", () => {
     expect(genome.some(({ file }) => file.startsWith("lib/genome/v1/"))).toBe(true);
 
     const offenders = genome.filter(
-      ({ text }) => /from\s+["']@?[\w/.-]*funnel/i.test(text) || /\bshop_events\b|\battributed_orders\b/.test(code(text)),
+      ({ text }) => /(?:from|import)\s*\(?\s*["']@?[\w/.-]*funnel/i.test(text) || /\bshop_events\b|\battributed_orders\b/.test(code(text)),
     );
     expect(offenders.map((o) => o.file)).toEqual([]);
+  });
+
+  /*
+   * **M2's engine, opened on the owner's call (2026-09-26); its admin UI was
+   * not.** `lib/pop` is the POP engine and runs from the command line. Two
+   * things stay shut, and these are them:
+   *
+   *   1. It ranks from the catalogue and the brief, never from outcomes. No
+   *      funnel import, no events table, no orders.
+   *   2. No route serves it. The embedded admin needs the installed app,
+   *      which is M0, which is behind the kill test.
+   */
+  it("ranks a POP from the catalogue and the brief, and serves it from no route", async () => {
+    const files = await sourceFiles();
+    const pop = files.filter(({ file }) => file.startsWith("lib/pop/"));
+    expect(pop.length).toBeGreaterThan(0);
+
+    const reads = pop.filter(
+      ({ text }) => /(?:from|import)\s*\(?\s*["']@?[\w/.-]*(funnel|shopify)/i.test(text) || /\bshop_events\b|\battributed_orders\b|\bread_orders\b/.test(code(text)),
+    );
+    expect(reads.map((o) => o.file)).toEqual([]);
+
+    const routed = files.filter(({ file, text }) => file.startsWith("app/") && /lib\/pop\b|@\/lib\/pop/.test(text));
+    expect(routed.map((o) => o.file)).toEqual([]);
   });
 
   it("refreshes a shop against stock, never against what anybody clicked", async () => {
@@ -331,7 +361,8 @@ describe("the kill-test line holds (v5, re-pointed)", () => {
     const smart = files.filter(({ file }) => file.startsWith("lib/smart/"));
     expect(smart.length).toBeGreaterThan(0);
 
-    const offenders = smart.filter(({ text }) => /from\s+["']@?[\w/.-]*funnel/i.test(text));
+    // `import "…"` and `import("…")` too, not only `from "…"`.
+    const offenders = smart.filter(({ text }) => /(?:from|import)\s*\(?\s*["']@?[\w/.-]*funnel/i.test(text));
     expect(offenders.map((o) => o.file)).toEqual([]);
   });
 });

@@ -21,6 +21,7 @@
     "test:visual": "vitest run --config vitest.visual.config.ts",
     "merchandise": "tsx --env-file-if-exists=.env.local scripts/merchandise.ts",
     "generate": "tsx --env-file-if-exists=.env.local scripts/generate.ts",
+    "pop": "tsx --env-file-if-exists=.env.local scripts/pop.ts",
     "refresh": "tsx --env-file-if-exists=.env.local scripts/refresh.ts",
     "funnel": "tsx --env-file-if-exists=.env.local scripts/funnel.ts",
     "killtest": "tsx --env-file-if-exists=.env.local scripts/killtest.ts",

@@ -311,7 +311,8 @@ with shops still serving (observed by loading the page).
   storefronts (egress is registries and the Anthropic API only; see
   `fixtures/README.md`), so `pnpm genome:goldset` runs on a machine that
   can. The one-store cost run used the committed `bench-and-bolt` fixture.
-- **Open: the gate and M2 depend on each other.** A campaign POP needs the
+- **Resolved (owner, 2026-09-26): M2's engine is open, its admin UI is not.**
+  Was: the gate and M2 depend on each other. A campaign POP needs the
   v5 engine: parsing "under $120" into a hard per-item rule, filtering in
   code, then assembling from candidates. The existing merchandiser takes a
   prompt, but it does not enforce rules outside the model. The proposal is
@@ -372,3 +373,37 @@ a set?). The work gloves were `accessory` 3/5. Every tool was
 `fathers_day`, which is what a merchandiser would say, and exactly the
 occasion-fit judgement the labellers are there to check. Nothing here is a
 verdict. It is 10 products from one dev store.
+
+## 6. M2: the engine, opened (2026-09-26)
+
+Built as proposed: `src/lib/pop/` and `pnpm pop` (see the README). The first
+real run was on the dev-store fixture, with the Genome v1 values from §5, the
+brief read by Sonnet 5 and the shop assembled by Opus 5. "Make a Father's Day
+shop for dads who boat. Under $120." gave:
+
+- **Filter:** 4 of 10 products passed. 4 had no variant at or under $120 and
+  2 were sold out, including the $79.99 angle grinder.
+- **Published:** 3 products, all under $120 and in stock. The hero is the
+  socket set (Father's Day 5/5, men 5/5, practical 5/5). The $119.99 laser
+  level was shortlisted and left out by the model.
+- **Nothing matched `use_context:water_coastal`.** It is a hardware store.
+  The engine ranked on what did match, and did not pretend.
+
+Two things for the owner, both in the existing merchandiser rather than new
+code, and both what a sceptical merchant would catch:
+
+1. **The copy leaned into the brief harder than the products do.** "Grip for
+   wet lines" and "covers engine, trailer and deck hardware" are about boating;
+   the listings are not. That is a claim about use the catalogue does not make.
+   Tightening the merchandiser's copy rule to what the listing supports is the
+   fix, and the demo acceptance test ("a merchandiser would agree") is where it
+   would be caught.
+2. **Sale items show their pre-sale price struck through.** The socket set
+   reads "~~$129.99~~ $89.99" on an "under $120" page. The shopper pays $89.99,
+   so the rule holds (D4 is about what the item costs), but a struck-through
+   $129.99 on that page may read as a broken promise. Say which it should be.
+
+The brief parser also offered concepts the sentence does not state
+(`seasonality:warm_weather`, `style_register:functional, casual`). That is
+what the confirm-and-edit step is for, but the parser's instruction can be
+stricter.

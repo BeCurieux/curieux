@@ -30,6 +30,7 @@ const ADAPTERS = [
   "src/lib/funnel/store.ts",
   "src/lib/earlyaccess/store.ts",
   "src/lib/genome/v1/store-supabase.ts",
+  "src/lib/pop/store-supabase.ts",
 ] as const;
 
 const schema = parseSqlSchema(SCHEMA);
@@ -88,6 +89,9 @@ describe("the schema parse itself", () => {
       "gold_items",
       "gold_labels",
       "labellers",
+      "pop_decisions",
+      "pop_versions",
+      "pops",
       "price_band_references",
       "products",
       "shop_events",
