@@ -322,3 +322,53 @@ with shops still serving (observed by loading the page).
   for the bio-shop test. Re-screening them for founder-led $1–20M brands
   belongs with the POP engine (M2). A campaign POP to send cannot exist before
   M2 anyway.
+
+## 5. M1: the one-store cost run (2026-09-26)
+
+`pnpm genome:classify bench-and-bolt.myshopify.com --provider anthropic --mode batch`
+ran on the committed dev-store fixture. Storefronts are unreachable from the
+build container, so the fixture was the only real catalogue available. That
+is 10 products × 5 runs = 50 requests, Claude Sonnet 5 at low effort, one
+400px image per product, by the Batches API. It finished in 3 minutes with no
+failed runs.
+
+| | Tokens |
+|---|---:|
+| Input, uncached | 20,145 |
+| Cache write | 153,088 |
+| Cache read | 13,312 |
+| Output (thinking included) | 4,979 |
+
+**Spent: US$0.24 ≈ A$0.37**, i.e. **US$0.024 ≈ A$0.037 per product at five
+runs.** The pre-flight estimate was US$0.39, pessimistic as intended. The
+M1 ledger stands at A$0.38 of A$100 (the smoke test included).
+
+**Per merchant, a 2,000-SKU catalogue at five runs:**
+
+| Basis | USD | AUD |
+|---|---:|---:|
+| As measured, by batch | 47.55 | 73.70 |
+| As measured, direct | 95.09 | 147.39 |
+| With the prompt cache doing its job, by batch (estimated) | ~12 | ~19 |
+
+The measured figure is the ceiling, not the expectation. The 3.3k-token
+taxonomy prompt was **written to the cache 46 times and read only 4 times**,
+because a batch's requests run in parallel and mostly miss each other's
+writes. Cache writes cost 1.25× input and were 80% of the bill. At catalogue
+scale, most requests should read the cached prompt at 0.1× input instead.
+The estimated row assumes that (~3.3k cached, ~400 uncached and ~100 output
+tokens per request, at batch price). Measure it on the first 2,000-SKU store
+rather than trusting either row. If the cache still misses, submitting one
+request ahead of the batch to warm it is the lever.
+
+**The gold set costs little against the cap.** ~200 items × 5 runs at the
+measured rate is ≈ US$4.80 ≈ A$7.40. That leaves room to re-run it after a
+definition is tightened, which the gate will likely ask for at least once.
+
+**The classifications on this catalogue** (hand tools and workwear) look
+plausible, and the disagreements fall where the gate should look. The drill
+was `set_bundle` 3/5 (it ships with batteries, a charger and a case, so is it
+a set?). The work gloves were `accessory` 3/5. Every tool was
+`fathers_day`, which is what a merchandiser would say, and exactly the
+occasion-fit judgement the labellers are there to check. Nothing here is a
+verdict. It is 10 products from one dev store.
