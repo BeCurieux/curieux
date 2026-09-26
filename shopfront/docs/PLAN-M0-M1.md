@@ -282,17 +282,43 @@ with shops still serving (observed by loading the page).
 
 ---
 
-## 4. Decisions needed from the owner
+## 4. Rulings (owner, 2026-09-26)
 
-1. **Brief v5 replaces v3, and the kill-test gate is waived?** (C1, C2) If not,
-   only M1 proceeds.
-2. **The drawer (C7):** agree that M1–M2 build no reader of events, and that D7
-   exploration needs a separate ruling at M2?
-3. **Scopes (C9):** `read_orders` deferred to M3, with `inventory_depth` on the
-   "units vs min" fallback until then?
-4. **Genome cost (D6):** approve a budget for 5 runs × gold set, after seeing
-   the one-store estimate.
-5. **Labellers:** who the two merchandisers are, since the agreement gate
-   depends on them.
+1. **Brief v5 replaces v3 as the product thesis. The kill-test gate is not
+   waived; it is re-pointed at v5.** The mechanics are unchanged: 30 brands, a
+   shop generated from public catalogue data, proceed at 5+/30 wanting it live.
+   The artefact becomes a campaign POP and the audience founder-led $1–20M
+   brands. `CLAUDE.md` and `tests/stop-line.test.tsx` were updated for v5 with
+   the gate intact. **M1 starts now.** M0 (§3) waits on the gate, so the M0.1
+   "contract commit" above becomes the commit that opens the gate after the
+   v5 kill test passes.
+2. **M1 and M2 build nothing that reads shopper events.** Exploration (D7)
+   gets its own ruling at M2. Enforced by a stop-line check on `lib/genome/`.
+3. **Order access waits until M3.** `inventory_depth` compares stock to the
+   merchant's minimum until then.
+4. **Up to A$100 is approved for gold-set classification in M1.** The one-store
+   run also reports the per-merchant cost for a 2,000-SKU catalogue at 5 runs.
+   The cap is a ledger the classifier checks before it submits anything.
+5. **The labellers are two external merchandisers, not the owner,** labelling
+   from the spec only. The labelling UI works without repo access: invite
+   links to a deployed page, blind to the model and to each other.
 
-Everything in the handoff's own "open questions" keeps its stated default.
+### Consequences for the plan above
+
+- M1.7 uses **invite links** (a random token, stored hashed) instead of
+  Supabase Auth. An external merchandiser gets a URL, not an account.
+- The **gold set** needs ≥8 public stores. This build container cannot reach
+  storefronts (egress is registries and the Anthropic API only; see
+  `fixtures/README.md`), so `pnpm genome:goldset` runs on a machine that
+  can. The one-store cost run used the committed `bench-and-bolt` fixture.
+- **Open: the gate and M2 depend on each other.** A campaign POP needs the
+  v5 engine: parsing "under $120" into a hard per-item rule, filtering in
+  code, then assembling from candidates. The existing merchandiser takes a
+  prompt, but it does not enforce rules outside the model. The proposal is
+  to open M2's **public-path engine** (parse, filter, score, assemble,
+  validate, decision log, as a CLI like `pnpm generate`) before the test, and
+  keep its **embedded admin UI** behind the gate with M0. That needs a ruling.
+- **The kill-test candidate lists** (`killtest/candidates*.txt`) were chosen
+  for the bio-shop test. Re-screening them for founder-led $1–20M brands
+  belongs with the POP engine (M2). A campaign POP to send cannot exist before
+  M2 anyway.

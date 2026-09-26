@@ -24,6 +24,8 @@ export const RESERVED_SLUGS = new Set([
   // Routes that exist, or obviously will.
   "api", "preview", "admin", "dashboard", "settings", "account", "login", "logout",
   "signup", "signin", "register", "onboarding", "new", "edit", "billing", "upgrade",
+  // The Genome labelling page (v5 M1).
+  "label", "labels", "internal",
   // The product and the company.
   "popuup", "app", "www", "shop", "shops", "store", "stores", "creator", "creators",
   // Marketing pages any product this shape ends up with.

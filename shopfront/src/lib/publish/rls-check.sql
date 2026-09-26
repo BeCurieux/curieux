@@ -31,6 +31,10 @@ declare
   draft_ver uuid;
   n         bigint;
   txt       text;
+  prod_id   uuid;
+  item_id   uuid;
+  lab_id    uuid;
+  tbl       text;
 begin
   -- ------------------------------------------------------------- probe rows
   insert into public.stores (store_url, catalogue, genome, ingested_at)
@@ -60,8 +64,33 @@ begin
   insert into public.early_access (name, email, store, brief)
   values ('RLS Probe', 'probe@rls-probe.invalid', 'rls-probe.invalid', 'seeded by rls-check');
 
+  -- Genome v1 and the labelling tables. A labeller's token hash and a
+  -- merchant's product classifications are nobody's public business.
+  insert into public.taxonomy_versions (version, status) values ('rls-probe-version', 'draft');
+  insert into public.products (store_id, handle, title, inputs_hash)
+  values (store_id, 'rls-probe-product', 'RLS probe product', 'probe')
+  returning id into prod_id;
+  insert into public.genome_values (product_id, store_id, dimension, value, layer, taxonomy_version, provenance, derived_at, inputs_hash)
+  values (prod_id, store_id, 'gift_role', 'practical', 'global', 'rls-probe-version', 'taxonomy_model', now(), 'probe');
+  insert into public.gold_items (gold_set, store_url, handle, snapshot)
+  values ('rls-probe', 'https://rls-probe.invalid', 'rls-probe-product', '{}'::jsonb)
+  returning id into item_id;
+  insert into public.labellers (name, token_hash) values ('RLS Probe', 'rls-probe-token-hash')
+  returning id into lab_id;
+  insert into public.gold_labels (item_id, labeller_id, dimension, labels, taxonomy_version)
+  values (item_id, lab_id, 'gift_role', array['practical'], 'rls-probe-version');
+
   -- ------------------------------------------------------- read, as the public
   set local role anon;
+
+  foreach tbl in array array['taxonomy_versions', 'taxonomy_values', 'price_band_references', 'products',
+                             'genome_values', 'genome_values_eligible', 'taxonomy_gate', 'gold_items',
+                             'labellers', 'gold_labels', 'eval_runs'] loop
+    execute format('select count(*) from public.%I', tbl) into n;
+    if n <> 0 then
+      raise exception 'anon can read public.% (% rows). Genome v1 tables are service-role only.', tbl, n;
+    end if;
+  end loop;
 
   -- The Genome. This is the assertion the file exists for.
   select count(*) into n from public.stores;
@@ -172,6 +201,16 @@ begin
     insert into public.early_access (name, email, store)
     values ('Forged', 'forged@rls-probe.invalid', 'rls-probe.invalid');
     raise exception 'anon can write to early_access directly.';
+  exception
+    when insufficient_privilege then null;
+  end;
+
+  -- The labelling page writes through a server route that checks the invite
+  -- token. A direct insert would let anyone put words in a labeller's mouth.
+  begin
+    insert into public.gold_labels (item_id, labeller_id, dimension, labels, taxonomy_version)
+    values (item_id, lab_id, 'gift_role', array['novelty'], 'forged');
+    raise exception 'anon can write a gold label directly.';
   exception
     when insufficient_privilege then null;
   end;

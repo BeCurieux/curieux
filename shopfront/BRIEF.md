@@ -1,5 +1,7 @@
 # POPUUP — Founding Brief v3
 
+> **Superseded as the product thesis by Brief v5 (owner's call, 2026-09-26).** v5 is campaign shops (POPs) for founder-led $1–20M Shopify brands, built on a taxonomy Genome. Its build handoff is `docs/HANDOFF.md`. The full v5 brief has not been exported into the repo yet, so HANDOFF §1 is the summary of record. This file is kept for history. **Its kill test (below) was re-pointed, not dropped:** same mechanics and the same 5-of-30 threshold, but the artefact is a campaign POP and the audience is founder-led $1–20M brands. See the top of `CLAUDE.md`.
+
 **Company thesis:** Make a shop in a sentence.
 **First wedge:** Turn your bio into a shop.
 **Internal north star:** There is no page builder. The prompt is the builder.

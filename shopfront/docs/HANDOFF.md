@@ -1,10 +1,6 @@
 # POPUUP — Build Handoff for Claude Code
 
-> **Status in this repo (added on commit, 2026-09-26):** received, **not yet adopted**.
-> Several decisions below contradict `CLAUDE.md` and the checks in
-> `tests/stop-line.test.tsx`. Until the owner rules on them, `CLAUDE.md` still
-> wins. The reconciliation and the decisions needed are in
-> [`PLAN-M0-M1.md`](./PLAN-M0-M1.md). The text below is the handoff exactly as it arrived.
+> **Status in this repo: adopted as the v5 thesis (owner's call, 2026-09-26), with the kill-test gate re-pointed rather than waived.** M1 is open. M0 and M2–M4 wait on the v5 kill test. Where this file and `CLAUDE.md` disagree, `CLAUDE.md` records the ruling. The rulings, and every conflict they settled, are in [`PLAN-M0-M1.md`](./PLAN-M0-M1.md) §4. The text below is the handoff exactly as it arrived.
 
 > **How to use this file:** put it in the repo root (or `docs/`) and reference it from `CLAUDE.md`. Start Claude Code in plan mode and ask it to produce an implementation plan for Milestone 0–1 from this file before writing code. Full context lives in two companion docs (export them as markdown into `docs/` if you want them in the repo): *POPUUP — Product Brief v5* and *POPUUP — Genome v1 Specification*. Where this file and those docs conflict, this file wins for build decisions.
 

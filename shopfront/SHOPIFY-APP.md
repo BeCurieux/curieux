@@ -182,6 +182,8 @@ that a permalink survives it.
 
 ### 3.1 Reuse `stores`, `shops`, `shop_versions`. Do not add a product cache.
 
+> **Amended for v5 (2026-09-26).** Genome v1 added a thin `products` table: id, store, handle, title, parent category, `inputs_hash`. Taxonomy values need one row per value keyed to a product, and reclassification needs a per-product hash. It is not a mirror of the Admin API. The catalogue itself still lives in `stores.catalogue`, and the argument below still holds for everything but those columns.
+
 The instinct is a normalised `shopify_products` / `shopify_variants` cache
 mirroring the Admin API. That is the wrong shape here, for one reason: **nothing
 in this system reads products relationally.** The renderer resolves by handle

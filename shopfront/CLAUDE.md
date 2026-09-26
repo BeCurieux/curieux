@@ -2,7 +2,18 @@
 
 Read BRIEF.md before doing anything. This file is the short version that must never be violated.
 
-**Pending: a proposed Brief v5 (2026-09-26).** `docs/HANDOFF.md` proposes an embedded Shopify app for campaign shops with a taxonomy Genome. `docs/PLAN-M0-M1.md` sets it against this file conflict by conflict. It is **not adopted**: until the owner rules on the decisions listed at the end of that plan, every rule below still holds, and the checks in `tests/stop-line.test.tsx` still enforce them.
+## Brief v5 is the thesis now; the gate is re-pointed, not waived (owner's call, 2026-09-26)
+
+`docs/HANDOFF.md` is the v5 build handoff: POPUUP becomes a Shopify app that turns a one-sentence brief into a **campaign shop** (a POP) for a founder-led **$1–20M** Shopify brand, built on a fixed, versioned taxonomy Genome. `BRIEF.md` (v3, the bio shop) stays in the repo for history and is no longer the thesis. `docs/PLAN-M0-M1.md` records every place v5 disagreed with this file and how each one was ruled on.
+
+The rulings, which this file now enforces:
+
+1. **The kill test is re-pointed at v5, not waived.** The mechanics are the same: 30 brands, a shop generated from each one's public catalogue data, and **proceed at 5+ of 30 actively wanting it live**. What changes is the artefact and the audience: a **campaign POP** (e.g. a Father's Day shop) sent to 30 **founder-led $1–20M brands**. Everything the gate held before, it still holds: OAuth and the embedded app (M0), billing, email capture, word-editing and TikTok input. **Open question:** the test needs a campaign POP, which needs at least the public-path half of M2 (see step 7 below).
+2. **M1, the Genome v1 taxonomy, is open now.** The campaign POP the re-pointed kill test sends cannot be made without it, so it has to exist before the test can run. It runs on the credential-free public path and needs no install. What opened is listed in "The things opened early" §4.
+3. **Nothing in M1 or M2 reads shopper events.** The Genome's behavioural layer (evidence states, exploration, D7) may be *stored* as `unobserved` and nothing more. Exploration gets its own ruling at M2. The drawer below is unchanged.
+4. **Order access waits until M3.** `inventory_depth` compares stock to the merchant's minimum until then. `margin_band` is `unknown` wherever cost data is absent, which on the public path is everywhere.
+5. **Genome classification spend is capped at A$100 for M1** and enforced by a ledger (`.cache/genome-v1/spend.json`), not remembered.
+6. **Billing, when it opens, is Shopify's** (App Pricing or the Billing API; App Store requirement 1.2). Stripe is no longer in the stack for merchant billing. The stop-line check against any payment code stays until the gate opens.
 
 ## North star
 
@@ -23,7 +34,7 @@ Underlying direction (architecture, not launch pitch): don't tell us what page t
 
 ## Stack (fixed)
 
-Next.js (App Router) · TypeScript · Supabase · Stripe · Anthropic API · Vercel. Playwright for any scraping that `/products.json` can't cover. No other services without asking.
+Next.js (App Router) · TypeScript · Supabase · Anthropic API · Vercel · (Shopify App Pricing / Billing API once the gate opens — not Stripe, per v5). Playwright for any scraping that `/products.json` can't cover. No other services without asking.
 
 **Asked and added: Resend, for one email, on the owner's call (2026-08-19).** `/contact` wrote a row and told nobody, which is a complete record and a useless workflow — a contact form nobody watches loses the merchants it exists to catch. It sends one plain-text message to `INBOX` when a row is written, with the merchant's own address as reply-to.
 
@@ -37,7 +48,7 @@ The boundary: **the row is the system of record and the email is a convenience o
 4. **Renderer** — one gorgeous template consuming `ShopConfig`. This is where the taste budget goes. Must flatter mediocre product photography. Read the frontend-design skill before building it.
 5. **Publish** — Supabase persistence, public URL per shop, badge on free tier, Vercel.
 6. **Provenance + funnel** — every shop persists its prompt, stated audience, and the `ShopConfig` decisions; sessions record view → product click → checkout start, keyed to the shop version that served them. Checkout = Shopify cart permalink, pre-filled. Never build on-page checkout.
-7. **Stop.** OAuth sync, email capture, billing, word-editing and TikTok-URL input are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live).
+7. **Stop.** OAuth sync, email capture, billing, word-editing and TikTok-URL input are Sprint 3, gated on the kill-test result (5+ of 30 merchants wanting their shop live). *Since 2026-09-26 this is the v5 kill test: campaign POPs sent to founder-led $1–20M brands (see the top of this file). v5's M0, M3 and M4 sit behind it; M1 does not (§4 below). **M2 is unresolved.** Its engine (parse → hard filter → score → assemble → validate) is what makes the campaign POP the test sends, so the test cannot run without some of it. Its embedded admin UI needs OAuth and cannot come first. Which parts of M2 open before the test is the owner's call and has not been made. Until it is, M2 stays shut.*
 
 ### The things opened early
 
@@ -54,6 +65,10 @@ What did **not** open, and is what the narrowed checks now hold: no OAuth endpoi
 What opened: `/contact`, a real form posting to a real route, writing to `public.early_access` — the only table in the schema holding personal data, service-role only, no policy, no unique constraint on email, and no consent or marketing columns. It replaces a `mailto:` link that was honest and was costing real merchants an empty draft to compose themselves. A failed write returns 503 and the form says so and shows the address to email instead; it never renders "thanks" unless a row exists.
 
 What did **not** open, and is now its own check: **no generated shop collects anything from a shopper.** The `capture` block still renders empty, is still absent from `SPRINT_1_BLOCK_TYPES`, and nothing under `components/shop/` or `lib/render/` may grow a form. This is not a technicality. A merchant typing their own address into our form knows exactly who they are writing to; a shopper handing an address to a shop is a different person consenting to a different thing, needing a lawful basis, a double opt-in and an unsubscribe that none of this builds. A mailing list, a marketing column on that table, or capture rendered inside a shop means opening the gate again.
+
+**4. Genome v1 (v5's M1), on the owner's call (2026-09-26).** What opened is `src/lib/genome/v1/`: a fixed, versioned taxonomy (`genome_taxonomy_v1`), a per-product classifier that picks only permitted values over five runs, deterministic price/stock/margin dimensions, merchant overrides, the Genome tables in `schema.sql`, a gold-set sampler, an eval harness, and **an internal labelling UI** at `/label` for two external merchandisers. The labelling UI is the one new form: labellers reach it by invite link, not through the repository or a login. It stores labels about products and nothing about the people labelling except the name they were invited under.
+
+What did **not** open, and is held by `tests/stop-line.test.tsx`: nothing under `lib/genome/` reads the funnel or any shopper event; the labelling form lives under `app/label/` and `app/api/label/` and nowhere else; and v1 does not replace the Genome the merchandiser reads. The existing `CatalogueGenome` keeps feeding `lib/merchandise` until M2 compares the two on the same prompts. The model classifies from the product alone: never another merchant's data, never another product's. Pairings are merchant-declared only; a pairing the model suggests is never stored.
 
 **The boundary that came with the second, and it is not negotiable: `pnpm ingest` stays credential-free and first-class.** Reading a public `/products.json` with no credentials is what lets a shop be built for a merchant who has agreed to nothing, which is the entire kill-test motion and the entire sales motion. The app is an **upgrade path, not a replacement**: it maps into the ingester's own output type and depends on it one way, an installation that loses its token degrades to the public feed rather than going dark, and the dependency direction is a test rather than an intention.
 

@@ -29,6 +29,7 @@ const ADAPTERS = [
   "src/lib/publish/supabase.ts",
   "src/lib/funnel/store.ts",
   "src/lib/earlyaccess/store.ts",
+  "src/lib/genome/v1/store-supabase.ts",
 ] as const;
 
 const schema = parseSqlSchema(SCHEMA);
@@ -82,10 +83,20 @@ describe("the schema parse itself", () => {
   it("found the tables the schema declares", () => {
     expect([...schema.tables.keys()].sort()).toEqual([
       "early_access",
+      "eval_runs",
+      "genome_values",
+      "gold_items",
+      "gold_labels",
+      "labellers",
+      "price_band_references",
+      "products",
       "shop_events",
       "shop_versions",
       "shops",
       "stores",
+      "taxonomy_gate",
+      "taxonomy_values",
+      "taxonomy_versions",
     ]);
   });
 
@@ -95,8 +106,12 @@ describe("the schema parse itself", () => {
     expect(schema.tables.get("shops")).toContain("current_version_id");
     expect(schema.tables.get("shop_events")).toContain("variant_id");
     expect(schema.tables.get("early_access")).toContain("received_at");
+    expect(schema.tables.get("genome_values")).toContain("prompt_version");
+    expect(schema.tables.get("gold_labels")).toContain("labels");
+    // `taxonomy_versions` is genuinely three columns; anything under that is a
+    // parse that matched the wrong thing.
     for (const [table, columns] of schema.tables) {
-      expect(columns.size, `${table} parsed with ${columns.size} columns`).toBeGreaterThan(4);
+      expect(columns.size, `${table} parsed with ${columns.size} columns`).toBeGreaterThan(2);
     }
   });
 

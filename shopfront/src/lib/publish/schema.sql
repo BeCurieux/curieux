@@ -328,3 +328,192 @@ alter table public.early_access enable row level security;
 
 comment on table public.early_access is
   'Merchants asking for a shop. Service role only, no policy, no unique constraint on email. The one table here holding personal data.';
+
+-- ======================================================= genome v1 (v5 M1)
+--
+-- The Catalogue Genome taxonomy (docs/HANDOFF.md §5–§8), opened on the
+-- owner's call on 2026-09-26. CLAUDE.md records what opened and what did not.
+--
+-- The taxonomy and the price-band references are *seeded from code*
+-- (src/lib/genome/v1/taxonomy.ts, price-bands.ts) by `pnpm genome:seed`. The
+-- code is the source of truth and these rows are its published copy, so a
+-- query can join a value to its definition.
+--
+-- Every table here is service-role only: RLS on, no policy. Nothing in this
+-- block is readable by an anon key, the same posture as `stores`, whose
+-- `genome` column these tables will eventually replace.
+--
+-- Nothing here holds or reads a shopper event. Behavioural evidence states
+-- are columns so the data logged now is honest about what it is; nothing
+-- advances them until the owner rules on exploration at M2.
+
+create table if not exists public.taxonomy_versions (
+  version     text primary key,
+  status      text not null default 'active' check (status in ('draft', 'active', 'retired')),
+  created_at  timestamptz not null default now()
+);
+
+create table if not exists public.taxonomy_values (
+  version     text not null references public.taxonomy_versions(version),
+  dimension   text not null,
+  value       text not null,
+  -- 'gift_role:practical'. Never renamed in place; a change is a new version.
+  value_id    text not null,
+  layer       text not null check (layer in ('global', 'merchant_relative')),
+  label       text not null,
+  definition  text not null,
+  primary key (version, value_id)
+);
+
+create table if not exists public.price_band_references (
+  version          text not null references public.taxonomy_versions(version),
+  parent_category  text not null,
+  currency         text not null,
+  budget_max       numeric not null,
+  mid_max          numeric not null,
+  premium_max      numeric not null,
+  primary key (version, parent_category, currency)
+);
+
+-- A thin product row: just enough to hang Genome values off and to know when
+-- to reclassify. Not a mirror of the catalogue, which stays in
+-- `stores.catalogue` (SHOPIFY-APP.md §3.1, amended for v5).
+create table if not exists public.products (
+  id               uuid primary key default gen_random_uuid(),
+  store_id         uuid not null references public.stores(id) on delete cascade,
+  handle           text not null,
+  shopify_id       text,
+  title            text not null,
+  -- Classifier-supplied, for choosing price bands. Not a Genome dimension.
+  parent_category  text,
+  -- Hash of exactly what the classifier saw. A change means reclassify.
+  inputs_hash      text not null,
+  -- '<model>@<prompt_version>x<runs>' of the stored model values.
+  classified_with  text,
+  updated_at       timestamptz not null default now(),
+  unique (store_id, handle)
+);
+
+create index if not exists products_store_idx on public.products(store_id);
+
+-- One row per value (HANDOFF §6.2). Multi-label dimensions are several rows.
+-- `store_id` stands in for the spec's merchant_id until installations exist.
+create table if not exists public.genome_values (
+  id                bigint generated always as identity primary key,
+  product_id        uuid not null references public.products(id) on delete cascade,
+  store_id          uuid not null references public.stores(id) on delete cascade,
+  dimension         text not null,
+  value             text not null,
+  layer             text not null check (layer in ('global', 'merchant_relative')),
+  taxonomy_version  text not null references public.taxonomy_versions(version),
+  provenance        text not null check (provenance in ('taxonomy_model', 'deterministic_rule', 'merchant_declared', 'behaviour_inferred', 'human_reviewed')),
+  -- Measured: run agreement, or 1 for a rule or a declaration. Never a score
+  -- the model reported about itself. Null when the runs split.
+  confidence        numeric check (confidence is null or (confidence >= 0 and confidence <= 1)),
+  evidence_state    text check (evidence_state is null or evidence_state in ('unobserved', 'provisional', 'evidenced')),
+  raw_value         text,
+  comparison_scope  text check (comparison_scope is null or comparison_scope in ('product_type', 'store', 'global_reference')),
+  comparison_n      integer,
+  percentile        numeric,
+  derived_at        timestamptz not null,
+  inputs_hash       text not null,
+  run_agreement     text,
+  model             text,
+  prompt_version    text,
+  unique (product_id, dimension, value, taxonomy_version, provenance)
+);
+
+create index if not exists genome_values_store_idx on public.genome_values(store_id, dimension);
+create index if not exists genome_values_product_idx on public.genome_values(product_id);
+
+-- The agreement gate's verdict per dimension (HANDOFF §8), written by
+-- `pnpm genome:eval`. Cross-merchant eligibility reads it; nothing else may.
+create table if not exists public.taxonomy_gate (
+  taxonomy_version  text not null references public.taxonomy_versions(version),
+  dimension         text not null,
+  kappa             numeric,
+  items             integer not null,
+  verdict           text not null check (verdict in ('keep', 'tighten', 'redefine', 'insufficient')),
+  eval_run_id       uuid,
+  decided_at        timestamptz not null default now(),
+  primary key (taxonomy_version, dimension)
+);
+
+-- ------------------------------------------------------ labelling (gold set)
+
+-- A frozen snapshot of each product put in front of the labellers: title,
+-- description, images, price. Frozen so that a merchant editing a listing
+-- mid-labelling cannot make two labellers answer about two different things.
+create table if not exists public.gold_items (
+  id               uuid primary key default gen_random_uuid(),
+  gold_set         text not null,
+  store_url        text not null,
+  handle           text not null,
+  parent_category  text,
+  snapshot         jsonb not null,
+  created_at       timestamptz not null default now(),
+  unique (gold_set, store_url, handle)
+);
+
+-- The external merchandisers. They arrive by invite link: the token is shown
+-- once, only its sha256 is stored, and the name is the one they were invited
+-- under. No login, no contact details.
+create table if not exists public.labellers (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  token_hash  text not null unique,
+  created_at  timestamptz not null default now(),
+  revoked_at  timestamptz
+);
+
+create table if not exists public.gold_labels (
+  id                uuid primary key default gen_random_uuid(),
+  item_id           uuid not null references public.gold_items(id) on delete cascade,
+  labeller_id       uuid not null references public.labellers(id) on delete cascade,
+  dimension         text not null,
+  labels            text[] not null,
+  taxonomy_version  text not null,
+  labelled_at       timestamptz not null default now(),
+  unique (item_id, labeller_id, dimension, taxonomy_version)
+);
+
+create index if not exists gold_labels_item_idx on public.gold_labels(item_id);
+
+create table if not exists public.eval_runs (
+  id                uuid primary key default gen_random_uuid(),
+  kind              text not null check (kind in ('agreement', 'model')),
+  taxonomy_version  text not null,
+  prompt_version    text,
+  model             text,
+  config            jsonb not null default '{}'::jsonb,
+  metrics           jsonb not null,
+  created_at        timestamptz not null default now()
+);
+
+alter table public.taxonomy_versions     enable row level security;
+alter table public.taxonomy_values       enable row level security;
+alter table public.price_band_references enable row level security;
+alter table public.products              enable row level security;
+alter table public.genome_values         enable row level security;
+alter table public.taxonomy_gate         enable row level security;
+alter table public.gold_items            enable row level security;
+alter table public.labellers             enable row level security;
+alter table public.gold_labels           enable row level security;
+alter table public.eval_runs             enable row level security;
+
+-- Cross-merchant eligibility (HANDOFF §6.2), as a view rather than a stored
+-- flag so it cannot go stale against the gate. Mirrors
+-- `crossMerchantEligible()` in src/lib/genome/v1/records.ts; the 0.8
+-- confidence threshold is the open question's default. Nothing reads this yet:
+-- cross-merchant learning is out of V1.
+create or replace view public.genome_values_eligible
+with (security_invoker = true) as
+select gv.*
+from public.genome_values gv
+join public.taxonomy_gate g
+  on g.taxonomy_version = gv.taxonomy_version and g.dimension = gv.dimension and g.verdict = 'keep'
+where gv.dimension not in ('margin_band', 'style_register')
+  and gv.value <> 'unknown'
+  and (gv.provenance in ('human_reviewed', 'merchant_declared', 'deterministic_rule') or gv.confidence >= 0.8)
+  and (gv.evidence_state is null or gv.evidence_state = 'evidenced')
+  and (gv.layer = 'global' or gv.comparison_scope is null or gv.comparison_scope = 'global_reference' or gv.comparison_n >= 10);

@@ -33,6 +33,15 @@
  * mattered — no generated shop collects anything from a shopper — is now its
  * own check and is untouched.
  *
+ * **Brief v5 replaced v3 on 2026-09-26, and the gate was re-pointed rather
+ * than waived.** Same mechanics, same 5-of-30 threshold, but the artefact is
+ * a campaign POP and the audience is founder-led $1–20M brands. So every
+ * check here still guards what it guarded. Two things opened with v5's M1:
+ * the labelling form (the form check below now allows `app/label` and
+ * `app/api/label` too), and the Genome v1 taxonomy, which comes with a
+ * new check that `lib/genome` reads no shopper event. That is the owner's
+ * ruling that nothing in M1 or M2 reads the funnel, written down as a test.
+ *
  * Every other check below is untouched and still means what it said, and the
  * last one — the drawer — means it most of all: refresh reads stock, and
  * nothing here may read an outcome.
@@ -66,7 +75,7 @@ function code(text: string): string {
     .toLowerCase();
 }
 
-describe("the Sprint 3 line holds", () => {
+describe("the kill-test line holds (v5, re-pointed)", () => {
   /*
    * **This check was narrowed on purpose, on the owner's call (2026-08-17), and
    * it used to be absolute.**
@@ -186,10 +195,19 @@ describe("the Sprint 3 line holds", () => {
    * Going further than this — a mailing list, a marketing column on that
    * table, capture rendered inside a shop — means opening the gate again.
    */
+  /*
+   * **Widened on the owner's call (2026-09-26) for v5's M1, and only by two
+   * directories.** `app/label` is the internal labelling page two external
+   * merchandisers use to build the Genome's gold set, and `app/api/label` is
+   * where it posts. It takes a label about a product, e.g.
+   * `gift_role:practical`. It never takes an email address, and the people
+   * using it arrive by invite link rather than by typing who they are. No
+   * shop, and nothing a shopper sees, gains a form.
+   */
   it("collects an email only through popuup's own contact form", async () => {
     const files = await sourceFiles();
 
-    const ALLOWED = ["app/contact/", "app/api/early-access/"];
+    const ALLOWED = ["app/contact/", "app/api/early-access/", "app/label/", "app/api/label/"];
     const forms = files.filter(({ text }) => /<input|<form|type="email"|<textarea/i.test(text));
 
     // A guard about an empty set passes for the wrong reason: if the form is
@@ -249,6 +267,15 @@ describe("the Sprint 3 line holds", () => {
     expect(users.map((u) => u.file)).toEqual([]);
   });
 
+  it("asks the labeller for labels, never for an email address", async () => {
+    // The labelling form is allowed a form. It is not allowed to be a second
+    // place popuup collects a person's address.
+    const files = await sourceFiles();
+    const label = files.filter(({ file }) => file.startsWith("app/label/") || file.startsWith("app/api/label/"));
+    const offenders = label.filter(({ text }) => /type="email"|\bemail\b/i.test(code(text)));
+    expect(offenders.map((o) => o.file)).toEqual([]);
+  });
+
   it("takes no payment and knows nothing about a subscription", async () => {
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) => /\bstripe\b|\bcheckout\.session|\bprice_1[a-z0-9]/i.test(code(text)));
@@ -270,6 +297,23 @@ describe("the Sprint 3 line holds", () => {
     const files = await sourceFiles();
     const offenders = files.filter(({ text }) =>
       /\bexperiment\b|\bvariant_?group|\bab_?test|\bbandit\b|\bweights?\s*[:=]\s*[[{]|\bpulse\b/i.test(code(text)),
+    );
+    expect(offenders.map((o) => o.file)).toEqual([]);
+  });
+
+  it("classifies a product from the product, never from what shoppers did", async () => {
+    // The owner's ruling for v5 (2026-09-26): nothing in M1 or M2 reads
+    // shopper events. The Genome spec has a behavioural layer — evidence
+    // states, exposure, exploration — and it is the easiest place for the
+    // drawer to open, because "assortment_role from what sold" looks like
+    // classification. So the Genome may *store* `evidence_state: unobserved`
+    // and may not import the funnel or name its table.
+    const files = await sourceFiles();
+    const genome = files.filter(({ file }) => file.startsWith("lib/genome/"));
+    expect(genome.some(({ file }) => file.startsWith("lib/genome/v1/"))).toBe(true);
+
+    const offenders = genome.filter(
+      ({ text }) => /from\s+["']@?[\w/.-]*funnel/i.test(text) || /\bshop_events\b|\battributed_orders\b/.test(code(text)),
     );
     expect(offenders.map((o) => o.file)).toEqual([]);
   });

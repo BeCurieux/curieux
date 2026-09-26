@@ -716,6 +716,37 @@ Everything above `hmac.ts` takes its transport, its clock and its storage as
 arguments, in the manner of `lib/ingest/http.ts`, so all 92 of its tests run
 against fakes. What none of them prove is in "Verification status" below.
 
+## Genome v1: the taxonomy (v5, M1)
+
+Brief v5 (`docs/HANDOFF.md`) replaces the free-text Genome with a fixed,
+versioned ontology: `occasion_fit`, `gift_role`, `use_context` and ten more,
+each with permitted values and `unknown`. M1 is open ahead of the re-pointed
+kill test, and nothing reads it yet. The merchandiser still uses the Genome
+above until M2 compares the two.
+
+```
+pnpm genome:classify <store-url> --provider anthropic   # 5 runs per product, by batch
+pnpm genome:override <store-url> <handle> gift_role indulgent
+pnpm genome:goldset --file stores.txt --set gold-v1     # ~200 products for the labellers
+pnpm genome:invite "Merchandiser A"                     # a labelling link, shown once
+pnpm genome:eval --a "Merchandiser A" --b "Merchandiser B" [--model]
+pnpm genome:budget                                      # spend against the A$100 M1 cap
+```
+
+```
+src/lib/genome/v1/
+  taxonomy.ts        the ontology; schema, prompt, labelling page and DB rows are generated from it
+  classify.ts        catalogue → 5 runs → consensus → GenomeValue rows, with provenance
+  consensus.ts       confidence = run agreement, measured, never self-reported
+  deterministic.ts   price_band, price_position, inventory_depth, margin_band, assortment_role
+  anthropic.ts       batch or direct, enum-constrained structured output
+  cost.ts            the cap, checked before sending; the ledger, written after
+  gold.ts, eval.ts   gold set, invite tokens, kappa, the agreement gate, model scoring
+```
+
+The labelling page is `/label/<token>`: blind, `noindex`, no JavaScript, and
+reached only by invite link. Operating it end to end is `RUNBOOK.md` §4.
+
 ## Decisions worth knowing about
 
 **Nothing is invented.** Every ingested field is either something the storefront

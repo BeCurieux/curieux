@@ -8,6 +8,13 @@
   "scripts": {
     "ingest": "tsx --env-file-if-exists=.env.local scripts/ingest.ts",
     "genome": "tsx --env-file-if-exists=.env.local scripts/genome.ts",
+    "genome:classify": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts classify",
+    "genome:override": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts override",
+    "genome:seed": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts seed",
+    "genome:goldset": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts goldset",
+    "genome:invite": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts invite",
+    "genome:eval": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts eval",
+    "genome:budget": "tsx --env-file-if-exists=.env.local scripts/genome-v1.ts budget",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

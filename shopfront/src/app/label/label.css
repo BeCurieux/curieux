@@ -1,0 +1,285 @@
+/*
+ * The labelling page. Internal, used for hours at a time by two people, so
+ * it optimises for reading and tapping rather than for looking like the
+ * marketing site: large targets, the definition under every option, and
+ * nothing that moves.
+ */
+
+.lab {
+  --lab-bg: #f6f4ef;
+  --lab-card: #ffffff;
+  --lab-ink: #1c1b19;
+  --lab-muted: #6b675f;
+  --lab-line: #dcd7cc;
+  --lab-accent: #2f5d50;
+  --lab-accent-soft: #e3eee9;
+  --lab-danger: #9b2c22;
+
+  min-height: 100dvh;
+  padding: 1rem 1rem 4rem;
+  background: var(--lab-bg);
+  color: var(--lab-ink);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .lab {
+    --lab-bg: #151513;
+    --lab-card: #1f1f1c;
+    --lab-ink: #eceae4;
+    --lab-muted: #a29e95;
+    --lab-line: #3a3833;
+    --lab-accent: #8cc4b2;
+    --lab-accent-soft: #23332e;
+    --lab-danger: #f08b80;
+  }
+}
+
+.lab > * {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.lab-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.lab-who {
+  margin: 0;
+  color: var(--lab-muted);
+}
+
+.lab-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.lab a {
+  color: var(--lab-accent);
+}
+
+.lab-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--lab-line);
+  border-radius: 12px;
+  background: var(--lab-card);
+}
+
+.lab-note,
+.lab-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.lab-note {
+  background: var(--lab-accent-soft);
+}
+
+.lab-error {
+  border: 1px solid var(--lab-danger);
+  color: var(--lab-danger);
+}
+
+.lab-images {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(70%, 1fr);
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: -0.25rem -0.25rem 0.75rem;
+}
+
+.lab-images img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 40rem) {
+  .lab-images {
+    grid-auto-columns: minmax(40%, 1fr);
+  }
+}
+
+.lab-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.lab-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0 0 0.75rem;
+}
+
+.lab-facts dt {
+  color: var(--lab-muted);
+}
+
+.lab-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.lab-description {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.lab-muted {
+  color: var(--lab-muted);
+}
+
+.lab-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.lab-dim {
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--lab-line);
+  border-radius: 12px;
+  background: var(--lab-card);
+}
+
+.lab-dim legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0 0.25rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.lab-rule {
+  color: var(--lab-muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.lab-question {
+  margin: 0 0 0.5rem;
+}
+
+.lab-boundary {
+  margin: 0 0 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--lab-line);
+  color: var(--lab-muted);
+  font-size: 0.9rem;
+}
+
+.lab-option {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  min-height: 44px;
+  padding: 0.6rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lab-option:hover {
+  background: var(--lab-accent-soft);
+}
+
+.lab-option input {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  accent-color: var(--lab-accent);
+}
+
+.lab-option span {
+  display: grid;
+}
+
+.lab-option small {
+  color: var(--lab-muted);
+  font-size: 0.85rem;
+}
+
+.lab-option:has(input:checked) {
+  background: var(--lab-accent-soft);
+}
+
+.lab-save {
+  position: sticky;
+  bottom: 1rem;
+  min-height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lab-accent);
+  color: var(--lab-card);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lab-save:focus-visible,
+.lab-option input:focus-visible {
+  outline: 3px solid var(--lab-accent);
+  outline-offset: 2px;
+}
+
+.lab-spec h1,
+.lab-spec h2,
+.lab-finished h1 {
+  margin-top: 0;
+}
+
+.lab-defs {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+}
+
+.lab-defs dt {
+  font-weight: 700;
+}
+
+.lab-defs dd {
+  margin: 0;
+  color: var(--lab-muted);
+}
+
+.lab-list {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 2rem;
+}
+
+.lab-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--lab-line);
+}
+
+.lab-done {
+  color: var(--lab-accent);
+  white-space: nowrap;
+}
+
+.lab-todo {
+  color: var(--lab-muted);
+  white-space: nowrap;
+}

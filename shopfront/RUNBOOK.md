@@ -385,3 +385,107 @@ thirty have been asked and every conversation has resolved.
 Sprint 3 — OAuth sync, email capture, creator shops, billing, word-editing,
 TikTok-URL input — stays shut until that verdict arrives. `tests/stop-line.test.tsx`
 enforces it, so building any of it early turns CI red on purpose.
+
+> **Since 2026-09-26 the kill test above is the v5 one:** same commands, same
+> threshold, but the artefact is a campaign POP and the list is founder-led
+> $1–20M brands. The candidate lists were chosen for the bio-shop test and
+> need re-screening, and a campaign POP needs the M2 engine, which is not yet
+> opened (`CLAUDE.md`, `docs/PLAN-M0-M1.md` §4).
+
+## 4. Genome v1 (v5's M1): the gold set and the agreement gate
+
+M1 is open ahead of the kill test (owner's call, 2026-09-26). This section
+takes it from code to a measured kappa. Everything that spends money checks
+the **A$100 M1 cap** first and records what it spent in
+`.cache/genome-v1/spend.json`. `pnpm genome:budget` prints the total.
+
+**The ledger is a file on the machine that ran the command.** Run all paid
+classification from one machine, or the cap is per-machine rather than total.
+
+### 4.1 Before anyone labels
+
+1. **Put the spec's own wording into `src/lib/genome/v1/taxonomy.ts`.** The
+   definitions there were written from the handoff's dimension table, and the
+   labelling page shows them to labellers as *the* spec. If the Genome v1
+   Specification words anything differently, copy its text in now. Changing a
+   definition after labelling starts invalidates the agreement measured on it.
+2. Review the **price band ceilings** in `price-bands.ts`. They are a first cut
+   in USD, AUD and GBP, not researched figures.
+3. Apply `schema.sql` (§1; the Genome v1 tables are appended to it), re-run
+   `rls-check.sql`, then publish the taxonomy:
+
+   ```sh
+   pnpm genome:seed        # Supabase only; upserts, safe to re-run
+   ```
+
+4. **The labelling page must run against Supabase.** On Vercel the local store
+   is a file that does not survive the request. `SUPABASE_URL` and
+   `SUPABASE_SERVICE_ROLE_KEY` must be set on the deployment, and every
+   command below must run with the same two set, so it writes to the database
+   the page reads.
+
+### 4.2 The gold set: ~200 products, ≥8 stores, ≥5 categories
+
+On a machine that can reach storefronts (this build container cannot):
+
+```sh
+pnpm ingest <store>                                   # for each of ≥8 stores
+pnpm genome:goldset --file gold-stores.txt --set gold-v1 --size 200 --seed 1
+```
+
+It samples an even share per store, round-robin across categories, and
+freezes a snapshot of each product. Labellers see the product as it was
+sampled, even if the merchant edits it later. It prints a warning when coverage
+falls short of 8 stores or 5 categories.
+
+Categories come from a stored classification when the store has one, and from
+the merchant's product types otherwise. **Do not classify whole stores just to
+stratify.** At ~A$0.05–0.08 a product at five runs, eight stores of 500 would
+spend the M1 budget before labelling starts. Product types are good enough to
+spread the sample, and `pnpm genome:eval --model` classifies only the ~200
+gold items.
+
+### 4.3 Invite the two labellers
+
+```sh
+PUBLIC_ORIGIN=https://popuup.co pnpm genome:invite "Merchandiser A"
+PUBLIC_ORIGIN=https://popuup.co pnpm genome:invite "Merchandiser B"
+```
+
+Each prints a link **once**. Only its sha256 is stored, so a lost link means a
+new invite. Send each person their own link and nothing else: no access to the
+repository, no account, no login. The page is blind (it never shows the model's
+answer or the other labeller's), `noindex`, and sends no referrer to the
+merchants' image CDNs. The spec is linked from every page.
+
+The labellers should be two external merchandisers, not the owner. The spec's
+author labels from what they meant, not what it says, and that makes
+agreement look better than it is.
+
+### 4.4 The gate, then the model
+
+```sh
+pnpm genome:eval --a "Merchandiser A" --b "Merchandiser B" --set gold-v1
+```
+
+Kappa per dimension, against the handoff's gate: ≥0.60 keep · 0.40–0.60
+tighten the definitions and relabel · <0.40 merge, redefine or drop. Fewer
+than 30 shared items is `insufficient`, not a verdict. The verdicts land in
+`taxonomy_gate` and the report in `docs/eval/`.
+
+Where the two disagree, a third person can adjudicate: invite them, have them
+label the disputed items, and pass `--adjudicator "<name>"`. Without one,
+disputed items are left out of model scoring and counted, never settled in the
+model's favour.
+
+Then the model, against the adjudicated gold:
+
+```sh
+pnpm genome:eval --a "Merchandiser A" --b "Merchandiser B" --set gold-v1 --model --provider anthropic
+```
+
+200 items × 5 runs by batch. Measured on the one-store run (see
+`docs/PLAN-M0-M1.md` §5), that is a few Australian dollars. The report gives
+accuracy next to human–human agreement, repeat-run consistency, calibration by
+run agreement, the unknown rate, and any label that moved since the previous
+run without a prompt, model or taxonomy change to explain it.
