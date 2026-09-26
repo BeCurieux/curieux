@@ -2,6 +2,8 @@
 
 Read BRIEF.md before doing anything. This file is the short version that must never be violated.
 
+**Pending: a proposed Brief v5 (2026-09-26).** `docs/HANDOFF.md` proposes an embedded Shopify app for campaign shops with a taxonomy Genome. `docs/PLAN-M0-M1.md` sets it against this file conflict by conflict. It is **not adopted**: until the owner rules on the decisions listed at the end of that plan, every rule below still holds, and the checks in `tests/stop-line.test.tsx` still enforce them.
+
 ## North star
 
 **There is no page builder. The prompt is the builder.**
