@@ -26,13 +26,17 @@
 
 import { readFile } from "node:fs/promises";
 import { ingestStore } from "../src/lib/ingest/index";
-import { parseCandidates, screen, type ScreenResult } from "../src/lib/killtest/screen";
+import { parseCandidates, screen, screenV5, type ScreenResult, type V5Screen } from "../src/lib/killtest/screen";
 
-const file = process.argv[2];
+const v5 = process.argv.includes("--v5");
+const file = process.argv.slice(2).find((a) => !a.startsWith("--"));
 if (!file) {
   process.stderr.write(
     [
-      "Usage: pnpm screen <candidates.txt>",
+      "Usage: pnpm screen <candidates.txt> [--v5]",
+      "",
+      "  --v5  screen for the v5 kill test: 300+ products across several types,",
+      "        with the Genome cost of each store at 3 runs.",
       "",
       "  One store URL per line. Blank lines and # comments are ignored, so you",
       "  can paste a rough list and annotate it as you go.",
@@ -52,7 +56,35 @@ if (candidates.length === 0) {
   process.exit(1);
 }
 
-process.stderr.write(`\n  Screening ${candidates.length} candidates.\n\n`);
+process.stderr.write(`\n  Screening ${candidates.length} candidates${v5 ? " for the v5 kill test" : ""}.\n\n`);
+
+if (v5) {
+  const rows: V5Screen[] = [];
+  for (const [index, url] of candidates.entries()) {
+    const position = `${String(index + 1).padStart(3)}/${candidates.length}`;
+    let row: V5Screen;
+    try {
+      const ingest = await ingestStore(url);
+      row = screenV5(ingest.store.storeUrl, ingest.catalogue);
+    } catch (error) {
+      row = { ...screenV5(url, null), notes: [error instanceof Error ? error.message : String(error)] };
+    }
+    rows.push(row);
+    process.stderr.write(`  ${position}  ${row.verdict.padEnd(11)} ${url}  (${row.productCount} products, ${row.productTypes} types)\n`);
+    for (const note of row.notes) process.stderr.write(`            · ${note}\n`);
+  }
+  const usable = rows.filter((r) => r.verdict !== "wrong-test");
+  const cost = usable.reduce((sum, r) => sum + r.genomeCostAud, 0);
+  process.stderr.write(`\n  ${rows.filter((r) => r.verdict === "good").length} good · ${rows.filter((r) => r.verdict === "workable").length} workable · ${rows.length - usable.length} skipped`);
+  process.stderr.write(`\n  Genome for the usable ones: ~A$${cost.toFixed(2)} of the A$150 kill-test budget, at 3 runs.\n`);
+  if (usable.length < 30) process.stderr.write(`  ${30 - usable.length} short of thirty. Screen more candidates.\n`);
+  process.stderr.write("\n");
+  process.stdout.write("[merchants]\n");
+  for (const r of [...rows.filter((x) => x.verdict === "good"), ...rows.filter((x) => x.verdict === "workable"), ...rows.filter((x) => x.verdict === "wrong-test")]) {
+    process.stdout.write(`${r.line}\n`);
+  }
+  process.exit(0);
+}
 
 const results: ScreenResult[] = [];
 

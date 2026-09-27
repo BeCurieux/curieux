@@ -228,3 +228,36 @@ describe("screening a storefront", () => {
     expect(result.verdict).toBe("wrong-test");
   });
 });
+
+describe("the v5 screen", () => {
+  const make = (n: number, types: number, availableShare = 1): Catalogue => ({
+    currency: "AUD",
+    productCount: n,
+    truncated: false,
+    products: Array.from({ length: n }, (_, i) => ({
+      handle: `p${i}`,
+      title: `P${i}`,
+      description: "",
+      tags: [],
+      productType: `type ${i % types}`,
+      url: `https://x.example/products/p${i}`,
+      images: [{ url: "https://cdn.shopify.com/a.jpg" }],
+      variants: [{ id: `${i}`, title: "Default Title", price: 20, available: i < n * availableShare, options: [] }],
+      price: { min: 20, max: 20 },
+      available: i < n * availableShare,
+      availabilityKnown: true,
+    })),
+  });
+
+  it("wants hundreds of products across several types, and prices the Genome", async () => {
+    const { screenV5 } = await import("@/lib/killtest/screen");
+    const big = screenV5("https://big.example", make(400, 8));
+    expect(big.verdict).toBe("good");
+    expect(big.genomeCostAud).toBeCloseTo(400 * 3 * 0.0038);
+    expect(big.line).toContain("~400 products, 8 types");
+    expect(screenV5("https://mid.example", make(200, 8)).verdict).toBe("workable");
+    expect(screenV5("https://narrow.example", make(400, 2)).verdict).toBe("workable");
+    expect(screenV5("https://small.example", make(80, 8)).verdict).toBe("wrong-test");
+    expect(screenV5("https://closed.example", null).line).toMatch(/^# /);
+  });
+});

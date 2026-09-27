@@ -289,3 +289,75 @@ function targetLine(
     ? `# ${url} # SKIPPED: ${notes[0] ?? "does not fit"}`
     : `${url} # ${parts.join(", ")}`;
 }
+
+// ------------------------------------------------------------------- v5
+
+/**
+ * The v5 screen: is this catalogue big and varied enough for campaign POPs to
+ * beat a collection?
+ *
+ * The bio-shop screen above wanted 20–500 products and demoted anything the
+ * old Genome could not read whole. v5 wants the opposite. A POP earns its
+ * keep where choosing by hand is hard: hundreds of products across several
+ * kinds of thing. So small or single-category stores are the ones to skip,
+ * and size is a cost to know rather than a problem.
+ */
+export const V5_MIN_PRODUCTS = 300;
+export const V5_WORKABLE_PRODUCTS = 150;
+export const V5_MIN_PRODUCT_TYPES = 5;
+/** Measured direct-mode Genome cost per product per run (docs/PLAN-M0-M1.md §5), A$. */
+export const V5_AUD_PER_PRODUCT_RUN = 0.0038;
+
+export interface V5Screen {
+  storeUrl: string;
+  productCount: number;
+  availableCount: number;
+  productTypes: number;
+  /** Genome cost at `runs` runs, A$, at the measured rate. */
+  genomeCostAud: number;
+  verdict: Screen;
+  notes: string[];
+  line: string;
+}
+
+export function screenV5(storeUrl: string, catalogue: Catalogue | null, runs = 3): V5Screen {
+  const products = catalogue?.products ?? [];
+  const available = products.filter((p) => p.available);
+  const types = new Set(products.map((p) => p.productType?.trim().toLowerCase()).filter((t): t is string => Boolean(t)));
+  const notes: string[] = [];
+  const genomeCostAud = products.length * runs * V5_AUD_PER_PRODUCT_RUN;
+  let verdict = "good" as Screen;
+  const demote = (to: Screen, why: string) => {
+    notes.push(why);
+    if (verdict !== "wrong-test") verdict = to;
+  };
+
+  if (!catalogue || products.length === 0) {
+    return {
+      storeUrl, productCount: 0, availableCount: 0, productTypes: 0, genomeCostAud: 0, verdict: "wrong-test",
+      notes: ["nothing readable: feed closed, or not Shopify"],
+      line: `# ${storeUrl}  # SKIPPED: nothing readable, check by hand`,
+    };
+  }
+
+  if (products.length < V5_WORKABLE_PRODUCTS) demote("wrong-test", `only ${products.length} products; a keyword collection is enough at this size`);
+  else if (products.length < V5_MIN_PRODUCTS) demote("workable", `${products.length} products, under the ${V5_MIN_PRODUCTS} v5 aims for`);
+  if (types.size > 0 && types.size < V5_MIN_PRODUCT_TYPES) demote("workable", `only ${types.size} product types; POPs work best across several`);
+  if (types.size === 0) notes.push("no product types set; category spread unknown");
+  if (available.length / products.length < MIN_AVAILABLE_SHARE) demote("workable", `only ${available.length} of ${products.length} in stock`);
+  if (catalogue.truncated) notes.push("feed truncated: the catalogue is larger than what was read");
+
+  const cost = `Genome ~A$${genomeCostAud.toFixed(2)} at ${runs} runs`;
+  const summary = `~${products.length} products, ${types.size} types, ${cost}`;
+  const url = storeUrl.padEnd(42);
+  return {
+    storeUrl,
+    productCount: products.length,
+    availableCount: available.length,
+    productTypes: types.size,
+    genomeCostAud,
+    verdict,
+    notes,
+    line: verdict === "wrong-test" ? `# ${url} # SKIPPED: ${notes[0]}` : `${url} # ${summary}${verdict === "workable" ? `; ${notes[0]}` : ""}`,
+  };
+}
