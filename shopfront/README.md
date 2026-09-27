@@ -756,6 +756,7 @@ into one, and publishes it as an ordinary shop.
 ```
 pnpm pop brief <store-url> "Make a Father's Day shop for dads who boat. Under $120." --out brief.json
 pnpm pop generate <store-url> --brief brief.json [--lock h1,h2] [--exclude h3] [--slug s]
+pnpm pop suggest <store-url> [--write]     # the POPs this catalogue can make well, from the Genome
 pnpm pop show <slug>
 ```
 
@@ -766,8 +767,19 @@ brief ─ filter.ts ─▶ candidates    buyable, under the cap per item (stradd
       ─ score.ts ──▶ shortlist     Genome v1 concept match × measured confidence, goal, locks; hand-set points
       ─ merchandise() on a catalogue of *only* the shortlist ─▶ ShopConfig
       ─ guard.ts ──▶ re-checked in code, repaired, repairs recorded
+      ─ honesty.ts ▶ a product blurb may only claim what its own listing says
+      ─ baseline.ts ▶ the keyword collection the same sentence would make, and the overlap
       ─ decisions.ts ─▶ one row per product: position, role, why, concepts, source
 ```
+
+**Every POP is measured against the objection it has to beat.** `baseline.ts`
+builds the smart collection a merchant would make from the same sentence
+(title, tags and type containing its words and audience synonyms, with the
+same price and stock rules) and reports how much of the POP keywords alone
+would reach. `pnpm pop suggest` ranks candidate POPs by the same measure, and
+its verdict (strong / thin / skip) is a kill-test screen: the dev-store
+fixture reads **thin**, because every product the Genome picks there says
+"mens" in its tags.
 
 The model can only choose from the shortlist because the shortlist is the
 entire catalogue it is given, not because a prompt asks it to. Rules the public

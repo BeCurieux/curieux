@@ -407,3 +407,29 @@ The brief parser also offered concepts the sentence does not state
 (`seasonality:warm_weather`, `style_register:functional, casual`). That is
 what the confirm-and-edit step is for, but the parser's instruction can be
 stricter.
+
+## 7. Improvements after the first POP (2026-09-27)
+
+Aimed at the concept's weak points rather than its features:
+
+- **Honesty.** A product blurb may only claim what its own listing says
+  (`lib/pop/honesty.ts`). The merchandiser is told so, and a code check
+  removes any blurb that uses the brief's context words ("wet", "deck",
+  "boat") when the listing never does. Page framing for the audience is still
+  allowed. Re-run: all four blurbs now come from the listings, and no repairs
+  were needed.
+- **The brief parser records only what the sentence states.** It no longer
+  adds seasonality, style or item type the merchant never mentioned.
+- **"A collection with a nicer header", measured.** Every POP version stores
+  the keyword collection the same sentence would make, and the overlap. On
+  the dev store, 3 of the 4 products are reachable by keywords; the laser
+  level is the one only the Genome found.
+- **`pnpm pop suggest`**: the POPs a catalogue has depth for, ranked by what
+  keywords would miss, with ready briefs. The same numbers are a kill-test
+  screen: strong (3+ POPs mostly Genome-led), thin, or skip. The dev store
+  reads **thin**, which is the honest answer for 10 hardware products tagged
+  "mens".
+
+Still open: the struck-through pre-sale price above the cap. The shopper pays
+under the cap, but the page shows a higher number. It needs a renderer
+decision, and it is the owner's call.

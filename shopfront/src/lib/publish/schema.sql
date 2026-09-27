@@ -555,6 +555,9 @@ create table if not exists public.pop_versions (
   shortlist             jsonb not null,
   excluded              jsonb not null,
   repairs               jsonb not null default '[]'::jsonb,
+  -- The keyword collection the same sentence would have made, and the overlap:
+  -- the "collection with a nicer header" objection, measured per version.
+  baseline              jsonb,
   taxonomy_version      text not null,
   brief_prompt_version  text,
   created_at            timestamptz not null default now(),

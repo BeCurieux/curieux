@@ -14,6 +14,7 @@ import path from "node:path";
 import { storeNameFromEnv } from "@/lib/publish/store";
 import type { PopBrief } from "./brief";
 import type { PopDecision } from "./decisions";
+import type { Baseline } from "./baseline";
 import type { Excluded } from "./filter";
 
 export type PopStatus = "draft" | "live" | "paused" | "ended";
@@ -46,6 +47,7 @@ export interface PopVersionRecord {
   shortlist: ShortlistEntry[];
   excluded: Excluded[];
   repairs: string[];
+  baseline: Baseline | null;
   taxonomyVersion: string;
   briefPromptVersion: string | null;
   decisions: PopDecision[];
@@ -59,6 +61,7 @@ export interface RecordPopInput {
   shortlist: ShortlistEntry[];
   excluded: Excluded[];
   repairs: string[];
+  baseline: Baseline | null;
   decisions: PopDecision[];
   taxonomyVersion: string;
   briefPromptVersion: string | null;
@@ -145,6 +148,7 @@ export function versionFields(input: RecordPopInput) {
     shortlist: input.shortlist,
     excluded: input.excluded,
     repairs: input.repairs,
+    baseline: input.baseline,
     taxonomyVersion: input.taxonomyVersion,
     briefPromptVersion: input.briefPromptVersion,
     decisions: input.decisions,

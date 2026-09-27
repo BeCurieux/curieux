@@ -6,7 +6,12 @@
  *   pnpm pop generate <store-url> ("<sentence>" | --brief brief.json)
  *                     [--lock h1,h2] [--exclude h3] [--slug s] [--shortlist 24]
  *                     [--parser anthropic|mock] [--provider anthropic|mock] [--no-publish]
+ *   pnpm pop suggest <store-url> [--min 6] [--limit 10] [--write]
  *   pnpm pop show <slug>
+ *
+ * `suggest` reads the Genome and proposes the POPs this catalogue can make
+ * well, ranked by what a keyword collection would miss; `--write` saves each
+ * as a brief for `generate --brief`.
  *
  * `brief` is the chips step: it reads the sentence, prints the brief, and
  * writes it to a file the merchant can edit. `generate --brief` builds from
@@ -33,6 +38,8 @@ import { publishShop } from "../src/lib/publish/index";
 import { PopBrief, targetsOf, unenforceable } from "../src/lib/pop/brief";
 import { generatePop } from "../src/lib/pop/engine";
 import { resolveMentions } from "../src/lib/pop/filter";
+import { describeBaseline } from "../src/lib/pop/baseline";
+import { catalogueVerdict, suggestPops } from "../src/lib/pop/suggest";
 import { BRIEF_PROMPT_VERSION, createAnthropicBriefParser, createMockBriefParser, finaliseBrief } from "../src/lib/pop/parse";
 import { defaultPopStore } from "../src/lib/pop/store";
 
@@ -46,7 +53,7 @@ function parse(argv: string[]): Flags {
   const flags: Flags = { positional: [], values: new Map(), switches: new Set() };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!;
-    if (arg === "--no-publish") flags.switches.add(arg);
+    if (arg === "--no-publish" || arg === "--write") flags.switches.add(arg);
     else if (arg.startsWith("--")) {
       const value = argv[++i];
       if (value === undefined) throw new Error(`${arg} needs a value`);
@@ -164,6 +171,9 @@ async function generateCommand(flags: Flags): Promise<void> {
   for (const d of result.decisions) out(`  ${String(d.position).padStart(2)}. ${d.role.padEnd(10)} ${d.handle}  (${d.score})  ${d.reason}`);
   for (const r of result.repairs) out(`  repaired: ${r}`);
   for (const w of result.warnings) out(`  ! ${w}`);
+  out(`\n  vs a keyword collection: ${describeBaseline(result.baseline)}`);
+  if (result.baseline.popOnly.length) out(`    found by the Genome only: ${result.baseline.popOnly.join(", ")}`);
+  if (result.baseline.collectionOnly.length) out(`    a collection would also have shown: ${result.baseline.collectionOnly.join(", ")}`);
   out(`\n  assembled by ${result.merchandise.model} in ${((Date.now() - started) / 1000).toFixed(1)}s (${result.merchandise.attempts} attempt${result.merchandise.attempts === 1 ? "" : "s"})`);
 
   if (flags.switches.has("--no-publish")) {
@@ -195,11 +205,39 @@ async function generateCommand(flags: Flags): Promise<void> {
     })),
     excluded: result.excluded,
     repairs: result.repairs,
+    baseline: result.baseline,
     decisions: result.decisions,
     taxonomyVersion: TAXONOMY_VERSION,
     briefPromptVersion: flags.values.has("--brief") ? null : BRIEF_PROMPT_VERSION,
   });
   out(`  published POP v${recorded.version.version} (${popStore.name}): ${published.url}`);
+}
+
+async function suggestCommand(flags: Flags): Promise<void> {
+  const url = flags.positional[0];
+  if (!url) throw new Error("Usage: pnpm pop suggest <store-url> [--min 6] [--limit 10] [--write]");
+  const ingest = await loadIngest(url);
+  const genome = (await (await defaultGenomeV1Store()).loadClassification(ingest.store.storeUrl).catch(() => ({ values: [] }))).values;
+  if (!genome.length) throw new Error(`No Genome v1 for ${ingest.store.storeUrl}. Run pnpm genome:classify first; suggestions come from it.`);
+  const suggestions = suggestPops(ingest.catalogue, genome, {
+    minProducts: Number(flags.values.get("--min") ?? 6),
+    limit: Number(flags.values.get("--limit") ?? 10),
+  });
+  const verdict = catalogueVerdict(suggestions);
+  out(`${ingest.brand.name}: ${verdict.viable} POPs with depth, ${verdict.genomeLed} led by products keywords would miss → ${verdict.verdict}`);
+  const dir = path.join(".cache", "pop", "briefs");
+  for (const [i, s] of suggestions.entries()) {
+    out(`\n  ${i + 1}. "${s.sentence}"`);
+    out(`     ${s.handles.length} products, ${s.genomeOnly.length} a keyword collection would miss`);
+    if (s.genomeOnly.length) out(`     e.g. ${s.genomeOnly.slice(0, 3).join(", ")}`);
+    if (flags.switches.has("--write")) {
+      await mkdir(dir, { recursive: true });
+      const file = path.join(dir, `${storeCacheKey(normaliseStoreUrl(url))}-suggest-${i + 1}.json`);
+      await writeFile(file, `${JSON.stringify(s.brief, null, 2)}\n`);
+      out(`     brief: ${file}`);
+    }
+  }
+  if (!suggestions.length) out("  Nothing has enough confident depth. Lower --min, or classify more of the catalogue.");
 }
 
 async function showCommand(flags: Flags): Promise<void> {
@@ -212,6 +250,7 @@ async function showCommand(flags: Flags): Promise<void> {
     out(`\n  v${v.version} · ${v.createdAt} · ${v.decisions.length} products · shop version ${v.shopVersionId}`);
     for (const d of v.decisions) out(`    ${String(d.position).padStart(2)}. ${d.role.padEnd(10)} ${d.handle} [${d.decisionSource}] ${d.reason}`);
     for (const r of v.repairs) out(`    repaired: ${r}`);
+    if (v.baseline) out(`    vs a keyword collection: ${describeBaseline(v.baseline)}`);
   }
 }
 
@@ -221,7 +260,8 @@ async function main(): Promise<void> {
   if (command === "brief") return briefCommand(flags);
   if (command === "generate") return generateCommand(flags);
   if (command === "show") return showCommand(flags);
-  throw new Error("Commands: brief, generate, show");
+  if (command === "suggest") return suggestCommand(flags);
+  throw new Error("Commands: brief, generate, suggest, show");
 }
 
 main().catch((error: unknown) => {

@@ -103,7 +103,7 @@ export function draftFromJson(raw: unknown): BriefDraft {
 
 export const BRIEF_SYSTEM = [
   "You turn a merchant's one-sentence request for a campaign shop into a structured brief.",
-  "Use only the permitted values. Record what the sentence says or clearly implies; leave out what it does not. Never invent a rule: a price, stock level, margin or deadline appears only if the merchant stated it.",
+  "Use only the permitted values. Record what the sentence says or directly implies, and nothing it merely suggests: 'dads' implies men, 'Father's Day' is fathers_day, 'who boat' is water_coastal. Do not infer seasonality, style_register, item_type or gift_role unless the sentence speaks to them; an empty list is the right answer for most dimensions of most sentences. Never invent a rule: a price, stock level, margin or deadline appears only if the merchant stated it.",
   "The concept values mean exactly what the merchandising taxonomy defines them to mean:",
   ...TARGET_DIMENSIONS.map((dim) => {
     const def = dimension(dim);

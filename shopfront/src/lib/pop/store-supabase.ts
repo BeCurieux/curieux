@@ -52,10 +52,11 @@ export function createSupabasePopStore(client?: SupabaseClient): PopStore {
           shortlist: v.shortlist,
           excluded: v.excluded,
           repairs: v.repairs,
+          baseline: v.baseline,
           taxonomy_version: v.taxonomyVersion,
           brief_prompt_version: v.briefPromptVersion,
         })
-        .select("id, pop_id, shop_version_id, version, brief, shortlist, excluded, repairs, taxonomy_version, brief_prompt_version, created_at")
+        .select("id, pop_id, shop_version_id, version, brief, shortlist, excluded, repairs, baseline, taxonomy_version, brief_prompt_version, created_at")
         .single();
       if (ve) fail("pop version insert", ve);
 
@@ -88,7 +89,7 @@ export function createSupabasePopStore(client?: SupabaseClient): PopStore {
       if (!pop) return null;
       const { data: versions, error: ve } = await db
         .from("pop_versions")
-        .select("id, pop_id, shop_version_id, version, brief, shortlist, excluded, repairs, taxonomy_version, brief_prompt_version, created_at")
+        .select("id, pop_id, shop_version_id, version, brief, shortlist, excluded, repairs, baseline, taxonomy_version, brief_prompt_version, created_at")
         .eq("pop_id", pop.id)
         .order("version");
       if (ve) fail("pop version list", ve);
@@ -141,6 +142,7 @@ const toVersion = (r: Record<string, any>, decisions: PopDecision[]): PopVersion
   shortlist: r.shortlist,
   excluded: r.excluded,
   repairs: r.repairs,
+  baseline: r.baseline ?? null,
   taxonomyVersion: r.taxonomy_version,
   briefPromptVersion: r.brief_prompt_version,
   decisions,

@@ -22,10 +22,12 @@ import type { IngestResult } from "@/lib/ingest/types";
 import { merchandise, type MerchandiseResult } from "@/lib/merchandise/index";
 import type { MerchandiseProvider } from "@/lib/merchandise/provider";
 import type { ShopConfig } from "@/lib/schema";
+import { collectionBaseline, type Baseline } from "./baseline";
 import { BriefError, targetsOf, unenforceable, type PopBrief } from "./brief";
 import { decisionsFor, type PopDecision } from "./decisions";
 import { hardFilter, type Excluded } from "./filter";
 import { guardPop } from "./guard";
+import { enforceListingTruth } from "./honesty";
 import { scoreCandidates, shortlist as cut, type Scored } from "./score";
 
 export interface PopOptions {
@@ -49,6 +51,8 @@ export interface PopResult {
   shortlist: Scored[];
   excluded: Excluded[];
   decisions: PopDecision[];
+  /** The keyword collection the same sentence would have made, and how this POP differs. */
+  baseline: Baseline;
   repairs: string[];
   warnings: string[];
   merchandise: MerchandiseResult["diagnostics"];
@@ -100,16 +104,20 @@ export async function generatePop(options: PopOptions): Promise<PopResult> {
   // 5. Validate against the rules again, in code; repair, and say so.
   const guarded = guardPop(config, brief, shortlist);
 
+  // 5b. Product copy may claim only what the listing says.
+  const honest = enforceListingTruth(guarded.config, brief, new Map(shortlist.map((s) => [s.candidate.product.handle, s.candidate.product])));
+
   // 6. The decision log.
-  const decisions = decisionsFor(guarded.config, shortlist, guarded.added);
+  const decisions = decisionsFor(honest.config, shortlist, guarded.added);
 
   return {
-    config: guarded.config,
+    config: honest.config,
     brief,
     shortlist,
     excluded: filtered.excluded,
     decisions,
-    repairs: guarded.repairs,
+    baseline: collectionBaseline(ingest.catalogue, brief, decisions.map((d) => d.handle)),
+    repairs: [...guarded.repairs, ...honest.repairs],
     warnings: [...warnings, ...assembled.diagnostics.warnings],
     merchandise: assembled.diagnostics,
   };
@@ -132,6 +140,8 @@ export function assemblyPrompt(brief: PopBrief, shortlist: readonly Scored[]): s
     `- Goal: ${brief.goal}`,
     ...(brief.rules.priceMax !== null ? [`- Every product is already at or under ${brief.rules.priceMax} per item.`] : []),
     ...(targets.length ? [`- Concepts: ${targets.join("; ")}`] : []),
+    "",
+    "Copy rule for this POP: the headline and subline may speak to the audience and the occasion, but a product's blurb may only describe what that product's own listing says. Do not give a product a use, setting or feature for this audience that its listing does not state. A tool belt is not for boating because the shop is. Leave the blurb out rather than stretch it.",
     "",
     "Every product in the catalogue below has already passed the merchant's rules and is ranked for this brief, best first. Lead with the strongest hero among the top of the ranking, and choose the rest in roughly this order unless a lower-ranked product clearly serves the brief better.",
     "",
