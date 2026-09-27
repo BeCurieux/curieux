@@ -1,6 +1,6 @@
 # The Two-Million Shortlist
 
-*Sounding Labs · strategy note · as at 29 August 2026*
+*Sounding Labs · strategy note · as at 27 September 2026*
 
 Ten bets that can plausibly reach $2m a year with one person on the tools —
 ranked, costed, and with the ones that can't get there said out loud.
@@ -47,7 +47,7 @@ arithmetic.
 Ranked by probability × speed × what is already built.
 
 ### 01 · Franca's engine, sold as a corpus platform
-**29 days to ECGT**
+**ECGT in force today**
 
 The asset is not the claim scanner. It is a deterministic, citable rule engine
 with a beautiful artefact on the end — and every regulated body of words in
@@ -61,14 +61,15 @@ this country is another corpus you can run through it.
 - **Aussie edge** — Australia is small enough that one person can hold ACCC,
   TGA, FSANZ, Fair Work and the APPs at once. In the US you'd need a firm to
   author against half that.
-- **First move** — ship the ECGT corpus and run the countdown this fortnight.
-  Then author corpus #2 and *time yourself*.
+- **First move** — the corpus is authored and green; the countdown is spent. Rewrite
+  the campaign to present tense and run the kill test. Then author corpus #2 and
+  *time yourself*.
 - **Kill signal** — corpus #2 costs more than a quarter of what corpus #1 cost.
   If each corpus is a rebuild you have one product, not a platform, and the
   ceiling is $1m.
 
 ### 02 · AML/CTF Tranche 2, program-in-a-box
-**Live · day 59**
+**Live · day 88**
 
 Roughly 80,000 real estate agents, conveyancers, accountants, lawyers and
 precious-metal dealers became reporting entities on 1 July. Most bought a Word
@@ -106,7 +107,7 @@ gap — it is most of the margin.
   Insight nobody acts on does not renew.
 
 ### 04 · Payday Super assurance, sold to the bookkeeper
-**Live · day 59**
+**Live · day 88**
 
 Since 1 July, super has to reach the fund within seven business days of payday,
 every payday. The employer does not watch that. The bookkeeper does, across
@@ -126,7 +127,7 @@ forty client files, and wears the blame when one slips.
   incumbent standing on top of it.
 
 ### 05 · AASB S2, and the questionnaire landing underneath it
-**306 days to Group 3**
+**277 days to Group 3**
 
 Group 3 entities report from 1 July 2027. But the money is earlier and further
 down: every SME supplying a Group 1 or 2 company is already being sent
@@ -147,7 +148,7 @@ every customer who asks.
   slower product.
 
 ### 06 · Support at Home, for small and regional providers
-**Live · day 301**
+**Live · day 330**
 
 The Aged Care Act 2024 and Support at Home replaced Home Care Packages on
 1 November 2025 — single provider model, new service classifications, a new
@@ -186,7 +187,7 @@ the specific thing a solo founder loses.
   competitor already ships.
 
 ### 08 · The Privacy Act corpus
-**103 days**
+**74 days**
 
 From 10 December every Australian business must disclose its use of automated
 decision-making in its privacy policy. There are hundreds of thousands of
@@ -270,9 +271,12 @@ product and a PLG launch cannot share one person's quarter.
 
 ## The call: you can't do ten, do two
 
-**Now → 27 September.** Franca's ECGT corpus and the countdown. It is the only
-dated demand event in front of you, it is 29 days out, and the engine is built.
-Miss it and you wait a year for another one this good.
+**This week.** ECGT applied across all 27 member states this morning. The corpus
+is authored, tested and calibrated — what is not done is the kill test, and
+BRIEF.md §10 gates every remaining step on it. The campaign copy is all written
+in the future tense and is wrong as of today; rewrite it to *in force* and run
+the thirty. "It has applied since Sunday and your page says carbon neutral" is a
+better message than the countdown ever was, and it does not expire.
 
 **October → March.** One second corpus — AML/CTF (#2) or Payday Super (#4). Not
 two. Author it, time it, and let the effort decide whether #1 is a product or a
