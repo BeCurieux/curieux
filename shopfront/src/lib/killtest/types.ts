@@ -74,6 +74,11 @@ export interface Target {
   /** Filled in once a shop has been generated for them. */
   slug?: string;
   shopUrl?: string;
+  /**
+   * v5: the campaign POPs sent to this brand. `slug`/`shopUrl` above hold the
+   * first of them, so a ledger read by the v3 tooling still makes sense.
+   */
+  pops?: { slug: string; url: string; sentence: string; genomeOnly: string[] }[];
   /** Why this one is on the list — former Linkpop user, active bio link. */
   note?: string;
   stage: Stage;

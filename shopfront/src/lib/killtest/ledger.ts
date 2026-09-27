@@ -105,6 +105,7 @@ export interface Update {
   slug?: string;
   shopUrl?: string;
   generatedAt?: string;
+  pops?: Target["pops"];
 }
 
 /**
@@ -129,6 +130,7 @@ export function recordOutcome(ledger: Ledger, storeUrl: string, update: Update, 
       ...(update.slug ? { slug: update.slug } : {}),
       ...(update.shopUrl ? { shopUrl: update.shopUrl } : {}),
       ...(update.generatedAt ? { generatedAt: update.generatedAt } : {}),
+      ...(update.pops ? { pops: update.pops } : {}),
       updatedAt: now.toISOString(),
     };
   });

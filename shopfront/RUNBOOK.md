@@ -386,11 +386,36 @@ Sprint 3 — OAuth sync, email capture, creator shops, billing, word-editing,
 TikTok-URL input — stays shut until that verdict arrives. `tests/stop-line.test.tsx`
 enforces it, so building any of it early turns CI red on purpose.
 
-> **Since 2026-09-26 the kill test above is the v5 one:** same commands, same
-> threshold, but the artefact is a campaign POP and the list is founder-led
-> $1–20M brands. The candidate lists were chosen for the bio-shop test and
-> need re-screening, and a campaign POP needs the M2 engine, which is not yet
-> opened (`CLAUDE.md`, `docs/PLAN-M0-M1.md` §4).
+### The v5 kill test (since 2026-09-26)
+
+Same threshold, same `log` and `status`. The artefact is now two or three
+campaign POPs per brand, and the list is founder-led $1–20M brands:
+
+```sh
+pnpm killtest pops targets.txt --dry-run          # preflight only
+pnpm killtest pops targets.txt --per-brand 3 --runs 3
+```
+
+For each brand it reads the catalogue, runs the Genome (3 runs a product by
+default), and asks `pop suggest` what the catalogue has depth for. A brand
+that reads `skip` (nothing a keyword collection could not make) is screened
+out and **not added to the ledger**: a brand we chose not to ask is not a
+brand that said no. Otherwise it publishes the Genome-led POPs and writes a
+drafted note to `killtest/out/<store>.md` (git-ignored, like the ledger). The
+note leads with the products no keyword collection would have found, and asks
+the founder whether they would have picked them.
+
+**Budget, before running it.** Genome spend counts against the same ledger
+and the same A$100 cap the owner approved for the M1 gold set. Thirty brands
+of ~300 products at 3 runs is roughly A$200 at the one-store measured rate,
+and nearer A$50 if the prompt cache holds. Either would eat the gold-set
+budget. The run stops at the cap rather than past it. A kill-test budget is
+the owner's call: raise `GENOME_V1_CAP_AUD` deliberately, or use `--runs 1`
+at a fifth of the cost, which drops `suggest` to single-run confidence.
+
+The candidate lists in `killtest/` were chosen for the bio-shop test. Re-pick
+for founder-led $1–20M brands with 300+ products across several categories;
+`suggest`'s verdict is the second screen, not the first.
 
 ## 4. Genome v1 (v5's M1): the gold set and the agreement gate
 
