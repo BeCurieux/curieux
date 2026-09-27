@@ -1,0 +1,76 @@
+# v5 kill-test candidates: Australian and New Zealand brands for campaign POPs.
+#
+# Researched 2026-09-27 from web search results only. This environment cannot
+# open storefronts, so NOTHING HERE IS VERIFIED against a live store: product
+# counts, Shopify, and revenue are search evidence at best. Screen first, on a
+# machine that can reach storefronts:
+#
+#   pnpm screen killtest/candidates-v5.txt --v5 > killtest/targets.txt
+#
+# Then edit targets.txt by hand. The screener checks size, spread and stock.
+# Whether a brand is founder-led, $1–20M and runs campaigns is a judgement it
+# cannot make; the notes below say what the search evidence was.
+#
+# What v5 wants: founder-led, roughly A$1–20M a year, 300+ products across
+# several kinds of thing, giftable, and running Christmas campaigns. Christmas
+# is the next campaign, so a Christmas POP sent in October–November lands when
+# founders are planning it.
+#
+# Business notes only. No personal details are kept here.
+
+# --------------------------------------------- tier A: strongest evidence
+https://kipandco.com.au              # homewares, bedding, sleepwear, Xmas; very strong Christmas gifting; revenue may exceed A$20M, check
+https://fatherrabbit.com             # Auckland; multi-brand homewares, fashion, kids, stationery; gift guides and a Christmas shop
+https://seedandsprout.com            # Byron Bay; ~A$10M, ~450 products, kitchen/personal care/travel; Shopify confirmed
+https://biome.com.au                 # Brisbane; eco store, ~6,000 SKUs across beauty, home, kitchen; ~A$7M
+https://www.adventureawaits.com.au   # regional VIC; "4,000+ gifts": toys, travel, camping; gift-led since 2012
+https://teapea.co.nz                 # Wellington; clothing, homewares, beauty, baby, gifts; gift guides, Christmas collections
+https://venroy.com.au                # Sydney; men's and women's linen, swim, sleep; Gift Shop collection; ~A$13M
+https://afends.com                   # Byron Bay; men's and women's apparel and accessories; gifts-for-men collection; Shopify confirmed
+https://budgysmuggler.com.au         # Sydney; swim and underwear; gift guides incl. by "dad type"; Shopify confirmed; check catalogue size
+https://www.hisgifts.com.au          # Perth; men's and teens' gifts; Christmas and Father's Day categories; Shopify confirmed
+https://rushfaster.com.au            # Sydney; multi-brand bags, travel, EDC, desk; men's and tech gifting
+https://jacandjack.com               # Sydney; knitwear, women's and men's, accessories; gift guide; ~A$16M
+https://www.wallacecotton.com        # Auckland; bedding, sleepwear, men's robes; gift guides incl. Christmas; revenue may be high, check
+https://www.hipkids.com.au           # Melbourne; toys, furniture, decor, outdoor; gifts category
+https://www.naturebaby.co.nz         # Auckland; babywear, sleep, bedding, toys; ~NZ$14M, founders still own it
+
+# --------------------------------------------- tier B: worth screening
+https://hommey.com                   # Melbourne; cushions, bedding, towels, sleepwear; A$6M+, Shopify Plus; DOMAIN ASSUMED, check
+https://academybrand.com             # Sydney; men's, women's, kids; Christmas gift guide, 300+; may exceed A$20M, check
+https://thememo.com.au               # Melbourne; parenting multi-brand store; Shopify confirmed; may exceed A$20M, check
+https://mrsimple.co                  # Melbourne; menswear plus accessories; likely 300+; Shopify confirmed; weak gifting evidence
+https://monsroyale.com               # Wanaka NZ; merino apparel, socks, headwear; gift guide; may exceed A$20M, check
+https://www.shutthefrontdoor.co.nz   # Auckland; homewares, gifts, fashion, kids; gift-led; four stores
+https://www.maisonbalzac.com         # Sydney; candles, glassware, tableware, linen; strong Christmas; may be under 300 products
+https://ivoryanddeene.com.au         # Launceston; lighting, decor, furniture, bedding; Shopify confirmed; second-generation owners
+https://nudieglow.com                # Melbourne; multi-brand K-beauty; advent calendar and bundles
+https://www.thesleepstore.co.nz      # Auckland; sleep, nursery, baby gifts
+https://thinkersandmakers.com.au     # Melbourne; local-made gifts and clothing
+https://funkygifts.co.nz             # Hamilton NZ; novelty gifts incl. camping and recreation
+https://longreefsurf.com.au          # Sydney Northern Beaches; surf, ocean swim, beach; Shopify confirmed; "dads who love the water"
+https://sageandclare.com             # Melbourne; bedlinen, rugs, homewares, apparel; Gift Shop; one source says ~160 products, check
+https://palmbeachcollection.com.au   # Sydney; candles, diffusers, bath and body, gift packs; probably 150–300 products
+https://floraandfauna.com.au         # Sydney; ethical beauty and home, 10 categories; founder back since 2023 but majority owned by HealthPost, check
+https://barneycools.com              # Sydney; men's and women's apparel; ~A$6M; weak gifting evidence
+https://doublerainbouu.com           # Sydney; apparel, sleepwear, accessories; ~A$8M; weak gifting evidence
+https://kuddlykids.com.au            # Sunshine Coast; 100+ kids brands: clothing, toys, gifts
+https://www.ry.com.au                # multi-brand beauty; founders bought it back in 2025; may exceed A$20M, check platform
+
+# --------------------------------------------- tier C: reserves, thin evidence
+https://littlewhimsy.co.nz           # Auckland; toys, books, baby gifts, partyware; probably small
+https://bonnieandneil.com.au         # Melbourne; cushions, table linen, homewares; size unknown
+https://everyday-needs.com           # Auckland; outdoor, home and desk; one store; platform unknown
+https://stylestory.com.au            # multi-brand K-beauty; size unknown
+https://www.vamsbeauty.com           # Melbourne; Australian beauty brands; may be small; Shopify confirmed
+https://theplayfulcollective.com.au  # Yarra Valley; toys; Christmas gift guide confirmed; probably small
+https://www.toys101.co.nz            # NZ; toys, games, collectibles; founder unknown
+https://www.littleearthnest.com.au   # eco toys and baby clothes; small family business
+https://nourishedlife.com.au         # Sydney; multi-brand natural beauty; same group as Flora & Fauna; founder involvement unclear
+
+# --------------------------------------------- excluded, with reasons
+# beautybliss.co.nz, mym.co.nz, cleanbeautycollective.co.nz: look like WooCommerce/WordPress, not Shopify
+# minimax.com.au: not founder-led (third owners since 1967)
+# onlinetoys.com.au: probably not Shopify; penandink.com.au: nothing verifiable
+# Ownership or size: Milligram (Dymocks), Yellow Octopus (sold), Thrills (Universal Store),
+#   Everten (Kitchen Warehouse), Oz Hair & Beauty (A$100M+), Rhythm, Huffer, HealthPost

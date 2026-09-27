@@ -28,3 +28,4 @@ killtest/*
 !killtest/targets.example.txt
 !killtest/candidates.txt
 !killtest/candidates-makers.txt
+!killtest/candidates-v5.txt
