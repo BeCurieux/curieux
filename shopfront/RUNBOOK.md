@@ -405,14 +405,15 @@ drafted note to `killtest/out/<store>.md` (git-ignored, like the ledger). The
 note leads with the products no keyword collection would have found, and asks
 the founder whether they would have picked them.
 
-**Budget, before running it.** Genome spend counts against the same ledger
-and the same A$100 cap the owner approved for the M1 gold set. At the
-measured direct-mode rate (about A$0.0038 per product per run, prompt cache
-warm), thirty brands of ~300 products at 3 runs is **about A$100**, which
-would use the whole gold-set budget. The run stops at the cap rather than
-past it. A kill-test budget is the owner's call: raise `GENOME_V1_CAP_AUD`
-deliberately, or use `--runs 1` at a third of the cost, which drops
-`suggest` to single-run confidence.
+**Budget: A$150, approved by the owner on 2026-09-27**, separate from the
+gold set's A$100. The kill test's Genome runs are recorded under `killtest`
+in the spend ledger and checked against their own cap, so they cannot touch
+the gold-set budget, and the run stops at the cap rather than past it
+(`pnpm genome:budget` shows both). At the measured direct-mode rate (about
+A$0.0038 per product per run, prompt cache warm), thirty brands of ~300
+products at 3 runs is about A$100, which leaves headroom for larger
+catalogues and re-runs. The POP generation calls (brief and assembly) are not
+on this ledger. Estimate A$10–15 for ~90 POPs.
 
 The candidate lists in `killtest/` were chosen for the bio-shop test. Re-pick
 for founder-led $1–20M brands with 300+ products across several categories;

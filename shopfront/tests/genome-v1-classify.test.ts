@@ -8,7 +8,8 @@ import type { IngestResult } from "@/lib/ingest/types";
 import { classifyCatalogue } from "@/lib/genome/v1/classify";
 import { createMockClassifier, mockClassify } from "@/lib/genome/v1/mock";
 import { createAnthropicClassifier } from "@/lib/genome/v1/anthropic";
-import { OverBudgetError, projectCatalogue, usdFor } from "@/lib/genome/v1/cost";
+import { capAud, OverBudgetError, projectCatalogue, readLedger, recordSpend, spentAud, usdFor } from "@/lib/genome/v1/cost";
+import { ZERO_USAGE } from "@/lib/genome/v1/provider";
 import type { ClassifierProvider, RunResult } from "@/lib/genome/v1/provider";
 import { PROMPT_VERSION } from "@/lib/genome/v1/prompt";
 import { classifierInput, inputsHash } from "@/lib/genome/v1/inputs";
@@ -99,6 +100,25 @@ describe("classifyCatalogue", () => {
     } finally {
       delete process.env.GENOME_V1_CAP_AUD;
     }
+  });
+
+  it("keeps the kill test's budget apart from the gold set's", async () => {
+    const ledger = await tmpLedger();
+    // The gold set's A$100 is all but spent.
+    await recordSpend(
+      { at: "x", label: "gold", model: "claude-sonnet-5", billing: "standard", requests: 1, usage: ZERO_USAGE, usd: 64, aud: 99.99 },
+      ledger.file,
+    );
+    await expect(classifyCatalogue({ storeUrl, catalogue, provider: paidFake(), ledger, limit: 1 })).rejects.toBeInstanceOf(OverBudgetError);
+
+    // The kill test draws on its own A$150 and runs.
+    const run = await classifyCatalogue({ storeUrl, catalogue, provider: paidFake(), ledger, limit: 1, budget: "killtest" });
+    expect(run.budget).toBe("killtest");
+    const written = await readLedger(ledger.file);
+    expect(spentAud(written, "m1")).toBeCloseTo(99.99);
+    expect(spentAud(written, "killtest")).toBeGreaterThan(0);
+    expect(capAud("killtest")).toBe(150);
+    expect(capAud("m1")).toBe(100);
   });
 
   it("records measured spend in the ledger and projects a catalogue", async () => {

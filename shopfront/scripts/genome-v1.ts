@@ -2,8 +2,9 @@
 /**
  * Genome v1 (v5's M1) from the command line.
  *
- *   pnpm genome:classify <store-url> [--provider anthropic|mock] [--mode batch|direct]
- *                        [--runs 5] [--limit N] [--no-images] [--featured h1,h2] [--min 5] [--json]
+ *   pnpm genome:classify <store-url> [--provider anthropic|mock] [--mode direct|batch]
+ *                        [--runs 5] [--limit N] [--no-images] [--featured h1,h2] [--min 5]
+ *                        [--budget m1|killtest] [--json]
  *   pnpm genome:override <store-url> <handle> <dimension> <value> [value...]
  *   pnpm genome:seed                     publish the taxonomy and price bands to Supabase
  *   pnpm genome:goldset <store-url...> [--file urls.txt] [--set NAME] [--size 200] [--seed 1]
@@ -25,7 +26,7 @@ import { resolveOrigin } from "../src/lib/origin";
 import { storeNameFromEnv } from "../src/lib/publish/store";
 import { createAnthropicClassifier } from "../src/lib/genome/v1/anthropic";
 import { classifyCatalogue, type ClassifyResult } from "../src/lib/genome/v1/classify";
-import { audPerUsd, projectCatalogue, readLedger, spentAud } from "../src/lib/genome/v1/cost";
+import { audPerUsd, BUDGETS, capAud, isBudget, projectCatalogue, readLedger, spentAud, type Budget } from "../src/lib/genome/v1/cost";
 import {
   adjudicatedGold,
   agreement,
@@ -72,6 +73,12 @@ const money = (usd: number) => `US$${usd.toFixed(4)} ≈ A$${(usd * audPerUsd())
 
 // --------------------------------------------------------------- helpers
 
+function budgetFlag(flags: Flags): Budget {
+  const value = flags.values.get("--budget") ?? "m1";
+  if (!isBudget(value)) throw new Error(`--budget must be one of: ${Object.keys(BUDGETS).join(", ")}`);
+  return value;
+}
+
 async function loadIngest(url: string): Promise<IngestResult> {
   const file = path.join(".cache", "ingest", `${storeCacheKey(normaliseStoreUrl(url))}.json`);
   try {
@@ -114,7 +121,9 @@ function costSummary(result: ClassifyResult, p: ClassifierProvider): string[] {
     const at = projectCatalogue(perRun, 5, 2000);
     lines.push(`  2,000 SKUs    US$${at.usd.toFixed(2)} ≈ A$${at.aud.toFixed(2)} at 5 runs (${p.billing === "batch" ? "batch" : "direct"}, as measured)`);
   }
-  if (result.ledger) lines.push(`  M1 budget     A$${spentAud(result.ledger).toFixed(2)} of A$${result.ledger.capAud} spent`);
+  if (result.ledger) {
+    lines.push(`  budget        A$${spentAud(result.ledger, result.budget).toFixed(2)} of A$${capAud(result.budget)} spent (${BUDGETS[result.budget].what})`);
+  }
   lines.push(`  rate          ${audPerUsd()} AUD/USD (assumed; set AUD_PER_USD)`);
   return lines;
 }
@@ -144,6 +153,7 @@ async function classify(flags: Flags): Promise<void> {
       merchantMin: flags.values.has("--min") ? Number(flags.values.get("--min")) : undefined,
     },
     label: `classify ${storeUrl}`,
+    budget: budgetFlag(flags),
     onProgress: (m) => out(`  … ${m}`),
   });
   await store.saveClassification(storeUrl, result.products, result.values);
@@ -273,7 +283,7 @@ async function evaluate(flags: Flags): Promise<void> {
   const goldItems = items.filter((i) => gold.answers.has(i.id));
   const p = provider(flags);
   const storeUrl = `gold:${goldSet ?? "all"}`;
-  const result = await classifyCatalogue({ storeUrl, catalogue: goldCatalogue(goldItems), provider: p, label: `eval ${storeUrl}`, onProgress: (m) => out(`  … ${m}`) });
+  const result = await classifyCatalogue({ storeUrl, catalogue: goldCatalogue(goldItems), provider: p, label: `eval ${storeUrl}`, budget: "m1", onProgress: (m) => out(`  … ${m}`) });
 
   const runsDir = path.join(".cache", "genome-v1", "gold-runs");
   await mkdir(runsDir, { recursive: true });
@@ -317,8 +327,10 @@ async function main(): Promise<void> {
       return evaluate(flags);
     case "budget": {
       const ledger = await readLedger();
-      out(`M1 classification spend: A$${spentAud(ledger).toFixed(2)} of A$${ledger.capAud} (${ledger.entries.length} runs).`);
-      for (const e of ledger.entries) out(`  ${e.at}  ${e.label}  ${e.requests} requests  A$${e.aud.toFixed(4)}`);
+      for (const b of Object.keys(BUDGETS) as Budget[]) {
+        out(`${BUDGETS[b].what} (${b}): A$${spentAud(ledger, b).toFixed(2)} of A$${capAud(b)}`);
+      }
+      for (const e of ledger.entries) out(`  ${e.at}  [${e.budget ?? "m1"}]  ${e.label}  ${e.requests} requests  A$${e.aud.toFixed(4)}`);
       return;
     }
     default:

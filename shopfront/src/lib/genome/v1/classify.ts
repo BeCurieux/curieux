@@ -44,6 +44,7 @@ import {
   readLedger,
   recordSpend,
   usdFor,
+  type Budget,
   type Ledger,
 } from "./cost";
 
@@ -83,6 +84,8 @@ export interface ClassifyOptions {
   limit?: number;
   /** Skip the cap check and the ledger. Tests only. */
   ledger?: { file?: string } | false;
+  /** Which approved budget this spend comes out of. */
+  budget?: Budget;
   label?: string;
   now?: Date;
   onProgress?: (message: string) => void;
@@ -100,6 +103,7 @@ export interface ClassifyResult {
   /** Measured cost of one product-run, for projections. Null when nothing was billed. */
   usdPerProductRun: number | null;
   ledger: Ledger | null;
+  budget: Budget;
 }
 
 export const DEFAULT_RUNS = 5;
@@ -143,7 +147,7 @@ export async function classifyCatalogue(options: ClassifyOptions): Promise<Class
     options.onProgress?.(
       `estimate: ${requests.length} requests × ~${perRequest} input tokens → US$${estimate.toFixed(2)} ≈ A$${(estimate * audPerUsd()).toFixed(2)} (at ${audPerUsd()} AUD/USD)`,
     );
-    assertWithinCap(ledger, estimate * audPerUsd());
+    assertWithinCap(ledger, estimate * audPerUsd(), options.budget ?? "m1");
   }
 
   const results = requests.length ? await provider.classify(requests, options.onProgress) : [];
@@ -154,7 +158,7 @@ export async function classifyCatalogue(options: ClassifyOptions): Promise<Class
   const aud = usd * audPerUsd();
   if (provider.billing !== "free" && options.ledger !== false && requests.length > 0) {
     ledger = await recordSpend(
-      { at: now, label: options.label ?? storeUrl, model: provider.model, billing: provider.billing, requests: requests.length, usage, usd, aud },
+      { at: now, label: options.label ?? storeUrl, budget: options.budget ?? "m1", model: provider.model, billing: provider.billing, requests: requests.length, usage, usd, aud },
       options.ledger?.file,
     );
   }
@@ -294,6 +298,7 @@ export async function classifyCatalogue(options: ClassifyOptions): Promise<Class
     aud,
     usdPerProductRun: billedRequests > 0 && usd > 0 ? usd / billedRequests : null,
     ledger,
+    budget: options.budget ?? "m1",
   };
 }
 

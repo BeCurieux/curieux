@@ -25,16 +25,37 @@ export const PRICES_USD_PER_MTOK: Record<string, { input: number; output: number
 };
 
 export const DEFAULT_AUD_PER_USD = 1.55;
-export const DEFAULT_CAP_AUD = 100;
+
+/**
+ * Spend is capped per purpose, each approved by the owner separately, so one
+ * cannot quietly consume another:
+ *
+ * - `m1`: Genome v1 gold-set classification, A$100 (2026-09-26).
+ * - `killtest`: the v5 kill test's Genome runs, A$150 (2026-09-27).
+ *
+ * A ledger entry written before budgets existed belongs to `m1`, which was the
+ * only budget then. Raising a cap is the owner's decision; the env variable
+ * is how that decision is applied, not a place to make it.
+ */
+export const BUDGETS = {
+  m1: { capAud: 100, env: "GENOME_V1_CAP_AUD", what: "M1 gold set" },
+  killtest: { capAud: 150, env: "KILLTEST_CAP_AUD", what: "v5 kill test" },
+} as const;
+export type Budget = keyof typeof BUDGETS;
+export const DEFAULT_CAP_AUD = BUDGETS.m1.capAud;
+
+export function isBudget(value: string): value is Budget {
+  return value in BUDGETS;
+}
 
 export function audPerUsd(): number {
   const fromEnv = Number(process.env.AUD_PER_USD);
   return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : DEFAULT_AUD_PER_USD;
 }
 
-export function capAud(): number {
-  const fromEnv = Number(process.env.GENOME_V1_CAP_AUD);
-  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : DEFAULT_CAP_AUD;
+export function capAud(budget: Budget = "m1"): number {
+  const fromEnv = Number(process.env[BUDGETS[budget].env]);
+  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : BUDGETS[budget].capAud;
 }
 
 export function priceFor(model: string): { input: number; output: number } {
@@ -80,6 +101,8 @@ export function projectCatalogue(usdPerProductRun: number, runs: number, skus: n
 export interface LedgerEntry {
   at: string;
   label: string;
+  /** Absent on entries written before budgets existed: those are `m1`. */
+  budget?: Budget;
   model: string;
   billing: "batch" | "standard" | "free";
   requests: number;
@@ -89,7 +112,6 @@ export interface LedgerEntry {
 }
 
 export interface Ledger {
-  capAud: number;
   entries: LedgerEntry[];
 }
 
@@ -99,26 +121,29 @@ export function ledgerPath(root = process.cwd()): string {
 
 export async function readLedger(file = ledgerPath()): Promise<Ledger> {
   try {
-    const parsed = JSON.parse(await readFile(file, "utf8")) as Ledger;
-    return { capAud: capAud(), entries: parsed.entries ?? [] };
+    const parsed = JSON.parse(await readFile(file, "utf8")) as Partial<Ledger>;
+    return { entries: parsed.entries ?? [] };
   } catch {
-    return { capAud: capAud(), entries: [] };
+    return { entries: [] };
   }
 }
 
-export function spentAud(ledger: Ledger): number {
-  return ledger.entries.reduce((sum, e) => sum + e.aud, 0);
+const budgetOf = (e: LedgerEntry): Budget => e.budget ?? "m1";
+
+export function spentAud(ledger: Ledger, budget: Budget = "m1"): number {
+  return ledger.entries.filter((e) => budgetOf(e) === budget).reduce((sum, e) => sum + e.aud, 0);
 }
 
 export class OverBudgetError extends Error {}
 
-/** Throws before anything is sent when the estimate would cross the cap. */
-export function assertWithinCap(ledger: Ledger, estimateAud: number): void {
-  const spent = spentAud(ledger);
-  if (spent + estimateAud > ledger.capAud) {
+/** Throws before anything is sent when the estimate would cross this budget's cap. */
+export function assertWithinCap(ledger: Ledger, estimateAud: number, budget: Budget = "m1"): void {
+  const spent = spentAud(ledger, budget);
+  const cap = capAud(budget);
+  if (spent + estimateAud > cap) {
     throw new OverBudgetError(
-      `This run is estimated at A$${estimateAud.toFixed(2)}; A$${spent.toFixed(2)} of the A$${ledger.capAud} M1 cap is already spent. ` +
-        "Raising GENOME_V1_CAP_AUD is the owner's decision, not the script's.",
+      `This run is estimated at A$${estimateAud.toFixed(2)}; A$${spent.toFixed(2)} of the A$${cap} ${BUDGETS[budget].what} cap is already spent. ` +
+        `Raising ${BUDGETS[budget].env} is the owner's decision, not the script's.`,
     );
   }
 }

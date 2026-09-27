@@ -205,11 +205,12 @@ async function pops(file: string, options: { perBrand: number; runs: number; min
     }
 
     // 2. The Genome, under the cost cap. Over the cap stops the whole run.
-    const classify = spawnSync("pnpm", ["genome:classify", storeUrl, "--provider", "anthropic", "--runs", String(options.runs)], { encoding: "utf8" });
+    // Out of the kill test's own budget (A$150, owner, 2026-09-27), never the gold set's.
+    const classify = spawnSync("pnpm", ["genome:classify", storeUrl, "--provider", "anthropic", "--runs", String(options.runs), "--budget", "killtest"], { encoding: "utf8" });
     if (classify.status !== 0) {
       const why = (classify.stderr ?? "").trim().split("\n").slice(-1)[0] ?? "unknown";
       process.stderr.write(`        Genome failed: ${why}\n`);
-      if (/cap is already spent|GENOME_V1_CAP_AUD/.test(classify.stderr ?? "")) {
+      if (/cap is already spent|KILLTEST_CAP_AUD/.test(classify.stderr ?? "")) {
         process.stderr.write("\n  Stopped at the Genome cost cap. Raising it is the owner's decision.\n\n");
         break;
       }
