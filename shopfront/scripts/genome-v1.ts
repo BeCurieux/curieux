@@ -85,7 +85,9 @@ function provider(flags: Flags): ClassifierProvider {
   const name = flags.values.get("--provider") ?? (process.env.AI_PROVIDER === "anthropic" ? "anthropic" : "mock");
   if (name === "mock") return createMockClassifier();
   if (name !== "anthropic") throw new Error("--provider must be anthropic or mock");
-  const mode = flags.values.get("--mode") ?? "batch";
+  // Direct by default: with the prompt cache warm it measured half the cost of
+  // batch, and eight times faster (see src/lib/genome/v1/anthropic.ts).
+  const mode = flags.values.get("--mode") ?? "direct";
   if (mode !== "batch" && mode !== "direct") throw new Error("--mode must be batch or direct");
   return createAnthropicClassifier({ mode });
 }
@@ -104,14 +106,13 @@ function costSummary(result: ClassifyResult, p: ClassifierProvider): string[] {
   lines.push(`  tokens        ${result.usage.inputTokens} in, ${result.usage.cacheReadTokens} cache-read, ${result.usage.cacheWriteTokens} cache-write, ${result.usage.outputTokens} out`);
   lines.push(`  spent         ${money(result.usd)} (${p.billing} pricing)`);
   if (result.usdPerProductRun !== null) {
+    // Projected at the mode that was measured only. Batch and direct cache
+    // differently, so halving a direct run's cost does not give the batch
+    // price (it measured higher, not lower).
     const perRun = result.usdPerProductRun;
-    // The same tokens at the other price, so both projections come from one measurement.
-    const standardPerRun = p.billing === "batch" ? perRun * 2 : perRun;
-    const batchPerRun = p.billing === "batch" ? perRun : perRun / 2;
     lines.push(`  per product   ${money(perRun * 5)} at 5 runs`);
-    const batch = projectCatalogue(batchPerRun, 5, 2000);
-    const standard = projectCatalogue(standardPerRun, 5, 2000);
-    lines.push(`  2,000 SKUs    US$${batch.usd.toFixed(2)} ≈ A$${batch.aud.toFixed(2)} by batch · US$${standard.usd.toFixed(2)} ≈ A$${standard.aud.toFixed(2)} direct (5 runs)`);
+    const at = projectCatalogue(perRun, 5, 2000);
+    lines.push(`  2,000 SKUs    US$${at.usd.toFixed(2)} ≈ A$${at.aud.toFixed(2)} at 5 runs (${p.billing === "batch" ? "batch" : "direct"}, as measured)`);
   }
   if (result.ledger) lines.push(`  M1 budget     A$${spentAud(result.ledger).toFixed(2)} of A$${result.ledger.capAud} spent`);
   lines.push(`  rate          ${audPerUsd()} AUD/USD (assumed; set AUD_PER_USD)`);

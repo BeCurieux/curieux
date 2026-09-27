@@ -725,7 +725,7 @@ kill test, and nothing reads it yet. The merchandiser still uses the Genome
 above until M2 compares the two.
 
 ```
-pnpm genome:classify <store-url> --provider anthropic   # 5 runs per product, by batch
+pnpm genome:classify <store-url> --provider anthropic   # 5 runs per product, direct with a warm prompt cache
 pnpm genome:override <store-url> <handle> gift_role indulgent
 pnpm genome:goldset --file stores.txt --set gold-v1     # ~200 products for the labellers
 pnpm genome:invite "Merchandiser A"                     # a labelling link, shown once

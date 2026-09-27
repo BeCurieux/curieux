@@ -58,22 +58,25 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
   /*
    * The taxonomy prompt is ~3.3k tokens and identical for every product, so
    * it should be written to the cache once and read by everything after.
-   * The one-store run showed it was not: in a batch, requests run in
-   * parallel and at times nobody controls, so 46 of 50 wrote their own copy,
-   * and those writes were 80% of the bill.
+   * Measured on the same 10 products × 5 runs (2026-09-27):
    *
-   * Two changes, from the prompt-caching guidance: batch requests use the
-   * 1-hour TTL, because a batch can outlive the default 5 minutes, and the
-   * first request is sent on its own before the batch, so the entry exists
-   * before anything else asks for it. That first request is a real run, not
-   * a throwaway: structured outputs rule out the zero-token warm-up call.
+   *   batch, 5-minute cache            US$0.24   46 writes,  4 reads
+   *   batch, warm-up + 1-hour cache    US$0.32   39 writes, 11 reads
+   *   direct, one request first        US$0.12    0 writes, 50 reads
+   *
+   * Batch requests run in parallel at times nobody controls and mostly miss
+   * each other's cache entries, even one written ahead of them; at 1.25x a
+   * write, caching then costs more than the batch discount saves. Direct
+   * requests sent right after a warm-up reliably read the cache at a tenth of
+   * the input price, which beats half-price batch. So direct is the default,
+   * warmed by one request on its own, and batch stays available for runs too
+   * large to send directly.
    */
-  const ttl: "5m" | "1h" = options.mode === "batch" ? "1h" : "5m";
   const params = (input: ClassifyRequest["input"]): Anthropic.MessageCreateParamsNonStreaming => ({
     model,
     max_tokens: MAX_TOKENS,
     output_config: { effort, format: { type: "json_schema", schema: CLASSIFICATION_SCHEMA } },
-    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral", ttl } }],
+    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
     messages: [
       {
         role: "user",
@@ -104,7 +107,18 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
     async classify(requests, onProgress) {
       if (options.mode === "direct") {
         const out: RunResult[] = new Array(requests.length);
+        // One request alone first, so the parallel ones find the taxonomy
+        // prompt already cached instead of each writing their own copy.
         let next = 0;
+        if (requests.length > 1) {
+          const first = requests[0]!;
+          try {
+            out[0] = fromMessage(first.customId, await client.messages.create(params(first.input)));
+          } catch (error) {
+            out[0] = failed(first.customId, error);
+          }
+          next = 1;
+        }
         const worker = async () => {
           while (next < requests.length) {
             const i = next++;
@@ -120,21 +134,10 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
         return out;
       }
 
-      // Warm the cache with the first real request, then batch the rest.
-      const [first, ...rest] = requests;
-      let warmed: RunResult;
-      try {
-        warmed = { ...fromMessage(first!.customId, await client.messages.create(params(first!.input))), billing: "standard" };
-      } catch (error) {
-        warmed = failed(first!.customId, error);
-      }
-      onProgress?.(`cache warmed by ${first!.customId} (${warmed.usage?.cacheWriteTokens ?? 0} tokens written)`);
-      if (rest.length === 0) return [warmed];
-
       const batch = await client.messages.batches.create({
-        requests: rest.map((r) => ({ custom_id: r.customId, params: params(r.input) })),
+        requests: requests.map((r) => ({ custom_id: r.customId, params: params(r.input) })),
       });
-      onProgress?.(`batch ${batch.id} submitted: ${rest.length} requests`);
+      onProgress?.(`batch ${batch.id} submitted: ${requests.length} requests`);
 
       let status = batch;
       while (status.processing_status !== "ended") {
@@ -144,7 +147,7 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
         onProgress?.(`batch ${batch.id}: ${status.processing_status}, ${c.succeeded} done, ${c.processing} processing, ${c.errored} errored`);
       }
 
-      const byId = new Map<string, RunResult>([[warmed.customId, warmed]]);
+      const byId = new Map<string, RunResult>();
       for await (const entry of await client.messages.batches.results(batch.id)) {
         const result = entry.result;
         byId.set(

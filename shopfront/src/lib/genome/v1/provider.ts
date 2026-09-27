@@ -34,8 +34,6 @@ export interface RunResult {
   output: unknown | null;
   error: string | null;
   usage: Usage | null;
-  /** How this one request was billed, when it differs from the provider's (the batch's cache warm-up is a direct request). */
-  billing?: "batch" | "standard";
 }
 
 export interface ClassifierProvider {

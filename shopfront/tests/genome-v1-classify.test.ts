@@ -156,16 +156,11 @@ describe("the Anthropic classifier", () => {
       usage: { input_tokens: 100, output_tokens: 50, cache_read_input_tokens: 2000, cache_creation_input_tokens: 0 },
     }) as unknown as Anthropic.Message;
 
-  it("warms the cache with the first request, batches the rest, and keys results by custom_id, not position", async () => {
+  it("submits one batch, polls it, and keys results by custom_id, not position", async () => {
     const created: { requests: { custom_id: string; params: Anthropic.MessageCreateParamsNonStreaming }[] }[] = [];
-    const direct: Anthropic.MessageCreateParamsNonStreaming[] = [];
     let polls = 0;
     const client = {
       messages: {
-        create: async (body: Anthropic.MessageCreateParamsNonStreaming) => {
-          direct.push(body);
-          return message(JSON.stringify({ gift_role: "novelty" }));
-        },
         batches: {
           create: async (body: (typeof created)[number]) => {
             created.push(body);
@@ -175,8 +170,8 @@ describe("the Anthropic classifier", () => {
           results: async () =>
             (async function* () {
               // Deliberately out of order.
-              yield { custom_id: "p0-r2", result: { type: "errored", error: { type: "overloaded_error" } } };
-              yield { custom_id: "p0-r1", result: { type: "succeeded", message: message(JSON.stringify({ gift_role: "practical" })) } };
+              yield { custom_id: "p0-r1", result: { type: "errored", error: { type: "overloaded_error" } } };
+              yield { custom_id: "p0-r0", result: { type: "succeeded", message: message(JSON.stringify({ gift_role: "practical" })) } };
             })(),
         },
       },
@@ -187,31 +182,41 @@ describe("the Anthropic classifier", () => {
     const out = await provider.classify([
       { customId: "p0-r0", input },
       { customId: "p0-r1", input },
-      { customId: "p0-r2", input },
     ]);
-
-    // The first request went direct, alone, before the batch existed.
-    expect(direct).toHaveLength(1);
-    expect(created[0]!.requests.map((r) => r.custom_id)).toEqual(["p0-r1", "p0-r2"]);
-    expect(out.map((r) => r.customId)).toEqual(["p0-r0", "p0-r1", "p0-r2"]);
-    expect(out[0]).toMatchObject({ output: { gift_role: "novelty" }, billing: "standard" });
-    expect(out[1]!.output).toEqual({ gift_role: "practical" });
-    expect(out[2]!.error).toBe("batch errored");
-
-    // The same prefix, with the 1-hour TTL, in the warm-up and in the batch,
-    // or the batch would miss the entry the warm-up wrote.
-    const batched = created[0]!.requests[0]!.params;
-    expect(batched.output_config?.format?.type).toBe("json_schema");
-    expect(batched.system).toMatchObject([{ cache_control: { type: "ephemeral", ttl: "1h" } }]);
-    expect(direct[0]!.system).toEqual(batched.system);
+    expect(out.map((r) => r.customId)).toEqual(["p0-r0", "p0-r1"]);
+    expect(out[0]!.output).toEqual({ gift_role: "practical" });
+    expect(out[1]!.error).toBe("batch errored");
+    expect(created[0]!.requests).toHaveLength(2);
+    const params = created[0]!.requests[0]!.params;
+    expect(params.output_config?.format?.type).toBe("json_schema");
+    expect(params.system).toMatchObject([{ cache_control: { type: "ephemeral" } }]);
     expect(provider.billing).toBe("batch");
   });
 
-  it("keeps the 5-minute cache for direct runs, where requests follow each other closely", async () => {
-    const seen: Anthropic.MessageCreateParamsNonStreaming[] = [];
-    const client = { messages: { create: async (b: Anthropic.MessageCreateParamsNonStreaming) => (seen.push(b), message("{}")) } } as unknown as Anthropic;
-    await createAnthropicClassifier({ mode: "direct", client }).classify([{ customId: "a", input: classifierInput(catalogue.products[0]!) }]);
-    expect(seen[0]!.system).toMatchObject([{ cache_control: { type: "ephemeral", ttl: "5m" } }]);
+  it("in direct mode, sends one request alone before the rest, so they read its cache", async () => {
+    const log: number[] = [];
+    let inFlight = 0;
+    const client = {
+      messages: {
+        create: async () => {
+          inFlight += 1;
+          log.push(inFlight);
+          await new Promise((r) => setTimeout(r, 5));
+          inFlight -= 1;
+          return message("{}");
+        },
+      },
+    } as unknown as Anthropic;
+    const input = classifierInput(catalogue.products[0]!);
+    await createAnthropicClassifier({ mode: "direct", client, concurrency: 4 }).classify(
+      Array.from({ length: 6 }, (_, i) => ({ customId: `p0-r${i}`, input })),
+    );
+    // The first request ran alone: the second started only once it had
+    // finished (in flight: 1, not 2). After that, requests overlapped.
+    expect(log[0]).toBe(1);
+    expect(log[1]).toBe(1);
+    expect(Math.max(...log.slice(1))).toBeGreaterThan(1);
+    expect(log).toHaveLength(6);
   });
 
   it("treats a refusal or a truncation as a failed run, never as an answer", async () => {

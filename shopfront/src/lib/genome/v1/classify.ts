@@ -150,10 +150,7 @@ export async function classifyCatalogue(options: ClassifyOptions): Promise<Class
 
   // ------------------------------------------------------- spend, recorded
   const usage = results.reduce((u, r) => addUsage(u, r.usage), ZERO_USAGE);
-  // Per request, because not every request in a batch run is batch-priced:
-  // the cache warm-up is sent directly and bills at the standard rate.
-  const usd =
-    provider.billing === "free" ? 0 : results.reduce((sum, r) => (r.usage ? sum + usdFor(provider.model, r.usage, r.billing ?? provider.billing) : sum), 0);
+  const usd = usdFor(provider.model, usage, provider.billing);
   const aud = usd * audPerUsd();
   if (provider.billing !== "free" && options.ledger !== false && requests.length > 0) {
     ledger = await recordSpend(

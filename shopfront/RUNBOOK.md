@@ -406,12 +406,13 @@ note leads with the products no keyword collection would have found, and asks
 the founder whether they would have picked them.
 
 **Budget, before running it.** Genome spend counts against the same ledger
-and the same A$100 cap the owner approved for the M1 gold set. Thirty brands
-of ~300 products at 3 runs is roughly A$200 at the one-store measured rate,
-and nearer A$50 if the prompt cache holds. Either would eat the gold-set
-budget. The run stops at the cap rather than past it. A kill-test budget is
-the owner's call: raise `GENOME_V1_CAP_AUD` deliberately, or use `--runs 1`
-at a fifth of the cost, which drops `suggest` to single-run confidence.
+and the same A$100 cap the owner approved for the M1 gold set. At the
+measured direct-mode rate (about A$0.0038 per product per run, prompt cache
+warm), thirty brands of ~300 products at 3 runs is **about A$100**, which
+would use the whole gold-set budget. The run stops at the cap rather than
+past it. A kill-test budget is the owner's call: raise `GENOME_V1_CAP_AUD`
+deliberately, or use `--runs 1` at a third of the cost, which drops
+`suggest` to single-run confidence.
 
 The candidate lists in `killtest/` were chosen for the bio-shop test. Re-pick
 for founder-led $1–20M brands with 300+ products across several categories;
@@ -465,8 +466,8 @@ falls short of 8 stores or 5 categories.
 
 Categories come from a stored classification when the store has one, and from
 the merchant's product types otherwise. **Do not classify whole stores just to
-stratify.** At ~A$0.05–0.08 a product at five runs, eight stores of 500 would
-spend the M1 budget before labelling starts. Product types are good enough to
+stratify.** At ~A$0.02 a product at five runs, eight stores of 500 would cost
+~A$75, most of the M1 budget, before labelling starts. Product types are good enough to
 spread the sample, and `pnpm genome:eval --model` classifies only the ~200
 gold items.
 
@@ -509,8 +510,8 @@ Then the model, against the adjudicated gold:
 pnpm genome:eval --a "Merchandiser A" --b "Merchandiser B" --set gold-v1 --model --provider anthropic
 ```
 
-200 items × 5 runs by batch. Measured on the one-store run (see
-`docs/PLAN-M0-M1.md` §5), that is a few Australian dollars. The report gives
+200 items × 5 runs, direct with a warm prompt cache. At the measured rate
+(`docs/PLAN-M0-M1.md` §5), that is about A$4. The report gives
 accuracy next to human–human agreement, repeat-run consistency, calibration by
 run agreement, the unknown rate, and any label that moved since the previous
 run without a prompt, model or taxonomy change to explain it.

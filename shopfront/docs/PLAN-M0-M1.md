@@ -362,8 +362,24 @@ tokens per request, at batch price). Measure it on the first 2,000-SKU store
 rather than trusting either row. If the cache still misses, submitting one
 request ahead of the batch to warm it is the lever.
 
+**Update, 2026-09-27: the cache fix, measured on the same 10 × 5.**
+
+| Mode | Cost | Time | Cache |
+|---|---:|---:|---|
+| Batch, 5-minute cache (above) | US$0.24 | 3 min | 46 writes, 4 reads |
+| Batch, warm-up request + 1-hour cache | US$0.32 | 2.5 min | 39 writes, 11 reads |
+| **Direct, one request first, then 4 at a time** | **US$0.12** | **23 s** | 0 writes, 50 reads |
+
+Batch requests mostly miss each other's cache entries, even one written ahead
+of them, so caching in batch costs more than the batch discount saves. Direct
+requests after a warm-up read the cache every time. Direct is now the
+default, and the batch warm-up was reverted. The estimated row in the table
+above turned out right, just not by batch: **about A$0.019 per product at five
+runs, A$38 for a 2,000-SKU merchant.** (That run found the cache still warm
+from the batch run minutes before; a cold start adds one write, about a cent.)
+
 **The gold set costs little against the cap.** ~200 items × 5 runs at the
-measured rate is ≈ US$4.80 ≈ A$7.40. That leaves room to re-run it after a
+measured rate is ≈ US$4.80 ≈ A$7.40 by batch, or ≈ A$4 direct. That leaves room to re-run it after a
 definition is tightened, which the gate will likely ask for at least once.
 
 **The classifications on this catalogue** (hand tools and workwear) look
