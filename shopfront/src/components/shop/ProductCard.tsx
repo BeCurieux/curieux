@@ -29,6 +29,8 @@ export interface CardContext {
    * theme — a test, a fixture — gets the stacked default rather than a crash.
    */
   cardMeta?: "stacked" | "inline";
+  /** The page's per-item price promise, from `config.meta.priceCeiling`. */
+  priceCeiling?: number;
 }
 
 /**
@@ -123,6 +125,12 @@ export function ProductCard({
 }) {
   const soldOut = stockState(product) === "sold-out";
   const target = cardTarget(product, context);
+  // A "was" price above the page's promise is left out, sale styling with it.
+  // The price the shopper pays is always shown; only the reference goes.
+  const was =
+    product.compareAtPrice !== undefined && (context.priceCeiling === undefined || product.compareAtPrice <= context.priceCeiling)
+      ? product.compareAtPrice
+      : undefined;
 
   /*
    * A card with nowhere to go is a `<div>`, not an `<a href="">`.
@@ -153,10 +161,8 @@ export function ProductCard({
       <div className="card-meta" data-layout={context.cardMeta ?? "stacked"}>
         <p className="card-title">{product.title}</p>
         {product.blurb && <p className="card-blurb">{product.blurb}</p>}
-        <p className={`card-price${product.compareAtPrice !== undefined ? " card-price--sale" : ""}`}>
-          {product.compareAtPrice !== undefined && (
-            <del>{formatMoney(product.compareAtPrice, context.currency, context.locale)}</del>
-          )}
+        <p className={`card-price${was !== undefined ? " card-price--sale" : ""}`}>
+          {was !== undefined && <del>{formatMoney(was, context.currency, context.locale)}</del>}
           {product.priceVaries
             ? formatFrom(product.price, context.currency, context.locale)
             : formatMoney(product.price, context.currency, context.locale)}

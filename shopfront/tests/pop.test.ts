@@ -192,6 +192,7 @@ describe("generatePop — the demo acceptance test, on the dev-store fixture", (
       expect(product.available, handle).toBe(true);
     }
     expect(result.config.meta.prompt).toBe(SENTENCE);
+    expect(result.config.meta.priceCeiling).toBe(120);
     expect(result.decisions.map((d) => d.handle)).toEqual(shown);
     expect(result.decisions.filter((d) => d.role === "hero")).toHaveLength(1);
     expect(result.decisions.every((d) => d.isExploration === false)).toBe(true);

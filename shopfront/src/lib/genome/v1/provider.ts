@@ -22,7 +22,10 @@ export interface Usage {
   inputTokens: number;
   outputTokens: number;
   cacheReadTokens: number;
+  /** All cache writes, both TTLs. */
   cacheWriteTokens: number;
+  /** The part of `cacheWriteTokens` written with the 1-hour TTL (2x input, not 1.25x). Absent in older records. */
+  cacheWrite1hTokens?: number;
 }
 
 export interface RunResult {
@@ -31,6 +34,8 @@ export interface RunResult {
   output: unknown | null;
   error: string | null;
   usage: Usage | null;
+  /** How this one request was billed, when it differs from the provider's (the batch's cache warm-up is a direct request). */
+  billing?: "batch" | "standard";
 }
 
 export interface ClassifierProvider {
@@ -43,7 +48,7 @@ export interface ClassifierProvider {
   countInputTokens?(request: ClassifyRequest): Promise<number>;
 }
 
-export const ZERO_USAGE: Usage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+export const ZERO_USAGE: Usage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, cacheWrite1hTokens: 0 };
 
 export function addUsage(a: Usage, b: Usage | null): Usage {
   if (!b) return a;
@@ -52,5 +57,6 @@ export function addUsage(a: Usage, b: Usage | null): Usage {
     outputTokens: a.outputTokens + b.outputTokens,
     cacheReadTokens: a.cacheReadTokens + b.cacheReadTokens,
     cacheWriteTokens: a.cacheWriteTokens + b.cacheWriteTokens,
+    cacheWrite1hTokens: (a.cacheWrite1hTokens ?? 0) + (b.cacheWrite1hTokens ?? 0),
   };
 }

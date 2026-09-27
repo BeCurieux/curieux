@@ -55,11 +55,25 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
   const client = options.client ?? new Anthropic({ apiKey });
   const sleep = options.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
 
+  /*
+   * The taxonomy prompt is ~3.3k tokens and identical for every product, so
+   * it should be written to the cache once and read by everything after.
+   * The one-store run showed it was not: in a batch, requests run in
+   * parallel and at times nobody controls, so 46 of 50 wrote their own copy,
+   * and those writes were 80% of the bill.
+   *
+   * Two changes, from the prompt-caching guidance: batch requests use the
+   * 1-hour TTL, because a batch can outlive the default 5 minutes, and the
+   * first request is sent on its own before the batch, so the entry exists
+   * before anything else asks for it. That first request is a real run, not
+   * a throwaway: structured outputs rule out the zero-token warm-up call.
+   */
+  const ttl: "5m" | "1h" = options.mode === "batch" ? "1h" : "5m";
   const params = (input: ClassifyRequest["input"]): Anthropic.MessageCreateParamsNonStreaming => ({
     model,
     max_tokens: MAX_TOKENS,
     output_config: { effort, format: { type: "json_schema", schema: CLASSIFICATION_SCHEMA } },
-    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral", ttl } }],
     messages: [
       {
         role: "user",
@@ -106,10 +120,21 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
         return out;
       }
 
+      // Warm the cache with the first real request, then batch the rest.
+      const [first, ...rest] = requests;
+      let warmed: RunResult;
+      try {
+        warmed = { ...fromMessage(first!.customId, await client.messages.create(params(first!.input))), billing: "standard" };
+      } catch (error) {
+        warmed = failed(first!.customId, error);
+      }
+      onProgress?.(`cache warmed by ${first!.customId} (${warmed.usage?.cacheWriteTokens ?? 0} tokens written)`);
+      if (rest.length === 0) return [warmed];
+
       const batch = await client.messages.batches.create({
-        requests: requests.map((r) => ({ custom_id: r.customId, params: params(r.input) })),
+        requests: rest.map((r) => ({ custom_id: r.customId, params: params(r.input) })),
       });
-      onProgress?.(`batch ${batch.id} submitted: ${requests.length} requests`);
+      onProgress?.(`batch ${batch.id} submitted: ${rest.length} requests`);
 
       let status = batch;
       while (status.processing_status !== "ended") {
@@ -119,7 +144,7 @@ export function createAnthropicClassifier(options: AnthropicClassifierOptions): 
         onProgress?.(`batch ${batch.id}: ${status.processing_status}, ${c.succeeded} done, ${c.processing} processing, ${c.errored} errored`);
       }
 
-      const byId = new Map<string, RunResult>();
+      const byId = new Map<string, RunResult>([[warmed.customId, warmed]]);
       for await (const entry of await client.messages.batches.results(batch.id)) {
         const result = entry.result;
         byId.set(
@@ -140,6 +165,8 @@ function usageOf(message: Anthropic.Message): Usage {
     outputTokens: message.usage.output_tokens,
     cacheReadTokens: message.usage.cache_read_input_tokens ?? 0,
     cacheWriteTokens: message.usage.cache_creation_input_tokens ?? 0,
+    // Priced at 2x input rather than 1.25x; the ledger needs the split.
+    cacheWrite1hTokens: message.usage.cache_creation?.ephemeral_1h_input_tokens ?? 0,
   };
 }
 

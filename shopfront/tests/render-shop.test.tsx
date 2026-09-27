@@ -302,3 +302,46 @@ describe("what reaches the shopper", () => {
     expect(html).not.toContain("<style");
   });
 });
+
+describe("a page with a price promise", () => {
+  const onSale: Catalogue = {
+    ...CATALOGUE,
+    products: [
+      product({
+        handle: "socket-set",
+        title: "Socket Set",
+        variants: [{ id: "1", title: "Default Title", price: 89.99, compareAtPrice: 129.99, available: true, options: ["Default Title"] }],
+        price: { min: 89.99, max: 89.99 },
+      }),
+      product({
+        handle: "gloves",
+        title: "Gloves",
+        variants: [{ id: "2", title: "Default Title", price: 34.99, compareAtPrice: 49.99, available: true, options: ["Default Title"] }],
+        price: { min: 34.99, max: 34.99 },
+      }),
+    ],
+  };
+  const grid: Blocks[number] = {
+    id: "grid",
+    block: { type: "productGrid", title: "Under $120", layout: "grid", products: [{ handle: "socket-set" }, { handle: "gloves" }] },
+  };
+  const render = (priceCeiling?: number) => {
+    const c = config([HERO, grid]);
+    return renderToStaticMarkup(
+      <Shop config={{ ...c, meta: { ...c.meta, ...(priceCeiling ? { priceCeiling } : {}) } }} catalogue={onSale} />,
+    );
+  };
+
+  it("leaves out a struck-through price above the ceiling, and keeps the price paid", () => {
+    const html = render(120);
+    expect(html).not.toContain("129.99");
+    expect(html).toContain("89.99");
+    // A "was" price under the ceiling breaks no promise and stays.
+    expect(html).toContain("<del>");
+    expect(html).toContain("49.99");
+  });
+
+  it("shows every sale reference when the page promises no ceiling", () => {
+    expect(render()).toContain("129.99");
+  });
+});

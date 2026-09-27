@@ -122,8 +122,14 @@ describe("the contract itself", () => {
   it("carries the provenance step 6 needs, and no more", () => {
     // prompt + stated audience + the decisions are already here; what a shop
     // *version* is belongs to the publish layer, not to what the AI produces.
+    //
+    // `priceCeiling` joined on 2026-09-27, and it is not provenance: it is the
+    // per-item price a POP promises, set by `lib/pop/engine.ts` from a rule
+    // the merchant confirmed, so the renderer can keep that promise. The model
+    // never writes `meta`: `assemble.ts` builds it, and the plan schema has no
+    // path to it.
     expect(Object.keys(ShopConfig.shape.meta.shape).sort()).toEqual(
-      ["audience", "generatedAt", "prompt"].sort(),
+      ["audience", "generatedAt", "priceCeiling", "prompt"].sort(),
     );
   });
 });

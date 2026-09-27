@@ -8,7 +8,7 @@
  *
  * Prices are USD per million tokens, first-party API list prices as of this
  * commit. Batch requests are billed at half. Cache reads cost a tenth of
- * input, cache writes 1.25×. Prices change, so a model missing from this
+ * input, cache writes 1.25× (5-minute TTL) or 2× (1-hour TTL). Prices change, so a model missing from this
  * table is refused rather than estimated at zero. The AUD rate is an
  * assumption, printed on every estimate. Set `AUD_PER_USD` to the day's rate.
  */
@@ -47,7 +47,13 @@ export function usdFor(model: string, usage: Usage, billing: "batch" | "standard
   if (billing === "free") return 0;
   const price = priceFor(model);
   const discount = billing === "batch" ? 0.5 : 1;
-  const input = usage.inputTokens * price.input + usage.cacheReadTokens * price.input * 0.1 + usage.cacheWriteTokens * price.input * 1.25;
+  const oneHour = Math.min(usage.cacheWrite1hTokens ?? 0, usage.cacheWriteTokens);
+  const fiveMinute = usage.cacheWriteTokens - oneHour;
+  const input =
+    usage.inputTokens * price.input +
+    usage.cacheReadTokens * price.input * 0.1 +
+    fiveMinute * price.input * 1.25 +
+    oneHour * price.input * 2;
   const output = usage.outputTokens * price.output;
   return ((input + output) / 1_000_000) * discount;
 }

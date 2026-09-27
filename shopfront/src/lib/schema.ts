@@ -129,6 +129,14 @@ export const ShopConfig = z.object({
     prompt: z.string(),
     generatedAt: z.string().datetime(),
     audience: z.string().max(200).optional(), // AI's one-line read of who this shop is for
+    /**
+     * The per-item price this page promises never to exceed ("under $120").
+     * Set by code from a confirmed rule, never by the model. The renderer uses
+     * it to leave out a struck-through "was" price above it: a visible $129.99
+     * on an under-$120 page reads as a broken promise, even when the shopper
+     * pays less.
+     */
+    priceCeiling: z.number().positive().optional(),
   }),
 });
 

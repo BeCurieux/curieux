@@ -99,7 +99,13 @@ export async function generatePop(options: PopOptions): Promise<PopResult> {
   });
 
   // The page's provenance is the merchant's sentence, not our working.
-  const config: ShopConfig = { ...assembled.config, meta: { ...assembled.config.meta, prompt: brief.sentence } };
+  // A confirmed per-item cap becomes the page's price promise, set here in
+  // code and never by the model.
+  const cap = brief.rules.priceScope === "per_item" ? brief.rules.priceMax : null;
+  const config: ShopConfig = {
+    ...assembled.config,
+    meta: { ...assembled.config.meta, prompt: brief.sentence, ...(cap !== null ? { priceCeiling: cap } : {}) },
+  };
 
   // 5. Validate against the rules again, in code; repair, and say so.
   const guarded = guardPop(config, brief, shortlist);

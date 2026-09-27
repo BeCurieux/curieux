@@ -117,6 +117,7 @@ export function Shop({
                 brandName: config.brand.name,
                 storeUrl: config.brand.storeUrl,
                 ...(discount ? { discount: discount.code } : {}),
+                ...(config.meta.priceCeiling !== undefined ? { priceCeiling: config.meta.priceCeiling } : {}),
               }}
             />
           </div>
