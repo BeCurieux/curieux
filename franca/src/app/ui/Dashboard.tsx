@@ -224,6 +224,18 @@ function Results({ catalogue }: { catalogue: CatalogueView }) {
         </s-table>
       </s-section>
 
+      <s-section heading="Show the mark on your store">
+        <s-paragraph>
+          {summary.badges > 0
+            ? `${summary.badges} of your product${summary.badges === 1 ? "" : "s"} can carry the mark. Add it once and it appears on each one that has earned it — and steps aside on any page whose wording changes, until Franca has read it again.`
+            : "None of your products carries the mark yet. Add it now if you like: it stays out of sight until a page earns it."}
+        </s-paragraph>
+        <s-paragraph>
+          In your Shopify admin, open Online Store, then Themes, then Customize. Switch to your product page template,
+          choose Add block, and pick Claims mark from the Apps list. Save, and you are done.
+        </s-paragraph>
+      </s-section>
+
       <s-section>
         <s-paragraph>{catalogue.disclaimer}</s-paragraph>
       </s-section>

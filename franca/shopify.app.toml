@@ -13,7 +13,9 @@ embedded = true
 [access_scopes]
 # Products only (brief §7). Every query in src/shopify/admin/products.ts was
 # validated against the Admin schema as needing read_products and nothing more.
-scopes = "read_products"
+# write_app_proxy is not data access: Shopify requires it to configure the app
+# proxy below, which serves the badge from the shop's own domain.
+scopes = "read_products,write_app_proxy"
 
 [webhooks]
 api_version = "2026-07"
@@ -30,3 +32,10 @@ uri = "/api/shopify/webhooks"
 [[webhooks.subscriptions]]
 compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
 uri = "/api/shopify/webhooks"
+
+# The storefront badge: /apps/franca/badge on the merchant's domain is proxied
+# to the app, signed by Shopify (src/shopify/appProxy.ts).
+[app_proxy]
+url = "https://REPLACE_WITH_APP_HOST/api/proxy"
+prefix = "apps"
+subpath = "franca"

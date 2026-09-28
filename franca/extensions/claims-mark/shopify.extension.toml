@@ -1,0 +1,6 @@
+# The storefront half of the app: one app block a merchant places on the
+# product page from the theme editor. No theme code is edited, which is what
+# the App Store requires of an app that shows something on a storefront.
+name = "Claims mark"
+type = "theme"
+handle = "claims-mark"

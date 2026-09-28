@@ -30,6 +30,12 @@ export type ProductScan = {
    * copy's, and it carries no badge until a rescan replaces this entry.
    */
   stale?: boolean;
+  /**
+   * When this product was last read. The badge's date: a product rescanned by
+   * a webhook last week was reviewed last week, whatever the full scan says.
+   * Optional because scans stored before it existed do not carry it.
+   */
+  scannedAt?: string;
 };
 
 export type CatalogueSummary = {
@@ -56,13 +62,13 @@ export type CatalogueScan = {
   truncated?: boolean;
 };
 
-export function scanProduct(product: ProductCopy, jurisdictions: Jurisdiction[]): ProductScan {
+export function scanProduct(product: ProductCopy, jurisdictions: Jurisdiction[], scannedAt?: string): ProductScan {
   const result = scan({
     text: product.text,
     source: { kind: "shopify", reference: product.url ?? `${product.handle} (not published)` },
     jurisdictions,
   });
-  return { product, result, badge: mayDisplayBadge(result) && isLive(product) };
+  return { product, result, badge: mayDisplayBadge(result) && isLive(product), ...(scannedAt ? { scannedAt } : {}) };
 }
 
 export function scanCatalogue(
@@ -70,9 +76,10 @@ export function scanCatalogue(
   jurisdictions: Jurisdiction[],
   now: () => Date = () => new Date(),
 ): CatalogueScan {
-  const scans = products.map((product) => scanProduct(product, jurisdictions));
+  const scannedAt = now().toISOString();
+  const scans = products.map((product) => scanProduct(product, jurisdictions, scannedAt));
   return {
-    scannedAt: now().toISOString(),
+    scannedAt,
     jurisdictions: [...new Set(jurisdictions)],
     packVersions: scans[0]?.result.packVersions ?? {},
     products: scans,

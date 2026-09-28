@@ -13,7 +13,8 @@
 
 import { beforeEach, describe, expect, it } from "vitest";
 import { readConfig } from "@/server/config.js";
-import { handleMarkets, handleResults, handleScan, handleSession, handleWebhook } from "@/server/handlers.js";
+import { EMPTY_SVG, handleBadge, handleMarkets, handleResults, handleScan, handleSession, handleWebhook } from "@/server/handlers.js";
+import { signAppProxy } from "@/shopify/appProxy.js";
 import { RETRY_HEADER, type Deps } from "@/server/session.js";
 import { createMemoryStore, type AppStore } from "@/server/store.js";
 import { createSupabaseStore } from "@/server/supabaseStore.js";
@@ -452,6 +453,79 @@ describe.each(STORES)("on the %s store", (_name, factory) => {
         deps,
       );
       expect(shopify.adminCalls).toBe(calls);
+    });
+  });
+
+  describe("the badge on the storefront", () => {
+    function proxied(product: string, extra: Record<string, string> = {}, secret = SECRET): Request {
+      const params = new URLSearchParams({
+        product,
+        ...extra,
+        shop: SHOP,
+        logged_in_customer_id: "",
+        path_prefix: "/apps/franca",
+        timestamp: String(Math.floor(clock.getTime() / 1000)),
+      });
+      params.set("signature", signAppProxy(params, secret));
+      return new Request(`https://app.example/api/proxy/badge?${params}`);
+    }
+
+    it("refuses a request that did not come through Shopify's proxy", async () => {
+      expect((await handleBadge(proxied("1", {}, "not-the-secret"), deps)).status).toBe(401);
+      expect((await handleBadge(new Request("https://app.example/api/proxy/badge?product=1&shop=" + SHOP), deps)).status).toBe(401);
+    });
+
+    it("serves the mark for a product that earned it, safely", async () => {
+      await installAndScan();
+      const response = await handleBadge(proxied("1"), deps);
+      expect(response.headers.get("content-type")).toContain("image/svg+xml");
+      expect(response.headers.get("content-security-policy")).toContain("default-src 'none'");
+      const svg = await response.text();
+      expect(svg).toContain("Claims Verified");
+      expect(svg).not.toContain("<script");
+      expect(svg).not.toMatch(/Lapsed/);
+    });
+
+    it("serves nothing for a product the rules flag, an unknown product or a bad id", async () => {
+      await installAndScan();
+      expect(await (await handleBadge(proxied("2"), deps)).text()).toBe(EMPTY_SVG);
+      expect(await (await handleBadge(proxied("999"), deps)).text()).toBe(EMPTY_SVG);
+      expect(await (await handleBadge(proxied("1 OR 1=1"), deps)).text()).toBe(EMPTY_SVG);
+    });
+
+    it("withdraws the mark the moment the copy changes and cannot be reread", async () => {
+      await installAndScan();
+      shopify.adminFails = true;
+      await handleWebhook(
+        webhook("products/update", { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T10:00:00Z" }),
+        deps,
+      );
+      expect(await (await handleBadge(proxied("1"), deps)).text()).toBe(EMPTY_SVG);
+    });
+
+    it("greys the mark to Lapsed when the shop has no plan, rather than keeping it live", async () => {
+      await installAndScan();
+      shopify.plan = null;
+      await handleSession(request("/api/shopify/session"), deps);
+      const svg = await (await handleBadge(proxied("1"), deps)).text();
+      expect(svg).toContain("Lapsed");
+    });
+
+    it("serves nothing once the app is uninstalled", async () => {
+      await installAndScan();
+      await handleWebhook(webhook("app/uninstalled", { id: 1 }), deps);
+      expect(await (await handleBadge(proxied("1"), deps)).text()).toBe(EMPTY_SVG);
+    });
+
+    it("dates the mark from the product's own last reading", async () => {
+      await installAndScan();
+      clock = new Date("2026-11-15T09:00:00Z");
+      shopify.products[0] = product(1, "A gentle cleanser for daily use.", "2026-11-15T08:00:00Z");
+      await handleWebhook(
+        webhook("products/update", { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-11-15T08:00:00Z" }),
+        deps,
+      );
+      expect(await (await handleBadge(proxied("1"), deps)).text()).toContain("November 2026");
     });
   });
 });

@@ -4,9 +4,10 @@ Franca installed in a merchant's Shopify admin: every product's copy scanned,
 a score per product and for the store, a badge on each product that earns one,
 and a rescan whenever a product changes.
 
-**Status (2026-09-28): stages 1–3 of 5 built and tested — the offline core,
-the Next.js app around it, and its storage in Supabase. Stage 4 is prepared
-and waits on the owner's accounts (the runbook below).** No
+**Status (2026-09-28): stages 1–3 and 5 built and tested — the offline core,
+the Next.js app, its storage in Supabase, and the storefront badge with the
+App Store pack. Stage 4, first contact, waits on the owner's accounts (the
+runbook below), and nothing can be submitted until it passes.** No
 app exists in the Partner Dashboard and nothing here has run against Shopify.
 This environment cannot reach shopify.dev or any store; the Shopify facts below
 were read through the Shopify docs tool and the Admin schema, and the GraphQL
@@ -285,6 +286,13 @@ Dev Dashboard → the app → install on the development store. Then, in order:
   `shop/redact` arrives about two days later and removes the row.
 - [ ] **The cron.** Vercel → Settings → Cron Jobs lists `/api/cron/prune`; run
   it once by hand. It answers `{"pruned": 0}` on a new project.
+- [ ] **The storefront mark** (stage 5). Online Store → Themes → Customize →
+  product template → Add block → Apps → **Claims mark** → Save. The clean live
+  product shows the mark; the loud one and the one with no copy show nothing
+  (no broken-image icon). Switch the block to Night on a dark theme.
+- [ ] **The mark follows the words.** Edit the clean product's description to
+  the loud copy and save: within about a minute the mark is gone from its page.
+- [ ] **Lapsed.** Cancel the plan: the mark greys and reads "Lapsed".
 
 When every box is ticked, replace the **[unverified]** marks above with what
 you saw, and stage 4 is done.
@@ -294,10 +302,46 @@ you saw, and stage 4 is done.
 - Upgrade the Supabase project off the free plan (it pauses after a week idle).
 - Add the app's production domain, if it will have one, and repeat step 5.
 
-## Stages still to build
+## What is built — stage 5
 
-5. **The badge on the storefront, and review.** A theme app extension that
-   renders each product's mark, then App Store submission.
+**The mark on the storefront.** A theme app extension,
+`extensions/claims-mark/`, with one app block a merchant adds to the product
+page from the theme editor — no theme code touched, as the App Store requires.
+Settings: paper or night, alignment, spacing. The block is an `<img>` pointing
+at `/apps/franca/badge?product=<id>` on the shop's own domain.
+
+**The app proxy** carries that request to the app (`[app_proxy]` in
+`shopify.app.toml`; it needs the `write_app_proxy` scope, which is proxy
+configuration, not data access). `src/shopify/appProxy.ts` checks Shopify's
+signature; the tests reproduce **both worked examples from Shopify's own
+documentation byte for byte**, so this one is verified against Shopify rather
+than only against itself.
+
+**`GET /api/proxy/badge`** decides. It serves the mark only when the request is
+signed, the installation is active, and the product earned the mark
+(`mayDisplayBadge`, checked again at serving time), is live, and has not
+changed since it was read. Anything else is an empty image, so a page never
+shows a broken icon and never shows a mark it should not. No plan on record
+greys the mark to "Lapsed" (§5). The mark's date is the product's own last
+reading. The SVG goes out with a `default-src 'none'` content security policy
+— it is served from the merchant's origin — and a one-minute cache, so a
+withdrawn mark cannot linger. Seven new behaviours, each tested on both
+stores.
+
+**In the app:** a "Show the mark on your store" section with the steps.
+
+**The App Store pack** is APP-STORE.md: the listing (its copy scanned clean by
+Franca itself — the first draft was not), screenshots to make, the
+requirements and where each is met, the reviewer's instructions, and two items
+for counsel. PRIVACY.md is a draft privacy policy, written from what the code
+does, for counsel.
+
+**Not verified:** the Liquid block (no validator here; the Shopify CLI checks it
+on `shopify app deploy`), and whether a merchant-renamed proxy path breaks the
+block — it would stop showing rather than show something wrong.
+
+**Deliberately absent:** the mark links nowhere, because the hosted score page
+it should link to is still shut (CLAUDE.md).
 
 ---
 
@@ -318,6 +362,9 @@ you saw, and stage 4 is done.
 - Keep the project active. Free-plan projects pause after a week without
   activity, which would take every installed shop's app down; upgrade before
   the first real merchant installs.
+- Before submitting: an app icon (1200×1200), support and emergency contacts,
+  a published privacy policy (PRIVACY.md, after counsel), and counsel's view
+  on "Claims Verified" (APP-STORE.md).
 - Settle the name first. App Store names are unique, and an AI app called
   Franca already exists (BRIEF.md §11 items 1 and 1b). Listing under a name
   that has to change later means a new listing.

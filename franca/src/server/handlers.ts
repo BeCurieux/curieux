@@ -18,6 +18,8 @@ import { AdminApiError } from "../shopify/admin/client.js";
 import { readCatalogueCopy, readProductCopy } from "../shopify/admin/products.js";
 import { scanCatalogue, scanProduct } from "../shopify/catalogue.js";
 import { verifyWebhookSignature } from "../shopify/hmac.js";
+import { verifyAppProxy } from "../shopify/appProxy.js";
+import { badgeSvg, mayDisplayBadge } from "../card/badge.js";
 import { shouldApplyProduct } from "../shopify/idempotency.js";
 import {
   PLANS,
@@ -216,7 +218,7 @@ async function rescanProduct(shop: string, gid: string, updatedAt: string | null
     if (copy) {
       // Refused only when a newer copy of this product landed meanwhile,
       // which is the right outcome: the newer scan stands.
-      await deps.store.putProduct(shop, scanProduct(copy, catalogue.jurisdictions));
+      await deps.store.putProduct(shop, scanProduct(copy, catalogue.jurisdictions, deps.now().toISOString()));
     } else {
       await deps.store.removeProduct(shop, gid);
     }
@@ -224,6 +226,71 @@ async function rescanProduct(shop: string, gid: string, updatedAt: string | null
     if (held) await deps.store.markStale(shop, gid);
     throw error;
   }
+}
+
+// ------------------------------------------------------------------ the badge
+
+/**
+ * The mark on a product page, served through the app proxy so it comes from
+ * the merchant's own domain: `/apps/franca/badge?product=<id>&theme=paper`.
+ *
+ * Every condition has to hold, and any that does not gives an empty image —
+ * never an error icon on somebody's product page, and never a mark:
+ *
+ *   - the request came through Shopify's proxy (its signature checks out);
+ *   - the shop's installation is active;
+ *   - the product was scanned, earned the mark (`mayDisplayBadge`, checked
+ *     again here rather than trusted from storage), is live on the store, and
+ *     has not changed since it was read (not stale).
+ *
+ * A shop with no plan on record keeps its mark, greyed and saying "Lapsed":
+ * the brief's §5 retention loop. It never keeps a live one.
+ *
+ * Cached for a minute and no longer. A copy edit withdraws the mark as soon
+ * as its webhook lands; a long cache would let a withdrawn mark linger on the
+ * page for as long as the cache said.
+ */
+export const EMPTY_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"/>';
+
+export async function handleBadge(request: Request, deps: Deps): Promise<Response> {
+  const params = new URL(request.url).searchParams;
+  const verified = verifyAppProxy(params, deps.config.secrets);
+  if (!verified.ok) return new Response("unauthorised", { status: 401 });
+  const shop = verified.shop;
+
+  const id = params.get("product") ?? "";
+  if (!/^\d+$/.test(id)) return svgResponse(EMPTY_SVG);
+
+  const installation = await deps.store.getInstallation(shop);
+  if (!installation || installation.state !== "active") return svgResponse(EMPTY_SVG);
+
+  const catalogue = await deps.store.getCatalogue(shop);
+  const scan = catalogue?.products.find((p) => p.product.gid === `gid://shopify/Product/${id}`);
+  if (!catalogue || !scan || !scan.badge || scan.stale || !mayDisplayBadge(scan.result)) {
+    return svgResponse(EMPTY_SVG);
+  }
+
+  return svgResponse(
+    badgeSvg({
+      result: scan.result,
+      reviewedOn: new Date(scan.scannedAt ?? catalogue.scannedAt),
+      live: installation.lastKnownPlan !== null,
+      theme: params.get("theme") === "night" ? "night" : "paper",
+    }),
+  );
+}
+
+function svgResponse(svg: string): Response {
+  return new Response(svg, {
+    headers: {
+      "content-type": "image/svg+xml; charset=utf-8",
+      "cache-control": "public, max-age=60",
+      // Served from the merchant's own origin: an SVG is a document, and this
+      // one may never run anything there.
+      "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'",
+      "x-content-type-options": "nosniff",
+    },
+  });
 }
 
 // ------------------------------------------------------------------ cron
