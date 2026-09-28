@@ -5,13 +5,19 @@
  * Admin API and the Partner API — from memory, and records what it was sent,
  * so the tests can check both what the app did and exactly what it asked
  * Shopify for. Nothing here touches a network.
+ *
+ * Every behaviour runs twice: once on the memory store and once on the
+ * Supabase store talking to a fake of Supabase's RPC endpoint that keeps the
+ * migration's rules. A difference between the two is a bug in one of them.
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
 import { readConfig } from "@/server/config.js";
 import { handleMarkets, handleResults, handleScan, handleSession, handleWebhook } from "@/server/handlers.js";
 import { RETRY_HEADER, type Deps } from "@/server/session.js";
-import { createMemoryStore } from "@/server/store.js";
+import { createMemoryStore, type AppStore } from "@/server/store.js";
+import { createSupabaseStore } from "@/server/supabaseStore.js";
+import { fakeSupabase } from "./fixtures/fakeSupabase.js";
 import type { CatalogueView } from "@/server/view.js";
 import { signBody } from "@/shopify/hmac.js";
 import { signIdToken } from "@/shopify/idToken.js";
@@ -100,9 +106,28 @@ class FakeShopify {
   };
 }
 
+const TOKEN_KEY = Buffer.alloc(32, 7);
+
+const STORES: Array<[string, () => AppStore]> = [
+  ["memory", () => createMemoryStore()],
+  [
+    "supabase",
+    () => {
+      const supabase = fakeSupabase("sb_secret_test");
+      return createSupabaseStore({
+        url: "https://project.supabase.co",
+        secretKey: "sb_secret_test",
+        tokenKeys: { current: TOKEN_KEY },
+        transport: supabase.transport,
+      });
+    },
+  ],
+];
+
 let shopify: FakeShopify;
 let clock: Date;
 let deps: Deps;
+let makeStore: () => AppStore = STORES[0]![1];
 
 beforeEach(() => {
   shopify = new FakeShopify();
@@ -115,7 +140,7 @@ beforeEach(() => {
       SHOPIFY_PARTNER_API_TOKEN: "prtapi_x",
       SHOPIFY_APP_GID: "gid://shopify/App/1",
     }),
-    store: createMemoryStore(),
+    store: makeStore(),
     transport: shopify.transport,
     now: () => clock,
   };
@@ -170,257 +195,264 @@ async function installAndScan(markets = ["AU", "US"]): Promise<CatalogueView> {
   return json<CatalogueView>(await handleScan(request("/api/shopify/scan"), deps));
 }
 
-// ------------------------------------------------------------------ session
-
-describe("session", () => {
-  it("refuses a request with no ID token, asking App Bridge to retry with a fresh one", async () => {
-    const response = await handleSession(request("/api/shopify/session", { token: null }), deps);
-    expect(response.status).toBe(401);
-    expect(response.headers.get(RETRY_HEADER)).toBe("1");
+describe.each(STORES)("on the %s store", (_name, factory) => {
+  beforeEach(() => {
+    makeStore = factory;
+    deps.store = factory();
   });
 
-  it("refuses a token signed with another secret", async () => {
-    const now = Math.floor(clock.getTime() / 1000);
-    const forged = signIdToken(
-      { iss: `https://${SHOP}/admin`, dest: `https://${SHOP}`, aud: CLIENT_ID, exp: now + 60, nbf: now - 1 },
-      "not-the-secret",
-    );
-    expect((await handleSession(request("/api/shopify/session", { token: forged }), deps)).status).toBe(401);
-  });
+  // ------------------------------------------------------------------ session
 
-  it("exchanges the ID token for an expiring offline token on first contact, exactly as documented", async () => {
-    const response = await handleSession(request("/api/shopify/session"), deps);
-    expect(response.status).toBe(200);
-    const form = shopify.tokenRequests[0];
-    expect(Object.fromEntries(form ?? [])).toMatchObject({
-      client_id: CLIENT_ID,
-      client_secret: SECRET,
-      grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
-      subject_token_type: "urn:ietf:params:oauth:token-type:id_token",
-      requested_token_type: "urn:shopify:params:oauth:token-type:offline-access-token",
-      expiring: "1",
+  describe("session", () => {
+    it("refuses a request with no ID token, asking App Bridge to retry with a fresh one", async () => {
+      const response = await handleSession(request("/api/shopify/session", { token: null }), deps);
+      expect(response.status).toBe(401);
+      expect(response.headers.get(RETRY_HEADER)).toBe("1");
     });
-    const installation = await deps.store.getInstallation(SHOP);
-    expect(installation?.state).toBe("active");
-    expect(installation?.token.refreshToken).toBe("shprt_1");
-  });
 
-  it("reuses the stored token and refreshes it when it nears expiry", async () => {
-    await handleSession(request("/api/shopify/session"), deps);
-    await handleSession(request("/api/shopify/session"), deps);
-    expect(shopify.tokenRequests).toHaveLength(1);
+    it("refuses a token signed with another secret", async () => {
+      const now = Math.floor(clock.getTime() / 1000);
+      const forged = signIdToken(
+        { iss: `https://${SHOP}/admin`, dest: `https://${SHOP}`, aud: CLIENT_ID, exp: now + 60, nbf: now - 1 },
+        "not-the-secret",
+      );
+      expect((await handleSession(request("/api/shopify/session", { token: forged }), deps)).status).toBe(401);
+    });
 
-    clock = new Date(START.getTime() + 58 * 60_000);
-    await handleSession(request("/api/shopify/session"), deps);
-    expect(shopify.tokenRequests).toHaveLength(2);
-    expect(shopify.tokenRequests[1]?.get("grant_type")).toBe("refresh_token");
-    expect(shopify.tokenRequests[1]?.get("refresh_token")).toBe("shprt_1");
-    expect((await deps.store.getInstallation(SHOP))?.token.accessToken).toBe("shpat_2");
-  });
+    it("exchanges the ID token for an expiring offline token on first contact, exactly as documented", async () => {
+      const response = await handleSession(request("/api/shopify/session"), deps);
+      expect(response.status).toBe(200);
+      const form = shopify.tokenRequests[0];
+      expect(Object.fromEntries(form ?? [])).toMatchObject({
+        client_id: CLIENT_ID,
+        client_secret: SECRET,
+        grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+        subject_token_type: "urn:ietf:params:oauth:token-type:id_token",
+        requested_token_type: "urn:shopify:params:oauth:token-type:offline-access-token",
+        expiring: "1",
+      });
+      const installation = await deps.store.getInstallation(SHOP);
+      expect(installation?.state).toBe("active");
+      expect(installation?.token.refreshToken).toBe("shprt_1");
+    });
 
-  it("turns a rejected exchange into a retry, not a server error", async () => {
-    shopify.exchangeStatus = 400;
-    const response = await handleSession(request("/api/shopify/session"), deps);
-    expect(response.status).toBe(401);
-    expect(response.headers.get(RETRY_HEADER)).toBe("1");
-  });
+    it("reuses the stored token and refreshes it when it nears expiry", async () => {
+      await handleSession(request("/api/shopify/session"), deps);
+      await handleSession(request("/api/shopify/session"), deps);
+      expect(shopify.tokenRequests).toHaveLength(1);
 
-  it("reports the plan, the plan page and the markets on offer", async () => {
-    const body = await json<Record<string, unknown>>(await handleSession(request("/api/shopify/session"), deps));
-    expect(body).toMatchObject({
-      shop: SHOP,
-      access: "granted",
-      plan: { handle: "growth", maxProducts: 250, maxMarkets: 3 },
-      planUrl: "https://admin.shopify.com/store/aurelia-skin/charges/franca/pricing_plans",
-      markets: null,
-      availableMarkets: ["AU", "US", "EU"],
-      catalogue: null,
+      clock = new Date(START.getTime() + 58 * 60_000);
+      await handleSession(request("/api/shopify/session"), deps);
+      expect(shopify.tokenRequests).toHaveLength(2);
+      expect(shopify.tokenRequests[1]?.get("grant_type")).toBe("refresh_token");
+      expect(shopify.tokenRequests[1]?.get("refresh_token")).toBe("shprt_1");
+      expect((await deps.store.getInstallation(SHOP))?.token.accessToken).toBe("shpat_2");
+    });
+
+    it("turns a rejected exchange into a retry, not a server error", async () => {
+      shopify.exchangeStatus = 400;
+      const response = await handleSession(request("/api/shopify/session"), deps);
+      expect(response.status).toBe(401);
+      expect(response.headers.get(RETRY_HEADER)).toBe("1");
+    });
+
+    it("reports the plan, the plan page and the markets on offer", async () => {
+      const body = await json<Record<string, unknown>>(await handleSession(request("/api/shopify/session"), deps));
+      expect(body).toMatchObject({
+        shop: SHOP,
+        access: "granted",
+        plan: { handle: "growth", maxProducts: 250, maxMarkets: 3 },
+        planUrl: "https://admin.shopify.com/store/aurelia-skin/charges/franca/pricing_plans",
+        markets: null,
+        availableMarkets: ["AU", "US", "EU"],
+        catalogue: null,
+      });
+    });
+
+    it("sends a shop with no subscription to choose a plan", async () => {
+      shopify.plan = null;
+      const body = await json<{ access: string }>(await handleSession(request("/api/shopify/session"), deps));
+      expect(body.access).toBe("choose-plan");
+    });
+
+    it("keeps a paying shop in when the Partner API fails, on the last plan it confirmed", async () => {
+      await handleSession(request("/api/shopify/session"), deps);
+      shopify.partnerFails = true;
+      const body = await json<{ access: string; plan: { handle: string } }>(
+        await handleSession(request("/api/shopify/session"), deps),
+      );
+      expect(body.access).toBe("granted");
+      expect(body.plan.handle).toBe("growth");
+    });
+
+    it("says retry, not choose a plan, when the lookup fails and nothing was ever confirmed", async () => {
+      shopify.partnerFails = true;
+      const body = await json<{ access: string }>(await handleSession(request("/api/shopify/session"), deps));
+      expect(body.access).toBe("retry");
     });
   });
 
-  it("sends a shop with no subscription to choose a plan", async () => {
-    shopify.plan = null;
-    const body = await json<{ access: string }>(await handleSession(request("/api/shopify/session"), deps));
-    expect(body.access).toBe("choose-plan");
+  // ------------------------------------------------------------------ markets and scan
+
+  describe("markets", () => {
+    it("saves markets within the plan and refuses more than it covers", async () => {
+      await handleSession(request("/api/shopify/session"), deps);
+      const ok = await handleMarkets(request("/api/shopify/markets", { body: { markets: ["au", "EU"] } }), deps);
+      expect(await json(ok)).toEqual({ markets: ["AU", "EU"] });
+
+      shopify.plan = "starter";
+      const over = await handleMarkets(request("/api/shopify/markets", { body: { markets: ["AU", "EU"] } }), deps);
+      expect(over.status).toBe(422);
+    });
+
+    it("refuses a market with no rules (law 3)", async () => {
+      await handleSession(request("/api/shopify/session"), deps);
+      const response = await handleMarkets(request("/api/shopify/markets", { body: { markets: ["GB"] } }), deps);
+      expect(response.status).toBe(422);
+    });
   });
 
-  it("keeps a paying shop in when the Partner API fails, on the last plan it confirmed", async () => {
-    await handleSession(request("/api/shopify/session"), deps);
-    shopify.partnerFails = true;
-    const body = await json<{ access: string; plan: { handle: string } }>(
-      await handleSession(request("/api/shopify/session"), deps),
-    );
-    expect(body.access).toBe("granted");
-    expect(body.plan.handle).toBe("growth");
+  describe("scan", () => {
+    it("will not scan before markets are chosen", async () => {
+      await handleSession(request("/api/shopify/session"), deps);
+      expect((await handleScan(request("/api/shopify/scan"), deps)).status).toBe(409);
+    });
+
+    it("will not scan without a plan, and points at the plan page", async () => {
+      shopify.plan = null;
+      const response = await handleScan(request("/api/shopify/scan"), deps);
+      expect(response.status).toBe(402);
+      expect(await json(response)).toMatchObject({ error: "choose-plan" });
+    });
+
+    it("reads every product, scores each, leads with the weakest, and carries the disclaimer", async () => {
+      const view = await installAndScan();
+      expect(view.products.map((p) => p.handle)).toEqual(["product-2", "product-1"]);
+      expect(view.summary.weakest?.handle).toBe("product-2");
+      expect(view.products[0]?.badge).toBe(false);
+      expect(view.products[1]?.badge).toBe(true);
+      expect(view.products[0]?.top?.phrase.toLowerCase()).toContain("clinically proven");
+      expect(view.disclaimer).toMatch(/not legal advice/);
+      expect(view.markets).toEqual(["AU", "US"]);
+    });
+
+    it("stops at the plan's allowance and says so", async () => {
+      shopify.plan = "starter";
+      shopify.products = Array.from({ length: 60 }, (_, i) => product(i + 1, CLEAN));
+      const view = await installAndScan(["AU"]);
+      expect(view.summary.products).toBe(50);
+      expect(view.truncated).toBe(true);
+    });
+
+    it("asks for markets again when a downgraded plan covers fewer than were chosen", async () => {
+      await installAndScan(["AU", "US"]);
+      shopify.plan = "starter";
+      expect((await handleScan(request("/api/shopify/scan"), deps)).status).toBe(409);
+    });
+
+    it("answers 502 when Shopify cannot be read, and keeps the last scan", async () => {
+      await installAndScan();
+      shopify.adminFails = true;
+      expect((await handleScan(request("/api/shopify/scan"), deps)).status).toBe(502);
+      shopify.adminFails = false;
+      const last = await json<CatalogueView>(await handleResults(request("/api/shopify/results", { method: "GET" }), deps));
+      expect(last.summary.products).toBe(2);
+    });
   });
 
-  it("says retry, not choose a plan, when the lookup fails and nothing was ever confirmed", async () => {
-    shopify.partnerFails = true;
-    const body = await json<{ access: string }>(await handleSession(request("/api/shopify/session"), deps));
-    expect(body.access).toBe("retry");
-  });
-});
+  // ------------------------------------------------------------------ webhooks
 
-// ------------------------------------------------------------------ markets and scan
+  describe("webhooks", () => {
+    it("answers a bad signature with 401, as the App Store compliance check requires", async () => {
+      const response = await handleWebhook(webhook("customers/redact", {}, { secret: "wrong" }), deps);
+      expect(response.status).toBe(401);
+    });
 
-describe("markets", () => {
-  it("saves markets within the plan and refuses more than it covers", async () => {
-    await handleSession(request("/api/shopify/session"), deps);
-    const ok = await handleMarkets(request("/api/shopify/markets", { body: { markets: ["au", "EU"] } }), deps);
-    expect(await json(ok)).toEqual({ markets: ["AU", "EU"] });
+    it("acknowledges the customer compliance topics", async () => {
+      expect((await handleWebhook(webhook("customers/data_request", { shop_domain: SHOP }), deps)).status).toBe(200);
+      expect((await handleWebhook(webhook("customers/redact", { shop_domain: SHOP }), deps)).status).toBe(200);
+    });
 
-    shopify.plan = "starter";
-    const over = await handleMarkets(request("/api/shopify/markets", { body: { markets: ["AU", "EU"] } }), deps);
-    expect(over.status).toBe(422);
-  });
+    it("rescans a product when it changes, and its badge follows the new words", async () => {
+      await installAndScan();
+      shopify.products[1] = product(2, CLEAN, "2026-09-28T10:00:00Z");
+      const response = await handleWebhook(
+        webhook("products/update", { id: 2, admin_graphql_api_id: "gid://shopify/Product/2", updated_at: "2026-09-28T10:00:00Z" }),
+        deps,
+      );
+      expect(response.status).toBe(200);
+      const catalogue = await deps.store.getCatalogue(SHOP);
+      const rescanned = catalogue?.products.find((p) => p.product.gid === "gid://shopify/Product/2");
+      expect(rescanned?.badge).toBe(true);
+      expect(catalogue?.summary.byBand.rework).toBe(0);
+    });
 
-  it("refuses a market with no rules (law 3)", async () => {
-    await handleSession(request("/api/shopify/session"), deps);
-    const response = await handleMarkets(request("/api/shopify/markets", { body: { markets: ["GB"] } }), deps);
-    expect(response.status).toBe(422);
-  });
-});
+    it("ignores an update older than the copy it already holds", async () => {
+      await installAndScan();
+      const calls = shopify.adminCalls;
+      await handleWebhook(
+        webhook("products/update", { id: 2, admin_graphql_api_id: "gid://shopify/Product/2", updated_at: "2026-09-28T07:00:00Z" }),
+        deps,
+      );
+      expect(shopify.adminCalls).toBe(calls);
+    });
 
-describe("scan", () => {
-  it("will not scan before markets are chosen", async () => {
-    await handleSession(request("/api/shopify/session"), deps);
-    expect((await handleScan(request("/api/shopify/scan"), deps)).status).toBe(409);
-  });
+    it("withdraws the badge when a changed product cannot be reread, and asks Shopify to retry", async () => {
+      await installAndScan();
+      shopify.adminFails = true;
+      const response = await handleWebhook(
+        webhook("products/update", { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T10:00:00Z" }),
+        deps,
+      );
+      expect(response.status).toBe(500);
+      const held = (await deps.store.getCatalogue(SHOP))?.products.find((p) => p.product.gid === "gid://shopify/Product/1");
+      expect(held?.badge).toBe(false);
+      expect(held?.stale).toBe(true);
+    });
 
-  it("will not scan without a plan, and points at the plan page", async () => {
-    shopify.plan = null;
-    const response = await handleScan(request("/api/shopify/scan"), deps);
-    expect(response.status).toBe(402);
-    expect(await json(response)).toMatchObject({ error: "choose-plan" });
-  });
+    it("lets Shopify's retry of a failed delivery through, and ignores a duplicate of a done one", async () => {
+      await installAndScan();
+      shopify.adminFails = true;
+      const payload = { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T10:00:00Z" };
+      expect((await handleWebhook(webhook("products/update", payload, { id: "same" }), deps)).status).toBe(500);
+      shopify.adminFails = false;
+      shopify.products[0] = product(1, CLEAN, "2026-09-28T10:00:00Z");
+      expect((await handleWebhook(webhook("products/update", payload, { id: "same" }), deps)).status).toBe(200);
+      const held = (await deps.store.getCatalogue(SHOP))?.products.find((p) => p.product.gid === "gid://shopify/Product/1");
+      expect(held?.badge).toBe(true);
+      expect(held?.stale).toBeUndefined();
 
-  it("reads every product, scores each, leads with the weakest, and carries the disclaimer", async () => {
-    const view = await installAndScan();
-    expect(view.products.map((p) => p.handle)).toEqual(["product-2", "product-1"]);
-    expect(view.summary.weakest?.handle).toBe("product-2");
-    expect(view.products[0]?.badge).toBe(false);
-    expect(view.products[1]?.badge).toBe(true);
-    expect(view.products[0]?.top?.phrase.toLowerCase()).toContain("clinically proven");
-    expect(view.disclaimer).toMatch(/not legal advice/);
-    expect(view.markets).toEqual(["AU", "US"]);
-  });
+      const calls = shopify.adminCalls;
+      expect((await handleWebhook(webhook("products/update", payload, { id: "same" }), deps)).status).toBe(200);
+      expect(shopify.adminCalls).toBe(calls);
+    });
 
-  it("stops at the plan's allowance and says so", async () => {
-    shopify.plan = "starter";
-    shopify.products = Array.from({ length: 60 }, (_, i) => product(i + 1, CLEAN));
-    const view = await installAndScan(["AU"]);
-    expect(view.summary.products).toBe(50);
-    expect(view.truncated).toBe(true);
-  });
+    it("drops a deleted product", async () => {
+      await installAndScan();
+      await handleWebhook(webhook("products/delete", { id: 2 }), deps);
+      expect((await deps.store.getCatalogue(SHOP))?.summary.products).toBe(1);
+    });
 
-  it("asks for markets again when a downgraded plan covers fewer than were chosen", async () => {
-    await installAndScan(["AU", "US"]);
-    shopify.plan = "starter";
-    expect((await handleScan(request("/api/shopify/scan"), deps)).status).toBe(409);
-  });
+    it("marks the shop uninstalled, and deletes everything on shop/redact", async () => {
+      await installAndScan();
+      await handleWebhook(webhook("app/uninstalled", { id: 1 }), deps);
+      expect((await deps.store.getInstallation(SHOP))?.state).toBe("uninstalled");
 
-  it("answers 502 when Shopify cannot be read, and keeps the last scan", async () => {
-    await installAndScan();
-    shopify.adminFails = true;
-    expect((await handleScan(request("/api/shopify/scan"), deps)).status).toBe(502);
-    shopify.adminFails = false;
-    const last = await json<CatalogueView>(await handleResults(request("/api/shopify/results", { method: "GET" }), deps));
-    expect(last.summary.products).toBe(2);
-  });
-});
+      await handleWebhook(webhook("shop/redact", { shop_domain: SHOP }), deps);
+      expect(await deps.store.getInstallation(SHOP)).toBeNull();
+      expect(await deps.store.getCatalogue(SHOP)).toBeNull();
+    });
 
-// ------------------------------------------------------------------ webhooks
-
-describe("webhooks", () => {
-  it("answers a bad signature with 401, as the App Store compliance check requires", async () => {
-    const response = await handleWebhook(webhook("customers/redact", {}, { secret: "wrong" }), deps);
-    expect(response.status).toBe(401);
-  });
-
-  it("acknowledges the customer compliance topics", async () => {
-    expect((await handleWebhook(webhook("customers/data_request", { shop_domain: SHOP }), deps)).status).toBe(200);
-    expect((await handleWebhook(webhook("customers/redact", { shop_domain: SHOP }), deps)).status).toBe(200);
-  });
-
-  it("rescans a product when it changes, and its badge follows the new words", async () => {
-    await installAndScan();
-    shopify.products[1] = product(2, CLEAN, "2026-09-28T10:00:00Z");
-    const response = await handleWebhook(
-      webhook("products/update", { id: 2, admin_graphql_api_id: "gid://shopify/Product/2", updated_at: "2026-09-28T10:00:00Z" }),
-      deps,
-    );
-    expect(response.status).toBe(200);
-    const catalogue = await deps.store.getCatalogue(SHOP);
-    const rescanned = catalogue?.products.find((p) => p.product.gid === "gid://shopify/Product/2");
-    expect(rescanned?.badge).toBe(true);
-    expect(catalogue?.summary.byBand.rework).toBe(0);
-  });
-
-  it("ignores an update older than the copy it already holds", async () => {
-    await installAndScan();
-    const calls = shopify.adminCalls;
-    await handleWebhook(
-      webhook("products/update", { id: 2, admin_graphql_api_id: "gid://shopify/Product/2", updated_at: "2026-09-28T07:00:00Z" }),
-      deps,
-    );
-    expect(shopify.adminCalls).toBe(calls);
-  });
-
-  it("withdraws the badge when a changed product cannot be reread, and asks Shopify to retry", async () => {
-    await installAndScan();
-    shopify.adminFails = true;
-    const response = await handleWebhook(
-      webhook("products/update", { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T10:00:00Z" }),
-      deps,
-    );
-    expect(response.status).toBe(500);
-    const held = (await deps.store.getCatalogue(SHOP))?.products.find((p) => p.product.gid === "gid://shopify/Product/1");
-    expect(held?.badge).toBe(false);
-    expect(held?.stale).toBe(true);
-  });
-
-  it("lets Shopify's retry of a failed delivery through, and ignores a duplicate of a done one", async () => {
-    await installAndScan();
-    shopify.adminFails = true;
-    const payload = { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T10:00:00Z" };
-    expect((await handleWebhook(webhook("products/update", payload, { id: "same" }), deps)).status).toBe(500);
-    shopify.adminFails = false;
-    shopify.products[0] = product(1, CLEAN, "2026-09-28T10:00:00Z");
-    expect((await handleWebhook(webhook("products/update", payload, { id: "same" }), deps)).status).toBe(200);
-    const held = (await deps.store.getCatalogue(SHOP))?.products.find((p) => p.product.gid === "gid://shopify/Product/1");
-    expect(held?.badge).toBe(true);
-    expect(held?.stale).toBeUndefined();
-
-    const calls = shopify.adminCalls;
-    expect((await handleWebhook(webhook("products/update", payload, { id: "same" }), deps)).status).toBe(200);
-    expect(shopify.adminCalls).toBe(calls);
-  });
-
-  it("drops a deleted product", async () => {
-    await installAndScan();
-    await handleWebhook(webhook("products/delete", { id: 2 }), deps);
-    expect((await deps.store.getCatalogue(SHOP))?.summary.products).toBe(1);
-  });
-
-  it("marks the shop uninstalled, and deletes everything on shop/redact", async () => {
-    await installAndScan();
-    await handleWebhook(webhook("app/uninstalled", { id: 1 }), deps);
-    expect((await deps.store.getInstallation(SHOP))?.state).toBe("uninstalled");
-
-    await handleWebhook(webhook("shop/redact", { shop_domain: SHOP }), deps);
-    expect(await deps.store.getInstallation(SHOP)).toBeNull();
-    expect(await deps.store.getCatalogue(SHOP)).toBeNull();
-  });
-
-  it("does not rescan for an uninstalled shop", async () => {
-    await installAndScan();
-    await handleWebhook(webhook("app/uninstalled", { id: 1 }), deps);
-    const calls = shopify.adminCalls;
-    await handleWebhook(
-      webhook("products/update", { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T11:00:00Z" }),
-      deps,
-    );
-    expect(shopify.adminCalls).toBe(calls);
+    it("does not rescan for an uninstalled shop", async () => {
+      await installAndScan();
+      await handleWebhook(webhook("app/uninstalled", { id: 1 }), deps);
+      const calls = shopify.adminCalls;
+      await handleWebhook(
+        webhook("products/update", { id: 1, admin_graphql_api_id: "gid://shopify/Product/1", updated_at: "2026-09-28T11:00:00Z" }),
+        deps,
+      );
+      expect(shopify.adminCalls).toBe(calls);
+    });
   });
 });
 

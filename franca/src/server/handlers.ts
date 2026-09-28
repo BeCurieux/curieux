@@ -16,7 +16,7 @@ import { supportedJurisdictions } from "../engine/registry.js";
 import { webhookAction, type WebhookAction } from "../shopify/actions.js";
 import { AdminApiError } from "../shopify/admin/client.js";
 import { readCatalogueCopy, readProductCopy } from "../shopify/admin/products.js";
-import { scanCatalogue, scanProduct, withdrawBadge, withProduct } from "../shopify/catalogue.js";
+import { scanCatalogue, scanProduct } from "../shopify/catalogue.js";
 import { verifyWebhookSignature } from "../shopify/hmac.js";
 import { shouldApplyProduct } from "../shopify/idempotency.js";
 import {
@@ -143,7 +143,7 @@ export async function handleWebhook(request: Request, deps: Deps): Promise<Respo
   const topic = subscribedTopic(delivery);
   if (!topic) return new Response(null, { status: 200 });
 
-  const claim = await deps.store.deliveries.claim(delivery.webhookId, deps.now());
+  const claim = await deps.store.deliveries.claim(delivery.webhookId, deps.now(), delivery.shopDomain);
   if (!claim.claimed) return new Response(null, { status: 200 });
 
   let payload: unknown;
@@ -168,11 +168,8 @@ async function perform(action: WebhookAction, shop: string, deps: Deps): Promise
   switch (action.kind) {
     case "rescan-product":
       return rescanProduct(shop, action.gid, action.updatedAt, deps);
-    case "forget-product": {
-      const catalogue = await deps.store.getCatalogue(shop);
-      if (catalogue) await deps.store.putCatalogue(shop, withProduct(catalogue, action.gid, null));
-      return;
-    }
+    case "forget-product":
+      return deps.store.removeProduct(shop, action.gid);
     case "uninstall": {
       const installation = await deps.store.getInstallation(shop);
       if (installation) {
@@ -216,10 +213,15 @@ async function rescanProduct(shop: string, gid: string, updatedAt: string | null
     const token = await accessTokenFor(installation, deps);
     if (!token) throw new Error("no usable access token");
     const copy = await readProductCopy(adminFor(shop, token, deps), gid);
-    const next = copy ? scanProduct(copy, catalogue.jurisdictions) : null;
-    await deps.store.putCatalogue(shop, withProduct(catalogue, gid, next));
+    if (copy) {
+      // Refused only when a newer copy of this product landed meanwhile,
+      // which is the right outcome: the newer scan stands.
+      await deps.store.putProduct(shop, scanProduct(copy, catalogue.jurisdictions));
+    } else {
+      await deps.store.removeProduct(shop, gid);
+    }
   } catch (error) {
-    if (held) await deps.store.putCatalogue(shop, withdrawBadge(catalogue, gid));
+    if (held) await deps.store.markStale(shop, gid);
     throw error;
   }
 }

@@ -40,9 +40,10 @@ export interface DeliveryLog {
    * One call rather than get-then-set: two concurrent deliveries with the same
    * id must not both be told they are first, and a check followed by a write is
    * exactly the race that allows it. In Postgres this is an
-   * `insert … on conflict do nothing returning`.
+   * `insert … on conflict do nothing returning`. `shop` is recorded so a
+   * `shop/redact` can delete the shop's rows from the ledger too.
    */
-  claim(webhookId: string, now: Date): Promise<ClaimResult>;
+  claim(webhookId: string, now: Date, shop?: string): Promise<ClaimResult>;
   settle(webhookId: string, status: "done" | "failed", now: Date): Promise<void>;
 }
 

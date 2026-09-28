@@ -90,16 +90,6 @@ export function withProduct(catalogue: CatalogueScan, gid: string, next: Product
   return { ...catalogue, products, summary: summarise(products) };
 }
 
-/**
- * The product's copy changed and could not be rescanned: keep the old score
- * for reference, mark it stale, and take the badge away. A mark must never
- * outlive an edit to the words under it (CLAUDE.md, the Shopify app entry).
- */
-export function withdrawBadge(catalogue: CatalogueScan, gid: string): CatalogueScan {
-  const products = catalogue.products.map((p) => (p.product.gid === gid ? { ...p, badge: false, stale: true } : p));
-  return { ...catalogue, products, summary: summarise(products) };
-}
-
 export function summarise(scans: ProductScan[]): CatalogueSummary {
   const byBand: Record<ScoreBand, number> = { clear: 0, review: 0, rework: 0 };
   let unread = 0;

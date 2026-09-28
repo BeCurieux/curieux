@@ -4,8 +4,8 @@ Franca installed in a merchant's Shopify admin: every product's copy scanned,
 a score per product and for the store, a badge on each product that earns one,
 and a rescan whenever a product changes.
 
-**Status (2026-09-28): stages 1 and 2 of 5 built and tested — the offline core,
-and the Next.js app around it.** No
+**Status (2026-09-28): stages 1–3 of 5 built and tested — the offline core, the
+Next.js app around it, and its storage in Supabase.** No
 app exists in the Partner Dashboard and nothing here has run against Shopify.
 This environment cannot reach shopify.dev or any store; the Shopify facts below
 were read through the Shopify docs tool and the Admin schema, and the GraphQL
@@ -102,10 +102,10 @@ SHOPIFY_PARTNER_ORG_ID=…    }
 SHOPIFY_PARTNER_API_TOKEN=… } the plan lookup; without all three it answers "unknown"
 SHOPIFY_APP_GID=…           }
 FRANCA_DEV_PLAN=growth      development only: skip the Partner API; refused in production
+SUPABASE_URL=…              }
+SUPABASE_SECRET_KEY=…       } storage (stage 3); without all three, memory — refused in production
+FRANCA_TOKEN_KEY=…          }
 ```
-
-**It refuses to run in production**, on purpose: storage is in memory until
-stage 3, so a deployed app would forget every merchant between requests.
 
 **Webpack, not Turbopack.** The engine imports its own files as `./x.js`, as
 TypeScript's ESM resolution expects. Webpack maps that to `.ts` with one line
@@ -119,12 +119,64 @@ compliance webhook gets 200. **Not checked:** anything against Shopify.
 
 ---
 
+## What is built — stage 3
+
+**The project.** Supabase project **Franca Shopify app**
+(`kqygkaerzyfcveblmhcw`, us-east-1, organisation Sounding Labs, free plan),
+created 2026-09-28. us-east-1 because the app's server is what talks to the
+database, and that sits beside Vercel's default region and popuup's project.
+
+**The schema** is `supabase/migrations/20260928000000_shopify_app_storage.sql`,
+applied to the project:
+
+- `installations` (one row per shop, tokens sealed), `catalogues` (the last
+  full scan's metadata), `product_scans` (one row per product, so a webhook
+  rescanning one product never rewrites another), `webhook_deliveries` (the
+  idempotency ledger).
+- **Server only.** RLS on every table with no policies, and no grants to
+  `anon` or `authenticated`, so the publishable key reads nothing. The app uses
+  the secret key (`service_role`).
+- **Every write is one database function**, so each operation is atomic: a
+  webhook claim cannot race another; a full scan replaces a shop's products in
+  one transaction; a product write refuses copy older than the copy it holds,
+  in the database rather than in a read-then-write.
+
+**Tokens are sealed by the app** before they are sent (`src/server/crypto.ts`,
+AES-256-GCM, bound to the shop). The database never holds a usable Shopify
+token, and a sealed token copied onto another shop's row does not open.
+
+**The app's side** is `src/server/supabaseStore.ts`: one RPC call per
+operation over plain fetch with the transport injected — no client library.
+Summaries are recomputed on every read, never stored, so they cannot disagree
+with the rows.
+
+**Checked live, on the project** (through the Supabase tools, inside a
+transaction that was rolled back — the tables are empty): installation round
+trip; a product write before any scan refused; a newer product write applied
+and an older one refused; stale marking drops the badge and keeps the score;
+the claim ledger's five cases (first, in flight, abandoned, failed, done);
+redaction removing everything; a non-myshopify domain refused; `anon` and
+`authenticated` unable to select or execute; `service_role` able to. Security
+advisor: only the expected "RLS on, no policies" notice.
+
+**Checked in tests:** every handler test runs twice, on the memory store and
+on the Supabase store against a fake of Supabase's RPC endpoint that keeps the
+same rules; token sealing (wrong shop, wrong key, tampering, rotation); that no
+request ever carries a plain token; the secret key sent as `apikey` with no
+bearer token.
+
+**Not checked:** the app talking to the real project. This environment's
+network does not reach `*.supabase.co`, and the secret key is not something
+these tools can read. That is the first thing stage 4 does.
+
+**Still open in storage:** nothing calls `franca_prune_deliveries` yet (a
+daily cron once hosted); and webhooks still do their work inline (see Open
+questions).
+
+---
+
 ## Stages still to build
 
-3. **Storage.** Supabase: installations (encrypted tokens, scopes, state),
-   the delivery ledger, per-product scans, the shop's chosen markets. Row-level
-   security with no anon access to tokens. Shopfront §3 has the table shapes
-   to start from.
 4. **First contact.** The owner creates the app and a development store; the
    CLI runs `shopify app dev`; install, scan, edit a product, watch the rescan.
    This is where every **[unverified]** gets checked.
@@ -141,7 +193,15 @@ compliance webhook gets 200. **Not checked:** anything against Shopify.
 - In the Partner Dashboard: switch pricing to Shopify App Pricing and create
   three plans with the handles `starter`, `growth` and `studio`, at $49, $99
   and $199 a month.
-- Pick the host (Vercel, per the stack) and the Supabase project.
+- Pick the host (Vercel, per the stack).
+- Give the app its storage keys, in the host's environment, never the repo:
+  the project's **secret key** (Supabase dashboard → Project Settings → API
+  Keys → create a secret key), its URL `https://kqygkaerzyfcveblmhcw.supabase.co`,
+  and a token key from `openssl rand -base64 32`. Losing the token key means
+  every merchant reinstalls; keep it where the other secrets are kept.
+- Keep the project active. Free-plan projects pause after a week without
+  activity, which would take every installed shop's app down; upgrade before
+  the first real merchant installs.
 - Settle the name first. App Store names are unique, and an AI app called
   Franca already exists (BRIEF.md §11 items 1 and 1b). Listing under a name
   that has to change later means a new listing.

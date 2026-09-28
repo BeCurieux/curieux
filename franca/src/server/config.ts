@@ -9,6 +9,7 @@
 
 import { z } from "zod";
 import { isPlanHandle, type PlanHandle } from "../shopify/plans.js";
+import { parseTokenKey, type TokenKeys } from "./crypto.js";
 
 const Env = z.object({
   SHOPIFY_API_KEY: z.string().min(1, "the app's client ID"),
@@ -27,6 +28,12 @@ const Env = z.object({
    * paid plan for free.
    */
   FRANCA_DEV_PLAN: z.string().optional(),
+  /** Storage (stage 3). All three, or the app uses memory — refused in production. */
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_SECRET_KEY: z.string().optional(),
+  FRANCA_TOKEN_KEY: z.string().optional(),
+  /** The previous token key during a rotation; opens, never seals. */
+  FRANCA_TOKEN_KEY_PREVIOUS: z.string().optional(),
   NODE_ENV: z.string().optional(),
 });
 
@@ -36,6 +43,7 @@ export type AppConfig = {
   appHandle: string;
   partner: { orgId: string; token: string; appGid: string } | null;
   devPlan: PlanHandle | null;
+  storage: { url: string; secretKey: string; tokenKeys: TokenKeys } | null;
   production: boolean;
 };
 
@@ -60,12 +68,34 @@ export function readConfig(env: Record<string, string | undefined> = process.env
       ? { orgId: e.SHOPIFY_PARTNER_ORG_ID, token: e.SHOPIFY_PARTNER_API_TOKEN, appGid: e.SHOPIFY_APP_GID }
       : null;
 
+  const storageVars = [e.SUPABASE_URL, e.SUPABASE_SECRET_KEY, e.FRANCA_TOKEN_KEY];
+  if (storageVars.some(Boolean) && !storageVars.every(Boolean)) {
+    throw new Error("SUPABASE_URL, SUPABASE_SECRET_KEY and FRANCA_TOKEN_KEY go together; set all three or none.");
+  }
+  const storage =
+    e.SUPABASE_URL && e.SUPABASE_SECRET_KEY && e.FRANCA_TOKEN_KEY
+      ? {
+          url: e.SUPABASE_URL,
+          secretKey: e.SUPABASE_SECRET_KEY,
+          tokenKeys: {
+            current: parseTokenKey(e.FRANCA_TOKEN_KEY),
+            previous: e.FRANCA_TOKEN_KEY_PREVIOUS
+              ? parseTokenKey(e.FRANCA_TOKEN_KEY_PREVIOUS, "FRANCA_TOKEN_KEY_PREVIOUS")
+              : undefined,
+          },
+        }
+      : null;
+  if (production && !storage) {
+    throw new Error("Production needs SUPABASE_URL, SUPABASE_SECRET_KEY and FRANCA_TOKEN_KEY; memory storage forgets every merchant.");
+  }
+
   return {
     clientId: e.SHOPIFY_API_KEY,
     secrets: [e.SHOPIFY_API_SECRET, e.SHOPIFY_API_SECRET_PREVIOUS].filter((s): s is string => Boolean(s)),
     appHandle: e.SHOPIFY_APP_HANDLE,
     partner,
     devPlan,
+    storage,
     production,
   };
 }
