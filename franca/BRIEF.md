@@ -65,7 +65,16 @@ The pitch sells three things in this order: **speed** (launch copy that clears r
 - **Jurisdiction toggles** — AU, US, UK, EU (ECGT), CA/Quebec
 
 ### Explicitly out of V1
-Ingredient/formulation analysis, competitor scanning as a user feature, agency/multi-brand seats, API, human legal review marketplace, image/video ad analysis.
+Ingredient/formulation analysis, competitor scanning as a user feature, agency/multi-brand seats, a public API, human legal review marketplace, image/video ad analysis, the iPhone app below.
+
+### Post-launch — the iPhone companion
+The Shopify app is the business; an iPhone app is a free companion to it, opened once the kill test (§10) says the ad checker is what founders reach for. Launch copy is written on a phone, so that is where the ad checker earns its keep:
+- **Share to scan** — a share extension: select a caption in Instagram, Notes or a draft, share it to the app, get the score and rewrites before posting
+- **Drift alerts** — push notifications when monitoring (Paid, above) sees a live page's score drop
+- **The card, from the phone** — the share card (§5) is saved and posted from where sharing already happens
+- **Sign-in only** — no purchase screen and no pointer to one; the subscription is bought through Shopify or the web (§6)
+
+It is also the cheap form of §10's reshape: if the badge does not take, an ad checker in the pocket may be the whole product.
 
 ## 5. The badge mechanic (core bet)
 
@@ -77,7 +86,9 @@ The badge is what makes this covetable rather than dreaded, and it's the thesis 
 
 ## 6. Pricing
 
-Billed via Shopify Billing API (required for App Store; also the lowest-friction wallet).
+Billed via Shopify Billing API (required for the Shopify App Store; also the lowest-friction wallet). Non-Shopify brands pay on the web.
+
+**Apple takes nothing, by keeping the iPhone app free.** Subscriptions sold inside an iPhone app go through Apple's in-app purchase at 15–30%. A free app that is a standalone companion to a paid web service need not use it, provided it has no purchasing inside the app and no calls to action to buy outside it (App Store Review Guideline 3.1.3(f)). So the iPhone app (§4) signs people in and never sells. Apple's link-out rules have been moving — the US and EU especially — so re-read the current guideline before building rather than relying on this paragraph.
 
 | Tier | Price | Includes |
 |---|---|---|
@@ -98,7 +109,9 @@ Sits inside the established DTC app budget (Klaviyo $150–720/mo, Okendo $119�
 
 **The app:**
 - **App:** Next.js + Supabase + Stripe/Shopify Billing — standard stack
-- **Shopify app:** embedded app, product read scope only at launch; App Store review compliance built in from day one (billing via Shopify API, no off-platform billing)
+- **Shopify app:** embedded app, product read scope only at launch; Shopify App Store review compliance built in from day one (billing via Shopify API, no off-platform billing)
+- **One engine behind one API:** the engine is plain TypeScript with no network or key dependency, so it runs server-side behind an internal API that the web app, the Shopify app and later the iPhone app (§4) all call. That internal API is not the public one §4 keeps out of V1
+- **iPhone app (post-launch):** thin client — share extension, push, sign-in; no engine or rule corpus on the device, so a pack update never waits on Apple review
 - **Scan pipeline:** URL fetch → claim extraction (LLM) → rule evaluation (deterministic engine) → verdict framing layer (see §9) → score computation → rewrite generation (LLM, rule-constrained)
 - **Score:** deterministic and explainable — every point deduction traces to a named rule. No black-box scoring
 - **Badge:** hosted JS embed + static fallback; score page server-rendered
@@ -159,7 +172,7 @@ Post-launch checkpoints:
    - **Domains taken** (they resolve): franca.com, franca.app, franca.ai, franca.co, franca.io, franca.eu, franca.co.uk, franca.shop, usefranca.com, francahq.com.
    - **Domains with no DNS** (probably free; confirm at a registrar): **franca.com.au**, getfranca.com, tryfranca.com, joinfranca.com, hellofranca.com, francascan.com, francaclaims.com, francaverified.com, franca.studio, franca.so. The short .com is gone, so the primary is likely getfranca.com with franca.com.au for the home market.
    - **Uses found, by risk:**
-     - **High — Franca at franca.app**: an AI language-learning app. Same name, AI software, mobile app: the class 9 collision to rule out before anything else. Unknown whether it is registered.
+     - **High — Franca at franca.app**: an AI language-learning app. Same name, AI software, mobile app: the class 9 collision to rule out before anything else. Unknown whether it is registered. The iPhone app (§4) sharpens it: App Store names are unique, and this one is likely already listed.
      - **Low–medium — Franca AI (株式会社Franca AI), Japan**: AI business-planning services for SMEs; holds franca.ai. Matters only on expansion into Japan.
      - **Low — Franca Skin, Godoy Cruz, Argentina**: skincare, Instagram presence only. The customers' category, outside the launch markets.
      - **Low — Franca, the Eclipse interface-definition framework**: open-source software, long-standing, different field.
