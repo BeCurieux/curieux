@@ -16,7 +16,7 @@ where exit `0` means *skip this build* and any other exit means *build*.
 
 `git diff --quiet` exits 0 when there is no difference. Run from the project's
 own directory, that reads as: *nothing here changed in this commit, so do not
-rebuild.* A commit under `franca/` no longer wakes the `shopfront` project.
+rebuild.* A commit under `tildie/` no longer wakes the `shopfront` project.
 
 It fails in the safe direction. On a root commit, or a shallow clone that did
 not fetch the parent, `HEAD^` does not resolve and git exits non-zero — which
@@ -38,7 +38,7 @@ Build & Deployment → Root Directory:
 | `popuup` | `shopfront` | yes — ignore only; the framework is auto-detected |
 | `curieux` | `haunted` | yes — ignore only |
 | `curieux-rifc` | `waterline` | shares `waterline/vercel.json` — being deleted, see below |
-| *(not yet created)* | `franca` | yes — framework, build, ignore, the daily prune cron; see `franca/SHOPIFY-APP.md`, stage 4 |
+| *(not yet created)* | `tildie` | yes — framework, build, ignore, the daily prune cron; see `tildie/SHOPIFY-APP.md`, stage 4 |
 
 Every Root Directory above is **already set** — this half needed no work. The
 values are not guesses: Vercel's own PR comment carries a base64 payload naming
