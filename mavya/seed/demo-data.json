@@ -1,0 +1,122 @@
+{
+  "organisation": {
+    "name": "Aqua House",
+    "activityType": "swimming",
+    "location": "Mona Vale",
+    "owner": "Sarah Morgan",
+    "instructor": "Mia Chen"
+  },
+  "family": {
+    "name": "Burrows Family",
+    "guardian": "Sarah Burrows",
+    "children": [
+      {
+        "id": "ava",
+        "firstName": "Ava",
+        "age": 7,
+        "activities": [
+          {
+            "type": "Swimming",
+            "provider": "Aqua House",
+            "level": "Dolphin 3",
+            "day": "Wednesday",
+            "time": "4:30pm"
+          },
+          {
+            "type": "Gymnastics",
+            "provider": "Peak Gymnastics",
+            "level": "Level 2",
+            "day": "Saturday",
+            "time": "9:00am"
+          }
+        ],
+        "progress": 80,
+        "skills": [
+          {
+            "name": "Floating",
+            "status": "achieved"
+          },
+          {
+            "name": "Streamline",
+            "status": "achieved"
+          },
+          {
+            "name": "Kick 10m",
+            "status": "developing"
+          },
+          {
+            "name": "Breathing",
+            "status": "developing"
+          },
+          {
+            "name": "Freestyle 10m",
+            "status": "not_started"
+          }
+        ]
+      },
+      {
+        "id": "leo",
+        "firstName": "Leo",
+        "age": 4,
+        "activities": [
+          {
+            "type": "Swimming",
+            "provider": "Aqua House",
+            "level": "Dolphin 1",
+            "day": "Tuesday",
+            "time": "5:00pm"
+          }
+        ]
+      }
+    ]
+  },
+  "classes": [
+    {
+      "id": "dolphin3-wed",
+      "name": "Dolphin 3",
+      "day": "Wednesday",
+      "time": "4:30pm",
+      "capacity": 14,
+      "enrolled": 12,
+      "absences": 1,
+      "temporaryVacancies": 1
+    },
+    {
+      "id": "dolphin3-thu",
+      "name": "Dolphin 3",
+      "day": "Thursday",
+      "time": "4:30pm",
+      "capacity": 14,
+      "enrolled": 12,
+      "absences": 0,
+      "temporaryVacancies": 2
+    },
+    {
+      "id": "dolphin3-sat",
+      "name": "Dolphin 3",
+      "day": "Saturday",
+      "time": "9:00am",
+      "capacity": 14,
+      "enrolled": 13,
+      "absences": 0,
+      "temporaryVacancies": 1
+    },
+    {
+      "id": "dolphin3-tue",
+      "name": "Dolphin 3",
+      "day": "Tuesday",
+      "time": "5:00pm",
+      "capacity": 14,
+      "enrolled": 13,
+      "absences": 0,
+      "temporaryVacancies": 1
+    }
+  ],
+  "dashboard": {
+    "childrenExpectedToday": 94,
+    "reportedAbsences": 6,
+    "temporaryVacancies": 4,
+    "expiringMakeupCredits": 7,
+    "capacityPercent": 92
+  }
+}

@@ -1,0 +1,76 @@
+@import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/bricolage-grotesque";
+
+/*
+ * Working tokens from docs/DESIGN_SYSTEM.md. Not final brand colours.
+ *
+ * Text on the accent colours is always --text, never white: white fails
+ * contrast on coral, mint and butter.
+ */
+:root {
+  --bg: #f8f6fb;
+  --surface: #ffffff;
+  --surface-soft: #f1ecf8;
+  --text: #1f2230;
+  --text-muted: #6f7282;
+  --border: #e7e2ec;
+
+  --brand-lilac: #b8a7e8;
+  --brand-cobalt: #4767d7;
+  --brand-coral: #f38a78;
+  --brand-mint: #a7d9c8;
+  --brand-butter: #f3d98c;
+
+  --success: #3c9c73;
+  --warning: #c78a2c;
+  --danger: #c85a5a;
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-line: var(--border);
+  --color-lilac: var(--brand-lilac);
+  --color-cobalt: var(--brand-cobalt);
+  --color-coral: var(--brand-coral);
+  --color-mint: var(--brand-mint);
+  --color-butter: var(--brand-butter);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    "Bricolage Grotesque Variable", "Plus Jakarta Sans Variable", ui-sans-serif, system-ui,
+    sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--brand-cobalt);
+    outline-offset: 2px;
+  }
+}

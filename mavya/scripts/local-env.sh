@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Writes .env.local from the running local Supabase stack.
+#
+# Local keys are the CLI's fixed development keys, never real credentials,
+# so generating them is safer than asking anyone to copy them by hand.
+# CI runs this too, which keeps a developer's setup and CI's identical.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+status="$(npx supabase status -o json 2>/dev/null)"
+field() { node -e "process.stdout.write(JSON.parse(process.argv[1])[process.argv[2]] ?? '')" "$status" "$1"; }
+
+cat > .env.local <<ENV
+NEXT_PUBLIC_SUPABASE_URL=$(field API_URL)
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(field PUBLISHABLE_KEY)
+SUPABASE_SECRET_KEY=$(field SECRET_KEY)
+SEED_PASSWORD=mavya-local-only-password
+ENV
+
+echo "Wrote .env.local for $(field API_URL)"
