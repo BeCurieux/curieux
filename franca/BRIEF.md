@@ -1,7 +1,7 @@
 # Build Brief — Franca
 ### The design-led claim scanner for beautiful brands
 
-**Status:** Draft v3 · August 2026 · greenfield build — fully independent of ClaimKind
+**Status:** Draft v4 · September 2026 · greenfield build — ClaimKind has since been re-scoped into the same product; see §7b
 **One-liner:** Say it beautifully — and legally.
 **Internal north star:** The badge is the product. The scan is the funnel.
 
@@ -17,11 +17,11 @@
 
 A self-serve, design-led scanner that checks the *language* of a brand's marketing claims — product pages, social ads, packaging copy — against real regulatory rules, and turns a passing result into a shareable trust asset: a **Claim Confidence Score** and a **"Claims Verified" badge** the brand displays on its PDP.
 
-It is a fully greenfield build — new codebase, new engine, new brand. It shares no code with ClaimKind, which continues untouched as a separate product. What carries over is knowledge, not code: the founder's regulatory expertise and the *concepts* behind the existing rule corpus (which the founder owns and can reference freely when authoring the new rules).
+It is a fully greenfield build — new codebase, new engine, new brand. It shares no code with ClaimKind. What carried over is knowledge, not code: the founder's regulatory expertise and the *concepts* behind the existing rule corpus (which the founder owns and can reference freely when authoring the new rules). ClaimKind was re-scoped in September 2026 as a self-serve product for this same buyer, so the two are now one product; §7b says what that changes.
 
 **Build stance (decided):** start from scratch, including the rule engine. Consequences accepted: the rule corpus must be authored fresh, so V1 launches with a deliberately narrow jurisdiction set rather than all six packs; in exchange, the codebase carries zero legacy architecture, the two products stay cleanly separable (each independently sellable, no shared-service entanglement), and the new engine can be designed scanner-first — built around claim taxonomy, scoring, and rewrites from day one instead of retrofitted onto a linting tool's shape.
 
-**What it is not:** legal software, an audit tool, a fear product, an ingredient scanner, or a lighter-priced version of ClaimKind. It occupies the layer no one owns — the *words*, not the formulation.
+**What it is not:** legal software, an audit tool, a fear product, or an ingredient scanner. It occupies the layer no one owns — the *words*, not the formulation.
 
 ## 2. Who it's for
 
@@ -33,7 +33,7 @@ Their real pain moments, in order of acuteness:
 3. **EU ECGT deadline — 27 September 2026** (fines up to 4% of turnover per member state)
 4. Background dread: ACCC greenwashing suits, FTC substantiation letters, class-action firms
 
-ClaimKind's buyer (compliance-minded, regulated, $1m–$50m supplement brands, sales-led, ~$1k/mo) stays untouched. This buyer never wanted that product; that buyer will never accept this one's ceiling. Natural upgrade path exists but is not marketed at launch.
+~~ClaimKind's buyer (compliance-minded, regulated, $1m–$50m supplement brands, sales-led, ~$1k/mo) stays untouched.~~ No longer true. The re-scoped ClaimKind sells self-serve to the founder or head of marketing at a $1m–$50m DTC brand with no in-house legal — this buyer, with a higher revenue ceiling. The top of that range (multi-market supplement brands, agencies) is the natural upper tier of one product, not a second product's buyer.
 
 ## 3. Positioning
 
@@ -45,7 +45,7 @@ The pitch sells three things in this order: **speed** (launch copy that clears r
 
 **Voice:** confident, warm, editorial. Never legal-scary, never wellness-fluffy. The brand should feel like something a Glossier-tier founder would screenshot.
 
-**Visual direction (v1 hypothesis):** distinct from ClaimKind's "gazette meets terminal." This one is gallery-grade — generous whitespace, one expressive serif, soft-neutral palette with a single confident accent, score rendered as a beautiful object (think Yuka's scan-result clarity meets Mercury's restraint). The scan result must be so good-looking that sharing it is the natural next move.
+**Visual direction (v1 hypothesis):** distinct from ClaimKind's "gazette meets terminal" — which of the two identities the merged product wears is §11 item 0. This one is gallery-grade — generous whitespace, one expressive serif, soft-neutral palette with a single confident accent, score rendered as a beautiful object (think Yuka's scan-result clarity meets Mercury's restraint). The scan result must be so good-looking that sharing it is the natural next move.
 
 ## 4. The product
 
@@ -86,14 +86,14 @@ Billed via Shopify Billing API (required for App Store; also the lowest-friction
 | Growth | **$99/mo** | ≤250 SKUs, 3 jurisdictions, ad copy checker, retailer packs |
 | Studio | **$199/mo** | Unlimited SKUs, all jurisdictions, packaging checks, monitoring alerts, priority rescan |
 
-Sits inside the established DTC app budget (Klaviyo $150–720/mo, Okendo $119–299/mo). No annual plans at launch. Reprice upward only after retention >90% with heavy usage. ClaimKind stays ~$1k/mo sales-led; upgrade conversations happen only when a customer's own scale forces it.
+Sits inside the established DTC app budget (Klaviyo $150–720/mo, Okendo $119–299/mo). No annual plans at launch. Reprice upward only after retention >90% with heavy usage. ~~ClaimKind stays ~$1k/mo sales-led.~~ The re-scoped ClaimKind prices the same shape — Free scan → $49 → $149 → $199 at MVP, then $599 multi-market monitoring and $1,500 brand house/agency. Those two upper tiers are where this table grows, not a separate product's price list.
 
 ## 7. Architecture
 
 **The engine (new, scanner-first):**
 - TypeScript rule engine designed around the scanner's needs from day one: claim taxonomy (efficacy, clean/free-from, environmental, clinical, sensory) as a first-class concept, deterministic rule evaluation, verdict output with named-rule citations, versioned rule packs, guidance-framed language built into the verdict shape (see §9)
 - **Launch jurisdiction set (deliberately narrow): AU + US + EU (ECGT).** These cover the founder's home market, the largest DTC market, and the dated deadline driving the launch wedge. UK/ASA and Quebec follow post-launch as paid-tier expansions. Authoring order within packs: the rules that map to the wedge first — ECGT environmental claims, FTC substantiation/efficacy language, TGA/ACCC therapeutic and greenwashing claims
-- Rules authored fresh, referencing the founder's own regulatory knowledge; no code imported from ClaimKind
+- Rules authored fresh, referencing the founder's own regulatory knowledge; no code imported from ClaimKind. This engine is now the starting point for the merged product (§7b), not a second engine alongside ClaimKind's
 - LLM used for claim extraction (URL/text → claim strings) and rewrite generation; never for verdicts — evaluation stays deterministic and citable
 
 **The app:**
@@ -105,9 +105,18 @@ Sits inside the established DTC app budget (Klaviyo $150–720/mo, Okendo $119�
 
 ## 7b. Relationship to ClaimKind
 
-None, by design. No shared code, no shared service, no cross-mentions in any customer-facing surface. ClaimKind continues as its own product on its own clock (its November kill criterion stands independently). The only bridge is the founder: regulatory knowledge flows into the new rule corpus as it's authored, and if a scanner customer someday outgrows self-serve, an introduction to ClaimKind is a conversation, not a product integration.
+**Superseded 28 September 2026: the two are one product.**
 
-What this buys: each product is independently sellable to a different acquirer with clean IP; neither codebase constrains the other; and the scanner's engine is shaped by the scanner's needs alone. What it costs: rule coverage is rebuilt rather than inherited, which is the primary driver of the narrowed launch jurisdiction set in §7 and the sequencing in §10.
+Draft v3 said "none, by design": no shared code, no shared service, ClaimKind a sales-led ~$1k/mo product for a different buyer on its own clock, and each product independently sellable to a different acquirer. The ClaimKind venture brief of 28 September 2026 removes the ground that stood on. It re-scopes ClaimKind as a self-serve Shopify app for the same buyer (§2), at the same price points (§6), launched on the same EU deadline (§8), with a 0–100 score and a storefront badge worded almost as §9 words it (§5). Two products that close on the same founder with the same pitch are not two acquisitions — they are one product competing with itself for one person's attention.
+
+So they merge. What that means in practice:
+
+- **This engine is the starting point.** The ClaimKind brief budgets 4–6 weeks for an EU green-claims MVP on top of ClaimKind's rule packs. This codebase already scans AU, US and EU (ECGT) copy with cited findings, a deterministic score, the card, the badge, URL fetching and rewrites. What it lacks is the product around it — accounts, the Shopify app, billing, storage — which ClaimKind's MVP needed built anyway.
+- **§7's verdict rule holds.** The ClaimKind brief has Sonnet return the verdict ("Judge") and labels claims *Prohibited*. This brief keeps verdicts deterministic and citable, and §9 forbids definitive verdicts. The ClaimKind brief concedes the reason itself — "pure LLM verdicts drift and can't be audited" — and the audit trail is the thing it says customers pay for. The model may *propose* a match on fuzzy language ("sleep like a baby") for a rule to confirm; it does not decide.
+- **ClaimKind's corpus is an input, not an import.** Its AU/TGA, AU greenwashing, US/FTC, UK/ASA and EU packs are the fastest route to the UK pack §7 defers, and to depth in the three launch packs. Port rules through this engine's rule shape and the calibration set, one at a time, rather than bringing the lint engine along.
+- **ClaimKind's later scope is this product's roadmap.** Per-market columns, ads and email surfaces, the evidence vault, approval workflow and audit log, the agency workspace: all of it sits on top of this engine, in roughly the order that brief gives.
+
+What was given up: the clean two-acquirer story, and the hedge of two products on two clocks. ClaimKind's November kill criterion no longer has a separate product to judge; whether it carries over to the merged one is §11 item 0c.
 
 ## 8. Go-to-market
 
@@ -133,7 +142,7 @@ Channels, in priority order:
 Pre-build kill-test (2 weeks, can run before the engine exists):
 - Hand-run 30 scans on real aesthetic brands' PDPs — manual analysis using the founder's own regulatory knowledge, presented as beautiful mock score cards; DM/email founders (over-index brands recently hit by ad disapprovals or in EU markets)
 - **Proceed:** 8+/30 respond wanting the live product, or 3+ offer to pay on the spot
-- **Kill/reshape:** polite silence → the pain isn't self-serve-acute; the sharpest surviving surface (likely ad checker) becomes the whole product or the concept folds back into ClaimKind's funnel
+- **Kill/reshape:** polite silence → the pain isn't self-serve-acute; the sharpest surviving surface (likely ad checker) becomes the whole product. ~~Or the concept folds back into ClaimKind's funnel~~ — since ClaimKind is now this product, self-serve too, there is nothing separate to fold into. Silence is evidence against the self-serve premise both briefs share, and it goes to the merged product's decision, not around it
 
 Post-launch checkpoints:
 - Free-scan → paid conversion **≥3–5% by month 3**, else narrow to single surface
@@ -142,7 +151,9 @@ Post-launch checkpoints:
 
 ## 11. Open decisions
 
-0. **Founder attention split.** ClaimKind's funnel and kill-clock run independently — but a solo founder authoring a fresh rule corpus while running a PLG launch has no spare capacity. Decide how much (if any) active ClaimKind outreach continues during the scanner build, or whether its November kill criterion simply adjudicates it
+0. **One name, one identity.** Merged per §7b, so the split-attention question is gone and a naming one takes its place: Franca or ClaimKind, gallery-grade or "gazette meets terminal". Franca's trademark checks (item 1) are still outstanding; whatever ClaimKind has already built in reputation or pipeline is the case for the other side. Until this is decided, the directory and the masthead stay Franca
+0b. **Verdict states.** The ClaimKind brief uses Allowed / Allowed with substantiation / Needs qualifier / Prohibited per market. §9 rules out *Prohibited* as worded; the four-state shape is otherwise a candidate answer to item 2
+0c. **Which clock.** ClaimKind had a November kill criterion; this brief has §10 and its post-launch checkpoints. Decide which one the merged product answers to, or state both, before either date arrives
 1. ~~**Name**~~ — resolved 2026-08-18: **Franca**. *Lingua franca*, the common language. Chosen over the sparks below partly because it asserts nothing: the badge already says "Claims Verified", and *Vouch*, *Attest* and *Verily* would each have claimed truth a second time in the name. (Original direction: short, warm, confident; sparks *Vouch, Candor, Trueform, Attest, Clara, Verily*.) **Availability checks — domain and trademark classes 3, 9 and 42 — are still outstanding.**
 2. Score scale presentation (0–100 vs letter grade vs three-state)
 3. ~~Launch jurisdiction set~~ — resolved in §7: AU + US + EU at launch, UK and Quebec as post-launch expansions

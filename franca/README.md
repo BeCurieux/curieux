@@ -521,8 +521,11 @@ Not a tool for scanning other people's brands. `CLAUDE.md` carries the rule and
 `BRIEF.md` §9 carries the reasoning: users scan their own properties at their
 own initiation, and we never publish a result.
 
-Not related to ClaimKind. No shared code, no shared service, no imports. The
-only thing that crossed over is the founder's knowledge, which is not code.
+No code from ClaimKind. No shared service, no imports; the founder's knowledge
+crossed over, which is not code. ClaimKind has since been re-scoped into the
+same product and the two have merged, with this engine as the starting point —
+`BRIEF.md` §7b. Its rules come in as rules, ported one at a time through this
+engine's shape and the calibration set, never as its lint engine.
 
 ## Layout
 

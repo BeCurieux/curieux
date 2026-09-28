@@ -16,8 +16,13 @@ what you type and nothing about what the test asks.
 **3+** offering to pay on the spot. Anything else is polite silence, and §10 is
 explicit about what polite silence means: the pain is not self-serve-acute. The
 sharpest surviving surface — most likely the ad checker — becomes the whole
-product, or the concept folds back into ClaimKind's funnel. Kill quickly rather
-than rationalise.
+product. Kill quickly rather than rationalise.
+
+There used to be a second exit: fold the concept back into ClaimKind's funnel.
+ClaimKind has since been re-scoped as a self-serve product for this same buyer
+and the two have merged (BRIEF.md §7b), so there is nothing separate to fold
+into. That makes this test weigh more, not less — it now tests the self-serve
+premise of both briefs at once.
 
 ---
 
@@ -75,9 +80,10 @@ Over-index hard on the two acute moments in §2:
 | ~3 | **Loud copy, no obvious pain yet** | The control group. If these convert too, the pain is broader than §2 thinks |
 
 Fit the buyer in §2: aesthetic DTC, roughly $500k–$20m, Shopify, taste-driven,
-no in-house legal. A brand with a compliance manager is ClaimKind's buyer and
-will tell you the ceiling is too low. A brand doing $80k a year cannot pay $49
-a month for anything.
+no in-house legal. A brand with a compliance manager will tell you the ceiling
+is too low — that was ClaimKind's old buyer, and after the merge it is the
+upper tier nobody is building yet, not who this test is for. A brand doing $80k
+a year cannot pay $49 a month for anything.
 
 Write the reason down for each. `pnpm killtest` refuses a target without one,
 which is not pedantry: a target with no reason gets a generic message and a
@@ -417,8 +423,10 @@ the most valuable rule-authoring input the product will ever get.
 names. The ad checker becomes the whole product: it is the acute moment, the
 copy is short enough to paste, and it needs neither Shopify nor the badge.
 
-**Polite silence.** Fold it back. §10 was written to make this cheap, and the
-value of a cheap no is entirely in taking it.
+**Polite silence.** Take the no. There is no longer a sibling product to fold
+it back into, so it is a verdict on the self-serve plan the merged product
+runs on. §10 was written to make this cheap, and the value of a cheap no is
+entirely in taking it.
 
 **Something else happened.** Write down what, before rationalising it into one
 of the three above. Thirty conversations with the exact buyer is worth more
