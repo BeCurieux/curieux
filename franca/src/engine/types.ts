@@ -267,7 +267,7 @@ export type ScanInput = {
   /** The copy being scanned, already reduced to text. */
   text: string;
   /** Where it came from, for the record on the score page. */
-  source: { kind: "url" | "paste" | "upload"; reference?: string };
+  source: { kind: "url" | "paste" | "upload" | "shopify"; reference?: string };
   jurisdictions: Jurisdiction[];
 };
 

@@ -84,8 +84,10 @@ by exactly one file. **Scanning still needs no key and no configuration** — th
 drafter is injected, and without one the engine, the card and the kill test all
 run on a laptop with no accounts, which is what makes step 3 possible before
 step 4 exists. The app around it, when it exists: Next.js (App Router) ·
-Supabase · Shopify Billing · Anthropic API · Vercel. No other services without
-asking.
+Supabase · Shopify App Pricing · Anthropic API · Vercel. No other services
+without asking. (It said Shopify Billing until 2026-09-28; Shopify now defaults
+new public apps to App Pricing, which charges from the Partner Dashboard and
+tells apps not to call the Billing API — SHOPIFY-APP.md, "Decisions".)
 
 ## Build order (derived from §7 and §10 — not given in the brief)
 
@@ -153,6 +155,22 @@ string identifies the tool and carries `SCAN_CONTACT` when set. `--own` skips
 the robots check and is only ever legitimate for a site the user owns. None of
 this is politeness theatre: the kill test's first message is about our conduct
 the moment any of it is skipped.
+
+**The Shopify app, on the owner's call (2026-09-28).** Step 4, opened before
+the kill test has run, after the merge with ClaimKind (BRIEF.md §7b) made the
+installed app the product's main surface. The owner asked for it directly. The
+argument against is the one shopfront's app design makes and it still holds:
+install plumbing built before any merchant has said yes is the failure the gate
+exists for.
+
+What opened: `src/shopify/` and `shopify.app.toml` — the offline core first,
+every part of it pure and tested without Shopify; the plan is SHOPIFY-APP.md.
+The laws come with it unchanged, and any route built on it must keep them:
+every product goes through the same `scan()`, every mark through
+`mayDisplayBadge`, a product with no copy is *unread* and never clear, and a
+product's badge is withdrawn when its copy changes until the rescan lands.
+Still shut: the LLM extractor, the hosted score page, the ad checker and
+retailer packs.
 
 ## Rules about rules
 
