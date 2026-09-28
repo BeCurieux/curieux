@@ -381,8 +381,8 @@ describe("what the live drafter sends", () => {
   });
 
   it("reads the key from the name that survives a coding agent", () => {
-    expect(apiKey({ ASSAY_ANTHROPIC_API_KEY: "a", ANTHROPIC_API_KEY: "b" } as NodeJS.ProcessEnv)).toBe("a");
-    expect(apiKey({ ANTHROPIC_API_KEY: "b" } as NodeJS.ProcessEnv)).toBe("b");
+    expect(apiKey({ NODE_ENV: "test", ASSAY_ANTHROPIC_API_KEY: "a", ANTHROPIC_API_KEY: "b" } as NodeJS.ProcessEnv)).toBe("a");
+    expect(apiKey({ NODE_ENV: "test", ANTHROPIC_API_KEY: "b" } as NodeJS.ProcessEnv)).toBe("b");
     expect(apiKey({} as NodeJS.ProcessEnv)).toBeUndefined();
   });
 });

@@ -1,0 +1,24 @@
+{
+  "blocks": {
+    "claims_mark": {
+      "name": "Claims mark",
+      "settings": {
+        "theme": {
+          "label": "Mark style",
+          "info": "Paper suits light product pages; night suits dark ones.",
+          "paper": "Paper",
+          "night": "Night"
+        },
+        "alignment": {
+          "label": "Alignment",
+          "left": "Left",
+          "center": "Centre",
+          "right": "Right"
+        },
+        "spacing": {
+          "label": "Space above and below"
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # Build Brief — Franca
 ### The design-led claim scanner for beautiful brands
 
-**Status:** Draft v3 · August 2026 · greenfield build — fully independent of ClaimKind
+**Status:** Draft v4 · September 2026 · greenfield build — ClaimKind has since been re-scoped into the same product; see §7b
 **One-liner:** Say it beautifully — and legally.
 **Internal north star:** The badge is the product. The scan is the funnel.
 
@@ -17,11 +17,11 @@
 
 A self-serve, design-led scanner that checks the *language* of a brand's marketing claims — product pages, social ads, packaging copy — against real regulatory rules, and turns a passing result into a shareable trust asset: a **Claim Confidence Score** and a **"Claims Verified" badge** the brand displays on its PDP.
 
-It is a fully greenfield build — new codebase, new engine, new brand. It shares no code with ClaimKind, which continues untouched as a separate product. What carries over is knowledge, not code: the founder's regulatory expertise and the *concepts* behind the existing rule corpus (which the founder owns and can reference freely when authoring the new rules).
+It is a fully greenfield build — new codebase, new engine, new brand. It shares no code with ClaimKind. What carried over is knowledge, not code: the founder's regulatory expertise and the *concepts* behind the existing rule corpus (which the founder owns and can reference freely when authoring the new rules). ClaimKind was re-scoped in September 2026 as a self-serve product for this same buyer, so the two are now one product; §7b says what that changes.
 
 **Build stance (decided):** start from scratch, including the rule engine. Consequences accepted: the rule corpus must be authored fresh, so V1 launches with a deliberately narrow jurisdiction set rather than all six packs; in exchange, the codebase carries zero legacy architecture, the two products stay cleanly separable (each independently sellable, no shared-service entanglement), and the new engine can be designed scanner-first — built around claim taxonomy, scoring, and rewrites from day one instead of retrofitted onto a linting tool's shape.
 
-**What it is not:** legal software, an audit tool, a fear product, an ingredient scanner, or a lighter-priced version of ClaimKind. It occupies the layer no one owns — the *words*, not the formulation.
+**What it is not:** legal software, an audit tool, a fear product, or an ingredient scanner. It occupies the layer no one owns — the *words*, not the formulation.
 
 ## 2. Who it's for
 
@@ -33,7 +33,7 @@ Their real pain moments, in order of acuteness:
 3. **EU ECGT deadline — 27 September 2026** (fines up to 4% of turnover per member state)
 4. Background dread: ACCC greenwashing suits, FTC substantiation letters, class-action firms
 
-ClaimKind's buyer (compliance-minded, regulated, $1m–$50m supplement brands, sales-led, ~$1k/mo) stays untouched. This buyer never wanted that product; that buyer will never accept this one's ceiling. Natural upgrade path exists but is not marketed at launch.
+~~ClaimKind's buyer (compliance-minded, regulated, $1m–$50m supplement brands, sales-led, ~$1k/mo) stays untouched.~~ No longer true. The re-scoped ClaimKind sells self-serve to the founder or head of marketing at a $1m–$50m DTC brand with no in-house legal — this buyer, with a higher revenue ceiling. The top of that range (multi-market supplement brands, agencies) is the natural upper tier of one product, not a second product's buyer.
 
 ## 3. Positioning
 
@@ -45,7 +45,7 @@ The pitch sells three things in this order: **speed** (launch copy that clears r
 
 **Voice:** confident, warm, editorial. Never legal-scary, never wellness-fluffy. The brand should feel like something a Glossier-tier founder would screenshot.
 
-**Visual direction (v1 hypothesis):** distinct from ClaimKind's "gazette meets terminal." This one is gallery-grade — generous whitespace, one expressive serif, soft-neutral palette with a single confident accent, score rendered as a beautiful object (think Yuka's scan-result clarity meets Mercury's restraint). The scan result must be so good-looking that sharing it is the natural next move.
+**Visual direction (v1 hypothesis):** distinct from ClaimKind's "gazette meets terminal", which the merged product does not carry forward (§11 item 0). This one is gallery-grade — generous whitespace, one expressive serif, soft-neutral palette with a single confident accent, score rendered as a beautiful object (think Yuka's scan-result clarity meets Mercury's restraint). The scan result must be so good-looking that sharing it is the natural next move.
 
 ## 4. The product
 
@@ -65,7 +65,16 @@ The pitch sells three things in this order: **speed** (launch copy that clears r
 - **Jurisdiction toggles** — AU, US, UK, EU (ECGT), CA/Quebec
 
 ### Explicitly out of V1
-Ingredient/formulation analysis, competitor scanning as a user feature, agency/multi-brand seats, API, human legal review marketplace, image/video ad analysis.
+Ingredient/formulation analysis, competitor scanning as a user feature, agency/multi-brand seats, a public API, human legal review marketplace, image/video ad analysis, the iPhone app below.
+
+### Post-launch — the iPhone companion
+The Shopify app is the business; an iPhone app is a free companion to it, opened once the kill test (§10) says the ad checker is what founders reach for. Launch copy is written on a phone, so that is where the ad checker earns its keep:
+- **Share to scan** — a share extension: select a caption in Instagram, Notes or a draft, share it to the app, get the score and rewrites before posting
+- **Drift alerts** — push notifications when monitoring (Paid, above) sees a live page's score drop
+- **The card, from the phone** — the share card (§5) is saved and posted from where sharing already happens
+- **Sign-in only** — no purchase screen and no pointer to one; the subscription is bought through Shopify or the web (§6)
+
+It is also the cheap form of §10's reshape: if the badge does not take, an ad checker in the pocket may be the whole product.
 
 ## 5. The badge mechanic (core bet)
 
@@ -77,7 +86,9 @@ The badge is what makes this covetable rather than dreaded, and it's the thesis 
 
 ## 6. Pricing
 
-Billed via Shopify Billing API (required for App Store; also the lowest-friction wallet).
+Billed via Shopify Billing API (required for the Shopify App Store; also the lowest-friction wallet). Non-Shopify brands pay on the web.
+
+**Apple takes nothing, by keeping the iPhone app free.** Subscriptions sold inside an iPhone app go through Apple's in-app purchase at 15–30%. A free app that is a standalone companion to a paid web service need not use it, provided it has no purchasing inside the app and no calls to action to buy outside it (App Store Review Guideline 3.1.3(f)). So the iPhone app (§4) signs people in and never sells. Apple's link-out rules have been moving — the US and EU especially — so re-read the current guideline before building rather than relying on this paragraph.
 
 | Tier | Price | Includes |
 |---|---|---|
@@ -86,28 +97,39 @@ Billed via Shopify Billing API (required for App Store; also the lowest-friction
 | Growth | **$99/mo** | ≤250 SKUs, 3 jurisdictions, ad copy checker, retailer packs |
 | Studio | **$199/mo** | Unlimited SKUs, all jurisdictions, packaging checks, monitoring alerts, priority rescan |
 
-Sits inside the established DTC app budget (Klaviyo $150–720/mo, Okendo $119–299/mo). No annual plans at launch. Reprice upward only after retention >90% with heavy usage. ClaimKind stays ~$1k/mo sales-led; upgrade conversations happen only when a customer's own scale forces it.
+Sits inside the established DTC app budget (Klaviyo $150–720/mo, Okendo $119–299/mo). No annual plans at launch. Reprice upward only after retention >90% with heavy usage. ~~ClaimKind stays ~$1k/mo sales-led.~~ The re-scoped ClaimKind prices the same shape — Free scan → $49 → $149 → $199 at MVP, then $599 multi-market monitoring and $1,500 brand house/agency. Those two upper tiers are where this table grows, not a separate product's price list.
 
 ## 7. Architecture
 
 **The engine (new, scanner-first):**
 - TypeScript rule engine designed around the scanner's needs from day one: claim taxonomy (efficacy, clean/free-from, environmental, clinical, sensory) as a first-class concept, deterministic rule evaluation, verdict output with named-rule citations, versioned rule packs, guidance-framed language built into the verdict shape (see §9)
 - **Launch jurisdiction set (deliberately narrow): AU + US + EU (ECGT).** These cover the founder's home market, the largest DTC market, and the dated deadline driving the launch wedge. UK/ASA and Quebec follow post-launch as paid-tier expansions. Authoring order within packs: the rules that map to the wedge first — ECGT environmental claims, FTC substantiation/efficacy language, TGA/ACCC therapeutic and greenwashing claims
-- Rules authored fresh, referencing the founder's own regulatory knowledge; no code imported from ClaimKind
+- Rules authored fresh, referencing the founder's own regulatory knowledge; no code imported from ClaimKind. This engine is now the starting point for the merged product (§7b), not a second engine alongside ClaimKind's
 - LLM used for claim extraction (URL/text → claim strings) and rewrite generation; never for verdicts — evaluation stays deterministic and citable
 
 **The app:**
 - **App:** Next.js + Supabase + Stripe/Shopify Billing — standard stack
-- **Shopify app:** embedded app, product read scope only at launch; App Store review compliance built in from day one (billing via Shopify API, no off-platform billing)
+- **Shopify app:** embedded app, product read scope only at launch; Shopify App Store review compliance built in from day one (billing via Shopify API, no off-platform billing)
+- **One engine behind one API:** the engine is plain TypeScript with no network or key dependency, so it runs server-side behind an internal API that the web app, the Shopify app and later the iPhone app (§4) all call. That internal API is not the public one §4 keeps out of V1
+- **iPhone app (post-launch):** thin client — share extension, push, sign-in; no engine or rule corpus on the device, so a pack update never waits on Apple review
 - **Scan pipeline:** URL fetch → claim extraction (LLM) → rule evaluation (deterministic engine) → verdict framing layer (see §9) → score computation → rewrite generation (LLM, rule-constrained)
 - **Score:** deterministic and explainable — every point deduction traces to a named rule. No black-box scoring
 - **Badge:** hosted JS embed + static fallback; score page server-rendered
 
 ## 7b. Relationship to ClaimKind
 
-None, by design. No shared code, no shared service, no cross-mentions in any customer-facing surface. ClaimKind continues as its own product on its own clock (its November kill criterion stands independently). The only bridge is the founder: regulatory knowledge flows into the new rule corpus as it's authored, and if a scanner customer someday outgrows self-serve, an introduction to ClaimKind is a conversation, not a product integration.
+**Superseded 28 September 2026: the two are one product.**
 
-What this buys: each product is independently sellable to a different acquirer with clean IP; neither codebase constrains the other; and the scanner's engine is shaped by the scanner's needs alone. What it costs: rule coverage is rebuilt rather than inherited, which is the primary driver of the narrowed launch jurisdiction set in §7 and the sequencing in §10.
+Draft v3 said "none, by design": no shared code, no shared service, ClaimKind a sales-led ~$1k/mo product for a different buyer on its own clock, and each product independently sellable to a different acquirer. The ClaimKind venture brief of 28 September 2026 removes the ground that stood on. It re-scopes ClaimKind as a self-serve Shopify app for the same buyer (§2), at the same price points (§6), launched on the same EU deadline (§8), with a 0–100 score and a storefront badge worded almost as §9 words it (§5). Two products that close on the same founder with the same pitch are not two acquisitions — they are one product competing with itself for one person's attention.
+
+So they merge. What that means in practice:
+
+- **This engine is the starting point.** The ClaimKind brief budgets 4–6 weeks for an EU green-claims MVP on top of ClaimKind's rule packs. This codebase already scans AU, US and EU (ECGT) copy with cited findings, a deterministic score, the card, the badge, URL fetching and rewrites. What it lacks is the product around it — accounts, the Shopify app, billing, storage — which ClaimKind's MVP needed built anyway.
+- **§7's verdict rule holds.** The ClaimKind brief has Sonnet return the verdict ("Judge") and labels claims *Prohibited*. This brief keeps verdicts deterministic and citable, and §9 forbids definitive verdicts. The ClaimKind brief concedes the reason itself — "pure LLM verdicts drift and can't be audited" — and the audit trail is the thing it says customers pay for. The model may *propose* a match on fuzzy language ("sleep like a baby") for a rule to confirm; it does not decide.
+- **ClaimKind's corpus is an input, not an import.** Its AU/TGA, AU greenwashing, US/FTC, UK/ASA and EU packs are the fastest route to the UK pack §7 defers, and to depth in the three launch packs. Port rules through this engine's rule shape and the calibration set, one at a time, rather than bringing the lint engine along.
+- **ClaimKind's later scope is this product's roadmap.** Per-market columns, ads and email surfaces, the evidence vault, approval workflow and audit log, the agency workspace: all of it sits on top of this engine, in roughly the order that brief gives.
+
+What was given up: the clean two-acquirer story, and the hedge of two products on two clocks. ClaimKind's November kill criterion no longer has a separate product to judge; whether it carries over to the merged one is §11 item 0c.
 
 ## 8. Go-to-market
 
@@ -133,7 +155,7 @@ Channels, in priority order:
 Pre-build kill-test (2 weeks, can run before the engine exists):
 - Hand-run 30 scans on real aesthetic brands' PDPs — manual analysis using the founder's own regulatory knowledge, presented as beautiful mock score cards; DM/email founders (over-index brands recently hit by ad disapprovals or in EU markets)
 - **Proceed:** 8+/30 respond wanting the live product, or 3+ offer to pay on the spot
-- **Kill/reshape:** polite silence → the pain isn't self-serve-acute; the sharpest surviving surface (likely ad checker) becomes the whole product or the concept folds back into ClaimKind's funnel
+- **Kill/reshape:** polite silence → the pain isn't self-serve-acute; the sharpest surviving surface (likely ad checker) becomes the whole product. ~~Or the concept folds back into ClaimKind's funnel~~ — since ClaimKind is now this product, self-serve too, there is nothing separate to fold into. Silence is evidence against the self-serve premise both briefs share, and it goes to the merged product's decision, not around it
 
 Post-launch checkpoints:
 - Free-scan → paid conversion **≥3–5% by month 3**, else narrow to single surface
@@ -142,8 +164,33 @@ Post-launch checkpoints:
 
 ## 11. Open decisions
 
-0. **Founder attention split.** ClaimKind's funnel and kill-clock run independently — but a solo founder authoring a fresh rule corpus while running a PLG launch has no spare capacity. Decide how much (if any) active ClaimKind outreach continues during the scanner build, or whether its November kill criterion simply adjudicates it
-1. ~~**Name**~~ — resolved 2026-08-18: **Franca**. *Lingua franca*, the common language. Chosen over the sparks below partly because it asserts nothing: the badge already says "Claims Verified", and *Vouch*, *Attest* and *Verily* would each have claimed truth a second time in the name. (Original direction: short, warm, confident; sparks *Vouch, Candor, Trueform, Attest, Clara, Verily*.) **Availability checks — domain and trademark classes 3, 9 and 42 — are still outstanding.**
+0. ~~**One name, one identity.**~~ — resolved 2026-09-28: ~~**Franca**~~ **Tildie** (see below), with Franca's look. The merged product ships as Franca with the gallery-grade direction in §3; ClaimKind's name and "gazette meets terminal" retire. Chosen over ClaimKind's searchability because the badge and the share card are the bet (§5), and they need a name a brand is glad to display, not one that describes a compliance check. Cost accepted: App Store discovery leans on the listing's subtitle and keywords rather than the name. This makes Franca's availability checks (item 1) urgent; the first pass is recorded there and turned up one collision to rule out
+   - **Renamed the same day: Tildie, subject to clearance.** Item 1's first pass found an AI app already called Franca at franca.app, and App Store names are unique, which matters twice now there is a Shopify listing and an iPhone app (§4). The owner chose **Tildie** from item 1b's second screen: the tilde (~), the small wave that softens a letter, made into a friendly name — the product's job is softening the wording. It keeps everything item 0 chose Franca for (the gallery-grade look in §3, a name a brand is glad to display, a name that asserts nothing) and drops only the word.
+   - **Not yet renamed in code or on disk, on purpose.** Franca was chosen on 2026-08-18 with its availability checks "still outstanding", and six weeks later those checks are what reopened the name. Tildie does not repeat that: the directory, `WORDMARK` (src/card/tokens.ts), the `shopify.app.toml` name and handle, and CLAUDE.md change in one commit of their own once the USPTO search in item 1b's next step comes back clear. Until then, `pnpm card --wordmark TILDIE` previews any card under the new name.
+0b. **Verdict states.** The ClaimKind brief uses Allowed / Allowed with substantiation / Needs qualifier / Prohibited per market. §9 rules out *Prohibited* as worded; the four-state shape is otherwise a candidate answer to item 2
+0c. **Which clock.** ClaimKind had a November kill criterion; this brief has §10 and its post-launch checkpoints. Decide which one the merged product answers to, or state both, before either date arrives
+1. ~~**Name**~~ — resolved 2026-08-18: **Franca**. *Lingua franca*, the common language. Chosen over the sparks below partly because it asserts nothing: the badge already says "Claims Verified", and *Vouch*, *Attest* and *Verily* would each have claimed truth a second time in the name. (Original direction: short, warm, confident; sparks *Vouch, Candor, Trueform, Attest, Clara, Verily*.) **Availability checks — first pass 2026-09-28, not yet a clearance.** Done from a sandbox that could resolve DNS and search the web but could not open any trademark register, registry or registrar, so everything below is a signal to confirm, not a result.
+   - **Classes.** File in **9** (downloadable software, the Shopify app) and **42** (SaaS), possibly **35**. Not 3: that is cosmetics, which Franca does not sell. Class 3 matters only as the customers' class, for confusion with beauty brands called Franca.
+   - **Domains taken** (they resolve): franca.com, franca.app, franca.ai, franca.co, franca.io, franca.eu, franca.co.uk, franca.shop, usefranca.com, francahq.com.
+   - **Domains with no DNS** (probably free; confirm at a registrar): **franca.com.au**, getfranca.com, tryfranca.com, joinfranca.com, hellofranca.com, francascan.com, francaclaims.com, francaverified.com, franca.studio, franca.so. The short .com is gone, so the primary is likely getfranca.com with franca.com.au for the home market.
+   - **Uses found, by risk:**
+     - **High — Franca at franca.app**: an AI language-learning app. Same name, AI software, mobile app: the class 9 collision to rule out before anything else. Unknown whether it is registered. The iPhone app (§4) sharpens it: App Store names are unique, and this one is likely already listed.
+     - **Low–medium — Franca AI (株式会社Franca AI), Japan**: AI business-planning services for SMEs; holds franca.ai. Matters only on expansion into Japan.
+     - **Low — Franca Skin, Godoy Cruz, Argentina**: skincare, Instagram presence only. The customers' category, outside the launch markets.
+     - **Low — Franca, the Eclipse interface-definition framework**: open-source software, long-standing, different field.
+     - **Unrelated**: Franca NYC (ceramics), Franca Brasserie (restaurant, AU), MFRANCA and Franca Beauty Store (beauty retail), US cosmetics marks owned by Spa by Renata Franca (mark text not confirmed).
+   - **Still to run:** USPTO (tmsearch.uspto.gov, FRANCA in 9 and 42, and any filing by the franca.app owner); EUIPO/TMview; IP Australia; UKIPO; registrar checks on franca.com.au and getfranca.com. Then a trademark lawyer's clearance before filing. Hold brand spend (badge design, item 4) until the USPTO search is back — if the franca.app owner holds FRANCA in class 9, item 0 reopens.
+1b. **Fallback names, screened 2026-09-28** — in case item 1 reopens item 0. About fifty candidates held to item 1's original direction (short, warm, editorial, and not claiming truth). Same method and limits as item 1: DNS and web search only, no register. "Open" means no DNS, so probably free; confirm at a registrar.
+   - **Shortlist, in order:**
+     - **Verbette** — "little word", French-leaning as Franca is Italian-leaning; keeps the warmth and the gallery register, and "Claims reviewed by Verbette" asserts nothing. Every domain checked is open, .com included (.app, .co, .com.au, get-, try-, .studio). No commercial use found — personal accounts and a children's grammar character. Risk: coined, so misspelt and possibly twee; say it aloud to a few founders before committing. verbette.com is worth registering now.
+     - **Emend** — to correct a text, which is what the rewrite does. .app, .co, getemend.com, tryemend.com open; .com taken; emend.ai listed for sale. Only use found: an open-source data-cleaning package. Colder than Franca, and close to the legal *amend*.
+     - **Fairspoke** — "fairly spoken", with an echo of *bespoke*. Every domain open, no use found. Ranked last because *fair* is a mild claim about the words, the same objection that ruled out *Vouch* and *Verily*.
+   - **Ruled out:** Wordkind (inclusive-language copy-checking software — the same category), Sorrel (an AI meal planner at getsorrel.app, a fitness-studio app, and two beauty brands that are the customers), Stet and Pilcrow (several writing apps each, including AI tools that mark up text as the result page does), Dicta (AI dictation apps and a legal AI), Plainsay (Mac dictation app), Phrasa (too close to Phrase, a large localisation-software company in 9 and 42; also a typeface), and single real words whose main domains are all taken — Idiom, Parlance, Diction, Tenor, Gloss (and Glossier next door), Caret, Folio, Candor, Clara, Quill and the rest.
+   - **Second screen, same day, for "cool, trendy" names** — about 250 more, with a stronger DNS check (name-server lookups against a public resolver, which also catches parked domains). No short name has its bare .com open; the target became an open .app plus get- or try- .com. Survivors, in the order ranked:
+     - **Tildie — chosen (item 0).** Open: tildie.app, tildie.co, tildie.com.au, gettildie.com, trytildie.com; tildie.com taken. No brand or app found using it.
+     - **Saylie** ("say", as a first name) — a mild sound-alike in Saily, an eSIM app. **Mottie** (French *mot*) — .com and .co taken. **Bonmot** (a well-chosen word) — .com and .app taken, least playful. **Mildly** — next to MILD Cosmetics, a beauty brand. **Parlie** (*parler*) — sounds like Parler.
+     - Ruled out on conflicts: Lilti and variants (LILT sells an AI content app on the Shopify App Store), Odelle (Odele Beauty), Nicety (a beauty brand), Kindli (an existing app), Oolie (Ollie Skincare), Merrie (next to MERIT Beauty). About thirty more had every domain taken.
+   - **Next:** search TILDIE in classes 9 and 42 at the USPTO, with FRANCA, Verbette and Emend in the same session, and register tildie.app and gettildie.com now — about the cost of a lunch, and the only part of this that can be lost by waiting. Then IP Australia, EUIPO and UKIPO, then counsel. ClaimKind remains the other fallback.
 2. Score scale presentation (0–100 vs letter grade vs three-state)
 3. ~~Launch jurisdiction set~~ — resolved in §7: AU + US + EU at launch, UK and Quebec as post-launch expansions
 4. Badge visual system — needs its own mini design sprint

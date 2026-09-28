@@ -17,3 +17,7 @@ cards/
 # be committed.
 killtest/*
 !killtest/targets.example.txt
+
+# Next.js build output.
+.next/
+next-env.d.ts

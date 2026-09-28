@@ -4,7 +4,9 @@ Read BRIEF.md before doing anything. This file is the short version that must
 never be violated.
 
 The product is **Franca** (chosen 2026-08-18, §11 item 1), and so is the
-directory. It was `assay/` while the name was open; the rename landed on its
+directory — for now. On 2026-09-28 the owner chose **Tildie** to replace it
+(BRIEF.md §11 item 0); the rename waits on a clear trademark search and lands
+in one commit of its own. Do not rename anything piecemeal before then. It was `assay/` while the name was open; the rename landed on its
 own after #31, so the review of the product and the review of a rename never
 had to happen in the same diff.
 
@@ -84,8 +86,10 @@ by exactly one file. **Scanning still needs no key and no configuration** — th
 drafter is injected, and without one the engine, the card and the kill test all
 run on a laptop with no accounts, which is what makes step 3 possible before
 step 4 exists. The app around it, when it exists: Next.js (App Router) ·
-Supabase · Shopify Billing · Anthropic API · Vercel. No other services without
-asking.
+Supabase · Shopify App Pricing · Anthropic API · Vercel. No other services
+without asking. (It said Shopify Billing until 2026-09-28; Shopify now defaults
+new public apps to App Pricing, which charges from the Partner Dashboard and
+tells apps not to call the Billing API — SHOPIFY-APP.md, "Decisions".)
 
 ## Build order (derived from §7 and §10 — not given in the brief)
 
@@ -153,6 +157,22 @@ string identifies the tool and carries `SCAN_CONTACT` when set. `--own` skips
 the robots check and is only ever legitimate for a site the user owns. None of
 this is politeness theatre: the kill test's first message is about our conduct
 the moment any of it is skipped.
+
+**The Shopify app, on the owner's call (2026-09-28).** Step 4, opened before
+the kill test has run, after the merge with ClaimKind (BRIEF.md §7b) made the
+installed app the product's main surface. The owner asked for it directly. The
+argument against is the one shopfront's app design makes and it still holds:
+install plumbing built before any merchant has said yes is the failure the gate
+exists for.
+
+What opened: `src/shopify/` and `shopify.app.toml` — the offline core first,
+every part of it pure and tested without Shopify; the plan is SHOPIFY-APP.md.
+The laws come with it unchanged, and any route built on it must keep them:
+every product goes through the same `scan()`, every mark through
+`mayDisplayBadge`, a product with no copy is *unread* and never clear, and a
+product's badge is withdrawn when its copy changes until the rescan lands.
+Still shut: the LLM extractor, the hosted score page, the ad checker and
+retailer packs.
 
 ## Rules about rules
 
@@ -329,3 +349,13 @@ a regulatory specialist agrees with, each citing a named instrument, with a
 score whose every deducted point is traceable to a rule — offline, in under a
 second, with no configuration. **Met.** What remains open is the corpus's
 accuracy, which is a review by counsel and not a build task; see README.md.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -56,7 +56,8 @@ Read              2 claims, 5 findings
 | `pnpm killtest` | Run the §10 targets, render the cards, keep the ledger |
 | `pnpm killtest --fetch` | …collecting the copy for any target that has none |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 292 tests, no network, no key |
+| `pnpm dev` · `pnpm build` | The Shopify app — see SHOPIFY-APP.md; the listing is APP-STORE.md |
+| `pnpm test` · `pnpm typecheck` | 530 tests, no network, no key |
 
 ## How a scan works
 
@@ -521,8 +522,11 @@ Not a tool for scanning other people's brands. `CLAUDE.md` carries the rule and
 `BRIEF.md` §9 carries the reasoning: users scan their own properties at their
 own initiation, and we never publish a result.
 
-Not related to ClaimKind. No shared code, no shared service, no imports. The
-only thing that crossed over is the founder's knowledge, which is not code.
+No code from ClaimKind. No shared service, no imports; the founder's knowledge
+crossed over, which is not code. ClaimKind has since been re-scoped into the
+same product and the two have merged, with this engine as the starting point —
+`BRIEF.md` §7b. Its rules come in as rules, ported one at a time through this
+engine's shape and the calibration set, never as its lint engine.
 
 ## Layout
 

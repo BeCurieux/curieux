@@ -250,9 +250,10 @@ export function renderLedger(rows: LedgerRow[], counts: Tally): string {
       : counts.exhausted
         ? "**All thirty contacted and the gate is not met.** §10: the pain is not " +
           "self-serve-acute. The sharpest surviving surface — most likely the ad " +
-          "checker — becomes the whole product, or the concept folds back into " +
-          "ClaimKind's funnel. Kill quickly rather than rationalise; that is what " +
-          "the two-week, near-zero-cost shape of this test was for."
+          "checker — becomes the whole product. There is no sibling product to " +
+          "fold it into any more (BRIEF.md §7b). Kill quickly rather than " +
+          "rationalise; that is what the two-week, near-zero-cost shape of this " +
+          "test was for."
         : `Still running — ${GATE.targets - counts.contacted} left to contact.`,
     "",
   ].join("\n");

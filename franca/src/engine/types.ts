@@ -30,9 +30,9 @@ export const LAUNCH_JURISDICTIONS = ["AU", "US", "EU"] as const satisfies readon
  * closed until somebody decides to open it: a sixth category invented mid-rule
  * is how a taxonomy stops meaning anything.
  *
- * Named ClaimCategory rather than ClaimKind on purpose. The sibling product is
- * called ClaimKind and shares nothing with this codebase; a type of that name
- * would read like a dependency that does not exist.
+ * Named ClaimCategory rather than ClaimKind on purpose. ClaimKind is a product
+ * name — the one this product merged with and retired (BRIEF.md §7b, §11) — and
+ * a type called that would read as the old brand, not a claim.
  */
 export type ClaimCategory =
   /** What the product does to a body: "reduces wrinkles", "boosts immunity". */
@@ -267,7 +267,7 @@ export type ScanInput = {
   /** The copy being scanned, already reduced to text. */
   text: string;
   /** Where it came from, for the record on the score page. */
-  source: { kind: "url" | "paste" | "upload"; reference?: string };
+  source: { kind: "url" | "paste" | "upload" | "shopify"; reference?: string };
   jurisdictions: Jurisdiction[];
 };
 
