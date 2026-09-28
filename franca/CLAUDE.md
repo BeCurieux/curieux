@@ -4,7 +4,9 @@ Read BRIEF.md before doing anything. This file is the short version that must
 never be violated.
 
 The product is **Franca** (chosen 2026-08-18, §11 item 1), and so is the
-directory. It was `assay/` while the name was open; the rename landed on its
+directory — for now. On 2026-09-28 the owner chose **Tildie** to replace it
+(BRIEF.md §11 item 0); the rename waits on a clear trademark search and lands
+in one commit of its own. Do not rename anything piecemeal before then. It was `assay/` while the name was open; the rename landed on its
 own after #31, so the review of the product and the review of a rename never
 had to happen in the same diff.
 
