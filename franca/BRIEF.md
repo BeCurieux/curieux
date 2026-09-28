@@ -45,7 +45,7 @@ The pitch sells three things in this order: **speed** (launch copy that clears r
 
 **Voice:** confident, warm, editorial. Never legal-scary, never wellness-fluffy. The brand should feel like something a Glossier-tier founder would screenshot.
 
-**Visual direction (v1 hypothesis):** distinct from ClaimKind's "gazette meets terminal" — which of the two identities the merged product wears is §11 item 0. This one is gallery-grade — generous whitespace, one expressive serif, soft-neutral palette with a single confident accent, score rendered as a beautiful object (think Yuka's scan-result clarity meets Mercury's restraint). The scan result must be so good-looking that sharing it is the natural next move.
+**Visual direction (v1 hypothesis):** distinct from ClaimKind's "gazette meets terminal", which the merged product does not carry forward (§11 item 0). This one is gallery-grade — generous whitespace, one expressive serif, soft-neutral palette with a single confident accent, score rendered as a beautiful object (think Yuka's scan-result clarity meets Mercury's restraint). The scan result must be so good-looking that sharing it is the natural next move.
 
 ## 4. The product
 
@@ -151,7 +151,7 @@ Post-launch checkpoints:
 
 ## 11. Open decisions
 
-0. **One name, one identity.** Merged per §7b, so the split-attention question is gone and a naming one takes its place: Franca or ClaimKind, gallery-grade or "gazette meets terminal". Franca's trademark checks (item 1) are still outstanding; whatever ClaimKind has already built in reputation or pipeline is the case for the other side. Until this is decided, the directory and the masthead stay Franca
+0. ~~**One name, one identity.**~~ — resolved 2026-09-28: **Franca**, name and look. The merged product ships as Franca with the gallery-grade direction in §3; ClaimKind's name and "gazette meets terminal" retire. Chosen over ClaimKind's searchability because the badge and the share card are the bet (§5), and they need a name a brand is glad to display, not one that describes a compliance check. Cost accepted: App Store discovery leans on the listing's subtitle and keywords rather than the name. This makes Franca's availability checks (item 1) urgent rather than outstanding
 0b. **Verdict states.** The ClaimKind brief uses Allowed / Allowed with substantiation / Needs qualifier / Prohibited per market. §9 rules out *Prohibited* as worded; the four-state shape is otherwise a candidate answer to item 2
 0c. **Which clock.** ClaimKind had a November kill criterion; this brief has §10 and its post-launch checkpoints. Decide which one the merged product answers to, or state both, before either date arrives
 1. ~~**Name**~~ — resolved 2026-08-18: **Franca**. *Lingua franca*, the common language. Chosen over the sparks below partly because it asserts nothing: the badge already says "Claims Verified", and *Vouch*, *Attest* and *Verily* would each have claimed truth a second time in the name. (Original direction: short, warm, confident; sparks *Vouch, Candor, Trueform, Attest, Clara, Verily*.) **Availability checks — domain and trademark classes 3, 9 and 42 — are still outstanding.**
