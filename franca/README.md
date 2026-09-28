@@ -56,7 +56,8 @@ Read              2 claims, 5 findings
 | `pnpm killtest` | Run the §10 targets, render the cards, keep the ledger |
 | `pnpm killtest --fetch` | …collecting the copy for any target that has none |
 | `pnpm rules` | What the corpus covers, and what it does not |
-| `pnpm test` · `pnpm typecheck` | 439 tests, no network, no key |
+| `pnpm dev` · `pnpm build` | The Shopify app — see SHOPIFY-APP.md for the environment it needs |
+| `pnpm test` · `pnpm typecheck` | 467 tests, no network, no key |
 
 ## How a scan works
 

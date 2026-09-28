@@ -25,6 +25,11 @@ export type ProductScan = {
    * exist.
    */
   badge: boolean;
+  /**
+   * The product changed and the rescan has not landed. Its score is the old
+   * copy's, and it carries no badge until a rescan replaces this entry.
+   */
+  stale?: boolean;
 };
 
 export type CatalogueSummary = {
@@ -47,6 +52,8 @@ export type CatalogueScan = {
   packVersions: Record<string, string>;
   products: ProductScan[];
   summary: CatalogueSummary;
+  /** The read stopped at the plan's product allowance; more products exist. */
+  truncated?: boolean;
 };
 
 export function scanProduct(product: ProductCopy, jurisdictions: Jurisdiction[]): ProductScan {
@@ -80,6 +87,16 @@ export function scanCatalogue(
 export function withProduct(catalogue: CatalogueScan, gid: string, next: ProductScan | null): CatalogueScan {
   const others = catalogue.products.filter((p) => p.product.gid !== gid);
   const products = next ? [...others, next] : others;
+  return { ...catalogue, products, summary: summarise(products) };
+}
+
+/**
+ * The product's copy changed and could not be rescanned: keep the old score
+ * for reference, mark it stale, and take the badge away. A mark must never
+ * outlive an edit to the words under it (CLAUDE.md, the Shopify app entry).
+ */
+export function withdrawBadge(catalogue: CatalogueScan, gid: string): CatalogueScan {
+  const products = catalogue.products.map((p) => (p.product.gid === gid ? { ...p, badge: false, stale: true } : p));
   return { ...catalogue, products, summary: summarise(products) };
 }
 
