@@ -152,6 +152,9 @@ export function createSupabaseStore(options: SupabaseStoreOptions): AppStore {
     },
 
     deliveries,
+    async pruneDeliveries(before) {
+      return rpc<number>("franca_prune_deliveries", { p_before: before.toISOString() });
+    },
     async redactShop(shop) {
       await rpc("franca_redact_shop", { p_shop: shop });
     },

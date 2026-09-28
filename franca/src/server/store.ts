@@ -47,6 +47,8 @@ export interface AppStore {
   removeProduct(shop: string, gid: string): Promise<void>;
 
   deliveries: DeliveryLog;
+  /** Deletes ledger rows started before `before`; returns how many. */
+  pruneDeliveries(before: Date): Promise<number>;
   /** `shop/redact`: everything held for the shop, gone. */
   redactShop(shop: string): Promise<void>;
 }
@@ -95,6 +97,10 @@ export function createMemoryStore(): AppStore {
     },
 
     deliveries: createMemoryDeliveryLog(),
+    async pruneDeliveries() {
+      // The memory ledger lives only as long as the process; nothing to prune.
+      return 0;
+    },
     async redactShop(shop) {
       installations.delete(shop);
       catalogues.delete(shop);

@@ -34,6 +34,8 @@ const Env = z.object({
   FRANCA_TOKEN_KEY: z.string().optional(),
   /** The previous token key during a rotation; opens, never seals. */
   FRANCA_TOKEN_KEY_PREVIOUS: z.string().optional(),
+  /** Vercel sends it as a bearer token on cron calls; the prune route refuses without it. */
+  CRON_SECRET: z.string().optional(),
   NODE_ENV: z.string().optional(),
 });
 
@@ -44,6 +46,7 @@ export type AppConfig = {
   partner: { orgId: string; token: string; appGid: string } | null;
   devPlan: PlanHandle | null;
   storage: { url: string; secretKey: string; tokenKeys: TokenKeys } | null;
+  cronSecret: string | null;
   production: boolean;
 };
 
@@ -96,6 +99,7 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     partner,
     devPlan,
     storage,
+    cronSecret: e.CRON_SECRET || null,
     production,
   };
 }

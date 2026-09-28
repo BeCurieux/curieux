@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "dev": "next dev --webpack",
     "build": "next build --webpack",
-    "start": "next start"
+    "start": "next start",
+    "check:storage": "tsx --env-file-if-exists=.env.local scripts/check-storage.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

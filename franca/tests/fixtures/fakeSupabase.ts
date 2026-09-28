@@ -80,7 +80,16 @@ export function fakeSupabase(secretKey: string) {
       const held = deliveries.get(a["p_webhook_id"] as string);
       if (held) held.status = a["p_status"] as string;
     },
-    franca_prune_deliveries: () => 0,
+    franca_prune_deliveries: (a) => {
+      let gone = 0;
+      for (const [id, d] of deliveries) {
+        if (Date.parse(d.startedAt) < Date.parse(a["p_before"] as string)) {
+          deliveries.delete(id);
+          gone += 1;
+        }
+      }
+      return gone;
+    },
     franca_redact_shop: (a) => {
       const shop = a["p_shop"] as string;
       for (const [id, d] of deliveries) if (d.shop === shop) deliveries.delete(id);

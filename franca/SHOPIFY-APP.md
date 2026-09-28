@@ -4,8 +4,9 @@ Franca installed in a merchant's Shopify admin: every product's copy scanned,
 a score per product and for the store, a badge on each product that earns one,
 and a rescan whenever a product changes.
 
-**Status (2026-09-28): stages 1–3 of 5 built and tested — the offline core, the
-Next.js app around it, and its storage in Supabase.** No
+**Status (2026-09-28): stages 1–3 of 5 built and tested — the offline core,
+the Next.js app around it, and its storage in Supabase. Stage 4 is prepared
+and waits on the owner's accounts (the runbook below).** No
 app exists in the Partner Dashboard and nothing here has run against Shopify.
 This environment cannot reach shopify.dev or any store; the Shopify facts below
 were read through the Shopify docs tool and the Admin schema, and the GraphQL
@@ -175,11 +176,126 @@ questions).
 
 ---
 
+## Stage 4 — first contact: the runbook
+
+Stage 4 is the first time any of this meets Shopify or the real database, and
+almost all of it happens in the owner's accounts. What the repository could
+prepare is prepared: `vercel.json` (build, scoping, the daily prune cron),
+`pnpm check:storage`, and this list. Do the steps in order — several need a
+value the step before produces. Dashboard paths are as Shopify, Supabase and
+Vercel documented them in September 2026; they move things. Tick the checks as they pass and write down
+anything that surprised you; every **[unverified]** above is settled here.
+
+**Settle the name first if you can.** The app's name and handle are hard to
+change once it exists (BRIEF.md §11 items 0–1b). If the trademark search is
+still out, use a working name you are happy to throw away and expect to create
+a fresh app later.
+
+### 1. Supabase keys (10 minutes)
+
+1. Supabase dashboard → **Franca Shopify app** → Project Settings → API Keys →
+   create a **secret key**. Copy it once, into your password manager.
+2. On your own machine: `openssl rand -base64 32`. That is `FRANCA_TOKEN_KEY`.
+   Store it beside the secret key. Losing it means every merchant reinstalls.
+3. From `franca/` on your machine, with the three values in `.env.local`
+   (git-ignored): `pnpm install && pnpm check:storage`.
+   - [ ] Every line reads `ok` and it ends *Storage works end to end.*
+
+### 2. The Shopify app (20 minutes)
+
+1. Create a Shopify Partner account at partners.shopify.com, if there is none.
+2. Install the Shopify CLI, then from `franca/`: `shopify app config link` →
+   *create a new app*. It writes the real `client_id` into `shopify.app.toml`;
+   commit that change. Copy the **client secret** from the Dev Dashboard.
+3. Partner Dashboard → Stores → create a **development store**. Add four or
+   five products, including at least one with loud copy ("Clinically proven to
+   clear acne in 7 days", "eco-friendly packaging") and one with none.
+
+### 3. Vercel (15 minutes)
+
+1. New project from this repository. **Root Directory: `franca`** — without
+   it `vercel.json` is never read (DEPLOYS.md explains why that matters).
+2. Environment variables (Production):
+
+   | Variable | Value |
+   |---|---|
+   | `SHOPIFY_API_KEY` | the client ID from step 2 |
+   | `SHOPIFY_API_SECRET` | the client secret from step 2 |
+   | `SHOPIFY_APP_HANDLE` | the `handle` in `shopify.app.toml` |
+   | `SUPABASE_URL` | `https://kqygkaerzyfcveblmhcw.supabase.co` |
+   | `SUPABASE_SECRET_KEY` | from step 1 |
+   | `FRANCA_TOKEN_KEY` | from step 1 |
+   | `CRON_SECRET` | another `openssl rand -base64 32` |
+   | `SHOPIFY_PARTNER_ORG_ID`, `SHOPIFY_PARTNER_API_TOKEN`, `SHOPIFY_APP_GID` | step 4 — deploy without them first |
+
+   Not `FRANCA_DEV_PLAN`: production refuses it.
+3. Deploy. Note the production URL.
+   - [ ] The build succeeds (it runs `pnpm build`, which uses webpack).
+   - [ ] `curl -X POST https://<url>/api/shopify/session` answers 401 with
+     `x-shopify-retry-invalid-session-request: 1`.
+
+### 4. Pricing and the plan lookup (20 minutes)
+
+1. Partner Dashboard → the app → Distribution → choose public (App Store)
+   distribution, which is where pricing lives. Nothing is listed publicly
+   until you submit a listing.
+2. Pricing → Settings → **Shopify App Pricing**, monthly. Create plans with
+   handles `starter`, `growth`, `studio` at $49, $99, $199. Development stores
+   in your organisation can pick paid plans at no charge.
+3. Partner Dashboard → Settings → Partner API clients → create one with
+   **Manage apps**. That token is `SHOPIFY_PARTNER_API_TOKEN`; the organisation
+   ID is the number in the Partner Dashboard URL; `SHOPIFY_APP_GID` is
+   `gid://shopify/App/<the app's numeric ID>`. Add all three to Vercel and
+   redeploy.
+
+### 5. Point Shopify at the deployment (5 minutes)
+
+1. In `shopify.app.toml`, set `application_url` to the Vercel URL. Commit.
+2. `shopify app deploy` — pushes the scopes, the webhook subscriptions and the
+   compliance topics.
+
+### 6. Install and walk it (30 minutes)
+
+Dev Dashboard → the app → install on the development store. Then, in order:
+
+- [ ] **The page renders inside the admin** with Polaris styling. If it is
+  unstyled, the Polaris script path in `src/app/layout.tsx` is wrong
+  ([unverified] until now).
+- [ ] **A row appears in `installations`** (Supabase → Table Editor) whose
+  `access_token_enc` starts `v1.` and contains no `shpat_`.
+- [ ] **No plan → "Choose a plan to begin"; *See plans* opens Shopify's plan
+  page** ([unverified] URL). Choose Growth.
+- [ ] **Back in the app, it shows Growth** — the Partner API lookup and the
+  item `handle` are what the code assumes ([unverified] until now). If it says
+  it could not confirm the plan, the query or endpoint needs fixing; the app
+  treats that as "unknown", never as "no plan".
+- [ ] **Choose two markets; scan.** Every product listed, weakest first; the
+  loud product flagged; the product with no copy reads "No copy to read" and
+  carries no mark; a clean live product carries one.
+- [ ] **Edit the loud product's description to something plain.** Within a few
+  seconds, without pressing Scan, its row changes and it earns the mark. That is the
+  `products/update` webhook, the rescan and the storage write, end to end.
+- [ ] **Delete a product.** It leaves the list.
+- [ ] **Compliance topics:** `shopify app webhook trigger --topic
+  customers/redact --address https://<url>/api/shopify/webhooks` (and
+  `customers/data_request`, `shop/redact`) — each answers 200. Shopify's own
+  review check sends a bad signature and expects 401; step 3's curl already
+  shows the route refuses unsigned requests.
+- [ ] **Uninstall.** The `installations` row goes to `uninstalled`.
+  `shop/redact` arrives about two days later and removes the row.
+- [ ] **The cron.** Vercel → Settings → Cron Jobs lists `/api/cron/prune`; run
+  it once by hand. It answers `{"pruned": 0}` on a new project.
+
+When every box is ticked, replace the **[unverified]** marks above with what
+you saw, and stage 4 is done.
+
+### 7. Before a real merchant installs
+
+- Upgrade the Supabase project off the free plan (it pauses after a week idle).
+- Add the app's production domain, if it will have one, and repeat step 5.
+
 ## Stages still to build
 
-4. **First contact.** The owner creates the app and a development store; the
-   CLI runs `shopify app dev`; install, scan, edit a product, watch the rescan.
-   This is where every **[unverified]** gets checked.
 5. **The badge on the storefront, and review.** A theme app extension that
    renders each product's mark, then App Store submission.
 

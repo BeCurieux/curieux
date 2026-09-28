@@ -226,6 +226,27 @@ async function rescanProduct(shop: string, gid: string, updatedAt: string | null
   }
 }
 
+// ------------------------------------------------------------------ cron
+
+/**
+ * Daily: drop delivery records too old to recur. Shopify retries a failed
+ * delivery for about four hours and can deliver up to a day late; seven days
+ * is a cheap margin (shopfront/SHOPIFY-APP.md §3.2 has the citations).
+ *
+ * Vercel calls crons with `Authorization: Bearer $CRON_SECRET`. With no secret
+ * configured the route refuses everyone rather than serving anyone.
+ */
+export const DELIVERY_RETENTION_MS = 7 * 24 * 60 * 60_000;
+
+export async function handleCronPrune(request: Request, deps: Deps): Promise<Response> {
+  const secret = deps.config.cronSecret;
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+    return new Response("unauthorised", { status: 401 });
+  }
+  const pruned = await deps.store.pruneDeliveries(new Date(deps.now().getTime() - DELIVERY_RETENTION_MS));
+  return Response.json({ pruned });
+}
+
 // ------------------------------------------------------------------ helpers
 
 async function planAccess(session: Session, deps: Deps): Promise<Access> {

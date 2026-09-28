@@ -7,6 +7,8 @@ import { describe, expect, it } from "vitest";
 import { openToken, parseTokenKey, sealToken } from "@/server/crypto.js";
 import { createSupabaseStore, SupabaseError } from "@/server/supabaseStore.js";
 import { readConfig } from "@/server/config.js";
+import { handleCronPrune } from "@/server/handlers.js";
+import { createMemoryStore } from "@/server/store.js";
 import type { Installation } from "@/server/store.js";
 import { fakeSupabase } from "./fixtures/fakeSupabase.js";
 
@@ -148,5 +150,43 @@ describe("storage configuration", () => {
   it("refuses production without storage", () => {
     expect(() => readConfig({ ...base, NODE_ENV: "production" })).toThrow(/forgets every merchant/);
     expect(readConfig({ ...base, ...storage, NODE_ENV: "production" }).production).toBe(true);
+  });
+});
+
+describe("the daily prune", () => {
+  function deps(cronSecret: string | null, store = createMemoryStore()) {
+    const config = readConfig({ SHOPIFY_API_KEY: "a", SHOPIFY_API_SECRET: "b" });
+    return {
+      config: { ...config, cronSecret },
+      store,
+      transport: async () => new Response(null, { status: 500 }),
+      now: () => new Date("2026-10-10T04:17:00Z"),
+    };
+  }
+  const call = (auth?: string) =>
+    new Request("https://app.example/api/cron/prune", { headers: auth ? { authorization: auth } : {} });
+
+  it("refuses everyone when no cron secret is configured", async () => {
+    expect((await handleCronPrune(call("Bearer anything"), deps(null))).status).toBe(401);
+  });
+
+  it("refuses a wrong or missing secret", async () => {
+    expect((await handleCronPrune(call("Bearer wrong"), deps("right"))).status).toBe(401);
+    expect((await handleCronPrune(call(), deps("right"))).status).toBe(401);
+  });
+
+  it("deletes delivery records older than seven days, and only those", async () => {
+    const supabase = fakeSupabase("sb_secret_test");
+    const store = createSupabaseStore({
+      url: "https://project.supabase.co",
+      secretKey: "sb_secret_test",
+      tokenKeys: { current: KEY },
+      transport: supabase.transport,
+    });
+    await store.deliveries.claim("old", new Date("2026-10-01T00:00:00Z"), SHOP);
+    await store.deliveries.claim("recent", new Date("2026-10-09T00:00:00Z"), SHOP);
+    const response = await handleCronPrune(call("Bearer right"), deps("right", store));
+    expect(await response.json()).toEqual({ pruned: 1 });
+    expect([...supabase.deliveries.keys()]).toEqual(["recent"]);
   });
 });
