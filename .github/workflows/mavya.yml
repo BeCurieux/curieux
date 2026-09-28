@@ -1,0 +1,93 @@
+# Does mavya still build, and do its tenants stay apart?
+#
+# Scoped to mavya/ like the sibling apps' workflows. It starts a real local
+# Supabase stack (Docker is available on GitHub's runners), applies every
+# migration from scratch, seeds two organisations and two families, and runs
+# the row level security tests against the real API before anything else.
+
+name: mavya
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mavya/**"
+      - ".github/workflows/mavya.yml"
+  pull_request:
+    paths:
+      - "mavya/**"
+      - ".github/workflows/mavya.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mavya-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mavya
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: mavya/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint, format, typecheck
+        run: |
+          npm run lint
+          npm run format:check
+          npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Start Supabase
+        run: npx supabase start
+
+      - name: Apply migrations and seed
+        run: |
+          ./scripts/local-env.sh
+          npm run db:reset
+
+      # Generated types must match the migrations, or the app is typed
+      # against a schema that doesn't exist.
+      - name: Database types are up to date
+        run: |
+          npm run db:types
+          git diff --exit-code -- src/lib/supabase/database.types.ts
+
+      - name: Row level security tests
+        run: npm run test:rls
+
+      - name: Build
+        run: |
+          set -a; . ./.env.local; set +a
+          npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Auth smoke tests
+        run: |
+          set -a; . ./.env.local; set +a
+          npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: mavya/playwright-report
+          retention-days: 7
