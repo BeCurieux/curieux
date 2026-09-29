@@ -6,8 +6,13 @@ import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ idle?: string }>;
+}) {
   if (await getViewer()) redirect("/");
+  const { idle } = await searchParams;
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-10 px-6 py-12">
@@ -18,6 +23,11 @@ export default async function SignInPage() {
         </h1>
         <p className="text-lg text-muted">Everything they do, together.</p>
       </div>
+      {idle ? (
+        <p role="status" className="rounded-md bg-surface-soft px-4 py-3 font-semibold">
+          You were signed out after 30 minutes without activity.
+        </p>
+      ) : null}
       <SignInForm />
       <footer className="text-sm text-muted">
         Ovyko is made by Sounding Labs · ABN 38 813 430 864 ·{" "}

@@ -1,8 +1,12 @@
-import { Megaphone, MessageCircle, PartyPopper, Info } from "lucide-react";
+import { Info, Megaphone, MessageCircle, PartyPopper, Trophy } from "lucide-react";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/demo/empty-state";
+import { MarkRead } from "@/components/family/mark-read";
 import { familyContext } from "@/lib/demo/context";
 import { MESSAGES, type Message } from "@/lib/demo/data";
+import { myNotifications } from "@/lib/domain/notifications";
+import { formatDateTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Messages" };
 
@@ -13,16 +17,56 @@ const TONE: Record<Message["tone"], { icon: typeof Info; bg: string }> = {
 };
 
 export default async function MessagesPage() {
-  const { demo } = await familyContext();
+  const { demo, db } = await familyContext();
+  const notifications = await myNotifications(db);
+  const unread = notifications.some((n) => n.unread);
 
   return (
     <div className="rise flex flex-col gap-6">
       <h1 className="font-display text-4xl font-semibold tracking-tight">Messages</h1>
-      {!demo ? (
-        <EmptyState icon={<MessageCircle />} title="No messages yet">
-          Updates from your activity providers will land here.
-        </EmptyState>
-      ) : (
+      {unread ? <MarkRead /> : null}
+
+      {notifications.length > 0 ? (
+        <section aria-labelledby="progress" className="flex flex-col gap-3">
+          <h2 id="progress" className="text-sm font-bold tracking-wide text-muted uppercase">
+            Progress
+          </h2>
+          {notifications.map((n) => (
+            <article
+              key={n.id}
+              className={cn(
+                "flex gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)]",
+                n.unread && "ring-2 ring-coral/60",
+              )}
+            >
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-butter [&_svg]:size-5">
+                <Trophy aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="truncate text-sm font-semibold text-muted">{n.organisation}</p>
+                  <p className="shrink-0 text-sm text-muted">
+                    {n.unread ? (
+                      <span className="mr-2 rounded-full bg-coral px-2 py-0.5 text-xs font-bold text-ink">
+                        New
+                      </span>
+                    ) : null}
+                    {formatDateTime(n.createdAt)}
+                  </p>
+                </div>
+                <h3 className="font-semibold">
+                  {n.childFirstName} achieved {n.skill}
+                </h3>
+                <p className="text-muted">
+                  It&apos;s on {n.childFirstName}&apos;s progress page now.
+                </p>
+              </div>
+            </article>
+          ))}
+        </section>
+      ) : null}
+
+      {demo ? (
         MESSAGES.map((group) => (
           <section
             key={group.group}
@@ -60,7 +104,11 @@ export default async function MessagesPage() {
             })}
           </section>
         ))
-      )}
+      ) : notifications.length === 0 ? (
+        <EmptyState icon={<MessageCircle />} title="No messages yet">
+          Updates from your activity providers, like a new skill achieved, will land here.
+        </EmptyState>
+      ) : null}
     </div>
   );
 }

@@ -10,7 +10,7 @@ const ITEMS = [
 ];
 
 // Bottom tab bar, thumb-reachable on a phone.
-export function FamilyNav() {
+export function FamilyNav({ unread }: { unread: number }) {
   return (
     <nav
       aria-label="Family"
@@ -24,10 +24,19 @@ export function FamilyNav() {
               exact={exact}
               className="group flex h-16 flex-col items-center justify-center gap-1 text-xs font-semibold text-muted aria-[current=page]:text-ink"
             >
-              <span className="grid h-8 w-12 place-items-center rounded-full transition group-aria-[current=page]:bg-lilac/35 [&_svg]:size-[22px]">
+              <span className="relative grid h-8 w-12 place-items-center rounded-full transition group-aria-[current=page]:bg-lilac/35 [&_svg]:size-[22px]">
                 <Icon aria-hidden strokeWidth={2.25} />
+                {href === "/family/messages" && unread > 0 ? (
+                  <span
+                    aria-hidden
+                    className="absolute top-0.5 right-2.5 size-2.5 rounded-full bg-coral ring-2 ring-surface"
+                  />
+                ) : null}
               </span>
               {label}
+              {href === "/family/messages" && unread > 0 ? (
+                <span className="sr-only">, {unread} new</span>
+              ) : null}
             </NavLink>
           </li>
         ))}

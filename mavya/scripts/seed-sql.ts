@@ -16,6 +16,7 @@ import {
   USERS,
   classRows,
   enrolmentRows,
+  pastLessonRows,
   seedRows,
   type SeedUser,
 } from "./fixtures";
@@ -106,6 +107,13 @@ end $$;`);
 // Classes need their instructors' memberships, and enrolments need both.
 lines.push(...upsert("classes", "id", classRows()));
 lines.push(...upsert("enrolments", "id", enrolmentRows()));
+for (const r of pastLessonRows()) {
+  lines.push(
+    `insert into public.class_occurrences (organisation_id, class_id, starts_at, ends_at)
+  values (${q(r.organisation_id)}, ${q(r.class_id)}, ${q(r.starts_at)}, ${q(r.ends_at)})
+  on conflict (class_id, starts_at) do nothing;`,
+  );
+}
 
 lines.push("commit;");
 process.stdout.write(lines.join("\n") + "\n");

@@ -75,4 +75,8 @@ export const TABLES = [
   "class_occurrences",
   "enrolments",
   "audit_events",
+  "skills",
+  "attendance",
+  "progress_records",
+  "notifications",
 ] as const;

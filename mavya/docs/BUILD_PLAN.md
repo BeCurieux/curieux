@@ -41,16 +41,18 @@ Implement:
 - immediate staff removal
 
 ## M3 — Attendance and progress
+See `docs/M3_ATTENDANCE_PROGRESS.md`
 
 Implement:
 - attendance
 - skills
 - progress assessment
 - parent progress display
-- achievement notifications
+- achievement notifications (in the app; email and push arrive with Resend in M6)
 - sign-out on shared devices
 - neutral notification wording
-- photo consent (if photos are used)
+- instructor screens laid out for iPads
+- photo consent (if photos are used; v0.1 has none)
 
 ## M4 — Absence and make-up engine
 
@@ -84,6 +86,7 @@ Implement:
 - Supabase Pro, with leaked password protection on
 - two-step sign-in for owners
 - parent invites
+- email and push delivery of notifications, with the neutral wording from M3
 - health notes (need to know)
 - custody and pickup restrictions
 - family data export and deletion

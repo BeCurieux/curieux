@@ -1,5 +1,5 @@
 import { Check, Circle, CircleDashed } from "lucide-react";
-import type { SkillStatus } from "@/lib/demo/data";
+import type { SkillStatus } from "@/lib/domain/progress-score";
 import { cn } from "@/lib/utils";
 
 export const SKILL_LABEL: Record<SkillStatus, string> = {

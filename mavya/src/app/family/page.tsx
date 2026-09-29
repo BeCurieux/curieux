@@ -6,9 +6,10 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { ProgressRing } from "@/components/demo/progress-ring";
 import { Button } from "@/components/ui/button";
 import { firstName, familyContext } from "@/lib/demo/context";
-import { MESSAGES, PRIMARY_CLASS_ID } from "@/lib/demo/data";
+import { AVA_ID, MESSAGES, PRIMARY_CLASS_ID } from "@/lib/demo/data";
 import { familyChildren } from "@/lib/demo/family";
 import { EMPTY_STATE } from "@/lib/demo/state-schema";
+import { myNotifications } from "@/lib/domain/notifications";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -29,9 +30,17 @@ export default async function FamilyHome() {
     );
   }
 
-  const ava = demo ? children.find((c) => c.skillList) : undefined;
-  const nextSkill = ava?.skillList?.find((s) => s.status !== "achieved");
-  const latest = MESSAGES[0]!.messages[0]!;
+  // The absence card is demo until M4, for Ava only.
+  const ava = demo ? children.find((c) => c.id === AVA_ID) : undefined;
+  const learning = children.filter((c) => c.progress);
+  // The newest achievement, or else the demo's newest message.
+  const [newest] = await myNotifications(db, 1);
+  const demoMessage = MESSAGES[0]!.messages[0]!;
+  const latest = newest
+    ? { from: newest.organisation, title: `${newest.childFirstName} achieved ${newest.skill}` }
+    : demo
+      ? { from: demoMessage.from, title: demoMessage.title }
+      : null;
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -67,18 +76,22 @@ export default async function FamilyHome() {
       </section>
 
       {ava ? (
-        <>
-          <ActionCard
-            state={ava.makeup ? "booked" : ava.away ? "credit" : "ask"}
-            makeupWhen={ava.makeup ? `${ava.makeup.day} ${ava.makeup.time}` : null}
-          />
+        <ActionCard
+          state={ava.makeup ? "booked" : ava.away ? "credit" : "ask"}
+          makeupWhen={ava.makeup ? `${ava.makeup.day} ${ava.makeup.time}` : null}
+        />
+      ) : null}
 
+      {learning.map((child) => {
+        const next = child.progress!.skills.find((s) => s.status !== "achieved");
+        return (
           <Link
-            href={`/family/kids/${ava.slug}`}
+            key={child.id}
+            href={`/family/kids/${child.slug}`}
             className="flex items-center gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
           >
             <ProgressRing
-              value={ava.progress!}
+              value={child.progress!.progress}
               size={76}
               stroke={9}
               className="shrink-0 text-cobalt [&_span]:text-lg"
@@ -86,27 +99,29 @@ export default async function FamilyHome() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-muted">Next milestone</p>
               <p className="text-lg leading-snug font-semibold">
-                {nextSkill
-                  ? `${ava.firstName} is working on ${nextSkill.name}`
-                  : `${ava.firstName} has every skill!`}
+                {next
+                  ? `${child.firstName} is working on ${next.name}`
+                  : `${child.firstName} has every skill!`}
               </p>
             </div>
             <ArrowRight aria-hidden className="size-5 shrink-0 text-muted" />
           </Link>
+        );
+      })}
 
-          <Link
-            href="/family/messages"
-            className="flex items-start gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
-          >
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-butter [&_svg]:size-5">
-              <MessageCircle aria-hidden />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted">{latest.from}</p>
-              <p className="font-semibold">{latest.title}</p>
-            </div>
-          </Link>
-        </>
+      {latest ? (
+        <Link
+          href="/family/messages"
+          className="flex items-start gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-butter [&_svg]:size-5">
+            <MessageCircle aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-muted">{latest.from}</p>
+            <p className="font-semibold">{latest.title}</p>
+          </div>
+        </Link>
       ) : null}
     </div>
   );

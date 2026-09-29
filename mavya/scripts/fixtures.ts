@@ -206,6 +206,47 @@ export const CLASSES: Record<ClassKey, ClassFixture> = {
   },
 };
 
+// ------------------------------------------------------------------ skills
+
+type SkillFixture = {
+  id: string;
+  organisation_id: string;
+  level_id: string;
+  name: string;
+  description: string;
+  sort_order: number;
+};
+
+const skill = (
+  n: number,
+  level: { id: string; organisation_id: string },
+  sort_order: number,
+  name: string,
+  description: string,
+): SkillFixture => ({
+  id: id("5c", n),
+  organisation_id: level.organisation_id,
+  level_id: level.id,
+  name,
+  description,
+  sort_order,
+});
+
+// Dolphin 3's five skills are the M1 demo's, with the same hints.
+export const SKILLS = {
+  floating: skill(1, LEVELS.dolphin3, 1, "Floating", "Floats on front and back for 5 seconds"),
+  streamline: skill(2, LEVELS.dolphin3, 2, "Streamline", "Glides off the wall with arms locked"),
+  kick10m: skill(3, LEVELS.dolphin3, 3, "Kick 10m", "Flutter kicks 10 metres with a board"),
+  breathing: skill(4, LEVELS.dolphin3, 4, "Breathing", "Blows bubbles and turns to breathe"),
+  freestyle10m: skill(5, LEVELS.dolphin3, 5, "Freestyle 10m", "Swims 10 metres of freestyle"),
+  waterConfidence: skill(6, LEVELS.dolphin1, 1, "Water confidence", "Enters the water happily"),
+  bubbles: skill(7, LEVELS.dolphin1, 2, "Bubbles", "Blows bubbles with face in the water"),
+  supportedFloat: skill(8, LEVELS.dolphin1, 3, "Supported float", "Floats with a noodle"),
+  forwardRoll: skill(9, LEVELS.gymLevel2, 1, "Forward roll", "Rolls straight from standing"),
+  cartwheel: skill(10, LEVELS.gymLevel2, 2, "Cartwheel", "Cartwheel with straight legs"),
+  handstand: skill(11, LEVELS.gymLevel2, 3, "Handstand", "Holds a handstand against the wall"),
+} as const;
+
 // ------------------------------------------------------------------ families
 
 type Child = { first: string; last: string; dob: string; classes: ClassKey[] };
@@ -455,6 +496,61 @@ export const CHILDREN = {
   oliver: { id: childByName("Oliver", "Chen") },
 };
 
+// Where each child with a parent account is up to. Ava's matches the M1
+// demo: two achieved, two developing, one not started (60%).
+type SkillStatus = "not_started" | "developing" | "achieved";
+const PROGRESS: { child: string; skill: SkillFixture; status: SkillStatus }[] = [
+  { child: CHILDREN.ava.id, skill: SKILLS.floating, status: "achieved" },
+  { child: CHILDREN.ava.id, skill: SKILLS.streamline, status: "achieved" },
+  { child: CHILDREN.ava.id, skill: SKILLS.kick10m, status: "developing" },
+  { child: CHILDREN.ava.id, skill: SKILLS.breathing, status: "developing" },
+  { child: CHILDREN.ava.id, skill: SKILLS.freestyle10m, status: "not_started" },
+  { child: CHILDREN.leo.id, skill: SKILLS.waterConfidence, status: "achieved" },
+  { child: CHILDREN.leo.id, skill: SKILLS.bubbles, status: "developing" },
+  { child: CHILDREN.mei.id, skill: SKILLS.forwardRoll, status: "achieved" },
+];
+
+// The start of a class's most recent lesson before `now`, so a fresh seed
+// has a lesson to take attendance for. The database only schedules lessons
+// from now on.
+function lastLessonStart(weekday: number, startTime: string, timeZone: string, now: Date) {
+  const parts = (d: Date) =>
+    Object.fromEntries(
+      new Intl.DateTimeFormat("en-AU", {
+        timeZone,
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hourCycle: "h23",
+      })
+        .formatToParts(d)
+        .map((p) => [p.type, Number(p.value)]),
+    ) as Record<string, number>;
+  const today = parts(now);
+  const [hour, minute] = startTime.split(":").map(Number) as [number, number];
+  for (let back = 0; back <= 7; back++) {
+    const date = new Date(Date.UTC(today.year!, today.month! - 1, today.day! - back));
+    const isoDay = date.getUTCDay() || 7;
+    if (isoDay !== weekday) continue;
+    // The UTC instant whose wall-clock time in the zone is date + startTime.
+    const wall = Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      hour,
+      minute,
+    );
+    const seen = parts(new Date(wall));
+    const offset =
+      Date.UTC(seen.year!, seen.month! - 1, seen.day!, seen.hour!, seen.minute!) - wall;
+    const start = new Date(wall - offset);
+    if (start < now) return start;
+  }
+  throw new Error("no lesson in the last week");
+}
+
 // ------------------------------------------------------------------ rows
 
 // Every non-auth row the seed writes, in dependency order, as plain table
@@ -483,6 +579,11 @@ export function seedRows() {
     rows: Object.values(LEVELS).map((l) => ({ ...l })),
   });
   rows.push({
+    table: "skills",
+    conflict: "id",
+    rows: Object.values(SKILLS).map((k) => ({ ...k })),
+  });
+  rows.push({
     table: "families",
     conflict: "id",
     rows: ALL_FAMILIES.map((f) => ({
@@ -507,6 +608,17 @@ export function seedRows() {
       })),
     ),
   });
+  rows.push({
+    table: "progress_records",
+    conflict: "child_id,skill_id",
+    rows: PROGRESS.map((p) => ({
+      organisation_id: p.skill.organisation_id,
+      child_id: p.child,
+      skill_id: p.skill.id,
+      status: p.status,
+      assessed_at: "2026-09-17T07:00:00Z",
+    })),
+  });
   return rows;
 }
 
@@ -530,4 +642,19 @@ export function enrolmentRows() {
       })),
     ),
   );
+}
+
+// Each class's most recent lesson, which the database's schedule (from now
+// on) doesn't include. Existing lessons are left alone.
+export function pastLessonRows(now = new Date()) {
+  return Object.values(CLASSES).map((c) => {
+    const location = Object.values(LOCATIONS).find((l) => l.id === c.location_id)!;
+    const start = lastLessonStart(c.weekday, c.start_time, location.timezone, now);
+    return {
+      organisation_id: c.organisation_id,
+      class_id: c.id,
+      starts_at: start.toISOString(),
+      ends_at: new Date(start.getTime() + c.duration_minutes * 60_000).toISOString(),
+    };
+  });
 }

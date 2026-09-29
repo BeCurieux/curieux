@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
 import * as families from "@/lib/domain/families";
+import * as progress from "@/lib/domain/progress";
 import * as staff from "@/lib/domain/staff";
 import * as timetable from "@/lib/domain/timetable";
 import {
@@ -97,6 +98,36 @@ export async function addLevel(
       : failed;
   revalidatePath("/business", "layout");
   return { ok: `Added ${parsed.data.name}.` };
+}
+
+// ------------------------------------------------------------------ skills
+
+export async function addSkill(
+  levelId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const parsed = z
+    .object({ name: requiredText(60, "Skill name"), hint: optionalText(200, "Description") })
+    .safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(async () => {
+    await progress.addSkill(db, { organisationId, levelId, ...parsed.data });
+  });
+  if (failed)
+    return failed.error === "That already exists."
+      ? { error: "This level already has that skill." }
+      : failed;
+  revalidatePath("/", "layout");
+  return { ok: `Added ${parsed.data.name}.` };
+}
+
+export async function removeSkill(skillId: string) {
+  const { db } = await requireOwner();
+  if (!z.uuid().safeParse(skillId).success) return;
+  await attempt(() => progress.removeSkill(db, skillId));
+  revalidatePath("/", "layout");
 }
 
 // ------------------------------------------------------------------ classes

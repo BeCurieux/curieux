@@ -29,9 +29,9 @@ export default async function KidsPage() {
             href={`/family/kids/${child.slug}`}
             className="flex items-center gap-4 rounded-lg bg-surface p-5 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
           >
-            {child.progress !== null ? (
+            {child.progress ? (
               <ProgressRing
-                value={child.progress}
+                value={child.progress.progress}
                 size={72}
                 stroke={8}
                 className="shrink-0 text-cobalt [&_span]:text-base"
