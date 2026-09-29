@@ -5,7 +5,9 @@ import { homePath } from "@/lib/auth/roles";
 import { getViewer } from "@/lib/auth/viewer";
 
 export const metadata: Metadata = {
-  title: { absolute: "Ovyko · Class management for swim schools, gyms and dance studios" },
+  title: {
+    absolute: "Ovyko · Class management for swim schools, gymnastics, dance and martial arts",
+  },
   description:
     "Timetable, families, absences, make-ups and progress for recurring children's classes, with an app parents enjoy opening.",
   // The rest of the app stays out of search results; the website doesn't.

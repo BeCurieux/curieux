@@ -150,7 +150,7 @@ export function Landing() {
         <Wordmark />
         <nav aria-label="Site" className="flex items-center gap-2">
           <span className="hidden text-sm font-semibold text-muted md:inline">
-            For swim schools, gyms &amp; dance studios
+            For swim schools, gymnastics, dance &amp; martial arts
           </span>
           <Button asChild variant="soft" size="sm">
             <Link href="/sign-in">Sign in</Link>
