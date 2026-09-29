@@ -76,6 +76,12 @@ export const USERS = {
     name: "Lucy Hart",
     staff: { org: "peak", role: "instructor", membershipId: id("05", 4) },
   },
+  // Teaches nothing in the seed. Tests remove and restore this person's access.
+  aquaCasual: {
+    email: "sam.ortiz@aquahouse.test",
+    name: "Sam Ortiz",
+    staff: { org: "aqua", role: "instructor", membershipId: id("05", 5) },
+  },
   burrowsParent: {
     email: "sarah.burrows@family.test",
     name: "Sarah Burrows",

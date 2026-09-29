@@ -35,6 +35,19 @@
 - status: invited | active | suspended
 
 Unique per (user_id, organisation_id). Only `active` grants access.
+An owner removes access with `remove_staff_member` (status → `suspended`,
+classes unassigned, sessions ended) and restores it with
+`restore_staff_member` (M2.5). Changes are audited.
+
+### SignInFailure (private, M2.5)
+- id
+- email_hash — sha256 of the lower-cased email; the email itself is never stored
+- ip nullable
+- created_at
+
+Not exposed over the API. Written and read only by the server's sign-in
+throttle (`sign_in_allowed`, `record_sign_in`). Rows older than a day are
+deleted.
 
 ### Family
 - id

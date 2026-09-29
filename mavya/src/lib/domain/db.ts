@@ -21,6 +21,7 @@ export function explain(error: PostgrestError): DomainError {
     case "class_inactive":
       return new DomainError("This class is no longer running.");
     case "capacity_below_enrolled":
+    case "remove_self":
       return new DomainError(error.message);
   }
   switch (error.code) {

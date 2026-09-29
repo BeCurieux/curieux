@@ -14,6 +14,7 @@ const NOUN: Record<string, string> = {
   families: "family",
   children: "child",
   enrolments: "enrolment",
+  staff_memberships: "staff member",
 };
 
 type Row = {
@@ -42,6 +43,10 @@ function describe(row: Row): string {
   if (row.entity_type === "enrolments") {
     if (row.action === "insert") return "Enrolled a child";
     if (row.after_json?.status === "ended") return "Ended an enrolment";
+  }
+  if (row.entity_type === "staff_memberships" && row.action === "update") {
+    if (row.after_json?.status === "suspended") return "Removed a staff member's access";
+    if (row.after_json?.status === "active") return "Gave a staff member access again";
   }
   if (row.action === "insert") return `Added${named}`;
   if (row.action === "delete") return `Removed${named}`;

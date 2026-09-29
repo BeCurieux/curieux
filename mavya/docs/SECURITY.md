@@ -41,16 +41,27 @@ Mavya should do better than the usual weaknesses of class-management software:
 
 ## Plan by milestone
 
-### M2.5 — Security hardening (straight after M2)
+### M2.5 — Security hardening (done)
 
 - **Leaked password protection.** Turn on Supabase Auth's check against known
-  leaked passwords (dashboard setting).
-- **Sign-in rate limits.** Review Supabase Auth rate limits; sign-in errors
-  never say whether an email has an account.
-- **Immediate staff removal.** An owner can remove a staff member. Their
-  membership becomes `suspended`, access rules stop matching at once, their
-  classes are left without an instructor, and their sessions are signed out.
-  The removal is audited.
+  leaked passwords (a dashboard setting on the cloud project; see
+  `DEVELOPMENT.md`).
+- **No open sign-up.** Accounts are created by Mavya, never by strangers:
+  sign-up is off in `supabase/config.toml` and must be off on the cloud
+  project too. Parents will be invited in M6.
+- **Sign-in limits.** Sign-in runs on the server, so Supabase Auth's own
+  per-address limit sees the server's address, not the person's. Mavya counts
+  failed attempts itself: five for one email, or fifty from one address, in
+  fifteen minutes pause sign-in for fifteen minutes. The answer is the same
+  whether or not the email has an account, and emails are stored only as a
+  hash (`private.sign_in_failures`, cleared after a day). Only the server can
+  read or reset the counts.
+- **Immediate staff removal.** Settings → Staff. Removing someone suspends
+  their membership, takes them off their classes and ends their sessions in
+  one database function (`remove_staff_member`). Access stops at once because
+  every access rule and the app's role lookup only count active memberships.
+  Owners can't remove themselves, and can give access back. Staff changes are
+  audited.
 
 ### M3 — Attendance and progress
 

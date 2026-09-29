@@ -38,7 +38,7 @@ Implement:
 
 Implement:
 - leaked password protection
-- sign-in rate limits
+- sign-in rate limits (and no open sign-up)
 - immediate staff removal
 
 ## M3 — Attendance and progress
