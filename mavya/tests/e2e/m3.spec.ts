@@ -29,7 +29,9 @@ test("an owner adds a skill, the instructor assesses it, the owner removes it", 
   await signIn(instructor, USERS.aquaInstructor.email);
   await instructor.goto(`/instructor/child/${CHILDREN.leo.id}`);
   await expect(instructor.getByRole("heading", { name: "Leo Burrows" })).toBeVisible();
-  await instructor.getByLabel(`${name}: Developing`).check({ force: true });
+  // Tap the visible option, as a person would. (A forced click on the hidden
+  // radio can land on the sticky Save button on a phone.)
+  await instructor.getByRole("group", { name }).getByText("Developing").click();
   await instructor.getByRole("button", { name: "Save progress" }).click();
   await expect(instructor.getByRole("status")).toContainText("Saved");
   await expect(instructor.getByLabel(`${name}: Developing`)).toBeChecked();
