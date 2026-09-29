@@ -1,4 +1,9 @@
-# Running Mavya locally
+# Running Ovyko locally
+
+Ovyko (ovyko.com.au, made by Sounding Labs, ABN 38 813 430 864) was called
+Mavya until M2.5. The folder, the local Supabase
+project id and a few internal names still say `mavya`; nothing a person
+sees does.
 
 Needs Node 22 and Docker.
 
@@ -59,7 +64,9 @@ Row level security is the boundary; the app's queries are not. See
 
 - **Owners** read and write their organisation's locations, programs,
   levels, classes, families, children and enrolments, and read its audit
-  trail.
+  trail. They remove and restore staff access through
+  `remove_staff_member` / `restore_staff_member`
+  (`*_security_hardening.sql`).
 - **Instructors** read their organisation's timetable and only the children
   in classes they teach. They can't write.
 - **Parents** read their own family and the classes their children are
@@ -76,3 +83,14 @@ these environment variables: `NEXT_PUBLIC_SUPABASE_URL`,
 `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`,
 `NEXT_PUBLIC_POSTHOG_KEY`. Never set `SEED_PASSWORD` in a deployed
 environment.
+
+### Cloud auth settings
+
+Set these in the Supabase dashboard for the cloud project (the local stack
+reads them from `supabase/config.toml`):
+
+- Authentication → Sign In / Providers: **Allow new users to sign up** off.
+  Accounts come from Ovyko (the seed now, invites from M6).
+- **Leaked password protection** on (Email provider settings, or
+  Authentication → Attack Protection). Pro plan only, so it waits for the
+  upgrade before the pilot (M6).

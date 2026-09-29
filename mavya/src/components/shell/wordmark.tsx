@@ -13,7 +13,7 @@ export function Wordmark({ className }: { className?: string }) {
         <span className="size-2.5 rounded-full bg-lilac" />
         <span className="size-2.5 rounded-full bg-mint" />
       </span>
-      mavya
+      ovyko
     </span>
   );
 }

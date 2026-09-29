@@ -1,4 +1,4 @@
-# MAVYA v0.1 — Build Plan
+# OVYKO v0.1 — Build Plan
 
 ## Principle
 
@@ -37,8 +37,7 @@ Implement:
 ## M2.5 — Security hardening
 
 Implement:
-- leaked password protection
-- sign-in rate limits
+- sign-in rate limits (and no open sign-up)
 - immediate staff removal
 
 ## M3 — Attendance and progress
@@ -82,6 +81,7 @@ Implement:
 - CSV class import
 - onboarding checklist
 - minimal internal admin support (granted by the school, time-limited, audited)
+- Supabase Pro, with leaked password protection on
 - two-step sign-in for owners
 - parent invites
 - health notes (need to know)

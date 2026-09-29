@@ -32,7 +32,7 @@ export function FamilyForm({ family }: { family?: FamilyRecord }) {
           type="email"
           inputMode="email"
           optional
-          hint="They'll be invited to the Mavya app once invites are available."
+          hint="They'll be invited to the Ovyko app once invites are available."
           defaultValue={family?.contactEmail}
           autoComplete="off"
         />

@@ -3,7 +3,7 @@ import { AnalyticsProvider } from "@/components/analytics-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Mavya", template: "%s · Mavya" },
+  title: { default: "Ovyko", template: "%s · Ovyko" },
   description: "Everything they do, together.",
   robots: { index: false, follow: false },
 };

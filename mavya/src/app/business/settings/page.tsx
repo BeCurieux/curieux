@@ -1,4 +1,4 @@
-import { ArrowRight, History, Layers, MapPin } from "lucide-react";
+import { ArrowRight, History, Layers, MapPin, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/business/owner";
@@ -19,6 +19,12 @@ const SECTIONS = [
     body: "What children learn, in order.",
   },
   {
+    href: "/business/settings/staff",
+    icon: Users,
+    title: "Staff",
+    body: "Who can sign in, and removing access.",
+  },
+  {
     href: "/business/settings/activity",
     icon: History,
     title: "Activity",
@@ -34,7 +40,7 @@ export default async function SettingsPage() {
         <p className="font-semibold text-muted">{organisationName}</p>
         <h1 className="font-display text-4xl font-semibold tracking-tight">Settings</h1>
       </div>
-      <ul className="grid gap-3 sm:grid-cols-3">
+      <ul className="grid gap-3 sm:grid-cols-2">
         {SECTIONS.map(({ href, icon: Icon, title, body }) => (
           <li key={href}>
             <Link

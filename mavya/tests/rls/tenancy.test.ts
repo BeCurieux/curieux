@@ -40,7 +40,7 @@ describe("1. Owner A cannot read Organisation B", () => {
 
   it("sees staff of their own organisation only", async () => {
     const { data } = await aquaOwner.client.from("staff_memberships").select("organisation_id");
-    expect(data?.length).toBe(2);
+    expect(data?.length).toBe(3);
     expect(new Set(data?.map((m) => m.organisation_id))).toEqual(new Set([ORGS.aqua.id]));
   });
 
@@ -147,7 +147,7 @@ describe("users", () => {
   it("an owner also reads their own staff's profiles, and no one else's", async () => {
     const { data } = await aquaOwner.client.from("users").select("email");
     expect(data!.map((u) => u.email).sort()).toEqual(
-      [USERS.aquaOwner.email, USERS.aquaInstructor.email].sort(),
+      [USERS.aquaOwner.email, USERS.aquaInstructor.email, USERS.aquaCasual.email].sort(),
     );
   });
 });

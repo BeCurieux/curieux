@@ -1,6 +1,6 @@
-# CLAUDE.md — MAVYA
+# CLAUDE.md — OVYKO
 
-You are working on **Mavya v0.1**, a multi-tenant SaaS platform for recurring children's activities.
+You are working on **Ovyko v0.1**, a multi-tenant SaaS platform for recurring children's activities.
 
 ## Source of truth
 
@@ -69,7 +69,7 @@ A business owner must never see another provider's customers.
 
 ## UX rule
 
-Mavya should feel like:
+Ovyko should feel like:
 
 **Apple Wallet × Duolingo × Linear**
 

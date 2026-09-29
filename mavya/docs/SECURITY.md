@@ -1,6 +1,6 @@
-# MAVYA v0.1 — Security and Privacy Plan
+# OVYKO v0.1 — Security and Privacy Plan
 
-Mavya holds children's names, ages, schedules and, later, health and custody
+Ovyko holds children's names, ages, schedules and, later, health and custody
 details. Schools will trust it only if it is safer than the spreadsheets and
 shared logins they use today. This file says what is already in place, what
 is planned and in which milestone, and the checklist every new feature must
@@ -23,9 +23,9 @@ pass.
 
 ## Where apps in this category commonly fall short
 
-Mavya should do better than the usual weaknesses of class-management software:
+Ovyko should do better than the usual weaknesses of class-management software:
 
-| Common weakness | Mavya's answer |
+| Common weakness | Ovyko's answer |
 | --- | --- |
 | Shared front-desk logins | Individual accounts only (in place) |
 | Former staff keep access | Immediate staff removal (M2.5) |
@@ -41,16 +41,26 @@ Mavya should do better than the usual weaknesses of class-management software:
 
 ## Plan by milestone
 
-### M2.5 — Security hardening (straight after M2)
+### M2.5 — Security hardening (done)
 
-- **Leaked password protection.** Turn on Supabase Auth's check against known
-  leaked passwords (dashboard setting).
-- **Sign-in rate limits.** Review Supabase Auth rate limits; sign-in errors
-  never say whether an email has an account.
-- **Immediate staff removal.** An owner can remove a staff member. Their
-  membership becomes `suspended`, access rules stop matching at once, their
-  classes are left without an instructor, and their sessions are signed out.
-  The removal is audited.
+- **Leaked password protection.** Moved to M6: Supabase offers it only on
+  the Pro plan, and the project is on Free while it holds only demo accounts.
+- **No open sign-up.** Accounts are created by Ovyko, never by strangers:
+  sign-up is off in `supabase/config.toml` and must be off on the cloud
+  project too. Parents will be invited in M6.
+- **Sign-in limits.** Sign-in runs on the server, so Supabase Auth's own
+  per-address limit sees the server's address, not the person's. Ovyko counts
+  failed attempts itself: five for one email, or fifty from one address, in
+  fifteen minutes pause sign-in for fifteen minutes. The answer is the same
+  whether or not the email has an account, and emails are stored only as a
+  hash (`private.sign_in_failures`, cleared after a day). Only the server can
+  read or reset the counts.
+- **Immediate staff removal.** Settings → Staff. Removing someone suspends
+  their membership, takes them off their classes and ends their sessions in
+  one database function (`remove_staff_member`). Access stops at once because
+  every access rule and the app's role lookup only count active memberships.
+  Owners can't remove themselves, and can give access back. Staff changes are
+  audited.
 
 ### M3 — Attendance and progress
 
@@ -76,6 +86,9 @@ Mavya should do better than the usual weaknesses of class-management software:
 
 ### M6 — Migration and pilot (before real children's data)
 
+- **Supabase Pro and leaked password protection.** Upgrade the cloud project
+  to Pro (backups and point-in-time recovery need it too) and turn on
+  Supabase Auth's check against known leaked passwords.
 - **Two-step sign-in for owners.** Required for owners; optional for
   instructors and parents.
 - **Parent invites.** Parents are invited by email and set their own
@@ -85,7 +98,7 @@ Mavya should do better than the usual weaknesses of class-management software:
 - **Custody and pickup restrictions.** A family can record who may not
   collect or contact a child. Instructors see a clear warning, not the court
   details.
-- **Secure import.** CSV files are uploaded straight into Mavya, checked,
+- **Secure import.** CSV files are uploaded straight into Ovyko, checked,
   imported and then deleted. No spreadsheets by email.
 - **Export and deletion.** Owners can export a family's data and delete a
   family on request, as the Australian Privacy Act allows parents to ask.
@@ -104,7 +117,7 @@ Mavya should do better than the usual weaknesses of class-management software:
   instructor, with reminders to the owner before expiry.
 - **View logging.** Record who viewed a child's record, not only who changed it.
 - **Error reporting hygiene.** When Sentry and PostHog are added, strip names,
-  emails and child details before anything leaves Mavya.
+  emails and child details before anything leaves Ovyko.
 
 ## Checklist for every new feature
 

@@ -1,6 +1,6 @@
-# MAVYA — Claude Code Handoff
+# OVYKO — Claude Code Handoff
 
-This folder is the source-of-truth starter pack for **Mavya v0.1**.
+This folder is the source-of-truth starter pack for **Ovyko v0.1**.
 
 ## What to do first
 
@@ -21,6 +21,6 @@ The product must feel **consumer-grade on the front end and boring/reliable unde
 
 The first proof loop is:
 
-**business creates class → child enrols → parent reports absence → Mavya finds a valid make-up → vacancy becomes available → another eligible family can claim it → instructor records progress → parent sees it beautifully.**
+**business creates class → child enrols → parent reports absence → Ovyko finds a valid make-up → vacancy becomes available → another eligible family can claim it → instructor records progress → parent sees it beautifully.**
 
 Everything else is secondary.

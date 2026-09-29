@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
 import * as families from "@/lib/domain/families";
+import * as staff from "@/lib/domain/staff";
 import * as timetable from "@/lib/domain/timetable";
 import {
   attempt,
@@ -198,7 +199,7 @@ const childSchema = z.object({
     .refine((d) => new Date(d) < new Date(), "Date of birth must be in the past.")
     .refine(
       (d) => new Date(d).getFullYear() > new Date().getFullYear() - 19,
-      "Mavya is for children under 19.",
+      "Ovyko is for children under 19.",
     ),
 });
 
@@ -245,4 +246,22 @@ export async function endEnrolment(enrolmentId: string) {
   const { db } = await requireOwner();
   await enrolments.endEnrolment(db, enrolmentId);
   revalidatePath("/business", "layout");
+}
+
+// ------------------------------------------------------------------ staff
+
+export async function removeStaffMember(membershipId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  const failed = await attempt(() => staff.removeStaffMember(db, z.uuid().parse(membershipId)));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: "Access removed. They've been signed out." };
+}
+
+export async function restoreStaffMember(membershipId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  const failed = await attempt(() => staff.restoreStaffMember(db, z.uuid().parse(membershipId)));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: "Access restored." };
 }

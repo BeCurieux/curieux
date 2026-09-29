@@ -558,7 +558,13 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      record_sign_in: {
+        Args: { p_email: string; p_ip: string; p_succeeded: boolean };
+        Returns: undefined;
+      };
+      remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
     };
     Enums: {
       [_ in never]: never;
