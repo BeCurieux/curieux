@@ -15,6 +15,12 @@ test("a signed-out visitor sees the website, can book a demo and can sign in", a
   );
   await expect(page.getByText("Ovyko is made by Sounding Labs · ABN 38 813 430 864")).toBeVisible();
 
+  // The demo video is on the page and its file is served.
+  const video = page.getByLabel("Ovyko demo video");
+  await expect(video).toBeVisible();
+  const src = await video.locator("source").getAttribute("src");
+  expect((await page.request.get(src!)).status()).toBe(200);
+
   const { violations } = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();

@@ -180,11 +180,36 @@ export function Landing() {
                 <a href={DEMO_MAILTO}>Book a demo</a>
               </Button>
               <Button asChild variant="ghost" size="lg">
-                <a href="#how-it-works">How it works</a>
+                <a href="#demo">Watch the demo</a>
               </Button>
             </div>
           </div>
           <ExampleScreens />
+        </section>
+
+        <section id="demo" aria-labelledby="demo-heading" className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <h2
+              id="demo-heading"
+              className="font-display text-4xl leading-tight font-semibold tracking-tight sm:text-5xl"
+            >
+              Watch the 1-minute demo
+            </h2>
+            <p className="max-w-2xl text-[#3d4050]">
+              One missed swimming lesson, handled by a parent, the owner and an instructor. Captions
+              on screen, no sound needed.
+            </p>
+          </div>
+          <video
+            controls
+            playsInline
+            preload="none"
+            poster="/ovyko-demo-poster.jpg"
+            aria-label="Ovyko demo video"
+            className="aspect-video w-full rounded-lg border border-line bg-surface shadow-[0_20px_50px_-30px_rgba(31,34,48,0.5)]"
+          >
+            <source src="/ovyko-demo.mp4" type="video/mp4" />
+          </video>
         </section>
 
         <section aria-label="Why schools use Ovyko" className="grid gap-4 md:grid-cols-3">
