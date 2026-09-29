@@ -102,6 +102,13 @@ Implement:
 - family data export and deletion
 - backups check and data-breach response plan
 - privacy summary for parents
+- switching from another system: "we do the import" service, run alongside
+  the school's current tool until they're ready
+- school data agreement (Ovyko handles the school's data only to run the
+  service, keeps it in Australia, deletes it on request), a parent notice
+  template for the move, and a privacy lawyer's review of both
+- confirm every part of the service that touches personal data (database,
+  app servers, email) runs in Australia, and pin it there
 
 Onboard one real provider only after these are in place.
 
