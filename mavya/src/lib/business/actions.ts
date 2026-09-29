@@ -199,7 +199,7 @@ const childSchema = z.object({
     .refine((d) => new Date(d) < new Date(), "Date of birth must be in the past.")
     .refine(
       (d) => new Date(d).getFullYear() > new Date().getFullYear() - 19,
-      "Oviko is for children under 19.",
+      "Ovyko is for children under 19.",
     ),
 });
 

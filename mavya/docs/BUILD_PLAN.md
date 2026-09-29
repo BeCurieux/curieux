@@ -1,4 +1,4 @@
-# OVIKO v0.1 — Build Plan
+# OVYKO v0.1 — Build Plan
 
 ## Principle
 

@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { parseDemoState, type DemoState } from "./state-schema";
 
-export const DEMO_COOKIE = "oviko_demo";
+export const DEMO_COOKIE = "ovyko_demo";
 
 export async function readDemoState(): Promise<DemoState> {
   const store = await cookies();

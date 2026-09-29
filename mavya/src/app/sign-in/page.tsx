@@ -19,6 +19,12 @@ export default async function SignInPage() {
         <p className="text-lg text-muted">Everything they do, together.</p>
       </div>
       <SignInForm />
+      <footer className="text-sm text-muted">
+        Ovyko is made by Sounding Labs · ABN 38 813 430 864 ·{" "}
+        <a href="mailto:hello@ovyko.com.au" className="underline underline-offset-2">
+          hello@ovyko.com.au
+        </a>
+      </footer>
     </main>
   );
 }

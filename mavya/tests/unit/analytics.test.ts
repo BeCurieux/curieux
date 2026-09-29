@@ -35,20 +35,20 @@ describe("analytics event properties", () => {
 
 describe("automatic analytics properties", () => {
   it("reduces URLs to their first path segment", () => {
-    expect(coarsenUrl("https://app.oviko.com/family/kids/ava?tab=progress#skills")).toBe(
-      "https://app.oviko.com/family",
+    expect(coarsenUrl("https://app.ovyko.com/family/kids/ava?tab=progress#skills")).toBe(
+      "https://app.ovyko.com/family",
     );
-    expect(coarsenUrl("https://app.oviko.com/")).toBe("https://app.oviko.com/");
+    expect(coarsenUrl("https://app.ovyko.com/")).toBe("https://app.ovyko.com/");
     expect(coarsenUrl("not a url")).toBe("");
     expect(coarsenPath("/family/kids/ava?x=1")).toBe("/family");
   });
 
   it("scrubs every URL-bearing property PostHog adds", () => {
     const scrubbed = scrubAutomaticProperties({
-      $current_url: "https://app.oviko.com/family/kids/ava",
+      $current_url: "https://app.ovyko.com/family/kids/ava",
       $pathname: "/family/kids/ava",
-      $referrer: "https://app.oviko.com/business/families/burrows?q=ava",
-      $initial_current_url: "https://app.oviko.com/family/kids/leo",
+      $referrer: "https://app.ovyko.com/business/families/burrows?q=ava",
+      $initial_current_url: "https://app.ovyko.com/family/kids/leo",
       $search_query: "ava burrows",
       shell: "family",
     });
@@ -61,7 +61,7 @@ describe("error reporting", () => {
   it("strips request bodies, cookies, headers, queries and user details", () => {
     const event = scrubEvent({
       request: {
-        url: "https://app.oviko.com/family?child=ava",
+        url: "https://app.ovyko.com/family?child=ava",
         data: { first_name: "Ava" },
         cookies: { "sb-access-token": "secret" },
         headers: { authorization: "Bearer secret" },
@@ -71,7 +71,7 @@ describe("error reporting", () => {
       extra: { child: "Ava" },
     });
     expect(event).toEqual({
-      request: { url: "https://app.oviko.com/family" },
+      request: { url: "https://app.ovyko.com/family" },
       user: { id: "u1" },
     });
   });

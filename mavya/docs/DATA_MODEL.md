@@ -1,4 +1,4 @@
-# OVIKO v0.1 — Data Model
+# OVYKO v0.1 — Data Model
 
 ## Core entities
 

@@ -1,4 +1,4 @@
-# Acceptance Tests — Oviko v0.1
+# Acceptance Tests — Ovyko v0.1
 
 ## M0
 

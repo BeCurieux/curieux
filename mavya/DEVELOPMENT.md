@@ -1,6 +1,7 @@
-# Running Oviko locally
+# Running Ovyko locally
 
-Oviko was called Mavya until M2.5. The folder, the local Supabase
+Ovyko (ovyko.com.au, made by Sounding Labs, ABN 38 813 430 864) was called
+Mavya until M2.5. The folder, the local Supabase
 project id and a few internal names still say `mavya`; nothing a person
 sees does.
 
@@ -89,7 +90,7 @@ Set these in the Supabase dashboard for the cloud project (the local stack
 reads them from `supabase/config.toml`):
 
 - Authentication → Sign In / Providers: **Allow new users to sign up** off.
-  Accounts come from Oviko (the seed now, invites from M6).
+  Accounts come from Ovyko (the seed now, invites from M6).
 - **Leaked password protection** on (Email provider settings, or
   Authentication → Attack Protection). Pro plan only, so it waits for the
   upgrade before the pilot (M6).

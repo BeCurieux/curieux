@@ -1,6 +1,6 @@
-# CLAUDE.md — OVIKO
+# CLAUDE.md — OVYKO
 
-You are working on **Oviko v0.1**, a multi-tenant SaaS platform for recurring children's activities.
+You are working on **Ovyko v0.1**, a multi-tenant SaaS platform for recurring children's activities.
 
 ## Source of truth
 
@@ -69,7 +69,7 @@ A business owner must never see another provider's customers.
 
 ## UX rule
 
-Oviko should feel like:
+Ovyko should feel like:
 
 **Apple Wallet × Duolingo × Linear**
 

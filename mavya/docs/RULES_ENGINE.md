@@ -1,4 +1,4 @@
-# OVIKO v0.1 — Rules Engine
+# OVYKO v0.1 — Rules Engine
 
 ## Purpose
 
