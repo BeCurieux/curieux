@@ -76,8 +76,10 @@ Implement:
 - claim flow
 - concurrency safety
 - vacancy privacy and single-use claim links
-- "spots filled this term" tally on the owner's dashboard, with the fees
-  those places recovered
+- "this term" tally on the owner's dashboard: make-ups delivered in spots
+  that would have sat empty (no extra classes or instructor hours), and
+  families kept. Most schools charge by the term, so an absence isn't lost
+  fees; a dollar figure shows only for schools that sell casual places.
 
 ## M6 — Migration and pilot
 
