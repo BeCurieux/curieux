@@ -41,7 +41,7 @@ export async function signInAs(user: SeededUser): Promise<Session> {
     email: USERS[user].email,
     password: PASSWORD,
   });
-  if (error || !data.session) throw new Error(`sign in as ${user}: ${error?.message}`);
+  if (error || !data.session) throw new Error(`sign in as ${String(user)}: ${error?.message}`);
   return { client, accessToken: data.session.access_token };
 }
 
@@ -68,4 +68,11 @@ export const TABLES = [
   "families",
   "family_members",
   "children",
+  "locations",
+  "programs",
+  "levels",
+  "classes",
+  "class_occurrences",
+  "enrolments",
+  "audit_events",
 ] as const;

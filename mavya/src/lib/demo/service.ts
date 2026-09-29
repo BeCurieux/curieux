@@ -1,32 +1,33 @@
 import "server-only";
 import type { Viewer } from "@/lib/auth/viewer";
+import type { ClassSummary } from "@/lib/domain/timetable";
 import {
+  AVA_ID,
+  AVA_SKILLS,
   BEST_FIT_ID,
   CANDIDATES,
-  CHILDREN,
-  CLASSES,
   DASHBOARD,
+  DEMO_CLASS_NUMBERS,
   DEMO_FAMILY_ID,
   DEMO_ORG_ID,
   LEVEL_SKILLS,
+  MAKEUP_CLASSES,
   MAKEUP_OPTION_IDS,
   PRE_REPORTED_ABSENT,
   PRIMARY_CLASS_ID,
   PRIMARY_CLASS_SLUG,
-  ROSTER,
-  type DemoChild,
-  type DemoClass,
+  type MakeupClass,
   type SkillStatus,
 } from "./data";
 import { levelProgress } from "./progress";
 import type { DemoState } from "./state-schema";
 
-// Mocked domain services for the M1 demo. Screens ask these functions what
-// to show; they never work anything out themselves. Real services replace
-// these in M2–M5.
+// The demo overlay: the parts of M1 that stay mocked until M3–M5, applied
+// to real classes and children. Screens get real rows from src/lib/domain
+// and pass them through here; they never work anything out themselves.
 //
-// Tenancy holds even in the demo: the data belongs to the seeded Aqua House
-// organisation and Burrows family, and anyone else gets nothing.
+// Tenancy holds: only the seeded Aqua House staff and Burrows family see
+// any of it, and only on the seeded classes and children.
 
 export function isDemoFamily(viewer: Viewer): boolean {
   return viewer.families.some((f) => f.familyId === DEMO_FAMILY_ID);
@@ -36,91 +37,109 @@ export function isDemoStaff(viewer: Viewer, role: "owner" | "instructor"): boole
   return viewer.staff.some((s) => s.organisationId === DEMO_ORG_ID && s.role === role);
 }
 
+// ------------------------------------------------------------------ routes
+
+// The docs name /business/classes/dolphin-3 and /family/kids/ava; these keep
+// those addresses working alongside real ids.
+export function resolveClassId(param: string): string {
+  return param === PRIMARY_CLASS_SLUG ? PRIMARY_CLASS_ID : param;
+}
+
+export function classSlug(classId: string): string {
+  return classId === PRIMARY_CLASS_ID ? PRIMARY_CLASS_SLUG : classId;
+}
+
+export function resolveChildId(
+  param: string,
+  children: { id: string; firstName: string }[],
+): string | null {
+  if (children.some((c) => c.id === param)) return param;
+  const byName = children.filter((c) => c.firstName.toLowerCase() === param.toLowerCase());
+  return byName.length === 1 ? byName[0]!.id : null;
+}
+
+export function childSlug(
+  child: { id: string; firstName: string },
+  siblings: { firstName: string }[],
+): string {
+  const unique = siblings.filter((s) => s.firstName === child.firstName).length === 1;
+  return unique ? child.firstName.toLowerCase() : child.id;
+}
+
 // ------------------------------------------------------------------ classes
 
-export type ClassView = DemoClass & {
+export type ClassView = ClassSummary & {
   absences: number;
   temporaryVacancies: number;
   expected: number;
   occupancy: number;
 };
 
-export function classView(demoClass: DemoClass, state: DemoState): ClassView {
-  const avaAway = demoClass.id === PRIMARY_CLASS_ID && state.absence !== null;
-  const avaMakeupHere = state.makeupClassId === demoClass.id;
-  const absences = demoClass.absences + (avaAway ? 1 : 0);
-  const temporaryVacancies = Math.max(
-    0,
-    demoClass.temporaryVacancies + (avaAway ? 1 : 0) - (avaMakeupHere ? 1 : 0),
-  );
-  const expected = demoClass.enrolled - absences + (avaMakeupHere ? 1 : 0);
+export function withDemo(c: ClassSummary, state: DemoState): ClassView {
+  const numbers = DEMO_CLASS_NUMBERS[c.id];
+  const avaAway = c.id === PRIMARY_CLASS_ID && state.absence !== null;
+  const avaMakeupHere = state.makeupClassId === c.id;
+  const absences = (numbers?.absences ?? 0) + (avaAway ? 1 : 0);
+  const temporaryVacancies = numbers
+    ? Math.max(0, numbers.temporaryVacancies + (avaAway ? 1 : 0) - (avaMakeupHere ? 1 : 0))
+    : 0;
+  const expected = c.enrolled - absences + (avaMakeupHere ? 1 : 0);
   return {
-    ...demoClass,
+    ...c,
     absences,
     temporaryVacancies,
     expected,
-    occupancy: Math.round((expected / demoClass.capacity) * 100),
+    occupancy: c.capacity ? Math.round((expected / c.capacity) * 100) : 0,
   };
 }
 
-export function allClasses(state: DemoState): ClassView[] {
-  return CLASSES.map((c) => classView(c, state));
-}
-
-export function findClass(id: string, state: DemoState): ClassView | null {
-  const found = CLASSES.find((c) => c.id === id);
-  return found ? classView(found, state) : null;
+export function isDemoClass(classId: string): boolean {
+  return classId in DEMO_CLASS_NUMBERS;
 }
 
 // ------------------------------------------------------------------ children
 
-export type ChildView = DemoChild & {
+export type ChildDemo = {
   skillList: { name: string; hint: string; status: SkillStatus }[] | null;
   progress: number | null;
   achieved: number;
   away: boolean;
-  makeup: ClassView | null;
+  makeup: MakeupClass | null;
 };
 
-export function childView(child: DemoChild, state: DemoState): ChildView {
-  const skillList = child.skills
+export function childDemo(childId: string, state: DemoState): ChildDemo {
+  const isAva = childId === AVA_ID;
+  const skillList = isAva
     ? LEVEL_SKILLS.map((s) => ({
         ...s,
-        status: state.skills[s.name] ?? child.skills![s.name] ?? "not_started",
+        status: state.skills[s.name] ?? AVA_SKILLS[s.name] ?? "not_started",
       }))
     : null;
-  const isAva = child.classId === PRIMARY_CLASS_ID;
+  const makeup =
+    isAva && state.makeupClassId
+      ? (MAKEUP_CLASSES.find((c) => c.id === state.makeupClassId) ?? null)
+      : null;
   return {
-    ...child,
     skillList,
     progress: skillList ? levelProgress(skillList.map((s) => s.status)) : null,
     achieved: skillList ? skillList.filter((s) => s.status === "achieved").length : 0,
     away: isAva && state.absence !== null,
-    makeup: isAva && state.makeupClassId ? findClass(state.makeupClassId, state) : null,
+    makeup,
   };
-}
-
-export function familyChildren(state: DemoState): ChildView[] {
-  return CHILDREN.map((c) => childView(c, state));
-}
-
-export function findChild(slug: string, state: DemoState): ChildView | null {
-  const found = CHILDREN.find((c) => c.slug === slug);
-  return found ? childView(found, state) : null;
 }
 
 // ------------------------------------------------------------------ make-ups
 
-export type MakeupOption = ClassView & { bestFit: boolean; spots: number };
+export type MakeupOption = MakeupClass & { bestFit: boolean; spots: number };
 
-export function makeupOptions(state: DemoState): MakeupOption[] {
-  return MAKEUP_OPTION_IDS.map((id) => {
-    const view = findClass(id, state)!;
-    // A class Ava is already booked into still shows, so the confirmation
-    // can point at it, with the spot she took counted back.
-    const spots = view.temporaryVacancies + (state.makeupClassId === id ? 1 : 0);
-    return { ...view, bestFit: id === BEST_FIT_ID, spots };
-  }).filter((o) => o.spots > 0);
+// The open spots in each make-up class. A class Ava is already booked into
+// still shows, with her place counted back in.
+export function makeupOptions(): MakeupOption[] {
+  return MAKEUP_CLASSES.filter((c) => c.temporaryVacancies > 0).map((c) => ({
+    ...c,
+    bestFit: c.id === BEST_FIT_ID,
+    spots: c.temporaryVacancies,
+  }));
 }
 
 export function isMakeupOption(id: string): boolean {
@@ -129,13 +148,11 @@ export function isMakeupOption(id: string): boolean {
 
 // ------------------------------------------------------------------ business
 
-export function dashboard(state: DemoState) {
-  const classes = allClasses(state);
-  const vacancies = classes.reduce((sum, c) => sum + c.temporaryVacancies, 0);
+export function dashboard(classes: ClassView[], state: DemoState) {
   return {
     ...DASHBOARD,
     reportedAbsences: DASHBOARD.reportedAbsences + (state.absence ? 1 : 0),
-    temporaryVacancies: vacancies,
+    temporaryVacancies: classes.reduce((sum, c) => sum + c.temporaryVacancies, 0),
   };
 }
 
@@ -154,30 +171,15 @@ export function isCandidate(id: string): boolean {
 
 export type RosterStatus = "present" | "absent" | "reported_away" | "unmarked";
 
-export function roster(state: DemoState) {
-  return ROSTER.map((r) => {
-    const reportedAway =
-      PRE_REPORTED_ABSENT.includes(r.slug) || (r.slug === "ava" && state.absence !== null);
-    const marked = state.attendance[r.slug];
-    const status: RosterStatus = marked ?? (reportedAway ? "reported_away" : "unmarked");
-    return { ...r, status, reportedAway, hasProgress: r.slug === "ava" };
-  });
-}
-
-export function isRosterChild(slug: string): boolean {
-  return ROSTER.some((r) => r.slug === slug);
+export function rosterStatus(childId: string, classId: string, state: DemoState) {
+  const reportedAway =
+    classId === PRIMARY_CLASS_ID &&
+    (PRE_REPORTED_ABSENT.includes(childId) || (childId === AVA_ID && state.absence !== null));
+  const marked = classId === PRIMARY_CLASS_ID ? state.attendance[childId] : undefined;
+  const status: RosterStatus = marked ?? (reportedAway ? "reported_away" : "unmarked");
+  return { status, reportedAway, hasProgress: childId === AVA_ID };
 }
 
 export function isLevelSkill(name: string): boolean {
   return LEVEL_SKILLS.some((s) => s.name === name);
-}
-
-// Ava's Wednesday class is the demo's "Dolphin 3" and lives at the short
-// URL the docs name; the other occurrences use their ids.
-export function classSlug(c: { id: string }): string {
-  return c.id === PRIMARY_CLASS_ID ? PRIMARY_CLASS_SLUG : c.id;
-}
-
-export function findClassBySlug(slug: string, state: DemoState): ClassView | null {
-  return findClass(slug === PRIMARY_CLASS_SLUG ? PRIMARY_CLASS_ID : slug, state);
 }

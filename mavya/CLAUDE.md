@@ -11,6 +11,7 @@ Before making product decisions, read:
 - `docs/RULES_ENGINE.md`
 - `docs/DESIGN_SYSTEM.md`
 - `docs/BUILD_PLAN.md`
+- `docs/SECURITY.md`
 - the current milestone file in `/docs`
 
 If the code conflicts with the docs, stop and surface the conflict before changing the architecture.

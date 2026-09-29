@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { bookMakeup } from "@/lib/demo/actions";
 import { familyContext } from "@/lib/demo/context";
 import { ORGANISATION } from "@/lib/demo/data";
-import { findChild, makeupOptions, type MakeupOption } from "@/lib/demo/service";
+import { findFamilyChild } from "@/lib/demo/family";
+import { makeupOptions, type MakeupOption } from "@/lib/demo/service";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Make-ups" };
@@ -17,10 +18,10 @@ export default async function MakeupsPage({
 }: {
   searchParams: Promise<{ pick?: string }>;
 }) {
-  const { state, demo } = await familyContext();
-  const ava = demo ? findChild("ava", state)! : null;
+  const { state, db, demo } = await familyContext();
+  const ava = demo ? await findFamilyChild(db, state, "ava") : null;
 
-  if (!demo || !ava!.away) {
+  if (!ava?.away) {
     return (
       <div className="flex flex-col gap-6">
         <BackLink href="/family">Home</BackLink>
@@ -32,9 +33,9 @@ export default async function MakeupsPage({
     );
   }
 
-  if (ava!.makeup) return <Booked option={ava!.makeup} />;
+  if (ava.makeup) return <Booked option={ava.makeup} />;
 
-  const options = makeupOptions(state);
+  const options = makeupOptions();
   const { pick } = await searchParams;
   const selected =
     options.find((o) => o.id === pick) ?? options.find((o) => o.bestFit) ?? options[0]!;

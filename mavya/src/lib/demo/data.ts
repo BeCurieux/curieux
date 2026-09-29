@@ -1,65 +1,53 @@
-// The M1 demo world: Aqua House, a swim school in Mona Vale, and the
-// Burrows family. `seed/demo-data.json` is the visual source of truth for
-// the numbers it holds; everything it doesn't cover (rosters, candidates,
-// messages) is filled in here.
-//
-// Nothing in this file is real data. It is deliberately tied to the seeded
-// Aqua House organisation and Burrows family, so only those tenants see it
-// (see service.ts).
+// What is still demo after M2: absences, make-ups, vacancies, attendance,
+// skills, candidates and messages. Classes, families, children and
+// enrolments are real (src/lib/domain); this layers the rest on top of the
+// seeded Aqua House classes and Burrows family, and nothing else
+// (see service.ts). Each part moves into the database in M3–M5.
 
 import demo from "../../../seed/demo-data.json";
+import {
+  CHILDREN as FIXTURE_CHILDREN,
+  CLASSES as FIXTURE_CLASSES,
+  FAMILIES,
+  ORGS,
+} from "../../../scripts/fixtures";
 
 export type SkillStatus = "not_started" | "developing" | "achieved";
 
-// IDs of the seeded tenants this demo belongs to (scripts/fixtures.ts).
-// tests/unit/demo.test.ts checks they stay in step.
-export const DEMO_ORG_ID = "0a000000-0000-4000-8000-000000000001";
-export const DEMO_FAMILY_ID = "0f000000-0000-4000-8000-000000000001";
+// The seeded tenants this demo belongs to (scripts/fixtures.ts).
+export const DEMO_ORG_ID = ORGS.aqua.id;
+export const DEMO_FAMILY_ID = FAMILIES.burrows.id;
 
 export const ORGANISATION = {
   name: demo.organisation.name,
   location: demo.organisation.location,
   owner: demo.organisation.owner,
   instructor: demo.organisation.instructor,
-  program: "Learn to Swim",
 };
 
-export type DemoClass = {
-  id: string;
-  slug: string;
-  name: string;
-  level: string;
-  day: string;
-  shortDay: string;
-  time: string;
-  capacity: number;
-  enrolled: number;
-  absences: number;
-  temporaryVacancies: number;
-  instructor: string;
+// The demo's classes are real classes now (M2). This maps each real class
+// to the numbers seed/demo-data.json gives it for the parts that are still
+// demo until M4–M5: absences and temporary vacancies.
+const DEMO_CLASS_IDS: Record<string, string> = {
+  "dolphin3-wed": FIXTURE_CLASSES.dolphin3Wed.id,
+  "dolphin3-thu": FIXTURE_CLASSES.dolphin3Thu.id,
+  "dolphin3-sat": FIXTURE_CLASSES.dolphin3Sat.id,
+  "dolphin3-tue": FIXTURE_CLASSES.dolphin3Tue.id,
 };
 
-const SHORT_DAY: Record<string, string> = {
-  Monday: "Mon",
-  Tuesday: "Tue",
-  Wednesday: "Wed",
-  Thursday: "Thu",
-  Friday: "Fri",
-  Saturday: "Sat",
-  Sunday: "Sun",
-};
+export const DEMO_CLASS_NUMBERS: Record<string, { absences: number; temporaryVacancies: number }> =
+  Object.fromEntries(
+    demo.classes.map((c) => [
+      DEMO_CLASS_IDS[c.id]!,
+      { absences: c.absences, temporaryVacancies: c.temporaryVacancies },
+    ]),
+  );
 
-export const CLASSES: DemoClass[] = demo.classes.map((c) => ({
-  ...c,
-  slug: c.id,
-  level: c.name,
-  shortDay: SHORT_DAY[c.day] ?? c.day,
-  instructor: demo.organisation.instructor,
-}));
-
-// Ava's regular class, and the class the demo's routes call "dolphin-3".
-export const PRIMARY_CLASS_ID = "dolphin3-wed";
+// Ava's regular class, which the docs' routes call "dolphin-3".
+export const PRIMARY_CLASS_ID = FIXTURE_CLASSES.dolphin3Wed.id;
 export const PRIMARY_CLASS_SLUG = "dolphin-3";
+
+export const AVA_ID = FIXTURE_CHILDREN.ava.id;
 
 export const LEVEL_SKILLS: { name: string; hint: string }[] = [
   { name: "Floating", hint: "Floats on front and back for 5 seconds" },
@@ -69,109 +57,13 @@ export const LEVEL_SKILLS: { name: string; hint: string }[] = [
   { name: "Freestyle 10m", hint: "Swims 10 metres of freestyle" },
 ];
 
-const [avaSeed, leoSeed] = demo.family.children;
+// Ava's skills until progress is real (M3).
+export const AVA_SKILLS: Record<string, SkillStatus> = Object.fromEntries(
+  (demo.family.children[0]!.skills ?? []).map((s) => [s.name, s.status as SkillStatus]),
+);
 
-export type DemoChild = {
-  slug: string;
-  firstName: string;
-  lastName: string;
-  age: number;
-  level: string;
-  classId: string | null;
-  schedule: { day: string; time: string };
-  skills: Record<string, SkillStatus> | null;
-  colour: "coral" | "mint" | "butter" | "lilac";
-};
-
-export const CHILDREN: DemoChild[] = [
-  {
-    slug: avaSeed!.id,
-    firstName: avaSeed!.firstName,
-    lastName: "Burrows",
-    age: avaSeed!.age,
-    level: "Dolphin 3",
-    classId: PRIMARY_CLASS_ID,
-    schedule: { day: "Wednesday", time: "4:30pm" },
-    skills: Object.fromEntries(
-      (avaSeed!.skills ?? []).map((s) => [s.name, s.status as SkillStatus]),
-    ),
-    colour: "coral",
-  },
-  {
-    // A second child so the family view shows more than one; Leo's own
-    // progress isn't part of the demo.
-    slug: leoSeed!.id,
-    firstName: leoSeed!.firstName,
-    lastName: "Burrows",
-    age: leoSeed!.age,
-    level: leoSeed!.activities[0]!.level,
-    classId: null,
-    schedule: { day: leoSeed!.activities[0]!.day, time: leoSeed!.activities[0]!.time },
-    skills: null,
-    colour: "mint",
-  },
-];
-
-export const FAMILY = {
-  name: demo.family.name,
-  guardian: demo.family.guardian,
-};
-
-// The 12 children enrolled in Dolphin 3 on Wednesday.
-export const ROSTER: { slug: string; name: string; family: string }[] = [
-  { slug: "ava", name: "Ava Burrows", family: "Burrows" },
-  { slug: "oliver", name: "Oliver Chen", family: "Chen" },
-  { slug: "priya", name: "Priya Patel", family: "Patel" },
-  { slug: "noah", name: "Noah James", family: "James" },
-  { slug: "isla", name: "Isla Moore", family: "Moore" },
-  { slug: "lucas", name: "Lucas Nguyen", family: "Nguyen" },
-  { slug: "ruby", name: "Ruby Thompson", family: "Thompson" },
-  { slug: "jack", name: "Jack Wilson", family: "Wilson" },
-  { slug: "zoe", name: "Zoe Martin", family: "Martin" },
-  { slug: "henry", name: "Henry Clarke", family: "Clarke" },
-  { slug: "chloe", name: "Chloe Evans", family: "Evans" },
-  { slug: "max", name: "Max Kelly", family: "Kelly" },
-];
-
-// Children the Wednesday roster already knows are away, besides anything the
-// parent reports in the demo. Matches the class's one recorded absence.
-export const PRE_REPORTED_ABSENT = ["zoe"];
-
-export const FAMILIES: {
-  name: string;
-  guardian: string;
-  children: { name: string; level: string }[];
-}[] = [
-  {
-    name: "Burrows",
-    guardian: "Sarah Burrows",
-    children: [
-      { name: "Ava", level: "Dolphin 3" },
-      { name: "Leo", level: "Dolphin 1" },
-    ],
-  },
-  { name: "Chen", guardian: "Wei Chen", children: [{ name: "Oliver", level: "Dolphin 3" }] },
-  {
-    name: "Patel",
-    guardian: "Anika Patel",
-    children: [
-      { name: "Priya", level: "Dolphin 3" },
-      { name: "Arjun", level: "Dolphin 1" },
-    ],
-  },
-  { name: "James", guardian: "Tom James", children: [{ name: "Noah", level: "Dolphin 3" }] },
-  { name: "Moore", guardian: "Kate Moore", children: [{ name: "Isla", level: "Dolphin 3" }] },
-  { name: "Nguyen", guardian: "Linh Nguyen", children: [{ name: "Lucas", level: "Dolphin 3" }] },
-  { name: "Thompson", guardian: "Emma Thompson", children: [{ name: "Ruby", level: "Dolphin 3" }] },
-  {
-    name: "Wilson",
-    guardian: "Ben Wilson",
-    children: [
-      { name: "Jack", level: "Dolphin 3" },
-      { name: "Mia", level: "Dolphin 2" },
-    ],
-  },
-];
+// Zoe is already reported away from Wednesday's class (its one absence).
+export const PRE_REPORTED_ABSENT = [FIXTURE_CHILDREN.zoe.id];
 
 // Children holding make-up credits who fit the open spots. Hand-picked for
 // the demo; real matching is M5.
@@ -191,7 +83,7 @@ export const CANDIDATES: Candidate[] = [
     family: "Lee",
     level: "Dolphin 3",
     creditNote: "Credit expires in 4 days",
-    classId: "dolphin3-wed",
+    classId: FIXTURE_CLASSES.dolphin3Wed.id,
   },
   {
     id: "c2",
@@ -199,7 +91,7 @@ export const CANDIDATES: Candidate[] = [
     family: "Ortiz",
     level: "Dolphin 3",
     creditNote: "Missed last Tuesday",
-    classId: "dolphin3-wed",
+    classId: FIXTURE_CLASSES.dolphin3Wed.id,
   },
   {
     id: "c3",
@@ -207,7 +99,7 @@ export const CANDIDATES: Candidate[] = [
     family: "Patel",
     level: "Dolphin 3",
     creditNote: "Credit expires in 9 days",
-    classId: "dolphin3-thu",
+    classId: FIXTURE_CLASSES.dolphin3Thu.id,
   },
   {
     id: "c4",
@@ -215,7 +107,7 @@ export const CANDIDATES: Candidate[] = [
     family: "James",
     level: "Dolphin 3",
     creditNote: "Missed last Saturday",
-    classId: "dolphin3-sat",
+    classId: FIXTURE_CLASSES.dolphin3Sat.id,
   },
   {
     id: "c5",
@@ -223,7 +115,7 @@ export const CANDIDATES: Candidate[] = [
     family: "Ho",
     level: "Dolphin 3",
     creditNote: "Credit expires in 12 days",
-    classId: "dolphin3-sat",
+    classId: FIXTURE_CLASSES.dolphin3Sat.id,
   },
   {
     id: "c6",
@@ -231,7 +123,7 @@ export const CANDIDATES: Candidate[] = [
     family: "Chen",
     level: "Dolphin 3",
     creditNote: "Missed last Wednesday",
-    classId: "dolphin3-tue",
+    classId: FIXTURE_CLASSES.dolphin3Tue.id,
   },
 ];
 
@@ -239,8 +131,39 @@ export const DASHBOARD = demo.dashboard;
 
 // Make-up choices shown to the Burrows family after reporting Ava away.
 // Thursday is the "best fit": same time of day, next day.
-export const MAKEUP_OPTION_IDS = ["dolphin3-thu", "dolphin3-sat", "dolphin3-tue"];
-export const BEST_FIT_ID = "dolphin3-thu";
+export const MAKEUP_OPTION_IDS = [
+  FIXTURE_CLASSES.dolphin3Thu.id,
+  FIXTURE_CLASSES.dolphin3Sat.id,
+  FIXTURE_CLASSES.dolphin3Tue.id,
+];
+export const BEST_FIT_ID = FIXTURE_CLASSES.dolphin3Thu.id;
+
+// What a parent is shown about each make-up class. Parents can't read other
+// classes from the database (row level security only shows them their own
+// children's), so until M4's eligibility service these come from the demo.
+export type MakeupClass = {
+  id: string;
+  day: string;
+  shortDay: string;
+  time: string;
+  level: string;
+  instructor: string;
+  temporaryVacancies: number;
+};
+
+export const MAKEUP_CLASSES: MakeupClass[] = MAKEUP_OPTION_IDS.map((id) => {
+  const demoId = Object.entries(DEMO_CLASS_IDS).find(([, real]) => real === id)![0];
+  const c = demo.classes.find((k) => k.id === demoId)!;
+  return {
+    id,
+    day: c.day,
+    shortDay: c.day.slice(0, 3),
+    time: c.time,
+    level: c.name,
+    instructor: demo.organisation.instructor,
+    temporaryVacancies: c.temporaryVacancies,
+  };
+});
 
 // Plain-language summary of the default make-up policy in RULES_ENGINE.md.
 export const MAKEUP_RULE = [

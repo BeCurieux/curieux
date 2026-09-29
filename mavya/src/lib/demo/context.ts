@@ -1,27 +1,37 @@
 import "server-only";
 import { requireShell } from "@/lib/auth/viewer";
+import { requireOwner } from "@/lib/business/owner";
+import { createClient } from "@/lib/supabase/server";
 import { isDemoFamily, isDemoStaff } from "./service";
 import { readDemoState } from "./state";
 
-// What every demo page needs: who is looking, what they've done so far in
-// the demo, and whether the demo data is theirs to see at all.
+// What every page needs: who is looking, their database client, what
+// they've done so far in the demo, and whether the demo overlay is theirs.
 
 export async function familyContext() {
   const viewer = await requireShell("family");
-  const state = await readDemoState();
-  return { viewer, state, demo: isDemoFamily(viewer) };
+  const [state, db] = await Promise.all([readDemoState(), createClient()]);
+  return { viewer, state, db, demo: isDemoFamily(viewer) };
 }
 
 export async function businessContext() {
-  const viewer = await requireShell("business");
+  const owner = await requireOwner();
   const state = await readDemoState();
-  return { viewer, state, demo: isDemoStaff(viewer, "owner") };
+  return { ...owner, state, demo: isDemoStaff(owner.viewer, "owner") };
 }
 
 export async function instructorContext() {
   const viewer = await requireShell("instructor");
-  const state = await readDemoState();
-  return { viewer, state, demo: isDemoStaff(viewer, "instructor") };
+  const teaching = viewer.staff.find((s) => s.role === "instructor")!;
+  const [state, db] = await Promise.all([readDemoState(), createClient()]);
+  return {
+    viewer,
+    state,
+    db,
+    organisationId: teaching.organisationId,
+    organisationName: teaching.organisationName,
+    demo: isDemoStaff(viewer, "instructor"),
+  };
 }
 
 export function firstName(name: string): string {

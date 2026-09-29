@@ -1,4 +1,4 @@
-// Prints the same tenancy fixtures as seed.ts, as one SQL script.
+// Prints the same fixtures as seed.ts, as one SQL script.
 //
 // seed.ts needs the project's secret key and talks to the Auth admin API.
 // This is for a hosted project where only SQL access is available: it writes
@@ -10,7 +10,15 @@
 //
 //   DEMO_PASSWORD=... npx tsx scripts/seed-sql.ts > /tmp/demo-seed.sql
 
-import { CHILDREN, FAMILIES, ORGS, USERS, type SeedUser } from "./fixtures";
+import {
+  FAMILIES,
+  ORGS,
+  USERS,
+  classRows,
+  enrolmentRows,
+  seedRows,
+  type SeedUser,
+} from "./fixtures";
 
 const password = process.env.DEMO_PASSWORD;
 if (!password || password.length < 12) {
@@ -19,31 +27,35 @@ if (!password || password.length < 12) {
 
 const q = (value: string) => `'${value.replaceAll("'", "''")}'`;
 
+function literal(value: unknown): string {
+  if (value === null || value === undefined) return "null";
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return q(String(value));
+}
+
+// insert … on conflict do update, for a batch of rows sharing one shape.
+function upsert(table: string, conflict: string, rows: Record<string, unknown>[]): string[] {
+  if (rows.length === 0) return [];
+  const columns = Object.keys(rows[0]!);
+  const updates = columns
+    .filter((c) => !conflict.split(",").includes(c))
+    .map((c) => `${c} = excluded.${c}`)
+    .join(", ");
+  return [
+    `insert into public.${table} (${columns.join(", ")}) values`,
+    rows.map((r) => `  (${columns.map((c) => literal(r[c])).join(", ")})`).join(",\n"),
+    `  on conflict (${conflict}) do update set ${updates};`,
+  ];
+}
+
 const lines: string[] = ["begin;"];
 
-for (const org of Object.values(ORGS)) {
-  lines.push(
-    `insert into public.organisations (id, name, slug, activity_type) values (${q(org.id)}, ${q(org.name)}, ${q(org.slug)}, ${q(org.activity_type)})`,
-    `  on conflict (id) do update set name = excluded.name, slug = excluded.slug, activity_type = excluded.activity_type;`,
-  );
-}
-for (const family of Object.values(FAMILIES)) {
-  lines.push(
-    `insert into public.families (id, display_name) values (${q(family.id)}, ${q(family.display_name)})`,
-    `  on conflict (id) do update set display_name = excluded.display_name;`,
-  );
-}
-for (const child of Object.values(CHILDREN)) {
-  lines.push(
-    `insert into public.children (id, family_id, first_name, last_name, date_of_birth) values (${q(child.id)}, ${q(child.family_id)}, ${q(child.first_name)}, ${q(child.last_name)}, ${q(child.date_of_birth)})`,
-    `  on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name, date_of_birth = excluded.date_of_birth;`,
-  );
-}
+for (const { table, conflict, rows } of seedRows()) lines.push(...upsert(table, conflict, rows));
 
 for (const user of Object.values(USERS) as SeedUser[]) {
   const membership = user.staff
-    ? `insert into public.staff_memberships (user_id, organisation_id, role, status)
-    values (profile_id, ${q(ORGS[user.staff.org].id)}, ${q(user.staff.role)}, 'active')
+    ? `insert into public.staff_memberships (id, user_id, organisation_id, role, status)
+    values (${q(user.staff.membershipId)}, profile_id, ${q(ORGS[user.staff.org].id)}, ${q(user.staff.role)}, 'active')
     on conflict (user_id, organisation_id) do update set role = excluded.role, status = 'active';`
     : "";
   const family = user.family
@@ -90,6 +102,10 @@ begin
   ${family}
 end $$;`);
 }
+
+// Classes need their instructors' memberships, and enrolments need both.
+lines.push(...upsert("classes", "id", classRows()));
+lines.push(...upsert("enrolments", "id", enrolmentRows()));
 
 lines.push("commit;");
 process.stdout.write(lines.join("\n") + "\n");

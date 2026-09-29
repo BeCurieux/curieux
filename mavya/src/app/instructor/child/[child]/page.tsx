@@ -6,8 +6,8 @@ import { ProgressRing } from "@/components/demo/progress-ring";
 import { Button } from "@/components/ui/button";
 import { saveSkills } from "@/lib/demo/actions";
 import { instructorContext } from "@/lib/demo/context";
-import type { SkillStatus } from "@/lib/demo/data";
-import { findChild } from "@/lib/demo/service";
+import { AVA_ID, type SkillStatus } from "@/lib/demo/data";
+import { childDemo } from "@/lib/demo/service";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Skills" };
@@ -27,9 +27,24 @@ export default async function InstructorChildPage({
 }) {
   const { child: slug } = await params;
   const { saved } = await searchParams;
-  const { state, demo } = await instructorContext();
-  const child = demo ? findChild(slug, state) : null;
-  if (!child?.skillList) notFound();
+  const { state, demo, db } = await instructorContext();
+  // Skills are demo until M3, for Ava only. Her name comes from the
+  // database, which only shows her to instructors who teach her.
+  if (!demo || (slug !== "ava" && slug !== AVA_ID)) notFound();
+  const { data: row } = await db
+    .from("children")
+    .select("first_name, last_name")
+    .eq("id", AVA_ID)
+    .maybeSingle();
+  if (!row) notFound();
+  const child = {
+    slug: AVA_ID,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    level: "Dolphin 3",
+    ...childDemo(AVA_ID, state),
+  };
+  if (!child.skillList) notFound();
 
   return (
     <div className="flex flex-col gap-5">

@@ -128,7 +128,7 @@ test.describe("instructor demo path", () => {
     await signIn(page, USERS.aquaInstructor.email);
 
     // 1–2. Instructor home → Dolphin 3.
-    await page.getByRole("link", { name: /Dolphin 3/ }).click();
+    await page.getByRole("link", { name: "Dolphin 3, Wednesday 4:30pm" }).click();
     await expect(page).toHaveURL(/\/instructor\/class\/dolphin-3$/);
 
     // 3. Mark a child present and another absent.
@@ -161,17 +161,24 @@ test.describe("instructor demo path", () => {
 test.describe("demo tenancy", () => {
   test("another family never sees the Burrows demo", async ({ page }) => {
     await signIn(page, USERS.chenParent.email);
-    await expect(page.getByRole("heading", { name: "Nothing on this week" })).toBeVisible();
+    // The Chens see their own real class at their own provider, and nothing of Ava's.
+    await expect(page.getByText("Peak Gymnastics")).toBeVisible();
+    await expect(page.getByText("Mei")).toBeVisible();
     await expect(page.getByText("Ava")).toHaveCount(0);
+    await expect(page.getByText("Can't make Wednesday?")).toHaveCount(0);
     await page.goto("/family/kids/ava");
     await expect(page.getByText("Ava")).toHaveCount(0);
   });
 
   test("another provider never sees Aqua House's demo", async ({ page }) => {
     await signIn(page, USERS.peakOwner.email);
-    await expect(page.getByRole("heading", { name: "Your timetable is empty" })).toBeVisible();
+    // Peak sees its own real class, and none of Aqua House's demo numbers.
+    await expect(page.getByText("Classes each week")).toBeVisible();
+    await expect(page.getByText("can be filled this week")).toHaveCount(0);
     await page.goto("/business/classes/dolphin-3");
     await expect(page.getByText("Zoe Martin")).toHaveCount(0);
+    await page.goto("/business/families");
+    await expect(page.getByText("Burrows Family")).toHaveCount(0);
     await page.goto("/business/fill");
     await expect(page.getByText("Harper Lee")).toHaveCount(0);
   });

@@ -110,38 +110,45 @@ describe("4. A parent can read their own child", () => {
   });
 });
 
-describe("5. Staff are not over-permitted to families before enrolments exist", () => {
-  for (const [who, session] of [
-    ["owner", () => aquaOwner],
-    ["instructor", () => aquaInstructor],
-  ] as const) {
-    it(`an ${who} sees no families, family members or children`, async () => {
-      const { client } = session();
-      for (const table of ["families", "family_members", "children"] as const) {
-        const { data, error } = await client.from(table).select("id");
-        expect(error, table).toBeNull();
-        expect(data, table).toEqual([]);
-      }
-    });
-  }
+describe("5. Staff see families only through their own organisation", () => {
+  it("an owner sees their organisation's families and children, and no one else's", async () => {
+    const families = await aquaOwner.client.from("families").select("organisation_id");
+    const children = await aquaOwner.client.from("children").select("id, organisation_id");
+    expect(families.data!.length).toBeGreaterThan(1);
+    expect(new Set(families.data!.map((f) => f.organisation_id))).toEqual(new Set([ORGS.aqua.id]));
+    expect(new Set(children.data!.map((c) => c.organisation_id))).toEqual(new Set([ORGS.aqua.id]));
+    expect(children.data!.map((c) => c.id)).not.toContain(CHILDREN.mei.id);
+  });
 
-  it("a parent sees no organisations or staff", async () => {
+  it("an instructor sees no family members", async () => {
+    const { data } = await aquaInstructor.client.from("family_members").select("id");
+    expect(data).toEqual([]);
+  });
+
+  it("a parent sees their own provider, and none of its staff", async () => {
     const orgs = await burrows.client.from("organisations").select("id");
     const staff = await burrows.client.from("staff_memberships").select("id");
-    expect(orgs.data).toEqual([]);
+    expect(ids(orgs.data)).toEqual([ORGS.aqua.id]);
     expect(staff.data).toEqual([]);
   });
 });
 
 describe("users", () => {
-  it("each person reads only their own profile", async () => {
+  it("parents and instructors read only their own profile", async () => {
     for (const [session, email] of [
-      [aquaOwner, USERS.aquaOwner.email],
+      [aquaInstructor, USERS.aquaInstructor.email],
       [burrows, USERS.burrowsParent.email],
     ] as const) {
       const { data } = await session.client.from("users").select("email");
       expect(data).toEqual([{ email }]);
     }
+  });
+
+  it("an owner also reads their own staff's profiles, and no one else's", async () => {
+    const { data } = await aquaOwner.client.from("users").select("email");
+    expect(data!.map((u) => u.email).sort()).toEqual(
+      [USERS.aquaOwner.email, USERS.aquaInstructor.email].sort(),
+    );
   });
 });
 
@@ -195,9 +202,10 @@ describe("direct API requests cannot bypass RLS", () => {
   });
 });
 
-describe("no writes from the app in M0", () => {
+describe("parents and staff can't change what isn't theirs", () => {
   it("a parent can't add a child, even to their own family", async () => {
     const { error } = await burrows.client.from("children").insert({
+      organisation_id: ORGS.aqua.id,
       family_id: FAMILIES.burrows.id,
       first_name: "Intruder",
       last_name: "Test",
@@ -212,12 +220,24 @@ describe("no writes from the app in M0", () => {
       .update({ first_name: "Changed" })
       .eq("id", CHILDREN.ava.id);
     const remove = await burrows.client.from("children").delete().eq("id", CHILDREN.ava.id);
-    expect(update.error?.code).toBe("42501");
+    // The update is filtered to nothing by row level security; the delete
+    // isn't granted to anyone at all.
+    expect(update.error).toBeNull();
     expect(remove.error?.code).toBe("42501");
+    const { data } = await burrows.client
+      .from("children")
+      .select("first_name")
+      .eq("id", CHILDREN.ava.id)
+      .single();
+    expect(data!.first_name).toBe("Ava");
   });
 
   it("an owner can't grant themselves into another organisation", async () => {
-    const { data: me } = await aquaOwner.client.from("users").select("id").single();
+    const { data: me } = await aquaOwner.client
+      .from("users")
+      .select("id")
+      .eq("email", USERS.aquaOwner.email)
+      .single();
     const { error } = await aquaOwner.client.from("staff_memberships").insert({
       user_id: me!.id,
       organisation_id: ORGS.peak.id,

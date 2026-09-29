@@ -5,6 +5,7 @@ const ITEMS = [
   { href: "/business/classes", label: "Classes" },
   { href: "/business/families", label: "Families" },
   { href: "/business/progress", label: "Progress" },
+  { href: "/business/settings", label: "Settings" },
 ];
 
 export function BusinessNav() {

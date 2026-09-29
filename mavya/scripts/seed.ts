@@ -1,5 +1,5 @@
-// Seeds the tenancy fixtures: two organisations, their staff, two families
-// and their children. Safe to run repeatedly — every write is an upsert.
+// Seeds the fixtures in scripts/fixtures.ts: two organisations with their
+// staff, timetables, families, children and enrolments. Safe to run repeatedly — every write is an upsert.
 //
 // It signs users up through Supabase Auth's admin API rather than inserting
 // into auth.users by hand, so the same script works against a local stack
@@ -12,7 +12,15 @@
 
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../src/lib/supabase/database.types";
-import { CHILDREN, FAMILIES, ORGS, USERS, type SeedUser } from "./fixtures";
+import {
+  FAMILIES,
+  ORGS,
+  USERS,
+  classRows,
+  enrolmentRows,
+  seedRows,
+  type SeedUser,
+} from "./fixtures";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -93,18 +101,13 @@ async function waitForApi() {
 
 async function main() {
   await waitForApi();
-  check(
-    await admin.from("organisations").upsert(Object.values(ORGS).map((o) => ({ ...o }))),
-    "organisations",
-  );
-  check(
-    await admin.from("families").upsert(Object.values(FAMILIES).map((f) => ({ ...f }))),
-    "families",
-  );
-  check(
-    await admin.from("children").upsert(Object.values(CHILDREN).map((c) => ({ ...c }))),
-    "children",
-  );
+
+  for (const { table, conflict, rows } of seedRows()) {
+    check(
+      await admin.from(table as "organisations").upsert(rows as never, { onConflict: conflict }),
+      table,
+    );
+  }
 
   for (const user of Object.values(USERS) as SeedUser[]) {
     const userId = await ensureUser(user);
@@ -113,6 +116,7 @@ async function main() {
       check(
         await admin.from("staff_memberships").upsert(
           {
+            id: user.staff.membershipId,
             user_id: userId,
             organisation_id: ORGS[user.staff.org].id,
             role: user.staff.role,
@@ -141,6 +145,11 @@ async function main() {
 
     console.log(`seeded ${user.email}`);
   }
+
+  // Classes need their instructors' memberships, and enrolments need both.
+  check(await admin.from("classes").upsert(classRows()), "classes");
+  check(await admin.from("enrolments").upsert(enrolmentRows()), "enrolments");
+  console.log("seeded the timetable");
 }
 
 main().catch((error: unknown) => {

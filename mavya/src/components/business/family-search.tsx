@@ -1,11 +1,17 @@
 "use client";
 
 import { Search, Users } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
-type Family = { name: string; guardian: string; children: { name: string; level: string }[] };
+type Family = {
+  id: string;
+  name: string;
+  guardian: string;
+  children: { name: string; level: string }[];
+};
 
-// Filters an already-loaded list; no data leaves the page.
+// Filters an already-loaded list; nothing leaves the page.
 export function FamilySearch({ families }: { families: Family[] }) {
   const [query, setQuery] = useState("");
   const shown = useMemo(() => {
@@ -39,29 +45,36 @@ export function FamilySearch({ families }: { families: Family[] }) {
       </p>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {shown.map((f) => (
-          <li
-            key={f.name}
-            className="flex flex-col gap-3 rounded-md border border-line bg-surface p-4"
-          >
-            <div className="flex items-center gap-3">
-              <span className="grid size-10 place-items-center rounded-full bg-surface-soft [&_svg]:size-5">
-                <Users aria-hidden />
-              </span>
-              <div>
-                <p className="font-display text-lg font-semibold">{f.name} family</p>
-                <p className="text-sm text-muted">{f.guardian}</p>
+          <li key={f.id}>
+            <Link
+              href={`/business/families/${f.id}`}
+              className="flex h-full flex-col gap-3 rounded-md border border-line bg-surface p-4 transition hover:border-ink"
+            >
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 place-items-center rounded-full bg-surface-soft [&_svg]:size-5">
+                  <Users aria-hidden />
+                </span>
+                <div>
+                  <p className="font-display text-lg font-semibold">{f.name}</p>
+                  {f.guardian ? <p className="text-sm text-muted">{f.guardian}</p> : null}
+                </div>
               </div>
-            </div>
-            <ul className="flex flex-wrap gap-2">
-              {f.children.map((c) => (
-                <li
-                  key={c.name}
-                  className="rounded-full bg-surface-soft px-3 py-1 text-sm font-semibold"
-                >
-                  {c.name} <span className="font-normal text-muted">· {c.level}</span>
-                </li>
-              ))}
-            </ul>
+              {f.children.length ? (
+                <ul className="flex flex-wrap gap-2">
+                  {f.children.map((c) => (
+                    <li
+                      key={c.name}
+                      className="rounded-full bg-surface-soft px-3 py-1 text-sm font-semibold"
+                    >
+                      {c.name}{" "}
+                      {c.level ? <span className="font-normal text-muted">· {c.level}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted">No children yet</p>
+              )}
+            </Link>
           </li>
         ))}
       </ul>

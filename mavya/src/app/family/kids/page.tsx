@@ -5,23 +5,25 @@ import { CHILD_FILL } from "@/components/demo/activity-pass";
 import { EmptyState } from "@/components/demo/empty-state";
 import { ProgressRing } from "@/components/demo/progress-ring";
 import { familyContext } from "@/lib/demo/context";
-import { familyChildren } from "@/lib/demo/service";
+import { familyChildren } from "@/lib/demo/family";
+import { EMPTY_STATE } from "@/lib/demo/state-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Kids" };
 
 export default async function KidsPage() {
-  const { state, demo } = await familyContext();
+  const { state, db, demo } = await familyContext();
+  const children = await familyChildren(db, demo ? state : EMPTY_STATE);
 
   return (
     <div className="rise flex flex-col gap-6">
       <h1 className="font-display text-4xl font-semibold tracking-tight">Kids</h1>
-      {!demo ? (
+      {children.length === 0 ? (
         <EmptyState icon={<Smile />} title="No kids added yet">
           Your activity provider adds your children when they enrol.
         </EmptyState>
       ) : (
-        familyChildren(state).map((child) => (
+        children.map((child) => (
           <Link
             key={child.slug}
             href={`/family/kids/${child.slug}`}
@@ -47,7 +49,9 @@ export default async function KidsPage() {
             <div className="flex-1">
               <p className="font-display text-2xl font-semibold">{child.firstName}</p>
               <p className="text-muted">
-                {child.level} · {child.schedule.day}s {child.schedule.time}
+                {child.primary
+                  ? `${child.primary.level} · ${child.primary.day}s ${child.primary.time}`
+                  : "Not in a class yet"}
               </p>
             </div>
             <ArrowRight aria-hidden className="size-5 text-muted" />

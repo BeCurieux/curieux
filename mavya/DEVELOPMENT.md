@@ -52,17 +52,21 @@ After changing a migration, run `npm run db:reset` and `npm run db:types`
 and commit the regenerated `src/lib/supabase/database.types.ts`. CI fails
 if it's stale.
 
-## Access model (M0)
+## Access model
 
 Row level security is the boundary; the app's queries are not. See
-`supabase/migrations/*_policies_and_grants.sql`.
+`supabase/migrations/*_policies_and_grants.sql` and `*_m2_access.sql`.
 
-- Signed-in users can **read** only; nothing can be written from the app in
-  M0. The seed uses the secret key.
-- Parents read their own family, its members and its children.
-- Staff read their own organisation. Owners also see its staff list.
-- Staff see **no** families or children until enrolments link them (M2).
+- **Owners** read and write their organisation's locations, programs,
+  levels, classes, families, children and enrolments, and read its audit
+  trail.
+- **Instructors** read their organisation's timetable and only the children
+  in classes they teach. They can't write.
+- **Parents** read their own family and the classes their children are
+  enrolled in. They can't write.
 - Anonymous visitors read nothing.
+- Tenancy, capacity and duplicate enrolments are enforced by the database
+  itself (composite keys and triggers), and every change is audited.
 
 ## Deploying
 
