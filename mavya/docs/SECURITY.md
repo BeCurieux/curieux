@@ -43,9 +43,8 @@ Oviko should do better than the usual weaknesses of class-management software:
 
 ### M2.5 — Security hardening (done)
 
-- **Leaked password protection.** Turn on Supabase Auth's check against known
-  leaked passwords (a dashboard setting on the cloud project; see
-  `DEVELOPMENT.md`).
+- **Leaked password protection.** Moved to M6: Supabase offers it only on
+  the Pro plan, and the project is on Free while it holds only demo accounts.
 - **No open sign-up.** Accounts are created by Oviko, never by strangers:
   sign-up is off in `supabase/config.toml` and must be off on the cloud
   project too. Parents will be invited in M6.
@@ -87,6 +86,9 @@ Oviko should do better than the usual weaknesses of class-management software:
 
 ### M6 — Migration and pilot (before real children's data)
 
+- **Supabase Pro and leaked password protection.** Upgrade the cloud project
+  to Pro (backups and point-in-time recovery need it too) and turn on
+  Supabase Auth's check against known leaked passwords.
 - **Two-step sign-in for owners.** Required for owners; optional for
   instructors and parents.
 - **Parent invites.** Parents are invited by email and set their own

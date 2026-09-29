@@ -90,4 +90,6 @@ reads them from `supabase/config.toml`):
 
 - Authentication → Sign In / Providers: **Allow new users to sign up** off.
   Accounts come from Oviko (the seed now, invites from M6).
-- Authentication → Attack Protection: **Leaked password protection** on.
+- **Leaked password protection** on (Email provider settings, or
+  Authentication → Attack Protection). Pro plan only, so it waits for the
+  upgrade before the pilot (M6).
