@@ -6,13 +6,18 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { offerSpot } from "@/lib/demo/actions";
 import { businessContext } from "@/lib/demo/context";
-import { allClasses, candidatesFor, classSlug } from "@/lib/demo/service";
+import { candidatesFor, classSlug, withDemo } from "@/lib/demo/service";
+import { listClasses } from "@/lib/domain/timetable";
 
 export const metadata: Metadata = { title: "Fill open spots" };
 
 export default async function FillPage() {
-  const { state, demo } = await businessContext();
-  const open = demo ? allClasses(state).filter((c) => c.temporaryVacancies > 0) : [];
+  const { db, state, demo } = await businessContext();
+  const open = demo
+    ? (await listClasses(db, { activeOnly: true }))
+        .map((c) => withDemo(c, state))
+        .filter((c) => c.temporaryVacancies > 0)
+    : [];
   const total = open.reduce((sum, c) => sum + c.temporaryVacancies, 0);
 
   return (
@@ -49,7 +54,7 @@ export default async function FillPage() {
                       {c.level} · {c.day} {c.time}
                     </h2>
                     <Link
-                      href={`/business/classes/${classSlug(c)}`}
+                      href={`/business/classes/${classSlug(c.id)}`}
                       className="text-sm font-semibold text-muted hover:text-ink"
                     >
                       View class

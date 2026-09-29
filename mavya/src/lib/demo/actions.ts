@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireShell, requireViewer } from "@/lib/auth/viewer";
-import { LEVEL_SKILLS } from "./data";
-import { isCandidate, isDemoFamily, isDemoStaff, isMakeupOption, isRosterChild } from "./service";
+import { createClient } from "@/lib/supabase/server";
+import { AVA_ID, LEVEL_SKILLS, PRIMARY_CLASS_ID } from "./data";
+import { isCandidate, isDemoFamily, isDemoStaff, isMakeupOption } from "./service";
 import { clearDemoState, readDemoState, writeDemoState } from "./state";
 
 // The demo's only writes. A server action is a public endpoint, so each one
@@ -42,19 +43,31 @@ export async function bookMakeup(classId: string) {
   redirect("/family/makeups?booked=1");
 }
 
-export async function markAttendance(childSlug: string, status: "present" | "absent") {
+// Attendance is demo until M3, and only for the demo's Wednesday class. The
+// child must be in it, which is checked with the instructor's own access:
+// row level security only shows them children they teach.
+export async function markAttendance(childId: string, status: "present" | "absent") {
   await requireDemoStaff("instructor");
-  if (!isRosterChild(childSlug)) return;
+  if (!z.uuid().safeParse(childId).success) return;
+  const db = await createClient();
+  const { data } = await db
+    .from("enrolments")
+    .select("id")
+    .eq("child_id", childId)
+    .eq("class_id", PRIMARY_CLASS_ID)
+    .eq("status", "active")
+    .maybeSingle();
+  if (!data) return;
   const state = await readDemoState();
-  await writeDemoState({ ...state, attendance: { ...state.attendance, [childSlug]: status } });
+  await writeDemoState({ ...state, attendance: { ...state.attendance, [childId]: status } });
   revalidatePath("/", "layout");
 }
 
 const skillStatus = z.enum(["not_started", "developing", "achieved"]);
 
-export async function saveSkills(childSlug: string, formData: FormData) {
+export async function saveSkills(childId: string, formData: FormData) {
   await requireDemoStaff("instructor");
-  if (childSlug !== "ava") redirect("/instructor");
+  if (childId !== AVA_ID) redirect("/instructor");
   const state = await readDemoState();
   const skills = { ...state.skills };
   for (const skill of LEVEL_SKILLS) {
@@ -63,7 +76,7 @@ export async function saveSkills(childSlug: string, formData: FormData) {
   }
   await writeDemoState({ ...state, skills });
   revalidatePath("/", "layout");
-  redirect(`/instructor/child/${childSlug}?saved=1`);
+  redirect("/instructor/child/ava?saved=1");
 }
 
 export async function offerSpot(candidateId: string) {

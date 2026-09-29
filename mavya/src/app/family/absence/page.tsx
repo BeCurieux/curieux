@@ -8,12 +8,12 @@ import { Label } from "@/components/ui/label";
 import { reportAbsence } from "@/lib/demo/actions";
 import { familyContext } from "@/lib/demo/context";
 import { MAKEUP_RULE, ORGANISATION } from "@/lib/demo/data";
-import { findChild } from "@/lib/demo/service";
+import { findFamilyChild } from "@/lib/demo/family";
 
 export const metadata: Metadata = { title: "Can't make it" };
 
 export default async function AbsencePage() {
-  const { state, demo } = await familyContext();
+  const { state, db, demo } = await familyContext();
   if (!demo) {
     return (
       <EmptyState icon={<CalendarX2 />} title="No classes to miss">
@@ -22,7 +22,8 @@ export default async function AbsencePage() {
     );
   }
 
-  const ava = findChild("ava", state)!;
+  const ava = (await findFamilyChild(db, state, "ava"))!;
+  const klass = ava.primary!;
   if (ava.away) redirect("/family/makeups");
 
   return (
@@ -43,9 +44,9 @@ export default async function AbsencePage() {
               A
             </span>
             <div className="flex-1">
-              <p className="text-lg font-semibold">Ava · Swimming, {ava.level}</p>
+              <p className="text-lg font-semibold">Ava · Swimming, {klass.level}</p>
               <p className="text-muted">
-                {ava.schedule.day} {ava.schedule.time} · with {ORGANISATION.instructor}
+                {klass.day} {klass.time} · with {ORGANISATION.instructor}
               </p>
             </div>
             <Check aria-hidden className="size-6" />

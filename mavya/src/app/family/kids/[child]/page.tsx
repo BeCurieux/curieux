@@ -7,15 +7,16 @@ import { ProgressRing } from "@/components/demo/progress-ring";
 import { SkillBadge } from "@/components/demo/skill-badge";
 import { Button } from "@/components/ui/button";
 import { familyContext } from "@/lib/demo/context";
-import { ORGANISATION } from "@/lib/demo/data";
-import { findChild } from "@/lib/demo/service";
+import { PRIMARY_CLASS_ID } from "@/lib/demo/data";
+import { findFamilyChild } from "@/lib/demo/family";
+import { EMPTY_STATE } from "@/lib/demo/state-schema";
 
 export const metadata: Metadata = { title: "Progress" };
 
 export default async function ChildPage({ params }: { params: Promise<{ child: string }> }) {
   const { child: slug } = await params;
-  const { state, demo } = await familyContext();
-  const child = demo ? findChild(slug, state) : null;
+  const { state, db, demo } = await familyContext();
+  const child = await findFamilyChild(db, demo ? state : EMPTY_STATE, slug);
   if (!child) notFound();
 
   return (
@@ -39,7 +40,8 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
         <div>
           <h1 className="font-display text-4xl font-semibold tracking-tight">{child.firstName}</h1>
           <p className="text-lg font-semibold">
-            {child.level} · {ORGANISATION.name}
+            {child.primary ? `${child.primary.level} · ` : ""}
+            {child.organisation}
           </p>
         </div>
         {child.skillList ? (
@@ -69,8 +71,8 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
         </section>
       ) : (
         <p className="rounded-lg bg-surface p-5 text-muted shadow-[0_1px_0_var(--border)]">
-          {child.firstName}&apos;s skills will show here once his instructor starts assessing{" "}
-          {child.level}.
+          {child.firstName}&apos;s skills will show here once their instructor starts assessing
+          them.
         </p>
       )}
 
@@ -90,16 +92,20 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
             <p className="text-lg font-semibold">
               {child.makeup
                 ? `${child.makeup.day} ${child.makeup.time} (make-up)`
-                : `${child.schedule.day} ${child.schedule.time}`}
+                : child.primary
+                  ? `${child.primary.day} ${child.primary.time}`
+                  : "Not in a class yet"}
             </p>
             <p className="text-muted">
               {child.away && !child.makeup
                 ? "Away this Wednesday · make-up credit ready"
-                : `${child.level} · ${ORGANISATION.name}`}
+                : child.primary
+                  ? `${child.primary.level} · ${child.primary.location}`
+                  : child.organisation}
             </p>
           </div>
         </div>
-        {child.classId && !child.away ? (
+        {demo && child.primary?.id === PRIMARY_CLASS_ID && !child.away ? (
           <Button asChild variant="soft" size="lg">
             <Link href="/family/absence">Report absence</Link>
           </Button>

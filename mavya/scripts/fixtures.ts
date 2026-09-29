@@ -479,7 +479,13 @@ export function seedRows() {
   rows.push({
     table: "families",
     conflict: "id",
-    rows: ALL_FAMILIES.map(({ children: _children, ...f }) => ({ ...f })),
+    rows: ALL_FAMILIES.map((f) => ({
+      id: f.id,
+      organisation_id: f.organisation_id,
+      display_name: f.display_name,
+      primary_contact_name: f.primary_contact_name,
+      primary_contact_email: f.primary_contact_email,
+    })),
   });
   rows.push({
     table: "children",

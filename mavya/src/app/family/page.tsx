@@ -6,18 +6,22 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { ProgressRing } from "@/components/demo/progress-ring";
 import { Button } from "@/components/ui/button";
 import { firstName, familyContext } from "@/lib/demo/context";
-import { FAMILY, MESSAGES, ORGANISATION } from "@/lib/demo/data";
-import { familyChildren } from "@/lib/demo/service";
+import { MESSAGES, PRIMARY_CLASS_ID } from "@/lib/demo/data";
+import { familyChildren } from "@/lib/demo/family";
+import { EMPTY_STATE } from "@/lib/demo/state-schema";
 
 export const metadata: Metadata = { title: "Home" };
 
 export default async function FamilyHome() {
-  const { viewer, state, demo } = await familyContext();
+  const { viewer, state, db, demo } = await familyContext();
+  const children = await familyChildren(db, demo ? state : EMPTY_STATE);
+  const familyName = viewer.families.map((f) => f.displayName).join(" · ");
+  const passes = children.flatMap((child) => child.classes.map((klass) => ({ child, klass })));
 
-  if (!demo) {
+  if (passes.length === 0) {
     return (
       <>
-        <Greeting name={viewer.name} family={viewer.families[0]?.displayName ?? ""} />
+        <Greeting name={viewer.name} family={familyName} />
         <EmptyState icon={<CalendarCheck2 />} title="Nothing on this week">
           When your activity provider adds your classes, your week will show up here.
         </EmptyState>
@@ -25,83 +29,85 @@ export default async function FamilyHome() {
     );
   }
 
-  const [ava, leo] = familyChildren(state);
+  const ava = demo ? children.find((c) => c.skillList) : undefined;
+  const nextSkill = ava?.skillList?.find((s) => s.status !== "achieved");
   const latest = MESSAGES[0]!.messages[0]!;
-  const nextSkill = ava!.skillList!.find((s) => s.status !== "achieved");
 
   return (
     <div className="rise flex flex-col gap-6">
-      <Greeting name={viewer.name} family={FAMILY.name} />
+      <Greeting name={viewer.name} family={familyName} />
 
       <section aria-labelledby="this-week" className="flex flex-col gap-4">
         <h2 id="this-week" className="font-display text-xl font-semibold">
           This week
         </h2>
-        <Link href="/family/kids/ava" className="rounded-lg focus-visible:outline-offset-4">
-          <ActivityPass
-            colour={ava!.colour}
-            provider={ORGANISATION.name}
-            activity="Swimming"
-            level={ava!.level}
-            child={ava!.firstName}
-            when={`${ava!.schedule.day} · ${ava!.schedule.time}`}
-            status={
-              ava!.away ? (
-                <span className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-white">
-                  Away
-                </span>
-              ) : null
-            }
-          />
-        </Link>
-        <Link href="/family/kids/leo" className="rounded-lg focus-visible:outline-offset-4">
-          <ActivityPass
-            colour={leo!.colour}
-            provider={ORGANISATION.name}
-            activity="Swimming"
-            level={leo!.level}
-            child={leo!.firstName}
-            when={`${leo!.schedule.day} · ${leo!.schedule.time}`}
-          />
-        </Link>
+        {passes.map(({ child, klass }) => (
+          <Link
+            key={`${child.id}-${klass.id}`}
+            href={`/family/kids/${child.slug}`}
+            className="rounded-lg focus-visible:outline-offset-4"
+          >
+            <ActivityPass
+              colour={child.colour}
+              provider={child.organisation}
+              activity={klass.program === "Learn to Swim" ? "Swimming" : klass.program}
+              level={klass.level}
+              child={child.firstName}
+              when={`${klass.day} · ${klass.time}`}
+              status={
+                child.away && klass.id === PRIMARY_CLASS_ID ? (
+                  <span className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-white">
+                    Away
+                  </span>
+                ) : null
+              }
+            />
+          </Link>
+        ))}
       </section>
 
-      <ActionCard
-        state={ava!.makeup ? "booked" : ava!.away ? "credit" : "ask"}
-        makeupWhen={ava!.makeup ? `${ava!.makeup.day} ${ava!.makeup.time}` : null}
-      />
+      {ava ? (
+        <>
+          <ActionCard
+            state={ava.makeup ? "booked" : ava.away ? "credit" : "ask"}
+            makeupWhen={ava.makeup ? `${ava.makeup.day} ${ava.makeup.time}` : null}
+          />
 
-      <Link
-        href="/family/kids/ava"
-        className="flex items-center gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
-      >
-        <ProgressRing
-          value={ava!.progress!}
-          size={76}
-          stroke={9}
-          className="shrink-0 text-cobalt [&_span]:text-lg"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-muted">Next milestone</p>
-          <p className="text-lg leading-snug font-semibold">
-            {nextSkill ? `Ava is working on ${nextSkill.name}` : "Ava has every Dolphin 3 skill!"}
-          </p>
-        </div>
-        <ArrowRight aria-hidden className="size-5 shrink-0 text-muted" />
-      </Link>
+          <Link
+            href={`/family/kids/${ava.slug}`}
+            className="flex items-center gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
+          >
+            <ProgressRing
+              value={ava.progress!}
+              size={76}
+              stroke={9}
+              className="shrink-0 text-cobalt [&_span]:text-lg"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-muted">Next milestone</p>
+              <p className="text-lg leading-snug font-semibold">
+                {nextSkill
+                  ? `${ava.firstName} is working on ${nextSkill.name}`
+                  : `${ava.firstName} has every skill!`}
+              </p>
+            </div>
+            <ArrowRight aria-hidden className="size-5 shrink-0 text-muted" />
+          </Link>
 
-      <Link
-        href="/family/messages"
-        className="flex items-start gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
-      >
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-butter [&_svg]:size-5">
-          <MessageCircle aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-muted">{latest.from}</p>
-          <p className="font-semibold">{latest.title}</p>
-        </div>
-      </Link>
+          <Link
+            href="/family/messages"
+            className="flex items-start gap-4 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)] transition hover:bg-white/70"
+          >
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-butter [&_svg]:size-5">
+              <MessageCircle aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted">{latest.from}</p>
+              <p className="font-semibold">{latest.title}</p>
+            </div>
+          </Link>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -7,27 +7,52 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext, firstName } from "@/lib/demo/context";
 import { ORGANISATION } from "@/lib/demo/data";
-import { allClasses, classSlug, dashboard } from "@/lib/demo/service";
+import { classSlug, dashboard, withDemo, type ClassView } from "@/lib/demo/service";
+import { listClasses } from "@/lib/domain/timetable";
 
 export const metadata: Metadata = { title: "Today" };
 
 export default async function BusinessHome() {
-  const { viewer, state, demo } = await businessContext();
-  const orgName = viewer.staff.find((s) => s.role === "owner")?.organisationName ?? "";
+  const { viewer, db, organisationName, state, demo } = await businessContext();
+  const real = await listClasses(db, { activeOnly: true });
 
   if (!demo) {
+    const enrolled = real.reduce((sum, c) => sum + c.enrolled, 0);
+    const places = real.reduce((sum, c) => sum + c.capacity, 0);
     return (
-      <>
-        <Heading name={viewer.name} org={orgName} />
-        <EmptyState icon={<Store />} title="Your timetable is empty">
-          Add your classes and families, and today&apos;s numbers will show up here.
-        </EmptyState>
-      </>
+      <div className="rise flex flex-col gap-8">
+        <Heading name={viewer.name} org={organisationName} />
+        {real.length === 0 ? (
+          <EmptyState icon={<Store />} title="Your timetable is empty">
+            <Link href="/business/classes/new" className="font-semibold text-ink underline">
+              Create your first class
+            </Link>{" "}
+            and today&apos;s numbers will show up here.
+          </EmptyState>
+        ) : (
+          <>
+            <dl className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              <Stat label="Classes each week" value={real.length} />
+              <Stat label="Children enrolled" value={enrolled} />
+              <Stat
+                label="Places filled"
+                value={places ? Math.round((enrolled / places) * 100) : 0}
+                suffix="%"
+              />
+            </dl>
+            <ClassCards
+              classes={real.map((c) =>
+                withDemo(c, { ...state, absence: null, makeupClassId: null }),
+              )}
+            />
+          </>
+        )}
+      </div>
     );
   }
 
-  const stats = dashboard(state);
-  const classes = allClasses(state);
+  const classes = real.map((c) => withDemo(c, state));
+  const stats = dashboard(classes, state);
   const spots = stats.temporaryVacancies;
 
   return (
@@ -70,48 +95,55 @@ export default async function BusinessHome() {
         </dl>
       </section>
 
-      <section aria-labelledby="classes" className="flex flex-col gap-3">
-        <div className="flex items-baseline justify-between">
-          <h2 id="classes" className="font-display text-2xl font-semibold tracking-tight">
-            Dolphin 3 this week
-          </h2>
-          <Link href="/business/classes" className="font-semibold text-muted hover:text-ink">
-            All classes
-          </Link>
-        </div>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {classes.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={`/business/classes/${classSlug(c)}`}
-                className="flex h-full flex-col gap-3 rounded-md border border-line bg-surface p-4 transition hover:border-ink"
-              >
-                <div className="flex items-baseline justify-between">
-                  <p className="font-display text-lg font-semibold">
-                    {c.shortDay} {c.time}
-                  </p>
-                  <ArrowRight aria-hidden className="size-4 text-muted" />
-                </div>
-                <OccupancyBar
-                  expected={c.expected}
-                  vacancies={c.temporaryVacancies}
-                  capacity={c.capacity}
-                />
-                <p className="tabular text-sm text-muted">
-                  {c.expected}/{c.capacity} expected
-                  {c.temporaryVacancies > 0 ? (
-                    <span className="font-semibold text-[#b4503d]">
-                      {" "}
-                      · {c.temporaryVacancies} to fill
-                    </span>
-                  ) : null}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <ClassCards classes={classes} />
     </div>
+  );
+}
+
+function ClassCards({ classes }: { classes: ClassView[] }) {
+  return (
+    <section aria-labelledby="classes" className="flex flex-col gap-3">
+      <div className="flex items-baseline justify-between">
+        <h2 id="classes" className="font-display text-2xl font-semibold tracking-tight">
+          This week&apos;s classes
+        </h2>
+        <Link href="/business/classes" className="font-semibold text-muted hover:text-ink">
+          All classes
+        </Link>
+      </div>
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {classes.map((c) => (
+          <li key={c.id}>
+            <Link
+              href={`/business/classes/${classSlug(c.id)}`}
+              className="flex h-full flex-col gap-3 rounded-md border border-line bg-surface p-4 transition hover:border-ink"
+            >
+              <div className="flex items-baseline justify-between">
+                <p className="font-display text-lg font-semibold">
+                  {c.shortDay} {c.time}
+                  <span className="block text-sm font-semibold text-muted">{c.name}</span>
+                </p>
+                <ArrowRight aria-hidden className="size-4 text-muted" />
+              </div>
+              <OccupancyBar
+                expected={c.expected}
+                vacancies={c.temporaryVacancies}
+                capacity={c.capacity}
+              />
+              <p className="tabular text-sm text-muted">
+                {c.expected}/{c.capacity} expected
+                {c.temporaryVacancies > 0 ? (
+                  <span className="font-semibold text-[#b4503d]">
+                    {" "}
+                    · {c.temporaryVacancies} to fill
+                  </span>
+                ) : null}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

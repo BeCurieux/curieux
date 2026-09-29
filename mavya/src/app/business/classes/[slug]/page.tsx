@@ -1,25 +1,37 @@
+import { CalendarDays, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EnrolForm } from "@/components/business/enrol-form";
 import { OccupancyBar } from "@/components/business/occupancy-bar";
 import { Stat } from "@/components/business/stat";
 import { BackLink } from "@/components/demo/back-link";
 import { Button } from "@/components/ui/button";
+import { endEnrolment } from "@/lib/business/actions";
 import { businessContext } from "@/lib/demo/context";
-import { PRIMARY_CLASS_ID } from "@/lib/demo/data";
-import { candidatesFor, findClassBySlug, roster } from "@/lib/demo/service";
+import { candidatesFor, resolveClassId, rosterStatus, withDemo } from "@/lib/demo/service";
+import { classRoster } from "@/lib/domain/enrolments";
+import { childrenNotInClass } from "@/lib/domain/families";
+import { getClass, upcomingLessons } from "@/lib/domain/timetable";
+import { formatLessonDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Class" };
 
 export default async function ClassPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { state, demo } = await businessContext();
-  const c = demo ? findClassBySlug(slug, state) : null;
-  if (!c) notFound();
+  const { db, organisationId, state, demo } = await businessContext();
+  const real = await getClass(db, resolveClassId(slug));
+  if (!real) notFound();
 
-  const candidates = candidatesFor(c.id, state);
-  const children = c.id === PRIMARY_CLASS_ID ? roster(state) : null;
+  const c = withDemo(real, demo ? state : { ...state, absence: null, makeupClassId: null });
+  const [roster, lessons, available] = await Promise.all([
+    classRoster(db, c.id),
+    upcomingLessons(db, c.id),
+    childrenNotInClass(db, organisationId, c.id),
+  ]);
+  const candidates = demo ? candidatesFor(c.id, state) : [];
+  const full = c.enrolled >= c.capacity;
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -27,17 +39,26 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-semibold text-muted">
-            Upcoming · {c.day} {c.time} · {c.instructor}
+            {c.day} {c.time} · {c.location} · {c.level}
+            {c.active ? "" : " · Not running"}
           </p>
-          <h1 className="font-display text-4xl font-semibold tracking-tight">{c.level}</h1>
+          <h1 className="font-display text-4xl font-semibold tracking-tight">{c.name}</h1>
         </div>
-        {c.temporaryVacancies > 0 ? (
-          <Button asChild variant="warm">
-            <Link href="/business/fill">
-              Fill {c.temporaryVacancies} open {c.temporaryVacancies === 1 ? "spot" : "spots"}
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="soft">
+            <Link href={`/business/classes/${c.id}/edit`}>
+              <Pencil aria-hidden />
+              Edit class
             </Link>
           </Button>
-        ) : null}
+          {c.temporaryVacancies > 0 ? (
+            <Button asChild variant="warm">
+              <Link href="/business/fill">
+                Fill {c.temporaryVacancies} open {c.temporaryVacancies === 1 ? "spot" : "spots"}
+              </Link>
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <section
@@ -64,36 +85,115 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
         </dl>
       </section>
 
-      {children ? (
+      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <section aria-labelledby="roster" className="flex flex-col gap-3">
           <h2 id="roster" className="font-display text-2xl font-semibold tracking-tight">
             Roster
           </h2>
-          <ul className="grid overflow-hidden rounded-lg border border-line bg-surface sm:grid-cols-2">
-            {children.map((child) => (
-              <li
-                key={child.slug}
-                className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 sm:odd:border-r"
-              >
-                <div>
-                  <p className="font-semibold">{child.name}</p>
-                  <p className="text-sm text-muted">{child.family} family</p>
-                </div>
-                <span
-                  className={cn(
-                    "rounded-full px-3 py-1 text-sm font-semibold",
-                    child.reportedAway
-                      ? "bg-[#fff0ec] text-[#b4503d]"
-                      : "bg-surface-soft text-muted",
-                  )}
-                >
-                  {child.reportedAway ? "Reported away" : "Expected"}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {roster.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-line bg-surface p-5 text-muted">
+              No one enrolled yet.
+            </p>
+          ) : (
+            <ul className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
+              {roster.map((child) => {
+                const { reportedAway } = rosterStatus(
+                  child.childId,
+                  c.id,
+                  demo ? state : { ...state, absence: null },
+                );
+                return (
+                  <li
+                    key={child.enrolmentId}
+                    className="flex items-center justify-between gap-3 border-b border-line px-5 py-3 last:border-b-0"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        {child.firstName} {child.lastName}
+                      </p>
+                      <p className="text-sm text-muted">{child.family}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "rounded-full px-3 py-1 text-sm font-semibold",
+                          reportedAway
+                            ? "bg-[#fff0ec] text-[#b4503d]"
+                            : "bg-surface-soft text-muted",
+                        )}
+                      >
+                        {reportedAway ? "Reported away" : "Expected"}
+                      </span>
+                      <form action={endEnrolment.bind(null, child.enrolmentId)}>
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          size="sm"
+                          aria-label={`Remove ${child.firstName} ${child.lastName} from ${c.name}`}
+                        >
+                          Remove
+                        </Button>
+                      </form>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
-      ) : null}
+
+        <div className="flex flex-col gap-6">
+          <section aria-labelledby="enrol" className="rounded-lg border border-line bg-surface p-5">
+            <h2 id="enrol" className="sr-only">
+              Enrol a child
+            </h2>
+            {!c.active ? (
+              <p className="text-muted">
+                This class isn&apos;t running, so no one can be enrolled.
+              </p>
+            ) : full ? (
+              <p className="font-semibold">This class is full.</p>
+            ) : available.length === 0 ? (
+              <p className="text-muted">
+                Every child is already in this class.{" "}
+                <Link href="/business/families/new" className="font-semibold text-ink underline">
+                  Add a family
+                </Link>{" "}
+                to enrol someone new.
+              </p>
+            ) : (
+              <EnrolForm classId={c.id} options={available} />
+            )}
+          </section>
+
+          <section aria-labelledby="lessons" className="flex flex-col gap-3">
+            <h2
+              id="lessons"
+              className="inline-flex items-center gap-2 font-display text-xl font-semibold"
+            >
+              <CalendarDays aria-hidden className="size-5" />
+              Upcoming lessons
+            </h2>
+            {lessons.length === 0 ? (
+              <p className="text-muted">None scheduled.</p>
+            ) : (
+              <ol className="grid grid-cols-2 gap-2">
+                {lessons.map((l) => (
+                  <li
+                    key={l.id}
+                    className={cn(
+                      "tabular rounded-md border border-line bg-surface px-3 py-2 text-sm font-semibold",
+                      l.status === "cancelled" && "text-muted line-through",
+                    )}
+                  >
+                    {formatLessonDate(l.startsAt, c.timezone)}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

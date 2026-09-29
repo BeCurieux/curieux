@@ -4,7 +4,9 @@ import Link from "next/link";
 import { CHILD_FILL } from "@/components/demo/activity-pass";
 import { EmptyState } from "@/components/demo/empty-state";
 import { familyContext } from "@/lib/demo/context";
-import { familyChildren } from "@/lib/demo/service";
+import { PRIMARY_CLASS_ID } from "@/lib/demo/data";
+import { familyChildren } from "@/lib/demo/family";
+import { EMPTY_STATE } from "@/lib/demo/state-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Calendar" };
@@ -22,9 +24,10 @@ type Entry = {
 };
 
 export default async function CalendarPage() {
-  const { state, demo } = await familyContext();
+  const { state, db, demo } = await familyContext();
+  const children = await familyChildren(db, demo ? state : EMPTY_STATE);
 
-  if (!demo) {
+  if (children.every((c) => c.classes.length === 0)) {
     return (
       <div className="flex flex-col gap-6">
         <h1 className="font-display text-4xl font-semibold tracking-tight">This week</h1>
@@ -37,15 +40,17 @@ export default async function CalendarPage() {
 
   const entries = new Map<string, Entry[]>();
   const add = (day: string, entry: Entry) => entries.set(day, [...(entries.get(day) ?? []), entry]);
-  for (const child of familyChildren(state)) {
-    add(child.schedule.day, {
-      child: child.firstName,
-      slug: child.slug,
-      time: child.schedule.time,
-      label: `Swimming · ${child.level}`,
-      colour: child.colour,
-      away: child.away,
-    });
+  for (const child of children) {
+    for (const klass of child.classes) {
+      add(klass.day, {
+        child: child.firstName,
+        slug: child.slug,
+        time: klass.time,
+        label: `${klass.program === "Learn to Swim" ? "Swimming" : klass.program} · ${klass.level}`,
+        colour: child.colour,
+        away: child.away && klass.id === PRIMARY_CLASS_ID,
+      });
+    }
     if (child.makeup) {
       add(child.makeup.day, {
         child: child.firstName,
