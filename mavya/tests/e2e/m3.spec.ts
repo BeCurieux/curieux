@@ -85,6 +85,9 @@ test.describe("shared devices", () => {
   }) => {
     await signIn(page, USERS.aquaInstructor.email);
     await expect(page).toHaveURL(/\/instructor$/);
+    // Leave the app first, so a late prefetch from it can't refresh the
+    // cookie after it has been backdated.
+    await page.goto("about:blank");
     await context.addCookies([
       {
         name: "ovyko_seen",
@@ -112,6 +115,8 @@ test.describe("shared devices", () => {
 
   test("a parent isn't signed out for being idle", async ({ page, context, baseURL }) => {
     await signIn(page, USERS.chenParent.email);
+    await expect(page).toHaveURL(/\/family$/);
+    await page.goto("about:blank");
     await context.addCookies([
       { name: "ovyko_seen", value: String(Date.now() - 31 * 60 * 1000), url: baseURL! },
     ]);
