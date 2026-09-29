@@ -47,7 +47,10 @@ test("the instructor's attendance shows on the owner's class page", async ({ bro
   await signIn(instructor, USERS.aquaInstructor.email);
   await instructor.getByRole("link", { name: "Dolphin 1, Tuesday 5:00pm" }).click();
   await expect(instructor.getByText(/^Lesson /)).toBeVisible();
+  // Wait for the save itself, not just the button's instant feedback.
+  const saved = instructor.waitForResponse((r) => r.request().method() === "POST" && r.ok());
   await instructor.getByRole("button", { name: "Mark Arjun Patel here" }).click();
+  await saved;
   await expect(instructor.getByRole("button", { name: "Mark Arjun Patel here" })).toHaveAttribute(
     "aria-pressed",
     "true",
@@ -85,6 +88,9 @@ test.describe("shared devices", () => {
   }) => {
     await signIn(page, USERS.aquaInstructor.email);
     await expect(page).toHaveURL(/\/instructor$/);
+    // Leave the app first, so a late prefetch from it can't refresh the
+    // cookie after it has been backdated.
+    await page.goto("about:blank");
     await context.addCookies([
       {
         name: "ovyko_seen",
@@ -112,6 +118,8 @@ test.describe("shared devices", () => {
 
   test("a parent isn't signed out for being idle", async ({ page, context, baseURL }) => {
     await signIn(page, USERS.chenParent.email);
+    await expect(page).toHaveURL(/\/family$/);
+    await page.goto("about:blank");
     await context.addCookies([
       { name: "ovyko_seen", value: String(Date.now() - 31 * 60 * 1000), url: baseURL! },
     ]);
