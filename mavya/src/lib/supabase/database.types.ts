@@ -3,6 +3,57 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      audit_events: {
+        Row: {
+          action: string;
+          actor_user_id: string | null;
+          after_json: Json | null;
+          before_json: Json | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string;
+          id: string;
+          organisation_id: string | null;
+        };
+        Insert: {
+          action: string;
+          actor_user_id?: string | null;
+          after_json?: Json | null;
+          before_json?: Json | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type: string;
+          id?: string;
+          organisation_id?: string | null;
+        };
+        Update: {
+          action?: string;
+          actor_user_id?: string | null;
+          after_json?: Json | null;
+          before_json?: Json | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: string;
+          organisation_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_actor_user_id_fkey";
+            columns: ["actor_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "audit_events_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       children: {
         Row: {
           active: boolean;
@@ -12,6 +63,7 @@ export type Database = {
           first_name: string;
           id: string;
           last_name: string;
+          organisation_id: string;
         };
         Insert: {
           active?: boolean;
@@ -21,6 +73,7 @@ export type Database = {
           first_name: string;
           id?: string;
           last_name: string;
+          organisation_id: string;
         };
         Update: {
           active?: boolean;
@@ -30,14 +83,189 @@ export type Database = {
           first_name?: string;
           id?: string;
           last_name?: string;
+          organisation_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "children_family_id_fkey";
-            columns: ["family_id"];
+            foreignKeyName: "children_family_fkey";
+            columns: ["organisation_id", "family_id"];
             isOneToOne: false;
             referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      class_occurrences: {
+        Row: {
+          capacity_override: number | null;
+          class_id: string;
+          created_at: string;
+          ends_at: string;
+          id: string;
+          organisation_id: string;
+          starts_at: string;
+          status: string;
+        };
+        Insert: {
+          capacity_override?: number | null;
+          class_id: string;
+          created_at?: string;
+          ends_at: string;
+          id?: string;
+          organisation_id: string;
+          starts_at: string;
+          status?: string;
+        };
+        Update: {
+          capacity_override?: number | null;
+          class_id?: string;
+          created_at?: string;
+          ends_at?: string;
+          id?: string;
+          organisation_id?: string;
+          starts_at?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "class_occurrences_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      classes: {
+        Row: {
+          active: boolean;
+          capacity: number;
+          duration_minutes: number;
+          id: string;
+          instructor_id: string | null;
+          level_id: string;
+          location_id: string;
+          name: string;
+          organisation_id: string;
+          program_id: string;
+          start_time: string;
+          weekday: number;
+        };
+        Insert: {
+          active?: boolean;
+          capacity: number;
+          duration_minutes: number;
+          id?: string;
+          instructor_id?: string | null;
+          level_id: string;
+          location_id: string;
+          name: string;
+          organisation_id: string;
+          program_id: string;
+          start_time: string;
+          weekday: number;
+        };
+        Update: {
+          active?: boolean;
+          capacity?: number;
+          duration_minutes?: number;
+          id?: string;
+          instructor_id?: string | null;
+          level_id?: string;
+          location_id?: string;
+          name?: string;
+          organisation_id?: string;
+          program_id?: string;
+          start_time?: string;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "classes_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "classes_organisation_id_instructor_id_fkey";
+            columns: ["organisation_id", "instructor_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_memberships";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "classes_organisation_id_level_id_fkey";
+            columns: ["organisation_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "classes_organisation_id_location_id_fkey";
+            columns: ["organisation_id", "location_id"];
+            isOneToOne: false;
+            referencedRelation: "locations";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "classes_organisation_id_program_id_fkey";
+            columns: ["organisation_id", "program_id"];
+            isOneToOne: false;
+            referencedRelation: "programs";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "classes_program_id_level_id_fkey";
+            columns: ["program_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["program_id", "id"];
+          },
+        ];
+      };
+      enrolments: {
+        Row: {
+          child_id: string;
+          class_id: string;
+          ends_at: string | null;
+          id: string;
+          organisation_id: string;
+          starts_at: string;
+          status: string;
+        };
+        Insert: {
+          child_id: string;
+          class_id: string;
+          ends_at?: string | null;
+          id?: string;
+          organisation_id: string;
+          starts_at?: string;
+          status?: string;
+        };
+        Update: {
+          child_id?: string;
+          class_id?: string;
+          ends_at?: string | null;
+          id?: string;
+          organisation_id?: string;
+          starts_at?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "enrolments_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "enrolments_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
           },
         ];
       };
@@ -46,18 +274,38 @@ export type Database = {
           created_at: string;
           display_name: string;
           id: string;
+          organisation_id: string;
+          primary_contact_email: string | null;
+          primary_contact_name: string | null;
+          primary_contact_phone: string | null;
         };
         Insert: {
           created_at?: string;
           display_name: string;
           id?: string;
+          organisation_id: string;
+          primary_contact_email?: string | null;
+          primary_contact_name?: string | null;
+          primary_contact_phone?: string | null;
         };
         Update: {
           created_at?: string;
           display_name?: string;
           id?: string;
+          organisation_id?: string;
+          primary_contact_email?: string | null;
+          primary_contact_name?: string | null;
+          primary_contact_phone?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "families_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       family_members: {
         Row: {
@@ -98,6 +346,85 @@ export type Database = {
           },
         ];
       };
+      levels: {
+        Row: {
+          active: boolean;
+          id: string;
+          name: string;
+          organisation_id: string;
+          program_id: string;
+          sort_order: number;
+        };
+        Insert: {
+          active?: boolean;
+          id?: string;
+          name: string;
+          organisation_id: string;
+          program_id: string;
+          sort_order?: number;
+        };
+        Update: {
+          active?: boolean;
+          id?: string;
+          name?: string;
+          organisation_id?: string;
+          program_id?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "levels_organisation_id_program_id_fkey";
+            columns: ["organisation_id", "program_id"];
+            isOneToOne: false;
+            referencedRelation: "programs";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      locations: {
+        Row: {
+          active: boolean;
+          address_line1: string | null;
+          id: string;
+          name: string;
+          organisation_id: string;
+          postcode: string | null;
+          state: string | null;
+          suburb: string | null;
+          timezone: string;
+        };
+        Insert: {
+          active?: boolean;
+          address_line1?: string | null;
+          id?: string;
+          name: string;
+          organisation_id: string;
+          postcode?: string | null;
+          state?: string | null;
+          suburb?: string | null;
+          timezone?: string;
+        };
+        Update: {
+          active?: boolean;
+          address_line1?: string | null;
+          id?: string;
+          name?: string;
+          organisation_id?: string;
+          postcode?: string | null;
+          state?: string | null;
+          suburb?: string | null;
+          timezone?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "locations_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organisations: {
         Row: {
           activity_type: string;
@@ -127,6 +454,38 @@ export type Database = {
           timezone?: string;
         };
         Relationships: [];
+      };
+      programs: {
+        Row: {
+          active: boolean;
+          id: string;
+          name: string;
+          organisation_id: string;
+          type: string;
+        };
+        Insert: {
+          active?: boolean;
+          id?: string;
+          name: string;
+          organisation_id: string;
+          type?: string;
+        };
+        Update: {
+          active?: boolean;
+          id?: string;
+          name?: string;
+          organisation_id?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "programs_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       staff_memberships: {
         Row: {
