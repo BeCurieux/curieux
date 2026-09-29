@@ -1,4 +1,4 @@
-# MAVYA v0.1 — Rules Engine
+# OVIKO v0.1 — Rules Engine
 
 ## Purpose
 

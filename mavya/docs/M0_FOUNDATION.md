@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create the secure technical foundation for Mavya without building product workflows.
+Create the secure technical foundation for Oviko without building product workflows.
 
 ## Deliverables
 

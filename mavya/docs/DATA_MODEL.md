@@ -1,4 +1,4 @@
-# MAVYA v0.1 — Data Model
+# OVIKO v0.1 — Data Model
 
 ## Core entities
 

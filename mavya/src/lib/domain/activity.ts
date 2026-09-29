@@ -76,7 +76,7 @@ export async function recentActivity(
   return rows.map((r) => ({
     id: r.id,
     when: r.created_at,
-    who: r.actor_user_id ? (names.get(r.actor_user_id) ?? "A former staff member") : "Mavya setup",
+    who: r.actor_user_id ? (names.get(r.actor_user_id) ?? "A former staff member") : "Oviko setup",
     what: describe(r),
   }));
 }

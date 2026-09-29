@@ -1,6 +1,6 @@
 // What analytics is allowed to see.
 //
-// Mavya holds children's data, so analytics works from an allowlist rather
+// Oviko holds children's data, so analytics works from an allowlist rather
 // than a blocklist: every event is declared here with the only properties it
 // may carry, and anything else is dropped before it leaves the browser. A
 // child's name can't leak through a property nobody thought to block.

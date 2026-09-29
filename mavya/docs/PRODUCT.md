@@ -1,10 +1,10 @@
-# MAVYA v0.1 — Product Definition
+# OVIKO v0.1 — Product Definition
 
 ## Working proposition
 
 **Everything they do, together.**
 
-Mavya connects families with businesses that run recurring children's activities.
+Oviko connects families with businesses that run recurring children's activities.
 
 ### Parent value
 
@@ -49,7 +49,7 @@ Do not optimise for soccer leagues, camps, tutoring, music schools or franchises
 1. Business creates recurring class.
 2. Family/child is enrolled.
 3. Parent reports absence.
-4. Mavya checks make-up policy.
+4. Oviko checks make-up policy.
 5. Valid make-up credit is issued.
 6. Original occurrence gains temporary capacity.
 7. Parent sees valid make-up classes.
@@ -62,7 +62,7 @@ Do not optimise for soccer leagues, camps, tutoring, music schools or franchises
 
 ### Fill Empty Spots
 
-Mavya should identify temporary vacancies and match them to eligible children with make-up credits.
+Oviko should identify temporary vacancies and match them to eligible children with make-up credits.
 
 The value proposition is not "better admin".
 

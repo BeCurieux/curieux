@@ -1,4 +1,4 @@
-# Acceptance Tests — Mavya v0.1
+# Acceptance Tests — Oviko v0.1
 
 ## M0
 

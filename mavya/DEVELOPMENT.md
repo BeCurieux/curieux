@@ -1,4 +1,8 @@
-# Running Mavya locally
+# Running Oviko locally
+
+Oviko was called Mavya until M2.5. The folder, the local Supabase
+project id and a few internal names still say `mavya`; nothing a person
+sees does.
 
 Needs Node 22 and Docker.
 
@@ -85,5 +89,5 @@ Set these in the Supabase dashboard for the cloud project (the local stack
 reads them from `supabase/config.toml`):
 
 - Authentication → Sign In / Providers: **Allow new users to sign up** off.
-  Accounts come from Mavya (the seed now, invites from M6).
+  Accounts come from Oviko (the seed now, invites from M6).
 - Authentication → Attack Protection: **Leaked password protection** on.

@@ -1,8 +1,8 @@
-# MAVYA v0.1 — Design System
+# OVIKO v0.1 — Design System
 
 ## Brand feeling
 
-Mavya should feel:
+Oviko should feel:
 
 - optimistic
 - modern

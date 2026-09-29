@@ -8,7 +8,7 @@
 //
 // Every seeded account shares one known password. That is fine on a laptop
 // and dangerous anywhere else, so a non-local URL is refused unless
-// MAVYA_ALLOW_REMOTE_SEED=1 says otherwise.
+// OVIKO_ALLOW_REMOTE_SEED=1 says otherwise.
 
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../src/lib/supabase/database.types";
@@ -33,10 +33,10 @@ const secretKey = required("SUPABASE_SECRET_KEY");
 const password = required("SEED_PASSWORD");
 
 const host = new URL(url).hostname;
-if (!["127.0.0.1", "localhost"].includes(host) && process.env.MAVYA_ALLOW_REMOTE_SEED !== "1") {
+if (!["127.0.0.1", "localhost"].includes(host) && process.env.OVIKO_ALLOW_REMOTE_SEED !== "1") {
   throw new Error(
     `Refusing to seed ${host}: seeded accounts share a known password. ` +
-      "Set MAVYA_ALLOW_REMOTE_SEED=1 if this is really a disposable project.",
+      "Set OVIKO_ALLOW_REMOTE_SEED=1 if this is really a disposable project.",
   );
 }
 

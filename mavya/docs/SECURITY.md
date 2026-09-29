@@ -1,6 +1,6 @@
-# MAVYA v0.1 — Security and Privacy Plan
+# OVIKO v0.1 — Security and Privacy Plan
 
-Mavya holds children's names, ages, schedules and, later, health and custody
+Oviko holds children's names, ages, schedules and, later, health and custody
 details. Schools will trust it only if it is safer than the spreadsheets and
 shared logins they use today. This file says what is already in place, what
 is planned and in which milestone, and the checklist every new feature must
@@ -23,9 +23,9 @@ pass.
 
 ## Where apps in this category commonly fall short
 
-Mavya should do better than the usual weaknesses of class-management software:
+Oviko should do better than the usual weaknesses of class-management software:
 
-| Common weakness | Mavya's answer |
+| Common weakness | Oviko's answer |
 | --- | --- |
 | Shared front-desk logins | Individual accounts only (in place) |
 | Former staff keep access | Immediate staff removal (M2.5) |
@@ -46,11 +46,11 @@ Mavya should do better than the usual weaknesses of class-management software:
 - **Leaked password protection.** Turn on Supabase Auth's check against known
   leaked passwords (a dashboard setting on the cloud project; see
   `DEVELOPMENT.md`).
-- **No open sign-up.** Accounts are created by Mavya, never by strangers:
+- **No open sign-up.** Accounts are created by Oviko, never by strangers:
   sign-up is off in `supabase/config.toml` and must be off on the cloud
   project too. Parents will be invited in M6.
 - **Sign-in limits.** Sign-in runs on the server, so Supabase Auth's own
-  per-address limit sees the server's address, not the person's. Mavya counts
+  per-address limit sees the server's address, not the person's. Oviko counts
   failed attempts itself: five for one email, or fifty from one address, in
   fifteen minutes pause sign-in for fifteen minutes. The answer is the same
   whether or not the email has an account, and emails are stored only as a
@@ -96,7 +96,7 @@ Mavya should do better than the usual weaknesses of class-management software:
 - **Custody and pickup restrictions.** A family can record who may not
   collect or contact a child. Instructors see a clear warning, not the court
   details.
-- **Secure import.** CSV files are uploaded straight into Mavya, checked,
+- **Secure import.** CSV files are uploaded straight into Oviko, checked,
   imported and then deleted. No spreadsheets by email.
 - **Export and deletion.** Owners can export a family's data and delete a
   family on request, as the Australian Privacy Act allows parents to ask.
@@ -115,7 +115,7 @@ Mavya should do better than the usual weaknesses of class-management software:
   instructor, with reminders to the owner before expiry.
 - **View logging.** Record who viewed a child's record, not only who changed it.
 - **Error reporting hygiene.** When Sentry and PostHog are added, strip names,
-  emails and child details before anything leaves Mavya.
+  emails and child details before anything leaves Oviko.
 
 ## Checklist for every new feature
 

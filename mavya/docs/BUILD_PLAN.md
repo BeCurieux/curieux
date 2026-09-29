@@ -1,4 +1,4 @@
-# MAVYA v0.1 — Build Plan
+# OVIKO v0.1 — Build Plan
 
 ## Principle
 
