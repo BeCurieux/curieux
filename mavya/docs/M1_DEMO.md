@@ -177,3 +177,32 @@ Do not fake interactions with dead buttons.
 6. No full M4 business rules are implemented yet.
 7. Playwright covers the primary demo path.
 8. Lighthouse accessibility is reasonable; no obvious contrast/tap-target failures.
+
+## Decisions made while building M1
+
+These resolve contradictions in the original demo data. `seed/demo-data.json`
+has been updated to match.
+
+1. **Progress is calculated, not stored.** Ava's skills (2 achieved, 2
+   developing, 1 not started) cannot add up to the original 80%. Progress is
+   now worked out from the skills: achieved counts 1, developing counts ½,
+   not started counts 0. Ava shows 60%, and 70% once Kick 10m is achieved.
+2. **Four temporary vacancies.** Thursday 4:30pm had 2, making the classes
+   total 5 against a dashboard and acceptance test of 4. Thursday now has 1.
+3. **No cross-provider activities.** Ava's Peak Gymnastics activity is
+   removed. Showing another provider's classes needs cross-provider child
+   identity, which `DATA_MODEL.md` defers, and rule 15 forbids exposing
+   children's data across organisations.
+4. **Demo data is scoped to its tenant.** Only the Aqua House staff and the
+   Burrows family see the demo. Any other organisation or family sees an
+   empty state, never another tenant's demo data.
+5. **Demo interactions are remembered per browser** in a cookie, not in the
+   database, so M1 changes no tables. The instructor's skill update shows up
+   in the parent's view in the same browser, which demonstrates the proof
+   loop without implementing M3/M4 rules.
+6. **Muted text is slightly darker.** `--text-muted` moved from `#6F7282` to
+   `#626575`. The original measured 4.4:1 against the tinted backgrounds,
+   just under the WCAG AA minimum of 4.5:1; the new value passes on every
+   background the app uses. `--success` likewise moved from `#3C9C73` to
+   `#2E7D5B`, because white text on it measured 3.4:1. `DESIGN_SYSTEM.md`
+   is updated to match.

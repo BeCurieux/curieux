@@ -13,7 +13,7 @@
   --surface: #ffffff;
   --surface-soft: #f1ecf8;
   --text: #1f2230;
-  --text-muted: #6f7282;
+  --text-muted: #626575;
   --border: #e7e2ec;
 
   --brand-lilac: #b8a7e8;
@@ -22,7 +22,7 @@
   --brand-mint: #a7d9c8;
   --brand-butter: #f3d98c;
 
-  --success: #3c9c73;
+  --success: #2e7d5b;
   --warning: #c78a2c;
   --danger: #c85a5a;
 
@@ -73,4 +73,114 @@
     outline: 3px solid var(--brand-cobalt);
     outline-offset: 2px;
   }
+}
+
+/*
+ * M1 visual layer.
+ *
+ * Passes: activity cards in the family app are styled like wallet passes,
+ * a saturated face with a faint water-line texture for swimming.
+ * Lips: primary buttons sit on a darker bottom edge and press down into it.
+ * Rise: pages reveal their sections in a short stagger on load.
+ */
+@layer components {
+  .pass {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    isolation: isolate;
+  }
+  .pass::after {
+    content: "";
+    position: absolute;
+    inset: auto -10% -30% -10%;
+    height: 55%;
+    z-index: -1;
+    opacity: 0.22;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='24' viewBox='0 0 120 24'%3E%3Cpath d='M0 12 Q15 2 30 12 T60 12 T90 12 T120 12' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: 120px 24px;
+  }
+  .pass-coral {
+    background: linear-gradient(150deg, #f7a08f 0%, var(--brand-coral) 55%, #e8715d 100%);
+  }
+  .pass-mint {
+    background: linear-gradient(150deg, #c2e8da 0%, var(--brand-mint) 55%, #86c7b1 100%);
+  }
+  .pass-butter {
+    background: linear-gradient(150deg, #f8e6ae 0%, var(--brand-butter) 60%, #e9c86a 100%);
+  }
+  .pass-lilac {
+    background: linear-gradient(150deg, #d3c8f2 0%, var(--brand-lilac) 60%, #9d89dd 100%);
+  }
+
+  .lip {
+    box-shadow: 0 4px 0 0 var(--lip, #0b0d14);
+    transition:
+      transform 80ms ease-out,
+      box-shadow 80ms ease-out,
+      background-color 120ms;
+  }
+  .lip:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 var(--lip, #0b0d14);
+  }
+
+  .rise > * {
+    animation: rise 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .rise > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .rise > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .rise > *:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .rise > *:nth-child(n + 5) {
+    animation-delay: 240ms;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise > *,
+  .animate-pop {
+    animation: none !important;
+  }
+  .lip:active {
+    transform: none;
+  }
+}
+
+.animate-pop {
+  animation: pop 480ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }

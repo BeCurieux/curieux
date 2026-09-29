@@ -1,17 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { USERS } from "../../scripts/fixtures";
+import { signIn } from "./helpers";
 
 // M0 acceptance (auth): unauthenticated users are sent to sign-in, role
 // determines the app shell, and signing out ends the session.
-
-const PASSWORD = process.env.SEED_PASSWORD ?? "";
-
-async function signIn(page: Page, email: string, password = PASSWORD) {
-  await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-}
 
 test.describe("signed out", () => {
   for (const path of ["/", "/business", "/instructor", "/family", "/family/anything"]) {
@@ -37,7 +29,8 @@ test.describe("role determines the app shell", () => {
   test("an owner lands in the business app", async ({ page }) => {
     await signIn(page, USERS.aquaOwner.email);
     await expect(page).toHaveURL(/\/business$/);
-    await expect(page.getByRole("heading", { name: "Aqua House" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hi Sarah" })).toBeVisible();
+    await expect(page.getByText("Aqua House · Mona Vale")).toBeVisible();
   });
 
   test("an instructor lands in the instructor app", async ({ page }) => {
@@ -49,8 +42,9 @@ test.describe("role determines the app shell", () => {
   test("a parent lands in the family app and sees only their own children", async ({ page }) => {
     await signIn(page, USERS.burrowsParent.email);
     await expect(page).toHaveURL(/\/family$/);
-    const kids = page.getByRole("listitem");
-    await expect(kids).toHaveText(["AAva", "LLeo"]);
+    await page.goto("/family/kids");
+    await expect(page.getByRole("link", { name: /Ava/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Leo/ })).toBeVisible();
     await expect(page.getByText("Mei")).toHaveCount(0);
   });
 
@@ -75,6 +69,7 @@ test("signing out ends the session", async ({ page, context }) => {
   await signIn(page, USERS.burrowsParent.email);
   await expect(page).toHaveURL(/\/family$/);
 
+  await page.goto("/family/account");
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
 

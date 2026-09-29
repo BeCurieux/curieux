@@ -22,6 +22,22 @@ Sign in at http://localhost:3000 with any seeded account (all share
 | `sarah.burrows@family.test`   | `/family` (Ava, Leo)                 |
 | `grace.chen@family.test`      | `/family` (Mei)                      |
 
+## The M1 demo
+
+Sign in as Sarah Burrows (parent), Sarah Morgan (owner) or Mia Chen
+(instructor) to click through the demo in `docs/M1_DEMO.md`. What you do is
+remembered in a cookie in your browser, so an instructor's skill update shows
+up for the parent in the same browser. **Account → Reset the demo** starts
+over. Other families and organisations see empty states, never the demo.
+
+To give a hosted demo project these accounts, generate SQL from the same
+fixtures and run it in that project's SQL editor. Use a fresh password, and
+only on a demo project:
+
+```sh
+DEMO_PASSWORD='choose-one' npx tsx scripts/seed-sql.ts > demo-seed.sql
+```
+
 ## Checks
 
 | Command                                                     | What it runs                                                    |
