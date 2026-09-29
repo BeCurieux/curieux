@@ -6,7 +6,7 @@ import { signIn } from "./helpers";
 // determines the app shell, and signing out ends the session.
 
 test.describe("signed out", () => {
-  for (const path of ["/", "/business", "/instructor", "/family", "/family/anything"]) {
+  for (const path of ["/business", "/instructor", "/family", "/family/anything"]) {
     test(`${path} redirects to sign-in`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/sign-in$/);

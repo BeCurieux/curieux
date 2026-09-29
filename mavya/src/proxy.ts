@@ -3,15 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/env";
 
 // Runs before every page request. It refreshes the Supabase session cookie
-// and sends signed-out visitors to sign-in. It does not decide which roles
+// and sends signed-out visitors to sign-in. "/" is public: signed out, it is
+// the website; signed in, the page itself sends people to their shell. It does not decide which roles
 // may open which shell: each shell's layout checks that against the database.
 
 const PROTECTED_PREFIXES = ["/business", "/instructor", "/family", "/no-access"];
 
 function isProtected(pathname: string): boolean {
-  return (
-    pathname === "/" ||
-    PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+  return PROTECTED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
 
@@ -54,6 +54,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4)$).*)",
   ],
 };
