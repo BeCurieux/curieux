@@ -43,7 +43,7 @@ Reference feeling:
   --surface: #FFFFFF;
   --surface-soft: #F1ECF8;
   --text: #1F2230;
-  --text-muted: #6F7282;
+  --text-muted: #626575; /* was #6F7282: under 4.5:1 on tinted backgrounds */
   --border: #E7E2EC;
 
   --brand-lilac: #B8A7E8;
@@ -52,7 +52,7 @@ Reference feeling:
   --brand-mint: #A7D9C8;
   --brand-butter: #F3D98C;
 
-  --success: #3C9C73;
+  --success: #2E7D5B; /* was #3C9C73: white text on it was 3.4:1 */
   --warning: #C78A2C;
   --danger: #C85A5A;
 

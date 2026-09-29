@@ -80,7 +80,19 @@ async function ensureUser(user: SeedUser): Promise<string> {
   return profile.id;
 }
 
+// Straight after `supabase db reset` the REST API can still be reloading its
+// schema, so wait until it answers before writing anything.
+async function waitForApi() {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const { error } = await admin.from("organisations").select("id").limit(1);
+    if (!error) return;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  throw new Error("The database API didn't become ready in 30 seconds.");
+}
+
 async function main() {
+  await waitForApi();
   check(
     await admin.from("organisations").upsert(Object.values(ORGS).map((o) => ({ ...o }))),
     "organisations",

@@ -72,6 +72,18 @@ jobs:
       - name: Row level security tests
         run: npm run test:rls
 
+      # The hosted demo is seeded with SQL rather than the admin API. Rebuild
+      # the database from that SQL alone and prove every account still signs
+      # in and stays inside its tenant, then restore the normal seed.
+      - name: SQL seed matches the API seed
+        run: |
+          set -a; . ./.env.local; set +a
+          DEMO_PASSWORD="$SEED_PASSWORD" npx tsx scripts/seed-sql.ts > "$RUNNER_TEMP/demo-seed.sql"
+          npx supabase db reset
+          psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/demo-seed.sql"
+          npm run test:rls
+          npm run db:reset
+
       - name: Build
         run: |
           set -a; . ./.env.local; set +a

@@ -1,20 +1,25 @@
 import type { ReactNode } from "react";
 import type { Shell } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
+import { BusinessNav } from "./business-nav";
+import { FamilyNav } from "./family-nav";
 import { ShellSwitcher } from "./shell-switcher";
 import { ShellViewTracker } from "./shell-view-tracker";
 import { SignOutButton } from "./sign-out-button";
 import { Wordmark } from "./wordmark";
 
-// The frame shared by the three apps. The family app is warm and narrow
-// (phone first); business and instructor are calmer and wider.
+// The frame shared by the three apps.
+//
+// Family: warm and phone-first, with a bottom tab bar; sign out lives on the
+// Account tab. Business: calm and wide, with a short row of sections in the
+// header. Instructor: narrow and one-handed, nothing but the class.
 const TONE: Record<Shell, { page: string; width: string }> = {
   family: {
-    page: "bg-[linear-gradient(180deg,var(--surface-soft),var(--bg)_320px)]",
+    page: "bg-[radial-gradient(120%_60%_at_50%_-10%,var(--surface-soft)_0%,var(--bg)_60%)]",
     width: "max-w-lg",
   },
-  instructor: { page: "bg-bg", width: "max-w-2xl" },
-  business: { page: "bg-bg", width: "max-w-5xl" },
+  instructor: { page: "bg-bg", width: "max-w-xl" },
+  business: { page: "bg-[#f7f6f9]", width: "max-w-6xl" },
 };
 
 export function AppShell({
@@ -30,21 +35,26 @@ export function AppShell({
   return (
     <div className={cn("min-h-dvh", tone.page)} data-shell={shell}>
       <ShellViewTracker shell={shell} />
-      <header
+      <header className={cn("mx-auto flex w-full flex-col gap-3 px-5 pt-5 pb-2", tone.width)}>
+        <div className="flex items-center justify-between gap-4">
+          <Wordmark />
+          <div className="flex items-center gap-2">
+            <ShellSwitcher current={shell} shells={shells} />
+            {shell === "family" ? null : <SignOutButton variant="ghost" />}
+          </div>
+        </div>
+        {shell === "business" ? <BusinessNav /> : null}
+      </header>
+      <main
         className={cn(
-          "mx-auto flex w-full items-center justify-between gap-4 px-5 py-5",
+          "mx-auto flex w-full flex-col gap-6 px-5 pt-4",
+          shell === "family" ? "pb-32" : "pb-16",
           tone.width,
         )}
       >
-        <Wordmark />
-        <div className="flex items-center gap-3">
-          <ShellSwitcher current={shell} shells={shells} />
-          <SignOutButton variant="ghost" />
-        </div>
-      </header>
-      <main className={cn("mx-auto flex w-full flex-col gap-6 px-5 pt-4 pb-16", tone.width)}>
         {children}
       </main>
+      {shell === "family" ? <FamilyNav /> : null}
     </div>
   );
 }

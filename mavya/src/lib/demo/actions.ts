@@ -1,0 +1,84 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { requireShell, requireViewer } from "@/lib/auth/viewer";
+import { LEVEL_SKILLS } from "./data";
+import { isCandidate, isDemoFamily, isDemoStaff, isMakeupOption, isRosterChild } from "./service";
+import { clearDemoState, readDemoState, writeDemoState } from "./state";
+
+// The demo's only writes. A server action is a public endpoint, so each one
+// checks who is calling and what they're allowed to change before touching
+// the state, exactly as a real one would.
+
+async function requireDemoFamily() {
+  const viewer = await requireShell("family");
+  if (!isDemoFamily(viewer)) redirect("/family");
+}
+
+async function requireDemoStaff(role: "owner" | "instructor") {
+  const viewer = await requireShell(role === "owner" ? "business" : "instructor");
+  if (!isDemoStaff(viewer, role)) redirect(role === "owner" ? "/business" : "/instructor");
+}
+
+const reasonSchema = z.string().trim().max(200);
+
+export async function reportAbsence(formData: FormData) {
+  await requireDemoFamily();
+  const reason = reasonSchema.catch("").parse(formData.get("reason") ?? "");
+  const state = await readDemoState();
+  await writeDemoState({ ...state, absence: { reason } });
+  revalidatePath("/", "layout");
+  redirect("/family/makeups");
+}
+
+export async function bookMakeup(classId: string) {
+  await requireDemoFamily();
+  const state = await readDemoState();
+  if (!state.absence || !isMakeupOption(classId)) redirect("/family/makeups");
+  await writeDemoState({ ...state, makeupClassId: classId });
+  revalidatePath("/", "layout");
+  redirect("/family/makeups?booked=1");
+}
+
+export async function markAttendance(childSlug: string, status: "present" | "absent") {
+  await requireDemoStaff("instructor");
+  if (!isRosterChild(childSlug)) return;
+  const state = await readDemoState();
+  await writeDemoState({ ...state, attendance: { ...state.attendance, [childSlug]: status } });
+  revalidatePath("/", "layout");
+}
+
+const skillStatus = z.enum(["not_started", "developing", "achieved"]);
+
+export async function saveSkills(childSlug: string, formData: FormData) {
+  await requireDemoStaff("instructor");
+  if (childSlug !== "ava") redirect("/instructor");
+  const state = await readDemoState();
+  const skills = { ...state.skills };
+  for (const skill of LEVEL_SKILLS) {
+    const parsed = skillStatus.safeParse(formData.get(skill.name));
+    if (parsed.success) skills[skill.name] = parsed.data;
+  }
+  await writeDemoState({ ...state, skills });
+  revalidatePath("/", "layout");
+  redirect(`/instructor/child/${childSlug}?saved=1`);
+}
+
+export async function offerSpot(candidateId: string) {
+  await requireDemoStaff("owner");
+  if (!isCandidate(candidateId)) return;
+  const state = await readDemoState();
+  if (!state.offered.includes(candidateId)) {
+    await writeDemoState({ ...state, offered: [...state.offered, candidateId] });
+  }
+  revalidatePath("/", "layout");
+}
+
+export async function resetDemo() {
+  await requireViewer();
+  await clearDemoState();
+  revalidatePath("/", "layout");
+  redirect("/");
+}

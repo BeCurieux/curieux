@@ -21,16 +21,8 @@
             "level": "Dolphin 3",
             "day": "Wednesday",
             "time": "4:30pm"
-          },
-          {
-            "type": "Gymnastics",
-            "provider": "Peak Gymnastics",
-            "level": "Level 2",
-            "day": "Saturday",
-            "time": "9:00am"
           }
         ],
-        "progress": 80,
         "skills": [
           {
             "name": "Floating",
@@ -89,7 +81,7 @@
       "capacity": 14,
       "enrolled": 12,
       "absences": 0,
-      "temporaryVacancies": 2
+      "temporaryVacancies": 1
     },
     {
       "id": "dolphin3-sat",
