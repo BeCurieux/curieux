@@ -1,4 +1,4 @@
-import { ArrowRight, History, Layers, MapPin, Users } from "lucide-react";
+import { ArrowRight, CalendarX, History, Layers, MapPin, RefreshCcw, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/business/owner";
@@ -17,6 +17,18 @@ const SECTIONS = [
     icon: Layers,
     title: "Programs & levels",
     body: "What children learn, in order.",
+  },
+  {
+    href: "/business/settings/makeups",
+    icon: RefreshCcw,
+    title: "Make-up rules",
+    body: "Notice, how long credits last, and where they can be used.",
+  },
+  {
+    href: "/business/settings/cancel",
+    icon: CalendarX,
+    title: "Cancel lessons",
+    body: "Pool closed? Cancel a day and every child gets a credit.",
   },
   {
     href: "/business/settings/staff",

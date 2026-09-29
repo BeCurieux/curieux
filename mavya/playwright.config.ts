@@ -12,7 +12,9 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined;
 
 export default defineConfig({
   testDir: "tests/e2e",
-  fullyParallel: true,
+  // One shared database: since M4 a parent's absence changes the numbers an
+  // owner's test reads, so tests run one at a time.
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",

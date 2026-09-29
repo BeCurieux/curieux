@@ -17,7 +17,9 @@ import {
   ORGS,
   USERS,
   classRows,
+  DEMO_ABSENCES,
   enrolmentRows,
+  expiringCreditRows,
   pastLessonRows,
   seedRows,
   type SeedUser,
@@ -156,6 +158,45 @@ async function main() {
       .upsert(pastLessonRows(), { onConflict: "class_id,starts_at", ignoreDuplicates: true }),
     "last week's lessons",
   );
+
+  // The demo's absences are on each class's next lesson, which only exists
+  // once the database has scheduled it.
+  for (const a of DEMO_ABSENCES) {
+    const { data: next, error } = await admin
+      .from("class_occurrences")
+      .select("id")
+      .eq("class_id", a.class.id)
+      .eq("status", "scheduled")
+      .gt("starts_at", new Date().toISOString())
+      .order("starts_at")
+      .limit(1)
+      .single();
+    if (error || !next) throw new Error(`next lesson of ${a.class.name}: ${error?.message}`);
+    check(
+      await admin.from("absences").upsert({
+        id: a.id,
+        organisation_id: a.class.organisation_id,
+        child_id: a.child,
+        occurrence_id: next.id,
+        make_up_eligible: true,
+      }),
+      "demo absence",
+    );
+    check(
+      await admin.from("makeup_credits").upsert({
+        id: a.creditId,
+        organisation_id: a.class.organisation_id,
+        child_id: a.child,
+        source_occurrence_id: next.id,
+        source_absence_id: a.id,
+        reason: "absence",
+        expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+        status: "available",
+      }),
+      "demo credit",
+    );
+  }
+  check(await admin.from("makeup_credits").upsert(expiringCreditRows()), "expiring credits");
   console.log("seeded the timetable");
 }
 

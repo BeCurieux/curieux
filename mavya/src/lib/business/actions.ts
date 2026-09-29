@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
 import * as families from "@/lib/domain/families";
+import * as makeups from "@/lib/domain/makeups";
 import * as progress from "@/lib/domain/progress";
 import * as staff from "@/lib/domain/staff";
 import * as timetable from "@/lib/domain/timetable";
@@ -295,4 +296,74 @@ export async function restoreStaffMember(membershipId: string): Promise<FormStat
   if (failed) return failed;
   revalidatePath("/business", "layout");
   return { ok: "Access restored." };
+}
+
+// ------------------------------------------------------------------ make-ups
+
+const yesNo = z.enum(["yes", "no"], "Choose yes or no.").transform((v) => v === "yes");
+const whole = (label: string, min: number, max: number) =>
+  z.coerce
+    .number({ error: `Enter ${label}.` })
+    .int(`Use a whole number for ${label}.`)
+    .min(min, `${label[0]!.toUpperCase()}${label.slice(1)} must be at least ${min}.`)
+    .max(max, `${label[0]!.toUpperCase()}${label.slice(1)} can be at most ${max}.`);
+
+const policySchema = z.object({
+  makeupsEnabled: yesNo,
+  noticeHours: whole("the notice", 0, 168),
+  creditValidityDays: whole("how long a credit lasts", 1, 365),
+  maxActiveCredits: whole("the most credits", 1, 20),
+  bookingHorizonDays: whole("the booking window", 1, 90),
+  cancellationNoticeHours: whole("the cancellation notice", 0, 168),
+  allowFutureLevel: yesNo,
+});
+
+export async function saveMakeupPolicy(_: FormState, formData: FormData): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const parsed = policySchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const p = parsed.data;
+  const failed = await attempt(async () => {
+    await makeups.savePolicy(db, organisationId, {
+      makeupsEnabled: p.makeupsEnabled,
+      minimumNoticeMinutes: p.noticeHours * 60,
+      creditValidityDays: p.creditValidityDays,
+      maxActiveCredits: p.maxActiveCredits,
+      allowFutureLevel: p.allowFutureLevel,
+      bookingHorizonDays: p.bookingHorizonDays,
+      cancellationNoticeMinutes: p.cancellationNoticeHours * 60,
+      returnCreditOnValidCancellation: true,
+    });
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  revalidatePath("/family", "layout");
+  return { ok: "Saved. The new rules apply from the next absence." };
+}
+
+const cancelSchema = z.object({
+  locationId: id,
+  date: z.iso.date("Choose a date."),
+});
+
+export async function cancelLessons(_: FormState, formData: FormData): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const parsed = cancelSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  let count = 0;
+  const failed = await attempt(async () => {
+    count = await makeups.cancelLessons(db, parsed.data);
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  revalidatePath("/family", "layout");
+  revalidatePath("/instructor", "layout");
+  if (count === 0) return { error: "There are no upcoming lessons there on that day." };
+  const { makeupsEnabled } = await makeups.getPolicy(db, organisationId);
+  const lessons = `${count} ${count === 1 ? "lesson" : "lessons"}`;
+  return {
+    ok: makeupsEnabled
+      ? `Cancelled ${lessons}. Every child has a make-up credit and their families have been told.`
+      : `Cancelled ${lessons}. Their families have been told.`,
+  };
 }

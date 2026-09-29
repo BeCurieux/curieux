@@ -3,6 +3,61 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      absences: {
+        Row: {
+          child_id: string;
+          created_by: string | null;
+          id: string;
+          make_up_eligible: boolean;
+          occurrence_id: string;
+          organisation_id: string;
+          reason: string | null;
+          reported_at: string;
+        };
+        Insert: {
+          child_id: string;
+          created_by?: string | null;
+          id?: string;
+          make_up_eligible?: boolean;
+          occurrence_id: string;
+          organisation_id: string;
+          reason?: string | null;
+          reported_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_by?: string | null;
+          id?: string;
+          make_up_eligible?: boolean;
+          occurrence_id?: string;
+          organisation_id?: string;
+          reason?: string | null;
+          reported_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "absences_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "absences_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "absences_organisation_id_occurrence_id_fkey";
+            columns: ["organisation_id", "occurrence_id"];
+            isOneToOne: false;
+            referencedRelation: "class_occurrences";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       attendance: {
         Row: {
           child_id: string;
@@ -477,6 +532,129 @@ export type Database = {
           },
         ];
       };
+      makeup_bookings: {
+        Row: {
+          booked_at: string;
+          cancelled_at: string | null;
+          child_id: string;
+          created_by: string | null;
+          credit_id: string;
+          id: string;
+          organisation_id: string;
+          status: string;
+          target_occurrence_id: string;
+        };
+        Insert: {
+          booked_at?: string;
+          cancelled_at?: string | null;
+          child_id: string;
+          created_by?: string | null;
+          credit_id: string;
+          id?: string;
+          organisation_id: string;
+          status?: string;
+          target_occurrence_id: string;
+        };
+        Update: {
+          booked_at?: string;
+          cancelled_at?: string | null;
+          child_id?: string;
+          created_by?: string | null;
+          credit_id?: string;
+          id?: string;
+          organisation_id?: string;
+          status?: string;
+          target_occurrence_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "makeup_bookings_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "makeup_bookings_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "makeup_bookings_organisation_id_credit_id_fkey";
+            columns: ["organisation_id", "credit_id"];
+            isOneToOne: false;
+            referencedRelation: "makeup_credits";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "makeup_bookings_organisation_id_target_occurrence_id_fkey";
+            columns: ["organisation_id", "target_occurrence_id"];
+            isOneToOne: false;
+            referencedRelation: "class_occurrences";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      makeup_credits: {
+        Row: {
+          child_id: string;
+          expires_at: string;
+          id: string;
+          issued_at: string;
+          organisation_id: string;
+          reason: string;
+          source_absence_id: string | null;
+          source_occurrence_id: string | null;
+          status: string;
+        };
+        Insert: {
+          child_id: string;
+          expires_at: string;
+          id?: string;
+          issued_at?: string;
+          organisation_id: string;
+          reason: string;
+          source_absence_id?: string | null;
+          source_occurrence_id?: string | null;
+          status?: string;
+        };
+        Update: {
+          child_id?: string;
+          expires_at?: string;
+          id?: string;
+          issued_at?: string;
+          organisation_id?: string;
+          reason?: string;
+          source_absence_id?: string | null;
+          source_occurrence_id?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "makeup_credits_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "makeup_credits_source_absence_id_fkey";
+            columns: ["source_absence_id"];
+            isOneToOne: false;
+            referencedRelation: "absences";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "makeup_credits_source_occurrence_id_fkey";
+            columns: ["source_occurrence_id"];
+            isOneToOne: false;
+            referencedRelation: "class_occurrences";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notifications: {
         Row: {
           created_at: string;
@@ -557,6 +735,54 @@ export type Database = {
           timezone?: string;
         };
         Relationships: [];
+      };
+      policy_sets: {
+        Row: {
+          active: boolean;
+          config_json: NonNullable<Json>;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          organisation_id: string;
+          policy_type: string;
+          version: number;
+        };
+        Insert: {
+          active?: boolean;
+          config_json?: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          organisation_id: string;
+          policy_type: string;
+          version: number;
+        };
+        Update: {
+          active?: boolean;
+          config_json?: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          organisation_id?: string;
+          policy_type?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "policy_sets_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "policy_sets_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       programs: {
         Row: {
@@ -751,6 +977,26 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
+      cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
+      cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
+      check_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string[] };
+      makeup_options: {
+        Args: { p_credit: string };
+        Returns: {
+          class_id: string;
+          class_name: string;
+          ends_at: string;
+          free_places: number;
+          instructor_first_name: string;
+          level_name: string;
+          location_name: string;
+          occurrence_id: string;
+          starts_at: string;
+          timezone: string;
+        }[];
+      };
+      makeup_policy: { Args: { p_org: string }; Returns: Json };
       mark_notifications_read: { Args: Record<PropertyKey, never>; Returns: undefined };
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
@@ -765,8 +1011,19 @@ export type Database = {
         Returns: undefined;
       };
       remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      report_absence: {
+        Args: { p_child: string; p_occurrence: string; p_reason?: string };
+        Returns: {
+          absence_id: string;
+          credit_expires_at: string;
+          credit_id: string;
+          no_credit_reason: string;
+        }[];
+      };
       restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      withdraw_absence: { Args: { p_absence: string }; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;

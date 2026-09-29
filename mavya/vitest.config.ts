@@ -28,6 +28,9 @@ export default defineConfig({
           // scripts/local-env.sh.
           env: loadEnv("test", process.cwd(), ""),
           testTimeout: 20_000,
+          // One shared database: a make-up booked in one file changes what
+          // another file's parent can see, so files run one at a time.
+          fileParallelism: false,
         },
       },
     ],

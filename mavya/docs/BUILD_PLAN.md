@@ -55,6 +55,7 @@ Implement:
 - photo consent (if photos are used; v0.1 has none)
 
 ## M4 — Absence and make-up engine
+See `docs/M4_MAKEUPS.md`
 
 Implement:
 - absence reporting

@@ -175,28 +175,46 @@ teaches the child in a class at the skill's level, assess them (M3).
 
 ### Absence
 - id
+- organisation_id
 - child_id
 - occurrence_id
 - reported_at
 - reason nullable
-- make_up_eligible boolean
+- make_up_eligible boolean — whether a credit was issued for it
 - created_by
+
+One per child per lesson. A parent (or the owner) reports it for an upcoming
+lesson of a class the child is in, and can take it back before the lesson
+unless its credit is booked or the place has gone to a make-up (M4).
 
 ### MakeupCredit
 - id
+- organisation_id
 - child_id
-- source_absence_id
+- source_occurrence_id nullable — the lesson missed or cancelled
+- source_absence_id nullable
+- reason: absence | lesson_cancelled
 - issued_at
-- expires_at
+- expires_at — fixed when issued, from the policy then in force
 - status: available | redeemed | expired | revoked
 
 ### MakeupBooking
 - id
+- organisation_id
 - credit_id
 - child_id
 - target_occurrence_id
 - status: booked | cancelled | completed
 - booked_at
+- cancelled_at nullable
+- created_by
+
+One booking at a time per credit. Absences, credits and bookings are written
+only by database functions (`report_absence`, `withdraw_absence`,
+`book_makeup`, `cancel_makeup`, `cancel_lessons`), which apply the policy and
+`check_makeup`, the one eligibility check (M4). A lesson's free places are
+its capacity, minus children enrolled, plus children reported away, minus
+make-ups booked.
 
 ### WaitlistEntry
 - id
@@ -211,24 +229,31 @@ teaches the child in a class at the skill's level, assess them (M3).
 ### PolicySet
 - id
 - organisation_id
-- policy_type
-- config_json
+- policy_type: makeup
+- config_json — only the settings the owner changed; the rest are
+  `docs/RULES_ENGINE.md`'s defaults
 - version
-- active
+- active — one active policy per organisation and type
+- created_at
+- created_by
+
+Changed only through `save_makeup_policy`, which validates the settings and
+adds a new version (M4).
 
 ### Notification
 - id
 - recipient_user_id
 - organisation_id nullable
-- type: skill_achieved (M3)
-- payload_json — ids only (`child_id`, `skill_id`), never names
+- type: skill_achieved (M3) | lesson_cancelled (M4)
+- payload_json — ids only (`child_id`, `skill_id` or `occurrence_id`), never
+  names
 - status: pending | sent | failed — for email and push delivery (M6)
 - created_at
 - sent_at nullable
 - read_at nullable
 
-Created only by the database when a skill becomes achieved, one per parent
-in the child's family. Each person reads, and marks seen, only their own.
+Created only by the database when a skill becomes achieved or a lesson is
+cancelled, one per parent in the child's family. Each person reads, and marks seen, only their own.
 
 ### AuditEvent
 - id

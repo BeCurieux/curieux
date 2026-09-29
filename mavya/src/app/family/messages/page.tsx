@@ -1,11 +1,11 @@
-import { Info, Megaphone, MessageCircle, PartyPopper, Trophy } from "lucide-react";
+import { CalendarX2, Info, Megaphone, MessageCircle, PartyPopper, Trophy } from "lucide-react";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/demo/empty-state";
 import { MarkRead } from "@/components/family/mark-read";
 import { familyContext } from "@/lib/demo/context";
 import { MESSAGES, type Message } from "@/lib/demo/data";
 import { myNotifications } from "@/lib/domain/notifications";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, lessonMoment } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Messages" };
@@ -29,7 +29,7 @@ export default async function MessagesPage() {
       {notifications.length > 0 ? (
         <section aria-labelledby="progress" className="flex flex-col gap-3">
           <h2 id="progress" className="text-sm font-bold tracking-wide text-muted uppercase">
-            Progress
+            Updates
           </h2>
           {notifications.map((n) => (
             <article
@@ -39,8 +39,17 @@ export default async function MessagesPage() {
                 n.unread && "ring-2 ring-coral/60",
               )}
             >
-              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-butter [&_svg]:size-5">
-                <Trophy aria-hidden />
+              <span
+                className={cn(
+                  "grid size-11 shrink-0 place-items-center rounded-full [&_svg]:size-5",
+                  n.kind === "lesson_cancelled" ? "bg-[#fde3dd]" : "bg-butter",
+                )}
+              >
+                {n.kind === "lesson_cancelled" ? (
+                  <CalendarX2 aria-hidden />
+                ) : (
+                  <Trophy aria-hidden />
+                )}
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
@@ -54,12 +63,29 @@ export default async function MessagesPage() {
                     {formatDateTime(n.createdAt)}
                   </p>
                 </div>
-                <h3 className="font-semibold">
-                  {n.childFirstName} achieved {n.skill}
-                </h3>
-                <p className="text-muted">
-                  It&apos;s on {n.childFirstName}&apos;s progress page now.
-                </p>
+                {n.kind === "lesson_cancelled" ? (
+                  <>
+                    <h3 className="font-semibold">
+                      {n.childFirstName}&apos;s{" "}
+                      {n.lessonStartsAt
+                        ? `${lessonMoment(n.lessonStartsAt, n.lessonTimezone ?? "Australia/Sydney").day} ${lessonMoment(n.lessonStartsAt, n.lessonTimezone ?? "Australia/Sydney").date}`
+                        : ""}{" "}
+                      lesson is cancelled
+                    </h3>
+                    <p className="text-muted">
+                      {n.childFirstName} has a make-up credit to book another class.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="font-semibold">
+                      {n.childFirstName} achieved {n.skill}
+                    </h3>
+                    <p className="text-muted">
+                      It&apos;s on {n.childFirstName}&apos;s progress page now.
+                    </p>
+                  </>
+                )}
               </div>
             </article>
           ))}

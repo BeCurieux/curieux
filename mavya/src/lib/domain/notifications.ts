@@ -1,15 +1,19 @@
 import "server-only";
 import { must, type Db } from "./db";
 
-// A parent's notifications (docs/M3_ATTENDANCE_PROGRESS.md). The database
-// creates them when a skill is achieved and stores ids only; names are
+// A parent's notifications. The database creates them when a skill is
+// achieved (M3) or a lesson is cancelled (M4) and stores ids only; names are
 // looked up here, with the parent's own access, after they've signed in.
 
 export type AppNotification = {
   id: string;
+  kind: "skill_achieved" | "lesson_cancelled";
   organisation: string;
   childFirstName: string;
+  // The skill achieved, or the cancelled lesson's start.
   skill: string;
+  lessonStartsAt: string | null;
+  lessonTimezone: string | null;
   createdAt: string;
   unread: boolean;
 };
@@ -18,31 +22,49 @@ export async function myNotifications(db: Db, limit = 30): Promise<AppNotificati
   const rows = must(
     await db
       .from("notifications")
-      .select("id, organisation_id, payload_json, created_at, read_at")
-      .eq("type", "skill_achieved")
+      .select("id, type, organisation_id, payload_json, created_at, read_at")
       .order("created_at", { ascending: false })
       .limit(limit),
   );
   if (rows.length === 0) return [];
-  const payload = (p: unknown) => (p ?? {}) as { child_id?: string; skill_id?: string };
+  const payload = (p: unknown) =>
+    (p ?? {}) as { child_id?: string; skill_id?: string; occurrence_id?: string };
   const childIds = [...new Set(rows.flatMap((r) => payload(r.payload_json).child_id ?? []))];
   const skillIds = [...new Set(rows.flatMap((r) => payload(r.payload_json).skill_id ?? []))];
-  const [children, skills, organisations] = await Promise.all([
+  const lessonIds = [...new Set(rows.flatMap((r) => payload(r.payload_json).occurrence_id ?? []))];
+  const [children, skills, organisations, lessons] = await Promise.all([
     db.from("children").select("id, first_name").in("id", childIds),
     db.from("skills").select("id, name").in("id", skillIds),
     db.from("organisations").select("id, name"),
+    db
+      .from("class_occurrences")
+      .select("id, starts_at, classes (locations (timezone))")
+      .in("id", lessonIds),
   ]);
   const childNames = new Map(must(children).map((c) => [c.id, c.first_name]));
   const skillNames = new Map(must(skills).map((s) => [s.id, s.name]));
   const orgNames = new Map(must(organisations).map((o) => [o.id, o.name]));
+  const lessonTimes = new Map(
+    (
+      must(lessons) as unknown as {
+        id: string;
+        starts_at: string;
+        classes: { locations: { timezone: string } | null } | null;
+      }[]
+    ).map((l) => [l.id, { startsAt: l.starts_at, tz: l.classes?.locations?.timezone ?? null }]),
+  );
   return rows.flatMap((r) => {
-    const { child_id, skill_id } = payload(r.payload_json);
+    const { child_id, skill_id, occurrence_id } = payload(r.payload_json);
+    const lesson = occurrence_id ? lessonTimes.get(occurrence_id) : undefined;
     const child = child_id ? childNames.get(child_id) : undefined;
     // A child who has left the family is no longer this parent's to hear about.
     if (!child) return [];
     return [
       {
         id: r.id,
+        kind: r.type as AppNotification["kind"],
+        lessonStartsAt: lesson?.startsAt ?? null,
+        lessonTimezone: lesson?.tz ?? null,
         organisation: (r.organisation_id && orgNames.get(r.organisation_id)) || "",
         childFirstName: child,
         skill: (skill_id && skillNames.get(skill_id)) || "a new skill",
