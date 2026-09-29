@@ -6,6 +6,9 @@ import { signIn } from "./helpers";
 
 // M2.5 acceptance: docs/SECURITY.md.
 
+// Animations off, so contrast is measured on settled text, not mid-fade.
+test.use({ reducedMotion: "reduce" });
+
 test("an owner removes a staff member's access; the person is locked out at once; the owner restores it", async ({
   browser,
   page,

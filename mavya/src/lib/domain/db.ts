@@ -22,6 +22,9 @@ export function explain(error: PostgrestError): DomainError {
       return new DomainError("This class is no longer running.");
     case "capacity_below_enrolled":
     case "remove_self":
+    case "lesson_not_open":
+    case "not_in_class":
+    case "skill_inactive":
       return new DomainError(error.message);
   }
   switch (error.code) {

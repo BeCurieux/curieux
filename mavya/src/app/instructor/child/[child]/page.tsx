@@ -1,13 +1,18 @@
-import { PartyPopper } from "lucide-react";
+import { ListChecks, PartyPopper } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { z } from "zod";
 import { BackLink } from "@/components/demo/back-link";
+import { EmptyState } from "@/components/demo/empty-state";
 import { ProgressRing } from "@/components/demo/progress-ring";
 import { Button } from "@/components/ui/button";
-import { saveSkills } from "@/lib/demo/actions";
 import { instructorContext } from "@/lib/demo/context";
-import { AVA_ID, type SkillStatus } from "@/lib/demo/data";
-import { childDemo } from "@/lib/demo/service";
+import { AVA_ID } from "@/lib/demo/data";
+import { classSlug } from "@/lib/demo/service";
+import { myMembershipId } from "@/lib/domain/schedule";
+import { childProgress, type SkillStatus } from "@/lib/domain/progress";
+import { listClasses } from "@/lib/domain/timetable";
+import { saveProgress } from "@/lib/instructor/actions";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Skills" };
@@ -23,45 +28,53 @@ export default async function InstructorChildPage({
   searchParams,
 }: {
   params: Promise<{ child: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
-  const { child: slug } = await params;
-  const { saved } = await searchParams;
-  const { state, demo, db } = await instructorContext();
-  // Skills are demo until M3, for Ava only. Her name comes from the
-  // database, which only shows her to instructors who teach her.
-  if (!demo || (slug !== "ava" && slug !== AVA_ID)) notFound();
+  const { child: param } = await params;
+  const { saved, error } = await searchParams;
+  const { viewer, demo, db, organisationId } = await instructorContext();
+  // The docs' demo address, /instructor/child/ava, still works.
+  const childId = demo && param === "ava" ? AVA_ID : param;
+  if (!z.uuid().safeParse(childId).success) notFound();
+
+  // Row level security only shows an instructor the children they teach.
   const { data: row } = await db
     .from("children")
     .select("first_name, last_name")
-    .eq("id", AVA_ID)
+    .eq("id", childId)
     .maybeSingle();
   if (!row) notFound();
-  const child = {
-    slug: AVA_ID,
-    firstName: row.first_name,
-    lastName: row.last_name,
-    level: "Dolphin 3",
-    ...childDemo(AVA_ID, state),
-  };
-  if (!child.skillList) notFound();
+
+  // The class this instructor teaches the child in decides the level.
+  const membershipId = await myMembershipId(db, viewer.userId, organisationId);
+  const [taught, enrolled] = await Promise.all([
+    listClasses(db, { activeOnly: true, instructorId: membershipId }),
+    db.from("enrolments").select("class_id").eq("child_id", childId).eq("status", "active"),
+  ]);
+  const classIds = new Set((enrolled.data ?? []).map((e) => e.class_id));
+  const c = taught.find((k) => classIds.has(k.id));
+  if (!c) notFound();
+  const progress = await childProgress(db, childId, c.levelId);
 
   return (
     <div className="flex flex-col gap-5">
-      <BackLink href="/instructor/class/dolphin-3">Dolphin 3</BackLink>
+      <BackLink href={`/instructor/class/${classSlug(c.id)}`}>{c.name}</BackLink>
       <div className="flex items-center gap-4">
-        <ProgressRing
-          value={child.progress!}
-          size={84}
-          stroke={9}
-          className="shrink-0 text-cobalt [&_span]:text-xl"
-        />
+        {progress ? (
+          <ProgressRing
+            value={progress.progress}
+            size={84}
+            stroke={9}
+            className="shrink-0 text-cobalt [&_span]:text-xl"
+          />
+        ) : null}
         <div>
           <h1 className="font-display text-4xl font-semibold tracking-tight">
-            {child.firstName} {child.lastName}
+            {row.first_name} {row.last_name}
           </h1>
           <p className="text-muted">
-            {child.level} · {child.achieved} of {child.skillList.length} achieved
+            {c.level}
+            {progress ? ` · ${progress.achieved} of ${progress.skills.length} achieved` : ""}
           </p>
         </div>
       </div>
@@ -73,55 +86,71 @@ export default async function InstructorChildPage({
         >
           <PartyPopper aria-hidden className="size-6 shrink-0" />
           <p className="font-semibold">
-            Saved. {child.firstName}&apos;s family can see the update now.
+            Saved. {row.first_name}&apos;s family can see the update now.
           </p>
         </div>
       ) : null}
+      {error ? (
+        <p role="alert" className="rounded-lg bg-[#fff0ec] p-4 font-semibold text-[#9c3b29]">
+          Some skills weren&apos;t saved. Check them and try again.
+        </p>
+      ) : null}
 
-      <form action={saveSkills.bind(null, child.slug)} className="flex flex-col gap-4">
-        {child.skillList.map((skill) => (
-          <fieldset
-            key={skill.name}
-            className="flex flex-col gap-2 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)]"
-          >
-            <legend className="sr-only">{skill.name}</legend>
-            <div aria-hidden>
-              <p className="text-lg font-semibold">{skill.name}</p>
-              <p className="text-sm text-muted">{skill.hint}</p>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {OPTIONS.map((o) => (
-                <label key={o.value} className="relative">
-                  <input
-                    type="radio"
-                    name={skill.name}
-                    value={o.value}
-                    defaultChecked={skill.status === o.value}
-                    aria-label={`${skill.name}: ${o.label}`}
-                    className="peer sr-only"
-                  />
-                  <span
-                    className={cn(
-                      "flex h-12 cursor-pointer items-center justify-center rounded-md border-2 border-line text-sm font-semibold text-muted transition peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cobalt",
-                      o.value === "achieved" &&
-                        "peer-checked:border-success peer-checked:bg-success peer-checked:text-white",
-                      o.value === "developing" &&
-                        "peer-checked:border-warning peer-checked:bg-butter peer-checked:text-ink",
-                      o.value === "not_started" &&
-                        "peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white",
-                    )}
-                  >
-                    {o.label}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        ))}
-        <Button type="submit" size="lg" className="sticky bottom-4">
-          Save progress
-        </Button>
-      </form>
+      {!progress ? (
+        <EmptyState icon={<ListChecks />} title={`No skills for ${c.level} yet`}>
+          Once the school adds this level&apos;s skills, you can update them here.
+        </EmptyState>
+      ) : (
+        <form
+          action={saveProgress.bind(null, childId, c.levelId, `/instructor/child/${param}`)}
+          className="flex flex-col gap-4"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            {progress.skills.map((skill) => (
+              <fieldset
+                key={skill.id}
+                className="flex flex-col gap-2 rounded-lg bg-surface p-4 shadow-[0_1px_0_var(--border)]"
+              >
+                <legend className="sr-only">{skill.name}</legend>
+                <div aria-hidden>
+                  <p className="text-lg font-semibold">{skill.name}</p>
+                  {skill.hint ? <p className="text-sm text-muted">{skill.hint}</p> : null}
+                </div>
+                <div className="mt-auto grid grid-cols-3 gap-2">
+                  {OPTIONS.map((o) => (
+                    <label key={o.value} className="relative">
+                      <input
+                        type="radio"
+                        name={skill.id}
+                        value={o.value}
+                        defaultChecked={skill.status === o.value}
+                        aria-label={`${skill.name}: ${o.label}`}
+                        className="peer sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex h-12 cursor-pointer items-center justify-center rounded-md border-2 border-line text-sm font-semibold text-muted transition peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cobalt md:h-14",
+                          o.value === "achieved" &&
+                            "peer-checked:border-success peer-checked:bg-success peer-checked:text-white",
+                          o.value === "developing" &&
+                            "peer-checked:border-warning peer-checked:bg-butter peer-checked:text-ink",
+                          o.value === "not_started" &&
+                            "peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white",
+                        )}
+                      >
+                        {o.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+          <Button type="submit" size="lg" className="sticky bottom-4 md:w-fit md:self-end">
+            Save progress
+          </Button>
+        </form>
+      )}
     </div>
   );
 }

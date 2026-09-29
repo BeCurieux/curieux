@@ -24,9 +24,9 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
       <BackLink href="/family/kids">Kids</BackLink>
 
       <section className="pass pass-lilac flex flex-col items-center gap-4 px-6 pt-8 pb-7 text-center text-ink">
-        {child.progress !== null ? (
+        {child.progress ? (
           <ProgressRing
-            value={child.progress}
+            value={child.progress.progress}
             size={148}
             stroke={14}
             label="of level"
@@ -44,25 +44,25 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
             {child.organisation}
           </p>
         </div>
-        {child.skillList ? (
+        {child.progress ? (
           <p className="inline-flex items-center gap-2 rounded-full bg-white/60 px-4 py-1.5 font-semibold">
             <Trophy aria-hidden className="size-4" />
-            {child.achieved} of {child.skillList.length} skills achieved
+            {child.progress.achieved} of {child.progress.skills.length} skills achieved
           </p>
         ) : null}
       </section>
 
-      {child.skillList ? (
+      {child.progress ? (
         <section aria-labelledby="skills" className="flex flex-col gap-3">
           <h2 id="skills" className="font-display text-xl font-semibold">
             Skills
           </h2>
           <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-lg bg-surface shadow-[0_1px_0_var(--border)]">
-            {child.skillList.map((skill) => (
-              <li key={skill.name} className="flex items-center justify-between gap-3 px-5 py-4">
+            {child.progress.skills.map((skill) => (
+              <li key={skill.id} className="flex items-center justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <p className="font-semibold">{skill.name}</p>
-                  <p className="text-sm text-muted">{skill.hint}</p>
+                  {skill.hint ? <p className="text-sm text-muted">{skill.hint}</p> : null}
                 </div>
                 <SkillBadge status={skill.status} className="shrink-0" />
               </li>

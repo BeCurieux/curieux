@@ -3,26 +3,22 @@ import type { Viewer } from "@/lib/auth/viewer";
 import type { ClassSummary } from "@/lib/domain/timetable";
 import {
   AVA_ID,
-  AVA_SKILLS,
   BEST_FIT_ID,
   CANDIDATES,
   DASHBOARD,
   DEMO_CLASS_NUMBERS,
   DEMO_FAMILY_ID,
   DEMO_ORG_ID,
-  LEVEL_SKILLS,
   MAKEUP_CLASSES,
   MAKEUP_OPTION_IDS,
   PRE_REPORTED_ABSENT,
   PRIMARY_CLASS_ID,
   PRIMARY_CLASS_SLUG,
   type MakeupClass,
-  type SkillStatus,
 } from "./data";
-import { levelProgress } from "./progress";
 import type { DemoState } from "./state-schema";
 
-// The demo overlay: the parts of M1 that stay mocked until M3–M5, applied
+// The demo overlay: the parts of M1 that stay mocked until M4–M5, applied
 // to real classes and children. Screens get real rows from src/lib/domain
 // and pass them through here; they never work anything out themselves.
 //
@@ -100,32 +96,17 @@ export function isDemoClass(classId: string): boolean {
 // ------------------------------------------------------------------ children
 
 export type ChildDemo = {
-  skillList: { name: string; hint: string; status: SkillStatus }[] | null;
-  progress: number | null;
-  achieved: number;
   away: boolean;
   makeup: MakeupClass | null;
 };
 
 export function childDemo(childId: string, state: DemoState): ChildDemo {
   const isAva = childId === AVA_ID;
-  const skillList = isAva
-    ? LEVEL_SKILLS.map((s) => ({
-        ...s,
-        status: state.skills[s.name] ?? AVA_SKILLS[s.name] ?? "not_started",
-      }))
-    : null;
   const makeup =
     isAva && state.makeupClassId
       ? (MAKEUP_CLASSES.find((c) => c.id === state.makeupClassId) ?? null)
       : null;
-  return {
-    skillList,
-    progress: skillList ? levelProgress(skillList.map((s) => s.status)) : null,
-    achieved: skillList ? skillList.filter((s) => s.status === "achieved").length : 0,
-    away: isAva && state.absence !== null,
-    makeup,
-  };
+  return { away: isAva && state.absence !== null, makeup };
 }
 
 // ------------------------------------------------------------------ make-ups
@@ -169,17 +150,11 @@ export function isCandidate(id: string): boolean {
 
 // ------------------------------------------------------------------ roster
 
-export type RosterStatus = "present" | "absent" | "reported_away" | "unmarked";
-
-export function rosterStatus(childId: string, classId: string, state: DemoState) {
-  const reportedAway =
+// Whether a parent has reported the child away from this class's lesson.
+// Absences are demo until M4, on the demo's Wednesday class only.
+export function reportedAway(childId: string, classId: string, state: DemoState): boolean {
+  return (
     classId === PRIMARY_CLASS_ID &&
-    (PRE_REPORTED_ABSENT.includes(childId) || (childId === AVA_ID && state.absence !== null));
-  const marked = classId === PRIMARY_CLASS_ID ? state.attendance[childId] : undefined;
-  const status: RosterStatus = marked ?? (reportedAway ? "reported_away" : "unmarked");
-  return { status, reportedAway, hasProgress: childId === AVA_ID };
-}
-
-export function isLevelSkill(name: string): boolean {
-  return LEVEL_SKILLS.some((s) => s.name === name);
+    (PRE_REPORTED_ABSENT.includes(childId) || (childId === AVA_ID && state.absence !== null))
+  );
 }

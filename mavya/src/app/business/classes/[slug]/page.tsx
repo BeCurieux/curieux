@@ -9,7 +9,8 @@ import { BackLink } from "@/components/demo/back-link";
 import { Button } from "@/components/ui/button";
 import { endEnrolment } from "@/lib/business/actions";
 import { businessContext } from "@/lib/demo/context";
-import { candidatesFor, resolveClassId, rosterStatus, withDemo } from "@/lib/demo/service";
+import { candidatesFor, reportedAway, resolveClassId, withDemo } from "@/lib/demo/service";
+import { currentLesson, lessonAttendance } from "@/lib/domain/attendance";
 import { classRoster } from "@/lib/domain/enrolments";
 import { childrenNotInClass } from "@/lib/domain/families";
 import { getClass, upcomingLessons } from "@/lib/domain/timetable";
@@ -25,11 +26,18 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
   if (!real) notFound();
 
   const c = withDemo(real, demo ? state : { ...state, absence: null, makeupClassId: null });
-  const [roster, lessons, available] = await Promise.all([
+  const [roster, lessons, available, lesson] = await Promise.all([
     classRoster(db, c.id),
     upcomingLessons(db, c.id),
     childrenNotInClass(db, organisationId, c.id),
+    currentLesson(db, c.id),
   ]);
+  // Attendance for the lesson on now or most recently.
+  const marks = lesson?.open
+    ? ((await lessonAttendance(db, [lesson.id])).get(lesson.id) ?? new Map())
+    : null;
+  const here = marks ? [...marks.values()].filter((s) => s === "present").length : 0;
+  const away = marks ? [...marks.values()].filter((s) => s === "absent").length : 0;
   const candidates = demo ? candidatesFor(c.id, state) : [];
   const full = c.enrolled >= c.capacity;
 
@@ -90,6 +98,14 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
           <h2 id="roster" className="font-display text-2xl font-semibold tracking-tight">
             Roster
           </h2>
+          {marks ? (
+            <p className="tabular -mt-2 text-muted">
+              Lesson {formatLessonDate(lesson!.startsAt, c.timezone)}:{" "}
+              {marks.size === 0
+                ? "attendance not taken yet"
+                : `${here} here · ${away} away · ${roster.length - marks.size} not marked`}
+            </p>
+          ) : null}
           {roster.length === 0 ? (
             <p className="rounded-lg border border-dashed border-line bg-surface p-5 text-muted">
               No one enrolled yet.
@@ -97,11 +113,21 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
           ) : (
             <ul className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
               {roster.map((child) => {
-                const { reportedAway } = rosterStatus(
+                // A parent's report comes first; then this lesson's attendance.
+                const mark = marks?.get(child.childId);
+                const label = reportedAway(
                   child.childId,
                   c.id,
                   demo ? state : { ...state, absence: null },
-                );
+                )
+                  ? "Reported away"
+                  : mark === "present"
+                    ? "Here"
+                    : mark === "absent"
+                      ? "Away"
+                      : marks
+                        ? "Not marked"
+                        : "Expected";
                 return (
                   <li
                     key={child.enrolmentId}
@@ -117,12 +143,14 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
                       <span
                         className={cn(
                           "rounded-full px-3 py-1 text-sm font-semibold",
-                          reportedAway
+                          label === "Reported away" || label === "Away"
                             ? "bg-[#fff0ec] text-[#b4503d]"
-                            : "bg-surface-soft text-muted",
+                            : label === "Here"
+                              ? "bg-[#dcf1e7] text-[#1d5a41]"
+                              : "bg-surface-soft text-muted",
                         )}
                       >
-                        {reportedAway ? "Reported away" : "Expected"}
+                        {label}
                       </span>
                       <form action={endEnrolment.bind(null, child.enrolmentId)}>
                         <Button

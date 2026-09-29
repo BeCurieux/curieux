@@ -1,4 +1,4 @@
-import type { SkillStatus } from "./data";
+export type SkillStatus = "not_started" | "developing" | "achieved";
 
 // How far through a level a child is. Achieved skills count fully,
 // developing ones half, not-started ones not at all. Pure, so the number on

@@ -1,8 +1,8 @@
-// What is still demo after M2: absences, make-ups, vacancies, attendance,
-// skills, candidates and messages. Classes, families, children and
-// enrolments are real (src/lib/domain); this layers the rest on top of the
-// seeded Aqua House classes and Burrows family, and nothing else
-// (see service.ts). Each part moves into the database in M3–M5.
+// What is still demo after M3: absences, make-ups, vacancies, candidates and
+// messages. Classes, families, children, enrolments, attendance and progress
+// are real (src/lib/domain); this layers the rest on top of the seeded Aqua
+// House classes and Burrows family, and nothing else (see service.ts). Each
+// part moves into the database in M4–M5.
 
 import demo from "../../../seed/demo-data.json";
 import {
@@ -11,8 +11,6 @@ import {
   FAMILIES,
   ORGS,
 } from "../../../scripts/fixtures";
-
-export type SkillStatus = "not_started" | "developing" | "achieved";
 
 // The seeded tenants this demo belongs to (scripts/fixtures.ts).
 export const DEMO_ORG_ID = ORGS.aqua.id;
@@ -48,19 +46,6 @@ export const PRIMARY_CLASS_ID = FIXTURE_CLASSES.dolphin3Wed.id;
 export const PRIMARY_CLASS_SLUG = "dolphin-3";
 
 export const AVA_ID = FIXTURE_CHILDREN.ava.id;
-
-export const LEVEL_SKILLS: { name: string; hint: string }[] = [
-  { name: "Floating", hint: "Floats on front and back for 5 seconds" },
-  { name: "Streamline", hint: "Glides off the wall with arms locked" },
-  { name: "Kick 10m", hint: "Flutter kicks 10 metres with a board" },
-  { name: "Breathing", hint: "Blows bubbles and turns to breathe" },
-  { name: "Freestyle 10m", hint: "Swims 10 metres of freestyle" },
-];
-
-// Ava's skills until progress is real (M3).
-export const AVA_SKILLS: Record<string, SkillStatus> = Object.fromEntries(
-  (demo.family.children[0]!.skills ?? []).map((s) => [s.name, s.status as SkillStatus]),
-);
 
 // Zoe is already reported away from Wednesday's class (its one absence).
 export const PRE_REPORTED_ABSENT = [FIXTURE_CHILDREN.zoe.id];
@@ -170,19 +155,6 @@ export const MAKEUP_RULE = [
   "Tell us at least 2 hours before class",
   "Your make-up credit lasts 60 days",
   "Book any Dolphin 3 class in the next 2 weeks",
-];
-
-export const LEVELS: { name: string; children: number; needAssessment: number }[] = [
-  { name: "Dolphin 1", children: 31, needAssessment: 4 },
-  { name: "Dolphin 2", children: 28, needAssessment: 6 },
-  { name: "Dolphin 3", children: 51, needAssessment: 3 },
-];
-
-export const NEEDS_ASSESSMENT: { name: string; level: string; note: string }[] = [
-  { name: "Ava Burrows", level: "Dolphin 3", note: "Kick 10m and Breathing close" },
-  { name: "Lucas Nguyen", level: "Dolphin 3", note: "Not assessed in 5 weeks" },
-  { name: "Arjun Patel", level: "Dolphin 1", note: "Ready for Dolphin 2?" },
-  { name: "Mia Wilson", level: "Dolphin 2", note: "Not assessed in 6 weeks" },
 ];
 
 export type Message = {

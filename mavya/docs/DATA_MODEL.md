@@ -96,11 +96,14 @@ Unique per (family_id, user_id). At most one primary guardian per family.
 
 ### Skill
 - id
+- organisation_id — always the level's organisation (M3)
 - level_id
 - name
-- description nullable
+- description nullable — one line shown under the skill
 - sort_order
-- active
+- active — removing a skill sets this false and keeps its progress history
+
+A level can't have two active skills with the same name.
 
 ### Class
 Represents the recurring class template.
@@ -146,19 +149,29 @@ capacity.
 
 ### Attendance
 - id
+- organisation_id — the organisation of both the lesson and the child (M3)
 - child_id
 - occurrence_id
-- status: present | absent | makeup
-- recorded_by
+- status: present | absent | makeup (`makeup` arrives with M4)
+- recorded_by nullable — the user who marked it
 - recorded_at
+
+One row per child per lesson. Written only by `record_attendance`, which
+lets the class's instructor or an owner mark a child enrolled in the class,
+from an hour before the lesson to 14 days after (M3).
 
 ### ProgressRecord
 - id
+- organisation_id — the organisation of both the child and the skill (M3)
 - child_id
 - skill_id
 - status: not_started | developing | achieved
 - assessed_at
-- assessed_by
+- assessed_by nullable — the user who assessed it
+
+One current row per child per skill; earlier statuses are in the audit log.
+Written only by `record_progress`, which lets an owner, or an instructor who
+teaches the child in a class at the skill's level, assess them (M3).
 
 ### Absence
 - id
@@ -207,11 +220,15 @@ capacity.
 - id
 - recipient_user_id
 - organisation_id nullable
-- type
-- payload_json
-- status
+- type: skill_achieved (M3)
+- payload_json — ids only (`child_id`, `skill_id`), never names
+- status: pending | sent | failed — for email and push delivery (M6)
+- created_at
 - sent_at nullable
 - read_at nullable
+
+Created only by the database when a skill becomes achieved, one per parent
+in the child's family. Each person reads, and marks seen, only their own.
 
 ### AuditEvent
 - id

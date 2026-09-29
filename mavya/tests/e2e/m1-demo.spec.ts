@@ -53,11 +53,12 @@ test.describe("parent demo path", () => {
     await expect(page.getByText("Saturday 9:00am", { exact: true })).toBeVisible();
     expect(await seriousViolations(page)).toEqual([]);
 
-    // 9–10. Open Ava, see progress.
+    // 9–10. Open Ava, see progress. Progress is real since M3, and the
+    // instructor path below changes it, so only its shape is checked here.
     await page.getByRole("link", { name: "See Ava's progress" }).click();
     await expect(page.getByRole("heading", { name: "Ava" })).toBeVisible();
-    await expect(page.getByText("60%")).toBeVisible();
-    await expect(page.getByText("2 of 5 skills achieved")).toBeVisible();
+    await expect(page.getByText(/^\d+%$/)).toBeVisible();
+    await expect(page.getByText(/\d of 5 skills achieved/)).toBeVisible();
     await expect(page.getByText("Saturday 9:00am (make-up)")).toBeVisible();
 
     // Home now reflects the booking.
@@ -124,7 +125,10 @@ test.describe("business demo path", () => {
 test.describe("instructor demo path", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("take attendance, update Kick 10m, and the parent sees it", async ({ page }) => {
+  test("take attendance, update Kick 10m, and the parent sees it", async ({ page }, testInfo) => {
+    // Attendance and progress are real since M3: one run writes them, so the
+    // phone and desktop projects don't race on the same rows.
+    test.skip(testInfo.project.name !== "phone", "writes shared demo rows");
     await signIn(page, USERS.aquaInstructor.email);
 
     // 1–2. Instructor home → Dolphin 3.
@@ -140,8 +144,13 @@ test.describe("instructor demo path", () => {
     await page.getByRole("button", { name: "Mark Zoe Martin away" }).click();
     await expect(page.getByText("1 here · 2 of 12 marked")).toBeVisible();
 
-    // 4–6. Open Ava, Kick 10m → achieved, save, see confirmation.
+    // 4–6. Open Ava, Kick 10m → achieved, save, see confirmation. First put
+    // Kick 10m back to developing, where the seed has it, so a rerun starts
+    // from the same place.
     await page.getByRole("link", { name: "Ava Burrows" }).click();
+    await page.getByLabel("Kick 10m: Developing").check({ force: true });
+    await page.getByRole("button", { name: "Save progress" }).click();
+    await expect(page.getByRole("status")).toContainText("Saved");
     await expect(page.getByText("60%")).toBeVisible();
     await page.getByLabel("Kick 10m: Achieved").check({ force: true });
     await page.getByRole("button", { name: "Save progress" }).click();
@@ -155,6 +164,15 @@ test.describe("instructor demo path", () => {
     await page.goto("/family/kids/ava");
     await expect(page.getByText("70%")).toBeVisible();
     await expect(page.getByText("3 of 5 skills achieved")).toBeVisible();
+
+    // …and hears about it: a dot on Messages until they've looked.
+    const messages = page.getByRole("navigation", { name: "Family" }).getByRole("link", {
+      name: /Messages/,
+    });
+    await expect(messages).toHaveAccessibleName(/new/);
+    await messages.click();
+    await expect(page.getByText("Ava achieved Kick 10m").first()).toBeVisible();
+    await expect(messages).not.toHaveAccessibleName(/new/);
   });
 });
 
@@ -163,7 +181,7 @@ test.describe("demo tenancy", () => {
     await signIn(page, USERS.chenParent.email);
     // The Chens see their own real class at their own provider, and nothing of Ava's.
     await expect(page.getByText("Peak Gymnastics")).toBeVisible();
-    await expect(page.getByText("Mei")).toBeVisible();
+    await expect(page.getByText("Mei").first()).toBeVisible();
     await expect(page.getByText("Ava")).toHaveCount(0);
     await expect(page.getByText("Can't make Wednesday?")).toHaveCount(0);
     await page.goto("/family/kids/ava");

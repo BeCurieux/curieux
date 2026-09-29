@@ -12,23 +12,27 @@ import { Wordmark } from "./wordmark";
 //
 // Family: warm and phone-first, with a bottom tab bar; sign out lives on the
 // Account tab. Business: calm and wide, with a short row of sections in the
-// header. Instructor: narrow and one-handed, nothing but the class.
+// header. Instructor: nothing but the class, one-handed on a phone and
+// two columns on an iPad.
 const TONE: Record<Shell, { page: string; width: string }> = {
   family: {
     page: "bg-[radial-gradient(120%_60%_at_50%_-10%,var(--surface-soft)_0%,var(--bg)_60%)]",
     width: "max-w-lg",
   },
-  instructor: { page: "bg-bg", width: "max-w-xl" },
+  instructor: { page: "bg-bg", width: "max-w-xl md:max-w-4xl" },
   business: { page: "bg-[#f7f6f9]", width: "max-w-6xl" },
 };
 
 export function AppShell({
   shell,
   shells,
+  unread = 0,
   children,
 }: {
   shell: Shell;
   shells: readonly Shell[];
+  // New notifications, shown on the family app's Messages tab.
+  unread?: number;
   children: ReactNode;
 }) {
   const tone = TONE[shell];
@@ -54,7 +58,7 @@ export function AppShell({
       >
         {children}
       </main>
-      {shell === "family" ? <FamilyNav /> : null}
+      {shell === "family" ? <FamilyNav unread={unread} /> : null}
     </div>
   );
 }

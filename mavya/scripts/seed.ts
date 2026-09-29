@@ -18,6 +18,7 @@ import {
   USERS,
   classRows,
   enrolmentRows,
+  pastLessonRows,
   seedRows,
   type SeedUser,
 } from "./fixtures";
@@ -149,6 +150,12 @@ async function main() {
   // Classes need their instructors' memberships, and enrolments need both.
   check(await admin.from("classes").upsert(classRows()), "classes");
   check(await admin.from("enrolments").upsert(enrolmentRows()), "enrolments");
+  check(
+    await admin
+      .from("class_occurrences")
+      .upsert(pastLessonRows(), { onConflict: "class_id,starts_at", ignoreDuplicates: true }),
+    "last week's lessons",
+  );
   console.log("seeded the timetable");
 }
 

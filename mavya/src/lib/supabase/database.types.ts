@@ -3,6 +3,58 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          child_id: string;
+          id: string;
+          occurrence_id: string;
+          organisation_id: string;
+          recorded_at: string;
+          recorded_by: string | null;
+          status: string;
+        };
+        Insert: {
+          child_id: string;
+          id?: string;
+          occurrence_id: string;
+          organisation_id: string;
+          recorded_at?: string;
+          recorded_by?: string | null;
+          status: string;
+        };
+        Update: {
+          child_id?: string;
+          id?: string;
+          occurrence_id?: string;
+          organisation_id?: string;
+          recorded_at?: string;
+          recorded_by?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "attendance_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "attendance_organisation_id_occurrence_id_fkey";
+            columns: ["organisation_id", "occurrence_id"];
+            isOneToOne: false;
+            referencedRelation: "class_occurrences";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "attendance_recorded_by_fkey";
+            columns: ["recorded_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_events: {
         Row: {
           action: string;
@@ -425,6 +477,57 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          created_at: string;
+          id: string;
+          organisation_id: string | null;
+          payload_json: NonNullable<Json>;
+          read_at: string | null;
+          recipient_user_id: string;
+          sent_at: string | null;
+          status: string;
+          type: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          organisation_id?: string | null;
+          payload_json?: NonNullable<Json>;
+          read_at?: string | null;
+          recipient_user_id: string;
+          sent_at?: string | null;
+          status?: string;
+          type: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          organisation_id?: string | null;
+          payload_json?: NonNullable<Json>;
+          read_at?: string | null;
+          recipient_user_id?: string;
+          sent_at?: string | null;
+          status?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_recipient_user_id_fkey";
+            columns: ["recipient_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organisations: {
         Row: {
           activity_type: string;
@@ -484,6 +587,96 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "organisations";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      progress_records: {
+        Row: {
+          assessed_at: string;
+          assessed_by: string | null;
+          child_id: string;
+          id: string;
+          organisation_id: string;
+          skill_id: string;
+          status: string;
+        };
+        Insert: {
+          assessed_at?: string;
+          assessed_by?: string | null;
+          child_id: string;
+          id?: string;
+          organisation_id: string;
+          skill_id: string;
+          status: string;
+        };
+        Update: {
+          assessed_at?: string;
+          assessed_by?: string | null;
+          child_id?: string;
+          id?: string;
+          organisation_id?: string;
+          skill_id?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "progress_records_assessed_by_fkey";
+            columns: ["assessed_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "progress_records_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "progress_records_organisation_id_skill_id_fkey";
+            columns: ["organisation_id", "skill_id"];
+            isOneToOne: false;
+            referencedRelation: "skills";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      skills: {
+        Row: {
+          active: boolean;
+          description: string | null;
+          id: string;
+          level_id: string;
+          name: string;
+          organisation_id: string;
+          sort_order: number;
+        };
+        Insert: {
+          active?: boolean;
+          description?: string | null;
+          id?: string;
+          level_id: string;
+          name: string;
+          organisation_id: string;
+          sort_order?: number;
+        };
+        Update: {
+          active?: boolean;
+          description?: string | null;
+          id?: string;
+          level_id?: string;
+          name?: string;
+          organisation_id?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "skills_organisation_id_level_id_fkey";
+            columns: ["organisation_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["organisation_id", "id"];
           },
         ];
       };
@@ -558,6 +751,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      mark_notifications_read: { Args: Record<PropertyKey, never>; Returns: undefined };
+      record_attendance: {
+        Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
+        Returns: undefined;
+      };
+      record_progress: {
+        Args: { p_child_id: string; p_skill_id: string; p_status: string };
+        Returns: undefined;
+      };
       record_sign_in: {
         Args: { p_email: string; p_ip: string; p_succeeded: boolean };
         Returns: undefined;

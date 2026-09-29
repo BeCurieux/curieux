@@ -2,16 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { Viewer } from "@/lib/auth/viewer";
 import {
   AVA_ID,
-  AVA_SKILLS,
   DASHBOARD,
   DEMO_CLASS_NUMBERS,
   DEMO_FAMILY_ID,
   DEMO_ORG_ID,
-  LEVEL_SKILLS,
   MAKEUP_CLASSES,
   PRIMARY_CLASS_ID,
 } from "@/lib/demo/data";
-import { levelProgress } from "@/lib/demo/progress";
 import {
   candidatesFor,
   childDemo,
@@ -22,8 +19,8 @@ import {
   isDemoStaff,
   makeupOptions,
   resolveChildId,
+  reportedAway,
   resolveClassId,
-  rosterStatus,
   withDemo,
 } from "@/lib/demo/service";
 import { EMPTY_STATE, parseDemoState, type DemoState } from "@/lib/demo/state-schema";
@@ -109,40 +106,13 @@ describe("demo data", () => {
       for (const activity of child.activities) expect(activity.provider).toBe("Aqua House");
     }
   });
-
-  it("has a status for every Dolphin 3 skill", () => {
-    expect(Object.keys(AVA_SKILLS).sort()).toEqual(LEVEL_SKILLS.map((s) => s.name).sort());
-  });
-});
-
-describe("level progress", () => {
-  it("counts achieved as 1, developing as ½, not started as 0", () => {
-    expect(levelProgress(["achieved", "achieved", "developing", "developing", "not_started"])).toBe(
-      60,
-    );
-    expect(levelProgress(["achieved", "achieved", "achieved", "developing", "not_started"])).toBe(
-      70,
-    );
-    expect(levelProgress([])).toBe(0);
-  });
-
-  it("is what Ava shows, before and after Kick 10m is achieved", () => {
-    expect(childDemo(AVA_ID, EMPTY_STATE).progress).toBe(60);
-    expect(childDemo(AVA_ID, state({ skills: { "Kick 10m": "achieved" } })).progress).toBe(70);
-  });
-
-  it("gives no demo skills to anyone but Ava", () => {
-    expect(childDemo(CHILDREN.leo.id, EMPTY_STATE).skillList).toBeNull();
-  });
 });
 
 describe("demo state cookie", () => {
   it("falls back to a fresh demo for anything unreadable", () => {
     expect(parseDemoState(undefined)).toEqual(EMPTY_STATE);
     expect(parseDemoState("not json")).toEqual(EMPTY_STATE);
-    expect(parseDemoState(JSON.stringify({ skills: { Floating: "legendary" } }))).toEqual(
-      EMPTY_STATE,
-    );
+    expect(parseDemoState(JSON.stringify({ absence: { reason: 42 } }))).toEqual(EMPTY_STATE);
     expect(parseDemoState(JSON.stringify({ offered: Array(50).fill("c1") }))).toEqual(EMPTY_STATE);
   });
 
@@ -160,7 +130,8 @@ describe("the absence and make-up loop", () => {
     expect(wed.absences).toBe(2);
     expect(wed.expected).toBe(10);
     expect(dashboard([wed], away).reportedAbsences).toBe(DASHBOARD.reportedAbsences + 1);
-    expect(rosterStatus(AVA_ID, PRIMARY_CLASS_ID, away).status).toBe("reported_away");
+    expect(reportedAway(AVA_ID, PRIMARY_CLASS_ID, away)).toBe(true);
+    expect(reportedAway(AVA_ID, PRIMARY_CLASS_ID, EMPTY_STATE)).toBe(false);
   });
 
   it("offers three make-ups with Thursday as the best fit", () => {
@@ -197,9 +168,7 @@ describe("the absence and make-up loop", () => {
       0,
       other.enrolled,
     ]);
-    expect(rosterStatus(CHILDREN.zoe.id, CLASSES.dolphin3Thu.id, EMPTY_STATE).reportedAway).toBe(
-      false,
-    );
+    expect(reportedAway(CHILDREN.zoe.id, CLASSES.dolphin3Thu.id, EMPTY_STATE)).toBe(false);
   });
 });
 

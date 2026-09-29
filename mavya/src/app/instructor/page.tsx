@@ -3,10 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/demo/empty-state";
 import { firstName, instructorContext } from "@/lib/demo/context";
-import { PRIMARY_CLASS_ID } from "@/lib/demo/data";
-import { classSlug, rosterStatus, withDemo } from "@/lib/demo/service";
+import { classSlug, withDemo } from "@/lib/demo/service";
 import { EMPTY_STATE } from "@/lib/demo/state-schema";
-import { classRoster } from "@/lib/domain/enrolments";
+import { currentLessons, lessonAttendance } from "@/lib/domain/attendance";
 import { myMembershipId } from "@/lib/domain/schedule";
 import { listClasses } from "@/lib/domain/timetable";
 import { formatLessonDate } from "@/lib/format";
@@ -23,14 +22,24 @@ export default async function InstructorHome() {
     .map((c) => withDemo(c, overlay))
     .sort((a, b) => (a.nextLesson ?? "").localeCompare(b.nextLesson ?? ""));
 
-  // Attendance is demo until M3, on the demo's Wednesday class only.
-  const demoRoster = classes.some((c) => c.id === PRIMARY_CLASS_ID)
-    ? await classRoster(db, PRIMARY_CLASS_ID)
-    : [];
-  const marked = demoRoster.filter((k) => {
-    const { status } = rosterStatus(k.childId, PRIMARY_CLASS_ID, overlay);
-    return status === "present" || status === "absent";
-  }).length;
+  const lessons = await currentLessons(
+    db,
+    classes.map((c) => c.id),
+  );
+  const openIds = [...lessons.values()].filter((l) => l.open).map((l) => l.id);
+  const marks = await lessonAttendance(db, openIds);
+
+  // What each class's pass says under its name.
+  const note = (c: (typeof classes)[number]) => {
+    const lesson = lessons.get(c.id);
+    if (!lesson) return "No lessons scheduled";
+    const date = formatLessonDate(lesson.startsAt, c.timezone);
+    if (!lesson.open) return `Next: ${date}`;
+    const marked = marks.get(lesson.id)?.size ?? 0;
+    return marked === 0
+      ? `${date} · attendance not taken`
+      : `${date} · ${marked} of ${c.enrolled} marked`;
+  };
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -45,8 +54,8 @@ export default async function InstructorHome() {
           When you&apos;re assigned classes, they&apos;ll be here with their rosters one tap away.
         </EmptyState>
       ) : (
-        <section aria-labelledby="classes" className="flex flex-col gap-3">
-          <h2 id="classes" className="font-display text-xl font-semibold">
+        <section aria-labelledby="classes" className="grid gap-3 md:grid-cols-2">
+          <h2 id="classes" className="font-display text-xl font-semibold md:col-span-2">
             Your classes
           </h2>
           {classes.map((c, i) => (
@@ -68,13 +77,7 @@ export default async function InstructorHome() {
                 </span>
               </div>
               <p className="tabular mt-6 inline-flex rounded-full bg-white/60 px-3 py-1 text-sm font-semibold">
-                {c.id === PRIMARY_CLASS_ID
-                  ? marked === 0
-                    ? "Attendance not taken"
-                    : `${marked} of ${demoRoster.length} marked`
-                  : c.nextLesson
-                    ? `Next: ${formatLessonDate(c.nextLesson, c.timezone)}`
-                    : "No lessons scheduled"}
+                {note(c)}
               </p>
             </Link>
           ))}

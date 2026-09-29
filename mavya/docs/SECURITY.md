@@ -30,12 +30,12 @@ Ovyko should do better than the usual weaknesses of class-management software:
 | Shared front-desk logins | Individual accounts only (in place) |
 | Former staff keep access | Immediate staff removal (M2.5) |
 | Owner account protected by a password alone | Two-step sign-in for owners (M6) |
-| Parents can see other children on rosters or group messages | Roster privacy in every screen, email and text (M3–M5) |
+| Parents can see other children on rosters or group messages | Roster privacy in every screen, email and text (M4–M5) |
 | Health notes visible to every staff member | Need-to-know health notes (M6) |
 | No way to record custody restrictions | Custody and pickup restrictions (M6) |
 | Working With Children Checks tracked in spreadsheets | WWCC tracking with expiry reminders (later) |
 | Family data export and deletion by support email | Self-serve export and deletion for owners (M6) |
-| Child details in email subjects and lock-screen previews | Neutral notification wording (M3) |
+| Child details in email subjects and lock-screen previews | Neutral notification wording (in place) |
 | Migration by emailing spreadsheets | Import by upload; file deleted after import (M6) |
 | Support staff with silent access to customer data | Audited, time-limited internal admin access (M6) |
 
@@ -62,15 +62,24 @@ Ovyko should do better than the usual weaknesses of class-management software:
   Owners can't remove themselves, and can give access back. Staff changes are
   audited.
 
-### M3 — Attendance and progress
+### M3 — Attendance and progress (done)
 
-- **Shared poolside devices.** Instructor sessions on shared tablets sign out
-  after a period of inactivity.
+- **Shared poolside devices.** The instructor app signs out after 30 minutes
+  without a tap. The browser goes back to sign-in by itself, and the server
+  refuses an instructor request that arrives after the limit
+  (`src/lib/auth/idle.ts`). Parents and owners aren't affected.
 - **Neutral notifications.** Emails and push messages never put a child's
-  full name, health detail or location in the subject line or preview.
-  Details are shown only after sign-in.
-- **Photo consent.** If progress includes photos, each child has a consent
-  setting and photos are never shown without it.
+  name, a skill, health detail or a location in the subject line or preview:
+  they say "New progress update from Aqua House", and details are shown only
+  after sign-in (`outboundMessage` in `src/lib/domain/notifications.ts`,
+  used when delivery arrives in M6). Stored notifications hold ids, not
+  names, and each person can read only their own.
+- **Attendance and progress writes.** Only through database functions that
+  check the caller teaches the class (or owns the organisation), the child
+  is in it, and the lesson is open. The tables can't be written directly.
+- **Photo consent.** Not needed yet: progress has no photos in v0.1. If
+  photos are added, each child gets a consent setting and photos are never
+  shown without it.
 
 ### M4 — Absences and make-ups
 
