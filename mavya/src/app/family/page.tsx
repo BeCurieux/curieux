@@ -7,7 +7,7 @@ import { ProgressRing } from "@/components/demo/progress-ring";
 import { Button } from "@/components/ui/button";
 import { firstName, familyContext } from "@/lib/demo/context";
 import { MESSAGES } from "@/lib/demo/data";
-import { myNotifications } from "@/lib/domain/notifications";
+import { myNotifications, type AppNotification } from "@/lib/domain/notifications";
 import { familyChildren, type FamilyChildView } from "@/lib/family/children";
 import { lessonMoment } from "@/lib/format";
 
@@ -31,8 +31,11 @@ export default async function FamilyHome() {
   }
 
   const learning = children.filter((c) => c.progress);
-  // The newest achievement, or else the demo's newest message.
-  const [newest] = await myNotifications(db, 1);
+  // The newest update, or else the demo's newest message; and any spot
+  // offered that's still open.
+  const notifications = await myNotifications(db);
+  const newest = notifications[0];
+  const offer = notifications.find((n) => n.offer?.details.status === "offered");
   const demoMessage = MESSAGES[0]!.messages[0]!;
   const latest = newest
     ? {
@@ -40,7 +43,9 @@ export default async function FamilyHome() {
         title:
           newest.kind === "lesson_cancelled"
             ? `${newest.childFirstName}'s lesson is cancelled`
-            : `${newest.childFirstName} achieved ${newest.skill}`,
+            : newest.kind === "spot_offered"
+              ? `A spot opened for ${newest.childFirstName}`
+              : `${newest.childFirstName} achieved ${newest.skill}`,
       }
     : demo
       ? { from: demoMessage.from, title: demoMessage.title }
@@ -79,7 +84,7 @@ export default async function FamilyHome() {
         ))}
       </section>
 
-      <ActionCard kids={children} />
+      {offer ? <OfferCard offer={offer} /> : <ActionCard kids={children} />}
 
       {learning.map((child) => {
         const next = child.progress!.skills.find((s) => s.status !== "achieved");
@@ -133,6 +138,28 @@ function Greeting({ name, family }: { name: string; family: string }) {
       <h1 className="font-display text-[2.5rem] leading-tight font-semibold tracking-tight">
         Hi {firstName(name)}
       </h1>
+    </div>
+  );
+}
+
+// A spot the school offered, until it's claimed, declined or gone.
+function OfferCard({ offer }: { offer: AppNotification }) {
+  const { code, details } = offer.offer!;
+  const when = lessonMoment(details.startsAt, details.timezone);
+  return (
+    <div className="flex flex-col gap-4 rounded-lg bg-ink p-5 text-white">
+      <div className="flex items-center gap-3">
+        <Sparkles aria-hidden className="size-6 text-butter" />
+        <div>
+          <p className="text-lg font-semibold">A spot opened for {details.childFirstName}</p>
+          <p className="text-white/75">
+            {when.day} {when.time} · {details.level} · {when.date}
+          </p>
+        </div>
+      </div>
+      <Button asChild variant="warm" size="lg">
+        <Link href={`/family/claim/${code}`}>See the spot</Link>
+      </Button>
     </div>
   );
 }

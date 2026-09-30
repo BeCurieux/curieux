@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireShell } from "@/lib/auth/viewer";
 import { DomainError } from "@/lib/domain/db";
+import * as fill from "@/lib/domain/fill";
 import * as makeups from "@/lib/domain/makeups";
 import { markAllRead } from "@/lib/domain/notifications";
 import type { FormState } from "@/lib/forms";
@@ -93,4 +94,37 @@ export async function cancelMakeup(bookingId: string): Promise<FormState> {
       ? "Make-up cancelled. Your credit is back, ready to use."
       : "Make-up cancelled. It was too close to the lesson to get the credit back.",
   };
+}
+
+// ------------------------------------------------------------------ offered spots
+
+// Claim codes are 64 hex characters; anything else can't be one.
+const code = z.string().regex(/^[0-9a-f]{64}$/);
+
+const CLAIM_MESSAGES = {
+  taken: "Sorry, someone else just took that spot.",
+  expired: "This offer has expired.",
+  closed: "This offer is no longer open.",
+} as const;
+
+// Claims an offered spot. The database books it with the child's make-up
+// credit under the same locks as any make-up.
+export async function claimOffer(claimCode: string): Promise<FormState> {
+  if (!code.safeParse(claimCode).success) return { error: CLAIM_MESSAGES.closed };
+  const db = await familyDb();
+  const result = await attempt(() => fill.claimOffer(db, claimCode));
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/family", "layout");
+  const { outcome, bookingId } = result.ok;
+  if (outcome !== "claimed") return { error: CLAIM_MESSAGES[outcome] };
+  redirect(`/family/makeups?booked=${bookingId}`);
+}
+
+export async function declineOffer(claimCode: string): Promise<FormState> {
+  if (!code.safeParse(claimCode).success) return { error: CLAIM_MESSAGES.closed };
+  const db = await familyDb();
+  const result = await attempt(() => fill.declineOffer(db, claimCode));
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/family", "layout");
+  return result.ok ? { ok: "No problem. We'll let them know." } : { error: CLAIM_MESSAGES.closed };
 }

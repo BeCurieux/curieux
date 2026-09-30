@@ -31,6 +31,9 @@ export function explain(error: PostgrestError): DomainError {
     case "credit_in_use":
     case "place_taken":
     case "invalid_policy":
+    case "no_open_spot":
+    case "already_offered":
+    case "instructor_clash":
       return new DomainError(error.message);
   }
   switch (error.code) {

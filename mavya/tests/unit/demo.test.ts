@@ -2,16 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { Viewer } from "@/lib/auth/viewer";
 import { AVA_ID, DEMO_FAMILY_ID, DEMO_ORG_ID, PRIMARY_CLASS_ID } from "@/lib/demo/data";
 import {
-  candidatesFor,
   childSlug,
   classSlug,
-  isCandidate,
   isDemoFamily,
   isDemoStaff,
   resolveChildId,
   resolveClassId,
 } from "@/lib/demo/service";
-import { EMPTY_STATE, parseDemoState, type DemoState } from "@/lib/demo/state-schema";
 import demoJson from "../../seed/demo-data.json";
 import {
   CHILDREN,
@@ -21,8 +18,6 @@ import {
   ORGS,
   enrolmentRows,
 } from "../../scripts/fixtures";
-
-const state = (patch: Partial<DemoState> = {}): DemoState => ({ ...EMPTY_STATE, ...patch });
 
 const enrolled = (classId: string) => enrolmentRows().filter((e) => e.class_id === classId).length;
 
@@ -57,35 +52,6 @@ describe("demo data", () => {
     for (const child of demoJson.family.children) {
       for (const activity of child.activities) expect(activity.provider).toBe("Aqua House");
     }
-  });
-});
-
-describe("demo state cookie", () => {
-  it("falls back to a fresh demo for anything unreadable", () => {
-    expect(parseDemoState(undefined)).toEqual(EMPTY_STATE);
-    expect(parseDemoState("not json")).toEqual(EMPTY_STATE);
-    expect(parseDemoState(JSON.stringify({ offered: [42] }))).toEqual(EMPTY_STATE);
-    expect(parseDemoState(JSON.stringify({ offered: Array(50).fill("c1") }))).toEqual(EMPTY_STATE);
-  });
-
-  it("keeps a valid state", () => {
-    const valid = state({ offered: ["c1"] });
-    expect(parseDemoState(JSON.stringify(valid))).toEqual(valid);
-  });
-});
-
-describe("fill empty spots (demo until M5)", () => {
-  it("marks offered candidates", () => {
-    const offered = candidatesFor(CLASSES.dolphin3Wed.id, state({ offered: ["c1"] }));
-    expect(offered.map((c) => [c.id, c.offered])).toEqual([
-      ["c1", true],
-      ["c2", false],
-    ]);
-  });
-
-  it("knows its candidates", () => {
-    expect(isCandidate("c1")).toBe(true);
-    expect(isCandidate("someone-else")).toBe(false);
   });
 });
 

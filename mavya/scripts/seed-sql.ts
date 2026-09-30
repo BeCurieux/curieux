@@ -16,6 +16,7 @@ import {
   USERS,
   classRows,
   DEMO_ABSENCES,
+  PAST_MAKEUPS,
   enrolmentRows,
   expiringCreditRows,
   pastLessonRows,
@@ -132,6 +133,20 @@ for (const a of DEMO_ABSENCES) {
   );
 }
 lines.push(...upsert("makeup_credits", "id", expiringCreditRows()));
+
+// Last week's make-ups, into each target class's most recent lesson.
+for (const m of PAST_MAKEUPS) {
+  const last = `(select id from public.class_occurrences where class_id = ${q(m.class.id)}
+    and starts_at < now() order by starts_at desc limit 1)`;
+  lines.push(
+    `insert into public.makeup_credits (id, organisation_id, child_id, reason, issued_at, expires_at, status)
+  values (${q(m.creditId)}, ${q(m.class.organisation_id)}, ${q(m.child)}, 'absence', now() - interval '20 days', now() + interval '40 days', 'redeemed')
+  on conflict (id) do nothing;`,
+    `insert into public.makeup_bookings (id, organisation_id, credit_id, child_id, target_occurrence_id, status, booked_at)
+  values (${q(m.bookingId)}, ${q(m.class.organisation_id)}, ${q(m.creditId)}, ${q(m.child)}, ${last}, 'completed', now() - interval '12 days')
+  on conflict (id) do update set target_occurrence_id = excluded.target_occurrence_id;`,
+  );
+}
 
 lines.push("commit;");
 process.stdout.write(lines.join("\n") + "\n");

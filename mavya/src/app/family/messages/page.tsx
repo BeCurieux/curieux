@@ -1,4 +1,13 @@
-import { CalendarX2, Info, Megaphone, MessageCircle, PartyPopper, Trophy } from "lucide-react";
+import {
+  CalendarX2,
+  Info,
+  Megaphone,
+  MessageCircle,
+  PartyPopper,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/demo/empty-state";
 import { MarkRead } from "@/components/family/mark-read";
@@ -42,11 +51,17 @@ export default async function MessagesPage() {
               <span
                 className={cn(
                   "grid size-11 shrink-0 place-items-center rounded-full [&_svg]:size-5",
-                  n.kind === "lesson_cancelled" ? "bg-[#fde3dd]" : "bg-butter",
+                  n.kind === "lesson_cancelled"
+                    ? "bg-[#fde3dd]"
+                    : n.kind === "spot_offered"
+                      ? "bg-mint"
+                      : "bg-butter",
                 )}
               >
                 {n.kind === "lesson_cancelled" ? (
                   <CalendarX2 aria-hidden />
+                ) : n.kind === "spot_offered" ? (
+                  <Sparkles aria-hidden />
                 ) : (
                   <Trophy aria-hidden />
                 )}
@@ -75,6 +90,23 @@ export default async function MessagesPage() {
                     <p className="text-muted">
                       {n.childFirstName} has a make-up credit to book another class.
                     </p>
+                  </>
+                ) : n.kind === "spot_offered" ? (
+                  <>
+                    <h3 className="font-semibold">A spot opened for {n.childFirstName}</h3>
+                    {n.offer ? (
+                      <p className="text-muted">
+                        {lessonMoment(n.offer.details.startsAt, n.offer.details.timezone).day}{" "}
+                        {lessonMoment(n.offer.details.startsAt, n.offer.details.timezone).time} ·{" "}
+                        {n.offer.details.level} ·{" "}
+                        <Link
+                          href={`/family/claim/${n.offer.code}`}
+                          className="font-semibold text-ink underline"
+                        >
+                          {n.offer.details.status === "offered" ? "See the spot" : "Details"}
+                        </Link>
+                      </p>
+                    ) : null}
                   </>
                 ) : (
                   <>

@@ -15,23 +15,40 @@ export function useFieldError(name: string): string | undefined {
 // submit button and passes field errors down to each Field.
 export function ActionForm({
   action,
-  submitLabel,
-  pendingLabel = "Saving…",
-  children,
-  className,
-  variant = "primary",
+  ...rest
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
+} & Omit<FormShellProps, "action" | "state" | "pending">) {
+  const [state, formAction, pending] = useActionState(action, {});
+  return <FormShell action={formAction} state={state} pending={pending} {...rest} />;
+}
+
+type FormShellProps = {
+  action: (formData: FormData) => void;
+  state: FormState;
+  pending: boolean;
   submitLabel: string;
   pendingLabel?: string;
   children: ReactNode;
   className?: string;
   variant?: "primary" | "warm";
-}) {
-  const [state, formAction, pending] = useActionState(action, {});
+};
+
+// The form itself, for a caller that holds the action's state (to show
+// more than a message from it).
+export function FormShell({
+  action,
+  state,
+  pending,
+  submitLabel,
+  pendingLabel = "Saving…",
+  children,
+  className,
+  variant = "primary",
+}: FormShellProps) {
   return (
     <FieldErrors.Provider value={state.fieldErrors ?? {}}>
-      <form action={formAction} noValidate className={cn("flex flex-col gap-5", className)}>
+      <form action={action} noValidate className={cn("flex flex-col gap-5", className)}>
         {children}
         {state.error ? (
           <p

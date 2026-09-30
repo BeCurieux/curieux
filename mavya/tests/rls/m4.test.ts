@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { CHILDREN, CLASSES, LOCATIONS, ORGS } from "../../scripts/fixtures";
-import { signInAs, type Session } from "./helpers";
+import { resetFamily, signInAs, type Session } from "./helpers";
 
 // M4 acceptance (security and rules): docs/M4_MAKEUPS.md. Every check runs as
 // a real signed-in user through the public API. It uses lessons a week or
@@ -60,6 +60,7 @@ beforeAll(async () => {
       signInAs("burrowsParent"),
       signInAs("chenParent"),
     ]);
+  await resetFamily(burrows);
   for (const [key, c] of Object.entries(CLASSES)) {
     lessons[key] = await upcoming(key === "gymLevel2Sat" ? peakOwner : aquaOwner, c.id);
   }
@@ -343,6 +344,17 @@ describe("cancelling a day's lessons", () => {
 
   it("credits every enrolled child, refunds make-ups booked into it and tells families", async () => {
     const thu = lesson("dolphin3Thu", 1);
+    try {
+      await cancelAndCheck(thu);
+    } finally {
+      await aquaOwner.client
+        .from("class_occurrences")
+        .update({ status: "scheduled" })
+        .eq("id", thu);
+    }
+  });
+
+  async function cancelAndCheck(thu: string) {
     const { data: booked } = await book(burrows, credit1, thu);
     const { data: count, error } = await cancel(
       aquaOwner,
@@ -375,10 +387,12 @@ describe("cancelling a day's lessons", () => {
       .from("notifications")
       .select("type, payload_json")
       .eq("type", "lesson_cancelled");
+    // Another family isn't told about this lesson.
     const { data: notTold } = await chen.client
       .from("notifications")
       .select("id")
-      .eq("type", "lesson_cancelled");
+      .eq("type", "lesson_cancelled")
+      .eq("payload_json->>occurrence_id", thu);
     expect(status!.status).toBe("cancelled");
     expect(bookingRow!.status).toBe("cancelled");
     expect(credit!.status).toBe("available");
@@ -387,9 +401,7 @@ describe("cancelling a day's lessons", () => {
       thu,
     );
     expect(notTold).toEqual([]);
-
-    await aquaOwner.client.from("class_occurrences").update({ status: "scheduled" }).eq("id", thu);
-  });
+  }
 });
 
 describe("make-up rules", () => {

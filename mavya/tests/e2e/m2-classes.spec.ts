@@ -21,8 +21,12 @@ async function noSeriousViolations(page: Page) {
 
 test("set up a class, add a family, enrol, fill, un-enrol, and see it all in Activity", async ({
   page,
-}) => {
+}, testInfo) => {
   const tag = randomUUID().slice(0, 6);
+  // Each project teaches at its own time: Mia can't be in two classes at
+  // once (M5's clash check).
+  const [time, shown] =
+    testInfo.project.name === "phone" ? ["07:30", "7:30am"] : ["15:30", "3:30pm"];
   await signIn(page, USERS.aquaOwner.email);
 
   // 1. Location, program and level.
@@ -54,12 +58,12 @@ test("set up a class, add a family, enrol, fill, un-enrol, and see it all in Act
   await page.getByLabel("Location").selectOption({ label: `Pool ${tag}` });
   await page.getByLabel(/Instructor/).selectOption({ label: "Mia Chen" });
   await page.getByLabel("Day").selectOption({ label: "Friday" });
-  await page.getByLabel("Start time").fill("15:30");
+  await page.getByLabel("Start time").fill(time);
   await page.getByLabel("Places").fill("1");
   await noSeriousViolations(page);
   await page.getByRole("button", { name: "Create class" }).click();
   await expect(page.getByRole("heading", { name: `Bronze ${tag}`, level: 1 })).toBeVisible();
-  await expect(page.getByText("Friday 3:30pm", { exact: false })).toBeVisible();
+  await expect(page.getByText(`Friday ${shown}`, { exact: false })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Upcoming lessons" }).locator("..").getByRole("listitem"),
   ).toHaveCount(12);
@@ -149,7 +153,7 @@ test("instructors see their classes and real rosters, and can't reach business p
   page,
 }) => {
   await signIn(page, USERS.aquaInstructor.email);
-  await expect(page.getByRole("link", { name: "Dolphin 1, Tuesday 5:00pm" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Dolphin 1, Tuesday 5:30pm" })).toBeVisible();
   await page.getByRole("link", { name: "Dolphin 3, Thursday 4:30pm" }).click();
   // Since M3 the roster sits under the current lesson's attendance count.
   await expect(page.getByText(/of 12 marked/)).toBeVisible();
@@ -162,11 +166,11 @@ test("parents see their children's real classes on Home, Calendar and Kids", asy
   await signIn(page, USERS.burrowsParent.email);
   // The first link to Leo is his class pass; his progress card follows.
   await expect(page.locator('a[href="/family/kids/leo"]').first()).toContainText(
-    "Tuesday · 5:00pm",
+    "Tuesday · 5:30pm",
   );
   await page.goto("/family/calendar");
   await expect(page.getByRole("link", { name: /Leo · Swimming · Dolphin 1/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Ava · Swimming · Dolphin 3/ })).toBeVisible();
   await page.goto("/family/kids");
-  await expect(page.getByText("Dolphin 1 · Tuesdays 5:00pm")).toBeVisible();
+  await expect(page.getByText("Dolphin 1 · Tuesdays 5:30pm")).toBeVisible();
 });

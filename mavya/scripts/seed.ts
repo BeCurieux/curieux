@@ -18,6 +18,7 @@ import {
   USERS,
   classRows,
   DEMO_ABSENCES,
+  PAST_MAKEUPS,
   enrolmentRows,
   expiringCreditRows,
   pastLessonRows,
@@ -197,6 +198,44 @@ async function main() {
     );
   }
   check(await admin.from("makeup_credits").upsert(expiringCreditRows()), "expiring credits");
+
+  // Last week's make-ups, into each target class's most recent lesson.
+  const day = 24 * 60 * 60 * 1000;
+  for (const m of PAST_MAKEUPS) {
+    const { data: last, error } = await admin
+      .from("class_occurrences")
+      .select("id")
+      .eq("class_id", m.class.id)
+      .lt("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .single();
+    if (error || !last) throw new Error(`last lesson of ${m.class.name}: ${error?.message}`);
+    check(
+      await admin.from("makeup_credits").upsert({
+        id: m.creditId,
+        organisation_id: m.class.organisation_id,
+        child_id: m.child,
+        reason: "absence",
+        issued_at: new Date(Date.now() - 20 * day).toISOString(),
+        expires_at: new Date(Date.now() + 40 * day).toISOString(),
+        status: "redeemed",
+      }),
+      "past make-up credit",
+    );
+    check(
+      await admin.from("makeup_bookings").upsert({
+        id: m.bookingId,
+        organisation_id: m.class.organisation_id,
+        credit_id: m.creditId,
+        child_id: m.child,
+        target_occurrence_id: last.id,
+        status: "completed",
+        booked_at: new Date(Date.now() - 12 * day).toISOString(),
+      }),
+      "past make-up",
+    );
+  }
   console.log("seeded the timetable");
 }
 

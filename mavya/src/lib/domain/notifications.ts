@@ -1,13 +1,15 @@
 import "server-only";
 import { must, type Db } from "./db";
+import { offerDetails, type OfferDetails } from "./fill";
 
 // A parent's notifications. The database creates them when a skill is
-// achieved (M3) or a lesson is cancelled (M4) and stores ids only; names are
-// looked up here, with the parent's own access, after they've signed in.
+// achieved (M3), a lesson is cancelled (M4) or a spot is offered (M5) and
+// stores ids only (and an offer's claim code); names are looked up here,
+// with the parent's own access, after they've signed in.
 
 export type AppNotification = {
   id: string;
-  kind: "skill_achieved" | "lesson_cancelled";
+  kind: "skill_achieved" | "lesson_cancelled" | "spot_offered";
   organisation: string;
   childFirstName: string;
   // The skill achieved, or the cancelled lesson's start.
@@ -16,6 +18,9 @@ export type AppNotification = {
   lessonTimezone: string | null;
   createdAt: string;
   unread: boolean;
+  // For a spot offered: its claim code and what it offers, while the offer
+  // is theirs to see.
+  offer: { code: string; details: OfferDetails } | null;
 };
 
 export async function myNotifications(db: Db, limit = 30): Promise<AppNotification[]> {
@@ -28,11 +33,12 @@ export async function myNotifications(db: Db, limit = 30): Promise<AppNotificati
   );
   if (rows.length === 0) return [];
   const payload = (p: unknown) =>
-    (p ?? {}) as { child_id?: string; skill_id?: string; occurrence_id?: string };
+    (p ?? {}) as { child_id?: string; skill_id?: string; occurrence_id?: string; code?: string };
   const childIds = [...new Set(rows.flatMap((r) => payload(r.payload_json).child_id ?? []))];
   const skillIds = [...new Set(rows.flatMap((r) => payload(r.payload_json).skill_id ?? []))];
   const lessonIds = [...new Set(rows.flatMap((r) => payload(r.payload_json).occurrence_id ?? []))];
-  const [children, skills, organisations, lessons] = await Promise.all([
+  const codes = [...new Set(rows.flatMap((r) => payload(r.payload_json).code ?? []))];
+  const [children, skills, organisations, lessons, offers] = await Promise.all([
     db.from("children").select("id, first_name").in("id", childIds),
     db.from("skills").select("id, name").in("id", skillIds),
     db.from("organisations").select("id, name"),
@@ -40,7 +46,9 @@ export async function myNotifications(db: Db, limit = 30): Promise<AppNotificati
       .from("class_occurrences")
       .select("id, starts_at, classes (locations (timezone))")
       .in("id", lessonIds),
+    Promise.all(codes.map(async (code) => [code, await offerDetails(db, code)] as const)),
   ]);
+  const offerByCode = new Map(offers);
   const childNames = new Map(must(children).map((c) => [c.id, c.first_name]));
   const skillNames = new Map(must(skills).map((s) => [s.id, s.name]));
   const orgNames = new Map(must(organisations).map((o) => [o.id, o.name]));
@@ -54,8 +62,15 @@ export async function myNotifications(db: Db, limit = 30): Promise<AppNotificati
     ).map((l) => [l.id, { startsAt: l.starts_at, tz: l.classes?.locations?.timezone ?? null }]),
   );
   return rows.flatMap((r) => {
-    const { child_id, skill_id, occurrence_id } = payload(r.payload_json);
-    const lesson = occurrence_id ? lessonTimes.get(occurrence_id) : undefined;
+    const { child_id, skill_id, occurrence_id, code } = payload(r.payload_json);
+    const offer = code ? offerByCode.get(code) : null;
+    // An offered spot's lesson isn't in the family's classes; its time comes
+    // with the offer.
+    const lesson = offer
+      ? { startsAt: offer.startsAt, tz: offer.timezone }
+      : occurrence_id
+        ? lessonTimes.get(occurrence_id)
+        : undefined;
     const child = child_id ? childNames.get(child_id) : undefined;
     // A child who has left the family is no longer this parent's to hear about.
     if (!child) return [];
@@ -70,6 +85,7 @@ export async function myNotifications(db: Db, limit = 30): Promise<AppNotificati
         skill: (skill_id && skillNames.get(skill_id)) || "a new skill",
         createdAt: r.created_at,
         unread: r.read_at === null,
+        offer: code && offer ? { code, details: offer } : null,
       },
     ];
   });

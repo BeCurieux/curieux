@@ -972,6 +972,77 @@ export type Database = {
         };
         Relationships: [];
       };
+      vacancy_offers: {
+        Row: {
+          booking_id: string | null;
+          child_id: string;
+          code_hash: string;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          occurrence_id: string;
+          offered_by: string | null;
+          organisation_id: string;
+          responded_at: string | null;
+          status: string;
+        };
+        Insert: {
+          booking_id?: string | null;
+          child_id: string;
+          code_hash: string;
+          created_at?: string;
+          expires_at: string;
+          id?: string;
+          occurrence_id: string;
+          offered_by?: string | null;
+          organisation_id: string;
+          responded_at?: string | null;
+          status?: string;
+        };
+        Update: {
+          booking_id?: string | null;
+          child_id?: string;
+          code_hash?: string;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          occurrence_id?: string;
+          offered_by?: string | null;
+          organisation_id?: string;
+          responded_at?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vacancy_offers_booking_id_fkey";
+            columns: ["booking_id"];
+            isOneToOne: false;
+            referencedRelation: "makeup_bookings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "vacancy_offers_offered_by_fkey";
+            columns: ["offered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "vacancy_offers_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "vacancy_offers_organisation_id_occurrence_id_fkey";
+            columns: ["organisation_id", "occurrence_id"];
+            isOneToOne: false;
+            referencedRelation: "class_occurrences";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -981,6 +1052,22 @@ export type Database = {
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
       check_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string[] };
+      claim_offer: {
+        Args: { p_code: string };
+        Returns: {
+          booking_id: string;
+          outcome: string;
+        }[];
+      };
+      decline_offer: { Args: { p_code: string }; Returns: boolean };
+      fill_tally: {
+        Args: { p_days?: number; p_org: string };
+        Returns: {
+          families: number;
+          makeups_delivered: number;
+          offers_claimed: number;
+        }[];
+      };
       makeup_options: {
         Args: { p_credit: string };
         Returns: {
@@ -998,6 +1085,45 @@ export type Database = {
       };
       makeup_policy: { Args: { p_org: string }; Returns: Json };
       mark_notifications_read: { Args: Record<PropertyKey, never>; Returns: undefined };
+      offer_details: {
+        Args: { p_code: string };
+        Returns: {
+          child_first_name: string;
+          child_id: string;
+          class_name: string;
+          ends_at: string;
+          expires_at: string;
+          instructor_first_name: string;
+          level_name: string;
+          location_name: string;
+          offer_id: string;
+          starts_at: string;
+          status: string;
+          timezone: string;
+        }[];
+      };
+      offer_spot: { Args: { p_child: string; p_occurrence: string }; Returns: string };
+      open_spots: {
+        Args: { p_days?: number; p_org: string };
+        Returns: {
+          class_id: string;
+          occurrence_id: string;
+          offers_claimed: number;
+          offers_open: number;
+          spots: number;
+          starts_at: string;
+        }[];
+      };
+      preview_cancel_lessons: {
+        Args: { p_date: string; p_location: string };
+        Returns: {
+          children: number;
+          credits: number;
+          families: number;
+          lessons: number;
+          makeups: number;
+        }[];
+      };
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
         Returns: undefined;
@@ -1023,6 +1149,18 @@ export type Database = {
       restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      vacancy_candidates: {
+        Args: { p_occurrence: string };
+        Returns: {
+          child_id: string;
+          credit_expires_at: string;
+          family_name: string;
+          first_name: string;
+          last_name: string;
+          missed_at: string;
+          offer_status: string;
+        }[];
+      };
       withdraw_absence: { Args: { p_absence: string }; Returns: undefined };
     };
     Enums: {
