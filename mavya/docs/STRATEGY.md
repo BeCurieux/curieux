@@ -24,6 +24,92 @@ touching it.
 > Let parents fix routine things themselves. Give instructors a tool they
 > barely have to think about.
 
+## The north star
+
+Ovyko is infrastructure for recurring family activities, not another
+booking portal with a nicer interface. It should earn two promises:
+
+- **To providers: run your activity business almost automatically.** The
+  software fills classes, handles routine admin, collects payments, manages
+  families, and shows only what needs a person.
+- **To families: everything your kids do, in one place.** One account for
+  activities, schedules, payments, progress, messages and bookings, across
+  every provider they use.
+
+**The number we steer by: the share of routine admin Ovyko finishes with no
+staff involved.** Every automatic step is logged, so it can be counted.
+
+### The decision filter
+
+Every major decision must do at least one of these:
+
+1. reduce provider admin;
+2. fill more places or earn more per class;
+3. make things easier for families;
+4. deepen the data and network advantage;
+5. make Ovyko harder to replace;
+6. work across more than one kind of activity.
+
+If it does none, it waits.
+
+### The three assets we're building
+
+Features can be copied. These are hard to copy, and they are what an
+acquirer would value:
+
+1. **The activity automation engine.** Resolves absences, vacancies,
+   make-ups, progression, waitlists, payments and scheduling on its own.
+2. **The family graph.** One family → children → activities → providers →
+   schedules → payments → progress, across organisations, with each
+   provider seeing only what the family has shared with it.
+3. **The migration and data layer.** Takes messy data from iClassPro,
+   SimplySwim, Class Manager and others and turns it into one clean activity
+   model. "Give us access. We'll move you."
+
+### Phases
+
+1. The best swim-school platform (now).
+2. The best children's activity platform (gymnastics, dance, martial arts).
+3. The universal family activity account.
+4. Maybe discovery: "Jack has nothing on Saturday morning" → trial places,
+   last-minute vacancies, holiday programs. Only once enough providers use
+   Ovyko to make it useful. Not in v0.1 (CLAUDE.md rule 13).
+
+### How we'll check we're right
+
+Before building much further, interview and screen-share with 20–30
+operators. For each routine job (an absence, a make-up, a transfer, a failed
+payment, a level-up), count the clicks and minutes it takes them today. That
+becomes the baseline for the pitch: "we cut your admin by X%", measured, not
+guessed.
+
+### Where today's build stands against it
+
+| North-star piece | Today | Gap |
+|---|---|---|
+| Automation engine | Absence → credit → spot offered → claimed → roster, with no staff (M4–M5.5) | Waitlists, level-ups, payments; counting the "no staff" share |
+| Class capacity as something to optimise | Capacity, levels, make-up rules, instructor clashes | Ratios, preferred times, sibling schedules, location, history |
+| One family identity | One parent login across schools | Each school holds its own family and child records; no shared child profile yet (see below) |
+| Whole-family view | Parent Home shows all children | Sibling clashes and "Leo finishes at 4:15 nearby" |
+| Clean activity model | Organisation → Location → Program → Level → Class → Lesson, not swim-specific in the data | An explicit Activity kind and per-activity add-ons (lanes, belts, rehearsals) |
+| Migration | Planned (M6) | Reusable importers per competitor |
+| Family ledger and payments | Designed before payments (M7) | Everything |
+| Data advantage | Every change audited; fill tally | Utilisation, retention and benchmarks across schools |
+| Retention and lifecycle | Not started | Risk signals, trial → enrol follow-ups |
+| APIs | Not started | Integrate (accounting, payroll, websites) instead of rebuilding |
+
+### A decision to make before the pilot's data grows: the family graph
+
+Today each school keeps its own family and child records (so one school
+can never see another's children, rule 15), and a parent's single login
+links to each. The north star wants the family to own the child's profile
+(date of birth, medical notes, emergency contacts, carers, consents) and
+**share** it with each provider. The likely shape: a family-owned profile
+that a provider gets a copy of, or access to, only when the family enrols;
+the school's own records (attendance, levels, credits) stay the school's.
+That's a data-model and privacy change, so it needs its own milestone and
+sign-off, not a quiet refactor.
+
 ## The seven must-haves
 
 | # | Must-have | What it means | Where it is |
@@ -42,15 +128,15 @@ the capacity and the family, and finishing the job.
 
 ## How we measure it
 
-Three that matter most:
+The north star: **share of routine admin finished with no staff** ↑. Then
+three that matter most:
 
 - **Admin hours per 100 students** ↓
 - **Filled places per available place** (on the way to revenue per
   available place-hour) ↑
 - **Parent effort per task**: time, taps and failures ↓
 
-Supporting: places refilled after absences, time to fill, share of routine
-work needing no staff, make-up credits ageing, attendance completeness,
+Supporting: places refilled after absences, time to fill, make-up credits ageing, attendance completeness,
 parent self-service rate, and (with payments) failed-payment recovery.
 
 Show them to owners. Today should say what the software did this week, not
@@ -90,9 +176,18 @@ Not yet: council leisure centres (procurement, facilities, concessions).
 ## Deliberately not building yet
 
 Website builder, per-school branded apps, a chatbot, point of sale, full
-accounting or payroll, camps and events, marketing funnels, every activity
-at once, council leisure centres. Some are good later; none makes a school
-switch now.
+accounting or payroll, HR, generic email marketing, document storage, camps
+and events, every activity at once, council leisure centres, a marketplace.
+Some are good later; none makes a school switch now. Where a school needs
+one of these, connect to it (APIs) rather than rebuild it. Stay excellent at
+one job: running recurring activities with as little human admin as
+possible.
+
+Later, after the pilot, with real data: retention signals ("17 families
+look likely to leave this month" plus a suggested next step), lifecycle
+follow-ups (trial → enrol; "Ava is ready for Level 4, here are classes
+that fit the family"), and benchmarks across schools ("your Saturday
+mornings are 91% full versus 84% for similar schools").
 
 ## Open questions
 

@@ -222,17 +222,22 @@ make-ups booked.
 - occurrence_id — the lesson with the open spot
 - child_id — who it's offered to
 - code_hash — SHA-256 of the claim code; the code itself is never stored
-- status: offered | claimed | declined | expired | filled
-- expires_at — 24 hours after offering, or the lesson's start if sooner
+- status: offered | claimed | declined | expired | filled | withdrawn
+- expires_at — by hand: 24 hours after offering, or the lesson's start if
+  sooner; automatic: the school's hold time, or 30 minutes before the
+  lesson if sooner
 - booking_id nullable — the make-up booked when it's claimed
-- offered_by
+- offered_by nullable — empty when the engine made the offer (M5.5)
 - created_at
 - responded_at nullable
 
 An invitation, not a hold: a spot can be offered to several families and
 the first to claim it gets it; the lesson's other offers then close as
 filled. Written only by `offer_spot`, `claim_offer` and `decline_offer`
-(M5).
+(M5), and by the automatic-offer engine (M5.5), which offers one family at
+a time. `withdrawn` means the offer closed because the child's credit was
+used or taken back, or the lesson was cancelled; unlike declined or
+expired, it doesn't stop the child being offered that lesson again.
 
 ### WaitlistEntry
 - id

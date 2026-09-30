@@ -26,7 +26,7 @@ export async function openSpots(db: Db, organisationId: string, days = 7): Promi
   }));
 }
 
-export type OfferStatus = "offered" | "claimed" | "declined" | "expired" | "filled";
+export type OfferStatus = "offered" | "claimed" | "declined" | "expired" | "filled" | "withdrawn";
 
 export type Candidate = {
   childId: string;
@@ -35,6 +35,9 @@ export type Candidate = {
   creditExpiresAt: string;
   missedAt: string | null;
   offerStatus: OfferStatus | null;
+  // Whether the latest offer was made by the engine, and when it runs out.
+  offerAutomatic: boolean;
+  offerExpiresAt: string | null;
 };
 
 export async function candidates(db: Db, occurrenceId: string): Promise<Candidate[]> {
@@ -46,6 +49,8 @@ export async function candidates(db: Db, occurrenceId: string): Promise<Candidat
     creditExpiresAt: r.credit_expires_at,
     missedAt: r.missed_at,
     offerStatus: (r.offer_status as OfferStatus | null) ?? null,
+    offerAutomatic: r.offer_automatic,
+    offerExpiresAt: r.offer_expires_at,
   }));
 }
 

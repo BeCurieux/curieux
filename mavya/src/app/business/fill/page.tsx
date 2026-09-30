@@ -32,7 +32,8 @@ export default async function FillPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
           Places freed by absences in the next 7 days. These children hold a make-up credit that
-          fits. Offer a spot and the family can claim it in one tap; the first to claim gets it.
+          fits. With automatic offers on, the best fit is offered each spot for you; you can also
+          offer one yourself. The first to claim gets it.
         </p>
       </div>
 
@@ -112,7 +113,15 @@ function CandidateList({
           {p.offerStatus === "offered" ||
           p.offerStatus === "claimed" ||
           p.offerStatus === "declined" ? (
-            <OfferState status={p.offerStatus} />
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <OfferState status={p.offerStatus} />
+              {p.offerStatus === "offered" && p.offerAutomatic ? (
+                <p className="text-sm text-muted">
+                  Offered automatically
+                  {p.offerExpiresAt ? ` · ${timeLeft(p.offerExpiresAt)}` : ""}
+                </p>
+              ) : null}
+            </div>
           ) : (
             <OfferButton occurrenceId={occurrenceId} childId={p.childId} name={p.name} />
           )}
@@ -120,4 +129,12 @@ function CandidateList({
       ))}
     </ul>
   );
+}
+
+// "1h 20m left", for an open offer.
+function timeLeft(iso: string) {
+  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60_000));
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h ? `${h}h ` : ""}${m}m left`;
 }

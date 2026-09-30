@@ -81,6 +81,32 @@ export function MakeupPolicyForm({ policy }: { policy: MakeupPolicy }) {
           options={yesNo}
         />
       </div>
+      <fieldset className="flex flex-col gap-5 rounded-lg bg-surface-soft p-5">
+        <legend className="sr-only">Automatic offers</legend>
+        <p className="font-semibold">When a spot opens</p>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <SelectField
+            name="autoOffer"
+            label="Offer it to families automatically"
+            hint="The family whose credit fits best is offered it first; if they say no, the next is."
+            defaultValue={policy.autoOffer ? "yes" : "no"}
+            options={yesNo}
+          />
+          <SelectField
+            name="offerHoldMinutes"
+            label="Each family has"
+            defaultValue={String(policy.offerHoldMinutes)}
+            options={[
+              { value: "30", label: "30 minutes" },
+              { value: "60", label: "1 hour" },
+              { value: "120", label: "2 hours" },
+              { value: "240", label: "4 hours" },
+              { value: "720", label: "12 hours" },
+              { value: "1440", label: "24 hours" },
+            ]}
+          />
+        </div>
+      </fieldset>
     </ActionForm>
   );
 }

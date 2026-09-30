@@ -1158,6 +1158,8 @@ export type Database = {
           first_name: string;
           last_name: string;
           missed_at: string;
+          offer_automatic: boolean;
+          offer_expires_at: string;
           offer_status: string;
         }[];
       };

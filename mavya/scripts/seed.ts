@@ -13,7 +13,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../src/lib/supabase/database.types";
 import {
-  FAMILIES,
+  parentFamilyId,
   ORGS,
   USERS,
   classRows,
@@ -137,7 +137,7 @@ async function main() {
         await admin.from("family_members").upsert(
           {
             user_id: userId,
-            family_id: FAMILIES[user.family.family].id,
+            family_id: parentFamilyId(user.family.family),
             relationship: user.family.relationship,
             is_primary_guardian: user.family.primary,
           },

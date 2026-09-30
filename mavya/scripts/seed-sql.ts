@@ -11,7 +11,7 @@
 //   DEMO_PASSWORD=... npx tsx scripts/seed-sql.ts > /tmp/demo-seed.sql
 
 import {
-  FAMILIES,
+  parentFamilyId,
   ORGS,
   USERS,
   classRows,
@@ -65,7 +65,7 @@ for (const user of Object.values(USERS) as SeedUser[]) {
     : "";
   const family = user.family
     ? `insert into public.family_members (user_id, family_id, relationship, is_primary_guardian)
-    values (profile_id, ${q(FAMILIES[user.family.family].id)}, ${q(user.family.relationship)}, ${user.family.primary})
+    values (profile_id, ${q(parentFamilyId(user.family.family))}, ${q(user.family.relationship)}, ${user.family.primary})
     on conflict (family_id, user_id) do update set relationship = excluded.relationship, is_primary_guardian = excluded.is_primary_guardian;`
     : "";
 

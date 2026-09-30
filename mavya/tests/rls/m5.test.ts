@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { CHILDREN, CLASSES, LOCATIONS, ORGS } from "../../scripts/fixtures";
+import { CHILDREN, CLASSES, DEMO_ABSENCES, LOCATIONS, ORGS } from "../../scripts/fixtures";
 import { anonymous, resetFamily, signInAs, type Session } from "./helpers";
 
 // M5 acceptance (security and rules): docs/M5_FILL_SPOTS.md. Every check runs
@@ -7,12 +7,16 @@ import { anonymous, resetFamily, signInAs, type Session } from "./helpers";
 // weeks gives her a credit; the next Thursday lesson has a spot from its
 // seeded absence, which the owner offers her. What the tests book they
 // cancel at the end, so a rerun starts clean.
+//
+// Offers made by hand are tested with automatic offers (M5.5) off; the last
+// section turns them on and tests the engine.
 
 let aquaOwner: Session;
 let aquaInstructor: Session;
 let peakOwner: Session;
 let burrows: Session;
 let chen: Session;
+let martin: Session;
 
 const lessons: Record<string, { id: string; starts_at: string }[]> = {};
 let avaAbsence: string;
@@ -65,13 +69,15 @@ async function declineOpen(s: Session, occurrence: string) {
 }
 
 beforeAll(async () => {
-  [aquaOwner, aquaInstructor, peakOwner, burrows, chen] = await Promise.all([
+  [aquaOwner, aquaInstructor, peakOwner, burrows, chen, martin] = await Promise.all([
     signInAs("aquaOwner"),
     signInAs("aquaInstructor"),
     signInAs("peakOwner"),
     signInAs("burrowsParent"),
     signInAs("chenParent"),
+    signInAs("martinParent"),
   ]);
+  await rules({ auto_offer: false });
   for (const [key, c] of Object.entries(CLASSES)) {
     lessons[key] = await upcoming(key === "gymLevel2Sat" ? peakOwner : aquaOwner, c.id);
   }
@@ -99,7 +105,17 @@ afterAll(async () => {
   await cancelBookings();
   await burrows.client.rpc("withdraw_absence", { p_absence: avaAbsence });
   await setCapacity(lesson("dolphin3Thu", 0), null);
+  await rules({});
 });
+
+// Saves Aqua House's make-up rules.
+const rules = async (config: Record<string, unknown>) => {
+  const { error } = await aquaOwner.client.rpc("save_makeup_policy", {
+    p_org: ORGS.aqua.id,
+    p_config: config as never,
+  });
+  if (error) throw error;
+};
 
 describe("open spots and candidates", () => {
   it("the owner sees each lesson's open spots; nobody else can ask", async () => {
@@ -393,5 +409,130 @@ describe("instructor clash check", () => {
       .update({ start_time: "17:30" })
       .eq("id", CLASSES.dolphin1Tue.id);
     expect(error).toBeNull();
+  });
+});
+
+describe("automatic offers (M5.5)", () => {
+  // Only Ava and Zoe have parents with accounts. Zoe steps out (her family
+  // takes back her absence, so she holds no credit) and Ava is the family
+  // the engine offers spots to.
+  const satChild = DEMO_ABSENCES[2]!.child;
+  const created: string[] = [];
+  let avaOffer: { id: string; occurrence_id: string };
+
+  const ownerAbsence = async (occurrence: string, child = satChild) => {
+    const { data, error } = await aquaOwner.client.rpc("report_absence", {
+      p_occurrence: occurrence,
+      p_child: child,
+    });
+    if (error) throw error;
+    created.push(data[0]!.absence_id);
+  };
+  const avaOpenOffers = async () => {
+    const { data } = await burrows.client
+      .from("vacancy_offers")
+      .select("id, occurrence_id, offered_by, status")
+      .eq("child_id", CHILDREN.ava.id)
+      .eq("status", "offered");
+    return data ?? [];
+  };
+
+  beforeAll(async () => {
+    await resetFamily(burrows);
+    await resetFamily(martin);
+    await rules({});
+    // Another spot, next Saturday but one.
+    await ownerAbsence(lesson("dolphin3Sat", 1));
+  });
+
+  afterAll(async () => {
+    await resetFamily(burrows);
+    for (const id of created) await aquaOwner.client.rpc("withdraw_absence", { p_absence: id });
+    // Zoe is away again, as seeded.
+    await martin.client.rpc("report_absence", {
+      p_occurrence: lesson("dolphin3Wed", 0),
+      p_child: CHILDREN.zoe.id,
+    });
+    await rules({ auto_offer: false });
+  });
+
+  it("offers a spot as soon as a family holds a credit that fits, with no owner", async () => {
+    expect(await avaOpenOffers()).toEqual([]);
+    const { error } = await burrows.client.rpc("report_absence", {
+      p_occurrence: lesson("dolphin3Wed", 3),
+      p_child: CHILDREN.ava.id,
+    });
+    expect(error).toBeNull();
+    const open = await avaOpenOffers();
+    // One credit, so one open offer at a time.
+    expect(open).toHaveLength(1);
+    expect(open[0]!.offered_by).toBeNull();
+    avaOffer = open[0]!;
+    // The family was told, with a code only they can see.
+    expect(await codeFor(burrows, avaOffer.occurrence_id)).toMatch(/^[0-9a-f]{64}$/);
+    expect(await codeFor(chen, avaOffer.occurrence_id)).toBeNull();
+  });
+
+  it("moves on when the family says no", async () => {
+    const c = (await codeFor(burrows, avaOffer.occurrence_id))!;
+    expect((await burrows.client.rpc("decline_offer", { p_code: c })).data).toBe(true);
+    const open = await avaOpenOffers();
+    expect(open).toHaveLength(1);
+    expect(open[0]!.occurrence_id).not.toBe(avaOffer.occurrence_id);
+    expect(open[0]!.offered_by).toBeNull();
+    avaOffer = open[0]!;
+  });
+
+  it("closes a family's offers once their credit is used elsewhere", async () => {
+    const { data: credit } = await burrows.client
+      .from("makeup_credits")
+      .select("id")
+      .eq("child_id", CHILDREN.ava.id)
+      .eq("status", "available")
+      .single();
+    const { data: options } = await burrows.client.rpc("makeup_options", {
+      p_credit: credit!.id,
+    });
+    const elsewhere = options!.find((o) => o.occurrence_id !== avaOffer.occurrence_id)!;
+    const { error } = await burrows.client.rpc("book_makeup", {
+      p_credit: credit!.id,
+      p_occurrence: elsewhere.occurrence_id,
+    });
+    expect(error).toBeNull();
+    expect(await avaOpenOffers()).toEqual([]);
+    const { data: closed } = await burrows.client
+      .from("vacancy_offers")
+      .select("status")
+      .eq("id", avaOffer.id)
+      .single();
+    expect(closed!.status).toBe("withdrawn");
+  });
+
+  it("offers nothing when the school turns it off, and catches up when it's back on", async () => {
+    // Ava's credit back, with automatic offers off.
+    await rules({ auto_offer: false });
+    const { data: booked } = await burrows.client
+      .from("makeup_bookings")
+      .select("id")
+      .eq("child_id", CHILDREN.ava.id)
+      .eq("status", "booked");
+    for (const b of booked ?? []) await burrows.client.rpc("cancel_makeup", { p_booking: b.id });
+    await ownerAbsence(lesson("dolphin3Tue", 1), CHILDREN.oliver.id);
+    expect(await avaOpenOffers()).toEqual([]);
+
+    await rules({});
+    const open = await avaOpenOffers();
+    expect(open).toHaveLength(1);
+    expect(open[0]!.offered_by).toBeNull();
+  });
+
+  it("refuses a hold time outside 15 minutes to a day", async () => {
+    for (const minutes of [5, 2000, 30.5]) {
+      const { error } = await aquaOwner.client.rpc("save_makeup_policy", {
+        p_org: ORGS.aqua.id,
+        p_config: { offer_hold_minutes: minutes } as never,
+      });
+      expect(error?.hint).toBe("invalid_policy");
+    }
   });
 });

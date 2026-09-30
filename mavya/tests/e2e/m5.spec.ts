@@ -11,8 +11,11 @@ test.describe("fill empty spots", () => {
     test.skip(testInfo.project.name !== "phone", "writes shared rows");
   });
 
-  test("an owner offers a spot and the family claims it in one tap", async ({ page }) => {
-    // Ava needs a make-up credit: she's away in two weeks.
+  test("a freed spot is offered automatically and the family claims it in one tap", async ({
+    page,
+  }) => {
+    // Ava needs a make-up credit: she's away in two weeks. Straight away the
+    // engine offers her a spot another absence opened (M5.5), no owner needed.
     await signIn(page, USERS.burrowsParent.email);
     await resetDemo(page);
     await page.goto("/family/absence?child=ava");
@@ -20,22 +23,15 @@ test.describe("fill empty spots", () => {
     await page.getByRole("button", { name: "Confirm absence" }).click();
     await expect(page).toHaveURL(/\/family\/makeups$/);
 
-    // The owner offers her Thursday's open spot.
-    await switchTo(page, USERS.aquaOwner.email);
-    await page.goto("/business/fill");
-    const thursday = page.getByRole("region", { name: /Thursday 4:30pm/ });
-    await thursday.getByRole("button", { name: "Offer spot to Ava Burrows" }).click();
-    await expect(thursday.getByText("Offered").first()).toBeVisible();
-
-    // The family sees it on Home and claims it.
-    await switchTo(page, USERS.burrowsParent.email);
+    await page.goto("/family");
     await expect(page.getByText("A spot opened for Ava").first()).toBeVisible();
     await page.getByRole("link", { name: "See the spot" }).click();
-    await expect(
-      page.getByRole("heading", { name: /Ava can come Thursday at 4:30pm/ }),
-    ).toBeVisible();
+    const heading = page.getByRole("heading", { name: /^Ava can come / });
+    await expect(heading).toBeVisible();
+    // "Ava can come Saturday at 9:00am"
+    const [, day, time] = (await heading.textContent())!.match(/come (\w+) at (\S+)/)!;
     // Never who is away.
-    await expect(page.getByText(/Martin|Bell|Lane/)).toHaveCount(0);
+    await expect(page.getByText(/Martin|Bell|Lane|Khan/)).toHaveCount(0);
     const claimUrl = page.url();
     await page.getByRole("button", { name: "Claim this spot for Ava" }).click();
     await expect(page.getByRole("status")).toContainText("You're booked in!");
@@ -44,13 +40,24 @@ test.describe("fill empty spots", () => {
     await page.goto(claimUrl);
     await expect(page.getByText("You've already claimed this spot.")).toBeVisible();
 
-    // The spot is filled: Thursday no longer needs filling.
+    // The owner didn't lift a finger: Ava is on that class as a make-up.
     await switchTo(page, USERS.aquaOwner.email);
-    await page.goto("/business/fill");
-    await expect(page.getByRole("region", { name: /Thursday 4:30pm/ })).toHaveCount(0);
+    await page.goto("/business/classes");
+    await page.getByRole("link", { name: new RegExp(`${day} ${time}`) }).click();
+    await expect(
+      page.getByRole("region", { name: "Coming as a make-up" }).getByText("Ava Burrows"),
+    ).toBeVisible();
 
     await switchTo(page, USERS.burrowsParent.email);
     await resetDemo(page);
+  });
+
+  test("the owner sees what the engine offered", async ({ page }) => {
+    // Seeded: Zoe's mother has been offered Thursday's spot automatically.
+    await signIn(page, USERS.aquaOwner.email);
+    await page.goto("/business/fill");
+    const thursday = page.getByRole("region", { name: /Thursday 4:30pm/ });
+    await expect(thursday.getByText(/Offered automatically · \d+h? ?\d*m left/)).toBeVisible();
   });
 
   test("a link that isn't yours shows nothing", async ({ page }) => {
