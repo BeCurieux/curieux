@@ -1,70 +1,30 @@
 import { describe, expect, it } from "vitest";
 import type { Viewer } from "@/lib/auth/viewer";
-import {
-  AVA_ID,
-  DASHBOARD,
-  DEMO_CLASS_NUMBERS,
-  DEMO_FAMILY_ID,
-  DEMO_ORG_ID,
-  MAKEUP_CLASSES,
-  PRIMARY_CLASS_ID,
-} from "@/lib/demo/data";
+import { AVA_ID, DEMO_FAMILY_ID, DEMO_ORG_ID, PRIMARY_CLASS_ID } from "@/lib/demo/data";
 import {
   candidatesFor,
-  childDemo,
   childSlug,
   classSlug,
-  dashboard,
+  isCandidate,
   isDemoFamily,
   isDemoStaff,
-  makeupOptions,
   resolveChildId,
-  reportedAway,
   resolveClassId,
-  withDemo,
 } from "@/lib/demo/service";
 import { EMPTY_STATE, parseDemoState, type DemoState } from "@/lib/demo/state-schema";
-import type { ClassSummary } from "@/lib/domain/timetable";
 import demoJson from "../../seed/demo-data.json";
-import { CHILDREN, CLASSES, FAMILIES, ORGS, enrolmentRows } from "../../scripts/fixtures";
+import {
+  CHILDREN,
+  CLASSES,
+  DEMO_ABSENCES,
+  FAMILIES,
+  ORGS,
+  enrolmentRows,
+} from "../../scripts/fixtures";
 
 const state = (patch: Partial<DemoState> = {}): DemoState => ({ ...EMPTY_STATE, ...patch });
 
-// A real class as the domain layer returns it, with the enrolled count the
-// seed gives it.
-function summary(id: string): ClassSummary {
-  const enrolled = enrolmentRows().filter((e) => e.class_id === id).length;
-  return {
-    id,
-    organisationId: ORGS.aqua.id,
-    name: "Dolphin 3",
-    levelId: "",
-    level: "Dolphin 3",
-    programId: "",
-    program: "Learn to Swim",
-    locationId: "",
-    location: "Mona Vale",
-    timezone: "Australia/Sydney",
-    instructorId: null,
-    weekday: 3,
-    day: "Wednesday",
-    shortDay: "Wed",
-    startTime: "16:30",
-    time: "4:30pm",
-    durationMinutes: 30,
-    capacity: 14,
-    active: true,
-    enrolled,
-    nextLesson: null,
-  };
-}
-
-const demoClasses = [
-  CLASSES.dolphin3Wed,
-  CLASSES.dolphin3Thu,
-  CLASSES.dolphin3Sat,
-  CLASSES.dolphin3Tue,
-].map((c) => summary(c.id));
+const enrolled = (classId: string) => enrolmentRows().filter((e) => e.class_id === classId).length;
 
 describe("demo data", () => {
   it("belongs to the seeded Aqua House and Burrows family", () => {
@@ -82,23 +42,15 @@ describe("demo data", () => {
         "dolphin3-sat": CLASSES.dolphin3Sat,
         "dolphin3-tue": CLASSES.dolphin3Tue,
       }[c.id]!;
-      expect(summary(real.id).enrolled, c.id).toBe(c.enrolled);
+      expect(enrolled(real.id), c.id).toBe(c.enrolled);
     }
   });
 
-  it("has temporary vacancies that add up to the dashboard's 4", () => {
-    const total = Object.values(DEMO_CLASS_NUMBERS).reduce(
-      (sum, c) => sum + c.temporaryVacancies,
-      0,
-    );
-    expect(total).toBe(4);
-    expect(DASHBOARD.temporaryVacancies).toBe(4);
-    expect(
-      dashboard(
-        demoClasses.map((c) => withDemo(c, EMPTY_STATE)),
-        EMPTY_STATE,
-      ).temporaryVacancies,
-    ).toBe(4);
+  it("seeds one reported absence per demo class, so four spots to fill", () => {
+    const classes = DEMO_ABSENCES.map((a) => a.class.id);
+    expect(new Set(classes).size).toBe(4);
+    expect(classes).toContain(CLASSES.dolphin3Wed.id);
+    expect(DEMO_ABSENCES.some((a) => a.child === CHILDREN.ava.id)).toBe(false);
   });
 
   it("carries no activity from another provider", () => {
@@ -112,47 +64,17 @@ describe("demo state cookie", () => {
   it("falls back to a fresh demo for anything unreadable", () => {
     expect(parseDemoState(undefined)).toEqual(EMPTY_STATE);
     expect(parseDemoState("not json")).toEqual(EMPTY_STATE);
-    expect(parseDemoState(JSON.stringify({ absence: { reason: 42 } }))).toEqual(EMPTY_STATE);
+    expect(parseDemoState(JSON.stringify({ offered: [42] }))).toEqual(EMPTY_STATE);
     expect(parseDemoState(JSON.stringify({ offered: Array(50).fill("c1") }))).toEqual(EMPTY_STATE);
   });
 
   it("keeps a valid state", () => {
-    const valid = state({ absence: { reason: "Party" }, makeupClassId: CLASSES.dolphin3Sat.id });
+    const valid = state({ offered: ["c1"] });
     expect(parseDemoState(JSON.stringify(valid))).toEqual(valid);
   });
 });
 
-describe("the absence and make-up loop", () => {
-  it("opens a spot in Ava's class when she's reported away", () => {
-    const away = state({ absence: { reason: "" } });
-    const wed = withDemo(summary(CLASSES.dolphin3Wed.id), away);
-    expect(wed.temporaryVacancies).toBe(2);
-    expect(wed.absences).toBe(2);
-    expect(wed.expected).toBe(10);
-    expect(dashboard([wed], away).reportedAbsences).toBe(DASHBOARD.reportedAbsences + 1);
-    expect(reportedAway(AVA_ID, PRIMARY_CLASS_ID, away)).toBe(true);
-    expect(reportedAway(AVA_ID, PRIMARY_CLASS_ID, EMPTY_STATE)).toBe(false);
-  });
-
-  it("offers three make-ups with Thursday as the best fit", () => {
-    const options = makeupOptions();
-    expect(options.map((o) => o.id)).toEqual([
-      CLASSES.dolphin3Thu.id,
-      CLASSES.dolphin3Sat.id,
-      CLASSES.dolphin3Tue.id,
-    ]);
-    expect(options.find((o) => o.bestFit)!.id).toBe(CLASSES.dolphin3Thu.id);
-    expect(MAKEUP_CLASSES.find((c) => c.id === CLASSES.dolphin3Sat.id)!.time).toBe("9:00am");
-  });
-
-  it("takes the Saturday spot when Ava books it", () => {
-    const booked = state({ absence: { reason: "" }, makeupClassId: CLASSES.dolphin3Sat.id });
-    const views = demoClasses.map((c) => withDemo(c, booked));
-    expect(views.find((c) => c.id === CLASSES.dolphin3Sat.id)!.temporaryVacancies).toBe(0);
-    expect(dashboard(views, booked).temporaryVacancies).toBe(4);
-    expect(childDemo(AVA_ID, booked).makeup!.day).toBe("Saturday");
-  });
-
+describe("fill empty spots (demo until M5)", () => {
   it("marks offered candidates", () => {
     const offered = candidatesFor(CLASSES.dolphin3Wed.id, state({ offered: ["c1"] }));
     expect(offered.map((c) => [c.id, c.offered])).toEqual([
@@ -161,14 +83,9 @@ describe("the absence and make-up loop", () => {
     ]);
   });
 
-  it("leaves classes outside the demo untouched", () => {
-    const other = withDemo(summary(CLASSES.gymLevel2Sat.id), state({ absence: { reason: "" } }));
-    expect([other.absences, other.temporaryVacancies, other.expected]).toEqual([
-      0,
-      0,
-      other.enrolled,
-    ]);
-    expect(reportedAway(CHILDREN.zoe.id, CLASSES.dolphin3Thu.id, EMPTY_STATE)).toBe(false);
+  it("knows its candidates", () => {
+    expect(isCandidate("c1")).toBe(true);
+    expect(isCandidate("someone-else")).toBe(false);
   });
 });
 

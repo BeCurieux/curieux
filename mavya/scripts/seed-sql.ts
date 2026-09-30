@@ -15,7 +15,9 @@ import {
   ORGS,
   USERS,
   classRows,
+  DEMO_ABSENCES,
   enrolmentRows,
+  expiringCreditRows,
   pastLessonRows,
   seedRows,
   type SeedUser,
@@ -31,6 +33,7 @@ const q = (value: string) => `'${value.replaceAll("'", "''")}'`;
 function literal(value: unknown): string {
   if (value === null || value === undefined) return "null";
   if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "object") return q(JSON.stringify(value));
   return q(String(value));
 }
 
@@ -114,6 +117,21 @@ for (const r of pastLessonRows()) {
   on conflict (class_id, starts_at) do nothing;`,
   );
 }
+
+// The demo's absences, on each class's next lesson.
+for (const a of DEMO_ABSENCES) {
+  const next = `(select id from public.class_occurrences where class_id = ${q(a.class.id)}
+    and status = 'scheduled' and starts_at > now() order by starts_at limit 1)`;
+  lines.push(
+    `insert into public.absences (id, organisation_id, child_id, occurrence_id, make_up_eligible)
+  values (${q(a.id)}, ${q(a.class.organisation_id)}, ${q(a.child)}, ${next}, true)
+  on conflict (id) do update set occurrence_id = excluded.occurrence_id;`,
+    `insert into public.makeup_credits (id, organisation_id, child_id, source_occurrence_id, source_absence_id, reason, expires_at, status)
+  values (${q(a.creditId)}, ${q(a.class.organisation_id)}, ${q(a.child)}, ${next}, ${q(a.id)}, 'absence', now() + interval '60 days', 'available')
+  on conflict (id) do update set source_occurrence_id = excluded.source_occurrence_id, expires_at = excluded.expires_at, status = 'available';`,
+  );
+}
+lines.push(...upsert("makeup_credits", "id", expiringCreditRows()));
 
 lines.push("commit;");
 process.stdout.write(lines.join("\n") + "\n");

@@ -5,15 +5,14 @@ import { CHILD_FILL } from "@/components/demo/activity-pass";
 import { EmptyState } from "@/components/demo/empty-state";
 import { ProgressRing } from "@/components/demo/progress-ring";
 import { familyContext } from "@/lib/demo/context";
-import { familyChildren } from "@/lib/demo/family";
-import { EMPTY_STATE } from "@/lib/demo/state-schema";
+import { familyChildren } from "@/lib/family/children";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Kids" };
 
 export default async function KidsPage() {
-  const { state, db, demo } = await familyContext();
-  const children = await familyChildren(db, demo ? state : EMPTY_STATE);
+  const { db } = await familyContext();
+  const children = await familyChildren(db);
 
   return (
     <div className="rise flex flex-col gap-6">

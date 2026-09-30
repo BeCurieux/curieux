@@ -81,10 +81,19 @@ Ovyko should do better than the usual weaknesses of class-management software:
   photos are added, each child gets a consent setting and photos are never
   shown without it.
 
-### M4 — Absences and make-ups
+### M4 — Absences and make-ups (done)
 
-- **Roster privacy.** Make-up discovery shows available places, never the
-  names of other children in a class.
+- **Roster privacy.** Make-up discovery shows the class, time, level, place,
+  instructor's first name and number of free places, never the names of
+  other children in a class or why a place is free (`makeup_options`).
+- **Writes only through the rules.** Absences, credits, bookings and make-up
+  policies can't be written directly; database functions check the caller
+  acts for the child (their parent, or the owner) and apply the school's
+  policy. Every change is audited.
+- **The last place goes once.** Booking locks the credit and the lesson and
+  checks eligibility again, so two families can't take the same place.
+- **Instructors see make-up children** only for lessons they teach, recently
+  or soon, so they can take attendance.
 
 ### M5 — Fill Empty Spots
 

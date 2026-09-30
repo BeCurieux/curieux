@@ -584,6 +584,11 @@ export function seedRows() {
     rows: Object.values(SKILLS).map((k) => ({ ...k })),
   });
   rows.push({
+    table: "policy_sets",
+    conflict: "id",
+    rows: POLICIES.map((p) => ({ ...p })),
+  });
+  rows.push({
     table: "families",
     conflict: "id",
     rows: ALL_FAMILIES.map((f) => ({
@@ -657,4 +662,67 @@ export function pastLessonRows(now = new Date()) {
       ends_at: new Date(start.getTime() + c.duration_minutes * 60_000).toISOString(),
     };
   });
+}
+
+// ------------------------------------------------------------------ make-ups
+
+// Each organisation's make-up rules (docs/RULES_ENGINE.md). Aqua House uses
+// the defaults; Peak Gymnastics asks for four hours' notice.
+export const POLICIES = [
+  {
+    id: id("9b", 1),
+    organisation_id: ORGS.aqua.id,
+    policy_type: "makeup",
+    config_json: {},
+    version: 1,
+    active: true,
+  },
+  {
+    id: id("9b", 2),
+    organisation_id: ORGS.peak.id,
+    policy_type: "makeup",
+    config_json: { minimum_notice_minutes: 240 },
+    version: 1,
+    active: true,
+  },
+];
+
+const firstChildIn = (classKey: ClassKey, skip: string[] = []) => {
+  for (const f of rosterFamilies) {
+    for (const c of f.children) {
+      if (c.classes.includes(classKey) && !skip.includes(c.id)) return c.id;
+    }
+  }
+  throw new Error(`No fixture child in ${classKey}`);
+};
+
+// Children already reported away from their class's next lesson, each with a
+// make-up credit: one per Dolphin 3 class, so the demo has a spot to fill in
+// each. Zoe is away from Ava's Wednesday class.
+export const DEMO_ABSENCES = [
+  { id: id("ab", 1), child: CHILDREN.zoe.id, class: CLASSES.dolphin3Wed },
+  { id: id("ab", 2), child: firstChildIn("dolphin3Thu"), class: CLASSES.dolphin3Thu },
+  { id: id("ab", 3), child: firstChildIn("dolphin3Sat"), class: CLASSES.dolphin3Sat },
+  {
+    id: id("ab", 4),
+    child: firstChildIn("dolphin3Tue", [CHILDREN.oliver.id]),
+    class: CLASSES.dolphin3Tue,
+  },
+].map((a, i) => ({ ...a, creditId: id("cc", i + 1) }));
+
+// Two older credits that expire this week, for the dashboard.
+export function expiringCreditRows(now = new Date()) {
+  const day = 24 * 60 * 60 * 1000;
+  return [
+    firstChildIn("dolphin3Thu", [DEMO_ABSENCES[1]!.child]),
+    firstChildIn("dolphin3Sat", [DEMO_ABSENCES[2]!.child]),
+  ].map((child, i) => ({
+    id: id("cc", 10 + i),
+    organisation_id: ORGS.aqua.id,
+    child_id: child,
+    reason: "absence",
+    issued_at: new Date(now.getTime() - 55 * day).toISOString(),
+    expires_at: new Date(now.getTime() + (4 + i) * day).toISOString(),
+    status: "available",
+  }));
 }

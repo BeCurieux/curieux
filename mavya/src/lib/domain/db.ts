@@ -25,6 +25,12 @@ export function explain(error: PostgrestError): DomainError {
     case "lesson_not_open":
     case "not_in_class":
     case "skill_inactive":
+    case "makeup_refused":
+    case "already_reported":
+    case "lesson_started":
+    case "credit_in_use":
+    case "place_taken":
+    case "invalid_policy":
       return new DomainError(error.message);
   }
   switch (error.code) {

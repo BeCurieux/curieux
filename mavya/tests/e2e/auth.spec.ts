@@ -30,7 +30,7 @@ test.describe("role determines the app shell", () => {
     await signIn(page, USERS.aquaOwner.email);
     await expect(page).toHaveURL(/\/business$/);
     await expect(page.getByRole("heading", { name: "Hi Sarah" })).toBeVisible();
-    await expect(page.getByText("Aqua House · Mona Vale")).toBeVisible();
+    await expect(page.getByText(/^Aqua House/).first()).toBeVisible();
   });
 
   test("an instructor lands in the instructor app", async ({ page }) => {

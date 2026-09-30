@@ -2,43 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 import { requireShell, requireViewer } from "@/lib/auth/viewer";
-import { isCandidate, isDemoFamily, isDemoStaff, isMakeupOption } from "./service";
+import { DomainError } from "@/lib/domain/db";
+import { lessonStatesForChildren } from "@/lib/domain/lessons";
+import { cancelMakeup, withdrawAbsence } from "@/lib/domain/makeups";
+import { createClient } from "@/lib/supabase/server";
+import { isCandidate, isDemoFamily, isDemoStaff } from "./service";
 import { clearDemoState, readDemoState, writeDemoState } from "./state";
 
-// The demo's only writes. A server action is a public endpoint, so each one
+// The demo's writes. A server action is a public endpoint, so each one
 // checks who is calling and what they're allowed to change before touching
-// the state, exactly as a real one would.
-
-async function requireDemoFamily() {
-  const viewer = await requireShell("family");
-  if (!isDemoFamily(viewer)) redirect("/family");
-}
+// anything, exactly as a real one would.
 
 async function requireDemoOwner() {
   const viewer = await requireShell("business");
   if (!isDemoStaff(viewer, "owner")) redirect("/business");
-}
-
-const reasonSchema = z.string().trim().max(200);
-
-export async function reportAbsence(formData: FormData) {
-  await requireDemoFamily();
-  const reason = reasonSchema.catch("").parse(formData.get("reason") ?? "");
-  const state = await readDemoState();
-  await writeDemoState({ ...state, absence: { reason } });
-  revalidatePath("/", "layout");
-  redirect("/family/makeups");
-}
-
-export async function bookMakeup(classId: string) {
-  await requireDemoFamily();
-  const state = await readDemoState();
-  if (!state.absence || !isMakeupOption(classId)) redirect("/family/makeups");
-  await writeDemoState({ ...state, makeupClassId: classId });
-  revalidatePath("/", "layout");
-  redirect("/family/makeups?booked=1");
 }
 
 export async function offerSpot(candidateId: string) {
@@ -51,9 +29,23 @@ export async function offerSpot(candidateId: string) {
   revalidatePath("/", "layout");
 }
 
+// Puts the demo back: forgets offered spots and, for the demo family, cancels
+// their upcoming make-ups and takes back their upcoming absences, through the
+// same rules as the buttons that made them.
 export async function resetDemo() {
-  await requireViewer();
+  const viewer = await requireViewer();
   await clearDemoState();
+  if (isDemoFamily(viewer)) {
+    const db = await createClient();
+    const { bookings, absences } = await lessonStatesForChildren(db);
+    // One that's too close to its lesson to undo simply stays.
+    const quietly = (run: () => Promise<unknown>) =>
+      run().catch((error: unknown) => {
+        if (!(error instanceof DomainError)) throw error;
+      });
+    for (const id of bookings) await quietly(() => cancelMakeup(db, id));
+    for (const id of absences) await quietly(() => withdrawAbsence(db, id));
+  }
   revalidatePath("/", "layout");
   redirect("/");
 }

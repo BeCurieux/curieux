@@ -6,18 +6,18 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { offerSpot } from "@/lib/demo/actions";
 import { businessContext } from "@/lib/demo/context";
-import { candidatesFor, classSlug, withDemo } from "@/lib/demo/service";
+import { candidatesFor, classSlug } from "@/lib/demo/service";
+import { classViews } from "@/lib/domain/lessons";
 import { listClasses } from "@/lib/domain/timetable";
 
 export const metadata: Metadata = { title: "Fill open spots" };
 
 export default async function FillPage() {
   const { db, state, demo } = await businessContext();
-  const open = demo
-    ? (await listClasses(db, { activeOnly: true }))
-        .map((c) => withDemo(c, state))
-        .filter((c) => c.temporaryVacancies > 0)
-    : [];
+  // The spots are real; the families to offer them to are demo until M5.
+  const open = (await classViews(db, await listClasses(db, { activeOnly: true }))).filter(
+    (c) => c.temporaryVacancies > 0,
+  );
   const total = open.reduce((sum, c) => sum + c.temporaryVacancies, 0);
 
   return (
@@ -41,7 +41,7 @@ export default async function FillPage() {
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {open.map((c) => {
-            const candidates = candidatesFor(c.id, state);
+            const candidates = demo ? candidatesFor(c.id, state) : [];
             return (
               <section
                 key={c.id}

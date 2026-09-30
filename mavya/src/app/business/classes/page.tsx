@@ -5,17 +5,16 @@ import { OccupancyBar } from "@/components/business/occupancy-bar";
 import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext } from "@/lib/demo/context";
-import { classSlug, withDemo } from "@/lib/demo/service";
+import { classSlug } from "@/lib/demo/service";
+import { classViews } from "@/lib/domain/lessons";
 import { listClasses } from "@/lib/domain/timetable";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Classes" };
 
 export default async function ClassesPage() {
-  const { db, state, demo } = await businessContext();
-  const classes = (await listClasses(db)).map((c) =>
-    withDemo(c, demo ? state : { ...state, absence: null, makeupClassId: null }),
-  );
+  const { db } = await businessContext();
+  const classes = await classViews(db, await listClasses(db));
 
   return (
     <div className="rise flex flex-col gap-6">

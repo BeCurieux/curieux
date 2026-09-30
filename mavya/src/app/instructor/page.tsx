@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/demo/empty-state";
 import { firstName, instructorContext } from "@/lib/demo/context";
-import { classSlug, withDemo } from "@/lib/demo/service";
-import { EMPTY_STATE } from "@/lib/demo/state-schema";
+import { classSlug } from "@/lib/demo/service";
 import { currentLessons, lessonAttendance } from "@/lib/domain/attendance";
+import { classViews } from "@/lib/domain/lessons";
 import { myMembershipId } from "@/lib/domain/schedule";
 import { listClasses } from "@/lib/domain/timetable";
 import { formatLessonDate } from "@/lib/format";
@@ -15,12 +15,11 @@ export const metadata: Metadata = { title: "Teaching" };
 const PASSES = ["pass-mint", "pass-butter", "pass-lilac", "pass-coral"];
 
 export default async function InstructorHome() {
-  const { viewer, db, state, demo, organisationId, organisationName } = await instructorContext();
+  const { viewer, db, organisationId, organisationName } = await instructorContext();
   const membershipId = await myMembershipId(db, viewer.userId, organisationId);
-  const overlay = demo ? state : EMPTY_STATE;
-  const classes = (await listClasses(db, { activeOnly: true, instructorId: membershipId }))
-    .map((c) => withDemo(c, overlay))
-    .sort((a, b) => (a.nextLesson ?? "").localeCompare(b.nextLesson ?? ""));
+  const classes = (
+    await classViews(db, await listClasses(db, { activeOnly: true, instructorId: membershipId }))
+  ).sort((a, b) => (a.nextLesson ?? "").localeCompare(b.nextLesson ?? ""));
 
   const lessons = await currentLessons(
     db,

@@ -1,10 +1,8 @@
-// What is still demo after M3: absences, make-ups, vacancies, candidates and
-// messages. Classes, families, children, enrolments, attendance and progress
-// are real (src/lib/domain); this layers the rest on top of the seeded Aqua
-// House classes and Burrows family, and nothing else (see service.ts). Each
-// part moves into the database in M4–M5.
+// What is still demo after M4: the families offered a spot on Fill Empty
+// Spots (M5) and a few messages. Everything else is real (src/lib/domain).
+// Only the seeded Aqua House staff and Burrows family see any of it
+// (see service.ts).
 
-import demo from "../../../seed/demo-data.json";
 import {
   CHILDREN as FIXTURE_CHILDREN,
   CLASSES as FIXTURE_CLASSES,
@@ -16,39 +14,11 @@ import {
 export const DEMO_ORG_ID = ORGS.aqua.id;
 export const DEMO_FAMILY_ID = FAMILIES.burrows.id;
 
-export const ORGANISATION = {
-  name: demo.organisation.name,
-  location: demo.organisation.location,
-  owner: demo.organisation.owner,
-  instructor: demo.organisation.instructor,
-};
-
-// The demo's classes are real classes now (M2). This maps each real class
-// to the numbers seed/demo-data.json gives it for the parts that are still
-// demo until M4–M5: absences and temporary vacancies.
-const DEMO_CLASS_IDS: Record<string, string> = {
-  "dolphin3-wed": FIXTURE_CLASSES.dolphin3Wed.id,
-  "dolphin3-thu": FIXTURE_CLASSES.dolphin3Thu.id,
-  "dolphin3-sat": FIXTURE_CLASSES.dolphin3Sat.id,
-  "dolphin3-tue": FIXTURE_CLASSES.dolphin3Tue.id,
-};
-
-export const DEMO_CLASS_NUMBERS: Record<string, { absences: number; temporaryVacancies: number }> =
-  Object.fromEntries(
-    demo.classes.map((c) => [
-      DEMO_CLASS_IDS[c.id]!,
-      { absences: c.absences, temporaryVacancies: c.temporaryVacancies },
-    ]),
-  );
-
 // Ava's regular class, which the docs' routes call "dolphin-3".
 export const PRIMARY_CLASS_ID = FIXTURE_CLASSES.dolphin3Wed.id;
 export const PRIMARY_CLASS_SLUG = "dolphin-3";
 
 export const AVA_ID = FIXTURE_CHILDREN.ava.id;
-
-// Zoe is already reported away from Wednesday's class (its one absence).
-export const PRE_REPORTED_ABSENT = [FIXTURE_CHILDREN.zoe.id];
 
 // Children holding make-up credits who fit the open spots. Hand-picked for
 // the demo; real matching is M5.
@@ -110,51 +80,6 @@ export const CANDIDATES: Candidate[] = [
     creditNote: "Missed last Wednesday",
     classId: FIXTURE_CLASSES.dolphin3Tue.id,
   },
-];
-
-export const DASHBOARD = demo.dashboard;
-
-// Make-up choices shown to the Burrows family after reporting Ava away.
-// Thursday is the "best fit": same time of day, next day.
-export const MAKEUP_OPTION_IDS = [
-  FIXTURE_CLASSES.dolphin3Thu.id,
-  FIXTURE_CLASSES.dolphin3Sat.id,
-  FIXTURE_CLASSES.dolphin3Tue.id,
-];
-export const BEST_FIT_ID = FIXTURE_CLASSES.dolphin3Thu.id;
-
-// What a parent is shown about each make-up class. Parents can't read other
-// classes from the database (row level security only shows them their own
-// children's), so until M4's eligibility service these come from the demo.
-export type MakeupClass = {
-  id: string;
-  day: string;
-  shortDay: string;
-  time: string;
-  level: string;
-  instructor: string;
-  temporaryVacancies: number;
-};
-
-export const MAKEUP_CLASSES: MakeupClass[] = MAKEUP_OPTION_IDS.map((id) => {
-  const demoId = Object.entries(DEMO_CLASS_IDS).find(([, real]) => real === id)![0];
-  const c = demo.classes.find((k) => k.id === demoId)!;
-  return {
-    id,
-    day: c.day,
-    shortDay: c.day.slice(0, 3),
-    time: c.time,
-    level: c.name,
-    instructor: demo.organisation.instructor,
-    temporaryVacancies: c.temporaryVacancies,
-  };
-});
-
-// Plain-language summary of the default make-up policy in RULES_ENGINE.md.
-export const MAKEUP_RULE = [
-  "Tell us at least 2 hours before class",
-  "Your make-up credit lasts 60 days",
-  "Book any Dolphin 3 class in the next 2 weeks",
 ];
 
 export type Message = {

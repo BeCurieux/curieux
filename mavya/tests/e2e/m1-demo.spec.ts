@@ -1,11 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { USERS } from "../../scripts/fixtures";
-import { signIn } from "./helpers";
+import { resetDemo, signIn } from "./helpers";
 
 // M1 acceptance: the three demo paths in docs/ACCEPTANCE_TESTS.md, step by
-// step, plus the demo's tenancy and accessibility checks. Each test starts
-// in a fresh browser, so a fresh demo.
+// step, plus the demo's tenancy and accessibility checks. Since M4 the
+// absence and make-up are real, so the path writes shared rows: it runs once
+// (on the phone project) and resets the demo before and after.
 
 // Serious or critical WCAG A/AA problems on the current page. Run with
 // reduced motion so contrast is measured on settled text, not mid-fade.
@@ -23,11 +24,13 @@ async function seriousViolations(page: Page) {
 test.describe("parent demo path", () => {
   test.use({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
 
-  test("report an absence, book a Saturday make-up, see Ava's progress", async ({ page }) => {
+  test("report an absence, book a Saturday make-up, see Ava's progress", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "phone", "writes shared demo rows");
     await signIn(page, USERS.burrowsParent.email);
-
-    // 1–2. Family home shows Ava's Wednesday swimming lesson.
-    await expect(page).toHaveURL(/\/family$/);
+    await resetDemo(page);
+    await page.goto("/family");
     const avaPass = page.locator('a[href="/family/kids/ava"]').first();
     await expect(avaPass).toContainText("Ava");
     await expect(avaPass).toContainText("Swimming");
@@ -37,6 +40,9 @@ test.describe("parent demo path", () => {
     await page.getByRole("link", { name: "Can't make it" }).click();
     await expect(page.getByRole("heading", { name: "Let Aqua House know" })).toBeVisible();
     await expect(page.getByText("Your make-up credit lasts 60 days")).toBeVisible();
+    // Next week's lesson, so there's always the two hours' notice a credit
+    // needs, whenever the test runs.
+    await page.getByRole("group", { name: "Which lesson?" }).locator("label").nth(1).click();
     await page.getByLabel(/Reason/).fill("Birthday party");
     await page.getByRole("button", { name: "Confirm absence" }).click();
 
@@ -64,6 +70,8 @@ test.describe("parent demo path", () => {
     // Home now reflects the booking.
     await page.getByRole("link", { name: "Home" }).last().click();
     await expect(page.getByText("Ava's make-up is booked")).toBeVisible();
+
+    await resetDemo(page);
   });
 
   test("every tab in the bottom bar opens a page", async ({ page }) => {
@@ -180,7 +188,7 @@ test.describe("demo tenancy", () => {
   test("another family never sees the Burrows demo", async ({ page }) => {
     await signIn(page, USERS.chenParent.email);
     // The Chens see their own real class at their own provider, and nothing of Ava's.
-    await expect(page.getByText("Peak Gymnastics")).toBeVisible();
+    await expect(page.getByText("Peak Gymnastics").first()).toBeVisible();
     await expect(page.getByText("Mei").first()).toBeVisible();
     await expect(page.getByText("Ava")).toHaveCount(0);
     await expect(page.getByText("Can't make Wednesday?")).toHaveCount(0);
@@ -190,9 +198,9 @@ test.describe("demo tenancy", () => {
 
   test("another provider never sees Aqua House's demo", async ({ page }) => {
     await signIn(page, USERS.peakOwner.email);
-    // Peak sees its own real class, and none of Aqua House's demo numbers.
-    await expect(page.getByText("Classes each week")).toBeVisible();
-    await expect(page.getByText("can be filled this week")).toHaveCount(0);
+    // Peak sees its own classes and numbers, and nothing of Aqua House's.
+    await expect(page.getByText("Peak Gymnastics · Narrabeen")).toBeVisible();
+    await expect(page.getByText("Dolphin 3")).toHaveCount(0);
     await page.goto("/business/classes/dolphin-3");
     await expect(page.getByText("Zoe Martin")).toHaveCount(0);
     await page.goto("/business/families");

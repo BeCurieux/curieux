@@ -6,58 +6,40 @@ import { Stat } from "@/components/business/stat";
 import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext, firstName } from "@/lib/demo/context";
-import { ORGANISATION } from "@/lib/demo/data";
-import { classSlug, dashboard, withDemo, type ClassView } from "@/lib/demo/service";
+import { classSlug } from "@/lib/demo/service";
+import { classViews, ownerNumbers, type ClassView } from "@/lib/domain/lessons";
 import { listClasses } from "@/lib/domain/timetable";
 
 export const metadata: Metadata = { title: "Today" };
 
 export default async function BusinessHome() {
-  const { viewer, db, organisationName, state, demo } = await businessContext();
-  const real = await listClasses(db, { activeOnly: true });
+  const { viewer, db, organisationName } = await businessContext();
+  const classes = await classViews(db, await listClasses(db, { activeOnly: true }));
 
-  if (!demo) {
-    const enrolled = real.reduce((sum, c) => sum + c.enrolled, 0);
-    const places = real.reduce((sum, c) => sum + c.capacity, 0);
+  if (classes.length === 0) {
     return (
       <div className="rise flex flex-col gap-8">
         <Heading name={viewer.name} org={organisationName} />
-        {real.length === 0 ? (
-          <EmptyState icon={<Store />} title="Your timetable is empty">
-            <Link href="/business/classes/new" className="font-semibold text-ink underline">
-              Create your first class
-            </Link>{" "}
-            and today&apos;s numbers will show up here.
-          </EmptyState>
-        ) : (
-          <>
-            <dl className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              <Stat label="Classes each week" value={real.length} />
-              <Stat label="Children enrolled" value={enrolled} />
-              <Stat
-                label="Places filled"
-                value={places ? Math.round((enrolled / places) * 100) : 0}
-                suffix="%"
-              />
-            </dl>
-            <ClassCards
-              classes={real.map((c) =>
-                withDemo(c, { ...state, absence: null, makeupClassId: null }),
-              )}
-            />
-          </>
-        )}
+        <EmptyState icon={<Store />} title="Your timetable is empty">
+          <Link href="/business/classes/new" className="font-semibold text-ink underline">
+            Create your first class
+          </Link>{" "}
+          and today&apos;s numbers will show up here.
+        </EmptyState>
       </div>
     );
   }
 
-  const classes = real.map((c) => withDemo(c, state));
-  const stats = dashboard(classes, state);
+  const stats = await ownerNumbers(db, classes);
   const spots = stats.temporaryVacancies;
+  const places = [...new Set(classes.map((c) => c.location))];
 
   return (
     <div className="rise flex flex-col gap-8">
-      <Heading name={viewer.name} org={`${ORGANISATION.name} · ${ORGANISATION.location}`} />
+      <Heading
+        name={viewer.name}
+        org={places.length === 1 ? `${organisationName} · ${places[0]}` : organisationName}
+      />
 
       <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col justify-between gap-6 rounded-lg bg-ink p-7 text-white">
@@ -82,10 +64,10 @@ export default async function BusinessHome() {
           ) : null}
         </div>
         <dl className="grid grid-cols-2 gap-3">
-          <Stat label="Children expected today" value={stats.childrenExpectedToday} />
-          <Stat label="Reported absences" value={stats.reportedAbsences} />
+          <Stat label="Children expected today" value={stats.expectedToday} />
+          <Stat label="Reported absences" value={stats.absencesThisWeek} />
           <Stat label="Temporary vacancies" value={spots} tone="attention" />
-          <Stat label="Make-up credits expiring" value={stats.expiringMakeupCredits} />
+          <Stat label="Make-up credits expiring" value={stats.creditsExpiringThisWeek} />
           <Stat
             label="Capacity this week"
             value={stats.capacityPercent}

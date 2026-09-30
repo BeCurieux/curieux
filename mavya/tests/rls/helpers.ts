@@ -79,4 +79,8 @@ export const TABLES = [
   "attendance",
   "progress_records",
   "notifications",
+  "policy_sets",
+  "absences",
+  "makeup_credits",
+  "makeup_bookings",
 ] as const;

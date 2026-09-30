@@ -9,10 +9,11 @@ import { BackLink } from "@/components/demo/back-link";
 import { Button } from "@/components/ui/button";
 import { endEnrolment } from "@/lib/business/actions";
 import { businessContext } from "@/lib/demo/context";
-import { candidatesFor, reportedAway, resolveClassId, withDemo } from "@/lib/demo/service";
+import { candidatesFor, resolveClassId } from "@/lib/demo/service";
 import { currentLesson, lessonAttendance } from "@/lib/domain/attendance";
 import { classRoster } from "@/lib/domain/enrolments";
 import { childrenNotInClass } from "@/lib/domain/families";
+import { classView, lessonStates } from "@/lib/domain/lessons";
 import { getClass, upcomingLessons } from "@/lib/domain/timetable";
 import { formatLessonDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -25,7 +26,16 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
   const real = await getClass(db, resolveClassId(slug));
   if (!real) notFound();
 
-  const c = withDemo(real, demo ? state : { ...state, absence: null, makeupClassId: null });
+  const c = await classView(db, real);
+  // Who's away from, and coming as a make-up to, the next lesson.
+  const next = c.lesson ? (await lessonStates(db, [c.lesson.id])).get(c.lesson.id) : undefined;
+  const makeupIds = [...(next?.makeups.keys() ?? [])];
+  const { data: makeupKids } = makeupIds.length
+    ? await db
+        .from("children")
+        .select("id, first_name, last_name, families (display_name)")
+        .in("id", makeupIds)
+    : { data: [] };
   const [roster, lessons, available, lesson] = await Promise.all([
     classRoster(db, c.id),
     upcomingLessons(db, c.id),
@@ -74,7 +84,9 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
         className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
       >
         <h2 id="occupancy" className="font-semibold">
-          Occupancy
+          {c.lesson
+            ? `Next lesson · ${formatLessonDate(c.lesson.startsAt, c.timezone)}`
+            : "Occupancy"}
         </h2>
         <OccupancyBar
           expected={c.expected}
@@ -115,11 +127,7 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
               {roster.map((child) => {
                 // A parent's report comes first; then this lesson's attendance.
                 const mark = marks?.get(child.childId);
-                const label = reportedAway(
-                  child.childId,
-                  c.id,
-                  demo ? state : { ...state, absence: null },
-                )
+                const label = next?.away.has(child.childId)
                   ? "Reported away"
                   : mark === "present"
                     ? "Here"
@@ -168,6 +176,38 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
               })}
             </ul>
           )}
+          {makeupKids && makeupKids.length > 0 ? (
+            <section aria-labelledby="makeups" className="flex flex-col gap-3">
+              <h2 id="makeups" className="font-display text-xl font-semibold">
+                Coming as a make-up
+              </h2>
+              <ul className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
+                {(
+                  makeupKids as unknown as {
+                    id: string;
+                    first_name: string;
+                    last_name: string;
+                    families: { display_name: string } | null;
+                  }[]
+                ).map((kid) => (
+                  <li
+                    key={kid.id}
+                    className="flex items-center justify-between gap-3 border-b border-line px-5 py-3 last:border-b-0"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        {kid.first_name} {kid.last_name}
+                      </p>
+                      <p className="text-sm text-muted">{kid.families?.display_name}</p>
+                    </div>
+                    <span className="rounded-full bg-lilac/40 px-3 py-1 text-sm font-semibold">
+                      Make-up
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </section>
 
         <div className="flex flex-col gap-6">

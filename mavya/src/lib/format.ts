@@ -52,3 +52,21 @@ export function ageOn(dateOfBirth: string, today = new Date()): number {
   if (beforeBirthday) age -= 1;
   return age;
 }
+
+// A lesson's weekday, time and date in its timezone: "Saturday", "9:00am",
+// "Sat 3 Oct".
+export function lessonMoment(iso: string, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-AU", {
+    weekday: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  }).formatToParts(new Date(iso));
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return {
+    day: part("weekday"),
+    time: formatTime(`${part("hour")}:${part("minute")}`),
+    date: formatLessonDate(iso, timeZone),
+  };
+}
