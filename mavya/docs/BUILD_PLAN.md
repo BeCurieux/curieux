@@ -103,10 +103,12 @@ The engine fills places by itself (`docs/STRATEGY.md`, must-have 2):
 
 ## M6 — Migration and pilot
 
+Ships in slices (`docs/M6_MIGRATION_PILOT.md`). M6a, moving a school in, is
+done: classes, families, children and places from CSV, checked before
+saving, with counts to compare and a 14-day undo.
+
 Implement:
-- CSV family import
-- CSV children import
-- CSV class import
+- ~~CSV family, children and class import~~ (M6a)
 - onboarding checklist
 - minimal internal admin support (granted by the school, time-limited, audited)
 - Supabase Pro, with leaked password protection on

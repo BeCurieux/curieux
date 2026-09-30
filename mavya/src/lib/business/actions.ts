@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
 import * as families from "@/lib/domain/families";
 import * as fill from "@/lib/domain/fill";
+import * as imports from "@/lib/domain/imports";
 import * as makeups from "@/lib/domain/makeups";
 import * as progress from "@/lib/domain/progress";
 import * as staff from "@/lib/domain/staff";
@@ -417,3 +418,106 @@ export type CancelState = FormState & {
   locationId?: string;
   date?: string;
 };
+
+// ------------------------------------------------------------------ moving a school in
+
+const MAX_FILE_BYTES = 2 * 1024 * 1024;
+
+export type ImportState = FormState & {
+  report?: imports.ImportReport;
+  // The rows checked, sent back unchanged to be saved once confirmed. The
+  // database checks them again when saving.
+  rows?: string;
+};
+
+async function readUpload(formData: FormData, name: string) {
+  const file = formData.get(name);
+  if (!(file instanceof File) || file.size === 0) return null;
+  if (file.size > MAX_FILE_BYTES) throw new Error("too_big");
+  return { name: file.name, text: await file.text() };
+}
+
+// Reads the school's files and checks them: what would be added, what's
+// already here, and every row that can't come across. Saves nothing.
+export async function checkImport(_: ImportState, formData: FormData): Promise<ImportState> {
+  const { db, organisationId } = await requireOwner();
+  let classesFile, studentsFile;
+  try {
+    classesFile = await readUpload(formData, "classes");
+    studentsFile = await readUpload(formData, "students");
+  } catch {
+    return { error: "Each file must be smaller than 2 MB." };
+  }
+  if (!classesFile && !studentsFile)
+    return { error: "Choose a classes file, a students file or both." };
+  for (const f of [classesFile, studentsFile])
+    if (f && !/\.csv$/i.test(f.name))
+      return { error: `"${f.name}" isn't a CSV file. Export it as CSV and try again.` };
+
+  const out: ImportState = {};
+  const failed = await attempt(async () => {
+    const classes = classesFile
+      ? imports.readClasses(classesFile.text)
+      : { rows: [], problems: [] };
+    const students = studentsFile
+      ? imports.readStudents(studentsFile.text)
+      : { rows: [], problems: [] };
+    const input: imports.ImportRows = {
+      classes: classes.rows,
+      students: students.rows,
+      fileNames: [classesFile?.name, studentsFile?.name].filter((n): n is string => Boolean(n)),
+      readProblems: [...classes.problems, ...students.problems],
+    };
+    out.report = await imports.importSchool(db, organisationId, input, false);
+    out.rows = JSON.stringify(input);
+  });
+  if (failed) return failed;
+  return out;
+}
+
+const importRowsSchema = z.object({
+  classes: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
+  students: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
+  fileNames: z.array(z.string().max(200)).max(2),
+  readProblems: z
+    .array(
+      z.object({ file: z.enum(["classes", "students"]), row: z.number(), message: z.string() }),
+    )
+    .max(imports.MAX_ROWS * 2),
+});
+
+// Saves what was checked, all at once, then opens the import's page.
+export async function confirmImport(_: FormState, formData: FormData): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  let parsed;
+  try {
+    parsed = importRowsSchema.safeParse(JSON.parse(String(formData.get("rows") ?? "")));
+  } catch {
+    parsed = null;
+  }
+  if (!parsed?.success) return { error: "That didn't work. Check the files again." };
+  let batchId: string | null = null;
+  const failed = await attempt(async () => {
+    const report = await imports.importSchool(
+      db,
+      organisationId,
+      parsed.data as unknown as imports.ImportRows,
+      true,
+    );
+    batchId = report.batchId;
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  redirect(`/business/settings/import/${batchId}`);
+}
+
+export async function undoImport(batchId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(batchId).success) return { error: "That didn't work. Try again." };
+  const failed = await attempt(async () => {
+    await imports.undoImport(db, batchId);
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: "Undone. Everything this import added has been removed." };
+}

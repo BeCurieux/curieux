@@ -122,6 +122,18 @@ Ovyko should do better than the usual weaknesses of class-management software:
   "Offered automatically" to the owner, are audited, and stop when the
   owner turns the rule off.
 
+### M6a — Moving a school in (done)
+
+- **Files aren't kept.** CSV files are uploaded straight into Ovyko, read,
+  checked and discarded; only their names and the import's counts and
+  problem rows are stored. No spreadsheets by email.
+- **Owners only.** Only the school's own owners can check, import, see or
+  undo imports; everything is checked again in the database when saving.
+- **Nothing half-done.** An import saves in one transaction or not at all.
+- **Undo can't reach further than the import.** Only the import function
+  can mark a row as imported, so undo deletes exactly what that import
+  added, and refuses once anything depends on it.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project
@@ -136,8 +148,6 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - **Custody and pickup restrictions.** A family can record who may not
   collect or contact a child. Instructors see a clear warning, not the court
   details.
-- **Secure import.** CSV files are uploaded straight into Ovyko, checked,
-  imported and then deleted. No spreadsheets by email.
 - **Export and deletion.** Owners can export a family's data and delete a
   family on request, as the Australian Privacy Act allows parents to ask.
   Deletions are audited.

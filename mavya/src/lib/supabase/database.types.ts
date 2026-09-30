@@ -169,6 +169,7 @@ export type Database = {
           family_id: string;
           first_name: string;
           id: string;
+          import_batch_id: string | null;
           last_name: string;
           organisation_id: string;
         };
@@ -179,6 +180,7 @@ export type Database = {
           family_id: string;
           first_name: string;
           id?: string;
+          import_batch_id?: string | null;
           last_name: string;
           organisation_id: string;
         };
@@ -189,6 +191,7 @@ export type Database = {
           family_id?: string;
           first_name?: string;
           id?: string;
+          import_batch_id?: string | null;
           last_name?: string;
           organisation_id?: string;
         };
@@ -199,6 +202,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "families";
             referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "children_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -249,6 +259,7 @@ export type Database = {
           capacity: number;
           duration_minutes: number;
           id: string;
+          import_batch_id: string | null;
           instructor_id: string | null;
           level_id: string;
           location_id: string;
@@ -263,6 +274,7 @@ export type Database = {
           capacity: number;
           duration_minutes: number;
           id?: string;
+          import_batch_id?: string | null;
           instructor_id?: string | null;
           level_id: string;
           location_id: string;
@@ -277,6 +289,7 @@ export type Database = {
           capacity?: number;
           duration_minutes?: number;
           id?: string;
+          import_batch_id?: string | null;
           instructor_id?: string | null;
           level_id?: string;
           location_id?: string;
@@ -287,6 +300,13 @@ export type Database = {
           weekday?: number;
         };
         Relationships: [
+          {
+            foreignKeyName: "classes_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "classes_organisation_id_fkey";
             columns: ["organisation_id"];
@@ -337,6 +357,7 @@ export type Database = {
           class_id: string;
           ends_at: string | null;
           id: string;
+          import_batch_id: string | null;
           organisation_id: string;
           starts_at: string;
           status: string;
@@ -346,6 +367,7 @@ export type Database = {
           class_id: string;
           ends_at?: string | null;
           id?: string;
+          import_batch_id?: string | null;
           organisation_id: string;
           starts_at?: string;
           status?: string;
@@ -355,11 +377,19 @@ export type Database = {
           class_id?: string;
           ends_at?: string | null;
           id?: string;
+          import_batch_id?: string | null;
           organisation_id?: string;
           starts_at?: string;
           status?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "enrolments_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "enrolments_organisation_id_child_id_fkey";
             columns: ["organisation_id", "child_id"];
@@ -381,6 +411,7 @@ export type Database = {
           created_at: string;
           display_name: string;
           id: string;
+          import_batch_id: string | null;
           organisation_id: string;
           primary_contact_email: string | null;
           primary_contact_name: string | null;
@@ -390,6 +421,7 @@ export type Database = {
           created_at?: string;
           display_name: string;
           id?: string;
+          import_batch_id?: string | null;
           organisation_id: string;
           primary_contact_email?: string | null;
           primary_contact_name?: string | null;
@@ -399,12 +431,20 @@ export type Database = {
           created_at?: string;
           display_name?: string;
           id?: string;
+          import_batch_id?: string | null;
           organisation_id?: string;
           primary_contact_email?: string | null;
           primary_contact_name?: string | null;
           primary_contact_phone?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "families_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "families_organisation_id_fkey";
             columns: ["organisation_id"];
@@ -449,6 +489,54 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      import_batches: {
+        Row: {
+          counts: NonNullable<Json>;
+          created_at: string;
+          created_by: string | null;
+          file_names: string[];
+          id: string;
+          organisation_id: string;
+          problems: NonNullable<Json>;
+          undone_at: string | null;
+        };
+        Insert: {
+          counts: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          file_names?: string[];
+          id?: string;
+          organisation_id: string;
+          problems?: NonNullable<Json>;
+          undone_at?: string | null;
+        };
+        Update: {
+          counts?: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          file_names?: string[];
+          id?: string;
+          organisation_id?: string;
+          problems?: NonNullable<Json>;
+          undone_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "import_batches_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "import_batches_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
             referencedColumns: ["id"];
           },
         ];
@@ -1068,6 +1156,18 @@ export type Database = {
           offers_claimed: number;
         }[];
       };
+      import_school: {
+        Args: {
+          p_classes: Json;
+          p_commit: boolean;
+          p_file_names: string[];
+          p_org: string;
+          p_read_problems?: Json;
+          p_students: Json;
+        };
+        Returns: Json;
+      };
+      import_summary: { Args: { p_batch: string }; Returns: Json };
       makeup_options: {
         Args: { p_credit: string };
         Returns: {
@@ -1149,6 +1249,7 @@ export type Database = {
       restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      undo_import: { Args: { p_batch: string }; Returns: undefined };
       vacancy_candidates: {
         Args: { p_occurrence: string };
         Returns: {

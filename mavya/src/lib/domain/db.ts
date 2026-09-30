@@ -34,6 +34,8 @@ export function explain(error: PostgrestError): DomainError {
     case "no_open_spot":
     case "already_offered":
     case "instructor_clash":
+    case "import_invalid":
+    case "import_locked":
       return new DomainError(error.message);
   }
   switch (error.code) {

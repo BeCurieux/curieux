@@ -1,4 +1,13 @@
-import { ArrowRight, CalendarX, History, Layers, MapPin, RefreshCcw, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarX,
+  History,
+  Layers,
+  MapPin,
+  RefreshCcw,
+  Upload,
+  Users,
+} from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/business/owner";
@@ -35,6 +44,12 @@ const SECTIONS = [
     icon: Users,
     title: "Staff",
     body: "Who can sign in, and removing access.",
+  },
+  {
+    href: "/business/settings/import",
+    icon: Upload,
+    title: "Move your school in",
+    body: "Bring your classes and families from your current system.",
   },
   {
     href: "/business/settings/activity",
