@@ -14,6 +14,9 @@ export type MakeupPolicy = {
   bookingHorizonDays: number;
   cancellationNoticeMinutes: number;
   returnCreditOnValidCancellation: boolean;
+  // M5.5: offer freed spots to families automatically, each for this long.
+  autoOffer: boolean;
+  offerHoldMinutes: number;
 };
 
 type PolicyJson = {
@@ -25,6 +28,8 @@ type PolicyJson = {
   booking_horizon_days: number;
   cancellation_notice_minutes: number;
   return_credit_on_valid_cancellation: boolean;
+  auto_offer: boolean;
+  offer_hold_minutes: number;
 };
 
 export async function getPolicy(db: Db, organisationId: string): Promise<MakeupPolicy> {
@@ -39,6 +44,8 @@ export async function getPolicy(db: Db, organisationId: string): Promise<MakeupP
     bookingHorizonDays: p.booking_horizon_days,
     cancellationNoticeMinutes: p.cancellation_notice_minutes,
     returnCreditOnValidCancellation: p.return_credit_on_valid_cancellation,
+    autoOffer: p.auto_offer,
+    offerHoldMinutes: p.offer_hold_minutes,
   };
 }
 
@@ -52,6 +59,8 @@ export async function savePolicy(db: Db, organisationId: string, policy: MakeupP
     booking_horizon_days: policy.bookingHorizonDays,
     cancellation_notice_minutes: policy.cancellationNoticeMinutes,
     return_credit_on_valid_cancellation: policy.returnCreditOnValidCancellation,
+    auto_offer: policy.autoOffer,
+    offer_hold_minutes: policy.offerHoldMinutes,
   };
   const { data, error } = await db.rpc("save_makeup_policy", {
     p_org: organisationId,

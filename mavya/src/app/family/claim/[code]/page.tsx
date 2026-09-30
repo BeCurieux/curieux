@@ -14,6 +14,7 @@ const CLOSED: Record<Exclude<OfferStatus, "offered">, string> = {
   declined: "You said no thanks to this spot.",
   expired: "This offer has expired.",
   filled: "Sorry, someone else took this spot.",
+  withdrawn: "This offer is no longer open.",
 };
 
 // A claim link. It shows the offer only to the family it was made for, and

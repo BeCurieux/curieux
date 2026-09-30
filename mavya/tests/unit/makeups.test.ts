@@ -14,6 +14,8 @@ const defaults = {
   bookingHorizonDays: 14,
   cancellationNoticeMinutes: 120,
   returnCreditOnValidCancellation: true,
+  autoOffer: true,
+  offerHoldMinutes: 120,
 };
 
 const option = (classId: string, startsAt: string): Option => ({

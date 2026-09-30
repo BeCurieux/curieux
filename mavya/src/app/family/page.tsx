@@ -84,7 +84,8 @@ export default async function FamilyHome() {
         ))}
       </section>
 
-      {offer ? <OfferCard offer={offer} /> : <ActionCard kids={children} />}
+      {offer ? <OfferCard offer={offer} /> : null}
+      <ActionCard kids={children} offeredChild={offer?.offer?.details.childId ?? null} />
 
       {learning.map((child) => {
         const next = child.progress!.skills.find((s) => s.status !== "achieved");
@@ -166,9 +167,16 @@ function OfferCard({ offer }: { offer: AppNotification }) {
 
 // The one thing a parent might want to do next: see a booked make-up, use a
 // credit, or say a child can't make their next lesson.
-function ActionCard({ kids: children }: { kids: FamilyChildView[] }) {
+function ActionCard({
+  kids: children,
+  offeredChild,
+}: {
+  kids: FamilyChildView[];
+  offeredChild: string | null;
+}) {
   const booked = children.find((c) => c.makeup);
-  const holding = children.find((c) => c.credits > 0);
+  // A child with a spot on offer already has somewhere to use their credit.
+  const holding = children.find((c) => c.credits > 0 && c.id !== offeredChild);
   const upcoming = children.find((c) => c.next && !c.away);
 
   if (booked?.makeup) {

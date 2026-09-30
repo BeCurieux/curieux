@@ -42,6 +42,7 @@ const LABELS = {
   declined: "Said no",
   expired: "Expired",
   filled: "Spot filled",
+  withdrawn: "Withdrawn",
 } as const;
 
 export function OfferState({ status }: { status: keyof typeof LABELS }) {

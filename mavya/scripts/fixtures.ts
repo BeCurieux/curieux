@@ -27,6 +27,9 @@ export const ORGS = {
 
 type OrgKey = keyof typeof ORGS;
 type FamilyKey = "burrows" | "chen";
+// Families with a parent account: the two named ones, and Zoe's (M5.5, so
+// two Aqua House families can be offered the same spot).
+type ParentFamilyKey = FamilyKey | "martin";
 type ClassKey =
   "dolphin3Wed" | "dolphin3Thu" | "dolphin3Sat" | "dolphin3Tue" | "dolphin1Tue" | "gymLevel2Sat";
 
@@ -52,7 +55,7 @@ export type SeedUser = {
   email: string;
   name: string;
   staff?: { org: OrgKey; role: StaffRole; membershipId: string };
-  family?: { family: FamilyKey; relationship: string; primary: boolean };
+  family?: { family: ParentFamilyKey; relationship: string; primary: boolean };
 };
 
 export const USERS = {
@@ -91,6 +94,11 @@ export const USERS = {
     email: "grace.chen@family.test",
     name: "Grace Chen",
     family: { family: "chen", relationship: "mother", primary: true },
+  },
+  martinParent: {
+    email: "claire.martin@family.test",
+    name: "Claire Martin",
+    family: { family: "martin", relationship: "mother", primary: true },
   },
 } as const satisfies Record<string, SeedUser>;
 
@@ -487,6 +495,12 @@ const childByName = (first: string, last: string) => {
   }
   throw new Error(`No fixture child ${first} ${last}`);
 };
+
+// The family a seeded parent belongs to.
+export function parentFamilyId(key: ParentFamilyKey): string {
+  if (key !== "martin") return namedFamilies[key].id;
+  return rosterFamilies.find((f) => f.children.some((c) => c.first === "Zoe"))!.id;
+}
 
 export const CHILDREN = {
   ava: { id: childByName("Ava", "Burrows"), family_id: namedFamilies.burrows.id },

@@ -20,9 +20,18 @@ The frontend must ask a server-side domain service whether an action is valid.
   "cancellation_notice_minutes": 120,
   "return_credit_on_valid_cancellation": true,
   "allow_temporary_vacancy_offers": true,
-  "waitlist_priority": "existing_students_first"
+  "waitlist_priority": "existing_students_first",
+  "auto_offer": true,
+  "offer_hold_minutes": 120
 }
 ```
+
+`auto_offer` and `offer_hold_minutes` (15–1440) arrived in M5.5: when a
+spot opens, the engine offers it to one family at a time, each holding it
+for the hold time (or until 30 minutes before the lesson, if sooner). Who
+goes first: families with a parent account, then the soonest-expiring
+credit, then the earliest missed lesson. The rules above live in
+`private.makeup_reasons`, used by both `check_makeup` and the engine.
 
 ## Required service
 

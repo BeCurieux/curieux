@@ -109,6 +109,19 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - **Instructor clash check.** A database trigger refuses a class that puts
   its instructor in two classes at once, whatever path saves it.
 
+### M5.5 — Automatic offers (done)
+
+- **Same guarantees, no caller.** The engine runs inside the database
+  (triggers and a five-minute `pg_cron` job) as private functions nobody
+  can call through the API. It applies the same rules as `check_makeup`
+  (one shared function), and claiming still goes through `claim_offer`.
+- **Only families who can answer.** Offers go only to families with a
+  parent account, never more open offers than the child has credits, and
+  never to the child who is away.
+- **Visible and reversible.** Automatic offers have no `offered_by`, show as
+  "Offered automatically" to the owner, are audited, and stop when the
+  owner turns the rule off.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project

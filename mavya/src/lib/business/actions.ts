@@ -309,6 +309,9 @@ const whole = (label: string, min: number, max: number) =>
     .min(min, `${label[0]!.toUpperCase()}${label.slice(1)} must be at least ${min}.`)
     .max(max, `${label[0]!.toUpperCase()}${label.slice(1)} can be at most ${max}.`);
 
+// How long each family has to answer an automatic offer, in minutes.
+const HOLD_OPTIONS = [30, 60, 120, 240, 720, 1440];
+
 const policySchema = z.object({
   makeupsEnabled: yesNo,
   noticeHours: whole("the notice", 0, 168),
@@ -317,6 +320,10 @@ const policySchema = z.object({
   bookingHorizonDays: whole("the booking window", 1, 90),
   cancellationNoticeHours: whole("the cancellation notice", 0, 168),
   allowFutureLevel: yesNo,
+  autoOffer: yesNo,
+  offerHoldMinutes: z.coerce
+    .number()
+    .refine((m) => HOLD_OPTIONS.includes(m), "Choose how long each family has."),
 });
 
 export async function saveMakeupPolicy(_: FormState, formData: FormData): Promise<FormState> {
@@ -334,6 +341,8 @@ export async function saveMakeupPolicy(_: FormState, formData: FormData): Promis
       bookingHorizonDays: p.bookingHorizonDays,
       cancellationNoticeMinutes: p.cancellationNoticeHours * 60,
       returnCreditOnValidCancellation: true,
+      autoOffer: p.autoOffer,
+      offerHoldMinutes: p.offerHoldMinutes,
     });
   });
   if (failed) return failed;

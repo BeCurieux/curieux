@@ -89,6 +89,18 @@ Implement:
 - instructor clash checks: warn when a class would put an instructor in two
   places at once, across classes and locations
 
+## M5.5 — Automatic offers
+See `docs/M5_5_AUTO_OFFERS.md`
+
+The engine fills places by itself (`docs/STRATEGY.md`, must-have 2):
+- when an absence opens a spot, the best-fitting families with a make-up
+  credit are offered it straight away, with no owner tap
+- each offer is held for a set time; if it's declined or runs out, the next
+  family is offered it
+- when a child's credit is used or withdrawn, their other open offers close
+- the school turns this on or off and sets the hold time in Make-up rules
+- the owner sees what the engine did, and can still offer by hand
+
 ## M6 — Migration and pilot
 
 Implement:
@@ -111,7 +123,10 @@ Implement:
 - backups check and data-breach response plan
 - privacy summary for parents
 - switching from another system: "we do the import" service, run alongside
-  the school's current tool until they're ready
+  the school's current tool until they're ready. Before go-live we prove
+  counts, active enrolments, credits and opening balances match the old
+  system, and list anything that couldn't move. No paying twice while the
+  old contract runs out, a rollback window, and one named person running it
 - school data agreement (Ovyko handles the school's data only to run the
   service, keeps it in Australia, deletes it on request), a parent notice
   template for the move, and a privacy lawyer's review of both
@@ -132,10 +147,16 @@ Not scheduled. Revisit with the pilot school's feedback:
 - calendar sync for parents (Apple, Google)
 - end-of-term progress report parents can share
 - private class notes between instructors
+- owner home as exceptions: "3 things need you; everything else is handled"
+- sibling finder: "a Level 4 class while Mia's class is on"
+- activity packs (gymnastics next): the words and extras each activity needs
+  on the shared engine (`docs/STRATEGY.md`)
 
 ## M7 — Payments
 
 Only after operational loop is proven:
+- a family ledger first: every charge, credit, refund and failed payment is a
+  line with its reason, and the balance is worked out from them
 - Stripe Connect
 - payment schedules
 - provider payouts
