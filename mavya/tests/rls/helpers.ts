@@ -83,4 +83,23 @@ export const TABLES = [
   "absences",
   "makeup_credits",
   "makeup_bookings",
+  "vacancy_offers",
 ] as const;
+
+// Puts a family back as seeded: cancels their booked make-ups and takes back
+// their upcoming absences, through the same rules the app uses. Lets a test
+// file start clean even after an earlier run stopped halfway.
+export async function resetFamily(s: Session) {
+  const now = new Date().toISOString();
+  const { data: bookings } = await s.client
+    .from("makeup_bookings")
+    .select("id, class_occurrences!inner (starts_at)")
+    .eq("status", "booked")
+    .gt("class_occurrences.starts_at", now);
+  for (const b of bookings ?? []) await s.client.rpc("cancel_makeup", { p_booking: b.id });
+  const { data: absences } = await s.client
+    .from("absences")
+    .select("id, class_occurrences!inner (starts_at)")
+    .gt("class_occurrences.starts_at", now);
+  for (const a of absences ?? []) await s.client.rpc("withdraw_absence", { p_absence: a.id });
+}

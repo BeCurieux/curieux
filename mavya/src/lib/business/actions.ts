@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
 import * as families from "@/lib/domain/families";
+import * as fill from "@/lib/domain/fill";
 import * as makeups from "@/lib/domain/makeups";
 import * as progress from "@/lib/domain/progress";
 import * as staff from "@/lib/domain/staff";
@@ -367,3 +368,43 @@ export async function cancelLessons(_: FormState, formData: FormData): Promise<F
       : `Cancelled ${lessons}. Their families have been told.`,
   };
 }
+
+// ------------------------------------------------------------------ fill empty spots
+
+// Offers an open spot to a child's family. The database checks the spot is
+// still open and the child's credit fits, and tells the family.
+export async function offerSpot(occurrenceId: string, childId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(occurrenceId).success || !id.safeParse(childId).success)
+    return { error: "That didn't work. Try again." };
+  const failed = await attempt(async () => {
+    await fill.offerSpot(db, { occurrenceId, childId });
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: "Offered" };
+}
+
+// Shows what cancelling a day would do, then does it once confirmed.
+export async function previewCancelLessons(
+  _: CancelState,
+  formData: FormData,
+): Promise<CancelState> {
+  const { db } = await requireOwner();
+  const parsed = cancelSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const out: { preview?: fill.CancelPreview } = {};
+  const failed = await attempt(async () => {
+    out.preview = await fill.previewCancelLessons(db, parsed.data);
+  });
+  if (failed) return failed;
+  if (!out.preview || out.preview.lessons === 0)
+    return { error: "There are no upcoming lessons there on that day." };
+  return { preview: out.preview, ...parsed.data };
+}
+
+export type CancelState = FormState & {
+  preview?: fill.CancelPreview;
+  locationId?: string;
+  date?: string;
+};

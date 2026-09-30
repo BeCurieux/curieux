@@ -9,10 +9,11 @@ import { BackLink } from "@/components/demo/back-link";
 import { Button } from "@/components/ui/button";
 import { endEnrolment } from "@/lib/business/actions";
 import { businessContext } from "@/lib/demo/context";
-import { candidatesFor, resolveClassId } from "@/lib/demo/service";
+import { resolveClassId } from "@/lib/demo/service";
 import { currentLesson, lessonAttendance } from "@/lib/domain/attendance";
 import { classRoster } from "@/lib/domain/enrolments";
 import { childrenNotInClass } from "@/lib/domain/families";
+import { candidates as fillCandidates } from "@/lib/domain/fill";
 import { classView, lessonStates } from "@/lib/domain/lessons";
 import { getClass, upcomingLessons } from "@/lib/domain/timetable";
 import { formatLessonDate } from "@/lib/format";
@@ -22,7 +23,7 @@ export const metadata: Metadata = { title: "Class" };
 
 export default async function ClassPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { db, organisationId, state, demo } = await businessContext();
+  const { db, organisationId } = await businessContext();
   const real = await getClass(db, resolveClassId(slug));
   if (!real) notFound();
 
@@ -48,7 +49,9 @@ export default async function ClassPage({ params }: { params: Promise<{ slug: st
     : null;
   const here = marks ? [...marks.values()].filter((s) => s === "present").length : 0;
   const away = marks ? [...marks.values()].filter((s) => s === "absent").length : 0;
-  const candidates = demo ? candidatesFor(c.id, state) : [];
+  // Children with a make-up credit who could take the next lesson's open spots.
+  const candidates =
+    c.lesson && c.temporaryVacancies > 0 ? await fillCandidates(db, c.lesson.id) : [];
   const full = c.enrolled >= c.capacity;
 
   return (

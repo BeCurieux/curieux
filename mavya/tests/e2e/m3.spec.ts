@@ -45,7 +45,7 @@ test("an owner adds a skill, the instructor assesses it, the owner removes it", 
 test("the instructor's attendance shows on the owner's class page", async ({ browser }) => {
   const instructor = await browser.newPage();
   await signIn(instructor, USERS.aquaInstructor.email);
-  await instructor.getByRole("link", { name: "Dolphin 1, Tuesday 5:00pm" }).click();
+  await instructor.getByRole("link", { name: "Dolphin 1, Tuesday 5:30pm" }).click();
   await expect(instructor.getByText(/^Lesson /)).toBeVisible();
   // Wait for the save itself, not just the button's instant feedback.
   const saved = instructor.waitForResponse((r) => r.request().method() === "POST" && r.ok());

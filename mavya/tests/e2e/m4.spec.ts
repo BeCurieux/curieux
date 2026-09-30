@@ -96,7 +96,9 @@ test.describe("make-ups", () => {
     await page.goto("/business/settings/cancel");
     await page.getByLabel("Location").selectOption({ label: "Narrabeen" });
     await page.getByLabel("Date").fill(date);
-    await page.getByRole("button", { name: "Cancel lessons" }).click();
+    // Since M5 the owner sees what it affects before confirming.
+    await page.getByRole("button", { name: "Check what this affects" }).click();
+    await page.getByRole("button", { name: "Cancel 1 lesson" }).click();
     await expect(page.getByRole("status")).toContainText("Cancelled 1 lesson");
 
     await switchTo(page, USERS.chenParent.email);

@@ -69,6 +69,7 @@ Implement:
   make-up credit under the school's rules, and families are told
 
 ## M5 — Fill Empty Spots
+See `docs/M5_FILL_SPOTS.md`
 
 Implement:
 - temporary capacity

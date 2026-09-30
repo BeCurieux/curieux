@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles, Store } from "lucide-react";
+import { ArrowRight, HeartHandshake, Sparkles, Store } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { OccupancyBar } from "@/components/business/occupancy-bar";
@@ -7,13 +7,14 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext, firstName } from "@/lib/demo/context";
 import { classSlug } from "@/lib/demo/service";
+import { fillTally, openSpots, type Tally } from "@/lib/domain/fill";
 import { classViews, ownerNumbers, type ClassView } from "@/lib/domain/lessons";
 import { listClasses } from "@/lib/domain/timetable";
 
 export const metadata: Metadata = { title: "Today" };
 
 export default async function BusinessHome() {
-  const { viewer, db, organisationName } = await businessContext();
+  const { viewer, db, organisationId, organisationName } = await businessContext();
   const classes = await classViews(db, await listClasses(db, { activeOnly: true }));
 
   if (classes.length === 0) {
@@ -30,8 +31,13 @@ export default async function BusinessHome() {
     );
   }
 
-  const stats = await ownerNumbers(db, classes);
-  const spots = stats.temporaryVacancies;
+  const [stats, open, tally] = await Promise.all([
+    ownerNumbers(db, classes),
+    openSpots(db, organisationId),
+    fillTally(db, organisationId),
+  ]);
+  // The same count Fill Empty Spots shows.
+  const spots = open.reduce((sum, s) => sum + s.spots, 0);
   const places = [...new Set(classes.map((c) => c.location))];
 
   return (
@@ -64,21 +70,72 @@ export default async function BusinessHome() {
           ) : null}
         </div>
         <dl className="grid grid-cols-2 gap-3">
-          <Stat label="Children expected today" value={stats.expectedToday} />
-          <Stat label="Reported absences" value={stats.absencesThisWeek} />
-          <Stat label="Temporary vacancies" value={spots} tone="attention" />
-          <Stat label="Make-up credits expiring" value={stats.creditsExpiringThisWeek} />
+          <Stat
+            label="Children expected today"
+            value={stats.expectedToday}
+            href="/business/numbers/today"
+          />
+          <Stat
+            label="Reported absences"
+            value={stats.absencesThisWeek}
+            href="/business/numbers/absences"
+          />
+          <Stat label="Temporary vacancies" value={spots} tone="attention" href="/business/fill" />
+          <Stat
+            label="Make-up credits expiring"
+            value={stats.creditsExpiringThisWeek}
+            href="/business/numbers/credits"
+          />
           <Stat
             label="Capacity this week"
             value={stats.capacityPercent}
             suffix="%"
+            href="/business/classes"
             className="col-span-2"
           />
         </dl>
       </section>
 
+      <TallyCard tally={tally} />
+
       <ClassCards classes={classes} />
     </div>
+  );
+}
+
+// What filling spots added up to. Schools charge by the term, so this is
+// make-ups and families, not money.
+function TallyCard({ tally }: { tally: Tally }) {
+  return (
+    <section
+      aria-labelledby="tally"
+      className="flex flex-col gap-4 rounded-lg bg-[#dcf1e7] p-6 text-[#1d5a41] sm:flex-row sm:items-center"
+    >
+      <span className="grid size-12 shrink-0 place-items-center rounded-full bg-white/70 [&_svg]:size-6">
+        <HeartHandshake aria-hidden />
+      </span>
+      <div className="flex-1">
+        <h2 id="tally" className="font-semibold">
+          Last 12 weeks
+        </h2>
+        <p className="font-display text-2xl leading-snug font-semibold">
+          {tally.makeupsDelivered === 0
+            ? "No make-ups delivered yet"
+            : `${tally.makeupsDelivered} ${tally.makeupsDelivered === 1 ? "make-up" : "make-ups"} in spots that would have sat empty`}
+        </p>
+        <p>
+          {tally.families} {tally.families === 1 ? "family" : "families"} didn&apos;t miss out · no
+          extra classes
+        </p>
+      </div>
+      <Link
+        href="/business/numbers/makeups"
+        className="inline-flex items-center gap-1 font-semibold underline-offset-4 hover:underline"
+      >
+        See them
+        <ArrowRight aria-hidden className="size-4" />
+      </Link>
+    </section>
   );
 }
 

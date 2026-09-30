@@ -104,7 +104,6 @@ export async function classView(db: Db, c: ClassSummary): Promise<ClassView> {
 export type OwnerNumbers = {
   expectedToday: number;
   absencesThisWeek: number;
-  temporaryVacancies: number;
   creditsExpiringThisWeek: number;
   capacityPercent: number;
 };
@@ -143,7 +142,6 @@ export async function ownerNumbers(
       .filter((c) => c.lesson && today(c.lesson.startsAt, c.timezone))
       .reduce((sum, c) => sum + c.expected, 0),
     absencesThisWeek: absences.count ?? 0,
-    temporaryVacancies: views.reduce((sum, c) => sum + c.temporaryVacancies, 0),
     creditsExpiringThisWeek: credits.count ?? 0,
     capacityPercent: capacity ? Math.round((expected / capacity) * 100) : 0,
   };

@@ -98,14 +98,19 @@ test.describe("business demo path", () => {
 
     // 1–2. Dashboard with 4 temporary vacancies.
     await expect(page).toHaveURL(/\/business$/);
-    await expect(page.getByText("Temporary vacancies").locator("..")).toContainText("4");
+    await expect(
+      page.getByRole("link", { name: "Temporary vacancies" }).locator("../.."),
+    ).toContainText("4");
 
     // 3–4. Fill 4 open spots → eligible candidates.
     await page.getByRole("link", { name: "Fill 4 open spots" }).click();
     await expect(page.getByRole("heading", { name: "4 open spots, ready to offer" })).toBeVisible();
-    await expect(page.getByText("Harper Lee")).toBeVisible();
-    await page.getByRole("button", { name: "Offer spot to Harper Lee" }).click();
-    await expect(page.getByText("Offered")).toBeVisible();
+    // Real candidates since M5: children whose make-up credit fits the lesson.
+    const wednesday = page.getByRole("region", { name: /Wednesday 4:30pm/ });
+    const offer = wednesday.getByRole("button", { name: /^Offer spot to / }).first();
+    await expect(offer).toBeVisible();
+    await offer.click();
+    await expect(wednesday.getByText("Offered").first()).toBeVisible();
 
     // 5–6. Dolphin 3 with occupancy and absences.
     await page.getByRole("link", { name: "Classes" }).click();

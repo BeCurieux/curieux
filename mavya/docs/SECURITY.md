@@ -95,12 +95,19 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - **Instructors see make-up children** only for lessons they teach, recently
   or soon, so they can take attendance.
 
-### M5 — Fill Empty Spots
+### M5 — Fill Empty Spots (done)
 
-- **Vacancy privacy.** Vacancy offers never reveal which child is absent or
-  why.
-- **Claim links.** Links in offer messages expire, work once, and still require
-  sign-in.
+- **Vacancy privacy.** An offer shows the lesson (class, time, level, place,
+  instructor's first name), never which child is away or why. Candidate
+  lists are for the school's owners only.
+- **Claim links.** `/family/claim/<code>`: 256 random bits, of which the
+  database keeps only a SHA-256 hash. A link works only signed in, only for
+  the offer's own family, only once, and only until it expires (24 hours or
+  the lesson's start). A wrong or someone else's code shows nothing.
+- **The last spot goes once.** Claiming locks the lesson and books through
+  `check_makeup`, like any make-up; the lesson's other offers then close.
+- **Instructor clash check.** A database trigger refuses a class that puts
+  its instructor in two classes at once, whatever path saves it.
 
 ### M6 — Migration and pilot (before real children's data)
 

@@ -190,7 +190,7 @@ export const CLASSES: Record<ClassKey, ClassFixture> = {
   dolphin3Thu: aquaClass(2, "Dolphin 3", LEVELS.dolphin3.id, 4, "16:30"),
   dolphin3Sat: aquaClass(3, "Dolphin 3", LEVELS.dolphin3.id, 6, "09:00"),
   dolphin3Tue: aquaClass(4, "Dolphin 3", LEVELS.dolphin3.id, 2, "17:00"),
-  dolphin1Tue: aquaClass(5, "Dolphin 1", LEVELS.dolphin1.id, 2, "17:00"),
+  dolphin1Tue: aquaClass(5, "Dolphin 1", LEVELS.dolphin1.id, 2, "17:30"),
   gymLevel2Sat: {
     id: id("0c1a55", 6),
     organisation_id: ORGS.peak.id,
@@ -725,4 +725,29 @@ export function expiringCreditRows(now = new Date()) {
     expires_at: new Date(now.getTime() + (4 + i) * day).toISOString(),
     status: "available",
   }));
+}
+
+// Make-ups already delivered last week, in places absences freed, so the
+// owner's tally has something to count: a Wednesday swimmer came on
+// Thursday, a Thursday swimmer on Saturday and a Saturday swimmer on
+// Tuesday. The target lesson is each class's most recent one.
+export const PAST_MAKEUPS = [
+  {
+    child: firstChildIn("dolphin3Wed", [CHILDREN.oliver.id, CHILDREN.zoe.id]),
+    class: CLASSES.dolphin3Thu,
+  },
+  {
+    child: firstChildIn("dolphin3Thu", [DEMO_ABSENCES[1]!.child, expiringChild("dolphin3Thu")]),
+    class: CLASSES.dolphin3Sat,
+  },
+  {
+    child: firstChildIn("dolphin3Sat", [DEMO_ABSENCES[2]!.child, expiringChild("dolphin3Sat")]),
+    class: CLASSES.dolphin3Tue,
+  },
+].map((m, i) => ({ ...m, creditId: id("cc", 20 + i), bookingId: id("bb", i + 1) }));
+
+function expiringChild(classKey: "dolphin3Thu" | "dolphin3Sat") {
+  return classKey === "dolphin3Thu"
+    ? firstChildIn("dolphin3Thu", [DEMO_ABSENCES[1]!.child])
+    : firstChildIn("dolphin3Sat", [DEMO_ABSENCES[2]!.child]);
 }

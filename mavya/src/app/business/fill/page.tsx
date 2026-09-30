@@ -1,24 +1,26 @@
-import { Check, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { OfferButton, OfferState } from "@/components/business/offer-button";
 import { BackLink } from "@/components/demo/back-link";
 import { EmptyState } from "@/components/demo/empty-state";
-import { Button } from "@/components/ui/button";
-import { offerSpot } from "@/lib/demo/actions";
 import { businessContext } from "@/lib/demo/context";
-import { candidatesFor, classSlug } from "@/lib/demo/service";
-import { classViews } from "@/lib/domain/lessons";
+import { classSlug } from "@/lib/demo/service";
+import { candidates, openSpots, type Candidate } from "@/lib/domain/fill";
 import { listClasses } from "@/lib/domain/timetable";
+import { formatLessonDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Fill open spots" };
 
 export default async function FillPage() {
-  const { db, state, demo } = await businessContext();
-  // The spots are real; the families to offer them to are demo until M5.
-  const open = (await classViews(db, await listClasses(db, { activeOnly: true }))).filter(
-    (c) => c.temporaryVacancies > 0,
-  );
-  const total = open.reduce((sum, c) => sum + c.temporaryVacancies, 0);
+  const { db, organisationId } = await businessContext();
+  const [spots, classes] = await Promise.all([
+    openSpots(db, organisationId),
+    listClasses(db, { activeOnly: true }),
+  ]);
+  const classById = new Map(classes.map((c) => [c.id, c]));
+  const lists = await Promise.all(spots.map((s) => candidates(db, s.occurrenceId)));
+  const total = spots.reduce((sum, s) => sum + s.spots, 0);
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -29,75 +31,93 @@ export default async function FillPage() {
           {total} open {total === 1 ? "spot" : "spots"}, ready to offer
         </h1>
         <p className="mt-2 max-w-2xl text-muted">
-          These children have make-up credits and fit the level. Offer a spot and the family gets a
-          message they can accept in one tap.
+          Places freed by absences in the next 7 days. These children hold a make-up credit that
+          fits. Offer a spot and the family can claim it in one tap; the first to claim gets it.
         </p>
       </div>
 
-      {open.length === 0 ? (
+      {spots.length === 0 ? (
         <EmptyState icon={<Sparkles />} title="Every spot is filled">
           New spots open up here when families report absences.
         </EmptyState>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
-          {open.map((c) => {
-            const candidates = demo ? candidatesFor(c.id, state) : [];
+          {spots.map((spot, i) => {
+            const c = classById.get(spot.classId);
+            if (!c) return null;
+            const heading = `${c.level} · ${c.day} ${c.time}`;
             return (
               <section
-                key={c.id}
-                aria-labelledby={`class-${c.id}`}
+                key={spot.occurrenceId}
+                aria-labelledby={`spot-${spot.occurrenceId}`}
                 className="flex flex-col rounded-lg border border-line bg-surface"
               >
                 <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
                   <div>
-                    <h2 id={`class-${c.id}`} className="font-display text-xl font-semibold">
-                      {c.level} · {c.day} {c.time}
-                    </h2>
-                    <Link
-                      href={`/business/classes/${classSlug(c.id)}`}
-                      className="text-sm font-semibold text-muted hover:text-ink"
+                    <h2
+                      id={`spot-${spot.occurrenceId}`}
+                      className="font-display text-xl font-semibold"
                     >
-                      View class
-                    </Link>
+                      {heading}
+                    </h2>
+                    <p className="text-sm text-muted">
+                      {formatLessonDate(spot.startsAt, c.timezone)} ·{" "}
+                      <Link
+                        href={`/business/classes/${classSlug(c.id)}`}
+                        className="font-semibold hover:text-ink"
+                      >
+                        View class
+                      </Link>
+                    </p>
                   </div>
                   <span className="tabular rounded-full bg-[#fff0ec] px-3 py-1 text-sm font-bold text-[#b4503d]">
-                    {c.temporaryVacancies} {c.temporaryVacancies === 1 ? "spot" : "spots"}
+                    {spot.spots} {spot.spots === 1 ? "spot" : "spots"}
                   </span>
                 </header>
-                <ul className="flex flex-col divide-y divide-line">
-                  {candidates.map((p) => (
-                    <li key={p.id} className="flex items-center justify-between gap-3 px-5 py-4">
-                      <div className="min-w-0">
-                        <p className="font-semibold">{p.child}</p>
-                        <p className="text-sm text-muted">
-                          {p.family} family · {p.creditNote}
-                        </p>
-                      </div>
-                      {p.offered ? (
-                        <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-[#dcf1e7] px-4 text-sm font-semibold text-[#23694c]">
-                          <Check aria-hidden className="size-4" strokeWidth={3} />
-                          Offered
-                        </span>
-                      ) : (
-                        <form action={offerSpot.bind(null, p.id)}>
-                          <Button type="submit" size="sm" aria-label={`Offer spot to ${p.child}`}>
-                            Offer spot
-                          </Button>
-                        </form>
-                      )}
-                    </li>
-                  ))}
-                  {candidates.length === 0 ? (
-                    <li className="px-5 py-4 text-muted">
-                      No families with credits fit this class yet.
-                    </li>
-                  ) : null}
-                </ul>
+                <CandidateList
+                  occurrenceId={spot.occurrenceId}
+                  list={lists[i]!}
+                  timezone={c.timezone}
+                />
               </section>
             );
           })}
         </div>
       )}
     </div>
+  );
+}
+
+function CandidateList({
+  occurrenceId,
+  list,
+  timezone,
+}: {
+  occurrenceId: string;
+  list: Candidate[];
+  timezone: string;
+}) {
+  if (list.length === 0)
+    return <p className="px-5 py-4 text-muted">No families with credits fit this lesson yet.</p>;
+  return (
+    <ul className="flex flex-col divide-y divide-line">
+      {list.map((p) => (
+        <li key={p.childId} className="flex items-center justify-between gap-3 px-5 py-4">
+          <div className="min-w-0">
+            <p className="font-semibold">{p.name}</p>
+            <p className="text-sm text-muted">
+              {p.family} · credit ends {formatLessonDate(p.creditExpiresAt, timezone)}
+            </p>
+          </div>
+          {p.offerStatus === "offered" ||
+          p.offerStatus === "claimed" ||
+          p.offerStatus === "declined" ? (
+            <OfferState status={p.offerStatus} />
+          ) : (
+            <OfferButton occurrenceId={occurrenceId} childId={p.childId} name={p.name} />
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

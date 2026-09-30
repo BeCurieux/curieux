@@ -216,6 +216,24 @@ only by database functions (`report_absence`, `withdraw_absence`,
 its capacity, minus children enrolled, plus children reported away, minus
 make-ups booked.
 
+### VacancyOffer
+- id
+- organisation_id
+- occurrence_id — the lesson with the open spot
+- child_id — who it's offered to
+- code_hash — SHA-256 of the claim code; the code itself is never stored
+- status: offered | claimed | declined | expired | filled
+- expires_at — 24 hours after offering, or the lesson's start if sooner
+- booking_id nullable — the make-up booked when it's claimed
+- offered_by
+- created_at
+- responded_at nullable
+
+An invitation, not a hold: a spot can be offered to several families and
+the first to claim it gets it; the lesson's other offers then close as
+filled. Written only by `offer_spot`, `claim_offer` and `decline_offer`
+(M5).
+
 ### WaitlistEntry
 - id
 - child_id
@@ -244,16 +262,17 @@ adds a new version (M4).
 - id
 - recipient_user_id
 - organisation_id nullable
-- type: skill_achieved (M3) | lesson_cancelled (M4)
-- payload_json — ids only (`child_id`, `skill_id` or `occurrence_id`), never
-  names
+- type: skill_achieved (M3) | lesson_cancelled (M4) | spot_offered (M5)
+- payload_json — ids only (`child_id`, `skill_id`, `occurrence_id`,
+  `offer_id`), never names; a spot offered also carries its claim code,
+  which only the recipient can read
 - status: pending | sent | failed — for email and push delivery (M6)
 - created_at
 - sent_at nullable
 - read_at nullable
 
-Created only by the database when a skill becomes achieved or a lesson is
-cancelled, one per parent in the child's family. Each person reads, and marks seen, only their own.
+Created only by the database when a skill becomes achieved, a lesson is
+cancelled or a spot is offered, one per parent in the child's family. Each person reads, and marks seen, only their own.
 
 ### AuditEvent
 - id
@@ -279,7 +298,8 @@ different organisations.
 1. `Class` is the recurring pattern.
 2. `ClassOccurrence` is the actual real-world lesson.
 3. Make-up bookings never mutate the child's permanent enrolment.
-4. Temporary vacancy is derived from occurrence state, absences and make-up bookings.
+4. Temporary vacancy is derived from occurrence state, absences and make-up bookings:
+   an open spot is `min(absences − make-ups booked, free places)` (M5).
 5. Rules must be organisation-scoped.
 6. Family and organisation boundaries must be enforced with RLS.
 7. Cross-provider child identity is deliberately deferred.
