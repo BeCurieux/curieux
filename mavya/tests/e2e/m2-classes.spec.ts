@@ -169,8 +169,26 @@ test("parents see their children's real classes on Home, Calendar and Kids", asy
     "Tuesday · 5:30pm",
   );
   await page.goto("/family/calendar");
-  await expect(page.getByRole("link", { name: /Leo · Swimming · Dolphin 1/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Ava · Swimming · Dolphin 3/ })).toBeVisible();
+  // The calendar is the next seven days, so a weekly lesson that finished
+  // earlier today isn't on it until next week.
+  const leo = page.getByRole("link", { name: /Leo · Swimming · Dolphin 1/ });
+  const ava = page.getByRole("link", { name: /Ava · Swimming · Dolphin 3/ });
+  await expect(leo.or(ava).first()).toBeVisible();
+  await expect(leo).toHaveCount(finishedToday("Tue", "18:00") ? 0 : 1);
+  await expect(ava).toHaveCount(finishedToday("Wed", "17:00") ? 0 : 1);
   await page.goto("/family/kids");
   await expect(page.getByText("Dolphin 1 · Tuesdays 5:30pm")).toBeVisible();
 });
+
+// Whether it's that weekday in Sydney and the lesson ending at `end` is over.
+function finishedToday(weekday: string, end: string) {
+  const parts = new Intl.DateTimeFormat("en-AU", {
+    timeZone: "Australia/Sydney",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)!.value;
+  return get("weekday") === weekday && `${get("hour")}:${get("minute")}` >= end;
+}

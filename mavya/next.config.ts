@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Moving a school in sends its spreadsheets (up to 2 MB each) to a server
+  // action; the default limit is 1 MB.
+  experimental: {
+    serverActions: { bodySizeLimit: "4mb" },
+  },
 };
 
 // Source maps upload only when SENTRY_AUTH_TOKEN is present (Vercel), so
