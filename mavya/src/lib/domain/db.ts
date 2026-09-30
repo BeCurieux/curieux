@@ -36,6 +36,9 @@ export function explain(error: PostgrestError): DomainError {
     case "instructor_clash":
     case "import_invalid":
     case "import_locked":
+    case "invite_invalid":
+    case "invite_closed":
+    case "invite_wrong_email":
       return new DomainError(error.message);
   }
   switch (error.code) {

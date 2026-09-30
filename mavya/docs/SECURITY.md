@@ -134,6 +134,25 @@ Ovyko should do better than the usual weaknesses of class-management software:
   can mark a row as imported, so undo deletes exactly what that import
   added, and refuses once anything depends on it.
 
+### M6b — Getting set up (done)
+
+- **Sign-up stays closed.** An account is created only by the server, for a
+  valid invite, with the email the invite was made for. Everyone else is
+  refused.
+- **Invite links.** 256 random bits, only a hash kept; each works once, for
+  14 days, for one email, and can be cancelled or replaced. The page a link
+  opens shows the school, the family's name and the email, never the
+  children.
+- **The school vouches for the email.** Until invites are emailed (M6c),
+  the owner sends the link themselves, so the account is marked confirmed
+  on the school's word; whoever holds the link can join as that email.
+  Owners should send links only to the parent's own email or phone.
+- **Owners see who joined, not their accounts.** Name and email of a
+  family's parents, through one function; parents' accounts stay private.
+- **Sign-in only sends people on to an invite.** The `next` parameter
+  accepts nothing but an invite link, so it can't be used to redirect
+  elsewhere.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project

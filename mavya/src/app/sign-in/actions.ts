@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { LAST_SEEN_COOKIE, lastSeenCookie } from "@/lib/auth/idle";
+import { safeNext } from "@/lib/auth/next";
 import { recordSignIn, signInAllowed } from "@/lib/auth/throttle";
 import { createClient } from "@/lib/supabase/server";
 
@@ -41,5 +42,5 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
 
   // A fresh session starts un-idle, whatever an earlier one left behind.
   (await cookies()).set(LAST_SEEN_COOKIE, String(Date.now()), lastSeenCookie);
-  redirect("/");
+  redirect(safeNext(formData.get("next")) ?? "/");
 }

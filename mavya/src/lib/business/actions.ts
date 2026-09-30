@@ -7,6 +7,7 @@ import * as enrolments from "@/lib/domain/enrolments";
 import * as families from "@/lib/domain/families";
 import * as fill from "@/lib/domain/fill";
 import * as imports from "@/lib/domain/imports";
+import * as invites from "@/lib/domain/invites";
 import * as makeups from "@/lib/domain/makeups";
 import * as progress from "@/lib/domain/progress";
 import * as staff from "@/lib/domain/staff";
@@ -520,4 +521,39 @@ export async function undoImport(batchId: string): Promise<FormState> {
   if (failed) return failed;
   revalidatePath("/business", "layout");
   return { ok: "Undone. Everything this import added has been removed." };
+}
+
+// ------------------------------------------------------------------ inviting parents
+
+export type InviteState = FormState & { code?: string; email?: string };
+
+const inviteSchema = z.object({
+  familyId: id,
+  email: z.email("Enter a real email address.").max(254, "That email is too long."),
+});
+
+// Makes an invite link for a parent. The code is shown once, here.
+export async function inviteParent(_: InviteState, formData: FormData): Promise<InviteState> {
+  const { db } = await requireOwner();
+  const parsed = inviteSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const out: InviteState = {};
+  const failed = await attempt(async () => {
+    out.code = await invites.inviteParent(db, parsed.data.familyId, parsed.data.email);
+  });
+  if (failed) return failed;
+  revalidatePath(`/business/families/${parsed.data.familyId}`);
+  return { ...out, email: parsed.data.email.toLowerCase() };
+}
+
+export async function revokeInvite(inviteId: string, familyId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(inviteId).success || !id.safeParse(familyId).success)
+    return { error: "That didn't work. Try again." };
+  const failed = await attempt(async () => {
+    await invites.revokeInvite(db, inviteId);
+  });
+  if (failed) return failed;
+  revalidatePath(`/business/families/${familyId}`);
+  return { ok: "Invite cancelled." };
 }
