@@ -13,6 +13,7 @@ Before making product decisions, read:
 - `docs/BUILD_PLAN.md`
 - `docs/SECURITY.md`
 - `docs/STRATEGY.md` — check each milestone against its must-haves and rules
+- `docs/BUSINESS_PLAN.md` — the founder's plan it comes from
 - the current milestone file in `/docs`
 
 If the code conflicts with the docs, stop and surface the conflict before changing the architecture.
