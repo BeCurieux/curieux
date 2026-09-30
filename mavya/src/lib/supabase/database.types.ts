@@ -454,6 +454,77 @@ export type Database = {
           },
         ];
       };
+      family_invites: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          code_hash: string;
+          created_at: string;
+          email: string;
+          expires_at: string;
+          family_id: string;
+          id: string;
+          invited_by: string | null;
+          organisation_id: string;
+          status: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          code_hash: string;
+          created_at?: string;
+          email: string;
+          expires_at?: string;
+          family_id: string;
+          id?: string;
+          invited_by?: string | null;
+          organisation_id: string;
+          status?: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          code_hash?: string;
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          family_id?: string;
+          id?: string;
+          invited_by?: string | null;
+          organisation_id?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "family_invites_accepted_by_fkey";
+            columns: ["accepted_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "family_invites_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "family_invites_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "family_invites_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       family_members: {
         Row: {
           family_id: string;
@@ -1136,6 +1207,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_invite: { Args: { p_code: string }; Returns: string };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
@@ -1148,6 +1220,15 @@ export type Database = {
         }[];
       };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
+      family_parents: {
+        Args: { p_family: string };
+        Returns: {
+          email: string;
+          is_primary_guardian: boolean;
+          name: string;
+          user_id: string;
+        }[];
+      };
       fill_tally: {
         Args: { p_days?: number; p_org: string };
         Returns: {
@@ -1168,6 +1249,16 @@ export type Database = {
         Returns: Json;
       };
       import_summary: { Args: { p_batch: string }; Returns: Json };
+      invite_details: {
+        Args: { p_code: string };
+        Returns: {
+          email: string;
+          family: string;
+          school: string;
+          status: string;
+        }[];
+      };
+      invite_parent: { Args: { p_email: string; p_family: string }; Returns: string };
       makeup_options: {
         Args: { p_credit: string };
         Returns: {
@@ -1247,7 +1338,9 @@ export type Database = {
         }[];
       };
       restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      revoke_invite: { Args: { p_invite: string }; Returns: undefined };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
+      setup_progress: { Args: { p_org: string }; Returns: Json };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
       undo_import: { Args: { p_batch: string }; Returns: undefined };
       vacancy_candidates: {

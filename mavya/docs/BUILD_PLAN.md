@@ -109,11 +109,11 @@ saving, with counts to compare and a 14-day undo.
 
 Implement:
 - ~~CSV family, children and class import~~ (M6a)
-- onboarding checklist
+- ~~onboarding checklist~~ (M6b)
+- ~~parent invites~~ (M6b, by link; by email with M6c)
 - minimal internal admin support (granted by the school, time-limited, audited)
 - Supabase Pro, with leaked password protection on
 - two-step sign-in for owners
-- parent invites
 - email and push delivery of notifications, with the neutral wording from M3
 - lesson-day reminders to parents ("Swimming today at 4:30pm"), with neutral
   wording and an opt-out

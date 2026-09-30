@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Wordmark } from "@/components/shell/wordmark";
+import { safeNext } from "@/lib/auth/next";
 import { getViewer } from "@/lib/auth/viewer";
 import { SignInForm } from "./sign-in-form";
 
@@ -9,10 +10,11 @@ export const metadata: Metadata = { title: "Sign in" };
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ idle?: string }>;
+  searchParams: Promise<{ idle?: string; next?: string }>;
 }) {
-  if (await getViewer()) redirect("/");
-  const { idle } = await searchParams;
+  const { idle, next } = await searchParams;
+  const back = safeNext(next);
+  if (await getViewer()) redirect(back ?? "/");
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-10 px-6 py-12">
@@ -28,7 +30,12 @@ export default async function SignInPage({
           You were signed out after 30 minutes without activity.
         </p>
       ) : null}
-      <SignInForm />
+      {back ? (
+        <p role="status" className="rounded-md bg-surface-soft px-4 py-3 font-semibold">
+          Sign in to join your family.
+        </p>
+      ) : null}
+      <SignInForm next={back} />
       <footer className="text-sm text-muted">
         Ovyko is made by Sounding Labs · ABN 38 813 430 864 ·{" "}
         <a href="mailto:hello@ovyko.com.au" className="underline underline-offset-2">

@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn, type SignInState } from "./actions";
 
-export function SignInForm() {
+export function SignInForm({ next }: { next?: string | null }) {
   const [state, formAction, pending] = useActionState<SignInState, FormData>(signIn, {});
 
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <Input

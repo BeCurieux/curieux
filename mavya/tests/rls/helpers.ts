@@ -85,6 +85,7 @@ export const TABLES = [
   "makeup_bookings",
   "vacancy_offers",
   "import_batches",
+  "family_invites",
 ] as const;
 
 // Puts a family back as seeded: cancels their booked make-ups and takes back

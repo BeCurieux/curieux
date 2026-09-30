@@ -2,12 +2,14 @@ import { ArrowRight, HeartHandshake, Sparkles, Store } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { OccupancyBar } from "@/components/business/occupancy-bar";
+import { SetupChecklist } from "@/components/business/setup-checklist";
 import { Stat } from "@/components/business/stat";
 import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext, firstName } from "@/lib/demo/context";
 import { classSlug } from "@/lib/demo/service";
 import { fillTally, openSpots, type Tally } from "@/lib/domain/fill";
+import { setupProgress, setupSteps } from "@/lib/domain/invites";
 import { classViews, ownerNumbers, type ClassView } from "@/lib/domain/lessons";
 import { listClasses } from "@/lib/domain/timetable";
 
@@ -15,12 +17,17 @@ export const metadata: Metadata = { title: "Today" };
 
 export default async function BusinessHome() {
   const { viewer, db, organisationId, organisationName } = await businessContext();
-  const classes = await classViews(db, await listClasses(db, { activeOnly: true }));
+  const [classes, progress] = await Promise.all([
+    listClasses(db, { activeOnly: true }).then((list) => classViews(db, list)),
+    setupProgress(db, organisationId),
+  ]);
+  const setup = <SetupChecklist steps={setupSteps(progress)} />;
 
   if (classes.length === 0) {
     return (
       <div className="rise flex flex-col gap-8">
         <Heading name={viewer.name} org={organisationName} />
+        {setup}
         <EmptyState icon={<Store />} title="Your timetable is empty">
           <Link href="/business/classes/new" className="font-semibold text-ink underline">
             Create your first class
@@ -46,6 +53,8 @@ export default async function BusinessHome() {
         name={viewer.name}
         org={places.length === 1 ? `${organisationName} · ${places[0]}` : organisationName}
       />
+
+      {setup}
 
       <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col justify-between gap-6 rounded-lg bg-ink p-7 text-white">

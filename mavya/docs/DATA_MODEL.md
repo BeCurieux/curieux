@@ -283,6 +283,26 @@ adds a new version (M4).
 Created only by the database when a skill becomes achieved, a lesson is
 cancelled or a spot is offered, one per parent in the child's family. Each person reads, and marks seen, only their own.
 
+### FamilyInvite
+An invitation for a parent to join a family (M6b).
+
+- id
+- organisation_id
+- family_id
+- email — lower case; the account that joins must have this email
+- code_hash — SHA-256 of the code in the link; the code is never stored
+- status: pending | accepted | revoked (expired is worked out from
+  expires_at)
+- invited_by nullable
+- created_at
+- expires_at — 14 days after inviting
+- accepted_by nullable, accepted_at nullable
+
+Written only by `invite_parent`, `revoke_invite` and `accept_invite`. A new
+invite for the same family and email revokes the one before. Owners read
+their school's invites (not the hash); anyone holding a link can read what
+it's for through `invite_details`: school, family name, email and status.
+
 ### ImportBatch
 One run of "Move your school in" (M6a).
 

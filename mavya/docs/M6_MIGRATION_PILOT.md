@@ -14,9 +14,9 @@ and useful by itself, in this order:
 | Slice | What | Why this order |
 |---|---|---|
 | **M6a** | **Moving a school in**: import classes and families from spreadsheets, check before saving, prove it matches, undo | Everything else needs the school's real data in |
-| M6b | Getting set up: onboarding checklist, parent invites, two-step sign-in for owners | Parents can't use it until they're invited |
+| M6b | Getting set up: onboarding checklist, parent invites | Parents can't use it until they're invited |
 | M6c | Reaching families: email (and push) for offers, absences, reminders; lesson-day reminders with an opt-out | The engine is only automatic if families hear about it |
-| M6d | Protecting children: health notes (need to know), custody and pickup restrictions, export and deletion | Must be in before real children's details |
+| M6d | Protecting children: two-step sign-in for owners, health notes (need to know), custody and pickup restrictions, export and deletion | Must be in before real children's details |
 | M6e | Term re-enrolment in one tap | Needed before the pilot's first term ends |
 | M6f | Pool-deck mode (attendance without Wi-Fi) | Pilot feedback may reshape it |
 | M6g | Support access (granted by the school, time-limited, audited) | Needed once the pilot asks for help |
@@ -27,7 +27,7 @@ check), confirm everything runs in Australia, an email-sending account
 (Resend), the school data agreement and parent notice, and a privacy
 lawyer's review.
 
-## M6a — Moving a school in
+## M6a — Moving a school in (done)
 
 ### Decisions
 
@@ -94,3 +94,54 @@ lawyer's review.
   happened to it.
 - Instructors, parents and other schools' owners can't import or see
   imports.
+
+## M6b — Getting set up (done)
+
+### Decisions
+
+1. **Invite links, emailed later.** An owner invites a parent from the
+   family's page (the email from the import is filled in). Ovyko makes a
+   link the owner can copy and send by email or text. Until email arrives
+   (M6c), Ovyko doesn't send it itself; then the same invite goes out by
+   email automatically.
+2. **One link, one family, one email.** A link works for 14 days, once, and
+   only for the email it was made for: the person joining must sign in or
+   create an account with that email. A new invite for the same email
+   replaces the old one; the owner can cancel an invite. The database keeps
+   only a hash of the code, as with claim links (M5).
+3. **Joining takes one step.** A parent new to Ovyko opens the link, sees the
+   school and family they're joining, types their name and a password, and
+   lands on their family's Home. Sign-up stays closed to everyone else: the
+   account is created by the server only for a valid invite. A parent who
+   already has an Ovyko account (at another school, say) signs in and taps
+   Join, and sees both schools with one login.
+4. **The checklist.** Until a school is set up, Today starts with what's
+   left: locations, levels, make-up rules, classes and families (Move your
+   school in), and inviting parents. Each step opens the page that
+   does it, and it disappears once everything's done.
+5. **Recorded.** Invites, cancellations and joins are audited.
+
+### Data model
+
+- New `FamilyInvite`: id, organisation_id, family_id, email, code_hash,
+  status (pending | accepted | revoked), invited_by, created_at,
+  expires_at, accepted_by nullable, accepted_at nullable.
+- `family_parents`: owners see the name and email of each family's
+  parents, without reading parents' accounts directly.
+
+### Not in M6b
+
+- Sending invites by email, and inviting every family at once (M6c).
+- Two-step sign-in for owners (M6d).
+- Inviting instructors (owners can't add staff yet; the same kind of link
+  will do it, next).
+
+### Acceptance criteria
+
+- An owner invites a parent and gets a link; a new parent opens it, sets a
+  password and sees their children.
+- A parent with an account at another school joins with the same login.
+- A link used, cancelled, replaced, expired, or opened with another
+  account's email does nothing.
+- Only the school's owners can invite, see or cancel its invites.
+- Today shows what's left to set up, and each step links to where it's done.

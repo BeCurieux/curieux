@@ -2,12 +2,14 @@ import { Mail, Pencil, Phone, Plus, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { InviteParentForm, RevokeInviteButton } from "@/components/business/invite-parent";
 import { BackLink } from "@/components/demo/back-link";
 import { Button } from "@/components/ui/button";
 import { requireOwner } from "@/lib/business/owner";
 import { classSlug } from "@/lib/demo/service";
 import { getFamily } from "@/lib/domain/families";
-import { ageOn } from "@/lib/format";
+import { familyAccess } from "@/lib/domain/invites";
+import { ageOn, formatDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Family" };
 
@@ -16,6 +18,7 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
   const { db } = await requireOwner();
   const family = await getFamily(db, id);
   if (!family) notFound();
+  const { parents, pending } = await familyAccess(db, id);
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -61,6 +64,60 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
         ) : (
           <p className="text-muted">No contact details yet.</p>
         )}
+      </section>
+
+      <section
+        aria-labelledby="parents"
+        className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
+      >
+        <div>
+          <h2 id="parents" className="font-display text-2xl font-semibold tracking-tight">
+            Parents on Ovyko
+          </h2>
+          <p className="text-muted">
+            Parents who join see their children&apos;s classes, report absences and book make-ups
+            themselves.
+          </p>
+        </div>
+        {parents.length ? (
+          <ul className="flex flex-col gap-2">
+            {parents.map((p) => (
+              <li key={p.userId} className="rounded-md bg-surface-soft px-4 py-3">
+                <span className="font-semibold">{p.name || p.email}</span>{" "}
+                <span className="text-muted">· {p.email} · joined</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="font-semibold">Nobody from this family has joined yet.</p>
+        )}
+        {pending.length ? (
+          <ul aria-label="Invites waiting" className="flex flex-col gap-2">
+            {pending.map((i) => (
+              <li
+                key={i.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed border-line px-4 py-3"
+              >
+                <span>
+                  <span className="font-semibold">{i.email}</span>{" "}
+                  <span className="text-muted">
+                    · invited {formatDateTime(i.createdAt)}, not joined yet
+                  </span>
+                </span>
+                <RevokeInviteButton inviteId={i.id} familyId={id} />
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <InviteParentForm
+          familyId={id}
+          defaultEmail={
+            family.contactEmail &&
+            !parents.some((p) => p.email.toLowerCase() === family.contactEmail!.toLowerCase())
+              ? family.contactEmail
+              : null
+          }
+        />
       </section>
 
       <section aria-labelledby="children" className="flex flex-col gap-3">
