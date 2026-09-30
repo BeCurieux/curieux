@@ -74,7 +74,8 @@ test.describe("moving a school in", () => {
       .click();
     await page.getByRole("button", { name: "Undo this import" }).click();
     await page.getByRole("button", { name: "Yes, remove everything it added" }).click();
-    await expect(page.getByRole("status")).toContainText("Undone");
+    await expect(page.getByRole("heading", { name: "Import undone" })).toBeVisible();
+    await expect(page.getByRole("status").first()).toContainText("Undone");
     await page.goto("/business/classes");
     await expect(
       page.getByRole("link", { name: /^Sunday 7:00am Mona Vale 2 of 4 places filled/ }),

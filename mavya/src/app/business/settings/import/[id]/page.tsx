@@ -103,7 +103,13 @@ export default async function ImportBatchPage({ params }: { params: Promise<{ id
             is being used. Change things one by one instead.
           </p>
         )
-      ) : null}
+      ) : (
+        // Also what the owner sees straight after undoing: the page reloads
+        // without the undo button, so the confirmation lives here.
+        <p role="status" className="rounded-lg bg-[#dcf1e7] p-5 font-semibold text-[#1d5a41]">
+          Undone {formatDateTime(batch.undoneAt)}. Everything this import added has been removed.
+        </p>
+      )}
     </div>
   );
 }
