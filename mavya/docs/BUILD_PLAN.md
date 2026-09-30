@@ -81,6 +81,12 @@ Implement:
   that would have sat empty (no extra classes or instructor hours), and
   families kept. Most schools charge by the term, so an absence isn't lost
   fees; a dollar figure shows only for schools that sell casual places.
+- preview before cancelling a day: "38 families, 38 credits, 2 make-ups
+  cancelled" shown before the owner confirms
+- every number is tappable: open any figure on Today or the tally and see
+  exactly which classes, children or credits make it up
+- instructor clash checks: warn when a class would put an instructor in two
+  places at once, across classes and locations
 
 ## M6 — Migration and pilot
 
@@ -110,6 +116,9 @@ Implement:
   template for the move, and a privacy lawyer's review of both
 - confirm every part of the service that touches personal data (database,
   app servers, email) runs in Australia, and pin it there
+- pool-deck mode: instructors take attendance and progress with no Wi-Fi;
+  it's kept on the device, shows what's waiting to send, and syncs safely
+  when back online (no double marks, no lost changes)
 
 Onboard one real provider only after these are in place.
 
@@ -121,7 +130,6 @@ Not scheduled. Revisit with the pilot school's feedback:
 - instructor cover when someone is sick
 - calendar sync for parents (Apple, Google)
 - end-of-term progress report parents can share
-- attendance that works offline on poor pool Wi-Fi
 - private class notes between instructors
 
 ## M7 — Payments
