@@ -7,7 +7,9 @@ import { ProgressRing } from "@/components/demo/progress-ring";
 import { SkillBadge } from "@/components/demo/skill-badge";
 import { Button } from "@/components/ui/button";
 import { CancelMakeup, WithdrawAbsence } from "@/components/family/makeup-buttons";
+import { HealthForm } from "@/components/family/health-form";
 import { familyContext } from "@/lib/demo/context";
+import { childSafety } from "@/lib/domain/safety";
 import { findFamilyChild } from "@/lib/family/children";
 import { lessonMoment } from "@/lib/format";
 
@@ -18,6 +20,7 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
   const { db } = await familyContext();
   const child = await findFamilyChild(db, slug);
   if (!child) notFound();
+  const { health } = await childSafety(db, child.id);
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -144,6 +147,25 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
             <Link href="/family/makeups">Find a make-up</Link>
           </Button>
         ) : null}
+      </section>
+
+      <section aria-labelledby="health" className="flex flex-col gap-3">
+        <div>
+          <h2 id="health" className="font-display text-xl font-semibold">
+            Health notes
+          </h2>
+          <p className="text-muted">
+            Only {child.firstName}&apos;s instructors and {child.organisation}&apos;s owners see
+            these. Leave them empty if there&apos;s nothing to know.
+          </p>
+        </div>
+        <div className="rounded-lg bg-surface p-5 shadow-[0_1px_0_var(--border)]">
+          <HealthForm
+            childId={child.id}
+            allergies={health?.allergies ?? null}
+            medicalNotes={health?.medicalNotes ?? null}
+          />
+        </div>
       </section>
     </div>
   );

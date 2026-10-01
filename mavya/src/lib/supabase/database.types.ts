@@ -161,6 +161,99 @@ export type Database = {
           },
         ];
       };
+      child_health: {
+        Row: {
+          allergies: string | null;
+          child_id: string;
+          medical_notes: string | null;
+          organisation_id: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          allergies?: string | null;
+          child_id: string;
+          medical_notes?: string | null;
+          organisation_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          allergies?: string | null;
+          child_id?: string;
+          medical_notes?: string | null;
+          organisation_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "child_health_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "child_health_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      child_restrictions: {
+        Row: {
+          added_at: string;
+          added_by: string | null;
+          child_id: string;
+          details: string | null;
+          id: string;
+          kind: string;
+          organisation_id: string;
+          person_name: string;
+          removed_at: string | null;
+        };
+        Insert: {
+          added_at?: string;
+          added_by?: string | null;
+          child_id: string;
+          details?: string | null;
+          id?: string;
+          kind: string;
+          organisation_id: string;
+          person_name: string;
+          removed_at?: string | null;
+        };
+        Update: {
+          added_at?: string;
+          added_by?: string | null;
+          child_id?: string;
+          details?: string | null;
+          id?: string;
+          kind?: string;
+          organisation_id?: string;
+          person_name?: string;
+          removed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "child_restrictions_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "child_restrictions_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       children: {
         Row: {
           active: boolean;
@@ -1103,6 +1196,55 @@ export type Database = {
           },
         ];
       };
+      sensitive_views: {
+        Row: {
+          child_id: string;
+          id: string;
+          organisation_id: string;
+          viewed_at: string;
+          viewer_role: string;
+          viewer_user_id: string | null;
+        };
+        Insert: {
+          child_id: string;
+          id?: string;
+          organisation_id: string;
+          viewed_at?: string;
+          viewer_role: string;
+          viewer_user_id?: string | null;
+        };
+        Update: {
+          child_id?: string;
+          id?: string;
+          organisation_id?: string;
+          viewed_at?: string;
+          viewer_role?: string;
+          viewer_user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sensitive_views_child_id_fkey";
+            columns: ["child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sensitive_views_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sensitive_views_viewer_user_id_fkey";
+            columns: ["viewer_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       skills: {
         Row: {
           active: boolean;
@@ -1287,10 +1429,23 @@ export type Database = {
     };
     Functions: {
       accept_invite: { Args: { p_code: string }; Returns: string };
+      add_child_restriction: {
+        Args: { p_child: string; p_details: string; p_kind: string; p_person: string };
+        Returns: string;
+      };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
       check_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string[] };
+      child_safety: { Args: { p_child: string }; Returns: Json };
+      child_safety_views: {
+        Args: { p_child: string };
+        Returns: {
+          viewed_at: string;
+          viewer_name: string;
+          viewer_role: string;
+        }[];
+      };
       claim_email_deliveries: {
         Args: { p_limit?: number };
         Returns: {
@@ -1437,6 +1592,7 @@ export type Database = {
         Args: { p_email: string; p_ip: string; p_succeeded: boolean };
         Returns: undefined;
       };
+      remove_child_restriction: { Args: { p_restriction: string }; Returns: undefined };
       remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
       report_absence: {
         Args: { p_child: string; p_occurrence: string; p_reason?: string };
@@ -1449,6 +1605,18 @@ export type Database = {
       };
       restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
       revoke_invite: { Args: { p_invite: string }; Returns: undefined };
+      safety_flags: {
+        Args: { p_children: string[] };
+        Returns: {
+          child_id: string;
+          has_health: boolean;
+          has_restriction: boolean;
+        }[];
+      };
+      save_child_health: {
+        Args: { p_allergies: string; p_child: string; p_medical_notes: string };
+        Returns: undefined;
+      };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       setup_progress: { Args: { p_org: string }; Returns: Json };

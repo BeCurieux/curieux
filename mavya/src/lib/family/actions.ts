@@ -7,6 +7,7 @@ import { requireShell } from "@/lib/auth/viewer";
 import { DomainError } from "@/lib/domain/db";
 import * as fill from "@/lib/domain/fill";
 import * as makeups from "@/lib/domain/makeups";
+import * as safety from "@/lib/domain/safety";
 import { markAllRead } from "@/lib/domain/notifications";
 import type { FormState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -136,4 +137,31 @@ export async function setLessonReminders(on: boolean): Promise<FormState> {
   if (error) throw error;
   revalidatePath("/family/account");
   return { ok: on ? "Lesson-day reminders are on." : "Lesson-day reminders are off." };
+}
+
+const healthSchema = z.object({
+  childId: id,
+  allergies: z.string().trim().max(1000, "Keep allergies under 1,000 characters."),
+  medicalNotes: z.string().trim().max(2000, "Keep notes under 2,000 characters."),
+});
+
+// A parent's health notes for their child (M6d). The database checks the
+// child is theirs and audits the change.
+export async function saveChildHealth(_: FormState, formData: FormData): Promise<FormState> {
+  const parsed = healthSchema.safeParse({
+    childId: formData.get("childId"),
+    allergies: formData.get("allergies") ?? "",
+    medicalNotes: formData.get("medicalNotes") ?? "",
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the details." };
+  const db = await familyDb();
+  const result = await attempt(() =>
+    safety.saveChildHealth(db, parsed.data.childId, {
+      allergies: parsed.data.allergies || null,
+      medicalNotes: parsed.data.medicalNotes || null,
+    }),
+  );
+  if ("error" in result) return result;
+  revalidatePath("/family/kids", "layout");
+  return { ok: "Saved. Their instructor will see this before class." };
 }

@@ -346,6 +346,47 @@ read their own. Only `import_school` can set a row's `import_batch_id`
 (a trigger refuses anyone else), and `undo_import` deletes exactly the rows
 carrying it, for 14 days and only while nothing else depends on them.
 
+### ChildHealth
+A child's health notes (M6d). One per child.
+
+- child_id (primary key)
+- organisation_id
+- allergies nullable — up to 1,000 characters
+- medical_notes nullable — up to 2,000 characters
+- updated_by nullable
+- updated_at
+
+### ChildRestriction
+Someone who may not collect or contact a child (M6d).
+
+- id
+- organisation_id
+- child_id
+- person_name
+- kind: no_collect | no_contact
+- details nullable — owners only (a court order, who to call)
+- added_by nullable, added_at
+- removed_at nullable — removing keeps the record
+
+### SensitiveView
+One look by staff at a child's health notes or restrictions (M6d).
+
+- id
+- organisation_id
+- child_id
+- viewer_user_id nullable
+- viewer_role: owner | instructor
+- viewed_at
+
+Nobody reads or writes these three tables directly. `child_safety` returns
+a child's notes (and, for staff, restrictions) to the child's parents, the
+school's owners and the instructors who teach the child, and records each
+look by staff; instructors get restrictions without details, parents get
+none. `safety_flags` says only whether there's something to know, for
+rosters. `child_safety_views` shows owners who looked. Parents and owners
+write health notes (`save_child_health`); only owners add and remove
+restrictions. Changes are audited with the notes' content left out.
+
 ### AuditEvent
 - id
 - actor_user_id nullable

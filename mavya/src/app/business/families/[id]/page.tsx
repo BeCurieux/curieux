@@ -9,6 +9,8 @@ import { requireOwner } from "@/lib/business/owner";
 import { classSlug } from "@/lib/demo/service";
 import { getFamily } from "@/lib/domain/families";
 import { familyAccess } from "@/lib/domain/invites";
+import { safetyFlags } from "@/lib/domain/safety";
+import { SafetyFlags } from "@/components/safety/safety-notes";
 import { ageOn, formatDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Family" };
@@ -18,7 +20,13 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
   const { db } = await requireOwner();
   const family = await getFamily(db, id);
   if (!family) notFound();
-  const { parents, pending } = await familyAccess(db, id);
+  const [{ parents, pending }, flags] = await Promise.all([
+    familyAccess(db, id),
+    safetyFlags(
+      db,
+      family.children.map((c) => c.id),
+    ),
+  ]);
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -149,6 +157,7 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
                       {child.firstName} {child.lastName}
                     </p>
                     <p className="text-sm text-muted">Age {ageOn(child.dateOfBirth)}</p>
+                    <SafetyFlags flag={flags.get(child.id)} className="mt-1" />
                   </div>
                   <Button asChild variant="ghost" size="sm">
                     <Link

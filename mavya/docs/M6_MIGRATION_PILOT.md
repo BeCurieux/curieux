@@ -195,3 +195,46 @@ lawyer's review.
   reported away or a cancelled lesson; none after turning them off.
 - No email is sent twice, and none when email isn't set up.
 - Nobody but the server can read or change the outbox.
+
+## M6d — Protecting children
+
+Ships in two parts. **Part 1 (done):** health notes and pickup
+restrictions. **Part 2:** two-step sign-in for owners, and exporting or
+deleting a family's data.
+
+### Decisions (part 1)
+
+1. **Health notes, need to know.** Allergies and medical notes for a child,
+   written by the child's parents or the school's owners. Read by the
+   child's parents, the school's owners, and the instructors who teach the
+   child (their classes, or a make-up in one). Nobody else, and never
+   another school.
+2. **Pickup and contact restrictions.** Owners record who may not collect
+   or contact a child, with private details (a court order, say).
+   Instructors see the name and what's not allowed, as a clear warning,
+   never the details. Parents don't see restrictions in the app: the
+   person restricted may be a parent with an account.
+3. **Every look is recorded.** Health notes and restrictions can't be read
+   from the tables at all; one function returns them, and records each time
+   staff open them. Owners see who looked, and when, on the child's page.
+   Rosters only show a flag that there's something to know.
+4. **Changes are audited** like everything else.
+
+### Data model
+
+- New `ChildHealth` (one per child): allergies, medical notes, updated
+  by and when.
+- New `ChildRestriction`: person's name, kind (no_collect | no_contact),
+  details (owners only), added by and when, removed at.
+- New `SensitiveView`: who looked at which child's health and safety
+  details, and when.
+
+### Acceptance criteria
+
+- A parent adds an allergy; the child's instructor sees it from the roster,
+  and the owner sees that the instructor looked.
+- An instructor who doesn't teach the child, another school's staff, and
+  other families see nothing.
+- An owner adds a restriction; the instructor sees the warning without the
+  details; the child's parents don't see it.
+- Changes are audited without the notes' content.

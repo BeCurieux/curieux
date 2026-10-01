@@ -9,6 +9,8 @@ import { resolveClassId } from "@/lib/demo/service";
 import { currentLesson, lessonAttendance } from "@/lib/domain/attendance";
 import { classRoster } from "@/lib/domain/enrolments";
 import { lessonStates } from "@/lib/domain/lessons";
+import { safetyFlags } from "@/lib/domain/safety";
+import { SafetyFlags } from "@/components/safety/safety-notes";
 import { getClass } from "@/lib/domain/timetable";
 import { formatLessonDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -47,6 +49,11 @@ export default async function InstructorClassPage({
       makeup: true,
     })),
   ];
+  // Only whether there's something to know; the child's page says what.
+  const flags = await safetyFlags(
+    db,
+    everyone.map((k) => k.childId),
+  );
   const kids = everyone.map((k) => {
     const status = marks?.get(k.childId);
     return {
@@ -106,6 +113,7 @@ export default async function InstructorClassPage({
                   {kid.name}
                   <ChevronRight aria-hidden className="size-5 shrink-0 text-muted" />
                 </Link>
+                <SafetyFlags flag={flags.get(kid.childId)} className="mb-1 flex" />
                 {kid.reportedAway ? (
                   <p className="-mt-1 text-sm font-semibold text-[#b4503d]">Parent reported away</p>
                 ) : kid.makeup ? (
