@@ -47,6 +47,8 @@ test.describe("protecting children, part 2", () => {
   test("an owner sets up two-step sign-in, then is asked for a code at every sign-in", async ({
     page,
   }) => {
+    // The second sign-in can wait up to 30 seconds for a new code.
+    test.setTimeout(90_000);
     const db = admin();
     const { data: org } = await db
       .from("organisations")
