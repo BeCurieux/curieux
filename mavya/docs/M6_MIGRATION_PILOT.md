@@ -145,3 +145,53 @@ lawyer's review.
   account's email does nothing.
 - Only the school's owners can invite, see or cancel its invites.
 - Today shows what's left to set up, and each step links to where it's done.
+
+## M6c — Reaching families (done)
+
+### Decisions
+
+1. **Email first, push later.** Families hear by email when a spot is
+   offered to them, a lesson is cancelled, a skill is achieved, and when the
+   school invites them. Push needs the app installed on a phone; it waits
+   for after the pilot.
+2. **Neutral wording, everywhere outside the app.** Subjects and previews
+   never name a child, a skill, a health detail or a place
+   (`docs/SECURITY.md`). Emails say what happened at which school and link
+   into Ovyko, where the details are, after sign-in.
+3. **Lesson-day reminders.** At 7am on a lesson day, each parent gets one
+   email listing the day's lessons ("Swimming today at 4:30pm"), leaving out
+   children reported away and cancelled lessons, adding booked make-ups.
+   Every reminder says how to turn them off; Account has the switch. Offers,
+   cancellations and invites are service messages and always go.
+4. **An outbox in the database.** Every email to send is a row, created by
+   the database when the thing happens (or by the 7am job). A sender in the
+   app delivers them every minute, retrying a few times, and never sends
+   one twice. Emails more than a day late are skipped, not sent.
+5. **Off until switched on.** Without an email service set up, nothing is
+   sent and nothing piles up: deliveries are marked skipped. Locally and in
+   tests, emails go to the test mailbox.
+6. **Invites by email.** Making an invite link also emails it, when email is
+   on; the owner can still copy the link.
+
+### Data model
+
+- `users.lesson_reminders` (default on), changed only by the person.
+- New `EmailDelivery`: kind, recipient, organisation, notification
+  (nullable), payload (ids only), status (pending | sending | sent |
+  failed | skipped), attempts, next attempt, sent at, error, provider id.
+  Only the server's sender can read or change it.
+
+### Not in M6c
+
+- Push notifications, SMS, and email for owners and instructors.
+- Inviting every family at once (next).
+
+### Acceptance criteria
+
+- A spot offered, a lesson cancelled and a skill achieved each send one
+  neutral email to each parent in the family, linking into Ovyko.
+- An invite is emailed with its link.
+- A parent with a lesson today gets one 7am reminder; none for a child
+  reported away or a cancelled lesson; none after turning them off.
+- No email is sent twice, and none when email isn't set up.
+- Nobody but the server can read or change the outbox.

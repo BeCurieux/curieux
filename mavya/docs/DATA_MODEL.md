@@ -9,6 +9,8 @@
 - email
 - phone
 - created_at
+- lesson_reminders — lesson-day reminder emails on (default) or off;
+  changed only by the person (`set_lesson_reminders`, M6c)
 
 ### Organisation
 - id
@@ -275,13 +277,36 @@ adds a new version (M4).
 - payload_json — ids only (`child_id`, `skill_id`, `occurrence_id`,
   `offer_id`), never names; a spot offered also carries its claim code,
   which only the recipient can read
-- status: pending | sent | failed — for email and push delivery (M6)
+- status, sent_at — kept from M3 but unused: delivery is tracked per email
+  in `EmailDelivery`
 - created_at
-- sent_at nullable
 - read_at nullable
+
+Each new notification also queues an email (`EmailDelivery`, M6c).
 
 Created only by the database when a skill becomes achieved, a lesson is
 cancelled or a spot is offered, one per parent in the child's family. Each person reads, and marks seen, only their own.
+
+### EmailDelivery
+One email to send (M6c): the outbox.
+
+- id
+- kind: spot_offered | lesson_cancelled | skill_achieved | lesson_reminder
+- recipient_user_id
+- organisation_id nullable
+- notification_id nullable — the notification it tells the person about
+- payload — ids only (a reminder's date, lessons and children)
+- dedupe_key nullable, unique — one reminder per person, school and day
+- status: pending | sending | sent | failed | skipped
+- attempts, next_attempt_at, locked_at nullable
+- sent_at nullable, provider_id nullable, error nullable
+- created_at
+
+Created by the database: one per notification, and by the hourly job that
+queues 7am lesson-day reminders. Only the server's sender (the secret key)
+can read it or change it, through `claim_email_deliveries` (hands out a
+batch once) and `finish_email_delivery` (sent, skipped, or failed and tried
+again later, up to 5 attempts). Emails more than a day late are skipped.
 
 ### FamilyInvite
 An invitation for a parent to join a family (M6b).

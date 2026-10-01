@@ -114,9 +114,10 @@ Implement:
 - minimal internal admin support (granted by the school, time-limited, audited)
 - Supabase Pro, with leaked password protection on
 - two-step sign-in for owners
-- email and push delivery of notifications, with the neutral wording from M3
-- lesson-day reminders to parents ("Swimming today at 4:30pm"), with neutral
-  wording and an opt-out
+- ~~email delivery of notifications, with the neutral wording from M3~~
+  (M6c; push after the pilot)
+- ~~lesson-day reminders to parents ("Swimming today at 4:30pm"), with
+  neutral wording and an opt-out~~ (M6c)
 - term re-enrolment: parents confirm next term's place in one tap, and the
   owner sees who is staying before the term starts
 - health notes (need to know)

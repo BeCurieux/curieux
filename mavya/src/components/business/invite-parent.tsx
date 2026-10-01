@@ -47,7 +47,9 @@ export function InviteParentForm({
           className="flex flex-col gap-3 rounded-lg border-2 border-ink bg-surface p-5"
         >
           <p className="font-semibold">
-            Send this link to {state.email} by email or text. It&apos;s only shown now.
+            {state.emailed
+              ? `Emailed to ${state.email}. You can also send the link yourself; it's only shown now.`
+              : `Send this link to ${state.email} by email or text. It's only shown now.`}
           </p>
           <p className="rounded-md bg-surface-soft px-4 py-3 font-mono text-sm break-all">{link}</p>
           <Button

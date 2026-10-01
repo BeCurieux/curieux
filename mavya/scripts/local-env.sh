@@ -15,6 +15,12 @@ NEXT_PUBLIC_SUPABASE_URL=$(field API_URL)
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(field PUBLISHABLE_KEY)
 SUPABASE_SECRET_KEY=$(field SECRET_KEY)
 SEED_PASSWORD=mavya-local-only-password
+# Email goes to the local test mailbox (http://127.0.0.1:54324).
+EMAIL_TRANSPORT=mailpit
+MAILPIT_URL=$(field MAILPIT_URL)
+EMAIL_FROM="Ovyko <hello@ovyko.test>"
+APP_URL=http://localhost:3000
+CRON_SECRET=local-only-cron-secret-0000000000000000
 ENV
 
 echo "Wrote .env.local for $(field API_URL)"
