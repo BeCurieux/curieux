@@ -86,6 +86,41 @@ export function TextField({
   );
 }
 
+export function TextAreaField({
+  name,
+  label,
+  hint,
+  optional,
+  defaultValue,
+  maxLength,
+  rows = 3,
+}: {
+  name: string;
+  label: string;
+  hint?: string;
+  optional?: boolean;
+  defaultValue?: string | null;
+  maxLength?: number;
+  rows?: number;
+}) {
+  return (
+    <Wrapper name={name} label={label} hint={hint} optional={optional}>
+      {({ id, invalid, describedBy }) => (
+        <textarea
+          id={id}
+          name={name}
+          rows={rows}
+          maxLength={maxLength}
+          defaultValue={defaultValue ?? undefined}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
+          className={cn(control, "h-auto py-3 leading-relaxed")}
+        />
+      )}
+    </Wrapper>
+  );
+}
+
 export function SelectField({
   name,
   label,

@@ -12,6 +12,7 @@ import * as messages from "@/lib/email/messages";
 import { appUrl, emailOn, sendEmail } from "@/lib/email/transport";
 import * as makeups from "@/lib/domain/makeups";
 import * as progress from "@/lib/domain/progress";
+import * as safety from "@/lib/domain/safety";
 import * as staff from "@/lib/domain/staff";
 import * as timetable from "@/lib/domain/timetable";
 import {
@@ -578,4 +579,57 @@ export async function revokeInvite(inviteId: string, familyId: string): Promise<
   if (failed) return failed;
   revalidatePath(`/business/families/${familyId}`);
   return { ok: "Invite cancelled." };
+}
+
+// Health notes and pickup restrictions (M6d). The database decides who may
+// write them and audits every change.
+
+const healthSchema = z.object({
+  familyId: id,
+  childId: id,
+  allergies: optionalText(1000, "Allergies"),
+  medicalNotes: optionalText(2000, "Medical notes"),
+});
+
+export async function saveChildHealth(_: FormState, formData: FormData): Promise<FormState> {
+  const { db } = await requireOwner();
+  const parsed = healthSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => safety.saveChildHealth(db, parsed.data.childId, parsed.data));
+  if (failed) return failed;
+  revalidatePath(`/business/families/${parsed.data.familyId}`, "layout");
+  return { ok: "Health notes saved." };
+}
+
+const restrictionSchema = z.object({
+  familyId: id,
+  childId: id,
+  personName: requiredText(120, "Name"),
+  kind: z.enum(["no_collect", "no_contact"], "Choose what isn't allowed."),
+  details: optionalText(2000, "Details"),
+});
+
+export async function addRestriction(_: FormState, formData: FormData): Promise<FormState> {
+  const { db } = await requireOwner();
+  const parsed = restrictionSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(async () => {
+    await safety.addRestriction(db, parsed.data.childId, parsed.data);
+  });
+  if (failed) return failed;
+  revalidatePath(`/business/families/${parsed.data.familyId}`, "layout");
+  return { ok: `Added. Instructors will see a warning about ${parsed.data.personName}.` };
+}
+
+export async function removeRestriction(
+  restrictionId: string,
+  familyId: string,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(restrictionId).success || !id.safeParse(familyId).success)
+    return { error: "That didn't work. Try again." };
+  const failed = await attempt(() => safety.removeRestriction(db, restrictionId));
+  if (failed) return failed;
+  revalidatePath(`/business/families/${familyId}`, "layout");
+  return { ok: "Restriction removed." };
 }

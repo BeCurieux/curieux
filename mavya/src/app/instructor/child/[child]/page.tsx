@@ -11,6 +11,8 @@ import { AVA_ID } from "@/lib/demo/data";
 import { classSlug } from "@/lib/demo/service";
 import { myMembershipId } from "@/lib/domain/schedule";
 import { childProgress, type SkillStatus } from "@/lib/domain/progress";
+import { childSafety } from "@/lib/domain/safety";
+import { SafetyNotes } from "@/components/safety/safety-notes";
 import { listClasses } from "@/lib/domain/timetable";
 import { saveProgress } from "@/lib/instructor/actions";
 import { cn } from "@/lib/utils";
@@ -53,7 +55,24 @@ export default async function InstructorChildPage({
   ]);
   const classIds = new Set((enrolled.data ?? []).map((e) => e.class_id));
   const c = taught.find((k) => classIds.has(k.id));
-  if (!c) notFound();
+  // Health notes and restrictions, for every child they teach, make-ups
+  // included. Opening them is recorded for the school.
+  const safety = await childSafety(db, childId);
+  if (!c) {
+    // In this instructor's lesson as a make-up only: no skills to update.
+    return (
+      <div className="flex flex-col gap-5">
+        <BackLink href="/instructor">Your classes</BackLink>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">
+          {row.first_name} {row.last_name}
+        </h1>
+        <SafetyNotes safety={safety} name={row.first_name} />
+        <p className="rounded-lg bg-surface p-5 text-muted shadow-[0_1px_0_var(--border)]">
+          {row.first_name} is with you for a make-up. Their own instructor updates their skills.
+        </p>
+      </div>
+    );
+  }
   const progress = await childProgress(db, childId, c.levelId);
 
   return (
@@ -78,6 +97,8 @@ export default async function InstructorChildPage({
           </p>
         </div>
       </div>
+
+      <SafetyNotes safety={safety} name={row.first_name} />
 
       {saved ? (
         <div

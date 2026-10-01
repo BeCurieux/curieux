@@ -120,8 +120,8 @@ Implement:
   neutral wording and an opt-out~~ (M6c)
 - term re-enrolment: parents confirm next term's place in one tap, and the
   owner sees who is staying before the term starts
-- health notes (need to know)
-- custody and pickup restrictions
+- ~~health notes (need to know)~~ (M6d)
+- ~~custody and pickup restrictions~~ (M6d)
 - family data export and deletion
 - backups check and data-breach response plan
 - privacy summary for parents

@@ -166,6 +166,21 @@ Ovyko should do better than the usual weaknesses of class-management software:
   reported away isn't emailed. Each email is handed out once.
 - **Off by default.** Without an email service configured, nothing is sent.
 
+### M6d — Protecting children, part 1 (done)
+
+- **Need to know.** Health notes reach the child's parents, the school's
+  owners and the instructors who teach the child (their classes, or a
+  make-up in one), never another school or another family.
+- **No direct reads.** The tables are closed to everyone signed in; one
+  function returns what each person may know and records every look by
+  staff. Owners see who looked and when. Rosters show only a flag.
+- **Restrictions protect against parents too.** Owners record them;
+  instructors see the name and the warning, never the details; parents
+  don't see them at all, not even that one exists.
+- **Audited without the content.** Changes are in the audit trail, which
+  says the notes changed, not what they say, so the trail isn't a way
+  around the view log.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project
@@ -175,11 +190,10 @@ Ovyko should do better than the usual weaknesses of class-management software:
   instructors and parents.
 - **Parent invites.** Parents are invited by email and set their own
   password. Nobody else ever sees or sets a parent's password.
-- **Health notes (need to know).** Allergies and medical notes are visible to
-  the owner and the child's own instructors only, and every view is logged.
-- **Custody and pickup restrictions.** A family can record who may not
-  collect or contact a child. Instructors see a clear warning, not the court
-  details.
+- ~~**Health notes (need to know).**~~ Done in M6d.
+- ~~**Custody and pickup restrictions.**~~ Done in M6d: the school records
+  them (the person restricted may be a parent), instructors see a warning
+  without the details.
 - **Export and deletion.** Owners can export a family's data and delete a
   family on request, as the Australian Privacy Act allows parents to ask.
   Deletions are audited.
@@ -195,7 +209,8 @@ Ovyko should do better than the usual weaknesses of class-management software:
 
 - **Working With Children Check tracking.** WWCC number and expiry per
   instructor, with reminders to the owner before expiry.
-- **View logging.** Record who viewed a child's record, not only who changed it.
+- **View logging.** Record who viewed a child's record, not only who changed it
+  (done for health notes and restrictions in M6d).
 - **Error reporting hygiene.** When Sentry and PostHog are added, strip names,
   emails and child details before anything leaves Ovyko.
 
