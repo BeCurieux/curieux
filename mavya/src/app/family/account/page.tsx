@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { ResetDemoButton } from "@/components/demo/reset-demo-button";
+import { RemindersSwitch } from "@/components/family/reminders-switch";
 import { SignOutButton } from "@/components/shell/sign-out-button";
 import { familyContext } from "@/lib/demo/context";
 
 export const metadata: Metadata = { title: "Account" };
 
 export default async function AccountPage() {
-  const { viewer, demo } = await familyContext();
+  const { viewer, demo, db } = await familyContext();
+  const { data: me } = await db
+    .from("users")
+    .select("lesson_reminders")
+    .eq("id", viewer.userId)
+    .maybeSingle();
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -27,6 +33,9 @@ export default async function AccountPage() {
           </dd>
         </div>
       </dl>
+      <section aria-label="Emails" className="rounded-lg bg-surface shadow-[0_1px_0_var(--border)]">
+        <RemindersSwitch on={me?.lesson_reminders ?? true} />
+      </section>
       <div className="flex flex-wrap gap-3">
         <SignOutButton />
         {demo ? <ResetDemoButton /> : null}

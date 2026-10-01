@@ -43,7 +43,7 @@ test.describe("getting parents on", () => {
     await parents.getByLabel("Parent's email").fill(email);
     await parents.getByRole("button", { name: "Make an invite link" }).click();
     const shown = parents.getByRole("status");
-    await expect(shown).toContainText(`Send this link to ${email}`);
+    await expect(shown).toContainText(email);
     const link = (await shown.locator("p.font-mono").innerText()).trim();
     expect(link).toMatch(/\/join\/[0-9a-f]{64}$/);
     await expect(parents.getByRole("list", { name: "Invites waiting" })).toContainText(email);

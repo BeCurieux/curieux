@@ -153,6 +153,19 @@ Ovyko should do better than the usual weaknesses of class-management software:
   accepts nothing but an invite link, so it can't be used to redirect
   elsewhere.
 
+### M6c — Reaching families (done)
+
+- **Neutral emails.** Subjects and previews never name a child, a skill, a
+  health detail or a place; the email says what happened at which school and
+  links into Ovyko, where the details are after sign-in.
+- **The outbox is the server's.** Nobody signed in can read or change it.
+  The sender is an app route that answers only to `CRON_SECRET`, which the
+  database's schedule keeps in Vault.
+- **Built at sending time.** An email is built from the database as it is
+  then: an offer already taken, a lesson since cancelled or a child since
+  reported away isn't emailed. Each email is handed out once.
+- **Off by default.** Without an email service configured, nothing is sent.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project

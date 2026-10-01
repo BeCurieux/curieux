@@ -39,4 +39,23 @@ describe("environment validation", () => {
       "sb_secret_x",
     );
   });
+
+  it("sends no email unless it's set up", () => {
+    expect(parseServerEnv({ SUPABASE_SECRET_KEY: "x" }).EMAIL_TRANSPORT).toBe("off");
+    expect(() => parseServerEnv({ SUPABASE_SECRET_KEY: "x", EMAIL_TRANSPORT: "resend" })).toThrow(
+      /EMAIL_FROM, APP_URL, CRON_SECRET, RESEND_API_KEY/,
+    );
+    const env = parseServerEnv({
+      SUPABASE_SECRET_KEY: "x",
+      EMAIL_TRANSPORT: "resend",
+      EMAIL_FROM: "Ovyko <hello@ovyko.com.au>",
+      RESEND_API_KEY: "re_x",
+      APP_URL: "https://app.ovyko.com.au/",
+      CRON_SECRET: "c".repeat(32),
+    });
+    expect(env.APP_URL).toBe("https://app.ovyko.com.au");
+    expect(() => parseServerEnv({ SUPABASE_SECRET_KEY: "x", CRON_SECRET: "too-short" })).toThrow(
+      /CRON_SECRET/,
+    );
+  });
 });

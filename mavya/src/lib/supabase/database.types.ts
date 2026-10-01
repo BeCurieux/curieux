@@ -351,6 +351,82 @@ export type Database = {
           },
         ];
       };
+      email_deliveries: {
+        Row: {
+          attempts: number;
+          created_at: string;
+          dedupe_key: string | null;
+          error: string | null;
+          id: string;
+          kind: string;
+          locked_at: string | null;
+          next_attempt_at: string;
+          notification_id: string | null;
+          organisation_id: string | null;
+          payload: NonNullable<Json>;
+          provider_id: string | null;
+          recipient_user_id: string;
+          sent_at: string | null;
+          status: string;
+        };
+        Insert: {
+          attempts?: number;
+          created_at?: string;
+          dedupe_key?: string | null;
+          error?: string | null;
+          id?: string;
+          kind: string;
+          locked_at?: string | null;
+          next_attempt_at?: string;
+          notification_id?: string | null;
+          organisation_id?: string | null;
+          payload?: NonNullable<Json>;
+          provider_id?: string | null;
+          recipient_user_id: string;
+          sent_at?: string | null;
+          status?: string;
+        };
+        Update: {
+          attempts?: number;
+          created_at?: string;
+          dedupe_key?: string | null;
+          error?: string | null;
+          id?: string;
+          kind?: string;
+          locked_at?: string | null;
+          next_attempt_at?: string;
+          notification_id?: string | null;
+          organisation_id?: string | null;
+          payload?: NonNullable<Json>;
+          provider_id?: string | null;
+          recipient_user_id?: string;
+          sent_at?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "email_deliveries_notification_id_fkey";
+            columns: ["notification_id"];
+            isOneToOne: false;
+            referencedRelation: "notifications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "email_deliveries_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "email_deliveries_recipient_user_id_fkey";
+            columns: ["recipient_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       enrolments: {
         Row: {
           child_id: string;
@@ -1110,6 +1186,7 @@ export type Database = {
           created_at: string;
           email: string;
           id: string;
+          lesson_reminders: boolean;
           name: string;
           phone: string | null;
         };
@@ -1118,6 +1195,7 @@ export type Database = {
           created_at?: string;
           email: string;
           id?: string;
+          lesson_reminders?: boolean;
           name?: string;
           phone?: string | null;
         };
@@ -1126,6 +1204,7 @@ export type Database = {
           created_at?: string;
           email?: string;
           id?: string;
+          lesson_reminders?: boolean;
           name?: string;
           phone?: string | null;
         };
@@ -1212,6 +1291,32 @@ export type Database = {
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
       check_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string[] };
+      claim_email_deliveries: {
+        Args: { p_limit?: number };
+        Returns: {
+          attempts: number;
+          created_at: string;
+          dedupe_key: string | null;
+          error: string | null;
+          id: string;
+          kind: string;
+          locked_at: string | null;
+          next_attempt_at: string;
+          notification_id: string | null;
+          organisation_id: string | null;
+          payload: NonNullable<Json>;
+          provider_id: string | null;
+          recipient_user_id: string;
+          sent_at: string | null;
+          status: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "email_deliveries";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       claim_offer: {
         Args: { p_code: string };
         Returns: {
@@ -1236,6 +1341,10 @@ export type Database = {
           makeups_delivered: number;
           offers_claimed: number;
         }[];
+      };
+      finish_email_delivery: {
+        Args: { p_error?: string; p_id: string; p_outcome: string; p_provider_id?: string };
+        Returns: undefined;
       };
       import_school: {
         Args: {
@@ -1315,6 +1424,7 @@ export type Database = {
           makeups: number;
         }[];
       };
+      queue_lesson_reminders_at: { Args: { p_now: string }; Returns: number };
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
         Returns: undefined;
@@ -1340,6 +1450,7 @@ export type Database = {
       restore_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
       revoke_invite: { Args: { p_invite: string }; Returns: undefined };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
+      set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       setup_progress: { Args: { p_org: string }; Returns: Json };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
       undo_import: { Args: { p_batch: string }; Returns: undefined };

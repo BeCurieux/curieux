@@ -27,9 +27,43 @@ const publicSchema = z.object({
     .transform((value) => value || "https://eu.i.posthog.com"),
 });
 
-const serverSchema = z.object({
-  SUPABASE_SECRET_KEY: z.string().min(1),
-});
+const serverSchema = z
+  .object({
+    SUPABASE_SECRET_KEY: z.string().min(1),
+    // Email (M6c). "off" sends nothing; "mailpit" is the local test mailbox;
+    // "resend" is the real service.
+    EMAIL_TRANSPORT: z
+      .enum(["off", "mailpit", "resend"])
+      .optional()
+      .transform((value) => value ?? "off"),
+    EMAIL_FROM: optionalString,
+    RESEND_API_KEY: optionalString,
+    MAILPIT_URL: optionalString,
+    // The address links in emails point to, e.g. https://app.ovyko.com.au.
+    APP_URL: z
+      .string()
+      .optional()
+      .transform((value) => (value ? value.replace(/\/+$/, "") : undefined))
+      .pipe(z.url().optional()),
+    // Shared with the database's schedule, which calls the email sender.
+    CRON_SECRET: z
+      .string()
+      .optional()
+      .transform((value) => (value ? value : undefined))
+      .pipe(z.string().min(32).optional()),
+  })
+  .superRefine((env, ctx) => {
+    const need = (key: keyof typeof env) => {
+      if (!env[key]) ctx.addIssue({ code: "custom", path: [key], message: "required" });
+    };
+    if (env.EMAIL_TRANSPORT !== "off") {
+      need("EMAIL_FROM");
+      need("APP_URL");
+      need("CRON_SECRET");
+    }
+    if (env.EMAIL_TRANSPORT === "resend") need("RESEND_API_KEY");
+    if (env.EMAIL_TRANSPORT === "mailpit") need("MAILPIT_URL");
+  });
 
 export type PublicEnv = z.infer<typeof publicSchema>;
 export type ServerEnv = z.infer<typeof serverSchema>;

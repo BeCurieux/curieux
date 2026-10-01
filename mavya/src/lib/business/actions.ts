@@ -8,6 +8,8 @@ import * as families from "@/lib/domain/families";
 import * as fill from "@/lib/domain/fill";
 import * as imports from "@/lib/domain/imports";
 import * as invites from "@/lib/domain/invites";
+import * as messages from "@/lib/email/messages";
+import { appUrl, emailOn, sendEmail } from "@/lib/email/transport";
 import * as makeups from "@/lib/domain/makeups";
 import * as progress from "@/lib/domain/progress";
 import * as staff from "@/lib/domain/staff";
@@ -525,7 +527,7 @@ export async function undoImport(batchId: string): Promise<FormState> {
 
 // ------------------------------------------------------------------ inviting parents
 
-export type InviteState = FormState & { code?: string; email?: string };
+export type InviteState = FormState & { code?: string; email?: string; emailed?: boolean };
 
 const inviteSchema = z.object({
   familyId: id,
@@ -534,7 +536,7 @@ const inviteSchema = z.object({
 
 // Makes an invite link for a parent. The code is shown once, here.
 export async function inviteParent(_: InviteState, formData: FormData): Promise<InviteState> {
-  const { db } = await requireOwner();
+  const { db, organisationName } = await requireOwner();
   const parsed = inviteSchema.safeParse(formValues(formData));
   if (!parsed.success) return fieldErrors(parsed.error);
   const out: InviteState = {};
@@ -543,7 +545,27 @@ export async function inviteParent(_: InviteState, formData: FormData): Promise<
   });
   if (failed) return failed;
   revalidatePath(`/business/families/${parsed.data.familyId}`);
-  return { ...out, email: parsed.data.email.toLowerCase() };
+  const email = parsed.data.email.toLowerCase();
+  // Emailed straight away when email is on (M6c); the owner can still copy
+  // the link. A failed email doesn't undo the invite.
+  let emailed = false;
+  if (emailOn() && out.code) {
+    const family = await families.getFamily(db, parsed.data.familyId);
+    try {
+      await sendEmail(
+        email,
+        messages.invite({
+          school: organisationName,
+          family: family?.displayName ?? "",
+          joinUrl: appUrl(`/join/${out.code}`),
+        }),
+      );
+      emailed = true;
+    } catch (error) {
+      console.error("invite email failed", error);
+    }
+  }
+  return { ...out, email, emailed };
 }
 
 export async function revokeInvite(inviteId: string, familyId: string): Promise<FormState> {

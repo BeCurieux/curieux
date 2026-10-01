@@ -128,3 +128,12 @@ export async function declineOffer(claimCode: string): Promise<FormState> {
   revalidatePath("/family", "layout");
   return result.ok ? { ok: "No problem. We'll let them know." } : { error: CLAIM_MESSAGES.closed };
 }
+
+// Lesson-day reminder emails on or off, for the signed-in person only.
+export async function setLessonReminders(on: boolean): Promise<FormState> {
+  const db = await familyDb();
+  const { error } = await db.rpc("set_lesson_reminders", { p_on: on === true });
+  if (error) throw error;
+  revalidatePath("/family/account");
+  return { ok: on ? "Lesson-day reminders are on." : "Lesson-day reminders are off." };
+}
