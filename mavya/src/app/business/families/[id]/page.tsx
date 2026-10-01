@@ -1,4 +1,4 @@
-import { Mail, Pencil, Phone, Plus, UserRound } from "lucide-react";
+import { Download, Mail, Pencil, Phone, Plus, Trash2, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -190,6 +190,34 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
             ))}
           </ul>
         )}
+      </section>
+
+      <section
+        aria-labelledby="privacy"
+        className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
+      >
+        <div>
+          <h2 id="privacy" className="font-display text-2xl font-semibold tracking-tight">
+            Their data
+          </h2>
+          <p className="text-muted">
+            When a family asks for a copy of what you hold about them, or for it to be deleted.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <form action={`/business/families/${id}/export`} method="post">
+            <Button type="submit" variant="soft">
+              <Download aria-hidden />
+              Download their data
+            </Button>
+          </form>
+          <Button asChild variant="ghost">
+            <Link href={`/business/families/${id}/delete`}>
+              <Trash2 aria-hidden />
+              Delete this family
+            </Link>
+          </Button>
+        </div>
       </section>
     </div>
   );

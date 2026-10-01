@@ -113,7 +113,7 @@ Implement:
 - ~~parent invites~~ (M6b, by link; by email with M6c)
 - minimal internal admin support (granted by the school, time-limited, audited)
 - Supabase Pro, with leaked password protection on
-- two-step sign-in for owners
+- ~~two-step sign-in for owners~~ (M6d)
 - ~~email delivery of notifications, with the neutral wording from M3~~
   (M6c; push after the pilot)
 - ~~lesson-day reminders to parents ("Swimming today at 4:30pm"), with
@@ -122,7 +122,7 @@ Implement:
   owner sees who is staying before the term starts
 - ~~health notes (need to know)~~ (M6d)
 - ~~custody and pickup restrictions~~ (M6d)
-- family data export and deletion
+- ~~family data export and deletion~~ (M6d)
 - backups check and data-breach response plan
 - privacy summary for parents
 - switching from another system: "we do the import" service, run alongside

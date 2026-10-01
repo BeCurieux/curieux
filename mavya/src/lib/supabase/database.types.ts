@@ -1040,6 +1040,7 @@ export type Database = {
           created_at: string;
           id: string;
           name: string;
+          owner_two_step_required: boolean;
           slug: string;
           status: string;
           timezone: string;
@@ -1049,6 +1050,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           name: string;
+          owner_two_step_required?: boolean;
           slug: string;
           status?: string;
           timezone?: string;
@@ -1058,6 +1060,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           name?: string;
+          owner_two_step_required?: boolean;
           slug?: string;
           status?: string;
           timezone?: string;
@@ -1480,6 +1483,8 @@ export type Database = {
         }[];
       };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
+      delete_family: { Args: { p_confirm: string; p_family: string }; Returns: string[] };
+      export_family: { Args: { p_family: string }; Returns: Json };
       family_parents: {
         Args: { p_family: string };
         Returns: {
@@ -1569,6 +1574,7 @@ export type Database = {
           starts_at: string;
         }[];
       };
+      owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
       preview_cancel_lessons: {
         Args: { p_date: string; p_location: string };
         Returns: {

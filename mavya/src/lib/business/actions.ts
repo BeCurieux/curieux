@@ -11,6 +11,7 @@ import * as invites from "@/lib/domain/invites";
 import * as messages from "@/lib/email/messages";
 import { appUrl, emailOn, sendEmail } from "@/lib/email/transport";
 import * as makeups from "@/lib/domain/makeups";
+import * as privacy from "@/lib/domain/privacy";
 import * as progress from "@/lib/domain/progress";
 import * as safety from "@/lib/domain/safety";
 import * as staff from "@/lib/domain/staff";
@@ -23,6 +24,7 @@ import {
   requiredText,
   type FormState,
 } from "@/lib/forms";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireOwner } from "./owner";
 
 // Owners' writes. Each action checks the caller is an owner, validates the
@@ -632,4 +634,30 @@ export async function removeRestriction(
   if (failed) return failed;
   revalidatePath(`/business/families/${familyId}`, "layout");
   return { ok: "Restriction removed." };
+}
+
+// Deleting a family on request (M6d). The database deletes and audits; the
+// server then removes sign-in accounts of parents who now belong nowhere.
+export type DeleteFamilyState = FormState & { confirm?: string };
+
+export async function deleteFamily(
+  _: DeleteFamilyState,
+  formData: FormData,
+): Promise<DeleteFamilyState> {
+  const { db } = await requireOwner();
+  const familyId = String(formData.get("familyId") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (!id.safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  let leaving: string[] = [];
+  const failed = await attempt(async () => {
+    leaving = await privacy.deleteFamily(db, familyId, confirm);
+  });
+  if (failed) return { ...failed, confirm };
+  const admin = createAdminClient();
+  for (const authId of leaving) {
+    const { error } = await admin.auth.admin.deleteUser(authId);
+    if (error) console.error("removing a deleted family's parent account failed", error);
+  }
+  revalidatePath("/business/families");
+  redirect("/business/families?deleted=1");
 }

@@ -196,11 +196,11 @@ lawyer's review.
 - No email is sent twice, and none when email isn't set up.
 - Nobody but the server can read or change the outbox.
 
-## M6d — Protecting children
+## M6d — Protecting children (done)
 
 Ships in two parts. **Part 1 (done):** health notes and pickup
-restrictions. **Part 2:** two-step sign-in for owners, and exporting or
-deleting a family's data.
+restrictions. **Part 2 (done):** two-step sign-in for owners, and exporting
+or deleting a family's data.
 
 ### Decisions (part 1)
 
@@ -238,3 +238,47 @@ deleting a family's data.
 - An owner adds a restriction; the instructor sees the warning without the
   details; the child's parents don't see it.
 - Changes are audited without the notes' content.
+
+### Decisions (part 2)
+
+1. **Two-step sign-in for owners.** An owner signs in with their password
+   and then a 6-digit code from an authenticator app (Google Authenticator,
+   1Password, Microsoft Authenticator). The first time, Ovyko shows a QR
+   code to scan. No text messages: they can be intercepted, and cost money.
+2. **Enforced by the database, not just the screens.** Until the code is
+   entered, the database treats the person as not an owner at all, so a
+   stolen password used straight against the API sees nothing. Instructors
+   and parents aren't asked (optional for them later).
+3. **On for every school, except the demo.** A new school has it on. The
+   demo schools, whose shared logins prospects try, have it off; that's a
+   setting on the school only Ovyko can change.
+4. **A lost phone goes through Ovyko.** There's no self-serve reset (it
+   would be the weak spot). Ovyko checks who's asking and removes the old
+   authenticator; the owner sets up a new one at their next sign-in.
+5. **Export a family.** On a family's page, an owner downloads everything
+   Ovyko holds about that family as one file: contact details, parents who
+   joined, children, classes, attendance, progress, absences, make-ups,
+   offers, health notes and restrictions. It's recorded in the audit trail,
+   and as a look at each child's health notes.
+6. **Delete a family, on request.** The owner types the family's name to
+   confirm. The family, its children and everything about them go at once,
+   and can't be brought back. Parents' accounts go too, unless they belong
+   to another family or work at a school. The audit trail keeps that a
+   deletion happened, by whom and when, with the family's details wiped
+   from its earlier entries.
+
+### Data model (part 2)
+
+- `organisations.owner_two_step_required` (default on; off for the demo
+  schools).
+- Audit events gain the action `export`.
+
+### Acceptance criteria (part 2)
+
+- An owner of a school that requires it is asked to set up an authenticator
+  at their first sign-in, and for a code at every sign-in after.
+- Before the code, the database gives that owner nothing of the school's.
+- An owner downloads a family's data; it's audited; nobody else can.
+- An owner deletes a family by typing its name: its children, their records
+  and parents' accounts with nothing else go; the audit trail no longer
+  holds their details; nobody else can.

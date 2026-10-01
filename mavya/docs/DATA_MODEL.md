@@ -20,6 +20,11 @@
 - timezone
 - status: active | suspended
 - created_at
+- owner_two_step_required — default on (M6d); off only for the demo
+  schools, and changed only by Ovyko
+
+While it's on, an owner counts as an owner (in every check the database
+makes) only in a session that has passed two-step sign-in.
 
 ### Location
 - id
@@ -391,12 +396,16 @@ restrictions. Changes are audited with the notes' content left out.
 - id
 - actor_user_id nullable
 - organisation_id nullable
-- action
+- action: insert | update | delete | export
 - entity_type
 - entity_id
 - before_json nullable
 - after_json nullable
 - created_at
+
+`export_family` adds an `export` event; `delete_family` adds a
+`family_deletion` event (counts only) and wipes the deleted family's
+details from earlier events, keeping that they happened (M6d).
 
 ## Tenant integrity (M2)
 
