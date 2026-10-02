@@ -508,3 +508,68 @@ Where Ovyko stands against this plan, and what to decide:
    question a careful owner asks. Add it to the risks.
 9. **AI stays out of v0.1** unless approved (`CLAUDE.md` rule 11); the "AI
    operational assistant" add-on belongs to a later phase.
+
+## Notes on competitors and the path to revenue (2 October 2026)
+
+From public sources (review sites, app stores, privacy policies); figures
+are approximate and review sites carry few, often invited, reviews.
+
+### The competition
+
+| | SimplySwim | iClassPro |
+|---|---|---|
+| Who | Wyong, NSW. Founded 2010 by Kylie McGrath with her developer husband; grew by word of mouth | US company, many activities |
+| Payments | Built in, through Worldpay | Built in |
+| Data | Location not stated in its privacy policy | US East Coast; families consent to the transfer |
+| Owners say | About 4.8/5: outstanding support, all-in-one. Complaints: slow setup, learning curve, paid add-ons | Not yet researched |
+| Parents say | Parent app about 2.4/5: clunky, insists on exact location | Not yet researched |
+
+Their strengths are support and payments. Their weak spots are the parent
+experience and setup, which are Ovyko's strongest points.
+
+### Who will switch
+
+Switching is hard for schools already collecting fees through a
+competitor: every family re-enters bank details, staff retrain, parents
+change apps. Target, easiest first:
+
+1. New schools about to open.
+2. Schools on spreadsheets, paper or generic tools.
+3. Unhappy schools (price rises, slipping support, parent complaints).
+4. Multi-activity schools where swim-only software fits badly.
+
+Leave happy SimplySwim and iClassPro schools until Ovyko takes payments.
+
+### The most lucrative path
+
+Ovyko as the whole system for recurring kids' activities, taking payments:
+
+1. **Win the first schools** (above). If switching proves too hard, a
+   "fill empty spots" add-on that runs beside a school's current system is
+   a way in, if that system lets Ovyko read its timetable.
+2. **Build payments** (M7) straight after the pilot proves the loop. They
+   are the main barrier to winning competitors' schools, and they roughly
+   double what each school is worth: the subscription plus a small share of
+   every fee families pay, growing as the school grows.
+3. **Expand to gymnastics, dance and martial arts** on the same engine.
+   Swim alone supports a solid, profitable business; reaching beyond it is
+   what makes Ovyko large.
+
+Rough illustration at this plan's Core price (A$349–449 a month per
+location) plus about 0.5% of fees on a school collecting A$400k a year:
+about A$6,000–7,500 per school a year, so roughly A$1.2–1.5 million a year
+at 200 schools and A$3–3.75 million at 500. Assumptions to test, not
+forecasts.
+
+Weighed and set aside for now: aquatic centres and councils (large but slow
+to buy; later), school-run programs and kids' therapy groups (real but
+niche), a family app across all activities (needs many providers first, and
+discovery is outside v0.1), adult fitness (crowded, drop-in rather than
+enrolment) and childcare (regulation and subsidy systems).
+
+### Next
+
+The risk is now selling, not building. Before more large features, talk to
+10 swim school owners in 6–8 weeks: three or more keen and one pilot
+started is a go; most happy with what they have means change the target or
+the offer.
