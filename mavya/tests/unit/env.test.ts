@@ -11,7 +11,8 @@ describe("environment validation", () => {
     const env = parsePublicEnv(valid);
     expect(env.NEXT_PUBLIC_SENTRY_DSN).toBeUndefined();
     expect(env.NEXT_PUBLIC_POSTHOG_KEY).toBeUndefined();
-    expect(env.NEXT_PUBLIC_POSTHOG_HOST).toBe("https://eu.i.posthog.com");
+    // Analytics has no default destination: it stays off until one is chosen.
+    expect(env.NEXT_PUBLIC_POSTHOG_HOST).toBeUndefined();
   });
 
   it("treats empty optional values as unset", () => {

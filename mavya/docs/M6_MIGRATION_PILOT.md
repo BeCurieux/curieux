@@ -282,3 +282,48 @@ or deleting a family's data.
 - An owner deletes a family by typing its name: its children, their records
   and parents' accounts with nothing else go; the audit trail no longer
   holds their details; nobody else can.
+
+## M6e — Term re-enrolment (draft: decisions pending)
+
+Most swim schools sell lessons by the school term. Before a term ends they
+ask every family whether they're staying, chase the ones who haven't
+answered by phone, and only then know which places are free for newcomers.
+M6e makes that one tap for parents and one screen for the owner.
+
+### Proposed decisions
+
+1. **Terms.** An owner adds the school's terms: a name ("Term 1 2027"),
+   first and last day. Terms are per school, since not every school follows
+   state school terms.
+2. **Asking families.** For the next term, the owner sets a reply-by date
+   and taps "Ask families". Each child's current classes become a question
+   for their parents: "Keep Ava's place in Dolphin 3, Wednesday 4:30pm, for
+   Term 1 2027?" Yes or No, one tap each, in the app and by email (neutral
+   wording, as M6c).
+3. **The owner's view.** Per class: staying, leaving, not answered yet, and
+   the places that will be free next term. A reminder can be re-sent to
+   those who haven't answered.
+4. **Leaving.** A "No" ends the enrolment on the term's last day. The place
+   it frees shows as open for next term, ready for M5's fill-the-spot and
+   for newcomers.
+5. **Recorded.** Asks, answers and changes are audited like everything else.
+
+### Questions for the owner of Ovyko
+
+1. **Holidays.** Does the pilot school stop lessons in the school holidays,
+   so Ovyko only schedules lessons inside term dates? Or run all year, with
+   "term" only marking when families re-confirm?
+2. **No answer by the deadline.** Keep their place (fewer accidental
+   drop-outs; recommended) or free it (more certainty)? Could be the
+   owner's choice each term.
+3. **Moving up a level.** Should the owner be able to offer a different
+   class in the same ask ("Ava's ready for Dolphin 4, Wednesday 5pm")? Valuable,
+   but it roughly doubles the slice; it could follow as M6e part 2.
+4. **Timing.** Default: ask 3 weeks before the term ends, reply by 1 week
+   before. Right for the pilot school?
+
+### Not in M6e
+
+- Payment for the new term (payments come with Stripe Connect, later).
+- Waitlists and enrolling newcomers into the freed places (after the pilot
+  shows how schools want it).

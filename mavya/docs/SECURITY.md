@@ -225,6 +225,10 @@ Ovyko should do better than the usual weaknesses of class-management software:
   instructor, with reminders to the owner before expiry.
 - **View logging.** Record who viewed a child's record, not only who changed it
   (done for health notes and restrictions in M6d).
+- **Analytics stays off until its location is chosen.** PostHog has no
+  Australian region, so there's no default host: analytics runs only when both
+  a key and a host are set, and an overseas host must be named in the privacy
+  policy first. Events carry no names, emails or child details either way.
 - **Error reporting hygiene.** When Sentry and PostHog are added, strip names,
   emails and child details before anything leaves Ovyko.
 
