@@ -157,6 +157,12 @@ Not scheduled. Revisit with the pilot school's feedback:
 
 ## M7 — Payments
 
+The first thing to build once the pilot shows the operational loop works.
+Without payments Ovyko can win new schools and schools on spreadsheets, but
+not one already collecting fees through SimplySwim or iClassPro: switching
+would mean every family re-entering bank details while the school runs two
+systems. Payments are the main barrier to growth beyond the pilot.
+
 Only after operational loop is proven:
 - a family ledger first: every charge, credit, refund and failed payment is a
   line with its reason, and the balance is worked out from them
