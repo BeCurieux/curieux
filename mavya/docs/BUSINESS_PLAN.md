@@ -573,3 +573,66 @@ The risk is now selling, not building. Before more large features, talk to
 10 swim school owners in 6–8 weeks: three or more keen and one pilot
 started is a go; most happy with what they have means change the target or
 the offer.
+
+## Notes on payments and government vouchers (3 October 2026)
+
+The money in vertical software comes from four things: holding the
+records, money flowing through it, rules customers fear getting wrong, and
+spreading through a network. Ovyko already has the records and the rules
+(child safety, privacy, audit). Payments add the money.
+
+### Government kids' vouchers: the hook
+
+Several states give families vouchers for sport and creative activities,
+which providers must redeem. As of October 2026:
+
+- **NSW Active and Creative Kids:** two A$50 vouchers per child a year, for
+  sport, swimming, dance, music, art and more. Families get a voucher number
+  from Service NSW. Registered providers redeem each one by hand in the
+  Service NSW Business Bureau app, and the government pays the provider.
+- **Queensland FairPlay:** redeemed by registered providers through the
+  Queensland Government's online portal.
+- **South Australia:** a sports voucher scheme exists; its provider process
+  is not yet checked.
+
+Today schools collect voucher numbers by email or at the desk, type each
+one in, take the amount off the right family's bill and chase the ones that
+fail, in bursts of hundreds when new vouchers open.
+
+### How it works in Ovyko
+
+1. Parents enter a voucher number when they re-enrol for the next term
+   (M6e); Ovyko takes it off that child's fee at once.
+2. The owner sees one list to redeem ("18 vouchers"), with each number next
+   to the child.
+3. The owner redeems them in the government's system and ticks them off.
+   A failed voucher goes back on the family's bill and the parent is told.
+4. Discounts, money owed by the government and money received reconcile.
+
+Neither NSW nor Queensland appears to offer software a way to redeem
+automatically, so the school still enters them in the government's system.
+Ovyko removes the collecting, chasing, bill adjustments and reconciliation.
+If a state opens a connection for software, Ovyko could do the last step
+too; worth asking.
+
+### Where the money is
+
+The vouchers themselves are small (A$100 per child a year in NSW). They
+are the reason schools want Ovyko to handle their fees. With payments (M7),
+families pay the term fee in Ovyko, upfront or by instalment, less any
+voucher; the money reaches the school through Stripe Connect, and Ovyko
+takes a small share on top of the subscription. A school with 500 children
+at about A$250 a term moves roughly A$500,000 a year.
+
+The pitch: "Re-enrolment, fees and vouchers in one place. No chasing, no
+spreadsheets." No competitor reviewed leads with voucher handling.
+
+### To confirm before building
+
+- Each state's provider rules: whether a voucher can go against a term fee,
+  and how long the government takes to pay.
+- Whether any state offers a connection for software to redeem directly.
+- Stripe Connect set-up for Ovyko and its schools (M7).
+
+Sources: service.nsw.gov.au (Active and Creative Kids, provider FAQs),
+qld.gov.au (FairPlay activity providers).

@@ -171,3 +171,7 @@ Only after operational loop is proven:
 - provider payouts
 - receipts
 - failed payment handling
+- government activity vouchers (NSW Active and Creative Kids, Queensland
+  FairPlay): parents enter a voucher at re-enrolment, it comes off the fee,
+  and the owner gets one list to redeem and reconcile
+  (`docs/BUSINESS_PLAN.md`, "Notes on payments and government vouchers")
