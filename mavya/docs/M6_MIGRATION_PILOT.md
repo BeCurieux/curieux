@@ -17,7 +17,7 @@ and useful by itself, in this order:
 | M6b | Getting set up: onboarding checklist, parent invites | Parents can't use it until they're invited |
 | M6c | Reaching families: email (and push) for offers, absences, reminders; lesson-day reminders with an opt-out | The engine is only automatic if families hear about it |
 | M6d | Protecting children: two-step sign-in for owners, health notes (need to know), custody and pickup restrictions, export and deletion | Must be in before real children's details |
-| M6e | Term re-enrolment in one tap | Needed before the pilot's first term ends |
+| M6e | Term re-enrolment in one tap, moving up a level, lessons in term only | Needed before the pilot's first term ends |
 | M6f | Pool-deck mode (attendance without Wi-Fi) | Pilot feedback may reshape it |
 | M6g | Support access (granted by the school, time-limited, audited) | Needed once the pilot asks for help |
 
@@ -196,11 +196,11 @@ lawyer's review.
 - No email is sent twice, and none when email isn't set up.
 - Nobody but the server can read or change the outbox.
 
-## M6d — Protecting children
+## M6d — Protecting children (done)
 
 Ships in two parts. **Part 1 (done):** health notes and pickup
-restrictions. **Part 2:** two-step sign-in for owners, and exporting or
-deleting a family's data.
+restrictions. **Part 2 (done):** two-step sign-in for owners, and exporting
+or deleting a family's data.
 
 ### Decisions (part 1)
 
@@ -238,3 +238,143 @@ deleting a family's data.
 - An owner adds a restriction; the instructor sees the warning without the
   details; the child's parents don't see it.
 - Changes are audited without the notes' content.
+
+### Decisions (part 2)
+
+1. **Two-step sign-in for owners.** An owner signs in with their password
+   and then a 6-digit code from an authenticator app (Google Authenticator,
+   1Password, Microsoft Authenticator). The first time, Ovyko shows a QR
+   code to scan. No text messages: they can be intercepted, and cost money.
+2. **Enforced by the database, not just the screens.** Until the code is
+   entered, the database treats the person as not an owner at all, so a
+   stolen password used straight against the API sees nothing. Instructors
+   and parents aren't asked (optional for them later).
+3. **On for every school, except the demo.** A new school has it on. The
+   demo schools, whose shared logins prospects try, have it off; that's a
+   setting on the school only Ovyko can change.
+4. **A lost phone goes through Ovyko.** There's no self-serve reset (it
+   would be the weak spot). Ovyko checks who's asking and removes the old
+   authenticator; the owner sets up a new one at their next sign-in.
+5. **Export a family.** On a family's page, an owner downloads everything
+   Ovyko holds about that family as one file: contact details, parents who
+   joined, children, classes, attendance, progress, absences, make-ups,
+   offers, health notes and restrictions. It's recorded in the audit trail,
+   and as a look at each child's health notes.
+6. **Delete a family, on request.** The owner types the family's name to
+   confirm. The family, its children and everything about them go at once,
+   and can't be brought back. Parents' accounts go too, unless they belong
+   to another family or work at a school. The audit trail keeps that a
+   deletion happened, by whom and when, with the family's details wiped
+   from its earlier entries.
+
+### Data model (part 2)
+
+- `organisations.owner_two_step_required` (default on; off for the demo
+  schools).
+- Audit events gain the action `export`.
+
+### Acceptance criteria (part 2)
+
+- An owner of a school that requires it is asked to set up an authenticator
+  at their first sign-in, and for a code at every sign-in after.
+- Before the code, the database gives that owner nothing of the school's.
+- An owner downloads a family's data; it's audited; nobody else can.
+- An owner deletes a family by typing its name: its children, their records
+  and parents' accounts with nothing else go; the audit trail no longer
+  holds their details; nobody else can.
+
+## M6e — Term re-enrolment (done)
+
+Most swim schools sell lessons by the school term. Before a term ends they
+ask every family whether they're staying, chase the ones who haven't
+answered by phone, and only then know which places are free for newcomers.
+M6e makes that one tap for parents and one screen for the owner.
+
+### Decisions
+
+The owner of Ovyko answered the four open questions on 3 October 2026:
+the school chooses whether lessons run in term only; no answer keeps the
+place; moving up a level is in the first version; ask 3 weeks before the
+term ends, reply by 1 week before.
+
+1. **Terms.** An owner adds the school's terms in Settings → Terms: a name
+   ("Term 1 2027"), first and last day. Terms are per school (not every
+   school follows state school terms) and can't overlap.
+2. **Lessons in term only, if the school chooses.** A switch on the Terms
+   page. On: lessons are only scheduled on days inside a term, and turning
+   it on (or changing terms) removes upcoming lessons on other days. Lessons
+   something already hangs on (an absence, a make-up, an offer, attendance)
+   are left for the owner to cancel by hand, so families get their make-up
+   credits. Off: lessons run all year, and terms only mark when families
+   confirm their places. Turning it on needs a term that hasn't ended.
+3. **Schedules kept 12 weeks ahead.** Lessons used to be planned once, 12
+   weeks from when a class was made. A daily job now tops every running
+   class up to 12 weeks ahead, which term-only schools need.
+4. **Get ready, then ask.** On a coming term's page the owner taps "Get
+   ready": every child in a running class now (active or paused) gets a
+   question for that term. Families see nothing yet, so the owner can offer
+   moves up first. Then the owner sets a reply-by date (suggested: 1 week
+   before the term before ends; asking itself is suggested 3 weeks before)
+   and taps "Ask families". Each parent gets one email (neutral wording, as
+   M6c: the school and the term, never a child or class), and the questions
+   show on their home screen. Asking again later reaches only children
+   added since.
+5. **Moving up a level.** For any child, the owner can offer a different
+   class next term. The offer holds a place in that class: places offered
+   count against its places next term, so a class can't be over-offered.
+   The family then chooses: move up, stay in the current class, or not
+   next term.
+6. **One tap, changeable.** Parents answer per child: "Yes, keep it" or
+   "Not next term" (or the three choices when a move is offered). They can
+   change their answer until the term starts. The owner can record an
+   answer given at the pool or by phone.
+7. **No answer keeps the place.** Families who haven't answered by the
+   reply-by date keep their place. The owner sees who hasn't answered and
+   can send one reminder email a day to those families.
+8. **The owner's view.** Per class: staying, not answered, moving up,
+   leaving, moving in, and places free next term.
+9. **Applied on the first day.** On the new term's first day (the school's
+   date) an hourly job ends leavers' and movers' places the day before, then
+   starts each move's new place. A move that no longer fits, because the
+   owner filled that class by hand since, keeps the child's old place and
+   shows as "couldn't move". After that, answers are final and the term's
+   dates can't change.
+10. **Recorded.** Terms, questions, offers, answers and outcomes are
+    audited like everything else, and the term-only switch too. Once
+    families have been asked about a term, its dates are fixed and it can't
+    be removed.
+
+### Data model
+
+- New `Term`: id, organisation_id, name, starts_on, ends_on, reply_by,
+  asked_at, asked_by, applied_at.
+- New `ReenrolmentAsk`: one per enrolment and term, with the class offered
+  (if any), the answer (stay, move, leave or none), who answered and when,
+  when it was emailed, and the outcome on the first day.
+- `organisations.lessons_in_term_only` (default off).
+- Email kinds gain `reenrolment_ask` and `reenrolment_reminder`.
+
+### Not in M6e
+
+- Payment for the new term (payments come with Stripe Connect, later).
+- Waitlists and enrolling newcomers into the freed places (after the pilot
+  shows how schools want it).
+- Term-based pricing, holiday programs and intensives.
+- Including a family's questions in their data export (they're short-lived
+  and follow from their enrolments, which are exported).
+
+### Acceptance criteria
+
+- An owner adds terms; overlapping or back-to-front terms are refused; only
+  the school's owners can change them.
+- With lessons in term only, upcoming lessons fall only inside terms;
+  turning it off puts the others back; the switch is audited.
+- Getting ready shows families nothing; asking emails each parent once and
+  shows each parent only their own children's questions.
+- An owner offers a move up only into a class with a place next term, and
+  the offer holds it.
+- Parents answer for their own children only; the owner can answer for
+  them; the owner sees each class's answers and places next term; a
+  reminder reaches only families who haven't answered.
+- On the term's first day, leavers' places end, moves happen, a move that no
+  longer fits keeps the old place, and answers become final.

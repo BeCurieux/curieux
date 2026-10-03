@@ -8,6 +8,7 @@ import { DomainError } from "@/lib/domain/db";
 import * as fill from "@/lib/domain/fill";
 import * as makeups from "@/lib/domain/makeups";
 import * as safety from "@/lib/domain/safety";
+import * as terms from "@/lib/domain/terms";
 import { markAllRead } from "@/lib/domain/notifications";
 import type { FormState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -164,4 +165,18 @@ export async function saveChildHealth(_: FormState, formData: FormData): Promise
   if ("error" in result) return result;
   revalidatePath("/family/kids", "layout");
   return { ok: "Saved. Their instructor will see this before class." };
+}
+
+// Next term (M6e): stay, leave, or move to the class the school offered.
+// The database checks the child is theirs and the term hasn't started.
+export async function answerTermAsk(askId: string, answer: terms.Answer): Promise<FormState> {
+  const parsed = z
+    .object({ askId: id, answer: z.enum(["stay", "move", "leave"]) })
+    .safeParse({ askId, answer });
+  if (!parsed.success) return { error: "That didn't work. Try again." };
+  const db = await familyDb();
+  const result = await attempt(() => terms.answerAsk(db, askId, parsed.data.answer));
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/family", "layout");
+  return { ok: "Thanks, your answer is saved." };
 }

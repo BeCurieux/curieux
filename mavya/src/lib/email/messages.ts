@@ -94,3 +94,36 @@ export function invite(p: { school: string; family: string; joinUrl: string }): 
     },
   ]);
 }
+
+// Next term (M6e). Neutral like the rest: no child, class or place named.
+export function reenrolmentAsk(p: {
+  school: string;
+  term: string;
+  replyBy: string | null;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`${from}: are you staying for ${p.term}?`, "Answer in one tap in Ovyko.", [
+    `${from} is asking families whether they're keeping their places for ${p.term}.`,
+    p.replyBy
+      ? `Please answer by ${p.replyBy}. It takes one tap per child.`
+      : "It takes one tap per child.",
+    { button: "Answer in Ovyko", href: p.url },
+    { small: "If you don't answer, your places are kept." },
+  ]);
+}
+
+export function reenrolmentReminder(p: {
+  school: string;
+  term: string;
+  replyBy: string | null;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`Reminder: ${p.term} at ${from}`, "Let them know if you're staying.", [
+    `${from} hasn't heard from you about ${p.term} yet.`,
+    p.replyBy ? `Please answer by ${p.replyBy}.` : "Please answer when you can.",
+    { button: "Answer in Ovyko", href: p.url },
+    { small: "If you don't answer, your places are kept." },
+  ]);
+}

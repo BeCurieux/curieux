@@ -2,12 +2,14 @@ import { ArrowRight, CalendarCheck2, CalendarX2, MessageCircle, Sparkles } from 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActivityPass } from "@/components/demo/activity-pass";
+import { TermAskCard } from "@/components/family/term-ask";
 import { EmptyState } from "@/components/demo/empty-state";
 import { ProgressRing } from "@/components/demo/progress-ring";
 import { Button } from "@/components/ui/button";
 import { firstName, familyContext } from "@/lib/demo/context";
 import { MESSAGES } from "@/lib/demo/data";
 import { myNotifications, type AppNotification } from "@/lib/domain/notifications";
+import { myTermAsks, shortDate } from "@/lib/domain/terms";
 import { familyChildren, type FamilyChildView } from "@/lib/family/children";
 import { lessonMoment } from "@/lib/format";
 
@@ -31,6 +33,7 @@ export default async function FamilyHome() {
   }
 
   const learning = children.filter((c) => c.progress);
+  const asks = await myTermAsks(db);
   // The newest update, or else the demo's newest message; and any spot
   // offered that's still open.
   const notifications = await myNotifications(db);
@@ -83,6 +86,21 @@ export default async function FamilyHome() {
           </Link>
         ))}
       </section>
+
+      {asks.length > 0 ? (
+        <section aria-labelledby="next-term" className="flex flex-col gap-4">
+          <h2 id="next-term" className="font-display text-xl font-semibold">
+            Next term
+          </h2>
+          {asks.map((ask) => (
+            <TermAskCard
+              key={ask.id}
+              ask={ask}
+              replyBy={ask.replyBy ? shortDate(ask.replyBy) : null}
+            />
+          ))}
+        </section>
+      ) : null}
 
       {offer ? <OfferCard offer={offer} /> : null}
       <ActionCard kids={children} offeredChild={offer?.offer?.details.childId ?? null} />

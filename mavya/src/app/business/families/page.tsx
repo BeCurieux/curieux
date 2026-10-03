@@ -9,7 +9,12 @@ import { listFamilies } from "@/lib/domain/families";
 
 export const metadata: Metadata = { title: "Families" };
 
-export default async function FamiliesPage() {
+export default async function FamiliesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ deleted?: string }>;
+}) {
+  const { deleted } = await searchParams;
   const { db, organisationId } = await requireOwner();
   const families = await listFamilies(db, organisationId);
   return (
@@ -23,6 +28,11 @@ export default async function FamiliesPage() {
           </Link>
         </Button>
       </div>
+      {deleted ? (
+        <p role="status" className="rounded-md bg-[#dcf1e7] px-4 py-3 font-semibold text-[#1d5a41]">
+          The family and everything about them has been deleted.
+        </p>
+      ) : null}
       {families.length === 0 ? (
         <EmptyState icon={<Users />} title="No families yet">
           Add a family, then their children, then enrol them in a class.

@@ -181,22 +181,63 @@ Ovyko should do better than the usual weaknesses of class-management software:
   says the notes changed, not what they say, so the trail isn't a way
   around the view log.
 
+### M6d — Protecting children, part 2 (done)
+
+- **Two-step sign-in, enforced in the database.** For a school that requires
+  it (every school but the demo), the database's single owner check also
+  requires the session to have passed two-step sign-in (Supabase Auth's
+  assurance level 2). A stolen password alone reaches nothing, through the
+  app or straight against the API. The app only sends the owner to enter
+  the code. Codes come from an authenticator app (no SMS). Only Ovyko can
+  turn the requirement off or remove a lost authenticator.
+- **Export.** Owners only, by POST (a link or prefetch can't trigger it).
+  Audited, and counted as a look at each child's health notes.
+- **Deletion.** Owners only, confirmed by typing the family's name. Cascades
+  to every record about the children; parents' accounts are removed by the
+  server when they belong nowhere else; earlier audit entries about the
+  family are wiped, and one entry with counts records the deletion.
+
+### M6e — Term re-enrolment (done)
+
+- Terms and questions are read-only to people: every change goes through a
+  database function that checks the caller is the school's owner (or, to
+  answer, a parent of that child) and that the term hasn't started.
+- Parents see only their own children's questions, and only once the owner
+  has asked. Instructors and other schools see none.
+- Places offered for a move are counted, under a lock on the class, so a
+  class can't be promised to more children than it holds.
+- Emails name the school and the term only, never a child or a class, and
+  are only sent while the family still has something to answer.
+- Every term, question, offer, answer and outcome is audited, and the
+  term-only switch too.
+
+### M7a — Family accounts (done)
+
+- Account lines are read-only to people and can't be changed by anyone: a
+  database trigger refuses every update, so a mistake can only be
+  cancelled by an opposite line, and both stay visible.
+- Only the school's owners add lines, through functions that check the
+  family is theirs; parents see only their own family's statement;
+  instructors and other schools see none.
+- Every line is audited; deleting a family removes its account and wipes
+  it from earlier audit entries, as before.
+- No money moves through Ovyko yet; card details will only ever be held by
+  the payment provider (M7b).
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project
   to Pro (backups and point-in-time recovery need it too) and turn on
   Supabase Auth's check against known leaked passwords.
-- **Two-step sign-in for owners.** Required for owners; optional for
-  instructors and parents.
+- ~~**Two-step sign-in for owners.**~~ Done in M6d. Optional for instructors
+  and parents comes later.
 - **Parent invites.** Parents are invited by email and set their own
   password. Nobody else ever sees or sets a parent's password.
 - ~~**Health notes (need to know).**~~ Done in M6d.
 - ~~**Custody and pickup restrictions.**~~ Done in M6d: the school records
   them (the person restricted may be a parent), instructors see a warning
   without the details.
-- **Export and deletion.** Owners can export a family's data and delete a
-  family on request, as the Australian Privacy Act allows parents to ask.
-  Deletions are audited.
+- ~~**Export and deletion.**~~ Done in M6d.
 - **Internal admin access.** Platform support can see a school's data only when
   the school grants access, for a limited time, and every action is audited.
 - **Backups and breach response.** Confirm daily backups and point-in-time
@@ -211,6 +252,10 @@ Ovyko should do better than the usual weaknesses of class-management software:
   instructor, with reminders to the owner before expiry.
 - **View logging.** Record who viewed a child's record, not only who changed it
   (done for health notes and restrictions in M6d).
+- **Analytics stays off until its location is chosen.** PostHog has no
+  Australian region, so there's no default host: analytics runs only when both
+  a key and a host are set, and an overseas host must be named in the privacy
+  policy first. Events carry no names, emails or child details either way.
 - **Error reporting hygiene.** When Sentry and PostHog are added, strip names,
   emails and child details before anything leaves Ovyko.
 

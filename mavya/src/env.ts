@@ -21,10 +21,9 @@ const publicSchema = z.object({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
   NEXT_PUBLIC_SENTRY_DSN: optionalString,
   NEXT_PUBLIC_POSTHOG_KEY: optionalString,
-  NEXT_PUBLIC_POSTHOG_HOST: z
-    .string()
-    .optional()
-    .transform((value) => value || "https://eu.i.posthog.com"),
+  // No default: PostHog has no Australian region, so where analytics goes
+  // is a deliberate choice. Without both a key and a host, it stays off.
+  NEXT_PUBLIC_POSTHOG_HOST: optionalString,
 });
 
 const serverSchema = z

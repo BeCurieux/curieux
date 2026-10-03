@@ -1,6 +1,7 @@
 import "server-only";
 import type { Database } from "@/lib/supabase/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { shortDate } from "@/lib/domain/terms";
 import { lessonMoment } from "@/lib/format";
 import * as messages from "./messages";
 import { appUrl, EmailOff, sendEmail } from "./transport";
@@ -167,6 +168,42 @@ async function build(
           settingsUrl: appUrl("/family/account"),
         }),
       };
+    }
+    case "reenrolment_ask":
+    case "reenrolment_reminder": {
+      const termId = (d.payload as { term_id?: string }).term_id;
+      if (!termId) return null;
+      const term = one(
+        await admin
+          .from("terms")
+          .select("name, starts_on, reply_by, applied_at")
+          .eq("id", termId)
+          .maybeSingle(),
+      );
+      const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: org?.timezone ?? "Australia/Sydney",
+      }).format(new Date());
+      if (!term || term.applied_at || term.starts_on <= today) return null;
+      // Only while this parent's family still has something to answer
+      // (a reminder) or to see (the ask).
+      const families = one(
+        await admin.from("family_members").select("family_id").eq("user_id", d.recipient_user_id),
+      ) as { family_id: string }[] | null;
+      let open = admin
+        .from("reenrolment_asks")
+        .select("id, children!inner (family_id)")
+        .eq("term_id", termId)
+        .in(
+          "children.family_id",
+          (families ?? []).map((f) => f.family_id),
+        );
+      if (d.kind === "reenrolment_reminder") open = open.is("answer", null);
+      const waiting = one(await open.limit(1)) as unknown[] | null;
+      if (!waiting?.length) return null;
+      const replyBy = term.reply_by ? shortDate(term.reply_by) : null;
+      const message =
+        d.kind === "reenrolment_ask" ? messages.reenrolmentAsk : messages.reenrolmentReminder;
+      return { to, email: message({ school, term: term.name, replyBy, url: appUrl("/family") }) };
     }
     default:
       return null;

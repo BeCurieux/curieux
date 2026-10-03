@@ -113,7 +113,7 @@ Implement:
 - ~~parent invites~~ (M6b, by link; by email with M6c)
 - minimal internal admin support (granted by the school, time-limited, audited)
 - Supabase Pro, with leaked password protection on
-- two-step sign-in for owners
+- ~~two-step sign-in for owners~~ (M6d)
 - ~~email delivery of notifications, with the neutral wording from M3~~
   (M6c; push after the pilot)
 - ~~lesson-day reminders to parents ("Swimming today at 4:30pm"), with
@@ -122,7 +122,7 @@ Implement:
   owner sees who is staying before the term starts
 - ~~health notes (need to know)~~ (M6d)
 - ~~custody and pickup restrictions~~ (M6d)
-- family data export and deletion
+- ~~family data export and deletion~~ (M6d)
 - backups check and data-breach response plan
 - privacy summary for parents
 - switching from another system: "we do the import" service, run alongside
@@ -157,6 +157,14 @@ Not scheduled. Revisit with the pilot school's feedback:
 
 ## M7 — Payments
 
+In slices: `docs/M7_PAYMENTS.md`. M7a (family accounts) is done.
+
+The first thing to build once the pilot shows the operational loop works.
+Without payments Ovyko can win new schools and schools on spreadsheets, but
+not one already collecting fees through SimplySwim or iClassPro: switching
+would mean every family re-entering bank details while the school runs two
+systems. Payments are the main barrier to growth beyond the pilot.
+
 Only after operational loop is proven:
 - a family ledger first: every charge, credit, refund and failed payment is a
   line with its reason, and the balance is worked out from them
@@ -165,3 +173,7 @@ Only after operational loop is proven:
 - provider payouts
 - receipts
 - failed payment handling
+- government activity vouchers (NSW Active and Creative Kids, Queensland
+  FairPlay): parents enter a voucher at re-enrolment, it comes off the fee,
+  and the owner gets one list to redeem and reconcile
+  (`docs/BUSINESS_PLAN.md`, "Notes on payments and government vouchers")

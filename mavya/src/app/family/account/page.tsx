@@ -1,4 +1,6 @@
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ResetDemoButton } from "@/components/demo/reset-demo-button";
 import { RemindersSwitch } from "@/components/family/reminders-switch";
 import { SignOutButton } from "@/components/shell/sign-out-button";
@@ -33,6 +35,13 @@ export default async function AccountPage() {
           </dd>
         </div>
       </dl>
+      <Link
+        href="/family/fees"
+        className="flex items-center justify-between gap-4 rounded-lg bg-surface px-5 py-4 text-lg font-semibold shadow-[0_1px_0_var(--border)] hover:bg-white/70"
+      >
+        Fees and payments
+        <ArrowRight aria-hidden className="size-5 text-muted" />
+      </Link>
       <section aria-label="Emails" className="rounded-lg bg-surface shadow-[0_1px_0_var(--border)]">
         <RemindersSwitch on={me?.lesson_reminders ?? true} />
       </section>
