@@ -17,7 +17,7 @@ and useful by itself, in this order:
 | M6b | Getting set up: onboarding checklist, parent invites | Parents can't use it until they're invited |
 | M6c | Reaching families: email (and push) for offers, absences, reminders; lesson-day reminders with an opt-out | The engine is only automatic if families hear about it |
 | M6d | Protecting children: two-step sign-in for owners, health notes (need to know), custody and pickup restrictions, export and deletion | Must be in before real children's details |
-| M6e | Term re-enrolment in one tap | Needed before the pilot's first term ends |
+| M6e | Term re-enrolment in one tap, moving up a level, lessons in term only | Needed before the pilot's first term ends |
 | M6f | Pool-deck mode (attendance without Wi-Fi) | Pilot feedback may reshape it |
 | M6g | Support access (granted by the school, time-limited, audited) | Needed once the pilot asks for help |
 
@@ -283,47 +283,98 @@ or deleting a family's data.
   and parents' accounts with nothing else go; the audit trail no longer
   holds their details; nobody else can.
 
-## M6e — Term re-enrolment (draft: decisions pending)
+## M6e — Term re-enrolment (done)
 
 Most swim schools sell lessons by the school term. Before a term ends they
 ask every family whether they're staying, chase the ones who haven't
 answered by phone, and only then know which places are free for newcomers.
 M6e makes that one tap for parents and one screen for the owner.
 
-### Proposed decisions
+### Decisions
 
-1. **Terms.** An owner adds the school's terms: a name ("Term 1 2027"),
-   first and last day. Terms are per school, since not every school follows
-   state school terms.
-2. **Asking families.** For the next term, the owner sets a reply-by date
-   and taps "Ask families". Each child's current classes become a question
-   for their parents: "Keep Ava's place in Dolphin 3, Wednesday 4:30pm, for
-   Term 1 2027?" Yes or No, one tap each, in the app and by email (neutral
-   wording, as M6c).
-3. **The owner's view.** Per class: staying, leaving, not answered yet, and
-   the places that will be free next term. A reminder can be re-sent to
-   those who haven't answered.
-4. **Leaving.** A "No" ends the enrolment on the term's last day. The place
-   it frees shows as open for next term, ready for M5's fill-the-spot and
-   for newcomers.
-5. **Recorded.** Asks, answers and changes are audited like everything else.
+The owner of Ovyko answered the four open questions on 3 October 2026:
+the school chooses whether lessons run in term only; no answer keeps the
+place; moving up a level is in the first version; ask 3 weeks before the
+term ends, reply by 1 week before.
 
-### Questions for the owner of Ovyko
+1. **Terms.** An owner adds the school's terms in Settings → Terms: a name
+   ("Term 1 2027"), first and last day. Terms are per school (not every
+   school follows state school terms) and can't overlap.
+2. **Lessons in term only, if the school chooses.** A switch on the Terms
+   page. On: lessons are only scheduled on days inside a term, and turning
+   it on (or changing terms) removes upcoming lessons on other days. Lessons
+   something already hangs on (an absence, a make-up, an offer, attendance)
+   are left for the owner to cancel by hand, so families get their make-up
+   credits. Off: lessons run all year, and terms only mark when families
+   confirm their places. Turning it on needs a term that hasn't ended.
+3. **Schedules kept 12 weeks ahead.** Lessons used to be planned once, 12
+   weeks from when a class was made. A daily job now tops every running
+   class up to 12 weeks ahead, which term-only schools need.
+4. **Get ready, then ask.** On a coming term's page the owner taps "Get
+   ready": every child in a running class now (active or paused) gets a
+   question for that term. Families see nothing yet, so the owner can offer
+   moves up first. Then the owner sets a reply-by date (suggested: 1 week
+   before the term before ends; asking itself is suggested 3 weeks before)
+   and taps "Ask families". Each parent gets one email (neutral wording, as
+   M6c: the school and the term, never a child or class), and the questions
+   show on their home screen. Asking again later reaches only children
+   added since.
+5. **Moving up a level.** For any child, the owner can offer a different
+   class next term. The offer holds a place in that class: places offered
+   count against its places next term, so a class can't be over-offered.
+   The family then chooses: move up, stay in the current class, or not
+   next term.
+6. **One tap, changeable.** Parents answer per child: "Yes, keep it" or
+   "Not next term" (or the three choices when a move is offered). They can
+   change their answer until the term starts. The owner can record an
+   answer given at the pool or by phone.
+7. **No answer keeps the place.** Families who haven't answered by the
+   reply-by date keep their place. The owner sees who hasn't answered and
+   can send one reminder email a day to those families.
+8. **The owner's view.** Per class: staying, not answered, moving up,
+   leaving, moving in, and places free next term.
+9. **Applied on the first day.** On the new term's first day (the school's
+   date) an hourly job ends leavers' and movers' places the day before, then
+   starts each move's new place. A move that no longer fits, because the
+   owner filled that class by hand since, keeps the child's old place and
+   shows as "couldn't move". After that, answers are final and the term's
+   dates can't change.
+10. **Recorded.** Terms, questions, offers, answers and outcomes are
+    audited like everything else, and the term-only switch too. Once
+    families have been asked about a term, its dates are fixed and it can't
+    be removed.
 
-1. **Holidays.** Does the pilot school stop lessons in the school holidays,
-   so Ovyko only schedules lessons inside term dates? Or run all year, with
-   "term" only marking when families re-confirm?
-2. **No answer by the deadline.** Keep their place (fewer accidental
-   drop-outs; recommended) or free it (more certainty)? Could be the
-   owner's choice each term.
-3. **Moving up a level.** Should the owner be able to offer a different
-   class in the same ask ("Ava's ready for Dolphin 4, Wednesday 5pm")? Valuable,
-   but it roughly doubles the slice; it could follow as M6e part 2.
-4. **Timing.** Default: ask 3 weeks before the term ends, reply by 1 week
-   before. Right for the pilot school?
+### Data model
+
+- New `Term`: id, organisation_id, name, starts_on, ends_on, reply_by,
+  asked_at, asked_by, applied_at.
+- New `ReenrolmentAsk`: one per enrolment and term, with the class offered
+  (if any), the answer (stay, move, leave or none), who answered and when,
+  when it was emailed, and the outcome on the first day.
+- `organisations.lessons_in_term_only` (default off).
+- Email kinds gain `reenrolment_ask` and `reenrolment_reminder`.
 
 ### Not in M6e
 
 - Payment for the new term (payments come with Stripe Connect, later).
 - Waitlists and enrolling newcomers into the freed places (after the pilot
   shows how schools want it).
+- Term-based pricing, holiday programs and intensives.
+- Including a family's questions in their data export (they're short-lived
+  and follow from their enrolments, which are exported).
+
+### Acceptance criteria
+
+- An owner adds terms; overlapping or back-to-front terms are refused; only
+  the school's owners can change them.
+- With lessons in term only, upcoming lessons fall only inside terms;
+  turning it off puts the others back; the switch is audited.
+- Getting ready shows families nothing; asking emails each parent once and
+  shows each parent only their own children's questions.
+- An owner offers a move up only into a class with a place next term, and
+  the offer holds it.
+- Parents answer for their own children only; the owner can answer for
+  them; the owner sees each class's answers and places next term; a
+  reminder reaches only families who haven't answered.
+- On the term's first day, leavers' places end, moves happen, a move that no
+  longer fits keeps the old place, and answers become final.

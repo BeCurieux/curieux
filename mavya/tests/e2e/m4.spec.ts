@@ -27,9 +27,10 @@ test.describe("make-ups", () => {
     await page.getByRole("button", { name: "Confirm booking" }).click();
     await expect(page.getByRole("status")).toContainText("You're booked in!");
 
-    // The calendar shows it.
-    await page.goto("/family/calendar");
-    await expect(page.getByText("Ava · Make-up · Dolphin 3")).toBeVisible();
+    // Home shows it. (Not the calendar: it shows the next seven days, and on
+    // a Saturday after 9am the soonest Saturday make-up is a week away.)
+    await page.goto("/family");
+    await expect(page.getByText("Ava's make-up is booked")).toBeVisible();
 
     // The Saturday class shows Ava coming as a make-up. (The instructor's
     // roster shows her once that lesson opens; tests/rls/m4.test.ts checks

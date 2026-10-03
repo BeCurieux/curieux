@@ -77,10 +77,11 @@ export function TermOnlySwitch({ on }: { on: boolean }) {
           disabled={pending}
           onChange={(e) => {
             const next = e.target.checked;
+            setValue(next);
             start(async () => {
               const result = await setLessonsInTermOnly(next);
               setState(result);
-              if (!result.error) setValue(next);
+              if (result.error) setValue(!next);
             });
           }}
           className="h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-line transition before:block before:size-6 before:translate-x-0.5 before:rounded-full before:bg-white before:shadow before:transition checked:bg-ink checked:before:translate-x-5"

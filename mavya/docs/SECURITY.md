@@ -197,6 +197,20 @@ Ovyko should do better than the usual weaknesses of class-management software:
   server when they belong nowhere else; earlier audit entries about the
   family are wiped, and one entry with counts records the deletion.
 
+### M6e — Term re-enrolment (done)
+
+- Terms and questions are read-only to people: every change goes through a
+  database function that checks the caller is the school's owner (or, to
+  answer, a parent of that child) and that the term hasn't started.
+- Parents see only their own children's questions, and only once the owner
+  has asked. Instructors and other schools see none.
+- Places offered for a move are counted, under a lock on the class, so a
+  class can't be promised to more children than it holds.
+- Emails name the school and the term only, never a child or a class, and
+  are only sent while the family still has something to answer.
+- Every term, question, offer, answer and outcome is audited, and the
+  term-only switch too.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project
