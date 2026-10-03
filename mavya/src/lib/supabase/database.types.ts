@@ -1039,6 +1039,7 @@ export type Database = {
           activity_type: string;
           created_at: string;
           id: string;
+          lessons_in_term_only: boolean;
           name: string;
           owner_two_step_required: boolean;
           slug: string;
@@ -1049,6 +1050,7 @@ export type Database = {
           activity_type: string;
           created_at?: string;
           id?: string;
+          lessons_in_term_only?: boolean;
           name: string;
           owner_two_step_required?: boolean;
           slug: string;
@@ -1059,6 +1061,7 @@ export type Database = {
           activity_type?: string;
           created_at?: string;
           id?: string;
+          lessons_in_term_only?: boolean;
           name?: string;
           owner_two_step_required?: boolean;
           slug?: string;
@@ -1199,6 +1202,97 @@ export type Database = {
           },
         ];
       };
+      reenrolment_asks: {
+        Row: {
+          answer: string | null;
+          answered_at: string | null;
+          answered_by: string | null;
+          child_id: string;
+          class_id: string;
+          created_at: string;
+          emailed_at: string | null;
+          enrolment_id: string;
+          id: string;
+          offered_class_id: string | null;
+          organisation_id: string;
+          outcome: string | null;
+          term_id: string;
+        };
+        Insert: {
+          answer?: string | null;
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id: string;
+          class_id: string;
+          created_at?: string;
+          emailed_at?: string | null;
+          enrolment_id: string;
+          id?: string;
+          offered_class_id?: string | null;
+          organisation_id: string;
+          outcome?: string | null;
+          term_id: string;
+        };
+        Update: {
+          answer?: string | null;
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id?: string;
+          class_id?: string;
+          created_at?: string;
+          emailed_at?: string | null;
+          enrolment_id?: string;
+          id?: string;
+          offered_class_id?: string | null;
+          organisation_id?: string;
+          outcome?: string | null;
+          term_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reenrolment_asks_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_offered_class_id_fkey";
+            columns: ["organisation_id", "offered_class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_term_id_fkey";
+            columns: ["organisation_id", "term_id"];
+            isOneToOne: false;
+            referencedRelation: "terms";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       sensitive_views: {
         Row: {
           child_id: string;
@@ -1325,6 +1419,60 @@ export type Database = {
           },
         ];
       };
+      terms: {
+        Row: {
+          applied_at: string | null;
+          asked_at: string | null;
+          asked_by: string | null;
+          created_at: string;
+          ends_on: string;
+          id: string;
+          name: string;
+          organisation_id: string;
+          reply_by: string | null;
+          starts_on: string;
+        };
+        Insert: {
+          applied_at?: string | null;
+          asked_at?: string | null;
+          asked_by?: string | null;
+          created_at?: string;
+          ends_on: string;
+          id?: string;
+          name: string;
+          organisation_id: string;
+          reply_by?: string | null;
+          starts_on: string;
+        };
+        Update: {
+          applied_at?: string | null;
+          asked_at?: string | null;
+          asked_by?: string | null;
+          created_at?: string;
+          ends_on?: string;
+          id?: string;
+          name?: string;
+          organisation_id?: string;
+          reply_by?: string | null;
+          starts_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "terms_asked_by_fkey";
+            columns: ["asked_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "terms_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       users: {
         Row: {
           auth_id: string;
@@ -1436,6 +1584,9 @@ export type Database = {
         Args: { p_child: string; p_details: string; p_kind: string; p_person: string };
         Returns: string;
       };
+      answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
+      apply_terms_at: { Args: { p_now: string }; Returns: number };
+      ask_families: { Args: { p_reply_by: string; p_term: string }; Returns: number };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
@@ -1484,6 +1635,7 @@ export type Database = {
       };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
       delete_family: { Args: { p_confirm: string; p_family: string }; Returns: string[] };
+      delete_term: { Args: { p_term: string }; Returns: undefined };
       export_family: { Args: { p_family: string }; Returns: Json };
       family_parents: {
         Args: { p_family: string };
@@ -1545,6 +1697,26 @@ export type Database = {
       };
       makeup_policy: { Args: { p_org: string }; Returns: Json };
       mark_notifications_read: { Args: Record<PropertyKey, never>; Returns: undefined };
+      my_term_asks: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          answer: string;
+          child_first_name: string;
+          class_location: string;
+          class_name: string;
+          class_start: string;
+          class_weekday: number;
+          id: string;
+          offered_class_name: string;
+          offered_location: string;
+          offered_start: string;
+          offered_weekday: number;
+          reply_by: string;
+          school: string;
+          starts_on: string;
+          term_name: string;
+        }[];
+      };
       offer_details: {
         Args: { p_code: string };
         Returns: {
@@ -1563,6 +1735,7 @@ export type Database = {
         }[];
       };
       offer_spot: { Args: { p_child: string; p_occurrence: string }; Returns: string };
+      offer_term_move: { Args: { p_ask: string; p_class: string }; Returns: undefined };
       open_spots: {
         Args: { p_days?: number; p_org: string };
         Returns: {
@@ -1575,6 +1748,7 @@ export type Database = {
         }[];
       };
       owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
+      prepare_term_asks: { Args: { p_term: string }; Returns: number };
       preview_cancel_lessons: {
         Args: { p_date: string; p_location: string };
         Returns: {
@@ -1598,6 +1772,7 @@ export type Database = {
         Args: { p_email: string; p_ip: string; p_succeeded: boolean };
         Returns: undefined;
       };
+      remind_term_families: { Args: { p_term: string }; Returns: number };
       remove_child_restriction: { Args: { p_restriction: string }; Returns: undefined };
       remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
       report_absence: {
@@ -1624,9 +1799,33 @@ export type Database = {
         Returns: undefined;
       };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
+      save_term: {
+        Args: {
+          p_ends_on: string;
+          p_name: string;
+          p_org: string;
+          p_starts_on: string;
+          p_term?: string;
+        };
+        Returns: string;
+      };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
+      set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       setup_progress: { Args: { p_org: string }; Returns: Json };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      term_summary: {
+        Args: { p_term: string };
+        Returns: {
+          capacity: number;
+          class_id: string;
+          free_next_term: number;
+          leaving: number;
+          moving_in: number;
+          moving_out: number;
+          staying: number;
+          waiting: number;
+        }[];
+      };
       undo_import: { Args: { p_batch: string }; Returns: undefined };
       vacancy_candidates: {
         Args: { p_occurrence: string };
