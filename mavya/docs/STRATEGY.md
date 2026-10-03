@@ -158,6 +158,78 @@ list records.
 6. **One engine, activity packs later.** Roughly 70% shared, 30% per
    activity. Never fork the product per activity.
 
+## The long-term plan: "your school, on autopilot" (3 October 2026)
+
+The north star above, made concrete. Ovyko isn't better booking software:
+it's the first system where a school mostly runs itself. The owner sets the
+rules once; Ovyko does the routine work, records what it did, and shows only
+what needs a person. Competitors are record-keepers; Ovyko does the work.
+
+### Five pillars
+
+1. **Autopilot.** Every repeated job is a rule the owner sets once:
+   make-ups, filling spots, re-enrolment, reminders, chasing payments,
+   instructor cover. Ovyko asks only when a rule can't decide. Started:
+   automatic offers (M5.5) and re-enrolment (M6e).
+2. **The child's journey, not the booking.** Schools earn by keeping
+   families for years and lose them when parents can't see progress. A
+   living record per child: skills, the next milestone, moments (with
+   consent), moving up.
+3. **Money that runs itself.** Fees, instalments, vouchers, failed
+   payments and refunds inside Ovyko, flowing to Xero. Payroll and
+   accounting are connected, not rebuilt.
+4. **Safe for children by design.** Built: need-to-know health notes with
+   every look recorded, pickup restrictions, owner two-step sign-in, audit,
+   export and deletion. Next: staff checks and qualifications with expiry
+   reminders, incident records, help meeting the Child Safe Standards.
+5. **Insight before trouble.** "These 6 children missed 3 lessons", "Thursday
+   4pm is full next term", "next term's revenue looks like A$84k". Simple
+   rules first; any AI only with approval (CLAUDE.md rule 11).
+
+It should feel quiet, warm for parents, calm for owners, built for phones on
+the pool deck, and in plain words. Not a marketplace, a parent social app,
+or a replacement for Xero or payroll.
+
+### Effort
+
+| Pillar | Built | Still to build | Difficulty | Rough time |
+|---|---|---|---|---|
+| Autopilot | Filling spots, automatic offers, re-enrolment, reminders | Payment chasing, instructor cover, a "needs you today" screen | Medium | 3–5 weeks |
+| Child's journey | Skills, progress, levels | Moments with consent, progress reports, move-up suggestions | Medium (photos of children need strict privacy) | 2–4 weeks |
+| Money | Nothing | Stripe Connect, ledger, instalments, failed payments, refunds, vouchers, Xero sync | Hardest; Stripe approval; money mistakes are costly | 2–3 months |
+| Safety | Health, restrictions, two-step, audit, export, deletion | Staff checks and expiry, incidents | Easy–medium | 2–4 weeks |
+| Insight | The data | Leaving risk, full classes, revenue forecast | Medium; needs the pilot's real data | 2–3 weeks |
+
+About 6–9 months of building in all, one piece at a time after the pilot.
+The limits are outside the code: testing with real schools, Stripe
+approval, a privacy lawyer, support load and, above all, selling.
+
+### Revenue (illustrations, not forecasts)
+
+Per school a year: about A$6,000 subscription (around A$499 a month for
+everything) plus about A$3,000 from payments (a school collecting A$400,000
+a year, Ovyko keeping about 0.75% after card costs): roughly A$9,000–10,000.
+
+| Schools | Realistically | A year |
+|---|---|---|
+| 50 | years 1–2 | ~A$0.5m |
+| 200 | years 2–4 | ~A$1.9m |
+| 500 (with gymnastics and dance) | years 4–6 | ~A$4.75m |
+| 1,000 (with New Zealand and the UK) | years 6–8 | ~A$9.5m |
+
+Australia has about 1,000–1,500 swim schools and SimplySwim reaches a few
+hundred after 15 years, so 200 schools would make Ovyko a leader in swim;
+beyond that needs more activities and countries. What moves the numbers
+most: payments (without them a school is worth about half), keeping schools
+(5% lost a year versus 15%), and how fast schools sign up, which the first
+10 owner conversations will show.
+
+### Order
+
+Pilot and owner conversations → payments and vouchers → then only the piece
+owners ask for most (Xero sync, staff rosters and checks, money overview,
+insight) → repeat. The destination, not a build list.
+
 ## Where we grow, in order
 
 Group by how a school runs, not what it teaches:
