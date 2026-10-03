@@ -358,6 +358,7 @@ export type Database = {
           location_id: string;
           name: string;
           organisation_id: string;
+          price_per_lesson_cents: number | null;
           program_id: string;
           start_time: string;
           weekday: number;
@@ -373,6 +374,7 @@ export type Database = {
           location_id: string;
           name: string;
           organisation_id: string;
+          price_per_lesson_cents?: number | null;
           program_id: string;
           start_time: string;
           weekday: number;
@@ -388,6 +390,7 @@ export type Database = {
           location_id?: string;
           name?: string;
           organisation_id?: string;
+          price_per_lesson_cents?: number | null;
           program_id?: string;
           start_time?: string;
           weekday?: number;
@@ -778,6 +781,109 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "organisations";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      ledger_entries: {
+        Row: {
+          amount_cents: number;
+          cancels_id: string | null;
+          charge_key: string | null;
+          child_id: string | null;
+          class_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          family_id: string;
+          id: string;
+          kind: string;
+          lessons: number | null;
+          method: string | null;
+          organisation_id: string;
+          paid_on: string | null;
+          term_id: string | null;
+          unit_cents: number | null;
+        };
+        Insert: {
+          amount_cents: number;
+          cancels_id?: string | null;
+          charge_key?: string | null;
+          child_id?: string | null;
+          class_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description: string;
+          family_id: string;
+          id?: string;
+          kind: string;
+          lessons?: number | null;
+          method?: string | null;
+          organisation_id: string;
+          paid_on?: string | null;
+          term_id?: string | null;
+          unit_cents?: number | null;
+        };
+        Update: {
+          amount_cents?: number;
+          cancels_id?: string | null;
+          charge_key?: string | null;
+          child_id?: string | null;
+          class_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          family_id?: string;
+          id?: string;
+          kind?: string;
+          lessons?: number | null;
+          method?: string | null;
+          organisation_id?: string;
+          paid_on?: string | null;
+          term_id?: string | null;
+          unit_cents?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_cancels_id_fkey";
+            columns: ["cancels_id"];
+            isOneToOne: true;
+            referencedRelation: "ledger_entries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_term_id_fkey";
+            columns: ["organisation_id", "term_id"];
+            isOneToOne: false;
+            referencedRelation: "terms";
+            referencedColumns: ["organisation_id", "id"];
           },
         ];
       };
@@ -1580,6 +1686,16 @@ export type Database = {
     };
     Functions: {
       accept_invite: { Args: { p_code: string }; Returns: string };
+      add_account_line: {
+        Args: {
+          p_amount_cents: number;
+          p_child?: string;
+          p_family: string;
+          p_kind: string;
+          p_reason: string;
+        };
+        Returns: string;
+      };
       add_child_restriction: {
         Args: { p_child: string; p_details: string; p_kind: string; p_person: string };
         Returns: string;
@@ -1588,6 +1704,7 @@ export type Database = {
       apply_terms_at: { Args: { p_now: string }; Returns: number };
       ask_families: { Args: { p_reply_by: string; p_term: string }; Returns: number };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
+      cancel_ledger_entry: { Args: { p_entry: string; p_reason: string }; Returns: string };
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
       check_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string[] };
@@ -1633,10 +1750,19 @@ export type Database = {
           outcome: string;
         }[];
       };
+      create_term_fees: { Args: { p_term: string }; Returns: number };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
       delete_family: { Args: { p_confirm: string; p_family: string }; Returns: string[] };
       delete_term: { Args: { p_term: string }; Returns: undefined };
       export_family: { Args: { p_family: string }; Returns: Json };
+      family_balances: {
+        Args: { p_org: string };
+        Returns: {
+          balance_cents: number;
+          display_name: string;
+          family_id: string;
+        }[];
+      };
       family_parents: {
         Args: { p_family: string };
         Returns: {
@@ -1763,6 +1889,16 @@ export type Database = {
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
         Returns: undefined;
+      };
+      record_payment: {
+        Args: {
+          p_amount_cents: number;
+          p_family: string;
+          p_method: string;
+          p_note?: string;
+          p_paid_on: string;
+        };
+        Returns: string;
       };
       record_progress: {
         Args: { p_child_id: string; p_skill_id: string; p_status: string };
