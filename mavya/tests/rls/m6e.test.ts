@@ -147,7 +147,12 @@ beforeAll(async () => {
   ruizFamily = fams!.find((f) => f.display_name.includes("Ruiz"))!.id;
   await admin.from("family_members").insert([
     { family_id: leeFamily, user_id: leeUserId, relationship: "parent", is_primary_guardian: true },
-    { family_id: ruizFamily, user_id: ruizUserId, relationship: "parent", is_primary_guardian: true },
+    {
+      family_id: ruizFamily,
+      user_id: ruizUserId,
+      relationship: "parent",
+      is_primary_guardian: true,
+    },
   ]);
   const child = (family: string, first: string) => ({
     organisation_id: orgId,
@@ -235,7 +240,7 @@ describe("terms", () => {
     ] as const) {
       const add = await c.rpc("save_term", {
         p_org: orgId,
-          p_name: "Sneaky",
+        p_name: "Sneaky",
         p_starts_on: addDays(today, 200),
         p_ends_on: addDays(today, 210),
       });
@@ -309,9 +314,9 @@ describe("asking families about next term", () => {
     expect(
       (await owner.rpc("offer_term_move", { p_ask: cy.id, p_class: classes.d })).error,
     ).toBeNull();
-    expect((await lee.rpc("offer_term_move", { p_ask: ben.id, p_class: classes.d })).error?.code).toBe(
-      "42501",
-    );
+    expect(
+      (await lee.rpc("offer_term_move", { p_ask: ben.id, p_class: classes.d })).error?.code,
+    ).toBe("42501");
   });
 
   it("asks families once the reply-by date makes sense, and emails each parent", async () => {
@@ -328,9 +333,7 @@ describe("asking families about next term", () => {
       .select("recipient_user_id, payload")
       .eq("organisation_id", orgId)
       .eq("kind", "reenrolment_ask");
-    expect(queued!.map((q) => q.recipient_user_id).sort()).toEqual(
-      [leeUserId, ruizUserId].sort(),
-    );
+    expect(queued!.map((q) => q.recipient_user_id).sort()).toEqual([leeUserId, ruizUserId].sort());
     // Ids only in the email's payload, never names.
     expect(queued![0]!.payload).toEqual({ term_id: term2Id });
   });
@@ -345,29 +348,29 @@ describe("asking families about next term", () => {
       offered_class_name: "Dolphin 4",
       answer: null,
     });
-    expect((await ruiz.rpc("my_term_asks")).data!.map((a) => a.child_first_name)).toEqual([
-      "Cy",
-    ]);
+    expect((await ruiz.rpc("my_term_asks")).data!.map((a) => a.child_first_name)).toEqual(["Cy"]);
     const { data: seen } = await ruiz.from("reenrolment_asks").select("child_id");
     expect(seen).toEqual([{ child_id: kids.cy }]);
     const other = await signInAs("martinParent");
     expect((await other.client.from("reenrolment_asks").select("id")).data).toEqual([]);
-    expect((await other.client.from("terms").select("id").eq("organisation_id", orgId)).data).toEqual(
-      [],
-    );
+    expect(
+      (await other.client.from("terms").select("id").eq("organisation_id", orgId)).data,
+    ).toEqual([]);
     expect((await other.client.rpc("my_term_asks")).data).toEqual([]);
   });
 
   it("parents answer for their own children only", async () => {
     const cy = await askFor(kids.cy);
-    expect((await lee.rpc("answer_term_ask", { p_ask: cy.id, p_answer: "leave" })).error?.code).toBe(
-      "42501",
-    );
+    expect(
+      (await lee.rpc("answer_term_ask", { p_ask: cy.id, p_answer: "leave" })).error?.code,
+    ).toBe("42501");
     const ben = await askFor(kids.ben);
     const noOffer = await lee.rpc("answer_term_ask", { p_ask: ben.id, p_answer: "move" });
     expect(noOffer.error?.hint).toBe("answer_invalid");
     const ava = await askFor(kids.ava);
-    expect((await lee.rpc("answer_term_ask", { p_ask: ava.id, p_answer: "move" })).error).toBeNull();
+    expect(
+      (await lee.rpc("answer_term_ask", { p_ask: ava.id, p_answer: "move" })).error,
+    ).toBeNull();
     // The owner records Ben's answer, given at the pool.
     expect(
       (await owner.rpc("answer_term_ask", { p_ask: ben.id, p_answer: "leave" })).error,
@@ -378,7 +381,12 @@ describe("asking families about next term", () => {
     const { data, error } = await owner.rpc("term_summary", { p_term: term2Id });
     expect(error).toBeNull();
     const row = (id: string) => data!.find((r) => r.class_id === id)!;
-    expect(row(classes.a)).toMatchObject({ moving_out: 1, leaving: 1, waiting: 0, free_next_term: 3 });
+    expect(row(classes.a)).toMatchObject({
+      moving_out: 1,
+      leaving: 1,
+      waiting: 0,
+      free_next_term: 3,
+    });
     expect(row(classes.b)).toMatchObject({ waiting: 1, free_next_term: 1 });
     expect(row(classes.c)).toMatchObject({ moving_in: 1, free_next_term: 0 });
     expect((await lee.rpc("term_summary", { p_term: term2Id })).error?.code).toBe("42501");
@@ -408,7 +416,9 @@ describe("asking families about next term", () => {
 describe("the new term's first day", () => {
   it("applies the answers; a move that no longer fits keeps the old place", async () => {
     const cy = await askFor(kids.cy);
-    expect((await ruiz.rpc("answer_term_ask", { p_ask: cy.id, p_answer: "move" })).error).toBeNull();
+    expect(
+      (await ruiz.rpc("answer_term_ask", { p_ask: cy.id, p_answer: "move" })).error,
+    ).toBeNull();
     // Since, the owner filled Cy's new class by hand.
     const { data: dee } = await admin
       .from("children")

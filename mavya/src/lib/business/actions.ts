@@ -15,6 +15,7 @@ import * as privacy from "@/lib/domain/privacy";
 import * as progress from "@/lib/domain/progress";
 import * as safety from "@/lib/domain/safety";
 import * as staff from "@/lib/domain/staff";
+import * as terms from "@/lib/domain/terms";
 import * as timetable from "@/lib/domain/timetable";
 import {
   attempt,
@@ -660,4 +661,147 @@ export async function deleteFamily(
   }
   revalidatePath("/business/families");
   redirect("/business/families?deleted=1");
+}
+
+// ------------------------------------------------------------------ terms
+
+// Terms and re-enrolment (M6e). The database checks dates, overlaps and
+// places, and audits every change.
+
+const day = (label: string) =>
+  z.string({ error: `Choose the ${label}.` }).regex(/^\d{4}-\d{2}-\d{2}$/, `Choose the ${label}.`);
+
+const termSchema = z
+  .object({
+    name: requiredText(60, "Name"),
+    startsOn: day("first day"),
+    endsOn: day("last day"),
+  })
+  .refine((t) => t.endsOn >= t.startsOn, {
+    path: ["endsOn"],
+    message: "The last day can't be before the first.",
+  });
+
+const termPath = (termId: string) => `/business/settings/terms/${termId}`;
+
+export async function saveTerm(
+  termId: string | null,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const parsed = termSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  let saved = termId;
+  const failed = await attempt(async () => {
+    saved = await terms.saveTerm(db, organisationId, parsed.data, termId ?? undefined);
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  if (!termId) redirect(termPath(saved!));
+  return { ok: "Term saved." };
+}
+
+export async function deleteTerm(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  const failed = await attempt(() => terms.deleteTerm(db, termId));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  redirect("/business/settings/terms");
+}
+
+export async function setLessonsInTermOnly(on: boolean): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const failed = await attempt(() => terms.setLessonsInTermOnly(db, organisationId, on === true));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return {
+    ok: on ? "Lessons now run only during your terms." : "Lessons now run all year.",
+  };
+}
+
+export async function prepareTermAsks(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  const failed = await attempt(async () => {
+    await terms.prepareAsks(db, termId);
+  });
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return { ok: "Ready." };
+}
+
+export async function askFamilies(
+  termId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  const parsed = z
+    .object({ termId: id, replyBy: day("reply-by date") })
+    .safeParse({ ...formValues(formData), termId });
+  if (!parsed.success) return fieldErrors(parsed.error);
+  let emailed = 0;
+  const failed = await attempt(async () => {
+    emailed = await terms.askFamilies(db, termId, parsed.data.replyBy);
+  });
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return {
+    ok:
+      emailed === 0
+        ? "Reply-by date saved. Everyone has already been asked."
+        : `Asked ${emailed} ${emailed === 1 ? "family" : "families"}.`,
+  };
+}
+
+export async function remindTermFamilies(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  let reminded = 0;
+  const failed = await attempt(async () => {
+    reminded = await terms.remindFamilies(db, termId);
+  });
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return {
+    ok:
+      reminded === 0
+        ? "Everyone has answered."
+        : `Reminded ${reminded} ${reminded === 1 ? "family" : "families"}.`,
+  };
+}
+
+export async function offerTermMove(
+  termId: string,
+  askId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  const classId = String(formData.get("classId") ?? "");
+  if (!id.safeParse(askId).success || (classId !== "" && !id.safeParse(classId).success))
+    return { error: "That didn't work. Try again." };
+  const failed = await attempt(() => terms.offerMove(db, askId, classId || null));
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return { ok: classId ? "Move offered." : "Offer taken back." };
+}
+
+export async function recordTermAnswer(
+  termId: string,
+  askId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  const parsed = z
+    .object({ askId: id, answer: z.enum(["stay", "move", "leave"], "Choose an answer.") })
+    .safeParse({ askId, answer: formData.get("answer") });
+  if (!parsed.success) return { error: "Choose an answer." };
+  const failed = await attempt(() => terms.answerAsk(db, askId, parsed.data.answer));
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return { ok: "Answer saved." };
 }
