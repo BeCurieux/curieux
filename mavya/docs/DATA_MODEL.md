@@ -132,6 +132,8 @@ Represents the recurring class template.
 - start_time
 - duration_minutes
 - capacity
+- price_per_lesson_cents nullable — what one lesson costs (M7a); none means
+  the class isn't charged
 - active
 - import_batch_id nullable — the import that added it (M6a)
 
@@ -378,6 +380,31 @@ Written only by `prepare_term_asks`, `ask_families`, `offer_term_move`,
 `answer_term_ask` and the first-day job (`apply_terms`). Owners read their
 school's; parents read their own children's (with class details through
 `my_term_asks`).
+
+### LedgerEntry
+One line on a family's account (M7a). Lines are added, never changed; a
+mistake is cancelled by an opposite line. The balance is their sum.
+
+- id
+- organisation_id
+- family_id
+- child_id nullable
+- kind: term_fee | charge | payment | credit | refund | cancellation
+- amount_cents — positive adds to what the family owes, negative reduces it
+- description — shown on the family's statement
+- term_id, class_id, lessons, unit_cents nullable — how a term fee was
+  worked out (price per lesson × lessons)
+- method nullable: bank_transfer | card | cash | other; paid_on nullable —
+  for payments
+- cancels_id nullable, unique — the line a cancellation cancels
+- charge_key nullable — unique per school; stops a term fee being added
+  twice
+- created_by nullable, created_at
+
+Added only by `create_term_fees`, `record_payment`, `add_account_line` and
+`cancel_ledger_entry` (owners), and later by card payments (M7b). No one can
+change a line, not even the server's key. Owners read their school's lines
+(and `family_balances`); parents read their own family's.
 
 ### ImportBatch
 One run of "Move your school in" (M6a).

@@ -39,6 +39,8 @@ export type ClassSummary = {
   time: string;
   durationMinutes: number;
   capacity: number;
+  // M7a: what one lesson costs, in cents; none means not charged.
+  pricePerLessonCents: number | null;
   active: boolean;
   enrolled: number;
   nextLesson: string | null;
@@ -144,7 +146,7 @@ export async function addLevel(db: Db, organisationId: string, programId: string
 // ------------------------------------------------------------------ classes
 
 const CLASS_COLUMNS =
-  "id, organisation_id, name, weekday, start_time, duration_minutes, capacity, active, instructor_id, level_id, program_id, location_id, levels!classes_organisation_id_level_id_fkey (name), programs (name), locations (name, timezone)";
+  "id, organisation_id, name, weekday, start_time, duration_minutes, capacity, price_per_lesson_cents, active, instructor_id, level_id, program_id, location_id, levels!classes_organisation_id_level_id_fkey (name), programs (name), locations (name, timezone)";
 
 type ClassRow = {
   id: string;
@@ -154,6 +156,7 @@ type ClassRow = {
   start_time: string;
   duration_minutes: number;
   capacity: number;
+  price_per_lesson_cents: number | null;
   active: boolean;
   instructor_id: string | null;
   level_id: string;
@@ -184,6 +187,7 @@ function toSummary(row: ClassRow, enrolled: number, nextLesson: string | null): 
     time: formatTime(row.start_time),
     durationMinutes: row.duration_minutes,
     capacity: row.capacity,
+    pricePerLessonCents: row.price_per_lesson_cents,
     active: row.active,
     enrolled,
     nextLesson,
@@ -265,6 +269,8 @@ export type ClassInput = {
   startTime: string;
   durationMinutes: number;
   capacity: number;
+  // Left out (undefined) keeps the price as it is.
+  pricePerLessonCents?: number | null;
 };
 
 const classRow = (input: ClassInput) => ({
@@ -277,6 +283,9 @@ const classRow = (input: ClassInput) => ({
   start_time: input.startTime,
   duration_minutes: input.durationMinutes,
   capacity: input.capacity,
+  ...(input.pricePerLessonCents !== undefined
+    ? { price_per_lesson_cents: input.pricePerLessonCents }
+    : {}),
 });
 
 // The database schedules the class's lessons as soon as it exists.

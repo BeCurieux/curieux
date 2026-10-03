@@ -2,6 +2,7 @@ import {
   ArrowRight,
   CalendarRange,
   CalendarX,
+  Wallet,
   History,
   Layers,
   MapPin,
@@ -39,6 +40,12 @@ const SECTIONS = [
     icon: CalendarRange,
     title: "Terms",
     body: "Your term dates, and asking families who's staying next term.",
+  },
+  {
+    href: "/business/settings/accounts",
+    icon: Wallet,
+    title: "Accounts",
+    body: "Who owes what, and every family's statement.",
   },
   {
     href: "/business/settings/cancel",

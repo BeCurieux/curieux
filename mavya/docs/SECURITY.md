@@ -211,6 +211,19 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - Every term, question, offer, answer and outcome is audited, and the
   term-only switch too.
 
+### M7a — Family accounts (done)
+
+- Account lines are read-only to people and can't be changed by anyone: a
+  database trigger refuses every update, so a mistake can only be
+  cancelled by an opposite line, and both stay visible.
+- Only the school's owners add lines, through functions that check the
+  family is theirs; parents see only their own family's statement;
+  instructors and other schools see none.
+- Every line is audited; deleting a family removes its account and wipes
+  it from earlier audit entries, as before.
+- No money moves through Ovyko yet; card details will only ever be held by
+  the payment provider (M7b).
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project

@@ -63,7 +63,7 @@ export function TextField({
   defaultValue?: string | number | null;
   type?: string;
   autoComplete?: string;
-  inputMode?: "text" | "email" | "tel" | "numeric";
+  inputMode?: "text" | "email" | "tel" | "numeric" | "decimal";
   min?: number;
   max?: number;
   step?: number;

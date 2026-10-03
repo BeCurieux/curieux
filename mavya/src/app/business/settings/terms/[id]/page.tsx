@@ -10,6 +10,7 @@ import {
   RemindButton,
   TermForm,
 } from "@/components/business/term-forms";
+import { CreateTermFeesButton } from "@/components/business/account-forms";
 import { BackLink } from "@/components/demo/back-link";
 import { requireOwner } from "@/lib/business/owner";
 import { listClasses, type ClassSummary } from "@/lib/domain/timetable";
@@ -154,6 +155,25 @@ export default async function TermPage({ params }: { params: Promise<{ id: strin
               </li>
             ))}
           </ul>
+        </section>
+      ) : null}
+
+      {stage !== "finished" ? (
+        <section
+          aria-labelledby="term-fees"
+          className="flex max-w-2xl flex-col gap-3 rounded-lg border border-line bg-surface p-5"
+        >
+          <h2 id="term-fees" className="font-display text-2xl font-semibold">
+            Term fees
+          </h2>
+          <p className="text-muted">
+            Adds each child&apos;s fee for {term.name} to their family&apos;s account: the
+            class&apos;s price per lesson × its lessons in the term. Children leaving aren&apos;t
+            charged; children moving up are charged for their new class
+            {stage === "under_way" ? "; this term is under way, so only lessons left count" : ""}.
+            Safe to run again: it only adds fees that are missing.
+          </p>
+          <CreateTermFeesButton termId={term.id} />
         </section>
       ) : null}
 

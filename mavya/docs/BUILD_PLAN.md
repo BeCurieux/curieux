@@ -157,6 +157,8 @@ Not scheduled. Revisit with the pilot school's feedback:
 
 ## M7 — Payments
 
+In slices: `docs/M7_PAYMENTS.md`. M7a (family accounts) is done.
+
 The first thing to build once the pilot shows the operational loop works.
 Without payments Ovyko can win new schools and schools on spreadsheets, but
 not one already collecting fees through SimplySwim or iClassPro: switching

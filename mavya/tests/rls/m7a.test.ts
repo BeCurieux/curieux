@@ -198,7 +198,10 @@ afterAll(async () => {
 });
 
 const balance = async (family: string) => {
-  const { data } = await admin.from("ledger_entries").select("amount_cents").eq("family_id", family);
+  const { data } = await admin
+    .from("ledger_entries")
+    .select("amount_cents")
+    .eq("family_id", family);
   return data!.reduce((sum, l) => sum + l.amount_cents, 0);
 };
 
@@ -380,7 +383,10 @@ describe("payments, credits and cancelling", () => {
     });
     expect(insert.error?.code).toBe("42501");
     // Not even the server's own key can change a line.
-    const forced = await admin.from("ledger_entries").update({ amount_cents: 1 }).eq("id", line!.id);
+    const forced = await admin
+      .from("ledger_entries")
+      .update({ amount_cents: 1 })
+      .eq("id", line!.id);
     expect(forced.error).not.toBeNull();
   });
 
@@ -416,7 +422,10 @@ describe("who sees an account", () => {
   it("instructors and other schools see none", async () => {
     for (const who of ["aquaInstructor", "peakOwner", "martinParent"] as const) {
       const s = await signInAs(who);
-      const { data } = await s.client.from("ledger_entries").select("id").eq("organisation_id", orgId);
+      const { data } = await s.client
+        .from("ledger_entries")
+        .select("id")
+        .eq("organisation_id", orgId);
       expect(data, who).toEqual([]);
     }
   });

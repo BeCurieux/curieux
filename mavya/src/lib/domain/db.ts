@@ -50,6 +50,8 @@ export function explain(error: PostgrestError): DomainError {
     case "reply_by_invalid":
     case "move_invalid":
     case "answer_invalid":
+    case "ledger_invalid":
+    case "already_cancelled":
       return new DomainError(error.message);
   }
   switch (error.code) {

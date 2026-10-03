@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
+import * as accounts from "@/lib/domain/accounts";
 import * as families from "@/lib/domain/families";
 import * as fill from "@/lib/domain/fill";
 import * as imports from "@/lib/domain/imports";
@@ -34,6 +35,17 @@ import { requireOwner } from "./owner";
 // duplicates) have the final say. Every change is audited by the database.
 
 const id = z.uuid("Choose an option.");
+
+// "25", "25.50" or "$1,025" → whole cents.
+const dollars = (label: string) =>
+  z
+    .string()
+    .transform((v) => v.replace(/[$,\s]/g, ""))
+    .refine(
+      (v) => /^\d{1,7}(\.\d{1,2})?$/.test(v),
+      `Enter ${label.toLowerCase()} in dollars, like 25.50.`,
+    )
+    .transform((v) => Math.round(Number(v) * 100));
 
 function validTimezone(tz: string) {
   try {
@@ -168,6 +180,7 @@ const classSchema = z.object({
     .int()
     .min(1, "At least 1 place.")
     .max(200, "At most 200 places."),
+  price: dollars("Price per lesson").optional(),
 });
 
 export async function saveClass(
@@ -184,7 +197,8 @@ export async function saveClass(
   const program = programs.find((p) => p.levels.some((l) => l.id === parsed.data.levelId));
   if (!program) return { error: "Choose a level.", fieldErrors: { levelId: "Choose a level." } };
 
-  const input = { ...parsed.data, programId: program.id };
+  const { price, ...rest } = parsed.data;
+  const input = { ...rest, programId: program.id, pricePerLessonCents: price ?? null };
   let savedId = classId;
   const failed = await attempt(async () => {
     if (classId) await timetable.updateClass(db, classId, input);
@@ -804,4 +818,101 @@ export async function recordTermAnswer(
   if (failed) return failed;
   revalidatePath(termPath(termId));
   return { ok: "Answer saved." };
+}
+
+// ------------------------------------------------------------------ family accounts
+
+// Family accounts (M7a). Lines are added, never changed; the database
+// checks the family is the owner's and audits each line.
+
+const familyPath = (familyId: string) => `/business/families/${familyId}`;
+
+export async function createTermFees(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  let added = 0;
+  const failed = await attempt(async () => {
+    added = await accounts.createTermFees(db, termId);
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return {
+    ok:
+      added === 0
+        ? "Everyone already has their fees for this term."
+        : `Added ${added} term ${added === 1 ? "fee" : "fees"}.`,
+  };
+}
+
+const paymentSchema = z.object({
+  amount: dollars("Amount"),
+  method: z.enum(["bank_transfer", "card", "cash", "other"], "Choose how it was paid."),
+  paidOn: day("date it was paid"),
+  note: optionalText(200, "Note"),
+});
+
+export async function recordPayment(
+  familyId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  const parsed = paymentSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() =>
+    accounts.recordPayment(db, familyId, {
+      amountCents: parsed.data.amount,
+      method: parsed.data.method,
+      paidOn: parsed.data.paidOn,
+      note: parsed.data.note,
+    }),
+  );
+  if (failed) return failed;
+  revalidatePath(familyPath(familyId));
+  return { ok: `Payment of ${accounts.formatMoney(parsed.data.amount)} recorded.` };
+}
+
+const lineSchema = z.object({
+  kind: z.enum(["credit", "charge"], "Choose credit or charge."),
+  amount: dollars("Amount"),
+  reason: requiredText(200, "Reason"),
+});
+
+export async function addAccountLine(
+  familyId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  const parsed = lineSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() =>
+    accounts.addLine(db, familyId, {
+      kind: parsed.data.kind,
+      amountCents: parsed.data.amount,
+      reason: parsed.data.reason,
+    }),
+  );
+  if (failed) return failed;
+  revalidatePath(familyPath(familyId));
+  return { ok: parsed.data.kind === "credit" ? "Credit added." : "Charge added." };
+}
+
+export async function cancelAccountLine(
+  familyId: string,
+  lineId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(familyId).success || !id.safeParse(lineId).success)
+    return { error: "That didn't work. Try again." };
+  const parsed = z.object({ reason: requiredText(180, "Reason") }).safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => accounts.cancelLine(db, lineId, parsed.data.reason));
+  if (failed) return failed;
+  revalidatePath(familyPath(familyId));
+  return { ok: "Line cancelled." };
 }

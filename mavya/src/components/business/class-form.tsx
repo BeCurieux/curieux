@@ -85,6 +85,16 @@ export function ClassForm({
           max={200}
           defaultValue={klass?.capacity ?? 10}
         />
+        <TextField
+          name="price"
+          label="Price per lesson ($)"
+          optional
+          inputMode="decimal"
+          hint="Term fees are this × the lessons in the term."
+          defaultValue={
+            klass?.pricePerLessonCents != null ? (klass.pricePerLessonCents / 100).toFixed(2) : ""
+          }
+        />
       </div>
       {klass ? (
         <p className="text-sm text-muted">
