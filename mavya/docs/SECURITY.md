@@ -224,6 +224,24 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - No money moves through Ovyko yet; card details will only ever be held by
   the payment provider (M7b).
 
+### M7b — Card and direct-debit payments (done)
+
+- Card and bank details only ever go to Stripe, on Stripe's own page;
+  Ovyko never sees or stores them.
+- Each school is its own seller on its own Stripe account; families' money
+  never passes through Ovyko's account.
+- Stripe's messages are read only with a valid signature
+  (`STRIPE_WEBHOOK_SECRET`). Even then a payment counts only if it comes
+  from that school's own Stripe account, for the payment page Ovyko opened,
+  for the amount Ovyko asked; repeats change nothing. A school's own Stripe
+  account can't mark another school's family as paid.
+- Only the server records a school's Stripe account and settles payments
+  (functions only the secret key may call); parents can start paying only
+  their own family's account; instructors see nothing.
+- Online payment lines can't be cancelled in Ovyko, only refunded in
+  Stripe, so an account can't claim money wasn't paid.
+- Locally and in CI the app only ever talks to Stripe's test double.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project

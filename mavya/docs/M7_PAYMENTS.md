@@ -10,7 +10,7 @@ They ship in slices, safest first:
 | Slice | What |
 |---|---|
 | **M7a** | **Family accounts**: what each family owes for the term, worked out from the timetable; payments the school took elsewhere; credits; a clear statement for parents. No money moves through Ovyko yet. |
-| M7b | Stripe Connect: schools approved to take payments; parents pay a term upfront by card or direct debit; receipts. |
+| **M7b** | **Stripe Connect**: schools approved to take payments; parents pay a term upfront by card or direct debit; receipts. |
 | M7c | Failed payments chased automatically; instalments. |
 | M7d | Government activity vouchers (NSW Active and Creative Kids, Queensland FairPlay); Xero sync. |
 
@@ -18,8 +18,10 @@ Decisions from the owner of Ovyko (3 October 2026), for all of M7:
 
 - **Pricing:** per term, by lessons: price per lesson × lessons in the
   term. Joining part-way through costs less automatically.
-- **Card and bank fees:** each school chooses to absorb them or pass them
-  on as a surcharge no higher than the real cost (from M7b).
+- **Card and bank fees:** ~~each school chooses to absorb them or pass them
+  on as a surcharge~~. Changed by law: from 1 October 2026 Australian
+  businesses may not surcharge debit, credit or prepaid cards (Reserve
+  Bank, March 2026). Schools absorb the fee, as with any card terminal.
 - **Ovyko's income:** a small, clearly shown percentage on top of Stripe's
   fee (from M7b).
 - **First step:** family accounts, before any card payments.
@@ -97,3 +99,78 @@ Decisions from the owner of Ovyko (3 October 2026), for all of M7:
 - A parent sees their own family's balance and lines, and no one else's;
   instructors and other schools see none.
 - Lines can't be changed or deleted by anyone; every line is audited.
+
+## M7b — Card and direct-debit payments
+
+Built and tested against Stripe's own test double (stripe-mock) before the
+owner's Stripe account existed; switched on by adding the Stripe keys.
+
+### Decisions
+
+1. **Each school connects its own Stripe account.** Stripe's own sign-up
+   checks who the school is. The school is the seller: its name is on the
+   bank statement, payouts go to its bank account, it pays Stripe's fee,
+   and it handles refunds and disputes in its Stripe dashboard. Families'
+   money never passes through Ovyko. (Stripe Connect, direct charges, the
+   school with a full Stripe dashboard.)
+2. **Parents pay what's owing from Fees.** "Pay $230" opens Stripe's own
+   secure payment page: card, Apple Pay, Google Pay, or direct debit from
+   a bank account (BECS), whichever the school has turned on. Ovyko never
+   sees card or bank numbers. A direct debit already on its way is taken
+   off the amount to pay.
+3. **The account follows the money.** A card payment is added to the
+   family's account as soon as Stripe confirms it. A direct debit shows
+   "on its way" (up to three business days) and is added when it clears;
+   if it fails the parent sees that it didn't go through (chasing failed
+   payments is M7c).
+4. **A receipt by email** to the parent who paid. It is called a receipt,
+   not a tax invoice, until an accountant confirms whether lessons carry
+   GST.
+5. **No surcharges** (the law, above). Stripe's prices in Australia from
+   1 October 2026: 1.65% + 30c for Australian cards online; direct debit
+   1% + 30c, at most $3.50.
+6. **Ovyko's fee: 0.5% of each online payment** (the business plan's
+   figure; the owner of Ovyko can change it). Stripe takes it
+   automatically; owners see it on their Payments page and in Stripe.
+   Money recorded by hand carries no fee.
+7. **Refunds are made in Stripe**, and are added to the family's account
+   automatically, including part refunds. An online payment can't be
+   cancelled in Ovyko: that would say the family owes money it paid.
+8. **Only real payments count.** Messages from Stripe are checked by
+   their signature, and a payment counts only if it comes from the
+   school's own Stripe account, for the payment Ovyko started, for the
+   right amount. Running the same message twice changes nothing.
+9. **Need to know.** Only owners connect Stripe and see payment details;
+   parents see their own family's payments; instructors see none.
+   Everything is audited.
+
+### Data model
+
+- New `PaymentAccount`: a school's Stripe account and whether it can take
+  payments yet.
+- New `OnlinePayment`: a payment a parent started: family, amount,
+  Ovyko's fee, status (started, on its way, paid, failed, expired),
+  Stripe's references, the method, how much has been refunded, and the
+  account line it became.
+- `LedgerEntry`: payment method "direct debit"; the online payment a line
+  came from.
+
+### Not in M7b
+
+- Instalments, saved cards and automatic chasing (M7c).
+- Paying part of the balance, or paying ahead.
+- Vouchers and Xero (M7d).
+
+### Acceptance criteria
+
+- An owner sets up payments through Stripe's sign-up and sees when the
+  school can take payments, and Ovyko's fee.
+- A parent pays what's owing; once Stripe confirms, the balance drops,
+  the statement shows the payment and a receipt is emailed.
+- A direct debit shows as on its way, then paid or failed.
+- A refund in Stripe adds a refund line, once, however many times Stripe
+  says so.
+- A message that isn't signed by Stripe, comes from another school's
+  Stripe account, or names the wrong amount changes nothing.
+- Parents can't pay another family's account; instructors and other
+  schools see no payments.

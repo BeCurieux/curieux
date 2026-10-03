@@ -305,7 +305,7 @@ One email to send (M6c): the outbox.
 
 - id
 - kind: spot_offered | lesson_cancelled | skill_achieved | lesson_reminder |
-  reenrolment_ask | reenrolment_reminder (M6e)
+  reenrolment_ask | reenrolment_reminder (M6e) | payment_receipt (M7b)
 - recipient_user_id
 - organisation_id nullable
 - notification_id nullable — the notification it tells the person about
@@ -394,17 +394,54 @@ mistake is cancelled by an opposite line. The balance is their sum.
 - description — shown on the family's statement
 - term_id, class_id, lessons, unit_cents nullable — how a term fee was
   worked out (price per lesson × lessons)
-- method nullable: bank_transfer | card | cash | other; paid_on nullable —
-  for payments
+- method nullable: bank_transfer | card | cash | other | direct_debit;
+  paid_on nullable — for payments
+- online_payment_id nullable — the online payment (M7b) a payment or refund
+  line came from; such a line can't be cancelled, only refunded in Stripe
 - cancels_id nullable, unique — the line a cancellation cancels
 - charge_key nullable — unique per school; stops a term fee being added
   twice
 - created_by nullable, created_at
 
 Added only by `create_term_fees`, `record_payment`, `add_account_line` and
-`cancel_ledger_entry` (owners), and later by card payments (M7b). No one can
+`cancel_ledger_entry` (owners), and by Stripe's confirmed payments and
+refunds (M7b, `settle_online_payment`, `record_online_refund`). No one can
 change a line, not even the server's key. Owners read their school's lines
 (and `family_balances`); parents read their own family's.
+
+### PaymentAccount
+A school's own Stripe account (M7b). One per school.
+
+- organisation_id — primary key
+- stripe_account_id, unique
+- charges_enabled, payouts_enabled, details_submitted — Stripe's say
+- created_at, updated_at
+
+Written only by the server (`save_payment_account` when an owner sets up
+payments, `update_payment_account` from Stripe's messages). Owners read
+their own; parents learn only whether their school takes payments
+(`can_pay_online`).
+
+### OnlinePayment
+A payment a parent started on Stripe's page (M7b).
+
+- id
+- organisation_id
+- family_id
+- amount_cents — what was owing, less direct debits still clearing
+- platform_fee_cents — Ovyko's 0.5%
+- status: started | processing | paid | failed | expired
+- stripe_account_id — the school's account when it started
+- checkout_session_id, payment_intent_id nullable, unique — Stripe's
+  references
+- method nullable: card | direct_debit
+- refunded_cents — Stripe's running total refunded
+- started_by nullable — the parent; gets the receipt
+- paid_at nullable, created_at, updated_at
+
+Started by a parent (`start_online_payment`, for their own family only);
+everything after that only by the server from Stripe's checked messages.
+Owners and the family's parents read it.
 
 ### ImportBatch
 One run of "Move your school in" (M6a).

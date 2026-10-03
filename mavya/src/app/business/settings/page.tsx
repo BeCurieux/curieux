@@ -2,6 +2,7 @@ import {
   ArrowRight,
   CalendarRange,
   CalendarX,
+  CreditCard,
   Wallet,
   History,
   Layers,
@@ -46,6 +47,12 @@ const SECTIONS = [
     icon: Wallet,
     title: "Accounts",
     body: "Who owes what, and every family's statement.",
+  },
+  {
+    href: "/business/settings/payments",
+    icon: CreditCard,
+    title: "Payments",
+    body: "Let families pay by card or direct debit.",
   },
   {
     href: "/business/settings/cancel",

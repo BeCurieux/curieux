@@ -799,6 +799,7 @@ export type Database = {
           kind: string;
           lessons: number | null;
           method: string | null;
+          online_payment_id: string | null;
           organisation_id: string;
           paid_on: string | null;
           term_id: string | null;
@@ -818,6 +819,7 @@ export type Database = {
           kind: string;
           lessons?: number | null;
           method?: string | null;
+          online_payment_id?: string | null;
           organisation_id: string;
           paid_on?: string | null;
           term_id?: string | null;
@@ -837,6 +839,7 @@ export type Database = {
           kind?: string;
           lessons?: number | null;
           method?: string | null;
+          online_payment_id?: string | null;
           organisation_id?: string;
           paid_on?: string | null;
           term_id?: string | null;
@@ -876,6 +879,13 @@ export type Database = {
             columns: ["organisation_id", "family_id"];
             isOneToOne: false;
             referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_online_payment_id_fkey";
+            columns: ["organisation_id", "online_payment_id"];
+            isOneToOne: false;
+            referencedRelation: "online_payments";
             referencedColumns: ["organisation_id", "id"];
           },
           {
@@ -1140,6 +1150,75 @@ export type Database = {
           },
         ];
       };
+      online_payments: {
+        Row: {
+          amount_cents: number;
+          checkout_session_id: string | null;
+          created_at: string;
+          family_id: string;
+          id: string;
+          method: string | null;
+          organisation_id: string;
+          paid_at: string | null;
+          payment_intent_id: string | null;
+          platform_fee_cents: number;
+          refunded_cents: number;
+          started_by: string | null;
+          status: string;
+          stripe_account_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_cents: number;
+          checkout_session_id?: string | null;
+          created_at?: string;
+          family_id: string;
+          id?: string;
+          method?: string | null;
+          organisation_id: string;
+          paid_at?: string | null;
+          payment_intent_id?: string | null;
+          platform_fee_cents: number;
+          refunded_cents?: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_account_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_cents?: number;
+          checkout_session_id?: string | null;
+          created_at?: string;
+          family_id?: string;
+          id?: string;
+          method?: string | null;
+          organisation_id?: string;
+          paid_at?: string | null;
+          payment_intent_id?: string | null;
+          platform_fee_cents?: number;
+          refunded_cents?: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_account_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "online_payments_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "online_payments_started_by_fkey";
+            columns: ["started_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organisations: {
         Row: {
           activity_type: string;
@@ -1175,6 +1254,44 @@ export type Database = {
           timezone?: string;
         };
         Relationships: [];
+      };
+      payment_accounts: {
+        Row: {
+          charges_enabled: boolean;
+          created_at: string;
+          details_submitted: boolean;
+          organisation_id: string;
+          payouts_enabled: boolean;
+          stripe_account_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          charges_enabled?: boolean;
+          created_at?: string;
+          details_submitted?: boolean;
+          organisation_id: string;
+          payouts_enabled?: boolean;
+          stripe_account_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          charges_enabled?: boolean;
+          created_at?: string;
+          details_submitted?: boolean;
+          organisation_id?: string;
+          payouts_enabled?: boolean;
+          stripe_account_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_accounts_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: true;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       policy_sets: {
         Row: {
@@ -1703,7 +1820,12 @@ export type Database = {
       answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
       apply_terms_at: { Args: { p_now: string }; Returns: number };
       ask_families: { Args: { p_reply_by: string; p_term: string }; Returns: number };
+      attach_checkout_session: {
+        Args: { p_payment: string; p_session: string };
+        Returns: undefined;
+      };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
+      can_pay_online: { Args: { p_org: string }; Returns: boolean };
       cancel_ledger_entry: { Args: { p_entry: string; p_reason: string }; Returns: string };
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
@@ -1890,6 +2012,10 @@ export type Database = {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
         Returns: undefined;
       };
+      record_online_refund: {
+        Args: { p_account: string; p_payment_intent: string; p_refunded_cents: number };
+        Returns: number;
+      };
       record_payment: {
         Args: {
           p_amount_cents: number;
@@ -1935,6 +2061,16 @@ export type Database = {
         Returns: undefined;
       };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
+      save_payment_account: {
+        Args: {
+          p_account: string;
+          p_charges: boolean;
+          p_details: boolean;
+          p_org: string;
+          p_payouts: boolean;
+        };
+        Returns: string;
+      };
       save_term: {
         Args: {
           p_ends_on: string;
@@ -1947,8 +2083,30 @@ export type Database = {
       };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      settle_online_payment: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_method?: string;
+          p_payment: string;
+          p_payment_intent?: string;
+          p_session: string;
+          p_status: string;
+        };
+        Returns: string;
+      };
       setup_progress: { Args: { p_org: string }; Returns: Json };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      start_online_payment: {
+        Args: { p_family: string };
+        Returns: {
+          amount_cents: number;
+          payment_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+        }[];
+      };
       term_summary: {
         Args: { p_term: string };
         Returns: {
@@ -1963,6 +2121,10 @@ export type Database = {
         }[];
       };
       undo_import: { Args: { p_batch: string }; Returns: undefined };
+      update_payment_account: {
+        Args: { p_account: string; p_charges: boolean; p_details: boolean; p_payouts: boolean };
+        Returns: boolean;
+      };
       vacancy_candidates: {
         Args: { p_occurrence: string };
         Returns: {

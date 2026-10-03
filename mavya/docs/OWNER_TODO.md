@@ -10,6 +10,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   1. `supabase/migrations/20261007000024_family_privacy.sql`
   2. `supabase/migrations/20261008000025_terms.sql`
   3. `supabase/migrations/20261009000026_family_accounts.sql`
+  4. `supabase/migrations/20261010000027_online_payments.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 ## Business and legal
@@ -37,15 +38,18 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 
 ## Stripe (card and direct-debit payments, M7b)
 
-Part A, test mode (free, about 15 minutes; needed before Claude builds M7b):
+Card payments are built and tested against a stand-in for Stripe. Part A
+lets Claude try them against real Stripe in test mode.
+
+Part A, test mode (free, about 15 minutes):
 
 - [ ] Create a Stripe account at stripe.com, country Australia, with the
       business email. Turn on two-step sign-in.
 - [ ] Stay in **Test mode**. Under Developers → API keys, find the test keys.
 - [ ] Add them to this cloud environment's settings (environment menu in
       the session title bar → Edit), **not** to a chat:
-      `STRIPE_SECRET_KEY` (starts `sk_test_`) and
-      `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (starts `pk_test_`).
+      `STRIPE_SECRET_KEY` (starts `sk_test_`). The publishable key isn't
+      needed: parents pay on Stripe's own page.
 
 Part B, going live (before the pilot school takes real payments):
 
@@ -57,8 +61,17 @@ Part B, going live (before the pilot school takes real payments):
       Stripe charges fees to each school and each school covers its own
       losses; Ovyko logo and colour. Screenshot anything unclear for Claude.
 - [ ] Payment methods: cards, Apple Pay, Google Pay, BECS Direct Debit.
-- [ ] Live keys go only into Vercel's environment variables. Claude will
-      give the webhook address to add once the domain is live.
+- [ ] Live keys go only into Vercel's environment variables
+      (`STRIPE_SECRET_KEY`). Then in Stripe, Developers → Webhooks → Add
+      endpoint: "Events on connected accounts", address
+      `https://<the app's domain>/api/stripe/webhook`, events
+      `account.updated`, `checkout.session.completed`,
+      `checkout.session.async_payment_succeeded`,
+      `checkout.session.async_payment_failed`, `checkout.session.expired`,
+      `charge.refunded`. Put its signing secret (starts `whsec_`) in Vercel
+      as `STRIPE_WEBHOOK_SECRET`.
+- [ ] Confirm Ovyko's fee: 0.5% of each online payment (from the business
+      plan). Tell Claude if it should be different.
 
 ## Product decisions waiting
 

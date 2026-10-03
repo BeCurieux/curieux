@@ -21,6 +21,11 @@ MAILPIT_URL=$(field MAILPIT_URL)
 EMAIL_FROM="Ovyko <hello@ovyko.test>"
 APP_URL=http://localhost:3000
 CRON_SECRET=local-only-cron-secret-0000000000000000
+# Card payments go to Stripe's test double (docker run -p 12111:12111
+# stripe/stripe-mock), never to Stripe.
+STRIPE_SECRET_KEY=sk_test_localonly
+STRIPE_WEBHOOK_SECRET=whsec_local_only
+STRIPE_API_URL=http://localhost:12111
 ENV
 
 echo "Wrote .env.local for $(field API_URL)"

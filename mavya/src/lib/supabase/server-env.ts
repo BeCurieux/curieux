@@ -12,6 +12,9 @@ export function serverEnv(): ServerEnv {
     MAILPIT_URL: process.env.MAILPIT_URL,
     APP_URL: process.env.APP_URL,
     CRON_SECRET: process.env.CRON_SECRET,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    STRIPE_API_URL: process.env.STRIPE_API_URL,
   });
   return cached;
 }

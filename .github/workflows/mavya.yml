@@ -57,6 +57,10 @@ jobs:
       - name: Start Supabase
         run: npx supabase start
 
+      # Card payments talk to Stripe's test double, never to Stripe.
+      - name: Start Stripe's test double
+        run: docker run -d --rm -p 12111:12111 stripe/stripe-mock:latest
+
       - name: Apply migrations and seed
         run: |
           ./scripts/local-env.sh

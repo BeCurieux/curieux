@@ -127,3 +127,20 @@ export function reenrolmentReminder(p: {
     { small: "If you don't answer, your places are kept." },
   ]);
 }
+
+export function paymentReceipt(p: {
+  school: string;
+  amount: string;
+  method: string;
+  paidOn: string;
+  reference: string;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`Receipt from ${from}`, `Payment received: ${p.amount}.`, [
+    `${from} has received your payment of ${p.amount}. Thank you.`,
+    `Paid ${p.paidOn}, by ${p.method.toLowerCase()}. Reference: ${p.reference}.`,
+    { button: "See your statement", href: p.url },
+    { small: "Payments are made to your activity provider through Stripe." },
+  ]);
+}

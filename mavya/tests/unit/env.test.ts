@@ -59,4 +59,28 @@ describe("environment validation", () => {
       /CRON_SECRET/,
     );
   });
+
+  it("takes no payments unless Stripe is set up, and checks the keys look right", () => {
+    expect(parseServerEnv({ SUPABASE_SECRET_KEY: "x" }).STRIPE_SECRET_KEY).toBeUndefined();
+    expect(() =>
+      parseServerEnv({ SUPABASE_SECRET_KEY: "x", STRIPE_SECRET_KEY: "sk_test_abc" }),
+    ).toThrow(/APP_URL/);
+    expect(() =>
+      parseServerEnv({
+        SUPABASE_SECRET_KEY: "x",
+        STRIPE_SECRET_KEY: "pk_test_abc",
+        APP_URL: "https://app.ovyko.com.au",
+      }),
+    ).toThrow(/STRIPE_SECRET_KEY/);
+    expect(() =>
+      parseServerEnv({ SUPABASE_SECRET_KEY: "x", STRIPE_WEBHOOK_SECRET: "nope" }),
+    ).toThrow(/STRIPE_WEBHOOK_SECRET/);
+    const env = parseServerEnv({
+      SUPABASE_SECRET_KEY: "x",
+      STRIPE_SECRET_KEY: "sk_live_abc",
+      STRIPE_WEBHOOK_SECRET: "whsec_abc",
+      APP_URL: "https://app.ovyko.com.au",
+    });
+    expect(env.STRIPE_SECRET_KEY).toBe("sk_live_abc");
+  });
 });

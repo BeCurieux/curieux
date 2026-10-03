@@ -1,6 +1,7 @@
 import "server-only";
 import type { Database } from "@/lib/supabase/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatMoney } from "@/lib/domain/accounts";
 import { shortDate } from "@/lib/domain/terms";
 import { lessonMoment } from "@/lib/format";
 import * as messages from "./messages";
@@ -204,6 +205,32 @@ async function build(
       const message =
         d.kind === "reenrolment_ask" ? messages.reenrolmentAsk : messages.reenrolmentReminder;
       return { to, email: message({ school, term: term.name, replyBy, url: appUrl("/family") }) };
+    }
+    case "payment_receipt": {
+      const paymentId = (d.payload as { payment_id?: string }).payment_id;
+      if (!paymentId) return null;
+      const payment = one(
+        await admin
+          .from("online_payments")
+          .select("amount_cents, status, method, paid_at")
+          .eq("id", paymentId)
+          .maybeSingle(),
+      );
+      if (!payment || payment.status !== "paid" || !payment.paid_at) return null;
+      const paidOn = new Intl.DateTimeFormat("en-CA", {
+        timeZone: org?.timezone ?? "Australia/Sydney",
+      }).format(new Date(payment.paid_at));
+      return {
+        to,
+        email: messages.paymentReceipt({
+          school,
+          amount: formatMoney(payment.amount_cents),
+          method: payment.method === "direct_debit" ? "Direct debit" : "Card",
+          paidOn: shortDate(paidOn),
+          reference: paymentId.slice(0, 8).toUpperCase(),
+          url: appUrl("/family/fees"),
+        }),
+      };
     }
     default:
       return null;

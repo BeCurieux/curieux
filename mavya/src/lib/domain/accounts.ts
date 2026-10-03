@@ -5,7 +5,7 @@ import { explain, must, type Db } from "./db";
 // which line and works out term fees from the timetable.
 
 export type LineKind = "term_fee" | "charge" | "payment" | "credit" | "refund" | "cancellation";
-export type PaymentMethod = "bank_transfer" | "card" | "cash" | "other";
+export type PaymentMethod = "bank_transfer" | "card" | "cash" | "other" | "direct_debit";
 
 export type AccountLine = {
   id: string;
@@ -20,6 +20,8 @@ export type AccountLine = {
   paidOn: string | null;
   cancelsId: string | null;
   cancelled: boolean;
+  // Paid or refunded online: changed only by a refund in Stripe.
+  online: boolean;
   createdAt: string;
 };
 
@@ -37,6 +39,7 @@ export const METHOD_LABELS: Record<PaymentMethod, string> = {
   card: "Card",
   cash: "Cash",
   other: "Other",
+  direct_debit: "Direct debit",
 };
 
 // A family's lines, newest first, each marked if it has been cancelled.
@@ -44,7 +47,7 @@ export async function familyLines(db: Db, familyId: string): Promise<AccountLine
   const { data, error } = await db
     .from("ledger_entries")
     .select(
-      "id, kind, amount_cents, description, child_id, lessons, unit_cents, method, paid_on, cancels_id, created_at",
+      "id, kind, amount_cents, description, child_id, lessons, unit_cents, method, paid_on, cancels_id, online_payment_id, created_at",
     )
     .eq("family_id", familyId)
     .order("created_at", { ascending: false });
@@ -62,6 +65,7 @@ export async function familyLines(db: Db, familyId: string): Promise<AccountLine
     paidOn: l.paid_on,
     cancelsId: l.cancels_id,
     cancelled: cancelled.has(l.id),
+    online: l.online_payment_id !== null,
     createdAt: l.created_at,
   }));
 }

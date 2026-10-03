@@ -74,7 +74,9 @@ export function Statement({
                 : formatMoney(line.amountCents)}
             </p>
           </div>
-          {action && !line.cancelled && line.kind !== "cancellation" ? action(line) : null}
+          {action && !line.cancelled && !line.online && line.kind !== "cancellation"
+            ? action(line)
+            : null}
         </li>
       ))}
     </ul>
