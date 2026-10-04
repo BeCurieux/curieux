@@ -112,6 +112,9 @@ Part B, going live (before the pilot school takes real payments):
 - [x] Instalments (M7c part 2): 2 or 4 a term, no extra fee, each school
       turns them on (4 October 2026).
 
+- [ ] Follow the 90-day selling plan in `docs/LAUNCH_90_DAYS.md`, with the
+      messages in `docs/OUTREACH.md` and the waitlist page in
+      `docs/WAITLIST_PAGE.md`. Decide the founding-schools offer first.
 - [ ] Talk to 10 swim school owners in the next 6–8 weeks (the outreach kit
       has the email, demo script and questions). Ask what tools they use
       and which annoys them most, and add the five questions in
