@@ -10,21 +10,48 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Admin = SupabaseClient<Database>;
 
+// What the handler asks Stripe itself, rather than trusting a message's
+// copy, which may be old or arrive out of order.
+export type StripeLookups = {
+  // Ovyko's payment id on a payment intent, if it's Ovyko's.
+  paymentIdForIntent(account: string, intent: string): Promise<string | null>;
+  // How a school's account stands now.
+  accountFlags(account: string): Promise<{ charges: boolean; payouts: boolean; details: boolean }>;
+};
+
+// Thrown so the route answers with an error and Stripe sends the message
+// again later.
+export class TryAgainLater extends Error {}
+
 const idOf = (v: string | { id: string } | null | undefined) =>
   typeof v === "string" ? v : (v?.id ?? null);
 
-export async function handleStripeEvent(admin: Admin, event: Stripe.Event): Promise<string> {
+export async function handleStripeEvent(
+  admin: Admin,
+  event: Stripe.Event,
+  stripe: StripeLookups,
+): Promise<string> {
+  const account = event.account;
   switch (event.type) {
     case "account.updated": {
-      const a = event.data.object;
+      const id = event.data.object.id;
+      const flags = await stripe.accountFlags(id);
       const { data, error } = await admin.rpc("update_payment_account", {
-        p_account: a.id,
-        p_charges: Boolean(a.charges_enabled),
-        p_payouts: Boolean(a.payouts_enabled),
-        p_details: Boolean(a.details_submitted),
+        p_account: id,
+        p_charges: flags.charges,
+        p_payouts: flags.payouts,
+        p_details: flags.details,
       });
       if (error) throw error;
       return data ? "account updated" : "ignored";
+    }
+    case "account.application.deauthorized": {
+      if (!account) return "ignored";
+      const { data, error } = await admin.rpc("payment_account_disconnected", {
+        p_account: account,
+      });
+      if (error) throw error;
+      return data ? "account disconnected" : "ignored";
     }
     case "checkout.session.completed":
     case "checkout.session.async_payment_succeeded":
@@ -32,7 +59,7 @@ export async function handleStripeEvent(admin: Admin, event: Stripe.Event): Prom
     case "checkout.session.expired": {
       const s = event.data.object;
       const paymentId = s.metadata?.ovyko_payment_id;
-      if (!paymentId || !event.account || s.amount_total == null) return "ignored";
+      if (!paymentId || !account || s.amount_total == null) return "ignored";
       const [status, method] =
         event.type === "checkout.session.completed"
           ? s.payment_status === "paid"
@@ -45,7 +72,7 @@ export async function handleStripeEvent(admin: Admin, event: Stripe.Event): Prom
               : (["expired", null] as const);
       const { data, error } = await admin.rpc("settle_online_payment", {
         p_payment: paymentId,
-        p_account: event.account,
+        p_account: account,
         p_session: s.id,
         p_amount_cents: s.amount_total,
         p_status: status,
@@ -60,16 +87,70 @@ export async function handleStripeEvent(admin: Admin, event: Stripe.Event): Prom
     case "charge.refunded": {
       const c = event.data.object;
       const intent = idOf(c.payment_intent);
-      if (!intent || !event.account) return "ignored";
+      if (!intent || !account) return "ignored";
       const { data, error } = await admin.rpc("record_online_refund", {
-        p_account: event.account,
+        p_account: account,
         p_payment_intent: intent,
         p_refunded_cents: c.amount_refunded,
       });
       if (error) throw error;
-      return data == null ? "ignored" : `refunded ${data}`;
+      if (data != null) return `refunded ${data}`;
+      await settledOrRetry(admin, stripe, account, intent);
+      return "ignored";
+    }
+    case "refund.failed":
+    case "charge.refund.updated": {
+      const r = event.data.object;
+      if (r.status !== "failed") return "ignored";
+      const intent = idOf(r.payment_intent);
+      if (!intent || !account) return "ignored";
+      const { data, error } = await admin.rpc("record_refund_failed", {
+        p_account: account,
+        p_payment_intent: intent,
+        p_refund: r.id,
+        p_amount_cents: r.amount,
+      });
+      if (error) throw error;
+      if (data != null) return `refund failed ${data}`;
+      await settledOrRetry(admin, stripe, account, intent);
+      return "ignored";
+    }
+    case "charge.dispute.closed": {
+      const d = event.data.object;
+      if (d.status !== "lost") return "ignored";
+      const intent = idOf(d.payment_intent);
+      if (!intent || !account) return "ignored";
+      const { data, error } = await admin.rpc("record_lost_dispute", {
+        p_account: account,
+        p_payment_intent: intent,
+        p_dispute: d.id,
+        p_amount_cents: d.amount,
+      });
+      if (error) throw error;
+      if (data != null) return `dispute lost ${data}`;
+      await settledOrRetry(admin, stripe, account, intent);
+      return "ignored";
     }
     default:
       return "ignored";
   }
+}
+
+// A message about one of Ovyko's payments that hasn't been settled yet
+// (Stripe doesn't promise order): ask Stripe to send it again later rather
+// than lose it. Anything that isn't Ovyko's is ignored.
+async function settledOrRetry(
+  admin: Admin,
+  stripe: StripeLookups,
+  account: string,
+  intent: string,
+) {
+  const paymentId = await stripe.paymentIdForIntent(account, intent);
+  if (!paymentId) return;
+  const { data, error } = await admin.rpc("online_payment_status", {
+    p_account: account,
+    p_payment: paymentId,
+  });
+  if (error) throw error;
+  if (data && data !== "paid") throw new TryAgainLater(`payment ${paymentId} is ${data}`);
 }

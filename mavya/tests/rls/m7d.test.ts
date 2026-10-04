@@ -236,5 +236,32 @@ describe("handing over and redeeming", () => {
       .eq("id", second!)
       .single();
     expect(data).toEqual({ status: "declined", decline_reason: "Already used elsewhere" });
+    // A declined code can be handed over again.
+    expect((await submit(lee, kids.ava, "nsw_active_creative_kids", "EFGH5678")).error).toBeNull();
+  });
+
+  it("cancelling a voucher's credit puts the voucher back to redeem again", async () => {
+    const { data: v } = await owner
+      .from("voucher_claims")
+      .select("id, ledger_entry_id")
+      .eq("code", "ABCD1234")
+      .single();
+    expect(
+      (
+        await owner.rpc("cancel_ledger_entry", {
+          p_entry: v!.ledger_entry_id!,
+          p_reason: "Wrong amount",
+        })
+      ).error,
+    ).toBeNull();
+    const { data: back } = await lee
+      .from("voucher_claims")
+      .select("status, amount_cents")
+      .eq("id", v!.id)
+      .single();
+    expect(back).toEqual({ status: "submitted", amount_cents: null });
+    expect(
+      (await owner.rpc("redeem_voucher", { p_claim: v!.id, p_amount_cents: 4000 })).error,
+    ).toBeNull();
   });
 });

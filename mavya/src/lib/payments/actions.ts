@@ -62,18 +62,49 @@ export async function setUpPayments(): Promise<FormState> {
   redirect(link.url);
 }
 
-// A parent pays what their family owes on Stripe's own payment page.
+// A parent pays what their family owes on Stripe's own payment page. A page
+// already open is reopened, never a second one, so nothing is paid twice.
 export async function payOnline(familyId: string): Promise<FormState> {
   const viewer = await requireShell("family");
   if (!z.uuid().safeParse(familyId).success) return { error: "That didn't work. Try again." };
   if (!paymentsOn()) return { error: "Paying in Ovyko isn't switched on yet." };
-  let started;
-  try {
-    started = await startOnlinePayment(await createClient(), familyId);
-  } catch (error) {
-    if (error instanceof DomainError) return { error: error.message };
-    throw error;
+  const db = await createClient();
+  const start = async () => {
+    try {
+      return await startOnlinePayment(db, familyId);
+    } catch (error) {
+      if (error instanceof DomainError) return { error: error.message };
+      throw error;
+    }
+  };
+  let started = await start();
+  if ("error" in started) return started;
+
+  if (started.checkoutSessionId) {
+    const open = await stripe().checkout.sessions.retrieve(
+      started.checkoutSessionId,
+      {},
+      {
+        stripeAccount: started.stripeAccountId,
+      },
+    );
+    if (open.status === "open" && open.url) redirect(open.url);
+    if (open.status === "complete")
+      return { error: "Your last payment is still being confirmed. Check back in a minute." };
+    // Expired without Stripe telling us: close it and open a new one.
+    const { error } = await createAdminClient().rpc("settle_online_payment", {
+      p_payment: started.paymentId,
+      p_account: started.stripeAccountId,
+      p_session: started.checkoutSessionId,
+      p_amount_cents: started.amountCents,
+      p_status: "expired",
+    });
+    if (error) throw error;
+    started = await start();
+    if ("error" in started) return started;
+    if (started.checkoutSessionId) return { error: "That didn't work. Try again." };
   }
+
   const session = await stripe().checkout.sessions.create(
     {
       mode: "payment",

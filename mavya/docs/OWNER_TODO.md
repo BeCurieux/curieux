@@ -13,6 +13,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   4. `supabase/migrations/20261010000027_online_payments.sql`
   5. `supabase/migrations/20261011000028_fee_reminders.sql`
   6. `supabase/migrations/20261012000029_vouchers.sql`
+  7. `supabase/migrations/20261013000030_payment_fixes.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 ## Business and legal
@@ -70,7 +71,8 @@ Part B, going live (before the pilot school takes real payments):
       `account.updated`, `checkout.session.completed`,
       `checkout.session.async_payment_succeeded`,
       `checkout.session.async_payment_failed`, `checkout.session.expired`,
-      `charge.refunded`. Put its signing secret (starts `whsec_`) in Vercel
+      `charge.refunded`, `charge.refund.updated`, `refund.failed`,
+      `charge.dispute.closed`, `account.application.deauthorized`. Put its signing secret (starts `whsec_`) in Vercel
       as `STRIPE_WEBHOOK_SECRET`.
 - [ ] Confirm Ovyko's fee: 0.5% of each online payment (from the business
       plan). Tell Claude if it should be different.

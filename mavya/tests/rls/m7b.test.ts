@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { handleStripeEvent } from "@/lib/payments/webhook";
+import { handleStripeEvent, TryAgainLater, type StripeLookups } from "@/lib/payments/webhook";
 import type { Database } from "@/lib/supabase/database.types";
 import { PUBLISHABLE_KEY, signInAs, SUPABASE_URL, type Client } from "./helpers";
 
@@ -132,6 +132,19 @@ const balance = async (family: string) => {
 const event = (type: string, object: object, account: string | null = acct) =>
   ({ id: `evt_${Math.random()}`, type, account, data: { object } }) as unknown as Stripe.Event;
 
+// What Stripe itself says when asked (stood in for): accounts' flags, and
+// the Ovyko payment on each payment intent.
+const stripeSide = {
+  accounts: new Map<string, { charges: boolean; payouts: boolean; details: boolean }>(),
+  intents: new Map<string, string>(),
+};
+const lookups: StripeLookups = {
+  paymentIdForIntent: async (_account, intent) => stripeSide.intents.get(intent) ?? null,
+  accountFlags: async (account) =>
+    stripeSide.accounts.get(account) ?? { charges: false, payouts: false, details: false },
+};
+const handle = (e: Stripe.Event) => handleStripeEvent(admin, e, lookups);
+
 const session = (
   paymentId: string,
   id: string,
@@ -208,14 +221,15 @@ describe("setting up a school's Stripe account", () => {
   });
 
   it("Stripe's say switches payments on; other accounts change nothing", async () => {
-    const stray = await handleStripeEvent(
-      admin,
+    stripeSide.accounts.set("acct_nobody", { charges: true, payouts: true, details: true });
+    const stray = await handle(
       event("account.updated", { id: "acct_nobody", charges_enabled: true }, "acct_nobody"),
     );
     expect(stray).toBe("ignored");
     expect((await lee.rpc("can_pay_online", { p_org: orgId })).data).toBe(false);
-    const ours = await handleStripeEvent(
-      admin,
+    // The handler asks Stripe how the account stands, not the message.
+    stripeSide.accounts.set(acct, { charges: true, payouts: true, details: true });
+    const ours = await handle(
       event("account.updated", {
         id: acct,
         charges_enabled: true,
@@ -261,6 +275,32 @@ describe("a card payment", () => {
     });
     paymentId = row!.payment_id;
     await attach(paymentId, sessionId);
+    stripeSide.intents.set(intent, paymentId);
+  });
+
+  it("tapping Pay again reopens the same page, never a second one", async () => {
+    const { row } = await start(lee, leeFamily);
+    expect(row).toMatchObject({ payment_id: paymentId, checkout_session_id: sessionId });
+    const { count } = await admin
+      .from("online_payments")
+      .select("id", { count: "exact", head: true })
+      .eq("family_id", leeFamily);
+    expect(count).toBe(1);
+  });
+
+  it("a refund that arrives before the payment is confirmed is sent again later", async () => {
+    const early = event("charge.refunded", {
+      id: "ch_1",
+      payment_intent: intent,
+      amount_refunded: 1000,
+    });
+    await expect(handle(early)).rejects.toBeInstanceOf(TryAgainLater);
+    // Not one of Ovyko's payments: ignored.
+    expect(
+      await handle(
+        event("charge.refunded", { id: "ch_x", payment_intent: "pi_other", amount_refunded: 1 }),
+      ),
+    ).toBe("ignored");
   });
 
   it("parents can't settle a payment themselves", async () => {
@@ -299,7 +339,7 @@ describe("a card payment", () => {
         null,
       ),
     ];
-    for (const t of tries) expect(await handleStripeEvent(admin, t)).toBe("ignored");
+    for (const t of tries) expect(await handle(t)).toBe("ignored");
     expect(await balance(leeFamily)).toBe(10000);
   });
 
@@ -308,11 +348,10 @@ describe("a card payment", () => {
       "checkout.session.completed",
       session(paymentId, sessionId, 10000, "paid", intent),
     );
-    expect(await handleStripeEvent(admin, done)).toBe("paid");
-    expect(await handleStripeEvent(admin, done)).toBe("paid");
+    expect(await handle(done)).toBe("paid");
+    expect(await handle(done)).toBe("paid");
     expect(
-      await handleStripeEvent(
-        admin,
+      await handle(
         event("checkout.session.expired", session(paymentId, sessionId, 10000, "unpaid", intent)),
       ),
     ).toBe("paid");
@@ -364,8 +403,7 @@ describe("a card payment", () => {
 
   it("refunds in Stripe add refund lines, once each", async () => {
     const refunded = (total: number, account = acct) =>
-      handleStripeEvent(
-        admin,
+      handle(
         event(
           "charge.refunded",
           { id: "ch_1", payment_intent: intent, amount_refunded: total },
@@ -380,6 +418,25 @@ describe("a card payment", () => {
     expect(await refunded(10000)).toBe("refunded 7000");
     expect(await balance(leeFamily)).toBe(10000);
   });
+
+  it("a refund that fails puts the money back, once", async () => {
+    const failed = event("refund.failed", {
+      id: "re_1",
+      status: "failed",
+      payment_intent: intent,
+      amount: 3000,
+    });
+    expect(await handle(failed)).toBe("refund failed 3000");
+    expect(await handle(failed)).toBe("refund failed 0");
+    expect(await balance(leeFamily)).toBe(7000);
+    const ok = event("charge.refund.updated", {
+      id: "re_2",
+      status: "succeeded",
+      payment_intent: intent,
+      amount: 7000,
+    });
+    expect(await handle(ok)).toBe("ignored");
+  });
 });
 
 describe("a direct debit", () => {
@@ -391,16 +448,12 @@ describe("a direct debit", () => {
     expect(row!.platform_fee_cents).toBe(20);
     await attach(row!.payment_id, `cs_test_ruiz1${run}`);
     const s = session(row!.payment_id, `cs_test_ruiz1${run}`, 4000, "unpaid", intent);
-    expect(await handleStripeEvent(admin, event("checkout.session.completed", s))).toBe(
-      "processing",
-    );
+    expect(await handle(event("checkout.session.completed", s))).toBe("processing");
     expect(await balance(ruizFamily)).toBe(4000);
     expect((await start(ruiz, ruizFamily)).error?.hint).toBe("nothing_owing");
 
     // It fails: still owing, and can be paid again.
-    expect(await handleStripeEvent(admin, event("checkout.session.async_payment_failed", s))).toBe(
-      "failed",
-    );
+    expect(await handle(event("checkout.session.async_payment_failed", s))).toBe("failed");
     expect(await balance(ruizFamily)).toBe(4000);
     // The parent is told at once (M7c).
     const { data: told } = await admin
@@ -414,15 +467,36 @@ describe("a direct debit", () => {
     // The second one clears.
     await attach(again.row!.payment_id, `cs_test_ruiz2${run}`);
     const s2 = session(again.row!.payment_id, `cs_test_ruiz2${run}`, 4000, "unpaid", `${intent}b`);
-    await handleStripeEvent(admin, event("checkout.session.completed", s2));
-    expect(
-      await handleStripeEvent(admin, event("checkout.session.async_payment_succeeded", s2)),
-    ).toBe("paid");
+    await handle(event("checkout.session.completed", s2));
+    expect(await handle(event("checkout.session.async_payment_succeeded", s2))).toBe("paid");
     expect(await balance(ruizFamily)).toBe(0);
     const { data } = await ruiz
       .from("ledger_entries")
       .select("method, description")
       .eq("kind", "payment");
     expect(data).toEqual([{ method: "direct_debit", description: "Paid by direct debit" }]);
+  });
+
+  it("a chargeback the school loses means the family owes it again, once", async () => {
+    const dispute = (status: string) =>
+      event("charge.dispute.closed", {
+        id: "dp_1",
+        status,
+        payment_intent: `${intent}b`,
+        amount: 4000,
+      });
+    expect(await handle(dispute("won"))).toBe("ignored");
+    expect(await handle(dispute("lost"))).toBe("dispute lost 4000");
+    expect(await handle(dispute("lost"))).toBe("dispute lost 0");
+    expect(await balance(ruizFamily)).toBe(4000);
+  });
+});
+
+describe("a school disconnecting Stripe", () => {
+  it("stops payments in Ovyko", async () => {
+    const gone = event("account.application.deauthorized", { id: "ca_1" });
+    expect(await handle(gone)).toBe("account disconnected");
+    expect((await lee.rpc("can_pay_online", { p_org: orgId })).data).toBe(false);
+    expect((await start(lee, leeFamily)).error?.hint).toBe("payments_off");
   });
 });

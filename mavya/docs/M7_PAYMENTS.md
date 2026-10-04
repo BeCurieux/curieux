@@ -279,3 +279,25 @@ The schemes (October 2026):
 - An owner redeems it (a credit, at most the scheme's value) or declines
   it with a reason; the parent sees which.
 - Instructors and other schools see none.
+
+## Review fixes (4 October 2026)
+
+A review of the money code before real payments found no way for anyone
+to see or change another family's or school's money, and these fixes:
+
+- **No paying twice.** Tapping Pay again reopens the payment page already
+  open (or replaces it once Stripe says it expired), never a second one.
+- **Refunds, failed refunds and lost chargebacks can't be lost.** A message
+  about a payment not yet confirmed is sent again later by Stripe rather
+  than ignored. A refund that fails puts the money back on the account; a
+  chargeback the school loses means the family owes it again. Each counts
+  once.
+- **Stripe's word, not the message's.** For account changes Ovyko asks
+  Stripe how the account stands now, so an old message can't undo a newer
+  one. A school that disconnects Ovyko from Stripe stops taking payments
+  in Ovyko.
+- **Deleting a term, class or child with fees works.** Lines stay; only
+  their reference to what was deleted is cleared. Amounts still can't
+  change.
+- **Vouchers.** A declined code can be handed over again; cancelling a
+  voucher's credit (a wrong amount) puts the voucher back to redeem again.

@@ -2091,6 +2091,7 @@ export type Database = {
       };
       offer_spot: { Args: { p_child: string; p_occurrence: string }; Returns: string };
       offer_term_move: { Args: { p_ask: string; p_class: string }; Returns: undefined };
+      online_payment_status: { Args: { p_account: string; p_payment: string }; Returns: string };
       open_spots: {
         Args: { p_days?: number; p_org: string };
         Returns: {
@@ -2103,6 +2104,7 @@ export type Database = {
         }[];
       };
       owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
+      payment_account_disconnected: { Args: { p_account: string }; Returns: boolean };
       prepare_term_asks: { Args: { p_term: string }; Returns: number };
       preview_cancel_lessons: {
         Args: { p_date: string; p_location: string };
@@ -2119,6 +2121,15 @@ export type Database = {
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
         Returns: undefined;
+      };
+      record_lost_dispute: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_dispute: string;
+          p_payment_intent: string;
+        };
+        Returns: number;
       };
       record_online_refund: {
         Args: { p_account: string; p_payment_intent: string; p_refunded_cents: number };
@@ -2137,6 +2148,15 @@ export type Database = {
       record_progress: {
         Args: { p_child_id: string; p_skill_id: string; p_status: string };
         Returns: undefined;
+      };
+      record_refund_failed: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_payment_intent: string;
+          p_refund: string;
+        };
+        Returns: number;
       };
       record_sign_in: {
         Args: { p_email: string; p_ip: string; p_succeeded: boolean };
@@ -2212,6 +2232,7 @@ export type Database = {
         Args: { p_family: string };
         Returns: {
           amount_cents: number;
+          checkout_session_id: string;
           payment_id: string;
           platform_fee_cents: number;
           school_name: string;

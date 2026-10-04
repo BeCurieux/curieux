@@ -145,6 +145,14 @@ test.describe("card payments", () => {
       },
     });
     expect(approved.status()).toBe(200);
+    // The handler asks Stripe how the account stands; its test double always
+    // says "not yet", so stand in for Stripe's answer.
+    await db.rpc("update_payment_account", {
+      p_account: acct,
+      p_charges: true,
+      p_payouts: true,
+      p_details: true,
+    });
     await page.goto("/business/settings/payments");
     await expect(page.getByRole("heading", { name: "You're taking payments" })).toBeVisible();
 
@@ -161,6 +169,16 @@ test.describe("card payments", () => {
       .eq("family_id", fam!.id)
       .single();
     expect(payment!.platform_fee_cents).toBe(115);
+
+    // Back out and tap Pay again: the same page, never a second payment.
+    await page.goto("/family/fees");
+    await page.getByRole("button", { name: "Pay $230" }).click();
+    await expect(page.getByRole("heading", { name: "Stripe (test)" })).toBeVisible();
+    const { count } = await db
+      .from("online_payments")
+      .select("id", { count: "exact", head: true })
+      .eq("family_id", fam!.id);
+    expect(count).toBe(1);
 
     // Stripe confirms it.
     const confirmed = await fromStripe(request, {

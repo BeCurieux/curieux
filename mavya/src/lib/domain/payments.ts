@@ -94,6 +94,8 @@ export type StartedPayment = {
   platformFeeCents: number;
   stripeAccountId: string;
   schoolName: string;
+  // Set when a payment page is already open for this family.
+  checkoutSessionId: string | null;
 };
 
 export async function startOnlinePayment(db: Db, familyId: string): Promise<StartedPayment> {
@@ -107,5 +109,6 @@ export async function startOnlinePayment(db: Db, familyId: string): Promise<Star
     platformFeeCents: row.platform_fee_cents,
     stripeAccountId: row.stripe_account_id,
     schoolName: row.school_name,
+    checkoutSessionId: row.checkout_session_id,
   };
 }

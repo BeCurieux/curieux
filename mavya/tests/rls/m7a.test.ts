@@ -462,3 +462,37 @@ describe("who sees an account", () => {
     expect(data!.length).toBeGreaterThanOrEqual(8);
   });
 });
+
+describe("deleting what a line refers to", () => {
+  it("a term with fees can be deleted; its lines stay, without the term", async () => {
+    const before = await balance(leeFamily);
+    const { error } = await admin.from("terms").delete().eq("id", currentTerm);
+    expect(error).toBeNull();
+    expect(await balance(leeFamily)).toBe(before);
+    const { count } = await admin
+      .from("ledger_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("term_id", currentTerm);
+    expect(count).toBe(0);
+  });
+
+  it("but no one can change a line's amount or point it elsewhere", async () => {
+    const { data: line } = await admin
+      .from("ledger_entries")
+      .select("id")
+      .eq("family_id", leeFamily)
+      .not("class_id", "is", null)
+      .limit(1)
+      .single();
+    const moved = await admin
+      .from("ledger_entries")
+      .update({ class_id: classes.c })
+      .eq("id", line!.id);
+    expect(moved.error?.code).toBe("42501");
+    const changed = await admin
+      .from("ledger_entries")
+      .update({ amount_cents: 1 })
+      .eq("id", line!.id);
+    expect(changed.error?.code).toBe("42501");
+  });
+});
