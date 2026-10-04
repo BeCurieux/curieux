@@ -1854,6 +1854,64 @@ export type Database = {
           },
         ];
       };
+      support_grants: {
+        Row: {
+          created_at: string;
+          ended_at: string | null;
+          ended_by: string | null;
+          expires_at: string;
+          granted_by: string | null;
+          id: string;
+          note: string | null;
+          organisation_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          expires_at: string;
+          granted_by?: string | null;
+          id?: string;
+          note?: string | null;
+          organisation_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          expires_at?: string;
+          granted_by?: string | null;
+          id?: string;
+          note?: string | null;
+          organisation_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_grants_ended_by_fkey";
+            columns: ["ended_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_grants_granted_by_fkey";
+            columns: ["granted_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_grants_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       terms: {
         Row: {
           applied_at: string | null;
@@ -2199,6 +2257,7 @@ export type Database = {
       decline_voucher: { Args: { p_claim: string; p_reason: string }; Returns: undefined };
       delete_family: { Args: { p_confirm: string; p_family: string }; Returns: string[] };
       delete_term: { Args: { p_term: string }; Returns: undefined };
+      end_support_access: { Args: { p_org: string }; Returns: boolean };
       export_family: { Args: { p_family: string }; Returns: Json };
       family_balances: {
         Args: { p_org: string };
@@ -2245,6 +2304,7 @@ export type Database = {
         Args: { p_error?: string; p_id: string; p_outcome: string; p_provider_id?: string };
         Returns: undefined;
       };
+      grant_support_access: { Args: { p_note: string; p_org: string }; Returns: string };
       import_school: {
         Args: {
           p_classes: Json;
@@ -2558,6 +2618,23 @@ export type Database = {
       submit_voucher: {
         Args: { p_child: string; p_code: string; p_scheme: string };
         Returns: string;
+      };
+      support_looks: {
+        Args: { p_org: string };
+        Returns: {
+          looked_at: string;
+          looked_by: string;
+        }[];
+      };
+      support_school_view: { Args: { p_org: string }; Returns: Json };
+      support_schools: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          expires_at: string;
+          name: string;
+          note: string;
+          organisation_id: string;
+        }[];
       };
       term_summary: {
         Args: { p_term: string };

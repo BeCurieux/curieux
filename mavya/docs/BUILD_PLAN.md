@@ -111,15 +111,16 @@ Implement:
 - ~~CSV family, children and class import~~ (M6a)
 - ~~onboarding checklist~~ (M6b)
 - ~~parent invites~~ (M6b, by link; by email with M6c)
-- minimal internal admin support (granted by the school, time-limited, audited)
+- ~~minimal internal admin support (granted by the school, time-limited, audited)~~
+  (M6g)
 - Supabase Pro, with leaked password protection on
 - ~~two-step sign-in for owners~~ (M6d)
 - ~~email delivery of notifications, with the neutral wording from M3~~
   (M6c; push after the pilot)
 - ~~lesson-day reminders to parents ("Swimming today at 4:30pm"), with
   neutral wording and an opt-out~~ (M6c)
-- term re-enrolment: parents confirm next term's place in one tap, and the
-  owner sees who is staying before the term starts
+- ~~term re-enrolment: parents confirm next term's place in one tap, and the
+  owner sees who is staying before the term starts~~ (M6e)
 - ~~health notes (need to know)~~ (M6d)
 - ~~custody and pickup restrictions~~ (M6d)
 - ~~family data export and deletion~~ (M6d)

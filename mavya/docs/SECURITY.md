@@ -250,6 +250,17 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - Owners and the family's parents see a family's vouchers; instructors
   and other schools see none. Audited.
 
+### M6g — Support access (done)
+
+- Ovyko support sees a school only after its owner lets them in, for 48
+  hours (or until the owner ends it), and only after two-step sign-in.
+- Support sees how the school is set up, never who is in it: no child,
+  parent or family is named, and no health notes, restrictions, contact
+  details or accounts are shown. Read only.
+- Every look is an audit event the school's owners see on the same page;
+  letting support in and ending it are audited too. Instructors and
+  parents can't do either.
+
 ### M7c part 2 — Instalments (done)
 
 - The card or bank account is saved by Stripe, on Stripe's own page, with
@@ -310,8 +321,7 @@ Ovyko should do better than the usual weaknesses of class-management software:
   them (the person restricted may be a parent), instructors see a warning
   without the details.
 - ~~**Export and deletion.**~~ Done in M6d.
-- **Internal admin access.** Platform support can see a school's data only when
-  the school grants access, for a limited time, and every action is audited.
+- ~~**Internal admin access.**~~ Done in M6g.
 - **Backups and breach response.** Confirm daily backups and point-in-time
   recovery on the cloud project. Write a short data-breach response plan
   (Notifiable Data Breaches scheme).

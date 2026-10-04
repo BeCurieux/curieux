@@ -6,6 +6,7 @@ import {
   Receipt,
   Wallet,
   History,
+  LifeBuoy,
   Layers,
   MapPin,
   RefreshCcw,
@@ -72,6 +73,12 @@ const SECTIONS = [
     icon: Users,
     title: "Staff",
     body: "Who can sign in, and removing access.",
+  },
+  {
+    href: "/business/settings/support",
+    icon: LifeBuoy,
+    title: "Ovyko support",
+    body: "Let Ovyko support see how your school is set up, for 48 hours.",
   },
   {
     href: "/business/settings/import",

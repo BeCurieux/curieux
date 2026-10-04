@@ -3,7 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import { Wordmark } from "@/components/shell/wordmark";
 import { ownerTwoStepNeeded, requireViewer } from "@/lib/auth/viewer";
 import { formatMoney } from "@/lib/domain/accounts";
+import Link from "next/link";
 import { amPlatformAdmin, platformMonths, platformTotals } from "@/lib/domain/platform";
+import { supportSchools } from "@/lib/domain/support";
+import { formatDateTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Ovyko totals" };
@@ -16,7 +19,11 @@ export default async function PlatformPage() {
   if (await ownerTwoStepNeeded()) redirect("/two-step");
   const db = await createClient();
   if (!(await amPlatformAdmin(db))) notFound();
-  const [t, months] = await Promise.all([platformTotals(db), platformMonths(db)]);
+  const [t, months, helping] = await Promise.all([
+    platformTotals(db),
+    platformMonths(db),
+    supportSchools(db),
+  ]);
 
   const tiles: [string, string][] = [
     ["Schools", String(t.schools)],
@@ -44,10 +51,37 @@ export default async function PlatformPage() {
       <div>
         <h1 className="font-display text-4xl font-semibold tracking-tight">Ovyko totals</h1>
         <p className="mt-1 text-muted">
-          Every real school, demo schools left out. Numbers only: no school, family or child is
-          named here.
+          Every real school, demo schools left out. Numbers only: no family or child is named here,
+          and a school only once it has let support in.
         </p>
       </div>
+      <section aria-labelledby="support" className="flex flex-col gap-3">
+        <h2 id="support" className="font-display text-2xl font-semibold">
+          Schools that have let support in
+        </h2>
+        {helping.length === 0 ? (
+          <p className="text-muted">
+            None right now. A school lets support in from Settings → Ovyko support, for 48 hours.
+          </p>
+        ) : (
+          <ul className="flex flex-col divide-y divide-line rounded-lg border border-line bg-surface">
+            {helping.map((h) => (
+              <li key={h.organisationId} className="flex flex-col gap-1 px-5 py-3">
+                <Link
+                  href={`/platform/support/${h.organisationId}`}
+                  className="font-semibold underline underline-offset-4"
+                >
+                  {h.name}
+                </Link>
+                <span className="text-sm text-muted">
+                  Open until {formatDateTime(h.expiresAt)}
+                  {h.note ? ` · “${h.note}”` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map(([label, value]) => (
           <li key={label} className="rounded-lg border border-line bg-surface p-5">

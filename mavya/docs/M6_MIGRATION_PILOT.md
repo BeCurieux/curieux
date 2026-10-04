@@ -19,7 +19,7 @@ and useful by itself, in this order:
 | M6d | Protecting children: two-step sign-in for owners, health notes (need to know), custody and pickup restrictions, export and deletion | Must be in before real children's details |
 | M6e | Term re-enrolment in one tap, moving up a level, lessons in term only | Needed before the pilot's first term ends |
 | M6f | Pool-deck mode (attendance without Wi-Fi) | Pilot feedback may reshape it |
-| M6g | Support access (granted by the school, time-limited, audited) | Needed once the pilot asks for help |
+| **M6g** | **Support access** (granted by the school, time-limited, audited) | Needed once the pilot asks for help |
 
 Outside the code, and for the owner of Ovyko to do before a real school's
 data arrives: Supabase Pro (backups, point-in-time recovery, leaked-password
@@ -378,3 +378,55 @@ term ends, reply by 1 week before.
   reminder reaches only families who haven't answered.
 - On the term's first day, leavers' places end, moves happen, a move that no
   longer fits keeps the old place, and answers become final.
+
+## M6g — Support access (done)
+
+When a school asks Ovyko for help, someone at Ovyko needs to see how the
+school is set up, without ever quietly reading its families' details
+(`docs/SECURITY.md`: "Support staff with silent access to customer data" is
+ruled out). The rest are defaults chosen by Claude; the owner of Ovyko can
+change them.
+
+### Decisions
+
+1. **The school lets support in**, from Settings → Ovyko support: "Let
+   Ovyko support in for 48 hours", with an optional note saying what they
+   need help with. Only owners can, and they can end it at any time.
+   Letting support in again restarts the 48 hours.
+2. **Support sees how the school is set up, not who is in it**: the
+   school's settings, locations, programs and levels, classes (day, time,
+   place, size, how many enrolled), terms, staff numbers by role, whether
+   payments and the Ovyko plan are working, recent imports (counts only)
+   and emails that failed to send (kind and count). No child, parent or
+   family is named, and no health notes, restrictions, contact details or
+   account lines are shown. Anything more, the owner shows on a call.
+3. **Read only.** Support can't change anything in the school.
+4. **Only the people who run Ovyko** (platform admins, after two-step
+   sign-in), and only while the school's access is open.
+5. **Every look is recorded**, and the owner sees the list on the same
+   page: who looked, and when. Letting support in and ending it are
+   recorded too.
+
+### Data model
+
+- New `SupportGrant`: school, who let support in, the note, when it ends,
+  when it was ended early and by whom.
+- Each look is an audit event (`support_view`) on the school.
+
+### Not in M6g
+
+- Support changing things for the school, or seeing families, children or
+  accounts. If the pilot needs that, it's a separate decision.
+
+### Acceptance criteria
+
+- An owner lets support in and ends it; both are audited; instructors and
+  parents can't.
+- A platform admin sees the school only while its access is open, only
+  after two-step sign-in, and each look is recorded and shown to the owner.
+- The support view names no child, parent or family.
+- Without access, a platform admin gets nothing, and the school isn't
+  named anywhere.
+
+Tests: `tests/rls/support.test.ts`, `tests/e2e/support.spec.ts`. Support
+opens `/platform`, where schools that have let support in are listed.

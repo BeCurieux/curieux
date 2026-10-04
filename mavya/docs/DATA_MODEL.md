@@ -513,6 +513,23 @@ left to take ends the plan. Scheduled instalments of an active plan don't
 count as owing now, overdue or in reminders (`family_owing` gives both
 figures to the family and the school). Owners and the family's parents read both.
 
+### SupportGrant
+A school letting Ovyko support see how it's set up (M6g).
+
+- id
+- organisation_id
+- granted_by nullable — the owner
+- note nullable — what they need help with, up to 500 characters
+- expires_at — 48 hours after it was last granted
+- ended_at, ended_by nullable — ended early by an owner
+- created_at, updated_at
+
+At most one not yet ended per school. Granted, extended and ended only by
+the school's owners (`grant_support_access`, `end_support_access`), who
+read it; support reads the school only through `support_school_view`,
+which names no child, parent or family and records each look as an
+`AuditEvent` with action `support_view` (`support_looks` lists them).
+
 ### PlatformAdmin
 A person who runs Ovyko and may see its totals (`docs/PLATFORM_TOTALS.md`).
 
@@ -605,7 +622,7 @@ restrictions. Changes are audited with the notes' content left out.
 - id
 - actor_user_id nullable
 - organisation_id nullable
-- action: insert | update | delete | export
+- action: insert | update | delete | export | support_view
 - entity_type
 - entity_id
 - before_json nullable
