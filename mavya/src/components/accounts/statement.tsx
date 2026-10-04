@@ -9,7 +9,8 @@ import {
 import { cn } from "@/lib/utils";
 
 // A family's account, as owners and parents see it (M7a): the balance, then
-// every line, newest first. Cancelled lines stay visible, struck through.
+// every line, newest first, charges with their due date (M7c). Cancelled
+// lines stay visible, struck through.
 
 export function Balance({ cents, className }: { cents: number; className?: string }) {
   return (
@@ -40,6 +41,7 @@ function detail(line: AccountLine, childName: (id: string | null) => string | nu
     parts.push(`${line.lessons} lessons × ${formatMoney(line.unitCents)}`);
   if (line.method) parts.push(METHOD_LABELS[line.method]);
   parts.push(shortDay(line.paidOn ? `${line.paidOn}T12:00:00Z` : line.createdAt));
+  if (line.dueOn && !line.cancelled) parts.push(`due ${shortDay(`${line.dueOn}T12:00:00Z`)}`);
   return parts.join(" · ");
 }
 

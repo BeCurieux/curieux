@@ -144,3 +144,41 @@ export function paymentReceipt(p: {
     { small: "Payments are made to your activity provider through Stripe." },
   ]);
 }
+
+export function feeReminder(p: {
+  school: string;
+  stage: "soon" | "due" | "overdue";
+  amount: string;
+  dueOn: string;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  const lead = {
+    soon: `You have ${p.amount} to pay to ${from}, due ${p.dueOn}.`,
+    due: `${p.amount} is due to ${from} today.`,
+    overdue: `${p.amount} was due to ${from} on ${p.dueOn} and hasn't been paid yet.`,
+  }[p.stage];
+  return build(
+    p.stage === "overdue" ? `Fees overdue at ${from}` : `Fees from ${from}`,
+    "See your fees in Ovyko.",
+    [
+      lead,
+      { button: "See your fees", href: p.url },
+      {
+        small:
+          p.stage === "overdue"
+            ? "If you've paid in the last few days, thank you: it can take a little while to show."
+            : `${from} sends fee reminders through Ovyko. If you've just paid, you can ignore this.`,
+      },
+    ],
+  );
+}
+
+export function paymentFailed(p: { school: string; amount: string; url: string }): Email {
+  const from = school(p.school);
+  return build("A payment didn't go through", "You can pay again in Ovyko.", [
+    `Your direct debit of ${p.amount} to ${from} didn't go through. Your bank can tell you why.`,
+    "Nothing has been taken. You can pay again by card or direct debit.",
+    { button: "Pay again", href: p.url },
+  ]);
+}

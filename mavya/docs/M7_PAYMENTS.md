@@ -11,7 +11,7 @@ They ship in slices, safest first:
 |---|---|
 | **M7a** | **Family accounts**: what each family owes for the term, worked out from the timetable; payments the school took elsewhere; credits; a clear statement for parents. No money moves through Ovyko yet. |
 | **M7b** | **Stripe Connect**: schools approved to take payments; parents pay a term upfront by card or direct debit; receipts. |
-| M7c | Failed payments chased automatically; instalments. |
+| **M7c** | **Due dates and fee reminders; failed payments chased** (part 1). Instalments (part 2, waiting on the owner's decisions). |
 | M7d | Government activity vouchers (NSW Active and Creative Kids, Queensland FairPlay); Xero sync. |
 
 Decisions from the owner of Ovyko (3 October 2026), for all of M7:
@@ -174,3 +174,57 @@ owner's Stripe account existed; switched on by adding the Stripe keys.
   Stripe account, or names the wrong amount changes nothing.
 - Parents can't pay another family's account; instructors and other
   schools see no payments.
+
+## M7c part 1 — Due dates and fee reminders
+
+Chasing money is the job owners hate most. Part 1 makes Ovyko do it.
+Instalments are part 2: they need the owner of Ovyko to decide how many
+instalments, whether schools can charge for them, and saving a parent's
+bank details for later debits.
+
+### Decisions (defaults chosen by Claude; the owner can change them)
+
+1. **Every charge has a due date.** A term fee is due on the term's first
+   day, or on the day it's added if the term is under way. Any other
+   charge is due the day it's added.
+2. **What's overdue.** Whatever a family owes that was due before today.
+   Payments count against the oldest charges first, so this is the
+   balance less charges not yet due (and less direct debits on their way).
+3. **Fee reminders, if the school switches them on** (off until it does:
+   they are emails to its customers). At 9am school time:
+   - a week before a due date: "fees due soon", if anything is owing;
+   - on the due date, if it's still owing;
+   - a week and two weeks after, if it's still overdue. Then Ovyko stops,
+     and the owner follows up in person.
+   Each email names the school and the amount, never a child, and links
+   to Fees, where the parent can pay. It is checked again just before
+   sending, so a family that has paid gets nothing.
+4. **A failed direct debit is chased at once.** The parent who paid gets
+   an email that it didn't go through, with a link to pay again. This is
+   about their own payment, so it is sent whether or not reminders are on.
+5. **Owners see what's overdue.** Settings → Accounts shows the total
+   overdue and each family's overdue amount, and has the reminders switch.
+   Parents see each fee's due date on their statement.
+
+### Data model
+
+- `LedgerEntry.due_on` (charges and term fees).
+- `Organisation.fee_reminders` (off by default).
+- Emails: fee reminder; payment didn't go through.
+
+### Not in M7c part 1
+
+- Instalments and saved payment details (part 2).
+- Late fees (an owner can add a charge by hand).
+- Text messages.
+
+### Acceptance criteria
+
+- Term fees are due on the term's first day (or the day added, mid-term);
+  other charges the day they're added.
+- With reminders on, a family owing money gets the week-before, due-day,
+  and one- and two-week-overdue emails, once each, and none once paid or
+  if the charge was cancelled. With reminders off, none.
+- A failed direct debit emails the parent at once.
+- Owners see overdue amounts; only owners can switch reminders, and the
+  change is audited.

@@ -158,7 +158,8 @@ Not scheduled. Revisit with the pilot school's feedback:
 ## M7 — Payments
 
 In slices: `docs/M7_PAYMENTS.md`. M7a (family accounts) and M7b (card and
-direct-debit payments, through each school's own Stripe account) are done.
+direct-debit payments, through each school's own Stripe account) and M7c
+part 1 (due dates, fee reminders, failed payments chased) are done.
 
 The first thing to build once the pilot shows the operational loop works.
 Without payments Ovyko can win new schools and schools on spreadsheets, but

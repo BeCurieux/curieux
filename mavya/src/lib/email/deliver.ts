@@ -232,6 +232,57 @@ async function build(
         }),
       };
     }
+    case "payment_failed": {
+      const paymentId = (d.payload as { payment_id?: string }).payment_id;
+      if (!paymentId) return null;
+      const payment = one(
+        await admin
+          .from("online_payments")
+          .select("amount_cents, status")
+          .eq("id", paymentId)
+          .maybeSingle(),
+      );
+      if (!payment || payment.status !== "failed") return null;
+      return {
+        to,
+        email: messages.paymentFailed({
+          school,
+          amount: formatMoney(payment.amount_cents),
+          url: appUrl("/family/fees"),
+        }),
+      };
+    }
+    case "fee_reminder": {
+      const p = d.payload as { family_id?: string; stage?: string; due_on?: string };
+      if (!p.family_id || !p.due_on || !["soon", "due", "overdue"].includes(p.stage ?? ""))
+        return null;
+      const { data, error } = await admin.rpc("family_dues", { p_family: p.family_id });
+      if (error) throw error;
+      const dues = data?.[0];
+      // Switched off, paid, or no longer this parent's family since.
+      if (!dues?.reminders_on) return null;
+      const amount = p.stage === "soon" ? dues.owing_cents : dues.overdue_cents;
+      if (amount <= 0) return null;
+      const member = one(
+        await admin
+          .from("family_members")
+          .select("user_id")
+          .eq("family_id", p.family_id)
+          .eq("user_id", d.recipient_user_id)
+          .maybeSingle(),
+      );
+      if (!member) return null;
+      return {
+        to,
+        email: messages.feeReminder({
+          school,
+          stage: p.stage as "soon" | "due" | "overdue",
+          amount: formatMoney(amount),
+          dueOn: shortDate(p.due_on),
+          url: appUrl("/family/fees"),
+        }),
+      };
+    }
     default:
       return null;
   }

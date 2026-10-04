@@ -189,6 +189,14 @@ test.describe("family accounts", () => {
       `$${fee - 50} owing`,
     );
 
+    // Fee reminders (M7c): off until the owner switches them on.
+    const remind = page.getByRole("switch", { name: /Email fee reminders/ });
+    await expect(remind).not.toBeChecked();
+    await remind.check();
+    await expect(page.getByText("Families will get fee reminders by email.")).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("switch", { name: /Email fee reminders/ })).toBeChecked();
+
     // The parent sees their statement.
     await page.context().clearCookies();
     await signIn(page, parentEmail, password);
@@ -198,6 +206,12 @@ test.describe("family accounts", () => {
     const statement = page.getByRole("region", { name: "Pia Family" });
     await expect(statement.getByText(`$${fee - 50} owing`)).toBeVisible();
     await expect(statement.getByText("Term B · Dolphin 3")).toBeVisible();
+    // Due on the term's first day (M7c).
+    const [y, m, d] = term.starts.split("-").map(Number);
+    const due = new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short" }).format(
+      new Date(Date.UTC(y!, m! - 1, d!, 12)),
+    );
+    await expect(statement.getByText(`due ${due}`)).toBeVisible();
     await expect(statement.getByText("Payment received")).toBeVisible();
     await expect(statement.getByRole("button", { name: /Cancel/ })).toHaveCount(0);
   });

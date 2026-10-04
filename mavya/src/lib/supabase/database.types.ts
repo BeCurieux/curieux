@@ -794,6 +794,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           description: string;
+          due_on: string | null;
           family_id: string;
           id: string;
           kind: string;
@@ -814,6 +815,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           description: string;
+          due_on?: string | null;
           family_id: string;
           id?: string;
           kind: string;
@@ -834,6 +836,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           description?: string;
+          due_on?: string | null;
           family_id?: string;
           id?: string;
           kind?: string;
@@ -1223,6 +1226,7 @@ export type Database = {
         Row: {
           activity_type: string;
           created_at: string;
+          fee_reminders: boolean;
           id: string;
           lessons_in_term_only: boolean;
           name: string;
@@ -1234,6 +1238,7 @@ export type Database = {
         Insert: {
           activity_type: string;
           created_at?: string;
+          fee_reminders?: boolean;
           id?: string;
           lessons_in_term_only?: boolean;
           name: string;
@@ -1245,6 +1250,7 @@ export type Database = {
         Update: {
           activity_type?: string;
           created_at?: string;
+          fee_reminders?: boolean;
           id?: string;
           lessons_in_term_only?: boolean;
           name?: string;
@@ -1883,6 +1889,15 @@ export type Database = {
           balance_cents: number;
           display_name: string;
           family_id: string;
+          overdue_cents: number;
+        }[];
+      };
+      family_dues: {
+        Args: { p_family: string };
+        Returns: {
+          overdue_cents: number;
+          owing_cents: number;
+          reminders_on: boolean;
         }[];
       };
       family_parents: {
@@ -2007,6 +2022,7 @@ export type Database = {
           makeups: number;
         }[];
       };
+      queue_fee_reminders_at: { Args: { p_now: string }; Returns: number };
       queue_lesson_reminders_at: { Args: { p_now: string }; Returns: number };
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
@@ -2081,6 +2097,7 @@ export type Database = {
         };
         Returns: string;
       };
+      set_fee_reminders: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       settle_online_payment: {

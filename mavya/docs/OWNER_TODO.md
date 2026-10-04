@@ -11,6 +11,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   2. `supabase/migrations/20261008000025_terms.sql`
   3. `supabase/migrations/20261009000026_family_accounts.sql`
   4. `supabase/migrations/20261010000027_online_payments.sql`
+  5. `supabase/migrations/20261011000028_fee_reminders.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 ## Business and legal
@@ -74,6 +75,13 @@ Part B, going live (before the pilot school takes real payments):
       plan). Tell Claude if it should be different.
 
 ## Product decisions waiting
+
+- [ ] Fee reminders (M7c): Claude chose a week before, on the day, then a
+      week and two weeks after, at 9am, off until each school turns them
+      on. Change any of that if you'd like.
+- [ ] Instalments (M7c part 2): how many (e.g. 2 or 4 a term)? Can a school
+      charge extra for them? Parents would save their bank details or card
+      with Stripe for the later payments.
 
 - [ ] Talk to 10 swim school owners in the next 6–8 weeks (the outreach kit
       has the email, demo script and questions). Ask what tools they use

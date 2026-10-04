@@ -22,6 +22,8 @@ export type AccountLine = {
   cancelled: boolean;
   // Paid or refunded online: changed only by a refund in Stripe.
   online: boolean;
+  // Charges and term fees: when they fall due (M7c).
+  dueOn: string | null;
   createdAt: string;
 };
 
@@ -47,7 +49,7 @@ export async function familyLines(db: Db, familyId: string): Promise<AccountLine
   const { data, error } = await db
     .from("ledger_entries")
     .select(
-      "id, kind, amount_cents, description, child_id, lessons, unit_cents, method, paid_on, cancels_id, online_payment_id, created_at",
+      "id, kind, amount_cents, description, child_id, lessons, unit_cents, method, paid_on, cancels_id, online_payment_id, due_on, created_at",
     )
     .eq("family_id", familyId)
     .order("created_at", { ascending: false });
@@ -66,13 +68,20 @@ export async function familyLines(db: Db, familyId: string): Promise<AccountLine
     cancelsId: l.cancels_id,
     cancelled: cancelled.has(l.id),
     online: l.online_payment_id !== null,
+    dueOn: l.due_on,
     createdAt: l.created_at,
   }));
 }
 
 export const balanceOf = (lines: AccountLine[]) => lines.reduce((sum, l) => sum + l.amountCents, 0);
 
-export type FamilyBalance = { familyId: string; name: string; balanceCents: number };
+export type FamilyBalance = {
+  familyId: string;
+  name: string;
+  balanceCents: number;
+  // Owed and due before today (M7c).
+  overdueCents: number;
+};
 
 export async function familyBalances(db: Db, organisationId: string): Promise<FamilyBalance[]> {
   const { data, error } = await db.rpc("family_balances", { p_org: organisationId });
@@ -81,7 +90,23 @@ export async function familyBalances(db: Db, organisationId: string): Promise<Fa
     familyId: r.family_id,
     name: r.display_name,
     balanceCents: r.balance_cents,
+    overdueCents: r.overdue_cents,
   }));
+}
+
+export async function feeRemindersOn(db: Db, organisationId: string): Promise<boolean> {
+  const { data, error } = await db
+    .from("organisations")
+    .select("fee_reminders")
+    .eq("id", organisationId)
+    .single();
+  if (error) throw explain(error);
+  return data.fee_reminders;
+}
+
+export async function setFeeReminders(db: Db, organisationId: string, on: boolean) {
+  const { error } = await db.rpc("set_fee_reminders", { p_org: organisationId, p_on: on });
+  if (error) throw explain(error);
 }
 
 export async function createTermFees(db: Db, termId: string): Promise<number> {

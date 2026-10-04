@@ -39,3 +39,30 @@ describe("receipts", () => {
     expect(r.html).toContain('href="https://app.ovyko.com.au/family/fees"');
   });
 });
+
+describe("fee reminders and failed payments", () => {
+  it("say how much and when, without naming a child", async () => {
+    const messages = await import("@/lib/email/messages");
+    const soon = messages.feeReminder({
+      school: "Aqua House",
+      stage: "soon",
+      amount: "$230",
+      dueOn: "Mon 2 Feb",
+      url: "https://app.ovyko.com.au/family/fees",
+    });
+    expect(soon.subject).toBe("Fees from Aqua House");
+    expect(soon.text).toContain("You have $230 to pay to Aqua House, due Mon 2 Feb.");
+    const late = messages.feeReminder({
+      school: "Aqua House",
+      stage: "overdue",
+      amount: "$230",
+      dueOn: "Mon 2 Feb",
+      url: "u",
+    });
+    expect(late.subject).toBe("Fees overdue at Aqua House");
+    expect(late.text).toContain("was due to Aqua House on Mon 2 Feb");
+    const failed = messages.paymentFailed({ school: "Aqua House", amount: "$230", url: "u" });
+    expect(failed.subject).toBe("A payment didn't go through");
+    expect(failed.text).toContain("Your direct debit of $230 to Aqua House didn't go through.");
+  });
+});

@@ -827,6 +827,18 @@ export async function recordTermAnswer(
 
 const familyPath = (familyId: string) => `/business/families/${familyId}`;
 
+export async function setFeeReminders(on: boolean): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const failed = await attempt(() => accounts.setFeeReminders(db, organisationId, on === true));
+  if (failed) return failed;
+  revalidatePath("/business/settings/accounts");
+  return {
+    ok: on
+      ? "Families will get fee reminders by email."
+      : "Fee reminders are off. Ovyko still tells parents when a direct debit fails.",
+  };
+}
+
 export async function createTermFees(termId: string): Promise<FormState> {
   const { db } = await requireOwner();
   if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };

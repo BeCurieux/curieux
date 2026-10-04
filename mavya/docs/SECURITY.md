@@ -224,6 +224,14 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - No money moves through Ovyko yet; card details will only ever be held by
   the payment provider (M7b).
 
+### M7c part 1 — Fee reminders (done)
+
+- Reminder emails name the school and an amount, never a child, and are
+  checked again just before sending, so a family that has paid, or has
+  left, gets nothing.
+- Schools opt in (they are emails to the school's customers); only owners
+  switch it, and the switch is audited.
+
 ### M7b — Card and direct-debit payments (done)
 
 - Card and bank details only ever go to Stripe, on Stripe's own page;

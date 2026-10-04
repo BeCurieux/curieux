@@ -29,6 +29,8 @@ makes) only in a session that has passed two-step sign-in.
 - lessons_in_term_only — default off (M6e); the school's choice, through
   `set_lessons_in_term_only`. On: lessons are only scheduled inside its
   terms.
+- fee_reminders — default off (M7c); the school's choice, through
+  `set_fee_reminders`. On: Ovyko emails families before and after fees fall due.
 
 ### Location
 - id
@@ -305,7 +307,8 @@ One email to send (M6c): the outbox.
 
 - id
 - kind: spot_offered | lesson_cancelled | skill_achieved | lesson_reminder |
-  reenrolment_ask | reenrolment_reminder (M6e) | payment_receipt (M7b)
+  reenrolment_ask | reenrolment_reminder (M6e) | payment_receipt (M7b) |
+  fee_reminder | payment_failed (M7c)
 - recipient_user_id
 - organisation_id nullable
 - notification_id nullable — the notification it tells the person about
@@ -396,6 +399,8 @@ mistake is cancelled by an opposite line. The balance is their sum.
   worked out (price per lesson × lessons)
 - method nullable: bank_transfer | card | cash | other | direct_debit;
   paid_on nullable — for payments
+- due_on nullable — when a term fee or charge falls due (M7c): a term's
+  first day, or the day it was added
 - online_payment_id nullable — the online payment (M7b) a payment or refund
   line came from; such a line can't be cancelled, only refunded in Stripe
 - cancels_id nullable, unique — the line a cancellation cancels

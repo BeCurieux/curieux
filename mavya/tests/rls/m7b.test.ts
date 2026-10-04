@@ -402,6 +402,12 @@ describe("a direct debit", () => {
       "failed",
     );
     expect(await balance(ruizFamily)).toBe(4000);
+    // The parent is told at once (M7c).
+    const { data: told } = await admin
+      .from("email_deliveries")
+      .select("kind")
+      .eq("dedupe_key", `failed:${row!.payment_id}`);
+    expect(told).toEqual([{ kind: "payment_failed" }]);
     const again = await start(ruiz, ruizFamily);
     expect(again.row!.amount_cents).toBe(4000);
 

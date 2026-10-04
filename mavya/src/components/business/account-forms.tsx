@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { ActionForm } from "@/components/forms/action-form";
 import { SelectField, TextField } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
   cancelAccountLine,
   createTermFees,
   recordPayment,
+  setFeeReminders,
 } from "@/lib/business/actions";
 import type { FormState } from "@/lib/forms";
 
@@ -115,5 +116,51 @@ export function CreateTermFeesButton({ termId }: { termId: string }) {
         </p>
       ) : null}
     </form>
+  );
+}
+
+// Fee reminders by email (M7c), on or off for the whole school.
+export function FeeRemindersSwitch({ on }: { on: boolean }) {
+  const [value, setValue] = useState(on);
+  const [state, setState] = useState<FormState>({});
+  const [pending, start] = useTransition();
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-5 py-4">
+      <label className="flex items-center justify-between gap-4">
+        <span>
+          <span className="block text-lg font-semibold">Email fee reminders</span>
+          <span className="block text-sm text-muted">
+            A week before fees are due, on the day, and a week and two weeks after if they&apos;re
+            still unpaid. Families who&apos;ve paid get nothing.
+          </span>
+        </span>
+        <input
+          type="checkbox"
+          role="switch"
+          checked={value}
+          disabled={pending}
+          onChange={(e) => {
+            const next = e.target.checked;
+            setValue(next);
+            start(async () => {
+              const result = await setFeeReminders(next);
+              setState(result);
+              if (result.error) setValue(!next);
+            });
+          }}
+          className="h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-line transition before:block before:size-6 before:translate-x-0.5 before:rounded-full before:bg-white before:shadow before:transition checked:bg-ink checked:before:translate-x-5"
+        />
+      </label>
+      {state.error ? (
+        <p role="alert" className="text-sm font-semibold text-danger">
+          {state.error}
+        </p>
+      ) : null}
+      {state.ok ? (
+        <p role="status" className="text-sm font-semibold text-[#23694c]">
+          {state.ok}
+        </p>
+      ) : null}
+    </div>
   );
 }

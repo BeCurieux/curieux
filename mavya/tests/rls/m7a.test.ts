@@ -241,7 +241,7 @@ describe("term fees", () => {
     expect(data).toBe(2);
     const { data: fees } = await admin
       .from("ledger_entries")
-      .select("child_id, class_id, lessons, unit_cents, amount_cents, description")
+      .select("child_id, class_id, lessons, unit_cents, amount_cents, description, due_on")
       .eq("term_id", nextTerm);
     const fee = (child: string) => fees!.find((f) => f.child_id === child);
     const avaLessons = lessonsBetween(weekday.c, next.starts, next.ends);
@@ -251,6 +251,8 @@ describe("term fees", () => {
       unit_cents: price.c,
       amount_cents: avaLessons * price.c,
       description: "Term 2 · Dolphin 4",
+      // Due on the term's first day (M7c).
+      due_on: next.starts,
     });
     expect(fee(kids.ben)).toBeUndefined();
     const cyLessons = lessonsBetween(weekday.b, next.starts, next.ends);
@@ -266,12 +268,13 @@ describe("term fees", () => {
     expect(data).toBe(3);
     const { data: fee } = await admin
       .from("ledger_entries")
-      .select("lessons, amount_cents")
+      .select("lessons, amount_cents, due_on")
       .eq("term_id", currentTerm)
       .eq("child_id", kids.cy)
       .single();
     const left = lessonsBetween(weekday.b, today, current.ends);
-    expect(fee).toEqual({ lessons: left, amount_cents: left * price.b });
+    // Under way: due the day it's added (M7c).
+    expect(fee).toEqual({ lessons: left, amount_cents: left * price.b, due_on: today });
   });
 
   it("only the school's owners create fees", async () => {
@@ -320,6 +323,13 @@ describe("payments, credits and cancelling", () => {
     });
     expect(charge.error).toBeNull();
     expect(await balance(leeFamily)).toBe(before + 500);
+    // A charge falls due the day it's added; a credit has no due date (M7c).
+    const { data: due } = await admin
+      .from("ledger_entries")
+      .select("id, due_on")
+      .in("id", [credit.data!, charge.data!]);
+    expect(due!.find((l) => l.id === credit.data)!.due_on).toBeNull();
+    expect(due!.find((l) => l.id === charge.data)!.due_on).toBe(today);
     const noReason = await owner.rpc("add_account_line", {
       p_family: leeFamily,
       p_kind: "credit",
