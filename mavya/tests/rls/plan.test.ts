@@ -86,6 +86,7 @@ const lookups: StripeLookups = {
   paymentIdForIntent: async () => null,
   accountFlags: async () => ({ charges: false, payouts: false, details: false }),
   subscription: async (id) => stripeSubs.get(id)!,
+  savedPaymentMethod: async () => null,
 };
 const subEvent = (id: string, account?: string) =>
   ({

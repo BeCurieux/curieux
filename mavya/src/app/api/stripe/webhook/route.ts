@@ -20,6 +20,18 @@ const lookups: StripeLookups = {
   async subscription(id) {
     return planSubscription(await stripe().subscriptions.retrieve(id));
   },
+  async savedPaymentMethod(account, intent) {
+    const pi = await stripe().paymentIntents.retrieve(
+      intent,
+      { expand: ["payment_method"] },
+      { stripeAccount: account },
+    );
+    const pm = pi.payment_method;
+    if (!pm || typeof pm === "string") return null;
+    if (pm.type === "card") return { id: pm.id, type: "card" };
+    if (pm.type === "au_becs_debit") return { id: pm.id, type: "direct_debit" };
+    return null;
+  },
 };
 
 // Stripe signs messages about schools' accounts and about Ovyko's own

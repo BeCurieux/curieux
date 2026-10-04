@@ -174,11 +174,20 @@ export function feeReminder(p: {
   );
 }
 
-export function paymentFailed(p: { school: string; amount: string; url: string }): Email {
+export function paymentFailed(p: {
+  school: string;
+  amount: string;
+  url: string;
+  method: "card" | "direct_debit";
+  instalment: boolean;
+}): Email {
   const from = school(p.school);
+  const what = p.method === "card" ? "card payment" : "direct debit";
   return build("A payment didn't go through", "You can pay again in Ovyko.", [
-    `Your direct debit of ${p.amount} to ${from} didn't go through. Your bank can tell you why.`,
-    "Nothing has been taken. You can pay again by card or direct debit.",
+    `Your ${p.instalment ? "instalment" : what} of ${p.amount} to ${from} didn't go through. Your ${p.method === "card" ? "card's bank" : "bank"} can tell you why.`,
+    p.instalment
+      ? "Nothing has been taken, and the rest of your instalments are cancelled. What's left is simply owed; you can pay it by card or direct debit."
+      : "Nothing has been taken. You can pay again by card or direct debit.",
     { button: "Pay again", href: p.url },
   ]);
 }

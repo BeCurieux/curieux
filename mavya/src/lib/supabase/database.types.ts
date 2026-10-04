@@ -784,6 +784,120 @@ export type Database = {
           },
         ];
       };
+      instalment_plans: {
+        Row: {
+          created_at: string;
+          family_id: string;
+          id: string;
+          organisation_id: string;
+          payment_method_id: string | null;
+          payment_method_type: string | null;
+          payments: number;
+          started_by: string | null;
+          status: string;
+          stripe_customer_id: string | null;
+          total_cents: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          family_id: string;
+          id?: string;
+          organisation_id: string;
+          payment_method_id?: string | null;
+          payment_method_type?: string | null;
+          payments: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_customer_id?: string | null;
+          total_cents: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          family_id?: string;
+          id?: string;
+          organisation_id?: string;
+          payment_method_id?: string | null;
+          payment_method_type?: string | null;
+          payments?: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_customer_id?: string | null;
+          total_cents?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "instalment_plans_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "instalment_plans_started_by_fkey";
+            columns: ["started_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      instalments: {
+        Row: {
+          amount_cents: number;
+          due_on: string;
+          family_id: string;
+          id: string;
+          online_payment_id: string | null;
+          organisation_id: string;
+          plan_id: string;
+          seq: number;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_cents: number;
+          due_on: string;
+          family_id: string;
+          id?: string;
+          online_payment_id?: string | null;
+          organisation_id: string;
+          plan_id: string;
+          seq: number;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_cents?: number;
+          due_on?: string;
+          family_id?: string;
+          id?: string;
+          online_payment_id?: string | null;
+          organisation_id?: string;
+          plan_id?: string;
+          seq?: number;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "instalments_organisation_id_online_payment_id_fkey";
+            columns: ["organisation_id", "online_payment_id"];
+            isOneToOne: false;
+            referencedRelation: "online_payments";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "instalments_organisation_id_plan_id_fkey";
+            columns: ["organisation_id", "plan_id"];
+            isOneToOne: false;
+            referencedRelation: "instalment_plans";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       ledger_entries: {
         Row: {
           amount_cents: number;
@@ -1228,6 +1342,7 @@ export type Database = {
           created_at: string;
           fee_reminders: boolean;
           id: string;
+          instalments_on: boolean;
           is_demo: boolean;
           lessons_in_term_only: boolean;
           name: string;
@@ -1242,6 +1357,7 @@ export type Database = {
           created_at?: string;
           fee_reminders?: boolean;
           id?: string;
+          instalments_on?: boolean;
           is_demo?: boolean;
           lessons_in_term_only?: boolean;
           name: string;
@@ -1256,6 +1372,7 @@ export type Database = {
           created_at?: string;
           fee_reminders?: boolean;
           id?: string;
+          instalments_on?: boolean;
           is_demo?: boolean;
           lessons_in_term_only?: boolean;
           name?: string;
@@ -1997,6 +2114,16 @@ export type Database = {
         Args: { p_payment: string; p_session: string };
         Returns: undefined;
       };
+      attach_plan_payment_method: {
+        Args: {
+          p_account: string;
+          p_customer: string;
+          p_payment: string;
+          p_payment_method: string;
+          p_type: string;
+        };
+        Returns: boolean;
+      };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
       can_pay_online: { Args: { p_org: string }; Returns: boolean };
       cancel_ledger_entry: { Args: { p_entry: string; p_reason: string }; Returns: string };
@@ -2010,6 +2137,18 @@ export type Database = {
           viewed_at: string;
           viewer_name: string;
           viewer_role: string;
+        }[];
+      };
+      claim_due_instalments: {
+        Args: { p_limit?: number };
+        Returns: {
+          amount_cents: number;
+          payment_id: string;
+          payment_method_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+          stripe_customer_id: string;
         }[];
       };
       claim_email_deliveries: {
@@ -2101,6 +2240,7 @@ export type Database = {
         Returns: Json;
       };
       import_summary: { Args: { p_batch: string }; Returns: Json };
+      instalments_offered: { Args: { p_org: string }; Returns: boolean };
       invite_details: {
         Args: { p_code: string };
         Returns: {
@@ -2181,6 +2321,17 @@ export type Database = {
         }[];
       };
       owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
+      pay_rest_of_plan: {
+        Args: { p_family: string };
+        Returns: {
+          amount_cents: number;
+          checkout_session_id: string;
+          payment_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+        }[];
+      };
       payment_account_disconnected: { Args: { p_account: string }; Returns: boolean };
       platform_months: {
         Args: Record<PropertyKey, never>;
@@ -2337,9 +2488,20 @@ export type Database = {
         }[];
       };
       set_fee_reminders: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      set_instalments_on: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_voucher_schemes: { Args: { p_org: string; p_schemes: string[] }; Returns: undefined };
+      settle_instalment_payment: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_payment: string;
+          p_payment_intent: string;
+          p_status: string;
+        };
+        Returns: string;
+      };
       settle_online_payment: {
         Args: {
           p_account: string;
@@ -2354,6 +2516,17 @@ export type Database = {
       };
       setup_progress: { Args: { p_org: string }; Returns: Json };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      start_instalment_plan: {
+        Args: { p_family: string; p_payments: number };
+        Returns: {
+          amount_cents: number;
+          checkout_session_id: string;
+          payment_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+        }[];
+      };
       start_online_payment: {
         Args: { p_family: string };
         Returns: {

@@ -250,6 +250,23 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - Owners and the family's parents see a family's vouchers; instructors
   and other schools see none. Audited.
 
+### M7c part 2 — Instalments (done)
+
+- The card or bank account is saved by Stripe, on Stripe's own page, with
+  the parent's agreement; Ovyko keeps only Stripe's reference to it, on
+  the school's own Stripe account.
+- Only the server takes later instalments, when the database's schedule
+  calls it with `CRON_SECRET`; each is claimed once and charged once
+  (Stripe's idempotency key is the payment's id).
+- Stripe's messages about a payment the server took count only from that
+  school's account, for that payment and amount; messages about a payment
+  page are never taken for an instalment.
+- Parents start plans only for their own family; nobody changes a plan or
+  instalment directly. Schools opt in; the switch is audited, as are plans
+  and instalments.
+- A failed instalment is never retried behind the parent's back: the plan
+  stops and the parent is emailed.
+
 ### M7c part 1 — Fee reminders (done)
 
 - Reminder emails name the school and an amount, never a child, and are

@@ -238,7 +238,7 @@ async function build(
       const payment = one(
         await admin
           .from("online_payments")
-          .select("amount_cents, status")
+          .select("amount_cents, status, method, instalments (id)")
           .eq("id", paymentId)
           .maybeSingle(),
       );
@@ -249,6 +249,8 @@ async function build(
           school,
           amount: formatMoney(payment.amount_cents),
           url: appUrl("/family/fees"),
+          method: payment.method === "card" ? "card" : "direct_debit",
+          instalment: (payment.instalments ?? []).length > 0,
         }),
       };
     }

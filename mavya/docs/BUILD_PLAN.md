@@ -159,7 +159,8 @@ Not scheduled. Revisit with the pilot school's feedback:
 
 In slices: `docs/M7_PAYMENTS.md`. M7a (family accounts) and M7b (card and
 direct-debit payments, through each school's own Stripe account) and M7c
-part 1 (due dates, fee reminders, failed payments chased) and M7d part 1
+part 1 (due dates, fee reminders, failed payments chased), M7c part 2
+(instalments: 2 or 4 a term, if the school offers them) and M7d part 1
 (government activity vouchers) are done. Ovyko's own plan for schools
 (A$399 a month per location, 30 days free) is in `docs/SUBSCRIPTIONS.md`.
 

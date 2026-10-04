@@ -16,6 +16,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   7. `supabase/migrations/20261013000030_payment_fixes.sql`
   8. `supabase/migrations/20261014000031_platform_totals.sql`
   9. `supabase/migrations/20261015000032_school_subscriptions.sql`
+  10. `supabase/migrations/20261016000033_instalments.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
@@ -82,7 +83,10 @@ Part B, going live (before the pilot school takes real payments):
       `checkout.session.async_payment_succeeded`,
       `checkout.session.async_payment_failed`, `checkout.session.expired`,
       `charge.refunded`, `charge.refund.updated`, `refund.failed`,
-      `charge.dispute.closed`, `account.application.deauthorized`. Put its signing secret (starts `whsec_`) in Vercel
+      `charge.dispute.closed`, `account.application.deauthorized`,
+      `payment_intent.succeeded`, `payment_intent.processing`,
+      `payment_intent.payment_failed` (the last three are for
+      instalments). Put its signing secret (starts `whsec_`) in Vercel
       as `STRIPE_WEBHOOK_SECRET`.
 - [ ] Ovyko's plan in Stripe: Product catalogue → add a product "Ovyko"
       with a monthly price of A$399 (per unit). Put its id (starts

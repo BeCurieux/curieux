@@ -20,6 +20,11 @@ export type StripeLookups = {
   // A school's subscription to Ovyko's plan as it stands now (Ovyko's own
   // Stripe account).
   subscription(id: string): Promise<PlanSubscription>;
+  // The card or bank account a payment saved, for instalments.
+  savedPaymentMethod(
+    account: string,
+    intent: string,
+  ): Promise<{ id: string; type: "card" | "direct_debit" } | null>;
 };
 
 export type PlanSubscription = {
@@ -117,6 +122,48 @@ export async function handleStripeEvent(
         p_method: method ?? undefined,
       });
       // A payment id that isn't a uuid is someone else's page, not an error.
+      if (error?.code === "22P02") return "ignored";
+      if (error) throw error;
+      // The first of a plan's instalments saves the card or bank account
+      // for the rest (M7c part 2).
+      const customer = idOf(s.customer);
+      const intent = idOf(s.payment_intent);
+      if ((data === "paid" || data === "processing") && customer && intent) {
+        const saved = await stripe.savedPaymentMethod(account, intent);
+        if (saved) {
+          const attach = await admin.rpc("attach_plan_payment_method", {
+            p_payment: paymentId,
+            p_account: account,
+            p_customer: customer,
+            p_payment_method: saved.id,
+            p_type: saved.type,
+          });
+          if (attach.error) throw attach.error;
+        }
+      }
+      return data ?? "ignored";
+    }
+    case "payment_intent.succeeded":
+    case "payment_intent.processing":
+    case "payment_intent.payment_failed": {
+      // Instalments the server took (no payment page). Payments made on a
+      // page are settled by the page's own messages above.
+      const pi = event.data.object;
+      const paymentId = pi.metadata?.ovyko_payment_id;
+      if (!paymentId || !account) return "ignored";
+      const status =
+        event.type === "payment_intent.succeeded"
+          ? "paid"
+          : event.type === "payment_intent.processing"
+            ? "processing"
+            : "failed";
+      const { data, error } = await admin.rpc("settle_instalment_payment", {
+        p_payment: paymentId,
+        p_account: account,
+        p_payment_intent: pi.id,
+        p_amount_cents: pi.amount,
+        p_status: status,
+      });
       if (error?.code === "22P02") return "ignored";
       if (error) throw error;
       return data ?? "ignored";

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { BackLink } from "@/components/demo/back-link";
-import { SetUpPaymentsButton } from "@/components/payments/pay-forms";
+import { InstalmentsSwitch, SetUpPaymentsButton } from "@/components/payments/pay-forms";
 import { requireOwner } from "@/lib/business/owner";
-import { PLATFORM_FEE_PERCENT, paymentAccount } from "@/lib/domain/payments";
+import { instalmentsOffered, PLATFORM_FEE_PERCENT, paymentAccount } from "@/lib/domain/payments";
 import { refreshPaymentAccount } from "@/lib/payments/accounts";
 import { paymentsOn } from "@/lib/payments/stripe";
 
@@ -19,6 +19,7 @@ export default async function PaymentsPage({
   const { back } = await searchParams;
   const on = paymentsOn();
   let account = await paymentAccount(db, organisationId);
+  const instalments = await instalmentsOffered(db, organisationId);
   // Back from Stripe's sign-up: ask Stripe now rather than wait for its message.
   if (on && back && account && !account.canTakePayments) {
     await refreshPaymentAccount(organisationId, account.stripeAccountId);
@@ -76,6 +77,7 @@ export default async function PaymentsPage({
               Open Stripe
             </a>
             {account.payoutsOn ? null : <SetUpPaymentsButton label="Continue with Stripe" />}
+            <InstalmentsSwitch on={instalments} />
           </>
         ) : account ? (
           <>

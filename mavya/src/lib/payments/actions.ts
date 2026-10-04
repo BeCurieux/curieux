@@ -1,11 +1,18 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireShell } from "@/lib/auth/viewer";
 import { requireOwner } from "@/lib/business/owner";
 import { DomainError } from "@/lib/domain/db";
-import { paymentAccount, startOnlinePayment } from "@/lib/domain/payments";
+import {
+  payRestOfPlanNow,
+  paymentAccount,
+  setInstalmentsOn,
+  startInstalmentPlan,
+  startOnlinePayment,
+} from "@/lib/domain/payments";
 import { appUrl } from "@/lib/email/transport";
 import type { FormState } from "@/lib/forms";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -62,21 +69,34 @@ export async function setUpPayments(): Promise<FormState> {
   redirect(link.url);
 }
 
-// A parent pays what their family owes on Stripe's own payment page. A page
-// already open is reopened, never a second one, so nothing is paid twice.
-export async function payOnline(familyId: string): Promise<FormState> {
-  const viewer = await requireShell("family");
-  if (!z.uuid().safeParse(familyId).success) return { error: "That didn't work. Try again." };
-  if (!paymentsOn()) return { error: "Paying in Ovyko isn't switched on yet." };
-  const db = await createClient();
-  const start = async () => {
-    try {
-      return await startOnlinePayment(db, familyId);
-    } catch (error) {
-      if (error instanceof DomainError) return { error: error.message };
-      throw error;
-    }
+// An owner offers instalments to families, or stops offering them. Plans
+// already under way carry on.
+export async function setInstalments(on: boolean): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  try {
+    await setInstalmentsOn(db, organisationId, on === true);
+  } catch (error) {
+    if (error instanceof DomainError) return { error: error.message };
+    throw error;
+  }
+  revalidatePath("/business/settings/payments");
+  return {
+    ok: on
+      ? "Families can pay $100 or more in 2 or 4 payments."
+      : "Instalments are off for new plans. Plans already under way carry on.",
   };
+}
+
+type Started = Awaited<ReturnType<typeof startOnlinePayment>>;
+
+// Opens Stripe's payment page for a payment the database started, or
+// reopens the one already open, so nothing is ever paid twice. With
+// `save`, the card or bank account is kept for the instalments to come.
+async function openPaymentPage(
+  email: string,
+  start: () => Promise<Started | { error: string }>,
+  save: boolean,
+): Promise<FormState> {
   let started = await start();
   if ("error" in started) return started;
 
@@ -84,9 +104,7 @@ export async function payOnline(familyId: string): Promise<FormState> {
     const open = await stripe().checkout.sessions.retrieve(
       started.checkoutSessionId,
       {},
-      {
-        stripeAccount: started.stripeAccountId,
-      },
+      { stripeAccount: started.stripeAccountId },
     );
     if (open.status === "open" && open.url) redirect(open.url);
     if (open.status === "complete")
@@ -121,8 +139,10 @@ export async function payOnline(familyId: string): Promise<FormState> {
       payment_intent_data: {
         application_fee_amount: started.platformFeeCents,
         metadata: { ovyko_payment_id: started.paymentId },
+        ...(save ? { setup_future_usage: "off_session" as const } : {}),
       },
-      customer_email: viewer.email,
+      ...(save ? { customer_creation: "always" as const } : {}),
+      customer_email: email,
       client_reference_id: started.paymentId,
       metadata: { ovyko_payment_id: started.paymentId },
       success_url: appUrl(`/family/fees?paid=${started.paymentId}`),
@@ -138,4 +158,56 @@ export async function payOnline(familyId: string): Promise<FormState> {
   if (error) throw error;
   if (!session.url) throw new Error("Stripe returned no payment page");
   redirect(session.url);
+}
+
+const domain =
+  <T>(run: () => Promise<T>) =>
+  async (): Promise<T | { error: string }> => {
+    try {
+      return await run();
+    } catch (error) {
+      if (error instanceof DomainError) return { error: error.message };
+      throw error;
+    }
+  };
+
+// A parent pays what their family owes on Stripe's own payment page.
+export async function payOnline(familyId: string): Promise<FormState> {
+  const viewer = await requireShell("family");
+  if (!z.uuid().safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  if (!paymentsOn()) return { error: "Paying in Ovyko isn't switched on yet." };
+  const db = await createClient();
+  return openPaymentPage(
+    viewer.email,
+    domain(() => startOnlinePayment(db, familyId)),
+    false,
+  );
+}
+
+// A parent pays in 2 or 4 instalments (M7c part 2): the first now, on
+// Stripe's page, which saves the card or bank account for the rest.
+export async function payInInstalments(familyId: string, payments: number): Promise<FormState> {
+  const viewer = await requireShell("family");
+  if (!z.uuid().safeParse(familyId).success || (payments !== 2 && payments !== 4))
+    return { error: "That didn't work. Try again." };
+  if (!paymentsOn()) return { error: "Paying in Ovyko isn't switched on yet." };
+  const db = await createClient();
+  return openPaymentPage(
+    viewer.email,
+    domain(() => startInstalmentPlan(db, familyId, payments)),
+    true,
+  );
+}
+
+// Pays what's left of a plan now, which ends it.
+export async function payRestOfPlan(familyId: string): Promise<FormState> {
+  const viewer = await requireShell("family");
+  if (!z.uuid().safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  if (!paymentsOn()) return { error: "Paying in Ovyko isn't switched on yet." };
+  const db = await createClient();
+  return openPaymentPage(
+    viewer.email,
+    domain(() => payRestOfPlanNow(db, familyId)),
+    false,
+  );
 }

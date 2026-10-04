@@ -36,6 +36,8 @@ makes) only in a session that has passed two-step sign-in.
 - voucher_schemes — the government activity vouchers the school takes
   (M7d): nsw_active_creative_kids, qld_fairplay, sa_sports_vouchers,
   wa_kidsport; through `set_voucher_schemes`.
+- instalments_on — default off (M7c part 2); the school's choice, through
+  `set_instalments_on`. On: families owing $100 or more can pay in 2 or 4.
 
 ### Location
 - id
@@ -469,6 +471,43 @@ per school.
 
 Written only by the server, from Stripe's own word; owners read their own.
 The free trial (30 days from the school's creation) needs no row.
+
+### InstalmentPlan
+A family paying what they owed in 2 or 4 payments (M7c part 2). One under
+way per family.
+
+- id
+- organisation_id
+- family_id
+- payments: 2 | 4
+- total_cents — what was owing when it started
+- status: pending (first payment not in yet) | active | completed | stopped
+- stripe_customer_id, payment_method_id, payment_method_type
+  (card | direct_debit) nullable — the card or bank account saved on the
+  school's Stripe account by the first payment; Ovyko never sees the
+  details
+- started_by nullable — the parent
+- created_at, updated_at
+
+### Instalment
+One payment of a plan.
+
+- id
+- organisation_id, plan_id, family_id
+- seq — 1 to 4; unique per plan
+- amount_cents — equal shares, the first taking any odd cents
+- due_on — the school's day: the first today, then every 4 weeks (2
+  payments) or 2 weeks (4 payments)
+- status: scheduled | started | processing | paid | failed | cancelled
+- online_payment_id nullable, unique — the payment that took it
+
+Started by a parent for their own family (`start_instalment_plan`); the
+later payments are claimed and settled only by the server
+(`claim_due_instalments`, `settle_instalment_payment`); a payment's status
+carries through to its instalment and plan. A failed or expired payment
+stops the plan and cancels what's left, which is then simply owed.
+Scheduled instalments of an active plan don't count as owing now, overdue
+or in reminders. Owners and the family's parents read both.
 
 ### PlatformAdmin
 A person who runs Ovyko and may see its totals (`docs/PLATFORM_TOTALS.md`).

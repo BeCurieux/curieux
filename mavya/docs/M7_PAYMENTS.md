@@ -11,7 +11,7 @@ They ship in slices, safest first:
 |---|---|
 | **M7a** | **Family accounts**: what each family owes for the term, worked out from the timetable; payments the school took elsewhere; credits; a clear statement for parents. No money moves through Ovyko yet. |
 | **M7b** | **Stripe Connect**: schools approved to take payments; parents pay a term upfront by card or direct debit; receipts. |
-| **M7c** | **Due dates and fee reminders; failed payments chased** (part 1). Instalments (part 2, waiting on the owner's decisions). |
+| **M7c** | **Due dates and fee reminders; failed payments chased** (part 1). **Instalments** (part 2). |
 | **M7d** | **Government activity vouchers** (part 1). Xero sync waits on the owner: CLAUDE.md rule 14 rules Xero out of v0.1. |
 
 Decisions from the owner of Ovyko (3 October 2026), for all of M7:
@@ -301,3 +301,73 @@ to see or change another family's or school's money, and these fixes:
   change.
 - **Vouchers.** A declined code can be handed over again; cancelling a
   voucher's credit (a wrong amount) puts the voucher back to redeem again.
+
+## M7c part 2 — Instalments
+
+Decisions from the owner of Ovyko (4 October 2026): 2 or 4 instalments a
+term, no extra fee, each school chooses whether to offer them. The rest
+are defaults chosen by Claude; the owner can change them.
+
+### Decisions
+
+1. **Schools switch instalments on** in Settings → Payments (off until
+   they do).
+2. **Parents choose on Fees**, when at least $100 is owing: pay in full,
+   in 2 payments four weeks apart, or in 4 payments two weeks apart. The
+   first is paid now; amounts are equal (the first takes any odd cents).
+3. **The first payment saves the card or bank account** on Stripe's page,
+   with the parent's agreement, for the later ones. Ovyko never sees it.
+4. **Later payments are taken automatically** on their dates, at 9am
+   school time. Each gets a receipt. A direct debit shows as on its way
+   until it clears.
+5. **If one fails**, the parent is emailed at once with a link to pay, and
+   the rest of the plan stops: what's left is simply owing, and the usual
+   reminders apply. Nothing is retried behind the parent's back.
+6. **The Fees screen shows the plan:** what's paid and what's next. A
+   parent can pay the rest at any time, which ends the plan.
+7. **Reminders and "overdue" skip amounts a plan will take.** Charges
+   added after a plan started are paid separately.
+8. **One plan at a time per family.**
+
+### Data model
+
+- `Organisation.instalments_on`.
+- New `InstalmentPlan`: family, number of payments, total, status
+  (pending, active, completed, stopped), the saved Stripe customer and payment
+  method on the school's account, who started it.
+- New `Instalment`: plan, number, amount, date, status (scheduled, on its
+  way, paid, failed, cancelled), the online payment that took it.
+
+### Acceptance criteria
+
+- With instalments off, parents see only "Pay in full".
+- A parent starts a plan of 2 or 4; the first payment is taken on
+  Stripe's page and the card or bank account is saved for the rest.
+- On their dates the rest are taken automatically, once each, and added
+  to the account; a failed one stops the plan and emails the parent.
+- Paying the rest ends the plan. Reminders skip amounts a plan will take.
+- Only the family's parents start a plan for their family; only the server
+  takes payments.
+
+### How it works
+
+- `start_instalment_plan` writes the plan and its instalments and starts
+  the first payment; the server opens Stripe's page for it with
+  `setup_future_usage: off_session`, so Stripe saves the card or bank
+  account on the school's account. When Stripe confirms it, the webhook
+  asks Stripe which payment method was saved and records it on the plan
+  (`attach_plan_payment_method`).
+- Every hour the database's schedule (`private.kick_instalments`) calls
+  `/api/payments/instalments` once an instalment is due and it's 9am or
+  later at the school. The server claims what's due
+  (`claim_due_instalments`, each one once) and creates an off-session
+  payment on the school's account, with Ovyko's 0.5%, keyed by the
+  payment's id so a retry never charges twice.
+- Stripe's answer, and its later `payment_intent.*` messages, are
+  recorded by `settle_instalment_payment`, then exactly as a page payment
+  (a ledger line, a receipt, or a failed-payment email).
+- A payment that needs the parent present (a bank asking for a code)
+  counts as failed: the plan stops and the parent pays the rest on the
+  Fees screen.
+
+Tests: `tests/rls/instalments.test.ts`, `tests/e2e/instalments.spec.ts`.

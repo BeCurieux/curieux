@@ -145,6 +145,7 @@ const lookups: StripeLookups = {
   subscription: async () => {
     throw new Error("not used here");
   },
+  savedPaymentMethod: async () => null,
 };
 const handle = (e: Stripe.Event) => handleStripeEvent(admin, e, lookups);
 

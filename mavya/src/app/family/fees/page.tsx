@@ -3,11 +3,20 @@ import type { Metadata } from "next";
 import { Balance, Statement } from "@/components/accounts/statement";
 import { EmptyState } from "@/components/demo/empty-state";
 import { VoucherForm } from "@/components/family/voucher-form";
-import { PayButton } from "@/components/payments/pay-forms";
+import { InstalmentButtons, PayButton, PayRestButton } from "@/components/payments/pay-forms";
 import { familyContext } from "@/lib/demo/context";
 import { balanceOf, familyLines, formatMoney } from "@/lib/domain/accounts";
-import { canPayOnline, onlinePayment, paymentsToShow } from "@/lib/domain/payments";
+import {
+  canPayOnline,
+  instalmentsOffered,
+  onlinePayment,
+  openPlan,
+  paymentsToShow,
+  splitInstalments,
+  type InstalmentPlan,
+} from "@/lib/domain/payments";
 import { familyVouchers, SCHEMES, STATUS_LABELS, voucherSchemes } from "@/lib/domain/vouchers";
+import { formatLessonDate } from "@/lib/format";
 import { paymentsOn } from "@/lib/payments/stripe";
 
 export const metadata: Metadata = { title: "Fees" };
@@ -32,10 +41,12 @@ export default async function FeesPage({
   const accounts = await Promise.all(
     viewer.families.map(async (f) => {
       const org = orgs?.find((o) => o.id === f.familyId)?.organisation_id;
-      const [lines, payments, payable, schemes, vouchers, kids] = await Promise.all([
+      const [lines, payments, payable, offered, plan, schemes, vouchers, kids] = await Promise.all([
         familyLines(db, f.familyId),
         paymentsToShow(db, f.familyId),
         on && org ? canPayOnline(db, org) : false,
+        on && org ? instalmentsOffered(db, org) : false,
+        openPlan(db, f.familyId),
         org ? voucherSchemes(db, org) : [],
         familyVouchers(db, f.familyId),
         db
@@ -46,7 +57,7 @@ export default async function FeesPage({
           .order("first_name")
           .then(({ data }) => (data ?? []).map((c) => ({ id: c.id, name: c.first_name }))),
       ]);
-      return { family: f, lines, payments, payable, schemes, vouchers, kids };
+      return { family: f, lines, payments, payable, offered, plan, schemes, vouchers, kids };
     }),
   );
   const justPaid = paid && /^[0-9a-f-]{36}$/.test(paid) ? await onlinePayment(db, paid) : null;
@@ -72,13 +83,20 @@ export default async function FeesPage({
       ) : (
         accounts
           .filter((a) => a.lines.length > 0 || a.payments.length > 0)
-          .map(({ family, lines, payments, payable }) => {
+          .map(({ family, lines, payments, payable, offered, plan }) => {
             const balance = balanceOf(lines);
+            // As the database counts it: less direct debits on their way and
+            // instalments a plan will take later.
+            const later = plan?.status === "active" ? scheduledCents(plan) : 0;
             const owing =
               balance -
+              later -
               payments
                 .filter((p) => p.status === "processing")
                 .reduce((s, p) => s + p.amountCents, 0);
+            const busy = plan?.instalments.some(
+              (i) => i.status === "started" || i.status === "processing",
+            );
             return (
               <section
                 key={family.familyId}
@@ -100,9 +118,28 @@ export default async function FeesPage({
                     </p>
                   ),
                 )}
+                {plan ? <PlanSummary plan={plan} /> : null}
+                {payable && plan?.status === "active" && later > 0 && !busy ? (
+                  <PayRestButton
+                    familyId={family.familyId}
+                    amount={formatMoney(Math.max(owing, 0) + later)}
+                  />
+                ) : null}
                 {payable && owing >= 50 ? (
                   <>
                     <PayButton familyId={family.familyId} amount={formatMoney(owing)} />
+                    {offered && !plan && owing >= 10000 ? (
+                      <>
+                        <p className="text-sm font-semibold">Or spread it out, at no extra cost:</p>
+                        <InstalmentButtons
+                          familyId={family.familyId}
+                          options={([2, 4] as const).map((n) => ({
+                            payments: n,
+                            label: `${n} payments of ${formatMoney(splitInstalments(owing, n)[1] ?? 0)}`,
+                          }))}
+                        />
+                      </>
+                    ) : null}
                     <p className="text-sm text-muted">
                       By card, Apple Pay, Google Pay or direct debit, on Stripe&apos;s secure page.
                     </p>
@@ -156,6 +193,50 @@ export default async function FeesPage({
             ) : null}
           </section>
         ))}
+    </div>
+  );
+}
+
+function scheduledCents(plan: InstalmentPlan): number {
+  return plan.instalments
+    .filter((i) => i.status === "scheduled")
+    .reduce((s, i) => s + i.amountCents, 0);
+}
+
+const INSTALMENT_LABELS: Record<InstalmentPlan["instalments"][number]["status"], string> = {
+  scheduled: "To come",
+  started: "Being paid",
+  processing: "On its way",
+  paid: "Paid",
+  failed: "Didn't go through",
+  cancelled: "Cancelled",
+};
+
+// A family's instalments: what's paid and what's to come.
+function PlanSummary({ plan }: { plan: InstalmentPlan }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-md bg-surface-soft p-4">
+      <p className="font-semibold">
+        {plan.status === "pending"
+          ? `Paying ${formatMoney(plan.totalCents)} in ${plan.payments} payments, once the first is in.`
+          : `Paying ${formatMoney(plan.totalCents)} in ${plan.payments} payments.`}
+      </p>
+      <ul aria-label="Instalments" className="flex flex-col gap-1 text-sm">
+        {plan.instalments.map((i) => (
+          <li key={i.seq} className="flex justify-between gap-4">
+            <span>
+              {formatMoney(i.amountCents)} on {formatLessonDate(`${i.dueOn}T12:00:00Z`, "UTC")}
+            </span>
+            <span className="text-muted">{INSTALMENT_LABELS[i.status]}</span>
+          </li>
+        ))}
+      </ul>
+      {plan.status === "active" ? (
+        <p className="text-sm text-muted">
+          Taken automatically from the card or bank account you used. If one doesn&apos;t go
+          through, we&apos;ll email you and the rest is simply owed.
+        </p>
+      ) : null}
     </div>
   );
 }

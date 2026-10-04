@@ -61,8 +61,23 @@ describe("fee reminders and failed payments", () => {
     });
     expect(late.subject).toBe("Fees overdue at Aqua House");
     expect(late.text).toContain("was due to Aqua House on Mon 2 Feb");
-    const failed = messages.paymentFailed({ school: "Aqua House", amount: "$230", url: "u" });
+    const failed = messages.paymentFailed({
+      school: "Aqua House",
+      amount: "$230",
+      url: "u",
+      method: "direct_debit",
+      instalment: false,
+    });
     expect(failed.subject).toBe("A payment didn't go through");
     expect(failed.text).toContain("Your direct debit of $230 to Aqua House didn't go through.");
+    const card = messages.paymentFailed({
+      school: "Aqua House",
+      amount: "$115",
+      url: "u",
+      method: "card",
+      instalment: true,
+    });
+    expect(card.text).toContain("Your instalment of $115 to Aqua House didn't go through.");
+    expect(card.text).toContain("the rest of your instalments are cancelled");
   });
 });
