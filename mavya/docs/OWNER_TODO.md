@@ -114,4 +114,5 @@ Part B, going live (before the pilot school takes real payments):
 
 - [ ] Talk to 10 swim school owners in the next 6–8 weeks (the outreach kit
       has the email, demo script and questions). Ask what tools they use
-      and which annoys them most.
+      and which annoys them most, and add the five questions in
+      `docs/STRATEGY.md` ("Questions to ask in the owner interviews").

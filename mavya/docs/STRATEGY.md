@@ -100,6 +100,23 @@ still applies; this comes first.
 5. **Ovyko's 0.5% fee on payments** may be low for a business whose value
    rests partly on payments. Revisit before the pilot sets expectations.
 
+### Questions to ask in the owner interviews
+
+Add these to the outreach kit's questions; the answers decide the later
+layers:
+
+1. "When a family moves to you from another school, what do you get from
+   the old school? Would a record of the child's levels and skills,
+   shared by the family, help?" (the passport, receiving side)
+2. "If a family leaving you could take that record with them, would that
+   worry you?" (the passport, losing side)
+3. "How do you find out families want a time you don't run? Have you
+   ever started a class because of it?" (demand data)
+4. "How many of your families also do gymnastics, dance or another
+   activity nearby? Do you know the other providers?" (density)
+5. "What did you collect last month, and how much was late? How do you
+   chase it?" (the USP in dollars)
+
 ### Who already buys companies like Ovyko (checked 4 October 2026)
 
 Buyers have already paid for companies in Ovyko's category, so the buyers
