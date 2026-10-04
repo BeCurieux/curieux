@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
-import { accountFlags, stripe } from "@/lib/payments/stripe";
+import { accountFlags, planSubscription, stripe } from "@/lib/payments/stripe";
 import { handleStripeEvent, TryAgainLater, type StripeLookups } from "@/lib/payments/webhook";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { serverEnv } from "@/lib/supabase/server-env";
@@ -17,7 +17,23 @@ const lookups: StripeLookups = {
   async accountFlags(account) {
     return accountFlags(await stripe().accounts.retrieve(account));
   },
+  async subscription(id) {
+    return planSubscription(await stripe().subscriptions.retrieve(id));
+  },
 };
+
+// Stripe signs messages about schools' accounts and about Ovyko's own
+// account with different secrets; either will do.
+function verify(body: string, signature: string, secrets: string[]): Stripe.Event | null {
+  for (const secret of secrets) {
+    try {
+      return stripe().webhooks.constructEvent(body, signature, secret);
+    } catch {
+      // Try the next secret.
+    }
+  }
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   const secret = serverEnv().STRIPE_WEBHOOK_SECRET;
@@ -25,16 +41,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "payments are off" }, { status: 503 });
   }
   const body = await request.text();
-  let event: Stripe.Event;
-  try {
-    event = stripe().webhooks.constructEvent(
-      body,
-      request.headers.get("stripe-signature") ?? "",
-      secret,
-    );
-  } catch {
-    return NextResponse.json({ error: "not signed by Stripe" }, { status: 400 });
-  }
+  const event = verify(
+    body,
+    request.headers.get("stripe-signature") ?? "",
+    secret.split(",").map((s) => s.trim()),
+  );
+  if (!event) return NextResponse.json({ error: "not signed by Stripe" }, { status: 400 });
   try {
     const outcome = await handleStripeEvent(createAdminClient(), event, lookups);
     return NextResponse.json({ outcome });

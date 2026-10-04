@@ -142,6 +142,9 @@ const lookups: StripeLookups = {
   paymentIdForIntent: async (_account, intent) => stripeSide.intents.get(intent) ?? null,
   accountFlags: async (account) =>
     stripeSide.accounts.get(account) ?? { charges: false, payouts: false, details: false },
+  subscription: async () => {
+    throw new Error("not used here");
+  },
 };
 const handle = (e: Stripe.Event) => handleStripeEvent(admin, e, lookups);
 

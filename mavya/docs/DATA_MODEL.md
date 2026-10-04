@@ -453,6 +453,23 @@ Started by a parent (`start_online_payment`, for their own family only);
 everything after that only by the server from Stripe's checked messages.
 Owners and the family's parents read it.
 
+### SchoolSubscription
+A school's subscription to Ovyko's plan (`docs/SUBSCRIPTIONS.md`). One
+per school.
+
+- organisation_id — primary key
+- stripe_customer_id, unique — the school as a customer of Ovyko's own
+  Stripe account
+- stripe_subscription_id nullable, unique
+- status nullable — Stripe's: trialing, active, past_due, unpaid,
+  canceled, incomplete, incomplete_expired, paused
+- locations, price_cents nullable — what's billed each month
+- trial_end, current_period_end nullable; cancel_at_period_end
+- created_at, updated_at
+
+Written only by the server, from Stripe's own word; owners read their own.
+The free trial (30 days from the school's creation) needs no row.
+
 ### PlatformAdmin
 A person who runs Ovyko and may see its totals (`docs/PLATFORM_TOTALS.md`).
 

@@ -26,6 +26,7 @@ CRON_SECRET=local-only-cron-secret-0000000000000000
 STRIPE_SECRET_KEY=sk_test_localonly
 STRIPE_WEBHOOK_SECRET=whsec_local_only
 STRIPE_API_URL=http://localhost:12111
+STRIPE_SCHOOL_PRICE_ID=price_localonly
 ENV
 
 echo "Wrote .env.local for $(field API_URL)"

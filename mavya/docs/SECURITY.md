@@ -224,6 +224,16 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - No money moves through Ovyko yet; card details will only ever be held by
   the payment provider (M7b).
 
+### Ovyko's plan (done)
+
+- Billing runs on Ovyko's own Stripe account; Ovyko never sees card or
+  bank details. Only the server records a plan, from Stripe's own word
+  (asked again, not taken from the message), and only for messages about
+  Ovyko's own account: a school's subscriptions on its own Stripe account
+  are ignored.
+- Only a school's owners see or manage its plan. A billing problem never
+  locks a school or its families out.
+
 ### Ovyko totals (done)
 
 - Numbers across all schools only; no name of a school, family or child.

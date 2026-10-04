@@ -3,6 +3,7 @@ import {
   CalendarRange,
   CalendarX,
   CreditCard,
+  Receipt,
   Wallet,
   History,
   Layers,
@@ -53,6 +54,12 @@ const SECTIONS = [
     icon: CreditCard,
     title: "Payments",
     body: "Let families pay by card or direct debit.",
+  },
+  {
+    href: "/business/settings/plan",
+    icon: Receipt,
+    title: "Ovyko plan",
+    body: "Your subscription to Ovyko, and invoices.",
   },
   {
     href: "/business/settings/cancel",

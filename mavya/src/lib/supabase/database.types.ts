@@ -1551,6 +1551,56 @@ export type Database = {
           },
         ];
       };
+      school_subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean;
+          created_at: string;
+          current_period_end: string | null;
+          locations: number | null;
+          organisation_id: string;
+          price_cents: number | null;
+          status: string | null;
+          stripe_customer_id: string;
+          stripe_subscription_id: string | null;
+          trial_end: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          locations?: number | null;
+          organisation_id: string;
+          price_cents?: number | null;
+          status?: string | null;
+          stripe_customer_id: string;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          locations?: number | null;
+          organisation_id?: string;
+          price_cents?: number | null;
+          status?: string | null;
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "school_subscriptions_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: true;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       sensitive_views: {
         Row: {
           child_id: string;
@@ -2147,12 +2197,14 @@ export type Database = {
           children_enrolled: number;
           families: number;
           fees_charged_365d_cents: number;
+          monthly_recurring_cents: number;
           ovyko_fees_30d_cents: number;
           ovyko_fees_365d_cents: number;
           paid_online_30d_cents: number;
           paid_online_365d_cents: number;
           recorded_payments_365d_cents: number;
           schools: number;
+          schools_paying: number;
           schools_taking_payments: number;
           schools_teaching: number;
         }[];
@@ -2252,6 +2304,20 @@ export type Database = {
         };
         Returns: string;
       };
+      save_school_customer: { Args: { p_customer: string; p_org: string }; Returns: string };
+      save_school_subscription: {
+        Args: {
+          p_cancel_at_period_end: boolean;
+          p_customer: string;
+          p_locations: number;
+          p_period_end: string;
+          p_price_cents: number;
+          p_status: string;
+          p_subscription: string;
+          p_trial_end: string;
+        };
+        Returns: boolean;
+      };
       save_term: {
         Args: {
           p_ends_on: string;
@@ -2261,6 +2327,14 @@ export type Database = {
           p_term?: string;
         };
         Returns: string;
+      };
+      school_plan_state: {
+        Args: { p_org: string };
+        Returns: {
+          locations: number;
+          state: string;
+          trial_ends: string;
+        }[];
       };
       set_fee_reminders: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };

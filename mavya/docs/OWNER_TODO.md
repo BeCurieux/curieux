@@ -15,6 +15,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   6. `supabase/migrations/20261012000029_vouchers.sql`
   7. `supabase/migrations/20261013000030_payment_fixes.sql`
   8. `supabase/migrations/20261014000031_platform_totals.sql`
+  9. `supabase/migrations/20261015000032_school_subscriptions.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
@@ -34,8 +35,9 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 - [ ] Trademark search for "Ovyko".
 - [ ] Privacy lawyer review (privacy policy, school data agreement, parent
       notice).
-- [ ] Decide pricing (plan: A$349–449 a month per location; SimplySwim
-      charges A$159–287).
+- [x] Decide pricing: A$399 a month per location, 30 days free
+      (4 October 2026; `docs/SUBSCRIPTIONS.md`). Ask the accountant
+      whether to charge GST on it, and set the Stripe price to match.
 - [ ] Ask an accountant whether lessons carry GST, before receipts become
       tax invoices.
 
@@ -82,6 +84,15 @@ Part B, going live (before the pilot school takes real payments):
       `charge.refunded`, `charge.refund.updated`, `refund.failed`,
       `charge.dispute.closed`, `account.application.deauthorized`. Put its signing secret (starts `whsec_`) in Vercel
       as `STRIPE_WEBHOOK_SECRET`.
+- [ ] Ovyko's plan in Stripe: Product catalogue → add a product "Ovyko"
+      with a monthly price of A$399 (per unit). Put its id (starts
+      `price_`) in Vercel as `STRIPE_SCHOOL_PRICE_ID`. Settings →
+      Billing → Customer portal: turn it on (update payment details,
+      invoices, cancel). Add a second webhook endpoint, "Events on your
+      account", same address, events `customer.subscription.created`,
+      `.updated`, `.deleted`, `.paused`, `.resumed`; add its signing
+      secret to `STRIPE_WEBHOOK_SECRET` after the first, separated by a
+      comma.
 - [ ] Confirm Ovyko's fee: 0.5% of each online payment (from the business
       plan). Tell Claude if it should be different.
 
@@ -90,12 +101,9 @@ Part B, going live (before the pilot school takes real payments):
 - [ ] Fee reminders (M7c): Claude chose a week before, on the day, then a
       week and two weeks after, at 9am, off until each school turns them
       on. Change any of that if you'd like.
-- [ ] Xero: the strategy says sync with Xero after payments, but Ovyko's
-      rules (CLAUDE.md, rule 14) say no Xero in v0.1. Decide whether to
-      change the rule; Claude won't build it until you do.
-- [ ] Instalments (M7c part 2): how many (e.g. 2 or 4 a term)? Can a school
-      charge extra for them? Parents would save their bank details or card
-      with Stripe for the later payments.
+- [x] Xero: kept out until after the pilot (4 October 2026).
+- [x] Instalments (M7c part 2): 2 or 4 a term, no extra fee, each school
+      turns them on (4 October 2026).
 
 - [ ] Talk to 10 swim school owners in the next 6–8 weeks (the outreach kit
       has the email, demo script and questions). Ask what tools they use

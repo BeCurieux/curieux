@@ -17,6 +17,20 @@ export type StripeLookups = {
   paymentIdForIntent(account: string, intent: string): Promise<string | null>;
   // How a school's account stands now.
   accountFlags(account: string): Promise<{ charges: boolean; payouts: boolean; details: boolean }>;
+  // A school's subscription to Ovyko's plan as it stands now (Ovyko's own
+  // Stripe account).
+  subscription(id: string): Promise<PlanSubscription>;
+};
+
+export type PlanSubscription = {
+  id: string;
+  customer: string;
+  status: string;
+  locations: number;
+  priceCents: number;
+  trialEnd: string | null;
+  periodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
 };
 
 // Thrown so the route answers with an error and Stripe sends the message
@@ -44,6 +58,29 @@ export async function handleStripeEvent(
       });
       if (error) throw error;
       return data ? "account updated" : "ignored";
+    }
+    case "customer.subscription.created":
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted":
+    case "customer.subscription.paused":
+    case "customer.subscription.resumed": {
+      // Only Ovyko's own plan: a school's subscriptions to its own
+      // customers, on its own account, are none of Ovyko's business.
+      if (account) return "ignored";
+      const sub = await stripe.subscription(event.data.object.id);
+      const { data, error } = await admin.rpc("save_school_subscription", {
+        p_customer: sub.customer,
+        p_subscription: sub.id,
+        p_status: sub.status,
+        p_locations: sub.locations,
+        p_price_cents: sub.priceCents,
+        // No trial or period yet is stored as none.
+        p_trial_end: sub.trialEnd as string,
+        p_period_end: sub.periodEnd as string,
+        p_cancel_at_period_end: sub.cancelAtPeriodEnd,
+      });
+      if (error) throw error;
+      return data ? `plan ${sub.status}` : "ignored";
     }
     case "account.application.deauthorized": {
       if (!account) return "ignored";

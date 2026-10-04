@@ -20,10 +20,12 @@ share. Built 4 October 2026.
 4. **A private page, `/platform`**, not in any menu. A platform admin who
    doesn't own a school lands there after signing in.
 
+Since `docs/SUBSCRIPTIONS.md`: also paying schools and monthly
+subscription revenue.
+
 ## Not yet
 
-- Schools that leave (needs Ovyko's own subscriptions to schools).
-- Ovyko's subscription revenue (the same).
+- Schools that leave, month by month.
 
 ## Acceptance criteria
 

@@ -51,7 +51,9 @@ const serverSchema = z
       .transform((value) => (value ? value : undefined))
       .pipe(z.string().min(32).optional()),
     // Card payments (M7b). Off unless set. The secret key starts sk_test_
-    // or sk_live_; the webhook secret (whsec_) checks Stripe's messages.
+    // or sk_live_; the webhook secret (whsec_) checks Stripe's messages. Two
+    // webhook endpoints (schools' accounts, and Ovyko's own for its plan)
+    // have a secret each: give both, separated by a comma.
     STRIPE_SECRET_KEY: optionalString.pipe(
       z
         .string()
@@ -62,6 +64,9 @@ const serverSchema = z
     // Local and CI only: Stripe's test double (stripe-mock), e.g.
     // http://localhost:12111. Never set in a deployed environment.
     STRIPE_API_URL: optionalString.pipe(z.url().optional()),
+    // Ovyko's plan (docs/SUBSCRIPTIONS.md): the price schools pay, per
+    // location, in Ovyko's own Stripe account.
+    STRIPE_SCHOOL_PRICE_ID: optionalString.pipe(z.string().startsWith("price_").optional()),
   })
   .superRefine((env, ctx) => {
     const need = (key: keyof typeof env) => {

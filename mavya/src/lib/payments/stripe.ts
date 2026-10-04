@@ -37,3 +37,24 @@ export const accountFlags = (a: Stripe.Account) => ({
   payouts: Boolean(a.payouts_enabled),
   details: Boolean(a.details_submitted),
 });
+
+const iso = (unix: number | null | undefined) =>
+  unix ? new Date(unix * 1000).toISOString() : null;
+
+// A school's subscription to Ovyko's plan, in the fields Ovyko keeps.
+export function planSubscription(sub: Stripe.Subscription) {
+  const item = sub.items.data[0];
+  const periodEnd =
+    (item as { current_period_end?: number } | undefined)?.current_period_end ??
+    (sub as unknown as { current_period_end?: number }).current_period_end;
+  return {
+    id: sub.id,
+    customer: typeof sub.customer === "string" ? sub.customer : sub.customer.id,
+    status: sub.status,
+    locations: item?.quantity ?? 1,
+    priceCents: item?.price.unit_amount ?? 0,
+    trialEnd: iso(sub.trial_end),
+    periodEnd: iso(periodEnd),
+    cancelAtPeriodEnd: Boolean(sub.cancel_at_period_end),
+  };
+}

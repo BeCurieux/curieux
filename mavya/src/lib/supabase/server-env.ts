@@ -15,6 +15,7 @@ export function serverEnv(): ServerEnv {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_API_URL: process.env.STRIPE_API_URL,
+    STRIPE_SCHOOL_PRICE_ID: process.env.STRIPE_SCHOOL_PRICE_ID,
   });
   return cached;
 }

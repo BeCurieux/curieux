@@ -8,6 +8,8 @@ export type PlatformTotals = {
   schools: number;
   schoolsTeaching: number;
   schoolsTakingPayments: number;
+  schoolsPaying: number;
+  monthlyRecurringCents: number;
   families: number;
   childrenEnrolled: number;
   feesCharged365dCents: number;
@@ -39,6 +41,8 @@ export async function platformTotals(db: Db): Promise<PlatformTotals> {
     schools: r.schools,
     schoolsTeaching: r.schools_teaching,
     schoolsTakingPayments: r.schools_taking_payments,
+    schoolsPaying: r.schools_paying,
+    monthlyRecurringCents: r.monthly_recurring_cents,
     families: r.families,
     childrenEnrolled: r.children_enrolled,
     feesCharged365dCents: r.fees_charged_365d_cents,

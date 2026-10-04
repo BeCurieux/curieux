@@ -20,6 +20,8 @@ export default async function PlatformPage() {
 
   const tiles: [string, string][] = [
     ["Schools", String(t.schools)],
+    ["Paying for Ovyko", String(t.schoolsPaying)],
+    ["Monthly subscriptions", formatMoney(t.monthlyRecurringCents)],
     ["Teaching in the next fortnight", String(t.schoolsTeaching)],
     ["Taking payments in Ovyko", String(t.schoolsTakingPayments)],
     ["Families", String(t.families)],

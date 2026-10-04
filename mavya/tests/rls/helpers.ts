@@ -97,6 +97,7 @@ export const TABLES = [
   "online_payments",
   "voucher_claims",
   "platform_admins",
+  "school_subscriptions",
 ] as const;
 
 // Puts a family back as seeded: cancels their booked make-ups and takes back
