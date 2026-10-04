@@ -274,3 +274,56 @@ mornings are 91% full versus 84% for similar schools").
 - **When payments come.** After the pilot proves the loop; the pilot keeps
   its current billing at first, which also makes switching less risky.
 - **Casual-place revenue** in the tally, once a school sells casual places.
+
+## Why a buyer like Xplor would buy Ovyko (4 October 2026)
+
+Not today. A large group buys a small company when buying it is cheaper
+than beating it. (Buyers and the A$20m arithmetic: `docs/BUSINESS_PLAN.md`,
+"Who might buy Ovyko".)
+
+### Why groups like Xplor buy
+
+Xplor earns most of its money from payments, a small share of every dollar
+its customers collect; software is how it gets that flow. It buys:
+
+1. **Customers and their payments in one go.** Winning 500 schools one at
+   a time takes years of selling.
+2. **To stop a competitor taking its customers.** If independent schools
+   keep choosing Ovyko, buying it ends the losses and keeps the payments.
+3. **Something it can't easily build:** a product owners love, for a
+   market its own software serves badly.
+
+### What would make Ovyko worth buying to them
+
+- **Independent swim schools are their gap.** Their product is built for
+  councils and big recreation centres; reviews complain of poor service
+  and features that don't work well together. An Ovyko that clearly wins
+  small schools fills that gap.
+- **Ovyko's payments become theirs.** A buyer can move Ovyko's schools
+  onto its own payments (Debitsuccess). With about A$200m a year flowing
+  through Ovyko, that alone could pay for the purchase.
+- **Their costs are lower than ours.** They already have sales, support
+  and payments; Ovyko's customers and product cost them little extra.
+- **Proof, not promises:** schools that rarely leave and owners who refer
+  other owners.
+
+### Why they might not
+
+- **They could copy the ideas.** Automatic make-ups and re-enrolment can
+  be copied; a product owners love and a reputation for care are harder.
+- **They might compete harder instead**, with lower prices or bundled
+  payments, if Ovyko stays small.
+- **Other buyers exist** (The Access Group, DaySmart, Jackrabbit).
+  Interest from more than one is what lifts the price.
+
+### What it means for the plan
+
+1. **Win independent schools clearly.** It's the gap the big groups
+   leave, and the reason anyone would buy Ovyko.
+2. **Get payments flowing.** More money through Ovyko makes it worth more
+   to every buyer, and most of all to a payments group like Xplor.
+3. **Track from day one** how many schools leave, how much money flows
+   through Ovyko, and whether schools pay more over time.
+
+Don't build Ovyko for Xplor. Build it so independent schools love it and
+it makes good money; then a sale is an option, not a need.
