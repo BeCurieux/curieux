@@ -7,13 +7,20 @@ import type { ClassSummary, Instructor, Location, Program } from "@/lib/domain/t
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+export type ClassPreset = Partial<
+  Pick<ClassSummary, "name" | "levelId" | "locationId" | "weekday" | "startTime">
+>;
+
 export function ClassForm({
   klass,
+  preset,
   locations,
   programs,
   instructors,
 }: {
   klass?: ClassSummary;
+  // Details to start a new class with (from a new class opportunity, M8b).
+  preset?: ClassPreset;
   locations: Location[];
   programs: Program[];
   instructors: Instructor[];
@@ -27,13 +34,13 @@ export function ClassForm({
         name="name"
         label="Class name"
         hint="What families and staff will see, e.g. Dolphin 3."
-        defaultValue={klass?.name}
+        defaultValue={klass?.name ?? preset?.name}
       />
       <SelectField
         name="levelId"
         label="Level"
         placeholder="Choose a level"
-        defaultValue={klass?.levelId}
+        defaultValue={klass?.levelId ?? preset?.levelId}
         options={programs.flatMap((p) =>
           p.levels.map((l) => ({ value: l.id, label: l.name, group: p.name })),
         )}
@@ -42,7 +49,7 @@ export function ClassForm({
         name="locationId"
         label="Location"
         placeholder="Choose a location"
-        defaultValue={klass?.locationId}
+        defaultValue={klass?.locationId ?? preset?.locationId}
         options={locations.filter((l) => l.active).map((l) => ({ value: l.id, label: l.name }))}
       />
       <SelectField
@@ -58,14 +65,14 @@ export function ClassForm({
           name="weekday"
           label="Day"
           placeholder="Choose a day"
-          defaultValue={klass?.weekday}
+          defaultValue={klass?.weekday ?? preset?.weekday}
           options={DAYS.map((d, i) => ({ value: String(i + 1), label: d }))}
         />
         <TextField
           name="startTime"
           label="Start time"
           type="time"
-          defaultValue={klass?.startTime}
+          defaultValue={klass?.startTime ?? preset?.startTime}
         />
         <TextField
           name="durationMinutes"

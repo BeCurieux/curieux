@@ -18,6 +18,8 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   9. `supabase/migrations/20261015000032_school_subscriptions.sql`
   10. `supabase/migrations/20261016000033_instalments.sql`
   11. `supabase/migrations/20261017000034_support_access.sql`
+  12. `supabase/migrations/20261018000035_ovyko_month.sql`
+  13. `supabase/migrations/20261019000036_place_wishes.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in

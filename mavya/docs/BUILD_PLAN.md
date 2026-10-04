@@ -183,3 +183,10 @@ Only after operational loop is proven:
   FairPlay): parents enter a voucher at re-enrolment, it comes off the fee,
   and the owner gets one list to redeem and reconcile
   (`docs/BUSINESS_PLAN.md`, "Notes on payments and government vouchers")
+
+## M8 — The network layer, first pieces
+
+In slices: `docs/M8_NETWORK.md`, from `docs/STRATEGY.md` ("The USP and the
+moat"). M8a: "This month with Ovyko", the places, fees and jobs Ovyko
+handled, in dollars. M8b: what families want, inside one school, with
+new-class opportunities. Within the v0.1 rules: no marketplace, no AI.

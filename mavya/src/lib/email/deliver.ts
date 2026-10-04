@@ -3,7 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatMoney } from "@/lib/domain/accounts";
 import { shortDate } from "@/lib/domain/terms";
-import { lessonMoment } from "@/lib/format";
+import { dayName, formatTime, lessonMoment } from "@/lib/format";
 import * as messages from "./messages";
 import { appUrl, EmailOff, sendEmail } from "./transport";
 
@@ -229,6 +229,37 @@ async function build(
           paidOn: shortDate(paidOn),
           reference: paymentId.slice(0, 8).toUpperCase(),
           url: appUrl("/family/fees"),
+        }),
+      };
+    }
+    case "place_confirmed": {
+      const enrolmentId = (d.payload as { enrolment_id?: string }).enrolment_id;
+      if (!enrolmentId) return null;
+      const placed = one(
+        await admin
+          .from("enrolments")
+          .select(
+            "status, classes (weekday, start_time, levels!classes_organisation_id_level_id_fkey (name), locations (name))",
+          )
+          .eq("id", enrolmentId)
+          .maybeSingle(),
+      ) as unknown as {
+        status: string;
+        classes: {
+          weekday: number;
+          start_time: string;
+          levels: { name: string } | null;
+          locations: { name: string } | null;
+        } | null;
+      } | null;
+      if (!placed || placed.status !== "active" || !placed.classes) return null;
+      const c = placed.classes;
+      return {
+        to,
+        email: messages.placeConfirmed({
+          school,
+          klass: `${dayName(c.weekday)}s at ${formatTime(c.start_time)}, ${c.levels?.name ?? ""}, ${c.locations?.name ?? ""}`,
+          url: appUrl("/family"),
         }),
       };
     }

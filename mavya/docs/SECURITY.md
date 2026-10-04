@@ -250,6 +250,18 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - Owners and the family's parents see a family's vouchers; instructors
   and other schools see none. Audited.
 
+### M8 — This month with Ovyko, and what families want (done)
+
+- "This month with Ovyko" is for the school's owners only, and counts
+  only the school's own records.
+- A family's requests for other times go to their own school only; no
+  other provider sees them (no marketplace, CLAUDE.md rule 13). Parents
+  ask and withdraw for their own children only; owners see and act on
+  their own school's requests; instructors see none. Audited.
+- Families choose from their school's level and location names through a
+  function that returns names only; the rules on what parents can read
+  weren't widened.
+
 ### M6g — Support access (done)
 
 - Ovyko support sees a school only after its owner lets them in, for 48

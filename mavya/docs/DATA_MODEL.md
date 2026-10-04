@@ -513,6 +513,28 @@ left to take ends the plan. Scheduled instalments of an active plan don't
 count as owing now, overdue or in reminders (`family_owing` gives both
 figures to the family and the school). Owners and the family's parents read both.
 
+### PlaceWish
+Times a family would like for a child, at their own school (M8b).
+
+- id
+- organisation_id, family_id, child_id
+- level_id nullable — "not sure" when null
+- location_id nullable — any location when null
+- weekdays — 1 (Monday) to 7, at least one
+- earliest, latest — the window for the class's start time
+- note nullable, up to 200 characters
+- status: open | placed | withdrawn
+- placed_enrolment_id nullable — the enrolment it became
+- created_by, created_at, updated_at
+
+Asked and withdrawn only by the child's own parents (`add_place_wish`,
+`withdraw_place_wish`); the school's owners read them, see new-class
+opportunities (`class_opportunities`) and places that match
+(`wish_matches`), and enrol from a request (`place_from_wish`, which emails
+the family). Enrolling a child in a class at the requested level closes
+their open requests for it. The family's parents and the school's owners
+read it; nothing leaves the school.
+
 ### SupportGrant
 A school letting Ovyko support see how it's set up (M6g).
 

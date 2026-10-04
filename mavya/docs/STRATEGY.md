@@ -12,6 +12,132 @@ group already selling swim school software in Australia, and other larger
 players. See `docs/BUSINESS_PLAN.md`, "Competitors the first research
 missed (4 October 2026)" and "Who might buy Ovyko".
 
+## The USP and the moat (4 October 2026)
+
+The owner of Ovyko's direction: Ovyko is **the operating network for
+children's activities**, not better swim-school software. Everything below
+is judged against this section first.
+
+### In one line each
+
+- **For schools:** *Fill more places. Get paid. Know what families want
+  next. All without the front desk.*
+- **For families:** *One place for your children's activities, schedules,
+  progress and payments.*
+
+### The USP: why a school switches (today)
+
+**Ovyko turns empty places and unpaid fees into money, on its own, and
+shows the dollars.** Not "save your receptionist six hours": the incumbents
+already sell admin features (iClassPro has make-up tokens, temporary
+openings and waitlist offers). What they don't do is resolve the whole job
+with nobody touching it, then prove what it was worth:
+
+> (An illustration.) **This month Ovyko filled 327 places that would have sat empty, collected
+> $41,200 in fees, chased $6,300 that was overdue (all but $400 is in),
+> and kept 41 families for next term. 23 hours of front-desk work, done.**
+
+A USP is what wins customers. It is not a moat: a competitor can copy any
+feature. So the USP buys time to build the moat.
+
+### The moat: why a school can't easily leave, and a competitor can't copy
+
+Honestly: **at day zero Ovyko has no moat.** Moats are earned, in this
+order, and each layer only exists once the one before it is real:
+
+| Layer | What it is | Why it's hard to copy or leave | When it's real |
+|---|---|---|---|
+| 1. The automation | The engine resolves absences, places, make-ups, payments and re-enrolment with no staff | Copyable in time; but a school that has stopped doing these jobs by hand won't go back | First school live |
+| 2. The money | Fees, instalments and direct debits run through Ovyko | Leaving means every family re-entering payment details and the school running two systems | Payments live at the pilot |
+| 3. The demand data | What families want and can't book: "17 children want Tuesday 4:30 beginners" | Only exists because families told Ovyko; an incumbent's database only sees bookings that happened | Months of use per school |
+| 4. The family identity | A family-owned profile (children, levels, availability) shared with each provider | The family, not the school, holds it; it gets more valuable with every provider they use | Several providers in one area |
+| 5. The network | Families using Ovyko with 2+ providers; demand matched to capacity across providers | Classic network effect: each provider and family makes Ovyko more useful to the rest | Density in one area |
+
+Not moats, so we don't spend the moat budget on them: CRM, email tools,
+rosters, basic scheduling, invoicing, website builders, generic AI. Build
+enough of these to win the first schools; put the serious work into the
+five layers.
+
+### The moat needs density, not breadth
+
+Layers 4 and 5 only exist where families use **several** Ovyko providers.
+So growth is suburb by suburb, not school by school across Australia: one
+pilot swim school, then 10–20 providers in the same area (swim, gymnastics,
+dance) before the next area. The metric that proves the moat:
+
+> **The share of families who use Ovyko with two or more providers.**
+
+If it doesn't grow, Ovyko is renting each school's customers, not owning a
+network, and should be valued (and run) as software only.
+
+### The moat test for every feature
+
+Before building something, say which layer it deepens. If it deepens none
+and doesn't win schools (the USP), it waits. The decision filter below
+still applies; this comes first.
+
+### Questions to settle before building the later layers
+
+1. **Will schools accept the Activity Passport?** A verified record that
+   moves with the child makes it easier for a family to leave a school.
+   Schools receiving families gain, the school losing them doesn't. Test
+   it in the owner interviews before building it; it belongs to the family
+   and is shared by them.
+2. **Children's data across organisations.** Layers 4 and 5 move
+   children's details between providers. Only with a family-owned profile
+   that the family shares (CLAUDE.md rule 15), a privacy lawyer's review,
+   and the coming children's online privacy code in mind.
+3. **Bolt-on or platform?** Selling the engine on top of other systems
+   (iClassPro, ClassForKids, ThinkSmart) would let a buyer switch it on for
+   all its customers, but incumbents keep their systems closed and a
+   feature sells for less than a platform. Decision: stay a full platform
+   for the first schools, and build the engine with its own clean
+   interface so the bolt-on route stays open.
+4. **When the rules change.** Matching families to other providers and
+   "Build My Term" are discovery (CLAUDE.md rule 13); churn prediction may
+   count as AI (rule 11). Both are ruled out in v0.1. Changing that is the
+   owner's written decision, after the density test above passes.
+5. **Ovyko's 0.5% fee on payments** may be low for a business whose value
+   rests partly on payments. Revisit before the pilot sets expectations.
+
+### Who already buys companies like Ovyko (checked 4 October 2026)
+
+Buyers have already paid for companies in Ovyko's category, so the buyers
+aren't hypothetical. Checked against the companies' own pages:
+
+| When | Buyer | Bought | What it tells us |
+|---|---|---|---|
+| Feb 2023 | The Access Group | ClassForKids (UK kids' clubs; now "4,500+ clubs and 1 million parents") | Big software groups buy the family relationship at scale |
+| Nov 2023 | DaySmart | Sawyer (US), named for its "two-sided model": software for providers plus a marketplace for parents | Software plus a family-facing network is what gets named in the deal |
+| Feb 2024 | ClearCourse ("software and payments specialist") | ThinkSmart Software, about 2,500 customers, mostly children's activities (swimming, gymnastics, dance, tennis, music); operates in Australia | Payments groups buy activity software to add payments to it |
+| Sep 2025 | Xplor merging with Clubessential; Xplor buying Ezypay (Australian recurring billing) | | Xplor (about $47bn a year in payments) keeps buying payments and recurring billing in Australia |
+
+Also checked: iClassPro already automates make-up tokens, temporary
+openings and waitlist offers, so automation alone isn't the moat.
+Jackrabbit is still privately held, not part of Xplor. Vertical software
+was 54% of SaaS acquisitions in Q2 2026 (Software Equity Group).
+
+Sources: theaccessgroup.com (ClassForKids news, Feb 2023); classforkids.io;
+clearcourse.co.uk (ThinkSmart release, 7 Feb 2024); llrpartners.com
+(DaySmart acquires Sawyer, 6 Nov 2023); adventinternational.com (Xplor and
+Clubessential, 16 Sep 2025); xplor.com (Ezypay); support.iclasspro.com and
+iclasspro.com (automation workflows); softwareequity.com (2Q26 report).
+
+So Ovyko must build **the next asset these buyers need** (demand data, a
+family network, payments in Australia), not a copy of what they already
+own.
+
+### What gets built next because of this
+
+- **"What Ovyko did for you this month"** for owners: the USP, made
+  visible (`docs/M8_NETWORK.md`, M8a).
+- **Unmet demand, within one school:** families say what times they'd
+  want; the owner sees "new class opportunity" and fills it in one go
+  (M8b). The first piece of layer 3, and no marketplace: it never leaves
+  the school.
+- Then, with sign-off and a lawyer: the family-owned child profile, the
+  base of layers 4 and 5.
+
 ## The thesis
 
 The incumbents already have the checklist: enrolment, attendance, payments,

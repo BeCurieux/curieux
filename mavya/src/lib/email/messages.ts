@@ -191,3 +191,14 @@ export function paymentFailed(p: {
     { button: "Pay again", href: p.url },
   ]);
 }
+
+// A child placed from the family's request (M8b). Names the class, not the
+// child.
+export function placeConfirmed(p: { school: string; klass: string; url: string }): Email {
+  const from = school(p.school);
+  return build(`A place at ${from}`, "The time you asked for is yours.", [
+    `Good news: ${from} has a place for you at the time you asked for: ${p.klass}.`,
+    { button: "See it in Ovyko", href: p.url },
+    { small: "If it no longer suits, let your activity provider know." },
+  ]);
+}

@@ -1432,6 +1432,103 @@ export type Database = {
           },
         ];
       };
+      place_wishes: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          created_by: string | null;
+          earliest: string;
+          family_id: string;
+          id: string;
+          latest: string;
+          level_id: string | null;
+          location_id: string | null;
+          note: string | null;
+          organisation_id: string;
+          placed_enrolment_id: string | null;
+          status: string;
+          updated_at: string;
+          weekdays: number[];
+        };
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          earliest: string;
+          family_id: string;
+          id?: string;
+          latest: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id: string;
+          placed_enrolment_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          weekdays: number[];
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          earliest?: string;
+          family_id?: string;
+          id?: string;
+          latest?: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id?: string;
+          placed_enrolment_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          weekdays?: number[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "place_wishes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_level_id_fkey";
+            columns: ["organisation_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_location_id_fkey";
+            columns: ["organisation_id", "location_id"];
+            isOneToOne: false;
+            referencedRelation: "locations";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_placed_enrolment_id_fkey";
+            columns: ["placed_enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       platform_admins: {
         Row: {
           created_at: string;
@@ -2174,6 +2271,18 @@ export type Database = {
         Args: { p_child: string; p_details: string; p_kind: string; p_person: string };
         Returns: string;
       };
+      add_place_wish: {
+        Args: {
+          p_child: string;
+          p_earliest: string;
+          p_latest: string;
+          p_level: string;
+          p_location: string;
+          p_note: string;
+          p_weekdays: number[];
+        };
+        Returns: string;
+      };
       am_platform_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
       apply_terms_at: { Args: { p_now: string }; Returns: number };
@@ -2250,6 +2359,18 @@ export type Database = {
         Returns: {
           booking_id: string;
           outcome: string;
+        }[];
+      };
+      class_opportunities: {
+        Args: { p_min?: number; p_org: string };
+        Returns: {
+          children: number;
+          level_id: string;
+          level_name: string;
+          location_id: string;
+          location_name: string;
+          start_time: string;
+          weekday: number;
         }[];
       };
       create_term_fees: { Args: { p_term: string }; Returns: number };
@@ -2397,6 +2518,26 @@ export type Database = {
           starts_at: string;
         }[];
       };
+      ovyko_month: {
+        Args: { p_month: string; p_org: string };
+        Returns: {
+          absences_by_parents: number;
+          chased_paid_cents: number;
+          chased_paid_families: number;
+          instalments_cents: number;
+          instalments_taken: number;
+          makeups_booked_by_parents: number;
+          makeups_delivered: number;
+          makeups_value_cents: number;
+          offers_automatic: number;
+          offers_claimed: number;
+          paid_online_cents: number;
+          paid_online_count: number;
+          reenrol_answers: number;
+          reminders_sent: number;
+          staying: number;
+        }[];
+      };
       owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
       pay_rest_of_plan: {
         Args: { p_family: string };
@@ -2410,6 +2551,7 @@ export type Database = {
         }[];
       };
       payment_account_disconnected: { Args: { p_account: string }; Returns: boolean };
+      place_from_wish: { Args: { p_class: string; p_wish: string }; Returns: string };
       platform_months: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2668,7 +2810,30 @@ export type Database = {
           offer_status: string;
         }[];
       };
+      wish_choices: {
+        Args: { p_org: string };
+        Returns: {
+          id: string;
+          kind: string;
+          name: string;
+          program: string;
+          sort_order: number;
+        }[];
+      };
+      wish_matches: {
+        Args: { p_org: string };
+        Returns: {
+          class_id: string;
+          class_name: string;
+          location_name: string;
+          spare: number;
+          start_time: string;
+          weekday: number;
+          wish_id: string;
+        }[];
+      };
       withdraw_absence: { Args: { p_absence: string }; Returns: undefined };
+      withdraw_place_wish: { Args: { p_wish: string }; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;

@@ -61,6 +61,8 @@ export function explain(error: PostgrestError): DomainError {
     case "payment_too_large":
     case "plan_invalid":
     case "support_invalid":
+    case "wish_invalid":
+    case "wish_closed":
       return new DomainError(error.message);
   }
   switch (error.code) {
