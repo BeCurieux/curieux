@@ -1234,6 +1234,7 @@ export type Database = {
           slug: string;
           status: string;
           timezone: string;
+          voucher_schemes: string[];
         };
         Insert: {
           activity_type: string;
@@ -1246,6 +1247,7 @@ export type Database = {
           slug: string;
           status?: string;
           timezone?: string;
+          voucher_schemes?: string[];
         };
         Update: {
           activity_type?: string;
@@ -1258,6 +1260,7 @@ export type Database = {
           slug?: string;
           status?: string;
           timezone?: string;
+          voucher_schemes?: string[];
         };
         Relationships: [];
       };
@@ -1803,6 +1806,93 @@ export type Database = {
           },
         ];
       };
+      voucher_claims: {
+        Row: {
+          amount_cents: number | null;
+          child_id: string | null;
+          code: string;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          decline_reason: string | null;
+          family_id: string;
+          id: string;
+          ledger_entry_id: string | null;
+          organisation_id: string;
+          scheme: string;
+          status: string;
+          submitted_by: string | null;
+        };
+        Insert: {
+          amount_cents?: number | null;
+          child_id?: string | null;
+          code: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decline_reason?: string | null;
+          family_id: string;
+          id?: string;
+          ledger_entry_id?: string | null;
+          organisation_id: string;
+          scheme: string;
+          status?: string;
+          submitted_by?: string | null;
+        };
+        Update: {
+          amount_cents?: number | null;
+          child_id?: string | null;
+          code?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decline_reason?: string | null;
+          family_id?: string;
+          id?: string;
+          ledger_entry_id?: string | null;
+          organisation_id?: string;
+          scheme?: string;
+          status?: string;
+          submitted_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "voucher_claims_decided_by_fkey";
+            columns: ["decided_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_ledger_entry_id_fkey";
+            columns: ["ledger_entry_id"];
+            isOneToOne: true;
+            referencedRelation: "ledger_entries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_submitted_by_fkey";
+            columns: ["submitted_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1880,6 +1970,7 @@ export type Database = {
       };
       create_term_fees: { Args: { p_term: string }; Returns: number };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
+      decline_voucher: { Args: { p_claim: string; p_reason: string }; Returns: undefined };
       delete_family: { Args: { p_confirm: string; p_family: string }; Returns: string[] };
       delete_term: { Args: { p_term: string }; Returns: undefined };
       export_family: { Args: { p_family: string }; Returns: Json };
@@ -1980,6 +2071,7 @@ export type Database = {
           term_name: string;
         }[];
       };
+      my_voucher_schemes: { Args: { p_org: string }; Returns: string[] };
       offer_details: {
         Args: { p_code: string };
         Returns: {
@@ -2050,6 +2142,7 @@ export type Database = {
         Args: { p_email: string; p_ip: string; p_succeeded: boolean };
         Returns: undefined;
       };
+      redeem_voucher: { Args: { p_amount_cents: number; p_claim: string }; Returns: string };
       remind_term_families: { Args: { p_term: string }; Returns: number };
       remove_child_restriction: { Args: { p_restriction: string }; Returns: undefined };
       remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
@@ -2100,6 +2193,7 @@ export type Database = {
       set_fee_reminders: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      set_voucher_schemes: { Args: { p_org: string; p_schemes: string[] }; Returns: undefined };
       settle_online_payment: {
         Args: {
           p_account: string;
@@ -2123,6 +2217,10 @@ export type Database = {
           school_name: string;
           stripe_account_id: string;
         }[];
+      };
+      submit_voucher: {
+        Args: { p_child: string; p_code: string; p_scheme: string };
+        Returns: string;
       };
       term_summary: {
         Args: { p_term: string };

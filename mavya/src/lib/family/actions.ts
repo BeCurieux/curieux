@@ -9,6 +9,7 @@ import * as fill from "@/lib/domain/fill";
 import * as makeups from "@/lib/domain/makeups";
 import * as safety from "@/lib/domain/safety";
 import * as terms from "@/lib/domain/terms";
+import * as vouchers from "@/lib/domain/vouchers";
 import { markAllRead } from "@/lib/domain/notifications";
 import type { FormState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -179,4 +180,27 @@ export async function answerTermAsk(askId: string, answer: terms.Answer): Promis
   if ("error" in result) return { error: result.error };
   revalidatePath("/family", "layout");
   return { ok: "Thanks, your answer is saved." };
+}
+
+const voucherSchema = z.object({
+  childId: z.uuid("Choose a child."),
+  scheme: z.string().refine(vouchers.isScheme, "Choose the voucher."),
+  code: z.string().trim().min(4, "Enter the voucher's code.").max(60, "Enter the voucher's code."),
+});
+
+// Hands a government activity voucher over to the school (M7d).
+export async function submitVoucher(_: FormState, formData: FormData): Promise<FormState> {
+  const parsed = voucherSchema.safeParse({
+    childId: formData.get("childId"),
+    scheme: formData.get("scheme"),
+    code: formData.get("code") ?? "",
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the details." };
+  const db = await familyDb();
+  const result = await attempt(() =>
+    vouchers.submitVoucher(db, { ...parsed.data, scheme: parsed.data.scheme as vouchers.Scheme }),
+  );
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/family/fees");
+  return { ok: "Thanks. Your activity provider will redeem it and take it off your fees." };
 }

@@ -12,7 +12,7 @@ They ship in slices, safest first:
 | **M7a** | **Family accounts**: what each family owes for the term, worked out from the timetable; payments the school took elsewhere; credits; a clear statement for parents. No money moves through Ovyko yet. |
 | **M7b** | **Stripe Connect**: schools approved to take payments; parents pay a term upfront by card or direct debit; receipts. |
 | **M7c** | **Due dates and fee reminders; failed payments chased** (part 1). Instalments (part 2, waiting on the owner's decisions). |
-| M7d | Government activity vouchers (NSW Active and Creative Kids, Queensland FairPlay); Xero sync. |
+| **M7d** | **Government activity vouchers** (part 1). Xero sync waits on the owner: CLAUDE.md rule 14 rules Xero out of v0.1. |
 
 Decisions from the owner of Ovyko (3 October 2026), for all of M7:
 
@@ -228,3 +228,54 @@ bank details for later debits.
 - A failed direct debit emails the parent at once.
 - Owners see overdue amounts; only owners can switch reminders, and the
   change is audited.
+
+## M7d part 1 — Government activity vouchers
+
+Families on tight budgets pay part of their fees with state vouchers. Today
+they hand a code to the school, which redeems it in a government portal
+and adjusts the bill by hand. Ovyko keeps track of every voucher.
+
+The schemes (October 2026):
+
+| Scheme | Value | Notes |
+|---|---|---|
+| NSW Active and Creative Kids | $50 | Two a year per eligible child |
+| Queensland FairPlay | up to $200 | One a year per child |
+| SA Sports Vouchers | $100 | Two a year per child |
+| WA KidSport | up to $300 | A year per eligible child |
+
+### Decisions (defaults chosen by Claude; the owner can change them)
+
+1. **Each school picks the schemes it's registered for**, in Settings →
+   Accounts. Parents see only those.
+2. **Parents hand over a voucher in Ovyko**, on Fees: which child, which
+   scheme, the voucher's code. Nothing comes off their fees yet.
+3. **The school redeems it** in the government's own portal (Ovyko can't),
+   then taps "Redeemed" with the amount the portal gave (at most the
+   scheme's value). Ovyko adds a credit to the family's account, named for
+   the scheme. Or the school declines it with a reason, which the parent
+   sees.
+4. **No voucher twice.** A code can be handed over once per school.
+5. **Need to know.** Only the school's owners and the family's parents see
+   a family's vouchers. Everything is audited.
+
+### Data model
+
+- `Organisation.voucher_schemes`: the schemes a school accepts.
+- New `VoucherClaim`: organisation, family, child, scheme, code, amount,
+  status (handed over, redeemed, declined), the reason if declined, who
+  handed it over and who decided, when, and the credit it became.
+
+### Not in M7d part 1
+
+- Redeeming through a government system (none offers one to software).
+- Xero (waiting on the owner: CLAUDE.md rule 14).
+
+### Acceptance criteria
+
+- An owner chooses schemes; parents see only those.
+- A parent hands over a voucher for their own child; not twice, not for
+  another family's child, not for a scheme the school doesn't take.
+- An owner redeems it (a credit, at most the scheme's value) or declines
+  it with a reason; the parent sees which.
+- Instructors and other schools see none.

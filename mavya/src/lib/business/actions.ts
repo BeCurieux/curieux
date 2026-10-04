@@ -18,6 +18,7 @@ import * as safety from "@/lib/domain/safety";
 import * as staff from "@/lib/domain/staff";
 import * as terms from "@/lib/domain/terms";
 import * as timetable from "@/lib/domain/timetable";
+import * as vouchers from "@/lib/domain/vouchers";
 import {
   attempt,
   fieldErrors,
@@ -927,4 +928,57 @@ export async function cancelAccountLine(
   if (failed) return failed;
   revalidatePath(familyPath(familyId));
   return { ok: "Line cancelled." };
+}
+
+// Government activity vouchers (M7d).
+
+export async function setVoucherSchemes(_: FormState, formData: FormData): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const schemes = formData
+    .getAll("scheme")
+    .map(String)
+    .filter((s): s is vouchers.Scheme => vouchers.isScheme(s));
+  const failed = await attempt(() => vouchers.setVoucherSchemes(db, organisationId, schemes));
+  if (failed) return failed;
+  revalidatePath("/business/settings/accounts");
+  return {
+    ok:
+      schemes.length === 0
+        ? "Families can't hand over vouchers in Ovyko."
+        : "Saved. Families can hand over these vouchers on their Fees screen.",
+  };
+}
+
+const redeemSchema = z.object({ amount: dollars("Amount") });
+
+export async function redeemVoucher(
+  claimId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(claimId).success) return { error: "That didn't work. Try again." };
+  const parsed = redeemSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => vouchers.redeemVoucher(db, claimId, parsed.data.amount));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: `Redeemed: ${accounts.formatMoney(parsed.data.amount)} credited.` };
+}
+
+const declineSchema = z.object({ reason: requiredText(200, "Reason") });
+
+export async function declineVoucher(
+  claimId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(claimId).success) return { error: "That didn't work. Try again." };
+  const parsed = declineSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => vouchers.declineVoucher(db, claimId, parsed.data.reason));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: "Declined. The family can see why." };
 }

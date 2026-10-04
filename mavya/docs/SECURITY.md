@@ -224,6 +224,15 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - No money moves through Ovyko yet; card details will only ever be held by
   the payment provider (M7b).
 
+### M7d part 1 — Government vouchers (done)
+
+- Only owners turn a voucher into money off (a credit, at most the
+  scheme's value); a parent can only hand one over, for their own child.
+- A code can be handed over once per school; uniqueness isn't checked
+  across schools, so one school can't learn another's vouchers.
+- Owners and the family's parents see a family's vouchers; instructors
+  and other schools see none. Audited.
+
 ### M7c part 1 — Fee reminders (done)
 
 - Reminder emails name the school and an amount, never a child, and are

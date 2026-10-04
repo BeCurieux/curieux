@@ -31,6 +31,9 @@ makes) only in a session that has passed two-step sign-in.
   terms.
 - fee_reminders — default off (M7c); the school's choice, through
   `set_fee_reminders`. On: Ovyko emails families before and after fees fall due.
+- voucher_schemes — the government activity vouchers the school takes
+  (M7d): nsw_active_creative_kids, qld_fairplay, sa_sports_vouchers,
+  wa_kidsport; through `set_voucher_schemes`.
 
 ### Location
 - id
@@ -447,6 +450,26 @@ A payment a parent started on Stripe's page (M7b).
 Started by a parent (`start_online_payment`, for their own family only);
 everything after that only by the server from Stripe's checked messages.
 Owners and the family's parents read it.
+
+### VoucherClaim
+A government activity voucher a parent handed over (M7d).
+
+- id
+- organisation_id
+- family_id
+- child_id nullable
+- scheme — one of the school's voucher_schemes when handed over
+- code — capitals, digits and dashes; unique per school and scheme
+- status: submitted | redeemed | declined
+- amount_cents nullable — what the voucher gave, when redeemed (at most
+  the scheme's value)
+- decline_reason nullable — shown to the family
+- ledger_entry_id nullable, unique — the credit it became
+- submitted_by, decided_by nullable; decided_at nullable; created_at
+
+Handed over by a parent for their own child (`submit_voucher`); redeemed
+(`redeem_voucher`, adding a credit line) or declined (`decline_voucher`)
+by the school's owners. Owners and the family's parents read it.
 
 ### ImportBatch
 One run of "Move your school in" (M6a).

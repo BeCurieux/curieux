@@ -2,10 +2,12 @@ import { Wallet } from "lucide-react";
 import type { Metadata } from "next";
 import { Balance, Statement } from "@/components/accounts/statement";
 import { EmptyState } from "@/components/demo/empty-state";
+import { VoucherForm } from "@/components/family/voucher-form";
 import { PayButton } from "@/components/payments/pay-forms";
 import { familyContext } from "@/lib/demo/context";
 import { balanceOf, familyLines, formatMoney } from "@/lib/domain/accounts";
 import { canPayOnline, onlinePayment, paymentsToShow } from "@/lib/domain/payments";
+import { familyVouchers, SCHEMES, STATUS_LABELS, voucherSchemes } from "@/lib/domain/vouchers";
 import { paymentsOn } from "@/lib/payments/stripe";
 
 export const metadata: Metadata = { title: "Fees" };
@@ -30,12 +32,21 @@ export default async function FeesPage({
   const accounts = await Promise.all(
     viewer.families.map(async (f) => {
       const org = orgs?.find((o) => o.id === f.familyId)?.organisation_id;
-      const [lines, payments, payable] = await Promise.all([
+      const [lines, payments, payable, schemes, vouchers, kids] = await Promise.all([
         familyLines(db, f.familyId),
         paymentsToShow(db, f.familyId),
         on && org ? canPayOnline(db, org) : false,
+        org ? voucherSchemes(db, org) : [],
+        familyVouchers(db, f.familyId),
+        db
+          .from("children")
+          .select("id, first_name")
+          .eq("family_id", f.familyId)
+          .eq("active", true)
+          .order("first_name")
+          .then(({ data }) => (data ?? []).map((c) => ({ id: c.id, name: c.first_name }))),
       ]);
-      return { family: f, lines, payments, payable };
+      return { family: f, lines, payments, payable, schemes, vouchers, kids };
     }),
   );
   const justPaid = paid && /^[0-9a-f-]{36}$/.test(paid) ? await onlinePayment(db, paid) : null;
@@ -106,6 +117,45 @@ export default async function FeesPage({
             );
           })
       )}
+      {accounts
+        .filter((a) => (a.schemes.length > 0 && a.kids.length > 0) || a.vouchers.length > 0)
+        .map(({ family, schemes, vouchers, kids }) => (
+          <section
+            key={`vouchers-${family.familyId}`}
+            aria-label={`Activity vouchers: ${family.displayName}`}
+            className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-[0_1px_0_var(--border)]"
+          >
+            <div>
+              <h2 className="font-display text-2xl font-semibold">Activity vouchers</h2>
+              <p className="text-sm text-muted">
+                Got a government voucher, like Active and Creative Kids? Hand it over here and
+                it&apos;ll come off your fees once your activity provider redeems it.
+              </p>
+            </div>
+            {vouchers.length > 0 ? (
+              <ul className="flex flex-col divide-y divide-line">
+                {vouchers.map((v) => (
+                  <li key={v.id} className="flex flex-col gap-1 py-3">
+                    <span className="font-semibold">
+                      {SCHEMES[v.scheme].name}
+                      {v.childName ? ` for ${v.childName}` : ""}
+                    </span>
+                    <span className="text-sm text-muted">
+                      {v.code} · {STATUS_LABELS[v.status]}
+                      {v.status === "redeemed" && v.amountCents
+                        ? `: ${formatMoney(v.amountCents)} off`
+                        : ""}
+                      {v.status === "declined" && v.declineReason ? `: ${v.declineReason}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {schemes.length > 0 && kids.length > 0 ? (
+              <VoucherForm kids={kids} schemes={schemes} />
+            ) : null}
+          </section>
+        ))}
     </div>
   );
 }
