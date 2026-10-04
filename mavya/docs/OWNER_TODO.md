@@ -14,7 +14,15 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   5. `supabase/migrations/20261011000028_fee_reminders.sql`
   6. `supabase/migrations/20261012000029_vouchers.sql`
   7. `supabase/migrations/20261013000030_payment_fixes.sql`
+  8. `supabase/migrations/20261014000031_platform_totals.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
+
+- [ ] **See Ovyko's totals.** After the database changes: sign up in
+      Ovyko with your own email, then in the Supabase SQL editor run
+      (with your email):
+      `insert into public.platform_admins (user_id) select id from public.users where email = 'you@example.com';`
+      Then sign in, set up two-step sign-in with an authenticator app, and
+      open `/platform`.
 
 ## Business and legal
 

@@ -31,6 +31,8 @@ makes) only in a session that has passed two-step sign-in.
   terms.
 - fee_reminders — default off (M7c); the school's choice, through
   `set_fee_reminders`. On: Ovyko emails families before and after fees fall due.
+- is_demo — a demo school, left out of Ovyko's totals
+  (`docs/PLATFORM_TOTALS.md`)
 - voucher_schemes — the government activity vouchers the school takes
   (M7d): nsw_active_creative_kids, qld_fairplay, sa_sports_vouchers,
   wa_kidsport; through `set_voucher_schemes`.
@@ -450,6 +452,15 @@ A payment a parent started on Stripe's page (M7b).
 Started by a parent (`start_online_payment`, for their own family only);
 everything after that only by the server from Stripe's checked messages.
 Owners and the family's parents read it.
+
+### PlatformAdmin
+A person who runs Ovyko and may see its totals (`docs/PLATFORM_TOTALS.md`).
+
+- user_id — primary key
+- created_at
+
+Added only in the database's SQL editor; nobody can read or change it
+through the app.
 
 ### VoucherClaim
 A government activity voucher a parent handed over (M7d).

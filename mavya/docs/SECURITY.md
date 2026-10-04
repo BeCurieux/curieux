@@ -224,6 +224,13 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - No money moves through Ovyko yet; card details will only ever be held by
   the payment provider (M7b).
 
+### Ovyko totals (done)
+
+- Numbers across all schools only; no name of a school, family or child.
+- Only people listed as platform admins (added in the SQL editor, never
+  through the app), and only after two-step sign-in. Anyone else gets
+  "not found".
+
 ### M7d part 1 — Government vouchers (done)
 
 - Only owners turn a voucher into money off (a credit, at most the

@@ -1228,6 +1228,7 @@ export type Database = {
           created_at: string;
           fee_reminders: boolean;
           id: string;
+          is_demo: boolean;
           lessons_in_term_only: boolean;
           name: string;
           owner_two_step_required: boolean;
@@ -1241,6 +1242,7 @@ export type Database = {
           created_at?: string;
           fee_reminders?: boolean;
           id?: string;
+          is_demo?: boolean;
           lessons_in_term_only?: boolean;
           name: string;
           owner_two_step_required?: boolean;
@@ -1254,6 +1256,7 @@ export type Database = {
           created_at?: string;
           fee_reminders?: boolean;
           id?: string;
+          is_demo?: boolean;
           lessons_in_term_only?: boolean;
           name?: string;
           owner_two_step_required?: boolean;
@@ -1298,6 +1301,29 @@ export type Database = {
             columns: ["organisation_id"];
             isOneToOne: true;
             referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      platform_admins: {
+        Row: {
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "platform_admins_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];
@@ -1913,6 +1939,7 @@ export type Database = {
         Args: { p_child: string; p_details: string; p_kind: string; p_person: string };
         Returns: string;
       };
+      am_platform_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
       apply_terms_at: { Args: { p_now: string }; Returns: number };
       ask_families: { Args: { p_reply_by: string; p_term: string }; Returns: number };
@@ -2105,6 +2132,31 @@ export type Database = {
       };
       owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
       payment_account_disconnected: { Args: { p_account: string }; Returns: boolean };
+      platform_months: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          month: string;
+          new_schools: number;
+          ovyko_fees_cents: number;
+          paid_online_cents: number;
+        }[];
+      };
+      platform_totals: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          children_enrolled: number;
+          families: number;
+          fees_charged_365d_cents: number;
+          ovyko_fees_30d_cents: number;
+          ovyko_fees_365d_cents: number;
+          paid_online_30d_cents: number;
+          paid_online_365d_cents: number;
+          recorded_payments_365d_cents: number;
+          schools: number;
+          schools_taking_payments: number;
+          schools_teaching: number;
+        }[];
+      };
       prepare_term_asks: { Args: { p_term: string }; Returns: number };
       preview_cancel_lessons: {
         Args: { p_date: string; p_location: string };

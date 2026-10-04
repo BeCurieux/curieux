@@ -9,7 +9,7 @@ import { isIdle, isInstructorPath, LAST_SEEN_COOKIE, lastSeenCookie } from "@/li
 // the website; signed in, the page itself sends people to their shell. It does not decide which roles
 // may open which shell: each shell's layout checks that against the database.
 
-const PROTECTED_PREFIXES = ["/business", "/instructor", "/family", "/no-access"];
+const PROTECTED_PREFIXES = ["/business", "/instructor", "/family", "/no-access", "/platform"];
 
 function isProtected(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(

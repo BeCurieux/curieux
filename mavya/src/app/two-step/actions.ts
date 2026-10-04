@@ -65,5 +65,8 @@ export async function verifyCode(_: TwoStepState, formData: FormData): Promise<T
           : "That code didn't work. Check your app and try the newest code.",
     };
   }
-  redirect("/business");
+  // People who run Ovyko but don't own a school go to Ovyko's totals.
+  const viewer = await requireViewer();
+  const { data: platform } = await supabase.rpc("am_platform_admin");
+  redirect(platform && !viewer.shells.includes("business") ? "/platform" : "/business");
 }

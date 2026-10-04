@@ -16,7 +16,8 @@ const id = (prefix: string, n: number) =>
   `${prefix.padEnd(8, "0")}-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
 // The demo schools: their shared logins are tried by prospects, so owners
-// aren't asked for a two-step code (docs/M6_MIGRATION_PILOT.md, M6d).
+// aren't asked for a two-step code (docs/M6_MIGRATION_PILOT.md, M6d), and
+// they're left out of Ovyko's own totals.
 export const ORGS = {
   aqua: {
     id: id("0a", 1),
@@ -24,6 +25,7 @@ export const ORGS = {
     slug: "aqua-house",
     activity_type: "swimming",
     owner_two_step_required: false,
+    is_demo: true,
   },
   peak: {
     id: id("0a", 2),
@@ -31,6 +33,7 @@ export const ORGS = {
     slug: "peak-gymnastics",
     activity_type: "gymnastics",
     owner_two_step_required: false,
+    is_demo: true,
   },
 } as const;
 
