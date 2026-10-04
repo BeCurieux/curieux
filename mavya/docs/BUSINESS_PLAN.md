@@ -527,6 +527,67 @@ are approximate and review sites carry few, often invited, reviews.
 Their strengths are support and payments. Their weak spots are the parent
 experience and setup, which are Ovyko's strongest points.
 
+### Competitors the first research missed (4 October 2026)
+
+The first research looked at software sold to independent swim schools and
+missed larger players. Public sources only; check before quoting.
+
+**Xplor Technologies: the biggest threat, and a likely buyer.**
+- Formed in 2021 from Transaction Services Group (founded in New Zealand)
+  and Clearent (US payments). In Australia it owns Debitsuccess (direct
+  debit billing for fitness since 1994) and Clubware (gym software).
+- In September 2025 it agreed to merge with Clubessential Holdings: about
+  130,000 customers, 2,500 staff, US$47 billion a year in payments and
+  nearly US$900 million in revenue.
+- Sells swim school and aquatic centre software in Australia (Xplor
+  Recreation, formerly PerfectMind, being renamed nextRec): classes,
+  skills, parent portal, online enrolment, term and ongoing billing.
+- Reviews are few (about 4.0–4.3/5 on Capterra, 12 reviews) but the
+  complaints are telling: poor customer service, features that don't work
+  well together, hard reporting, unhelpful when customers leave.
+- What it means: Xplor already sells "software plus payments", the
+  position Ovyko is building towards, and has a payments business behind
+  it. It wins on breadth and money, not on care for small schools. Its
+  product is built for councils and large recreation centres first.
+
+**Other Australian players.**
+- **SwimDesk (GreeneDesk, Eltham VIC).** Assessments, progress and parent
+  engagement for swim schools; runs beside a centre's main system. Used by
+  large centres (PARC, Casey RACE, the SA Aquatic Centre). Competes with
+  Ovyko's skills and parent experience, not its admin.
+- **Leisure centre systems (Envibe, Centaman, Xplor).** Councils and
+  operators like the YMCA run their aquatic centres, and the swim lessons
+  inside them, on these.
+
+**Where swim lessons happen matters.** Many children learn in council
+aquatic centres run on enterprise leisure systems, bought by tender.
+Ovyko's customers are **independent swim schools** (owner-run, often their
+own pool) and other activity schools; councils are a different, slower
+sale. Counts of "swim schools" need to separate the two.
+
+**Abroad, if Ovyko expands:** Jackrabbit and iClassPro (US leaders in
+swim, gymnastics and dance), DaySmart (bought Sawyer, kids' activities,
+2023), and The Access Group (bought ClassForKids, UK, 2023).
+
+**Ovyko's answer stays the same, sharper:** win independent schools on
+how much of the school runs itself (make-ups, re-enrolment, chasing fees,
+vouchers), on care and setup, and on the parent experience. Don't try to
+out-feature Xplor for councils.
+
+### Who might buy Ovyko
+
+Working back from a sale at about A$20 million: buyers of businesses like
+this pay about 4–6 times yearly recurring revenue (more from a buyer that
+needs it), so about A$3.5–4 million a year: roughly 500–600 locations at
+about A$6,800 each (subscription plus about 0.5% of fees), with about
+A$200 million a year of school fees flowing through Ovyko. Likely buyers,
+in order: Xplor; The Access Group; DaySmart; Jackrabbit or iClassPro;
+long-term software holders (Constellation, Volaris, Jonas), who pay on
+profit; payment companies (Global Payments paid A$305 million for Ezidebit
+in 2014 for its software-linked recurring payments). What raises the
+price: payment volume, schools that stay, schools paying more over time,
+a business that runs without its founders, and clean, secure data.
+
 ### Who will switch
 
 Switching is hard for schools already collecting fees through a

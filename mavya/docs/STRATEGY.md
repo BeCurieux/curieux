@@ -7,6 +7,11 @@ Pro and others). Their review samples are small and their citations weren't
 checkable: use them for direction, and verify any figure before it goes in a
 pitch or on the website.
 
+That research missed Xplor Technologies, a large software and payments
+group already selling swim school software in Australia, and other larger
+players. See `docs/BUSINESS_PLAN.md`, "Competitors the first research
+missed (4 October 2026)" and "Who might buy Ovyko".
+
 ## The thesis
 
 The incumbents already have the checklist: enrolment, attendance, payments,
