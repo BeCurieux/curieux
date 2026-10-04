@@ -454,7 +454,7 @@ describe("finishing a plan", () => {
     expect(await balance(leeFamily)).toBe(0);
   });
 
-  it("paying the rest now ends the plan and asks for everything owed", async () => {
+  it("paying the rest ends the plan only once it's paid", async () => {
     await charge(leeFamily, 20000);
     const { data } = await lee.rpc("start_instalment_plan", {
       p_family: leeFamily,
@@ -463,12 +463,192 @@ describe("finishing a plan", () => {
     await payFirst(data![0]!.payment_id, 10000);
     const plan = await planOf(leeFamily);
     expect(plan.status).toBe("active");
+    const { data: dues } = await lee.rpc("family_owing", { p_family: leeFamily });
+    expect(dues![0]).toEqual({ owing_now: 0, owing_with_plan: 10000 });
     const other = await ruiz.rpc("pay_rest_of_plan", { p_family: leeFamily });
     expect(other.error?.code).toBe("42501");
+
+    // The page opens, and is left: the plan carries on.
     const rest = await lee.rpc("pay_rest_of_plan", { p_family: leeFamily });
     expect(rest.error).toBeNull();
+    const restId = rest.data![0]!.payment_id;
     expect(rest.data![0]!.amount_cents).toBe(10000);
+    const sessionId = `cs_rest_${restId.slice(0, 8)}`;
+    await admin.rpc("attach_checkout_session", { p_payment: restId, p_session: sessionId });
+    expect((await planOf(leeFamily)).status).toBe("active");
+    // While the page is open, the server doesn't take an instalment too.
+    await makeDue(plan.id, 2);
+    expect(await claimOurs()).toEqual([]);
+    expect(
+      await handle(
+        event("checkout.session.expired", {
+          id: sessionId,
+          object: "checkout.session",
+          amount_total: 10000,
+          payment_status: "unpaid",
+          metadata: { ovyko_payment_id: restId },
+        }),
+      ),
+    ).toBe("expired");
+    expect((await planOf(leeFamily)).status).toBe("active");
+
+    // Again, and paid this time: the plan ends, with nothing more taken.
+    const again = await lee.rpc("pay_rest_of_plan", { p_family: leeFamily });
+    const againId = again.data![0]!.payment_id;
+    expect(await payFirst(againId, 10000)).toBe("paid");
     expect((await planOf(leeFamily)).status).toBe("stopped");
     expect((await instalmentsOf(plan.id)).map((r) => r.status)).toEqual(["paid", "cancelled"]);
+    expect(await claimOurs()).toEqual([]);
+    expect(await balance(leeFamily)).toBe(0);
+  });
+});
+
+// A second family of Lee's for each case below, owing what it's given.
+async function freshFamily(cents: number) {
+  const { data: fam, error } = await admin
+    .from("families")
+    .insert({ organisation_id: orgId, display_name: `Instalments extra ${Math.random()}` })
+    .select("id")
+    .single();
+  if (error) throw error;
+  const { data: me } = await admin.from("users").select("id").eq("email", emails.lee).single();
+  await admin.from("family_members").insert({
+    family_id: fam!.id,
+    user_id: me!.id,
+    relationship: "parent",
+    is_primary_guardian: true,
+  });
+  await charge(fam!.id, cents);
+  return fam!.id as string;
+}
+
+async function startPlan(family: string, payments: number) {
+  const { data, error } = await lee.rpc("start_instalment_plan", {
+    p_family: family,
+    p_payments: payments,
+  });
+  if (error) throw error;
+  return data![0]!;
+}
+
+describe("when things change or go wrong", () => {
+  it("never takes more than the family still owes", async () => {
+    const family = await freshFamily(40000);
+    const first = await startPlan(family, 4);
+    await payFirst(first.payment_id, 10000);
+    const plan = await planOf(family);
+    // The school takes $250 off (a voucher, say): $50 is left.
+    const { error } = await owner.rpc("add_account_line", {
+      p_family: family,
+      p_kind: "credit",
+      p_amount_cents: 25000,
+      p_reason: "Voucher",
+    });
+    expect(error).toBeNull();
+    const { data: dues } = await lee.rpc("family_owing", { p_family: family });
+    expect(dues![0]).toEqual({ owing_now: 0, owing_with_plan: 5000 });
+    await makeDue(plan.id, 2);
+    const [claimed] = await claimOurs();
+    expect(claimed!.amount_cents).toBe(5000);
+    expect(await handle(intentEvent("payment_intent.succeeded", claimed!.payment_id!, 5000))).toBe(
+      "paid",
+    );
+    // Nothing left: the next date ends the plan instead of charging.
+    await makeDue(plan.id, 3);
+    expect(await claimOurs()).toEqual([]);
+    expect((await planOf(family)).status).toBe("stopped");
+    expect((await instalmentsOf(plan.id)).map((r) => [r.amount_cents, r.status])).toEqual([
+      [10000, "paid"],
+      [5000, "paid"],
+      [10000, "cancelled"],
+      [10000, "cancelled"],
+    ]);
+    expect(await balance(family)).toBe(0);
+  });
+
+  it("a first payment that saved nothing Ovyko can use ends the plan", async () => {
+    const family = await freshFamily(20000);
+    const first = await startPlan(family, 2);
+    const sessionId = `cs_nosave_${first.payment_id.slice(0, 8)}`;
+    await admin.rpc("attach_checkout_session", {
+      p_payment: first.payment_id,
+      p_session: sessionId,
+    });
+    const nothingSaved = { ...lookups, savedPaymentMethod: async () => null };
+    const outcome = await handleStripeEvent(
+      admin,
+      event("checkout.session.completed", {
+        id: sessionId,
+        object: "checkout.session",
+        amount_total: 10000,
+        payment_status: "paid",
+        payment_intent: `pi_nosave_${first.payment_id.slice(0, 8)}`,
+        customer: `cus_nosave${run}`,
+        metadata: { ovyko_payment_id: first.payment_id },
+      }),
+      nothingSaved,
+    );
+    expect(outcome).toBe("paid");
+    expect((await planOf(family)).status).toBe("stopped");
+    // What's left is owed now, not hidden behind the plan.
+    const { data: dues } = await lee.rpc("family_owing", { p_family: family });
+    expect(dues![0]!.owing_now).toBe(10000);
+  });
+
+  it("a payment whose outcome never came back is tried again, never charged twice", async () => {
+    const family = await freshFamily(20000);
+    const first = await startPlan(family, 2);
+    await payFirst(first.payment_id, 10000);
+    const plan = await planOf(family);
+    await makeDue(plan.id, 2);
+    const [claimed] = await claimOurs();
+    // No answer from Stripe: it isn't tried again straight away...
+    expect(await claimOurs()).toEqual([]);
+    // ...but after 15 minutes, with the same payment (and so the same
+    // idempotency key for Stripe).
+    await admin
+      .from("online_payments")
+      .update({ updated_at: new Date(Date.now() - 20 * 60_000).toISOString() })
+      .eq("id", claimed!.payment_id!);
+    const [retried] = await claimOurs();
+    expect(retried!.payment_id).toBe(claimed!.payment_id);
+    // Meanwhile it doesn't count as owing.
+    const { data: dues } = await lee.rpc("family_owing", { p_family: family });
+    expect(dues![0]!.owing_with_plan).toBe(0);
+  });
+
+  it("a failure recorded without Stripe's reference gives way to Stripe's word that it was paid", async () => {
+    const family = await freshFamily(20000);
+    const first = await startPlan(family, 2);
+    await payFirst(first.payment_id, 10000);
+    const plan = await planOf(family);
+    await makeDue(plan.id, 2);
+    const [claimed] = await claimOurs();
+    const failed = await admin.rpc("settle_instalment_payment", {
+      p_payment: claimed!.payment_id!,
+      p_account: acct,
+      p_payment_intent: `failed:${claimed!.payment_id}`,
+      p_amount_cents: 10000,
+      p_status: "failed",
+    });
+    expect(failed.data).toBe("failed");
+    expect(await handle(intentEvent("payment_intent.succeeded", claimed!.payment_id!, 10000))).toBe(
+      "paid",
+    );
+    expect(await balance(family)).toBe(0);
+  });
+
+  it("a late 'on its way' message doesn't bring back a failed payment", async () => {
+    const family = await freshFamily(20000);
+    const first = await startPlan(family, 2);
+    await payFirst(first.payment_id, 10000);
+    const plan = await planOf(family);
+    await makeDue(plan.id, 2);
+    const [claimed] = await claimOurs();
+    const id = claimed!.payment_id!;
+    expect(await handle(intentEvent("payment_intent.payment_failed", id, 10000))).toBe("failed");
+    expect(await handle(intentEvent("payment_intent.processing", id, 10000))).toBe("failed");
+    const { data: dues } = await lee.rpc("family_owing", { p_family: family });
+    expect(dues![0]!.owing_now).toBe(10000);
   });
 });

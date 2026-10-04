@@ -126,20 +126,19 @@ export async function handleStripeEvent(
       if (error) throw error;
       // The first of a plan's instalments saves the card or bank account
       // for the rest (M7c part 2).
+      // Nothing usable saved stops the plan; for other payments it's a no-op.
       const customer = idOf(s.customer);
       const intent = idOf(s.payment_intent);
-      if ((data === "paid" || data === "processing") && customer && intent) {
-        const saved = await stripe.savedPaymentMethod(account, intent);
-        if (saved) {
-          const attach = await admin.rpc("attach_plan_payment_method", {
-            p_payment: paymentId,
-            p_account: account,
-            p_customer: customer,
-            p_payment_method: saved.id,
-            p_type: saved.type,
-          });
-          if (attach.error) throw attach.error;
-        }
+      if (data === "paid" || data === "processing") {
+        const saved = customer && intent ? await stripe.savedPaymentMethod(account, intent) : null;
+        const attach = await admin.rpc("attach_plan_payment_method", {
+          p_payment: paymentId,
+          p_account: account,
+          p_customer: customer ?? undefined,
+          p_payment_method: saved?.id ?? undefined,
+          p_type: saved?.type ?? undefined,
+        });
+        if (attach.error) throw attach.error;
       }
       return data ?? "ignored";
     }

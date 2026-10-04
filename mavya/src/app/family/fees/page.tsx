@@ -8,6 +8,7 @@ import { familyContext } from "@/lib/demo/context";
 import { balanceOf, familyLines, formatMoney } from "@/lib/domain/accounts";
 import {
   canPayOnline,
+  familyOwing,
   instalmentsOffered,
   onlinePayment,
   openPlan,
@@ -41,23 +42,25 @@ export default async function FeesPage({
   const accounts = await Promise.all(
     viewer.families.map(async (f) => {
       const org = orgs?.find((o) => o.id === f.familyId)?.organisation_id;
-      const [lines, payments, payable, offered, plan, schemes, vouchers, kids] = await Promise.all([
-        familyLines(db, f.familyId),
-        paymentsToShow(db, f.familyId),
-        on && org ? canPayOnline(db, org) : false,
-        on && org ? instalmentsOffered(db, org) : false,
-        openPlan(db, f.familyId),
-        org ? voucherSchemes(db, org) : [],
-        familyVouchers(db, f.familyId),
-        db
-          .from("children")
-          .select("id, first_name")
-          .eq("family_id", f.familyId)
-          .eq("active", true)
-          .order("first_name")
-          .then(({ data }) => (data ?? []).map((c) => ({ id: c.id, name: c.first_name }))),
-      ]);
-      return { family: f, lines, payments, payable, offered, plan, schemes, vouchers, kids };
+      const [lines, payments, payable, offered, plan, dues, schemes, vouchers, kids] =
+        await Promise.all([
+          familyLines(db, f.familyId),
+          paymentsToShow(db, f.familyId),
+          on && org ? canPayOnline(db, org) : false,
+          on && org ? instalmentsOffered(db, org) : false,
+          openPlan(db, f.familyId),
+          familyOwing(db, f.familyId),
+          org ? voucherSchemes(db, org) : [],
+          familyVouchers(db, f.familyId),
+          db
+            .from("children")
+            .select("id, first_name")
+            .eq("family_id", f.familyId)
+            .eq("active", true)
+            .order("first_name")
+            .then(({ data }) => (data ?? []).map((c) => ({ id: c.id, name: c.first_name }))),
+        ]);
+      return { family: f, lines, payments, payable, offered, plan, dues, schemes, vouchers, kids };
     }),
   );
   const justPaid = paid && /^[0-9a-f-]{36}$/.test(paid) ? await onlinePayment(db, paid) : null;
@@ -83,17 +86,11 @@ export default async function FeesPage({
       ) : (
         accounts
           .filter((a) => a.lines.length > 0 || a.payments.length > 0)
-          .map(({ family, lines, payments, payable, offered, plan }) => {
+          .map(({ family, lines, payments, payable, offered, plan, dues }) => {
             const balance = balanceOf(lines);
             // As the database counts it: less direct debits on their way and
             // instalments a plan will take later.
-            const later = plan?.status === "active" ? scheduledCents(plan) : 0;
-            const owing =
-              balance -
-              later -
-              payments
-                .filter((p) => p.status === "processing")
-                .reduce((s, p) => s + p.amountCents, 0);
+            const owing = dues.owingNow;
             const busy = plan?.instalments.some(
               (i) => i.status === "started" || i.status === "processing",
             );
@@ -119,10 +116,10 @@ export default async function FeesPage({
                   ),
                 )}
                 {plan ? <PlanSummary plan={plan} /> : null}
-                {payable && plan?.status === "active" && later > 0 && !busy ? (
+                {payable && plan?.status === "active" && dues.owingWithPlan > owing && !busy ? (
                   <PayRestButton
                     familyId={family.familyId}
-                    amount={formatMoney(Math.max(owing, 0) + later)}
+                    amount={formatMoney(dues.owingWithPlan)}
                   />
                 ) : null}
                 {payable && owing >= 50 ? (
@@ -195,12 +192,6 @@ export default async function FeesPage({
         ))}
     </div>
   );
-}
-
-function scheduledCents(plan: InstalmentPlan): number {
-  return plan.instalments
-    .filter((i) => i.status === "scheduled")
-    .reduce((s, i) => s + i.amountCents, 0);
 }
 
 const INSTALMENT_LABELS: Record<InstalmentPlan["instalments"][number]["status"], string> = {

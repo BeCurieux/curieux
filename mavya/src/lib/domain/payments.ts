@@ -199,3 +199,15 @@ export function splitInstalments(totalCents: number, payments: number): number[]
   const each = Math.floor(totalCents / payments);
   return [totalCents - each * (payments - 1), ...Array(payments - 1).fill(each)];
 }
+
+// What a family can pay now, and what paying off its plan would come to,
+// as the database counts them.
+export async function familyOwing(
+  db: Db,
+  familyId: string,
+): Promise<{ owingNow: number; owingWithPlan: number }> {
+  const { data, error } = await db.rpc("family_owing", { p_family: familyId });
+  if (error) throw explain(error);
+  const row = data?.[0];
+  return { owingNow: row?.owing_now ?? 0, owingWithPlan: row?.owing_with_plan ?? 0 };
+}

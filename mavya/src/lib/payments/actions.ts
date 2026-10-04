@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type Stripe from "stripe";
 import { z } from "zod";
 import { requireShell } from "@/lib/auth/viewer";
 import { requireOwner } from "@/lib/business/owner";
@@ -141,7 +142,22 @@ async function openPaymentPage(
         metadata: { ovyko_payment_id: started.paymentId },
         ...(save ? { setup_future_usage: "off_session" as const } : {}),
       },
-      ...(save ? { customer_creation: "always" as const } : {}),
+      // Saving for instalments: not the ways of paying Ovyko can't take
+      // again on its own. Anything else that isn't a card or direct debit
+      // ends the plan (attach_plan_payment_method).
+      ...(save
+        ? {
+            customer_creation: "always" as const,
+            excluded_payment_method_types: [
+              "afterpay_clearpay",
+              "zip",
+              "klarna",
+              "paypal",
+              "payto",
+              "amazon_pay",
+            ] satisfies Stripe.Checkout.SessionCreateParams.ExcludedPaymentMethodType[],
+          }
+        : {}),
       customer_email: email,
       client_reference_id: started.paymentId,
       metadata: { ovyko_payment_id: started.paymentId },

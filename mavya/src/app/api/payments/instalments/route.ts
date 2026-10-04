@@ -20,7 +20,9 @@ export async function POST(request: NextRequest) {
   const { data: due, error } = await admin.rpc("claim_due_instalments", { p_limit: 50 });
   if (error) throw error;
 
-  const tally = { paid: 0, processing: 0, failed: 0 };
+  // waiting: Stripe gave no clear answer; tried again later with the same
+  // payment id, so it's never charged twice.
+  const tally = { paid: 0, processing: 0, failed: 0, waiting: 0 };
   for (const d of due ?? []) {
     let intent: string;
     let status: "paid" | "processing" | "failed";
@@ -43,8 +45,14 @@ export async function POST(request: NextRequest) {
       status =
         pi.status === "succeeded" ? "paid" : pi.status === "processing" ? "processing" : "failed";
     } catch (e) {
-      // Declined, or the bank wants the parent present: it didn't go through.
-      if (!(e instanceof Stripe.errors.StripeError)) throw e;
+      // Only a decline (or the bank wanting the parent present) is a
+      // failure. Anything else (a timeout, Stripe down) may still have
+      // charged: leave it for Stripe's message or the next try.
+      if (!(e instanceof Stripe.errors.StripeCardError)) {
+        console.error("instalment not taken yet", d.payment_id, e);
+        tally.waiting += 1;
+        continue;
+      }
       const pi = (e.raw as { payment_intent?: { id: string } } | undefined)?.payment_intent;
       intent = pi?.id ?? `failed:${d.payment_id}`;
       status = "failed";
@@ -56,7 +64,12 @@ export async function POST(request: NextRequest) {
       p_amount_cents: d.amount_cents,
       p_status: status,
     });
-    if (settled.error) throw settled.error;
+    if (settled.error) {
+      // Stripe's own message settles it instead.
+      console.error("instalment not recorded yet", d.payment_id, settled.error);
+      tally.waiting += 1;
+      continue;
+    }
     tally[status] += 1;
   }
   return NextResponse.json(tally);

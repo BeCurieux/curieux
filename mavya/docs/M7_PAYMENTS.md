@@ -324,7 +324,7 @@ are defaults chosen by Claude; the owner can change them.
    the rest of the plan stops: what's left is simply owing, and the usual
    reminders apply. Nothing is retried behind the parent's back.
 6. **The Fees screen shows the plan:** what's paid and what's next. A
-   parent can pay the rest at any time, which ends the plan.
+   parent can pay the rest at any time, which ends the plan once paid.
 7. **Reminders and "overdue" skip amounts a plan will take.** Charges
    added after a plan started are paid separately.
 8. **One plan at a time per family.**
@@ -369,5 +369,31 @@ are defaults chosen by Claude; the owner can change them.
 - A payment that needs the parent present (a bank asking for a code)
   counts as failed: the plan stops and the parent pays the rest on the
   Fees screen.
+
+### Review fixes (4 October 2026)
+
+A review of the instalments code before it went live found these, now fixed:
+
+- **A slow or failed answer from Stripe isn't a failed payment.** Only a
+  decline (or the bank wanting the parent present) counts as failed. Any
+  other error leaves the payment waiting: Stripe's own message settles it,
+  or the server tries again after 15 minutes with the same payment, so
+  Stripe never charges twice. A failure recorded without Stripe's
+  reference gives way if Stripe later says it was paid.
+- **Never more than the family owes.** If the balance drops after a plan
+  starts (a voucher, a cancelled fee), each instalment is cut to what's
+  left, and a plan with nothing left to take ends.
+- **Only cards and direct debit are saved.** "Pay later" methods (Afterpay,
+  Zip, Klarna, PayPal, PayTo) aren't offered for a plan's first payment. If it saved
+  nothing Ovyko can take again, the plan ends and what's left is owed at
+  once, rather than hiding behind a plan that would never charge.
+- **Paying the rest ends the plan only once it's paid** (or on its way).
+  Leaving the page changes nothing, and the server doesn't take an
+  instalment while the family has a payment page open.
+- **A failed payment stays failed** unless Stripe says it was paid: a late
+  "on its way" message can't bring it back and hide what's owed.
+- **The Fees screen asks the database** what can be paid now and what
+  paying off a plan would come to (`family_owing`), rather than working it
+  out again.
 
 Tests: `tests/rls/instalments.test.ts`, `tests/e2e/instalments.spec.ts`.

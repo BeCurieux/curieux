@@ -449,6 +449,8 @@ A payment a parent started on Stripe's page (M7b).
 - method nullable: card | direct_debit
 - refunded_cents — Stripe's running total refunded
 - started_by nullable — the parent; gets the receipt
+- pays_off_plan nullable — the instalment plan this payment pays off; the
+  plan ends once it's paid or on its way (M7c part 2)
 - paid_at nullable, created_at, updated_at
 
 Started by a parent (`start_online_payment`, for their own family only);
@@ -505,9 +507,11 @@ Started by a parent for their own family (`start_instalment_plan`); the
 later payments are claimed and settled only by the server
 (`claim_due_instalments`, `settle_instalment_payment`); a payment's status
 carries through to its instalment and plan. A failed or expired payment
-stops the plan and cancels what's left, which is then simply owed.
-Scheduled instalments of an active plan don't count as owing now, overdue
-or in reminders. Owners and the family's parents read both.
+stops the plan and cancels what's left, which is then simply owed. An
+instalment is never more than the family still owes; one with nothing
+left to take ends the plan. Scheduled instalments of an active plan don't
+count as owing now, overdue or in reminders (`family_owing` gives both
+figures to the family and the school). Owners and the family's parents read both.
 
 ### PlatformAdmin
 A person who runs Ovyko and may see its totals (`docs/PLATFORM_TOTALS.md`).

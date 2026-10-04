@@ -1278,6 +1278,7 @@ export type Database = {
           organisation_id: string;
           paid_at: string | null;
           payment_intent_id: string | null;
+          pays_off_plan: string | null;
           platform_fee_cents: number;
           refunded_cents: number;
           started_by: string | null;
@@ -1295,6 +1296,7 @@ export type Database = {
           organisation_id: string;
           paid_at?: string | null;
           payment_intent_id?: string | null;
+          pays_off_plan?: string | null;
           platform_fee_cents: number;
           refunded_cents?: number;
           started_by?: string | null;
@@ -1312,6 +1314,7 @@ export type Database = {
           organisation_id?: string;
           paid_at?: string | null;
           payment_intent_id?: string | null;
+          pays_off_plan?: string | null;
           platform_fee_cents?: number;
           refunded_cents?: number;
           started_by?: string | null;
@@ -1326,6 +1329,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "families";
             referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "online_payments_pays_off_plan_fkey";
+            columns: ["pays_off_plan"];
+            isOneToOne: false;
+            referencedRelation: "instalment_plans";
+            referencedColumns: ["id"];
           },
           {
             foreignKeyName: "online_payments_started_by_fkey";
@@ -2117,10 +2127,10 @@ export type Database = {
       attach_plan_payment_method: {
         Args: {
           p_account: string;
-          p_customer: string;
+          p_customer?: string;
           p_payment: string;
-          p_payment_method: string;
-          p_type: string;
+          p_payment_method?: string;
+          p_type?: string;
         };
         Returns: boolean;
       };
@@ -2205,6 +2215,13 @@ export type Database = {
           overdue_cents: number;
           owing_cents: number;
           reminders_on: boolean;
+        }[];
+      };
+      family_owing: {
+        Args: { p_family: string };
+        Returns: {
+          owing_now: number;
+          owing_with_plan: number;
         }[];
       };
       family_parents: {
