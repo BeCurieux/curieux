@@ -8,6 +8,7 @@ import * as accounts from "@/lib/domain/accounts";
 import * as families from "@/lib/domain/families";
 import * as fill from "@/lib/domain/fill";
 import * as imports from "@/lib/domain/imports";
+import { FILES, type Chosen, type ImportFile } from "@/lib/domain/import-columns";
 import * as invites from "@/lib/domain/invites";
 import * as messages from "@/lib/email/messages";
 import { appUrl, emailOn, sendEmail } from "@/lib/email/transport";
@@ -459,36 +460,68 @@ async function readUpload(formData: FormData, name: string) {
   return { name: file.name, text: await file.text() };
 }
 
+// The columns the owner matched by hand for one file ("map.students.first_name"
+// = the header's text, or "" for not in the file). Without any, the file's
+// columns are matched by name.
+function chosenColumns(formData: FormData, file: ImportFile): Chosen | undefined {
+  const prefix = `map.${file}.`;
+  const chosen: Chosen = {};
+  for (const [name, value] of formData.entries())
+    if (name.startsWith(prefix) && typeof value === "string")
+      chosen[name.slice(prefix.length)] = value.slice(0, 200);
+  return Object.keys(chosen).length ? chosen : undefined;
+}
+
 // Reads the school's files and checks them: what would be added, what's
 // already here, and every row that can't come across. Saves nothing.
 export async function checkImport(_: ImportState, formData: FormData): Promise<ImportState> {
   const { db, organisationId } = await requireOwner();
-  let classesFile, studentsFile;
+  const files: Partial<Record<ImportFile, { name: string; text: string }>> = {};
   try {
-    classesFile = await readUpload(formData, "classes");
-    studentsFile = await readUpload(formData, "students");
+    for (const file of FILES) {
+      const upload = await readUpload(formData, file);
+      if (upload) files[file] = upload;
+    }
   } catch {
     return { error: "Each file must be smaller than 2 MB." };
   }
-  if (!classesFile && !studentsFile)
-    return { error: "Choose a classes file, a students file or both." };
-  for (const f of [classesFile, studentsFile])
-    if (f && !/\.csv$/i.test(f.name))
+  const uploads = FILES.flatMap((f) => (files[f] ? [files[f]] : []));
+  if (uploads.length === 0) return { error: "Choose at least one file." };
+  for (const f of uploads)
+    if (!/\.csv$/i.test(f.name))
       return { error: `"${f.name}" isn't a CSV file. Export it as CSV and try again.` };
 
   const out: ImportState = {};
   const failed = await attempt(async () => {
-    const classes = classesFile
-      ? imports.readClasses(classesFile.text)
-      : { rows: [], problems: [] };
-    const students = studentsFile
-      ? imports.readStudents(studentsFile.text)
-      : { rows: [], problems: [] };
+    const none = { rows: [], problems: [] };
+    const classes = files.classes
+      ? imports.readClasses(files.classes.text, chosenColumns(formData, "classes"))
+      : none;
+    const students = files.students
+      ? imports.readStudents(files.students.text, chosenColumns(formData, "students"))
+      : none;
+    const balances = files.balances
+      ? imports.readBalances(
+          files.balances.text,
+          chosenColumns(formData, "balances"),
+          formData.get("owing_negative") === "on",
+        )
+      : none;
+    const credits = files.credits
+      ? imports.readCredits(files.credits.text, chosenColumns(formData, "credits"))
+      : none;
     const input: imports.ImportRows = {
       classes: classes.rows,
       students: students.rows,
-      fileNames: [classesFile?.name, studentsFile?.name].filter((n): n is string => Boolean(n)),
-      readProblems: [...classes.problems, ...students.problems],
+      balances: balances.rows,
+      credits: credits.rows,
+      fileNames: uploads.map((f) => f.name),
+      readProblems: [
+        ...classes.problems,
+        ...students.problems,
+        ...balances.problems,
+        ...credits.problems,
+      ],
     };
     out.report = await imports.importSchool(db, organisationId, input, false);
     out.rows = JSON.stringify(input);
@@ -500,12 +533,12 @@ export async function checkImport(_: ImportState, formData: FormData): Promise<I
 const importRowsSchema = z.object({
   classes: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
   students: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
-  fileNames: z.array(z.string().max(200)).max(2),
+  balances: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
+  credits: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
+  fileNames: z.array(z.string().max(200)).max(4),
   readProblems: z
-    .array(
-      z.object({ file: z.enum(["classes", "students"]), row: z.number(), message: z.string() }),
-    )
-    .max(imports.MAX_ROWS * 2),
+    .array(z.object({ file: z.enum(FILES), row: z.number(), message: z.string() }))
+    .max(imports.MAX_ROWS * 4),
 });
 
 // Saves what was checked, all at once, then opens the import's page.

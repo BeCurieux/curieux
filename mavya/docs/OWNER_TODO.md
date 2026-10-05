@@ -21,6 +21,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   12. `supabase/migrations/20261018000035_ovyko_month.sql`
   13. `supabase/migrations/20261019000036_place_wishes.sql`
   14. `supabase/migrations/20261020000037_waitlist.sql`
+  15. `supabase/migrations/20261021000038_importers.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
@@ -29,6 +30,15 @@ Kept up to date as items are done. Never put passwords or keys in this file.
       `insert into public.platform_admins (user_id) select id from public.users where email = 'you@example.com';`
       Then sign in, set up two-step sign-in with an authenticator app, and
       open `/platform`.
+
+- [ ] **Get a real export from the pilot school**, once they agree to the
+      pilot: their students, balances and make-up credits as CSV files from
+      their current system (iClassPro, SimplySwim, Class Manager or
+      similar). Share them with Claude only with the school's permission,
+      or try them yourself on "Move your school in" with a test school.
+      Ovyko reads many systems' column names and lets you match the rest,
+      but the first real export is the real test (`docs/M6_MIGRATION_PILOT.md`,
+      M6h).
 
 ## Business and legal
 

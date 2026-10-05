@@ -12,6 +12,8 @@ export const metadata: Metadata = { title: "Move your school in" };
 const TEMPLATES = [
   { href: "/templates/ovyko-classes.csv", label: "Classes template" },
   { href: "/templates/ovyko-students.csv", label: "Students template" },
+  { href: "/templates/ovyko-balances.csv", label: "Balances template" },
+  { href: "/templates/ovyko-credits.csv", label: "Make-up credits template" },
 ];
 
 function count(n: number, one: string, many: string) {
@@ -27,9 +29,10 @@ export default async function ImportPage() {
       <div>
         <h1 className="font-display text-4xl font-semibold tracking-tight">Move your school in</h1>
         <p className="mt-2 text-muted">
-          Export your classes and students from your current system as CSV files. We&apos;ll show
-          you exactly what will come across before anything is saved, and you can run it again later
-          to pick up new families.
+          Export your classes, students, balances and make-up credits from your current system
+          (iClassPro, SimplySwim, Class Manager or a spreadsheet) as CSV files. We&apos;ll show you
+          exactly what will come across before anything is saved, and you can run it again later to
+          pick up new families.
         </p>
       </div>
 
@@ -46,7 +49,8 @@ export default async function ImportPage() {
           first. Files are matched to them by name.
         </li>
         <li>
-          Use your system&apos;s export, or start from a template:
+          Use your system&apos;s own export, or start from a template. Columns are matched by name,
+          and you can choose any we can&apos;t find:
           <span className="mt-2 flex flex-wrap gap-2">
             {TEMPLATES.map((t) => (
               <a

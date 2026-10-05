@@ -109,6 +109,8 @@ saving, with counts to compare and a 14-day undo.
 
 Implement:
 - ~~CSV family, children and class import~~ (M6a)
+- ~~moving in from another system: other systems' column names, matching
+  columns by hand, balances and make-up credits~~ (M6h)
 - ~~onboarding checklist~~ (M6b)
 - ~~parent invites~~ (M6b, by link; by email with M6c)
 - ~~minimal internal admin support (granted by the school, time-limited, audited)~~

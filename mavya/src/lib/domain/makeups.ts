@@ -132,7 +132,7 @@ export type Credit = {
   id: string;
   childId: string;
   expiresAt: string;
-  reason: "absence" | "lesson_cancelled";
+  reason: "absence" | "lesson_cancelled" | "imported";
   sourceStartsAt: string | null;
 };
 

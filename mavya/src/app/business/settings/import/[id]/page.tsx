@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Problems, UndoImportButton } from "@/components/business/import-form";
+import { MoneyCheck, Problems, UndoImportButton } from "@/components/business/import-form";
 import { BackLink } from "@/components/demo/back-link";
 import { requireOwner } from "@/lib/business/owner";
+import type { ImportFile } from "@/lib/domain/import-columns";
 import { getImport, importSummary, type Counts } from "@/lib/domain/imports";
 import { formatDateTime } from "@/lib/format";
 
@@ -13,6 +14,15 @@ const KINDS: { key: keyof Counts; label: string }[] = [
   { key: "families", label: "Families" },
   { key: "children", label: "Children" },
   { key: "enrolments", label: "Places in classes" },
+  { key: "balances", label: "Family balances" },
+  { key: "credits", label: "Make-up credits" },
+];
+
+const ROWS: { key: ImportFile; one: string; many: string }[] = [
+  { key: "classes", one: "class row", many: "class rows" },
+  { key: "students", one: "student row", many: "student rows" },
+  { key: "balances", one: "balance row", many: "balance rows" },
+  { key: "credits", one: "make-up credit row", many: "make-up credit rows" },
 ];
 
 export default async function ImportBatchPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +33,16 @@ export default async function ImportBatchPage({ params }: { params: Promise<{ id
   const { inOvyko, canUndo } = await importSummary(db, batch.id);
   const problems = batch.problems.filter((p) => !p.note);
   const notes = batch.problems.filter((p) => p.note);
+  // Only what this import brought, so older imports show as they did.
+  const kinds = KINDS.filter(
+    (k) =>
+      !["balances", "credits"].includes(k.key) ||
+      batch.added[k.key] + batch.existing[k.key] + inOvyko[k.key] > 0,
+  );
+  const rows = ROWS.filter((r) => r.key === "classes" || r.key === "students" || batch.rows[r.key]);
+  const rowText = rows.map(
+    (r) => `${batch.rows[r.key]} ${batch.rows[r.key] === 1 ? r.one : r.many}`,
+  );
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <BackLink href="/business/settings/import">Move your school in</BackLink>
@@ -46,11 +66,14 @@ export default async function ImportBatchPage({ params }: { params: Promise<{ id
           </h2>
           <p className="text-muted">
             Check these against your old system before you switch. The files had{" "}
-            {batch.rows.classes} class rows and {batch.rows.students} student rows.
+            {rowText.length > 1
+              ? `${rowText.slice(0, -1).join(", ")} and ${rowText.at(-1)}`
+              : rowText[0]}
+            .
           </p>
         </div>
         <ul className="flex flex-col gap-3">
-          {KINDS.map((k) => (
+          {kinds.map((k) => (
             <li key={k.key} className="rounded-md border border-line p-4">
               <p className="font-semibold">{k.label}</p>
               <dl className="tabular mt-2 grid grid-cols-3 gap-2 text-sm">
@@ -73,6 +96,7 @@ export default async function ImportBatchPage({ params }: { params: Promise<{ id
         <p className="text-sm text-muted">
           &ldquo;In Ovyko now&rdquo; counts what this import added that&apos;s still here.
         </p>
+        <MoneyCheck money={batch.money} saved />
       </section>
 
       {problems.length ? (

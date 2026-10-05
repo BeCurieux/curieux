@@ -20,6 +20,7 @@ and useful by itself, in this order:
 | M6e | Term re-enrolment in one tap, moving up a level, lessons in term only | Needed before the pilot's first term ends |
 | M6f | Pool-deck mode (attendance without Wi-Fi) | Pilot feedback may reshape it |
 | **M6g** | **Support access** (granted by the school, time-limited, audited) | Needed once the pilot asks for help |
+| **M6h** | **Moving in from another system**: other systems' column names, matching columns by hand, balances and make-up credits | Switching is the scary part; balances and credits are what families notice first |
 
 Outside the code, and for the owner of Ovyko to do before a real school's
 data arrives: Supabase Pro (backups, point-in-time recovery, leaked-password
@@ -77,7 +78,7 @@ lawyer's review.
 ### Not in M6a
 
 - Attendance history, progress history, balances, credits and waitlists
-  from the old system (next, once we've seen the pilot school's export).
+  from the old system (balances and credits came in M6h).
 - Connectors that pull straight from iClassPro, SimplySwim and others.
 - Updating existing records from a file (only adding).
 
@@ -430,3 +431,92 @@ change them.
 
 Tests: `tests/rls/support.test.ts`, `tests/e2e/support.spec.ts`. Support
 opens `/platform`, where schools that have let support in are listed.
+
+## M6h — Moving in from another system (done)
+
+M6a reads Ovyko's own templates and forgiving column names. Schools will
+upload whatever their current system exports (iClassPro, SimplySwim, Class
+Manager, a spreadsheet), and what families notice first after a move is
+whether their balance and make-up credits came across. The defaults below
+were chosen by Claude on 5 October 2026; the owner of Ovyko can change them.
+
+### Decisions
+
+1. **Other systems' column names.** The files are read with the column
+   names other systems use as well as Ovyko's own: "Student Name" (one
+   column, split into first and last name; "Smith, Jane" works too),
+   "Birthday", "Primary Guardian Name", "Primary Email", "Primary Phone
+   Number", "Cell Phone", "Enrolled Class", "Max Size", "Days" and others.
+   We don't claim an export from any one system works unchanged until
+   we've seen a real one: iClassPro publishes its report columns, SimplySwim
+   and Class Manager don't, so the pilot school's own export is the test.
+2. **Match columns by hand.** Choosing a file shows, before anything is
+   uploaded, which column Ovyko will read for each detail ("First name ←
+   Student First Name"). Anything needed that Ovyko couldn't find is asked
+   for ("Which column has the date of birth?"), and every choice can be
+   changed. So an export with unusual names still comes across without
+   editing the file.
+3. **Balances: one row per family.** A third file brings across what each
+   family owes, or is owed: the family is found by parent email (else
+   phone), as in M6a, including families added by the same import. Owing
+   becomes a charge, "Balance brought across"; in credit becomes a credit,
+   "Credit brought across", on the family's account. "$1,234.50", "-45",
+   "(45.00)" and "45.00 CR" are all read; a negative amount, brackets or CR
+   mean the family is in credit. An optional due date sets when it's due
+   (and so the usual fee reminders); without one, no reminders are sent
+   for it.
+4. **Make-up credits: one row per child.** A fourth file brings across
+   unused make-up credits: the child is found by parent email or phone and
+   first name (and date of birth, if given), or else by first and last
+   name across the school. The credits expire on the date in the file, or
+   after the school's own make-up rules' validity from the import day.
+   Credits that have already expired aren't brought across. Brought-across
+   credits work like any other: they can book make-ups, and automatic
+   offers (M5.5) include them.
+5. **Check the totals.** Before saving, the check shows how many families
+   owe, and how much in all; how many are in credit, and how much; and how
+   many make-up credits come across. The owner compares these with the old
+   system's own totals. If they look backwards (some systems write money
+   owed as a negative number), the owner ticks "My system shows money owed
+   as a negative number" and checks again.
+6. **Safe to run again.** A family whose balance has already been brought
+   across (by an import not undone) is skipped, and so is a child whose
+   credits have; a family on two rows of the balances file is a problem
+   row, never added twice.
+7. **All in one import, and undo.** Balances and credits are part of the
+   same all-or-nothing import, with the same 14-day undo, which is refused
+   once a family has paid or been charged since, or a credit has been used
+   or offered a place.
+
+### Data model
+
+- `import_batch_id` (nullable) on account lines and make-up credits, set
+  only by the import, as for classes and families.
+- Make-up credits gain the reason `imported` (with no lesson behind them).
+- The import's counts gain balances and credits.
+
+### Not in M6h
+
+- Attendance and progress history (they don't change what a family pays or
+  books; the old system keeps them).
+- Waitlists from the old system (next, with the permanent waitlist).
+- Spreadsheet files (.xlsx): export as CSV.
+- Connecting straight to another system's API.
+
+### Acceptance criteria
+
+- An export with other systems' column names ("Student Name", "Primary
+  Email", "Birthday") is read without editing it; a column Ovyko can't
+  name is matched by the owner before checking.
+- A balances file adds what each family owes or is owed to its account, and
+  the check shows the totals; a family on two rows is a problem row.
+- A credits file adds each child's unused make-up credits, with their
+  expiry; an expired credit doesn't come across.
+- Importing the same files again adds nothing.
+- Undo removes the balances and credits it added, and is refused once a
+  family has paid since or a credit has been used.
+- Only the school's owners can import; parents see the brought-across lines
+  on their own account only.
+
+Tests: `tests/unit/import-columns.test.ts`, `tests/rls/importers.test.ts`,
+`tests/e2e/importers.spec.ts`.

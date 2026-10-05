@@ -221,7 +221,9 @@ unless its credit is booked or the place has gone to a make-up (M4).
 - child_id
 - source_occurrence_id nullable — the lesson missed or cancelled
 - source_absence_id nullable
-- reason: absence | lesson_cancelled
+- reason: absence | lesson_cancelled | imported (brought across from the
+  school's old system, with no lesson behind it; M6h)
+- import_batch_id nullable — the import that added it (M6h)
 - issued_at
 - expires_at — fixed when issued, from the policy then in force
 - status: available | redeemed | expired | revoked
@@ -413,10 +415,13 @@ mistake is cancelled by an opposite line. The balance is their sum.
 - cancels_id nullable, unique — the line a cancellation cancels
 - charge_key nullable — unique per school; stops a term fee being added
   twice
+- import_batch_id nullable — the import that brought the family's balance
+  across from its old system (M6h): "Balance brought across" (a charge) or
+  "Credit brought across" (a credit)
 - created_by nullable, created_at
 
-Added only by `create_term_fees`, `record_payment`, `add_account_line` and
-`cancel_ledger_entry` (owners), and by Stripe's confirmed payments and
+Added only by `create_term_fees`, `record_payment`, `add_account_line`,
+`cancel_ledger_entry` and `import_school` (owners), and by Stripe's confirmed payments and
 refunds (M7b, `settle_online_payment`, `record_online_refund`). No one can
 change a line, not even the server's key. Owners read their school's lines
 (and `family_balances`); parents read their own family's.
@@ -603,7 +608,8 @@ One run of "Move your school in" (M6a).
 - created_by nullable
 - created_at
 - file_names — the files' names; the files themselves aren't kept
-- counts — rows in the files, and what was added and already there
+- counts — rows in the files, what was added and already there, and the
+  balances brought across (families owing and in credit, and how much; M6h)
 - problems — each row that didn't come across (or came across with a
   note), with its file, row number and reason
 - undone_at nullable
@@ -611,7 +617,9 @@ One run of "Move your school in" (M6a).
 Written only by `import_school` and `undo_import`; owners of the school can
 read their own. Only `import_school` can set a row's `import_batch_id`
 (a trigger refuses anyone else), and `undo_import` deletes exactly the rows
-carrying it, for 14 days and only while nothing else depends on them.
+carrying it, for 14 days and only while nothing else depends on them: no
+payment, charge or credit on a family since its balance came across, and no
+brought-across make-up credit used or offered a place (M6h).
 
 ### ChildHealth
 A child's health notes (M6d). One per child.

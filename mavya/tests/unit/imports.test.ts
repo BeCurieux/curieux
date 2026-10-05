@@ -87,7 +87,7 @@ describe("the classes file", () => {
 
   it("says which columns are missing", () => {
     expect(readClasses("Class,Day\nA,Mon\n").problems[0]!.message).toBe(
-      "The classes file needs these columns: Level, Location, Start time, Duration (or End time), Capacity.",
+      "The classes file needs a column for: Level, Location, Start time, Length (minutes) or End time, Places.",
     );
   });
 });

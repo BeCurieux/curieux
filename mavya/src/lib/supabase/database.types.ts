@@ -911,6 +911,7 @@ export type Database = {
           due_on: string | null;
           family_id: string;
           id: string;
+          import_batch_id: string | null;
           kind: string;
           lessons: number | null;
           method: string | null;
@@ -932,6 +933,7 @@ export type Database = {
           due_on?: string | null;
           family_id: string;
           id?: string;
+          import_batch_id?: string | null;
           kind: string;
           lessons?: number | null;
           method?: string | null;
@@ -953,6 +955,7 @@ export type Database = {
           due_on?: string | null;
           family_id?: string;
           id?: string;
+          import_batch_id?: string | null;
           kind?: string;
           lessons?: number | null;
           method?: string | null;
@@ -975,6 +978,13 @@ export type Database = {
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
             referencedColumns: ["id"];
           },
           {
@@ -1163,6 +1173,7 @@ export type Database = {
           child_id: string;
           expires_at: string;
           id: string;
+          import_batch_id: string | null;
           issued_at: string;
           organisation_id: string;
           reason: string;
@@ -1174,6 +1185,7 @@ export type Database = {
           child_id: string;
           expires_at: string;
           id?: string;
+          import_batch_id?: string | null;
           issued_at?: string;
           organisation_id: string;
           reason: string;
@@ -1185,6 +1197,7 @@ export type Database = {
           child_id?: string;
           expires_at?: string;
           id?: string;
+          import_batch_id?: string | null;
           issued_at?: string;
           organisation_id?: string;
           reason?: string;
@@ -1193,6 +1206,13 @@ export type Database = {
           status?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "makeup_credits_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "makeup_credits_organisation_id_child_id_fkey";
             columns: ["organisation_id", "child_id"];
@@ -2473,8 +2493,10 @@ export type Database = {
       grant_support_access: { Args: { p_note: string; p_org: string }; Returns: string };
       import_school: {
         Args: {
+          p_balances?: Json;
           p_classes: Json;
           p_commit: boolean;
+          p_credits?: Json;
           p_file_names: string[];
           p_org: string;
           p_read_problems?: Json;
