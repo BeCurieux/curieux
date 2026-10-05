@@ -45,8 +45,17 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 
 - [ ] ASIC approval of the business name "Ovyko" (lodged; manual review).
       Uses the virtual office address and ABN 38 813 430 864.
-- [ ] Buy the domains at VentraIP (.com.au, .com, .au, .online, .store) and
-      turn off auto-renew for .online and .store.
+- [x] Buy ovyko.com.au and ovyko.com (5 October 2026). Still optional:
+      .au, .online and .store (if bought, turn off auto-renew for .online
+      and .store).
+- [ ] **Point the domains at Ovyko** (Vercel → the Ovyko project →
+      Settings → Domains): add `ovyko.com.au` as the main address, and
+      `www.ovyko.com.au`, `ovyko.com` and `www.ovyko.com` to redirect to
+      it. Vercel shows the DNS records to add at VentraIP. Then set
+      `APP_URL=https://ovyko.com.au` in Vercel, and in Supabase
+      (Authentication → URL Configuration) set the Site URL to
+      `https://ovyko.com.au` and add `https://ovyko.com.au/**` to the
+      redirect URLs, so sign-in and invite links use the new address.
 - [ ] Google Workspace, bought directly from Google (hello@ovyko.com.au).
 - [ ] Trademark search for "Ovyko".
 - [ ] Privacy lawyer review (privacy policy, school data agreement, parent
