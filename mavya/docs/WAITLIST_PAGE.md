@@ -124,5 +124,8 @@ Subject: You're on the Ovyko waitlist
   and only the owner of Ovyko sees them.
 - No figure, quote or school name on the page unless it's real and
   permitted.
-- If you want it built into the website with the form saving to Ovyko's
-  own database, ask Claude: it's a small slice.
+- Built: the page is at `/founding`, linked from the home page; sign-ups
+  are saved in Ovyko's database and listed on `/platform`. The offer,
+  area, dates, the "data stays in Australia" line and the founder's note
+  show only once set in `src/lib/site/founding.ts`. No confirmation email
+  is sent yet (see `docs/SECURITY.md`); the page shows the confirmation.

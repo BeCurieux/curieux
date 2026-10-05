@@ -4,7 +4,7 @@ import { Wordmark } from "@/components/shell/wordmark";
 import { ownerTwoStepNeeded, requireViewer } from "@/lib/auth/viewer";
 import { formatMoney } from "@/lib/domain/accounts";
 import Link from "next/link";
-import { amPlatformAdmin, platformMonths, platformTotals } from "@/lib/domain/platform";
+import { amPlatformAdmin, platformMonths, platformTotals, waitlist } from "@/lib/domain/platform";
 import { supportSchools } from "@/lib/domain/support";
 import { formatDateTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -19,10 +19,11 @@ export default async function PlatformPage() {
   if (await ownerTwoStepNeeded()) redirect("/two-step");
   const db = await createClient();
   if (!(await amPlatformAdmin(db))) notFound();
-  const [t, months, helping] = await Promise.all([
+  const [t, months, helping, signups] = await Promise.all([
     platformTotals(db),
     platformMonths(db),
     supportSchools(db),
+    waitlist(db),
   ]);
 
   const tiles: [string, string][] = [
@@ -55,6 +56,37 @@ export default async function PlatformPage() {
           and a school only once it has let support in.
         </p>
       </div>
+      <section aria-labelledby="waitlist" className="flex flex-col gap-3">
+        <h2 id="waitlist" className="font-display text-2xl font-semibold">
+          Founding schools waitlist ({signups.length})
+        </h2>
+        {signups.length === 0 ? (
+          <p className="text-muted">Nobody yet. The page is at /founding.</p>
+        ) : (
+          <ul className="flex flex-col divide-y divide-line rounded-lg border border-line bg-surface">
+            {signups.map((w) => (
+              <li key={w.id} className="flex flex-col gap-1 px-5 py-3">
+                <span className="font-semibold">
+                  {w.school}, {w.suburb}
+                </span>
+                <span className="text-sm text-muted">
+                  {w.name} ·{" "}
+                  <a href={`mailto:${w.email}`} className="underline">
+                    {w.email}
+                  </a>
+                  {w.phone ? ` · ${w.phone}` : ""}
+                  {w.swimmers
+                    ? ` · ${w.swimmers.replace("_", " to ").replace("under to ", "under ").replace("over to ", "over ")} swimmers`
+                    : ""}
+                  {w.currentSystem ? ` · uses ${w.currentSystem.replace("_", " ")}` : ""}
+                  {w.nextBreak ? ` · next break: ${w.nextBreak}` : ""} · joined{" "}
+                  {formatDateTime(w.createdAt)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <section aria-labelledby="support" className="flex flex-col gap-3">
         <h2 id="support" className="font-display text-2xl font-semibold">
           Schools that have let support in

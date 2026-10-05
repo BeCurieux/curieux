@@ -64,3 +64,34 @@ export async function platformMonths(db: Db): Promise<PlatformMonth[]> {
     ovykoFeesCents: m.ovyko_fees_cents,
   }));
 }
+
+export type WaitlistSignup = {
+  id: string;
+  name: string;
+  school: string;
+  suburb: string;
+  email: string;
+  phone: string | null;
+  swimmers: string | null;
+  currentSystem: string | null;
+  nextBreak: string | null;
+  createdAt: string;
+};
+
+// The founding-schools waitlist (docs/WAITLIST_PAGE.md), newest first.
+export async function waitlist(db: Db): Promise<WaitlistSignup[]> {
+  const { data, error } = await db.rpc("waitlist");
+  if (error) throw explain(error);
+  return (data ?? []).map((w) => ({
+    id: w.id,
+    name: w.name,
+    school: w.school,
+    suburb: w.suburb,
+    email: w.email,
+    phone: w.phone,
+    swimmers: w.swimmers,
+    currentSystem: w.current_system,
+    nextBreak: w.next_break,
+    createdAt: w.created_at,
+  }));
+}

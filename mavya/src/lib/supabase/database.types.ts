@@ -2251,6 +2251,51 @@ export type Database = {
           },
         ];
       };
+      waitlist_signups: {
+        Row: {
+          consented_at: string;
+          created_at: string;
+          current_system: string | null;
+          email: string;
+          id: string;
+          name: string;
+          next_break: string | null;
+          phone: string | null;
+          school: string;
+          suburb: string;
+          swimmers: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          consented_at: string;
+          created_at?: string;
+          current_system?: string | null;
+          email: string;
+          id?: string;
+          name: string;
+          next_break?: string | null;
+          phone?: string | null;
+          school: string;
+          suburb: string;
+          swimmers?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          consented_at?: string;
+          created_at?: string;
+          current_system?: string | null;
+          email?: string;
+          id?: string;
+          name?: string;
+          next_break?: string | null;
+          phone?: string | null;
+          school?: string;
+          suburb?: string;
+          swimmers?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -2449,6 +2494,20 @@ export type Database = {
         }[];
       };
       invite_parent: { Args: { p_email: string; p_family: string }; Returns: string };
+      join_waitlist: {
+        Args: {
+          p_consent: boolean;
+          p_current_system: string;
+          p_email: string;
+          p_name: string;
+          p_next_break: string;
+          p_phone: string;
+          p_school: string;
+          p_suburb: string;
+          p_swimmers: string;
+        };
+        Returns: undefined;
+      };
       makeup_options: {
         Args: { p_credit: string };
         Returns: {
@@ -2809,6 +2868,29 @@ export type Database = {
           offer_expires_at: string;
           offer_status: string;
         }[];
+      };
+      waitlist: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          consented_at: string;
+          created_at: string;
+          current_system: string | null;
+          email: string;
+          id: string;
+          name: string;
+          next_break: string | null;
+          phone: string | null;
+          school: string;
+          suburb: string;
+          swimmers: string | null;
+          updated_at: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "waitlist_signups";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
       };
       wish_choices: {
         Args: { p_org: string };

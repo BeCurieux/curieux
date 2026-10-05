@@ -250,6 +250,16 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - Owners and the family's parents see a family's vouchers; instructors
   and other schools see none. Audited.
 
+### Founding-schools waitlist (done)
+
+- The public form saves through one function that checks every field and
+  requires consent to be emailed (Spam Act); the table itself can't be read
+  or written by anyone through the app.
+- Only platform admins, after two-step sign-in, see the list.
+- No email is sent on sign-up: an open form that emails any address it's
+  given could be used to send mail to strangers. A hidden field turns away
+  simple bots.
+
 ### M8 — This month with Ovyko, and what families want (done)
 
 - "This month with Ovyko" is for the school's owners only, and counts

@@ -205,6 +205,9 @@ export function Landing() {
               <Button asChild variant="ghost" size="lg">
                 <a href="#demo">Watch the demo</a>
               </Button>
+              <Button asChild variant="soft" size="lg">
+                <Link href="/founding">Join the founding schools</Link>
+              </Button>
             </div>
           </div>
           <ExampleScreens />

@@ -552,6 +552,20 @@ read it; support reads the school only through `support_school_view`,
 which names no child, parent or family and records each look as an
 `AuditEvent` with action `support_view` (`support_looks` lists them).
 
+### WaitlistSignup
+A swim school that joined the founding-schools waitlist from `/founding`
+(`docs/WAITLIST_PAGE.md`). Not tied to any organisation.
+
+- id
+- name, school, suburb, email (unique, case-insensitive)
+- phone, swimmers (a size band), current_system, next_break, nullable
+- consented_at — when they agreed to be emailed about founding places
+- created_at, updated_at
+
+Anyone can join through `join_waitlist` (joining again updates the row);
+only platform admins, after two-step sign-in, read it (`waitlist`). Nobody
+reads or changes the table directly.
+
 ### PlatformAdmin
 A person who runs Ovyko and may see its totals (`docs/PLATFORM_TOTALS.md`).
 

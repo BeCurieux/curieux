@@ -20,6 +20,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   11. `supabase/migrations/20261017000034_support_access.sql`
   12. `supabase/migrations/20261018000035_ovyko_month.sql`
   13. `supabase/migrations/20261019000036_place_wishes.sql`
+  14. `supabase/migrations/20261020000037_waitlist.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
@@ -112,6 +113,11 @@ Part B, going live (before the pilot school takes real payments):
 - [x] Instalments (M7c part 2): 2 or 4 a term, no extra fee, each school
       turns them on (4 October 2026).
 
+- [ ] Before sharing the waitlist page (`/founding`): decide the offer,
+      area and dates and tell Claude (they go in `src/lib/site/founding.ts`;
+      nothing shows until they're set), add a privacy policy page, and send
+      Claude your founder note if you want one on the page. Sign-ups show
+      on `/platform`.
 - [ ] Follow the 90-day selling plan in `docs/LAUNCH_90_DAYS.md`, with the
       messages in `docs/OUTREACH.md` and the waitlist page in
       `docs/WAITLIST_PAGE.md`. Decide the founding-schools offer first.

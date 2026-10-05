@@ -102,6 +102,7 @@ export const TABLES = [
   "instalments",
   "support_grants",
   "place_wishes",
+  "waitlist_signups",
 ] as const;
 
 // Puts a family back as seeded: cancels their booked make-ups and takes back
