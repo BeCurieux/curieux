@@ -1369,6 +1369,7 @@ export type Database = {
       organisations: {
         Row: {
           activity_type: string;
+          auto_place_offers: boolean;
           created_at: string;
           fee_reminders: boolean;
           id: string;
@@ -1384,6 +1385,7 @@ export type Database = {
         };
         Insert: {
           activity_type: string;
+          auto_place_offers?: boolean;
           created_at?: string;
           fee_reminders?: boolean;
           id?: string;
@@ -1399,6 +1401,7 @@ export type Database = {
         };
         Update: {
           activity_type?: string;
+          auto_place_offers?: boolean;
           created_at?: string;
           fee_reminders?: boolean;
           id?: string;
@@ -1448,6 +1451,104 @@ export type Database = {
             columns: ["organisation_id"];
             isOneToOne: true;
             referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      place_offers: {
+        Row: {
+          answered_at: string | null;
+          answered_by: string | null;
+          child_id: string;
+          class_id: string;
+          created_at: string;
+          enrolment_id: string | null;
+          expires_at: string;
+          family_id: string;
+          id: string;
+          offered_by: string | null;
+          organisation_id: string;
+          status: string;
+          wish_id: string;
+        };
+        Insert: {
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id: string;
+          class_id: string;
+          created_at?: string;
+          enrolment_id?: string | null;
+          expires_at: string;
+          family_id: string;
+          id?: string;
+          offered_by?: string | null;
+          organisation_id: string;
+          status?: string;
+          wish_id: string;
+        };
+        Update: {
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id?: string;
+          class_id?: string;
+          created_at?: string;
+          enrolment_id?: string | null;
+          expires_at?: string;
+          family_id?: string;
+          id?: string;
+          offered_by?: string | null;
+          organisation_id?: string;
+          status?: string;
+          wish_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "place_offers_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_offers_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_offers_offered_by_fkey";
+            columns: ["offered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_offers_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_offers_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_offers_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_offers_wish_id_fkey";
+            columns: ["wish_id"];
+            isOneToOne: false;
+            referencedRelation: "place_wishes";
             referencedColumns: ["id"];
           },
         ];
@@ -2349,6 +2450,7 @@ export type Database = {
         Returns: string;
       };
       am_platform_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      answer_place_offer: { Args: { p_accept: boolean; p_offer: string }; Returns: string };
       answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
       apply_terms_at: { Args: { p_now: string }; Returns: number };
       ask_families: { Args: { p_reply_by: string; p_term: string }; Returns: number };
@@ -2547,6 +2649,21 @@ export type Database = {
       };
       makeup_policy: { Args: { p_org: string }; Returns: Json };
       mark_notifications_read: { Args: Record<PropertyKey, never>; Returns: undefined };
+      my_place_offers: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          child_first_name: string;
+          child_id: string;
+          class_name: string;
+          expires_at: string;
+          level_name: string;
+          location_name: string;
+          offer_id: string;
+          organisation_name: string;
+          start_time: string;
+          weekday: number;
+        }[];
+      };
       my_term_asks: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2585,6 +2702,7 @@ export type Database = {
           timezone: string;
         }[];
       };
+      offer_place: { Args: { p_class: string; p_wish: string }; Returns: string };
       offer_spot: { Args: { p_child: string; p_occurrence: string }; Returns: string };
       offer_term_move: { Args: { p_ask: string; p_class: string }; Returns: undefined };
       online_payment_status: { Args: { p_account: string; p_payment: string }; Returns: string };
@@ -2787,6 +2905,7 @@ export type Database = {
           trial_ends: string;
         }[];
       };
+      set_auto_place_offers: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_fee_reminders: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_instalments_on: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
@@ -2937,6 +3056,7 @@ export type Database = {
         }[];
       };
       withdraw_absence: { Args: { p_absence: string }; Returns: undefined };
+      withdraw_place_offer: { Args: { p_offer: string }; Returns: undefined };
       withdraw_place_wish: { Args: { p_wish: string }; Returns: undefined };
     };
     Enums: {

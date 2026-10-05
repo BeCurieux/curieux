@@ -232,6 +232,47 @@ async function build(
         }),
       };
     }
+    case "place_offered": {
+      const offerId = (d.payload as { offer_id?: string }).offer_id;
+      if (!offerId) return null;
+      const offer = one(
+        await admin
+          .from("place_offers")
+          .select(
+            "status, expires_at, classes (weekday, start_time, levels!classes_organisation_id_level_id_fkey (name), locations (name))",
+          )
+          .eq("id", offerId)
+          .maybeSingle(),
+      ) as unknown as {
+        status: string;
+        expires_at: string;
+        classes: {
+          weekday: number;
+          start_time: string;
+          levels: { name: string } | null;
+          locations: { name: string } | null;
+        } | null;
+      } | null;
+      // Answered, withdrawn or run out since: nothing to tell.
+      if (
+        !offer ||
+        offer.status !== "offered" ||
+        new Date(offer.expires_at) <= new Date() ||
+        !offer.classes
+      )
+        return null;
+      const c = offer.classes;
+      const until = lessonMoment(offer.expires_at, org?.timezone ?? "Australia/Sydney");
+      return {
+        to,
+        email: messages.placeOffered({
+          school,
+          klass: `${dayName(c.weekday)}s at ${formatTime(c.start_time)}, ${c.levels?.name ?? ""}, ${c.locations?.name ?? ""}`,
+          heldUntil: `${until.time} ${until.date}`,
+          url: appUrl("/family"),
+        }),
+      };
+    }
     case "place_confirmed": {
       const enrolmentId = (d.payload as { enrolment_id?: string }).enrolment_id;
       if (!enrolmentId) return null;

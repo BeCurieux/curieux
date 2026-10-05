@@ -11,6 +11,7 @@ on 4 October 2026; the owner of Ovyko can change them.
 |---|---|---|
 | **M8a** | **This month with Ovyko**: places filled, fees collected, overdue fees chased and paid, families staying, jobs done without staff | The USP, made visible (layer 1 and 2) |
 | **M8b** | **What families want**: families say which times they'd like; the owner sees new-class opportunities and places that match | Layer 3: demand data |
+| **M8c** | **Free places offered to waiting families**: a place that frees up is offered to the longest-waiting family who asked for that time; they accept in one tap | The USP: empty places become fees, without the front desk |
 
 ## M8a — This month with Ovyko (done)
 
@@ -89,7 +90,7 @@ No new tables: one read-only function for owners (`ovyko_month`).
 - Demand across schools, matching families to other providers, "Build my
   term" (discovery; CLAUDE.md rule 13).
 - Offering a place for the family to accept, rather than the school
-  enrolling: later, with the permanent-waitlist work.
+  enrolling (M8c).
 
 ### Acceptance criteria
 
@@ -104,3 +105,70 @@ No new tables: one read-only function for owners (`ovyko_month`).
 Tests: `tests/rls/m8.test.ts`, `tests/e2e/m8.spec.ts`,
 `tests/unit/month.test.ts`. The owner's page is `/business/demand`, linked
 from Today when there are requests; families ask from each child's page.
+
+## M8c — Free places offered to waiting families (done)
+
+A family who asked for a time (M8b) is a waiting list. When a place comes
+up at that time, the front desk today rings down a list. Ovyko offers it
+for them. The defaults below were chosen by Claude on 5 October 2026; the
+owner of Ovyko can change them.
+
+### Decisions
+
+1. **Offer, then the family accepts.** An offer is for one child, one
+   class, and holds that place for **48 hours**. The family is emailed
+   (neutral wording: the school and that a place has come up, never the
+   child) and sees it on their home screen: "A place for Ava: Tuesdays at
+   4:30pm, Level 2, Riverside", with **Yes, enrol** and **No thanks**.
+   Accepting enrols the child by the normal rules and closes their
+   request.
+2. **Held places count.** While an offer is open, its place isn't free to
+   anyone else: enrolling by hand, another offer or a check of places
+   free counts it, so a class can't be over-filled.
+3. **Automatic, if the school chooses.** A switch on "What families want":
+   "Offer free places automatically". Off by default. When on, Ovyko checks
+   every few minutes for classes with a free place and offers each to the
+   **longest-waiting** open request that matches it: the same level (a
+   request for "not sure" waits for the owner), a location it allows, a
+   day it chose, and a start between its earliest and latest. A request
+   isn't offered the same class twice, and a family needs a parent who has
+   joined Ovyko to be offered anything.
+4. **By hand, always.** Whether or not the switch is on, the owner can
+   offer a place from "Places that match now" (as well as enrolling
+   straight away, as in M8b), and withdraw an open offer.
+5. **No thanks, or no answer.** Declining or letting it lapse leaves the
+   request open (the family still wants a time) and, with the switch on,
+   the place goes to the next family in line.
+6. **Fees aren't added automatically.** As with any new enrolment, the
+   owner adds the term's fee (Fees) when they choose; the family can pay
+   online as usual.
+7. **Recorded.** Offers, answers, withdrawals and the switch are audited.
+
+### Data model
+
+- New `PlaceOffer`: school, request, child, family, class, status
+  (offered, accepted, declined, expired, withdrawn), offered by (null when
+  automatic), expires at, answered at, the enrolment it became.
+- `organisations.auto_place_offers` (default off).
+- Email kind `place_offered`.
+
+### Not in M8c
+
+- New families joining a school's waiting list without an account (a
+  public page per school, with email checks): next.
+- Places offered for a coming term rather than straight away.
+- Charging for the term on accepting.
+
+### Acceptance criteria
+
+- The owner offers a matching place; the family sees it, accepts, and the
+  child is enrolled; the request closes.
+- While an offer is open, the place can't be taken by anyone else.
+- Declining or letting an offer lapse frees the place; with the switch
+  on, it goes to the next family in line, never the same class twice.
+- With the switch on, a freed place is offered to the longest-waiting
+  matching request; with it off, nothing is offered automatically.
+- Other families, instructors and other schools can't see or answer an
+  offer.
+
+Tests: `tests/rls/place_offers.test.ts`, `tests/e2e/place-offers.spec.ts`.

@@ -1,11 +1,14 @@
 import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PlaceButton } from "@/components/business/wish-buttons";
+import { OfferButton, PlaceButton, WithdrawOfferButton } from "@/components/business/wish-buttons";
+import { SettingSwitch } from "@/components/forms/setting-switch";
 import { Button } from "@/components/ui/button";
 import { requireOwner } from "@/lib/business/owner";
+import { autoPlaceOffersOn, openPlaceOffers } from "@/lib/domain/place-offers";
 import { classOpportunities, openWishes, wishMatches } from "@/lib/domain/wishes";
-import { dayName, formatTime } from "@/lib/format";
+import { dayName, formatDateTime, formatTime } from "@/lib/format";
+import { setAutoOffers } from "@/lib/wishes/actions";
 
 export const metadata: Metadata = { title: "What families want" };
 
@@ -18,10 +21,12 @@ export default async function DemandPage({
 }) {
   const { db, organisationId } = await requireOwner();
   const placed = (await searchParams).placed?.slice(0, 40);
-  const [opportunities, matches, wishes] = await Promise.all([
+  const [opportunities, matches, wishes, offers, auto] = await Promise.all([
     classOpportunities(db, organisationId),
     wishMatches(db, organisationId),
     openWishes(db, organisationId),
+    openPlaceOffers(db, organisationId),
+    autoPlaceOffersOn(db, organisationId),
   ]);
   const byId = new Map(wishes.map((w) => [w.id, w]));
 
@@ -39,6 +44,40 @@ export default async function DemandPage({
         <p role="status" className="rounded-md bg-[#dcf1e7] px-4 py-3 font-semibold text-[#1d5a41]">
           {placed || "The child"} is enrolled. Their family has been emailed.
         </p>
+      ) : null}
+
+      <SettingSwitch on={auto} title="Offer free places automatically" save={setAutoOffers}>
+        When a place comes up at a time a family asked for, Ovyko offers it to the family who&apos;s
+        waited longest and holds it for them for 48 hours. If they say no, or don&apos;t answer, it
+        goes to the next family.
+      </SettingSwitch>
+
+      {offers.length ? (
+        <section aria-labelledby="offers" className="flex flex-col gap-3">
+          <h2 id="offers" className="font-display text-2xl font-semibold">
+            Waiting for an answer
+          </h2>
+          <ul className="flex flex-col divide-y divide-line rounded-lg border border-line bg-surface">
+            {offers.map((o) => (
+              <li
+                key={o.id}
+                className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span>
+                  <span className="block font-semibold">
+                    {o.childName} ({o.familyName})
+                  </span>
+                  <span className="block text-sm text-muted">
+                    {o.className} · {dayName(o.weekday)} {formatTime(o.startTime)} · held until{" "}
+                    {formatDateTime(o.expiresAt)}
+                    {o.automatic ? " · offered by Ovyko" : ""}
+                  </span>
+                </span>
+                <WithdrawOfferButton offerId={o.id} />
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       <section aria-labelledby="opportunities" className="flex flex-col gap-3">
@@ -111,11 +150,14 @@ export default async function DemandPage({
                       {m.locationName} · {m.spare} {m.spare === 1 ? "place" : "places"} free
                     </span>
                   </span>
-                  <PlaceButton
-                    wishId={m.wishId}
-                    classId={m.classId}
-                    label={`Enrol ${w?.childName ?? "child"}`}
-                  />
+                  <span className="flex flex-wrap gap-2">
+                    <OfferButton wishId={m.wishId} classId={m.classId} />
+                    <PlaceButton
+                      wishId={m.wishId}
+                      classId={m.classId}
+                      label={`Enrol ${w?.childName ?? "child"}`}
+                    />
+                  </span>
                 </li>
               );
             })}

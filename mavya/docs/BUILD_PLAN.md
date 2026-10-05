@@ -191,4 +191,5 @@ Only after operational loop is proven:
 In slices: `docs/M8_NETWORK.md`, from `docs/STRATEGY.md` ("The USP and the
 moat"). M8a: "This month with Ovyko", the places, fees and jobs Ovyko
 handled, in dollars. M8b: what families want, inside one school, with
-new-class opportunities. Within the v0.1 rules: no marketplace, no AI.
+new-class opportunities. M8c: free places offered to waiting families, who
+accept in one tap. Within the v0.1 rules: no marketplace, no AI.

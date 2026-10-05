@@ -38,6 +38,9 @@ makes) only in a session that has passed two-step sign-in.
   wa_kidsport; through `set_voucher_schemes`.
 - instalments_on — default off (M7c part 2); the school's choice, through
   `set_instalments_on`. On: families owing $100 or more can pay in 2 or 4.
+- auto_place_offers — default off (M8c); the school's choice, through
+  `set_auto_place_offers`. On: free places are offered to the
+  longest-waiting matching request every few minutes.
 
 ### Location
 - id
@@ -317,7 +320,8 @@ One email to send (M6c): the outbox.
 - id
 - kind: spot_offered | lesson_cancelled | skill_achieved | lesson_reminder |
   reenrolment_ask | reenrolment_reminder (M6e) | payment_receipt (M7b) |
-  fee_reminder | payment_failed (M7c)
+  fee_reminder | payment_failed (M7c) | place_confirmed (M8b) |
+  place_offered (M8c)
 - recipient_user_id
 - organisation_id nullable
 - notification_id nullable — the notification it tells the person about
@@ -539,6 +543,32 @@ opportunities (`class_opportunities`) and places that match
 the family). Enrolling a child in a class at the requested level closes
 their open requests for it. The family's parents and the school's owners
 read it; nothing leaves the school.
+
+### PlaceOffer
+A place in a class held for a child whose family asked for that time
+(M8c), for 48 hours.
+
+- id
+- organisation_id, wish_id, family_id, child_id, class_id
+- status: offered | accepted | declined | expired | withdrawn — one open
+  offer per request
+- offered_by nullable — the owner; null when Ovyko offered it
+  automatically
+- created_at, expires_at
+- answered_at, answered_by nullable
+- enrolment_id nullable — the enrolment it became when accepted
+
+Made by `offer_place` (owners) or, when the school has chosen it, by Ovyko
+(`offer_free_places`, every few minutes and whenever an offer is declined
+or withdrawn): never the same class to the same request twice, and only to
+families with a parent in Ovyko. While open, its place counts as taken for
+everyone but its child (`enforce_class_capacity`, `wish_matches`). Answered
+only by the family's parents (`answer_place_offer`: accepting enrols the
+child by the normal rules and closes the request); withdrawn by owners
+(`withdraw_place_offer`), or when its request closes. The family sees its
+open offers with the class's details through `my_place_offers`. Owners and
+the family read it; no one writes it directly. Each new offer emails the
+family (`place_offered`).
 
 ### SupportGrant
 A school letting Ovyko support see how it's set up (M6g).

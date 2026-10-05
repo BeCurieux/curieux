@@ -202,3 +202,20 @@ export function placeConfirmed(p: { school: string; klass: string; url: string }
     { small: "If it no longer suits, let your activity provider know." },
   ]);
 }
+
+// A place held for the family at a time they asked for (M8c). Names the
+// class, not the child.
+export function placeOffered(p: {
+  school: string;
+  klass: string;
+  heldUntil: string;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`A place has come up at ${from}`, "It's held for you for 48 hours.", [
+    `${from} has a place at a time you asked for: ${p.klass}.`,
+    `It's held for you until ${p.heldUntil}. Open Ovyko to say yes or no thanks.`,
+    { button: "Answer in Ovyko", href: p.url },
+    { small: "If you don't answer, the place goes to the next family waiting." },
+  ]);
+}

@@ -11,24 +11,56 @@ import { MESSAGES } from "@/lib/demo/data";
 import { myNotifications, type AppNotification } from "@/lib/domain/notifications";
 import { myTermAsks, shortDate } from "@/lib/domain/terms";
 import { familyChildren, type FamilyChildView } from "@/lib/family/children";
-import { lessonMoment } from "@/lib/format";
+import { dayName, formatDateTime, formatTime, lessonMoment } from "@/lib/format";
+import { myPlaceOffers } from "@/lib/domain/place-offers";
+import { PlaceOfferCard } from "@/components/family/place-offer";
 
 export const metadata: Metadata = { title: "Home" };
 
-export default async function FamilyHome() {
+export default async function FamilyHome({
+  searchParams,
+}: {
+  searchParams: Promise<{ offer?: string }>;
+}) {
   const { viewer, db, demo } = await familyContext();
-  const children = await familyChildren(db);
+  const [children, placeOffers] = await Promise.all([familyChildren(db), myPlaceOffers(db)]);
+  const answered = (await searchParams).offer;
   const familyName = viewer.families.map((f) => f.displayName).join(" · ");
   const passes = children.flatMap((child) => child.classes.map((klass) => ({ child, klass })));
 
+  // Places held for a child at a time the family asked for (M8c), and what
+  // happened to the one just answered. Shown even before any class.
+  const places = (
+    <>
+      {answered === "accepted" || answered === "declined" ? (
+        <p role="status" className="rounded-md bg-[#dcf1e7] px-4 py-3 font-semibold text-[#1d5a41]">
+          {answered === "accepted"
+            ? "You're in! The class is now in your week."
+            : "No problem. Your request stays open for another time."}
+        </p>
+      ) : null}
+      {placeOffers.map((o) => (
+        <PlaceOfferCard
+          key={o.id}
+          offer={o}
+          when={`${dayName(o.weekday)}s at ${formatTime(o.startTime)}`}
+          until={formatDateTime(o.expiresAt)}
+        />
+      ))}
+    </>
+  );
+
   if (passes.length === 0) {
     return (
-      <>
+      <div className="rise flex flex-col gap-6">
         <Greeting name={viewer.name} family={familyName} />
-        <EmptyState icon={<CalendarCheck2 />} title="Nothing on this week">
-          When your activity provider adds your classes, your week will show up here.
-        </EmptyState>
-      </>
+        {places}
+        {placeOffers.length === 0 ? (
+          <EmptyState icon={<CalendarCheck2 />} title="Nothing on this week">
+            When your activity provider adds your classes, your week will show up here.
+          </EmptyState>
+        ) : null}
+      </div>
     );
   }
 
@@ -57,6 +89,7 @@ export default async function FamilyHome() {
   return (
     <div className="rise flex flex-col gap-6">
       <Greeting name={viewer.name} family={familyName} />
+      {places}
 
       <section aria-labelledby="this-week" className="flex flex-col gap-4">
         <h2 id="this-week" className="font-display text-xl font-semibold">

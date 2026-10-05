@@ -64,6 +64,8 @@ export function explain(error: PostgrestError): DomainError {
     case "wish_invalid":
     case "wish_closed":
     case "waitlist_invalid":
+    case "offer_invalid":
+    case "offer_closed":
       return new DomainError(error.message);
   }
   switch (error.code) {
