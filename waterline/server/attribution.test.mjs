@@ -14,8 +14,8 @@ ok('returns null when no product in URL', handleFromUrl('https://shop.com/collec
 
 // --- fixtures ---
 const products = [
-  { id: 'sweatshirt', handle: 'mamacita-signature-sweatshirt' },
-  { id: 'mug', handle: 'classic-mamacita-mug' },
+  { id: 'sweatshirt', handle: 'rubra-signature-sweatshirt' },
+  { id: 'mug', handle: 'classic-rubra-mug' },
   { id: 'tote', handle: 'eco-tote' },
 ]
 // order #1001-style: one order with two products by revenue (for fallback split).
@@ -28,7 +28,7 @@ const adRecords = [
   // 1. FEED match — ad tied directly to a product id
   { id: 'm1', platform: 'meta', campaign: 'Catalog', spend: 100, productId: 'sweatshirt', attributedRevenue: 300 },
   // 2. UTM match — landing URL → handle
-  { id: 'g1', platform: 'google', campaign: 'Search', spend: 40, landingUrl: 'https://shop.com/products/classic-mamacita-mug?utm_medium=cpc', attributedRevenue: 80 },
+  { id: 'g1', platform: 'google', campaign: 'Search', spend: 40, landingUrl: 'https://shop.com/products/classic-rubra-mug?utm_medium=cpc', attributedRevenue: 80 },
   // 3. ORDER fallback — campaign spend split across the order's products by revenue
   { id: 'm2', platform: 'meta', campaign: 'Prospecting', spend: 66.25, orderIds: ['1001'], attributedRevenue: 132.5 },
   // unattributable — no product, no URL, no orders

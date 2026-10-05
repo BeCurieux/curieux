@@ -26,7 +26,7 @@ WATERLINE_DATA=shopify npm run server   # serves REAL data from shopify-snapshot
 ## Real Shopify data (`server/shopify.js`)
 
 The backend can serve **real ingested data** from the connected store instead of
-the seed. A snapshot captured from the live store **Mamacita & Crew** (29 products
+the seed. A snapshot captured from the live store **RUBRA** (29 products
 with real cost-per-item, in AUD) lives in `server/shopify-snapshot.json`; run the
 API with `WATERLINE_DATA=shopify` to use it.
 

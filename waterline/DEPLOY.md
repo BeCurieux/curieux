@@ -14,7 +14,7 @@ Frontend (Vercel)  ──VITE_API_BASE──▶  API (Render)  ──▶  (later
 ## Track 1 — Frontend only (fastest, no API)
 
 The UI computes margins client-side from the bundled data, so this alone is a
-working, shareable demo (Sample + the real Mamacita & Crew snapshot).
+working, shareable demo (Sample + the real RUBRA snapshot).
 
 **Vercel**
 1. Vercel → **Add New → Project** → import the `becurieux/curieux` repo.

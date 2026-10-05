@@ -16,4 +16,4 @@ services:
       - key: NODE_VERSION
         value: "20"
       - key: WATERLINE_DATA
-        value: shopify   # serve the captured Mamacita & Crew snapshot; use "seed" for the sample store
+        value: shopify   # serve the captured RUBRA snapshot; use "seed" for the sample store

@@ -46,12 +46,12 @@ Every screen + interaction, verified in-browser:
 
 ### ✅ Done — Real Shopify ingestion (`server/shopify.js`)
 Pulls real catalog + COGS + orders from the Admin GraphQL API and maps them into
-the margin model. Captured snapshot of the live store **Mamacita & Crew** (29
+the margin model. Captured snapshot of the live store **RUBRA** (29
 products, AUD) in `server/shopify-snapshot.json`; `WATERLINE_DATA=shopify` serves
 it. Verified: order #1001 (Signature Sweatshirt) → real 49.3% margin.
 
 ### ✅ Done — Frontend on real data (data-source switch)
-Topbar toggle **Sample ⇄ Mamacita & Crew** recomputes the whole dashboard from the
+Topbar toggle **Sample ⇄ RUBRA** recomputes the whole dashboard from the
 real snapshot (AUD currency, store name, real COGS, real margins), reusing the same
 compute pipeline. `src/lib/shopifyData.js` imports the snapshot.
 
