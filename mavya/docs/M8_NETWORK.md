@@ -13,6 +13,7 @@ on 4 October 2026; the owner of Ovyko can change them.
 | **M8b** | **What families want**: families say which times they'd like; the owner sees new-class opportunities and places that match | Layer 3: demand data |
 | **M8c** | **Free places offered to waiting families**: a place that frees up is offered to the longest-waiting family who asked for that time; they accept in one tap | The USP: empty places become fees, without the front desk |
 | **M8d** | **A waiting-list page for new families**: the school links it from its own website; new families say what they'd like; the owner adds them in one tap | More families waiting means more places filled; demand data from beyond current families |
+| **M8e** | **Families who might leave**: warning signs counted from the records, so the owner can call before a family quietly goes | The USP's "retain families": fees kept, not lost |
 
 ## M8a — This month with Ovyko (done)
 
@@ -240,3 +241,53 @@ chosen by Claude on 6 October 2026; the owner of Ovyko can change them.
 - Removing an enquiry deletes it.
 
 Tests: `tests/rls/waitlist_page.test.ts`, `tests/e2e/waitlist-page.spec.ts`.
+
+## M8e — Families who might leave (done)
+
+Families rarely say they're unhappy; they miss lessons, let credits run
+out, stop answering, and then don't come back. The owner usually hears last.
+Ovyko already has the records that show it. The defaults below were chosen
+by Claude on 6 October 2026; the owner of Ovyko can change them. No AI:
+fixed rules over the school's own records (CLAUDE.md rule 11).
+
+### Decisions
+
+1. **The warning signs**, for families with a child in a class (or paused):
+   - a child has missed **3 or more lessons in the last 6 weeks**
+     (reported away, or marked absent);
+   - a child's **make-up credits ran out unused** in the last 8 weeks;
+   - a child **isn't coming back next term** (answered "Not next term");
+   - **no answer about next term** after the reply-by date;
+   - fees **overdue by more than 2 weeks**;
+   - a child's place is **paused**.
+2. **One list, "Families who might leave"**, most warning signs first, each
+   with its reasons in plain words ("Ava has missed 4 lessons in the last 6
+   weeks") and the parent's phone and email to get in touch. Today shows
+   how many, when there are any.
+3. **Followed up.** The owner taps "Followed up", with a note if they like
+   ("Called, Ava's had a cold"). The family leaves the list for 30 days;
+   if the signs are still there after that, it comes back. Each follow-up
+   is kept and audited.
+4. **Only the school's owners** see the list. Families never see that
+   they're on it.
+
+### Data model
+
+- New `RetentionFollowUp`: school, family, note (optional, up to 200
+  characters), who, when.
+
+### Not in M8e
+
+- Messaging families from Ovyko (the owner calls or emails them).
+- Weighting or scoring the signs, or predicting who will leave.
+
+### Acceptance criteria
+
+- A family with a child who missed 3 lessons in 6 weeks, or with fees
+  overdue by more than 2 weeks, or who answered "Not next term", is on the
+  list with those reasons; a family with none of the signs isn't.
+- Marking a family followed up takes it off the list for 30 days and is
+  recorded.
+- Instructors, parents and other schools can't see the list or follow up.
+
+Tests: `tests/rls/retention.test.ts`, `tests/e2e/retention.spec.ts`.

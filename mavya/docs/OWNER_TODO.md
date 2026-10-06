@@ -24,6 +24,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   15. `supabase/migrations/20261021000038_importers.sql`
   16. `supabase/migrations/20261022000039_place_offers.sql`
   17. `supabase/migrations/20261023000040_waitlist_page.sql`
+  18. `supabase/migrations/20261024000041_retention.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in

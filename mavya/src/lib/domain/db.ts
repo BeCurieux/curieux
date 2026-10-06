@@ -68,6 +68,7 @@ export function explain(error: PostgrestError): DomainError {
     case "offer_closed":
     case "join_invalid":
     case "join_closed":
+    case "followup_invalid":
       return new DomainError(error.message);
   }
   switch (error.code) {

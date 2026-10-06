@@ -595,6 +595,25 @@ parent. `remove_waitlist_enquiry` deletes it. Unhandled enquiries are
 deleted after 90 days. Not audited row by row (the trail would keep a
 stranger's details): adding and removing are recorded by id only.
 
+### RetentionFollowUp
+An owner noting they've been in touch with a family showing warning signs
+(M8e).
+
+- id
+- organisation_id
+- family_id
+- note nullable — up to 200 characters
+- created_by nullable
+- created_at
+
+Written only through `follow_up_family`; read only by the school's owners;
+audited. `families_at_risk` lists the school's families with a child in a
+class (or paused) and at least one fixed warning sign: 3+ missed lessons in
+6 weeks, make-up credits that ran out unused in the last 8 weeks, "Not next
+term" or no answer after the reply-by date for a term not started, fees
+overdue by more than 2 weeks, a paused place. Families followed up in the
+last 30 days are left out. No AI: plain counts from the school's own records.
+
 ### SupportGrant
 A school letting Ovyko support see how it's set up (M6g).
 

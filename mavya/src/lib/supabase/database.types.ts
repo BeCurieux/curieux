@@ -1899,6 +1899,48 @@ export type Database = {
           },
         ];
       };
+      retention_followups: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          family_id: string;
+          id: string;
+          note: string | null;
+          organisation_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          family_id: string;
+          id?: string;
+          note?: string | null;
+          organisation_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          family_id?: string;
+          id?: string;
+          note?: string | null;
+          organisation_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "retention_followups_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "retention_followups_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       school_subscriptions: {
         Row: {
           cancel_at_period_end: boolean;
@@ -2627,6 +2669,17 @@ export type Database = {
       delete_term: { Args: { p_term: string }; Returns: undefined };
       end_support_access: { Args: { p_org: string }; Returns: boolean };
       export_family: { Args: { p_family: string }; Returns: Json };
+      families_at_risk: {
+        Args: { p_org: string };
+        Returns: {
+          contact_name: string;
+          email: string;
+          family_id: string;
+          family_name: string;
+          phone: string;
+          reasons: Json;
+        }[];
+      };
       family_balances: {
         Args: { p_org: string };
         Returns: {
@@ -2672,6 +2725,7 @@ export type Database = {
         Args: { p_error?: string; p_id: string; p_outcome: string; p_provider_id?: string };
         Returns: undefined;
       };
+      follow_up_family: { Args: { p_family: string; p_note?: string }; Returns: string };
       grant_support_access: { Args: { p_note: string; p_org: string }; Returns: string };
       import_school: {
         Args: {

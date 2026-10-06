@@ -193,4 +193,5 @@ moat"). M8a: "This month with Ovyko", the places, fees and jobs Ovyko
 handled, in dollars. M8b: what families want, inside one school, with
 new-class opportunities. M8c: free places offered to waiting families, who
 accept in one tap. M8d: a waiting-list page for new families, one per
-school, linked from its own website. Within the v0.1 rules: no marketplace, no AI.
+school, linked from its own website. M8e: families who might leave, from
+fixed warning signs in the school's own records. Within the v0.1 rules: no marketplace, no AI.
