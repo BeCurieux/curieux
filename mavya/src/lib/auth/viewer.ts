@@ -9,7 +9,13 @@ export type Viewer = {
   name: string;
   email: string;
   shells: Shell[];
-  staff: { organisationId: string; organisationName: string; role: StaffRole }[];
+  staff: {
+    organisationId: string;
+    organisationName: string;
+    role: StaffRole;
+    // A pretend school from "Try it yourself": when it's deleted.
+    demoExpiresAt: string | null;
+  }[];
   families: { familyId: string; displayName: string }[];
 };
 
@@ -33,7 +39,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const [staffResult, familyResult] = await Promise.all([
     supabase
       .from("staff_memberships")
-      .select("organisation_id, role, organisations (name)")
+      .select("organisation_id, role, organisations (name, demo_expires_at)")
       .eq("user_id", profile.id)
       .eq("status", "active"),
     supabase
@@ -49,6 +55,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     organisationId: m.organisation_id,
     organisationName: m.organisations?.name ?? "",
     role: m.role as StaffRole,
+    demoExpiresAt: m.organisations?.demo_expires_at ?? null,
   }));
   const families = familyResult.data.map((f) => ({
     familyId: f.family_id,

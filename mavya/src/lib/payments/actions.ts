@@ -26,7 +26,8 @@ import { accountFlags, paymentsOn, stripe } from "./stripe";
 
 // Creates the school's Stripe account once, then opens Stripe's sign-up.
 export async function setUpPayments(): Promise<FormState> {
-  const { db, organisationId, organisationName, viewer } = await requireOwner();
+  const { db, organisationId, organisationName, viewer, demo } = await requireOwner();
+  if (demo) return { error: "Payments are switched off in the demo." };
   if (!paymentsOn()) return { error: "Payments aren't switched on in Ovyko yet." };
   let accountId = (await paymentAccount(db, organisationId))?.stripeAccountId;
   if (!accountId) {

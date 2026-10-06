@@ -5,11 +5,15 @@ import { signIn } from "./helpers";
 
 // The public website at "/": what a signed-out visitor sees.
 
-test("a signed-out visitor sees the website, can book a demo and can sign in", async ({ page }) => {
+test("a signed-out visitor sees the website, can try it, book a demo and sign in", async ({
+  page,
+}) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Fill classes.");
-  await expect(page.getByRole("link", { name: "Book a demo" })).toHaveAttribute(
+  // Try it yourself (docs/TRY_IT_YOURSELF.md), or book a demo by email.
+  await expect(page.getByRole("button", { name: "Try it yourself" })).toHaveCount(2);
+  await expect(page.getByRole("link", { name: "Email hello@ovyko.com.au" })).toHaveAttribute(
     "href",
     /^mailto:hello@ovyko\.com\.au/,
   );

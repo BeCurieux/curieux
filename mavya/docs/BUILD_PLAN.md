@@ -195,3 +195,6 @@ new-class opportunities. M8c: free places offered to waiting families, who
 accept in one tap. M8d: a waiting-list page for new families, one per
 school, linked from its own website. M8e: families who might leave, from
 fixed warning signs in the school's own records. Within the v0.1 rules: no marketplace, no AI.
+
+Also: "Try it yourself" (`docs/TRY_IT_YOURSELF.md`), a pretend school
+of their own for any visitor to the website, deleted after a day.
