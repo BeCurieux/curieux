@@ -8,6 +8,7 @@ import {
   History,
   LifeBuoy,
   Layers,
+  ListOrdered,
   MapPin,
   RefreshCcw,
   Upload,
@@ -79,6 +80,12 @@ const SECTIONS = [
     icon: LifeBuoy,
     title: "Ovyko support",
     body: "Let Ovyko support see how your school is set up, for 48 hours.",
+  },
+  {
+    href: "/business/demand",
+    icon: ListOrdered,
+    title: "Waiting list",
+    body: "Your waiting-list page for new families, and offering free places automatically.",
   },
   {
     href: "/business/settings/import",

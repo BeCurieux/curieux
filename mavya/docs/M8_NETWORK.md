@@ -12,6 +12,7 @@ on 4 October 2026; the owner of Ovyko can change them.
 | **M8a** | **This month with Ovyko**: places filled, fees collected, overdue fees chased and paid, families staying, jobs done without staff | The USP, made visible (layer 1 and 2) |
 | **M8b** | **What families want**: families say which times they'd like; the owner sees new-class opportunities and places that match | Layer 3: demand data |
 | **M8c** | **Free places offered to waiting families**: a place that frees up is offered to the longest-waiting family who asked for that time; they accept in one tap | The USP: empty places become fees, without the front desk |
+| **M8d** | **A waiting-list page for new families**: the school links it from its own website; new families say what they'd like; the owner adds them in one tap | More families waiting means more places filled; demand data from beyond current families |
 
 ## M8a — This month with Ovyko (done)
 
@@ -154,8 +155,8 @@ owner of Ovyko can change them.
 
 ### Not in M8c
 
-- New families joining a school's waiting list without an account (a
-  public page per school, with email checks): next.
+- New families joining a school's waiting list without an account
+  (M8d).
 - Places offered for a coming term rather than straight away.
 - Charging for the term on accepting.
 
@@ -172,3 +173,70 @@ owner of Ovyko can change them.
   offer.
 
 Tests: `tests/rls/place_offers.test.ts`, `tests/e2e/place-offers.spec.ts`.
+
+## M8d — A waiting-list page for new families (done)
+
+Most of a school's waiting list is families who aren't customers yet.
+Today they ring, email or fill in a web form, and someone types them into
+a spreadsheet. M8d gives each school its own page for that. It's the
+school's page, linked from the school's own website: there's no directory
+and no search across schools (CLAUDE.md rule 13). The defaults below were
+chosen by Claude on 6 October 2026; the owner of Ovyko can change them.
+
+### Decisions
+
+1. **One page per school, off until the school turns it on**, from "What
+   families want": "Waiting-list page for new families". The page's
+   address is shown to copy (ovyko.com.au/waiting-list/<school>). When
+   it's off, the address shows nothing about the school.
+2. **What a family gives:** the parent's name, email and (optional)
+   phone; the child's first and last name and date of birth; the level
+   (or "not sure"), the days that work, the earliest and latest start, a
+   location (or any), and a note. They tick that the school may keep these
+   details to contact them about a place. The page names only the
+   school's levels and locations.
+3. **No account, and no email from Ovyko to the address given.** Anyone
+   can type any address, so Ovyko doesn't email it automatically (it
+   could be used to send mail to strangers). The family sees "Thanks,
+   [school] will be in touch"; the school decides.
+4. **The owner adds them in one tap.** "New families" on "What families
+   want" lists each enquiry. **Add to the waiting list** makes the family
+   (or finds it by email), the child (or finds them by name and date of
+   birth) and their request for times, and invites the parent to Ovyko by
+   email, as M6b. Once the parent joins, the request is offered places
+   like any other (M8c). **Remove** deletes the enquiry.
+5. **Kept only as long as needed.** An enquiry the school hasn't dealt
+   with is deleted after 90 days. Once added, its details live on in the
+   family's record, and the enquiry itself is deleted. Each enquiry is for
+   one child; a family with two children sends it twice.
+6. **Guarded against misuse.** A hidden field turns away simple bots; an
+   email can have at most 3 open enquiries per school, and a school at most
+   500. Only the school's owners can see enquiries.
+7. **Recorded.** Turning the page on or off, adding and removing an
+   enquiry are audited (without the family's details).
+
+### Data model
+
+- New `WaitlistEnquiry`: school, parent's name, email, phone; child's
+  first and last name and date of birth; level, location, days, earliest
+  and latest start, note; created at.
+- `organisations.waitlist_page_on` (default off).
+
+### Not in M8d
+
+- Paying a deposit or a fee to join the list.
+- Families choosing a class or time that has a place now (that's
+  booking: later).
+- A page listing several schools (a marketplace; not in v0.1).
+
+### Acceptance criteria
+
+- With the page on, anyone can send an enquiry for the school; with it
+  off, the page says it isn't open and nothing is saved.
+- Only the school's owners see enquiries; other schools, instructors and
+  parents can't.
+- Adding an enquiry makes the family, child and request (reusing a family
+  with the same email), and invites the parent; the enquiry is gone.
+- Removing an enquiry deletes it.
+
+Tests: `tests/rls/waitlist_page.test.ts`, `tests/e2e/waitlist-page.spec.ts`.

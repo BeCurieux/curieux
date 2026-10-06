@@ -23,6 +23,7 @@ Kept up to date as items are done. Never put passwords or keys in this file.
   14. `supabase/migrations/20261020000037_waitlist.sql`
   15. `supabase/migrations/20261021000038_importers.sql`
   16. `supabase/migrations/20261022000039_place_offers.sql`
+  17. `supabase/migrations/20261023000040_waitlist_page.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
@@ -48,14 +49,19 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 - [x] Buy ovyko.com.au and ovyko.com (5 October 2026). Still optional:
       .au, .online and .store (if bought, turn off auto-renew for .online
       and .store).
-- [ ] **Point the domains at Ovyko** (Vercel → the Ovyko project →
-      Settings → Domains): add `ovyko.com.au` as the main address, and
-      `www.ovyko.com.au`, `ovyko.com` and `www.ovyko.com` to redirect to
-      it. Vercel shows the DNS records to add at VentraIP. Then set
-      `APP_URL=https://ovyko.com.au` in Vercel, and in Supabase
-      (Authentication → URL Configuration) set the Site URL to
-      `https://ovyko.com.au` and add `https://ovyko.com.au/**` to the
-      redirect URLs, so sign-in and invite links use the new address.
+- [ ] **Point the domains at Ovyko.** Done in Vercel (6 October 2026):
+      `www.ovyko.com.au` is the main address and `ovyko.com.au` redirects
+      to it. Still to do:
+  - At VentraIP (DNS Management for each domain), add the records Vercel
+    shows under "View DNS configuration", and remove any old "parking"
+    A or CNAME records for the same names. Then press Refresh in Vercel
+    until each says Valid Configuration (minutes, sometimes a few hours).
+  - Optional: in Vercel, Edit `ovyko.com` and `www.ovyko.com` to redirect
+    to `www.ovyko.com.au`, so there's one site, not two.
+  - Set `APP_URL=https://www.ovyko.com.au` in Vercel. In Supabase
+    (Authentication → URL Configuration) set the Site URL to
+    `https://www.ovyko.com.au` and add `https://www.ovyko.com.au/**` to the
+    redirect URLs, so sign-in and invite links use the new address.
 - [ ] Google Workspace, bought directly from Google (hello@ovyko.com.au).
 - [ ] Trademark search for "Ovyko".
 - [ ] Privacy lawyer review (privacy policy, school data agreement, parent

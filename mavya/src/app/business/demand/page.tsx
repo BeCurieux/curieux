@@ -1,14 +1,22 @@
 import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { OfferButton, PlaceButton, WithdrawOfferButton } from "@/components/business/wish-buttons";
+import {
+  AddEnquiryButton,
+  OfferButton,
+  PlaceButton,
+  RemoveEnquiryButton,
+  WithdrawOfferButton,
+} from "@/components/business/wish-buttons";
 import { SettingSwitch } from "@/components/forms/setting-switch";
 import { Button } from "@/components/ui/button";
 import { requireOwner } from "@/lib/business/owner";
 import { autoPlaceOffersOn, openPlaceOffers } from "@/lib/domain/place-offers";
+import { schoolEnquiries, waitlistPageSetting } from "@/lib/domain/waitlist-page";
+import { appUrl } from "@/lib/email/transport";
 import { classOpportunities, openWishes, wishMatches } from "@/lib/domain/wishes";
 import { dayName, formatDateTime, formatTime } from "@/lib/format";
-import { setAutoOffers } from "@/lib/wishes/actions";
+import { setAutoOffers, setWaitlistPageOn } from "@/lib/wishes/actions";
 
 export const metadata: Metadata = { title: "What families want" };
 
@@ -21,13 +29,16 @@ export default async function DemandPage({
 }) {
   const { db, organisationId } = await requireOwner();
   const placed = (await searchParams).placed?.slice(0, 40);
-  const [opportunities, matches, wishes, offers, auto] = await Promise.all([
+  const [opportunities, matches, wishes, offers, auto, page, enquiries] = await Promise.all([
     classOpportunities(db, organisationId),
     wishMatches(db, organisationId),
     openWishes(db, organisationId),
     openPlaceOffers(db, organisationId),
     autoPlaceOffersOn(db, organisationId),
+    waitlistPageSetting(db, organisationId),
+    schoolEnquiries(db, organisationId),
   ]);
+  const pageUrl = appUrl(`/waiting-list/${page.slug}`);
   const byId = new Map(wishes.map((w) => [w.id, w]));
 
   return (
@@ -51,6 +62,54 @@ export default async function DemandPage({
         waited longest and holds it for them for 48 hours. If they say no, or don&apos;t answer, it
         goes to the next family.
       </SettingSwitch>
+
+      <SettingSwitch
+        on={page.on}
+        title="Waiting-list page for new families"
+        save={setWaitlistPageOn}
+      >
+        A page for your website where new families leave their child&apos;s details and the times
+        that suit. Only you see what they send. {page.on ? `Your page: ${pageUrl}` : null}
+      </SettingSwitch>
+
+      {enquiries.length ? (
+        <section aria-labelledby="enquiries" className="flex flex-col gap-3">
+          <h2 id="enquiries" className="font-display text-2xl font-semibold">
+            New families
+          </h2>
+          <p className="text-muted">
+            From your waiting-list page, oldest first. Adding one invites the parent to Ovyko, and
+            once they join, places can be offered to them.
+          </p>
+          <ul className="flex flex-col divide-y divide-line rounded-lg border border-line bg-surface">
+            {enquiries.map((e) => (
+              <li key={e.id} className="flex flex-col gap-3 px-5 py-4">
+                <span>
+                  <span className="block font-semibold">
+                    {e.childFirstName} {e.childLastName} · born {e.dateOfBirth}
+                  </span>
+                  <span className="block text-sm text-muted">
+                    {e.weekdays.map((d) => dayName(d).slice(0, 3)).join(", ")},{" "}
+                    {formatTime(e.earliest)}
+                    {e.latest !== e.earliest ? ` to ${formatTime(e.latest)}` : ""} ·{" "}
+                    {e.levelName ?? "level not sure"}
+                    {e.locationName ? ` · ${e.locationName}` : ""}
+                    {e.note ? ` · “${e.note}”` : ""}
+                  </span>
+                  <span className="block text-sm text-muted">
+                    {e.parentName} · {e.email}
+                    {e.phone ? ` · ${e.phone}` : ""} · sent {formatDateTime(e.createdAt)}
+                  </span>
+                </span>
+                <span className="flex flex-wrap gap-2">
+                  <AddEnquiryButton enquiryId={e.id} />
+                  <RemoveEnquiryButton enquiryId={e.id} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {offers.length ? (
         <section aria-labelledby="offers" className="flex flex-col gap-3">

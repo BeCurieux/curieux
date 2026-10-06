@@ -1382,6 +1382,7 @@ export type Database = {
           status: string;
           timezone: string;
           voucher_schemes: string[];
+          waitlist_page_on: boolean;
         };
         Insert: {
           activity_type: string;
@@ -1398,6 +1399,7 @@ export type Database = {
           status?: string;
           timezone?: string;
           voucher_schemes?: string[];
+          waitlist_page_on?: boolean;
         };
         Update: {
           activity_type?: string;
@@ -1414,6 +1416,7 @@ export type Database = {
           status?: string;
           timezone?: string;
           voucher_schemes?: string[];
+          waitlist_page_on?: boolean;
         };
         Relationships: [];
       };
@@ -2372,6 +2375,82 @@ export type Database = {
           },
         ];
       };
+      waitlist_enquiries: {
+        Row: {
+          child_first_name: string;
+          child_last_name: string;
+          created_at: string;
+          date_of_birth: string;
+          earliest: string;
+          email: string;
+          id: string;
+          latest: string;
+          level_id: string | null;
+          location_id: string | null;
+          note: string | null;
+          organisation_id: string;
+          parent_name: string;
+          phone: string | null;
+          weekdays: number[];
+        };
+        Insert: {
+          child_first_name: string;
+          child_last_name: string;
+          created_at?: string;
+          date_of_birth: string;
+          earliest: string;
+          email: string;
+          id?: string;
+          latest: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id: string;
+          parent_name: string;
+          phone?: string | null;
+          weekdays: number[];
+        };
+        Update: {
+          child_first_name?: string;
+          child_last_name?: string;
+          created_at?: string;
+          date_of_birth?: string;
+          earliest?: string;
+          email?: string;
+          id?: string;
+          latest?: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id?: string;
+          parent_name?: string;
+          phone?: string | null;
+          weekdays?: number[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_enquiries_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "waitlist_enquiries_organisation_id_level_id_fkey";
+            columns: ["organisation_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "waitlist_enquiries_organisation_id_location_id_fkey";
+            columns: ["organisation_id", "location_id"];
+            isOneToOne: false;
+            referencedRelation: "locations";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       waitlist_signups: {
         Row: {
           consented_at: string;
@@ -2449,6 +2528,7 @@ export type Database = {
         };
         Returns: string;
       };
+      add_waitlist_enquiry: { Args: { p_enquiry: string }; Returns: Json };
       am_platform_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       answer_place_offer: { Args: { p_accept: boolean; p_offer: string }; Returns: string };
       answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
@@ -2618,6 +2698,25 @@ export type Database = {
         }[];
       };
       invite_parent: { Args: { p_email: string; p_family: string }; Returns: string };
+      join_school_waitlist: {
+        Args: {
+          p_child_first_name: string;
+          p_child_last_name: string;
+          p_consent: boolean;
+          p_date_of_birth: string;
+          p_earliest: string;
+          p_email: string;
+          p_latest: string;
+          p_level: string;
+          p_location: string;
+          p_note: string;
+          p_parent_name: string;
+          p_phone: string;
+          p_slug: string;
+          p_weekdays: number[];
+        };
+        Returns: undefined;
+      };
       join_waitlist: {
         Args: {
           p_consent: boolean;
@@ -2839,6 +2938,7 @@ export type Database = {
       remind_term_families: { Args: { p_term: string }; Returns: number };
       remove_child_restriction: { Args: { p_restriction: string }; Returns: undefined };
       remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      remove_waitlist_enquiry: { Args: { p_enquiry: string }; Returns: undefined };
       report_absence: {
         Args: { p_child: string; p_occurrence: string; p_reason?: string };
         Returns: {
@@ -2911,6 +3011,7 @@ export type Database = {
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
       set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_voucher_schemes: { Args: { p_org: string; p_schemes: string[] }; Returns: undefined };
+      set_waitlist_page: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       settle_instalment_payment: {
         Args: {
           p_account: string;
@@ -3033,6 +3134,7 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      waitlist_page: { Args: { p_slug: string }; Returns: Json };
       wish_choices: {
         Args: { p_org: string };
         Returns: {

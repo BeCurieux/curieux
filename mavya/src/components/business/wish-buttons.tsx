@@ -3,7 +3,13 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import type { FormState } from "@/lib/forms";
-import { offerPlaceTo, placeChild, withdrawOffer } from "@/lib/wishes/actions";
+import {
+  addToWaitingList,
+  offerPlaceTo,
+  placeChild,
+  removeFromEnquiries,
+  withdrawOffer,
+} from "@/lib/wishes/actions";
 
 // Enrolling a child from their family's request (M8b).
 export function PlaceButton({
@@ -93,6 +99,27 @@ export function WithdrawOfferButton({ offerId }: { offerId: string }) {
       run={withdrawOffer.bind(null, offerId)}
       label="Withdraw"
       pendingLabel="Withdrawing…"
+      variant="soft"
+    />
+  );
+}
+
+export function AddEnquiryButton({ enquiryId }: { enquiryId: string }) {
+  return (
+    <ActionButton
+      run={addToWaitingList.bind(null, enquiryId)}
+      label="Add to the waiting list"
+      pendingLabel="Adding…"
+    />
+  );
+}
+
+export function RemoveEnquiryButton({ enquiryId }: { enquiryId: string }) {
+  return (
+    <ActionButton
+      run={removeFromEnquiries.bind(null, enquiryId)}
+      label="Remove"
+      pendingLabel="Removing…"
       variant="soft"
     />
   );

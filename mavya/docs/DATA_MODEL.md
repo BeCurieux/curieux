@@ -38,6 +38,9 @@ makes) only in a session that has passed two-step sign-in.
   wa_kidsport; through `set_voucher_schemes`.
 - instalments_on — default off (M7c part 2); the school's choice, through
   `set_instalments_on`. On: families owing $100 or more can pay in 2 or 4.
+- waitlist_page_on — default off (M8d); the school's choice, through
+  `set_waitlist_page`. On: its waiting-list page for new families
+  (/waiting-list/<slug>) takes enquiries.
 - auto_place_offers — default off (M8c); the school's choice, through
   `set_auto_place_offers`. On: free places are offered to the
   longest-waiting matching request every few minutes.
@@ -569,6 +572,28 @@ child by the normal rules and closes the request); withdrawn by owners
 open offers with the class's details through `my_place_offers`. Owners and
 the family read it; no one writes it directly. Each new offer emails the
 family (`place_offered`).
+
+### WaitlistEnquiry
+A new family asking to join one school's waiting list from its public page
+(M8d). One child per enquiry.
+
+- id
+- organisation_id
+- parent_name, email (lower case), phone nullable
+- child_first_name, child_last_name, date_of_birth
+- level_id nullable, location_id nullable, weekdays, earliest, latest,
+  note nullable — as on PlaceWish
+- created_at
+
+Sent by anyone through `join_school_waitlist` while the school's page is on
+(consent required; at most 3 open per email and 500 per school); the page
+itself (`waitlist_page`) shows only the school's name, levels and
+locations. Only the school's owners read enquiries. `add_waitlist_enquiry`
+makes or finds the family (by email) and child (by first name and date of
+birth), adds a PlaceWish and deletes the enquiry; the app then invites the
+parent. `remove_waitlist_enquiry` deletes it. Unhandled enquiries are
+deleted after 90 days. Not audited row by row (the trail would keep a
+stranger's details): adding and removing are recorded by id only.
 
 ### SupportGrant
 A school letting Ovyko support see how it's set up (M6g).
