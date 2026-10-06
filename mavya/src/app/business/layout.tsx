@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DemoBanner } from "@/components/business/demo-banner";
 import { AppShell } from "@/components/shell/app-shell";
 import { requireShell } from "@/lib/auth/viewer";
 import { planState } from "@/lib/domain/plan";
@@ -11,6 +12,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const plan = owned ? await planState(await createClient(), owned.organisationId) : null;
   return (
     <AppShell shell="business" shells={viewer.shells}>
+      {owned?.demoExpiresAt ? <DemoBanner expiresAt={owned.demoExpiresAt} /> : null}
       {plan === "none" || plan === "attention" ? (
         <Link
           href="/business/settings/plan"

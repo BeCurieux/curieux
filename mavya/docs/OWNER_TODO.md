@@ -5,26 +5,10 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 
 ## Now
 
-- [ ] **Run the waiting database changes.** In the Supabase SQL editor, paste
-      and run each file, in this order, then tell Claude "done":
-  1. `supabase/migrations/20261007000024_family_privacy.sql`
-  2. `supabase/migrations/20261008000025_terms.sql`
-  3. `supabase/migrations/20261009000026_family_accounts.sql`
-  4. `supabase/migrations/20261010000027_online_payments.sql`
-  5. `supabase/migrations/20261011000028_fee_reminders.sql`
-  6. `supabase/migrations/20261012000029_vouchers.sql`
-  7. `supabase/migrations/20261013000030_payment_fixes.sql`
-  8. `supabase/migrations/20261014000031_platform_totals.sql`
-  9. `supabase/migrations/20261015000032_school_subscriptions.sql`
-  10. `supabase/migrations/20261016000033_instalments.sql`
-  11. `supabase/migrations/20261017000034_support_access.sql`
-  12. `supabase/migrations/20261018000035_ovyko_month.sql`
-  13. `supabase/migrations/20261019000036_place_wishes.sql`
-  14. `supabase/migrations/20261020000037_waitlist.sql`
-  15. `supabase/migrations/20261021000038_importers.sql`
-  16. `supabase/migrations/20261022000039_place_offers.sql`
-  17. `supabase/migrations/20261023000040_waitlist_page.sql`
-  18. `supabase/migrations/20261024000041_retention.sql`
+- [x] Database changes 24 to 41 run in Supabase and merged (6 October 2026).
+- [ ] **Run the waiting database change** for "Try it yourself". In the
+      Supabase SQL editor, paste and run this file, then tell Claude "done":
+  1. `supabase/migrations/20261025000042_try_it_yourself.sql`
 - [ ] **Merge the pull request** (say "merge") once the above is done.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in

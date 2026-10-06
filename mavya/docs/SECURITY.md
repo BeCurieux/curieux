@@ -325,6 +325,11 @@ Ovyko should do better than the usual weaknesses of class-management software:
 - Online payment lines can't be cancelled in Ovyko, only refunded in
   Stripe, so an account can't claim money wasn't paid.
 - Locally and in CI the app only ever talks to Stripe's test double.
+- "Try it yourself" pretend schools (`docs/TRY_IT_YOURSELF.md`): one per
+  visitor, made only with the secret key, at most 5 a day per visitor
+  (hashed address) and 300 at once, deleted after a day. The database
+  refuses invites, payment accounts, plans and public pages for them, and
+  skips their emails.
 - Reviewed on 4 October 2026 (`docs/M7_PAYMENTS.md`, "Review fixes"):
   no paying twice, messages that can't be lost or replayed out of order,
   and account changes read from Stripe itself.

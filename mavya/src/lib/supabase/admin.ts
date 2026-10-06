@@ -8,7 +8,9 @@ import { serverEnv } from "./server-env";
 // permissions itself. At runtime it is used only for sign-in throttling
 // (src/lib/auth/throttle.ts), which runs before anyone is signed in, the
 // email sender, and Stripe payments (src/lib/payments), each after checking
-// who is asking or that the message really came from Stripe.
+// who is asking or that the message really came from Stripe; and "Try it
+// yourself" (src/lib/site/try-demo.ts), which makes a throwaway sign-in and
+// pretend school that the database limits per visitor.
 // `server-only` makes any import from browser code a build error.
 export function createAdminClient() {
   return createClient<Database>(

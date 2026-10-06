@@ -100,10 +100,24 @@ describe("demo tenancy", () => {
 
   it("shows the business demo only to Aqua House staff in the right role", () => {
     const aquaOwner = viewer({
-      staff: [{ organisationId: ORGS.aqua.id, organisationName: "Aqua House", role: "owner" }],
+      staff: [
+        {
+          organisationId: ORGS.aqua.id,
+          organisationName: "Aqua House",
+          role: "owner",
+          demoExpiresAt: null,
+        },
+      ],
     });
     const peakOwner = viewer({
-      staff: [{ organisationId: ORGS.peak.id, organisationName: "Peak", role: "owner" }],
+      staff: [
+        {
+          organisationId: ORGS.peak.id,
+          organisationName: "Peak",
+          role: "owner",
+          demoExpiresAt: null,
+        },
+      ],
     });
     expect(isDemoStaff(aquaOwner, "owner")).toBe(true);
     expect(isDemoStaff(aquaOwner, "instructor")).toBe(false);

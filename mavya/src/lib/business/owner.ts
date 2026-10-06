@@ -15,5 +15,8 @@ export async function requireOwner() {
     db,
     organisationId: owned.organisationId,
     organisationName: owned.organisationName,
+    // A pretend school from "Try it yourself" (docs/TRY_IT_YOURSELF.md):
+    // nothing in it may reach the real world.
+    demo: owned.demoExpiresAt !== null,
   };
 }

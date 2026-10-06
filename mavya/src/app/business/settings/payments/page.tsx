@@ -15,9 +15,10 @@ export default async function PaymentsPage({
 }: {
   searchParams: Promise<{ back?: string }>;
 }) {
-  const { db, organisationId } = await requireOwner();
+  const { db, organisationId, demo } = await requireOwner();
   const { back } = await searchParams;
-  const on = paymentsOn();
+  // A pretend school (docs/TRY_IT_YOURSELF.md) never reaches Stripe.
+  const on = paymentsOn() && !demo;
   let account = await paymentAccount(db, organisationId);
   const instalments = await instalmentsOffered(db, organisationId);
   // Back from Stripe's sign-up: ask Stripe now rather than wait for its message.
@@ -43,15 +44,22 @@ export default async function PaymentsPage({
         className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
       >
         <h2 id="status" className="font-display text-2xl font-semibold">
-          {!on
-            ? "Coming soon"
-            : account?.canTakePayments
-              ? "You're taking payments"
-              : account
-                ? "Finish setting up with Stripe"
-                : "Set up payments"}
+          {demo
+            ? "Switched off in the demo"
+            : !on
+              ? "Coming soon"
+              : account?.canTakePayments
+                ? "You're taking payments"
+                : account
+                  ? "Finish setting up with Stripe"
+                  : "Set up payments"}
         </h2>
-        {!on ? (
+        {demo ? (
+          <p className="text-muted">
+            In a real school, this is where you connect your bank account through Stripe. Families
+            then pay from their phone, and each payment lands on their account in Ovyko.
+          </p>
+        ) : !on ? (
           <p className="text-muted">
             Paying in Ovyko isn&apos;t switched on yet. Until it is, record payments on each
             family&apos;s page.

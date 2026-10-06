@@ -33,6 +33,10 @@ makes) only in a session that has passed two-step sign-in.
   `set_fee_reminders`. On: Ovyko emails families before and after fees fall due.
 - is_demo — a demo school, left out of Ovyko's totals
   (`docs/PLATFORM_TOTALS.md`)
+- demo_expires_at nullable — set only for a pretend school from "Try it
+  yourself" (`docs/TRY_IT_YOURSELF.md`): when it and everything in it is
+  deleted. Such a school takes no invites, payments, plan or public page,
+  and its emails are skipped.
 - voucher_schemes — the government activity vouchers the school takes
   (M7d): nsw_active_creative_kids, qld_fairplay, sa_sports_vouchers,
   wa_kidsport; through `set_voucher_schemes`.
@@ -613,6 +617,17 @@ class (or paused) and at least one fixed warning sign: 3+ missed lessons in
 term" or no answer after the reply-by date for a term not started, fees
 overdue by more than 2 weeks, a paused place. Families followed up in the
 last 30 days are left out. No AI: plain counts from the school's own records.
+
+### DemoVisit
+One pretend school made by "Try it yourself" (`docs/TRY_IT_YOURSELF.md`).
+
+- id
+- visitor_hash — a one-way hash of the visitor's internet address
+- organisation_id nullable
+- created_at
+
+Read and written only with the secret key, by `create_demo_school` (at most
+5 a day per visitor, 300 schools at once). Kept a week.
 
 ### SupportGrant
 A school letting Ovyko support see how it's set up (M6g).

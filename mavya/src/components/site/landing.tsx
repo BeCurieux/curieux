@@ -1,11 +1,13 @@
 import { CalendarCheck, Check, Plus, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Wordmark } from "@/components/shell/wordmark";
+import { TryItButton } from "@/components/site/try-it-button";
 import { Button } from "@/components/ui/button";
 
 // The public website at ovyko.com.au: what signed-out visitors see at "/".
 // Content mirrors the brochure. No prices until they are decided
-// (see the pricing plan); schools book a demo by email.
+// (see the pricing plan); schools try it themselves in a pretend school
+// (docs/TRY_IT_YOURSELF.md) or book a demo by email.
 
 const DEMO_MAILTO =
   "mailto:hello@ovyko.com.au?subject=Ovyko%20demo&body=School%20name%3A%0AActivity%3A%0APhone%3A";
@@ -199,9 +201,7 @@ export function Landing() {
               absences, make-ups and progress, with an app parents actually enjoy opening.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button asChild variant="warm" size="lg">
-                <a href={DEMO_MAILTO}>Book a demo</a>
-              </Button>
+              <TryItButton />
               <Button asChild variant="ghost" size="lg">
                 <a href="#demo">Watch the demo</a>
               </Button>
@@ -237,6 +237,14 @@ export function Landing() {
           >
             <source src="/ovyko-demo.mp4" type="video/mp4" />
           </video>
+          <div className="flex flex-col gap-3 rounded-lg bg-surface-soft p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-xl text-[#3d4050]">
+              <span className="font-semibold text-ink">Rather click around?</span> Open a pretend
+              swim school of your own, full of example families and classes. Nothing to sign up for,
+              and it’s deleted after a day.
+            </p>
+            <TryItButton variant="soft" />
+          </div>
         </section>
 
         <section aria-label="Why schools use Ovyko" className="grid gap-4 md:grid-cols-3">

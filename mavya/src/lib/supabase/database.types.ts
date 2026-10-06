@@ -447,6 +447,35 @@ export type Database = {
           },
         ];
       };
+      demo_visits: {
+        Row: {
+          created_at: string;
+          id: string;
+          organisation_id: string | null;
+          visitor_hash: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          organisation_id?: string | null;
+          visitor_hash: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          organisation_id?: string | null;
+          visitor_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "demo_visits_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       email_deliveries: {
         Row: {
           attempts: number;
@@ -1371,6 +1400,7 @@ export type Database = {
           activity_type: string;
           auto_place_offers: boolean;
           created_at: string;
+          demo_expires_at: string | null;
           fee_reminders: boolean;
           id: string;
           instalments_on: boolean;
@@ -1388,6 +1418,7 @@ export type Database = {
           activity_type: string;
           auto_place_offers?: boolean;
           created_at?: string;
+          demo_expires_at?: string | null;
           fee_reminders?: boolean;
           id?: string;
           instalments_on?: boolean;
@@ -1405,6 +1436,7 @@ export type Database = {
           activity_type?: string;
           auto_place_offers?: boolean;
           created_at?: string;
+          demo_expires_at?: string | null;
           fee_reminders?: boolean;
           id?: string;
           instalments_on?: boolean;
@@ -2662,6 +2694,7 @@ export type Database = {
           weekday: number;
         }[];
       };
+      create_demo_school: { Args: { p_user: string; p_visitor: string }; Returns: string };
       create_term_fees: { Args: { p_term: string }; Returns: number };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
       decline_voucher: { Args: { p_claim: string; p_reason: string }; Returns: undefined };
@@ -2726,6 +2759,7 @@ export type Database = {
         Returns: undefined;
       };
       follow_up_family: { Args: { p_family: string; p_note?: string }; Returns: string };
+      forget_demo_schools: { Args: Record<PropertyKey, never>; Returns: undefined };
       grant_support_access: { Args: { p_note: string; p_org: string }; Returns: string };
       import_school: {
         Args: {
