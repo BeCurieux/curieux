@@ -21,6 +21,7 @@ let martin: Session;
 let burrowsId: string;
 let martinId: string;
 let wednesdayAt7: string;
+let absenceMadeHere: string | null = null;
 const madeHere: string[] = [];
 
 async function userId(email: string) {
@@ -43,16 +44,38 @@ beforeAll(async () => {
   burrowsId = await userId(USERS.burrowsParent.email);
   martinId = await userId(USERS.martinParent.email);
   // 7:05am Sydney on the day of Dolphin 3 Wednesday's next lesson: Ava's
-  // class (Burrows); Zoe (Martin) is reported away from it in the seed.
+  // class (Burrows), with Zoe (Martin) reported away from it. The seed
+  // reports her away from one lesson, but other tests may take that back,
+  // so this makes sure of it for the lesson used here.
   const { data } = await admin
     .from("class_occurrences")
-    .select("starts_at")
+    .select("id, starts_at")
     .eq("class_id", CLASSES.dolphin3Wed.id)
     .eq("status", "scheduled")
-    .gt("starts_at", new Date(Date.now() + 24 * 3600 * 1000).toISOString())
+    .gt("starts_at", new Date().toISOString())
     .order("starts_at")
     .limit(1)
     .single();
+  const { data: away } = await admin
+    .from("absences")
+    .select("id")
+    .eq("occurrence_id", data!.id)
+    .eq("child_id", CHILDREN.zoe.id)
+    .maybeSingle();
+  if (!away) {
+    const { data: made, error } = await admin
+      .from("absences")
+      .insert({
+        organisation_id: ORGS.aqua.id,
+        child_id: CHILDREN.zoe.id,
+        occurrence_id: data!.id,
+        make_up_eligible: false,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+    absenceMadeHere = made.id;
+  }
   const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Sydney" }).format(
     new Date(data!.starts_at),
   );
@@ -68,6 +91,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (madeHere.length) await admin.from("email_deliveries").delete().in("id", madeHere);
+  if (absenceMadeHere) await admin.from("absences").delete().eq("id", absenceMadeHere);
   await burrows.client.rpc("set_lesson_reminders", { p_on: true });
 });
 
