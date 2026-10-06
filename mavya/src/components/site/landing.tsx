@@ -219,11 +219,12 @@ export function Landing() {
               id="demo-heading"
               className="font-display text-4xl leading-tight font-semibold tracking-tight sm:text-5xl"
             >
-              Watch the 1-minute demo
+              Watch the 90-second demo
             </h2>
             <p className="max-w-2xl text-[#3d4050]">
-              One missed swimming lesson, handled by a parent, the owner and an instructor. Captions
-              on screen, no sound needed.
+              A week at a swim school: a missed lesson, a place filled from the waiting list, fees
+              and progress, handled by a parent, the owner and an instructor. Captions on screen, no
+              sound needed.
             </p>
           </div>
           <video

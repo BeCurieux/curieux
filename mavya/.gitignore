@@ -8,3 +8,6 @@ playwright/.cache/
 supabase/.temp/
 supabase/.branches/
 *.tsbuildinfo
+
+# Demo video working files (scripts/demo-video/README.md)
+scripts/demo-video/out/
