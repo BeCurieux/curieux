@@ -8,10 +8,12 @@ import { SkillBadge } from "@/components/demo/skill-badge";
 import { Button } from "@/components/ui/button";
 import { CancelMakeup, WithdrawAbsence } from "@/components/family/makeup-buttons";
 import { HealthForm } from "@/components/family/health-form";
+import { WishForm, WithdrawWish } from "@/components/family/wish-form";
 import { familyContext } from "@/lib/demo/context";
 import { childSafety } from "@/lib/domain/safety";
+import { childWishes, wishChoices } from "@/lib/domain/wishes";
 import { findFamilyChild } from "@/lib/family/children";
-import { lessonMoment } from "@/lib/format";
+import { dayName, formatTime, lessonMoment } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Progress" };
 
@@ -20,7 +22,18 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
   const { db } = await familyContext();
   const child = await findFamilyChild(db, slug);
   if (!child) notFound();
-  const { health } = await childSafety(db, child.id);
+  const { data: row } = await db
+    .from("children")
+    .select("organisation_id")
+    .eq("id", child.id)
+    .single();
+  const [{ health }, wishes, choices] = await Promise.all([
+    childSafety(db, child.id),
+    childWishes(db, child.id),
+    row ? wishChoices(db, row.organisation_id) : { levels: [], locations: [] },
+  ]);
+  const open = wishes.filter((w) => w.status === "open");
+  const path = `/family/kids/${child.slug}`;
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -147,6 +160,45 @@ export default async function ChildPage({ params }: { params: Promise<{ child: s
             <Link href="/family/makeups">Find a make-up</Link>
           </Button>
         ) : null}
+      </section>
+
+      <section aria-labelledby="wants" className="flex flex-col gap-3">
+        <div>
+          <h2 id="wants" className="font-display text-xl font-semibold">
+            Want another time?
+          </h2>
+          <p className="text-muted">
+            Tell {child.organisation} which days and times would suit {child.firstName}. When a
+            place comes up, or enough families ask, they can offer it to you.
+          </p>
+        </div>
+        {open.length > 0 ? (
+          <ul
+            aria-label="Times you've asked for"
+            className="flex flex-col divide-y divide-line rounded-lg bg-surface shadow-[0_1px_0_var(--border)]"
+          >
+            {open.map((w) => (
+              <li key={w.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <span>
+                  <span className="block font-semibold">
+                    {w.weekdays.map((d) => dayName(d).slice(0, 3)).join(", ")},{" "}
+                    {formatTime(w.earliest)}
+                    {w.latest !== w.earliest ? ` to ${formatTime(w.latest)}` : ""}
+                  </span>
+                  <span className="block text-sm text-muted">
+                    {w.levelName ?? "Any level"}
+                    {w.locationName ? ` · ${w.locationName}` : ""}
+                    {w.note ? ` · ${w.note}` : ""}
+                  </span>
+                </span>
+                <WithdrawWish wishId={w.id} path={path} />
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <div className="rounded-lg bg-surface p-5 shadow-[0_1px_0_var(--border)]">
+          <WishForm childId={child.id} path={path} choices={choices} />
+        </div>
       </section>
 
       <section aria-labelledby="health" className="flex flex-col gap-3">

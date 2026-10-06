@@ -122,7 +122,14 @@ describe("checking an import", () => {
     expect(error).toBeNull();
     const report = data as unknown as Report;
     expect(report.batch_id).toBeNull();
-    expect(report.added).toEqual({ classes: 2, families: 2, children: 3, enrolments: 3 });
+    expect(report.added).toEqual({
+      classes: 2,
+      families: 2,
+      children: 3,
+      enrolments: 3,
+      balances: 0,
+      credits: 0,
+    });
     expect(report.problems).toEqual([]);
     expect(report.notes).toEqual([
       {
@@ -150,7 +157,14 @@ describe("saving an import", () => {
   });
 
   it("adds the classes with their lessons, families, children and places", async () => {
-    expect(report.added).toEqual({ classes: 2, families: 2, children: 3, enrolments: 3 });
+    expect(report.added).toEqual({
+      classes: 2,
+      families: 2,
+      children: 3,
+      enrolments: 3,
+      balances: 0,
+      credits: 0,
+    });
     const [turtles] = await imported("Import Turtles");
     const { count: lessons } = await aquaOwner.client
       .from("class_occurrences")
@@ -185,7 +199,7 @@ describe("saving an import", () => {
       p_batch: report.batch_id!,
     });
     expect(summary).toEqual({
-      in_ovyko: { classes: 2, families: 2, children: 3, enrolments: 3 },
+      in_ovyko: { classes: 2, families: 2, children: 3, enrolments: 3, balances: 0, credits: 0 },
       can_undo: true,
     });
   });
@@ -193,8 +207,22 @@ describe("saving an import", () => {
   it("adds nothing when the same files are imported again", async () => {
     const { data } = await run(aquaOwner, false);
     const again = data as unknown as Report;
-    expect(again.added).toEqual({ classes: 0, families: 0, children: 0, enrolments: 0 });
-    expect(again.existing).toEqual({ classes: 2, families: 2, children: 3, enrolments: 3 });
+    expect(again.added).toEqual({
+      classes: 0,
+      families: 0,
+      children: 0,
+      enrolments: 0,
+      balances: 0,
+      credits: 0,
+    });
+    expect(again.existing).toEqual({
+      classes: 2,
+      families: 2,
+      children: 3,
+      enrolments: 3,
+      balances: 0,
+      credits: 0,
+    });
   });
 
   it("matches families already at the school", async () => {
@@ -217,7 +245,14 @@ describe("saving an import", () => {
       ],
     );
     const r = data as unknown as Report;
-    expect(r.added).toEqual({ classes: 0, families: 0, children: 0, enrolments: 0 });
+    expect(r.added).toEqual({
+      classes: 0,
+      families: 0,
+      children: 0,
+      enrolments: 0,
+      balances: 0,
+      credits: 0,
+    });
     expect(r.existing).toMatchObject({ families: 1, children: 1 });
   });
 });
@@ -272,7 +307,14 @@ describe("rows that can't come across", () => {
       },
       { file: "students", row: 7, message: "This child is already in the file on an earlier row." },
     ]);
-    expect(r.added).toEqual({ classes: 1, families: 0, children: 4, enrolments: 2 });
+    expect(r.added).toEqual({
+      classes: 1,
+      families: 0,
+      children: 4,
+      enrolments: 2,
+      balances: 0,
+      credits: 0,
+    });
   });
 
   it("asks for a day and time when a class name is used more than once", async () => {

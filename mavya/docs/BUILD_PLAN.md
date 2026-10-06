@@ -109,20 +109,23 @@ saving, with counts to compare and a 14-day undo.
 
 Implement:
 - ~~CSV family, children and class import~~ (M6a)
+- ~~moving in from another system: other systems' column names, matching
+  columns by hand, balances and make-up credits~~ (M6h)
 - ~~onboarding checklist~~ (M6b)
 - ~~parent invites~~ (M6b, by link; by email with M6c)
-- minimal internal admin support (granted by the school, time-limited, audited)
+- ~~minimal internal admin support (granted by the school, time-limited, audited)~~
+  (M6g)
 - Supabase Pro, with leaked password protection on
-- two-step sign-in for owners
+- ~~two-step sign-in for owners~~ (M6d)
 - ~~email delivery of notifications, with the neutral wording from M3~~
   (M6c; push after the pilot)
 - ~~lesson-day reminders to parents ("Swimming today at 4:30pm"), with
   neutral wording and an opt-out~~ (M6c)
-- term re-enrolment: parents confirm next term's place in one tap, and the
-  owner sees who is staying before the term starts
+- ~~term re-enrolment: parents confirm next term's place in one tap, and the
+  owner sees who is staying before the term starts~~ (M6e)
 - ~~health notes (need to know)~~ (M6d)
 - ~~custody and pickup restrictions~~ (M6d)
-- family data export and deletion
+- ~~family data export and deletion~~ (M6d)
 - backups check and data-breach response plan
 - privacy summary for parents
 - switching from another system: "we do the import" service, run alongside
@@ -157,6 +160,19 @@ Not scheduled. Revisit with the pilot school's feedback:
 
 ## M7 — Payments
 
+In slices: `docs/M7_PAYMENTS.md`. M7a (family accounts) and M7b (card and
+direct-debit payments, through each school's own Stripe account) and M7c
+part 1 (due dates, fee reminders, failed payments chased), M7c part 2
+(instalments: 2 or 4 a term, if the school offers them) and M7d part 1
+(government activity vouchers) are done. Ovyko's own plan for schools
+(A$399 a month per location, 30 days free) is in `docs/SUBSCRIPTIONS.md`.
+
+The first thing to build once the pilot shows the operational loop works.
+Without payments Ovyko can win new schools and schools on spreadsheets, but
+not one already collecting fees through SimplySwim or iClassPro: switching
+would mean every family re-entering bank details while the school runs two
+systems. Payments are the main barrier to growth beyond the pilot.
+
 Only after operational loop is proven:
 - a family ledger first: every charge, credit, refund and failed payment is a
   line with its reason, and the balance is worked out from them
@@ -165,3 +181,17 @@ Only after operational loop is proven:
 - provider payouts
 - receipts
 - failed payment handling
+- government activity vouchers (NSW Active and Creative Kids, Queensland
+  FairPlay): parents enter a voucher at re-enrolment, it comes off the fee,
+  and the owner gets one list to redeem and reconcile
+  (`docs/BUSINESS_PLAN.md`, "Notes on payments and government vouchers")
+
+## M8 — The network layer, first pieces
+
+In slices: `docs/M8_NETWORK.md`, from `docs/STRATEGY.md` ("The USP and the
+moat"). M8a: "This month with Ovyko", the places, fees and jobs Ovyko
+handled, in dollars. M8b: what families want, inside one school, with
+new-class opportunities. M8c: free places offered to waiting families, who
+accept in one tap. M8d: a waiting-list page for new families, one per
+school, linked from its own website. M8e: families who might leave, from
+fixed warning signs in the school's own records. Within the v0.1 rules: no marketplace, no AI.

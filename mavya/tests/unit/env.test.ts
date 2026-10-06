@@ -11,7 +11,8 @@ describe("environment validation", () => {
     const env = parsePublicEnv(valid);
     expect(env.NEXT_PUBLIC_SENTRY_DSN).toBeUndefined();
     expect(env.NEXT_PUBLIC_POSTHOG_KEY).toBeUndefined();
-    expect(env.NEXT_PUBLIC_POSTHOG_HOST).toBe("https://eu.i.posthog.com");
+    // Analytics has no default destination: it stays off until one is chosen.
+    expect(env.NEXT_PUBLIC_POSTHOG_HOST).toBeUndefined();
   });
 
   it("treats empty optional values as unset", () => {
@@ -57,5 +58,29 @@ describe("environment validation", () => {
     expect(() => parseServerEnv({ SUPABASE_SECRET_KEY: "x", CRON_SECRET: "too-short" })).toThrow(
       /CRON_SECRET/,
     );
+  });
+
+  it("takes no payments unless Stripe is set up, and checks the keys look right", () => {
+    expect(parseServerEnv({ SUPABASE_SECRET_KEY: "x" }).STRIPE_SECRET_KEY).toBeUndefined();
+    expect(() =>
+      parseServerEnv({ SUPABASE_SECRET_KEY: "x", STRIPE_SECRET_KEY: "sk_test_abc" }),
+    ).toThrow(/APP_URL/);
+    expect(() =>
+      parseServerEnv({
+        SUPABASE_SECRET_KEY: "x",
+        STRIPE_SECRET_KEY: "pk_test_abc",
+        APP_URL: "https://app.ovyko.com.au",
+      }),
+    ).toThrow(/STRIPE_SECRET_KEY/);
+    expect(() =>
+      parseServerEnv({ SUPABASE_SECRET_KEY: "x", STRIPE_WEBHOOK_SECRET: "nope" }),
+    ).toThrow(/STRIPE_WEBHOOK_SECRET/);
+    const env = parseServerEnv({
+      SUPABASE_SECRET_KEY: "x",
+      STRIPE_SECRET_KEY: "sk_live_abc",
+      STRIPE_WEBHOOK_SECRET: "whsec_abc",
+      APP_URL: "https://app.ovyko.com.au",
+    });
+    expect(env.STRIPE_SECRET_KEY).toBe("sk_live_abc");
   });
 });

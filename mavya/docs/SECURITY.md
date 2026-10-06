@@ -181,24 +181,169 @@ Ovyko should do better than the usual weaknesses of class-management software:
   says the notes changed, not what they say, so the trail isn't a way
   around the view log.
 
+### M6d — Protecting children, part 2 (done)
+
+- **Two-step sign-in, enforced in the database.** For a school that requires
+  it (every school but the demo), the database's single owner check also
+  requires the session to have passed two-step sign-in (Supabase Auth's
+  assurance level 2). A stolen password alone reaches nothing, through the
+  app or straight against the API. The app only sends the owner to enter
+  the code. Codes come from an authenticator app (no SMS). Only Ovyko can
+  turn the requirement off or remove a lost authenticator.
+- **Export.** Owners only, by POST (a link or prefetch can't trigger it).
+  Audited, and counted as a look at each child's health notes.
+- **Deletion.** Owners only, confirmed by typing the family's name. Cascades
+  to every record about the children; parents' accounts are removed by the
+  server when they belong nowhere else; earlier audit entries about the
+  family are wiped, and one entry with counts records the deletion.
+
+### M6e — Term re-enrolment (done)
+
+- Terms and questions are read-only to people: every change goes through a
+  database function that checks the caller is the school's owner (or, to
+  answer, a parent of that child) and that the term hasn't started.
+- Parents see only their own children's questions, and only once the owner
+  has asked. Instructors and other schools see none.
+- Places offered for a move are counted, under a lock on the class, so a
+  class can't be promised to more children than it holds.
+- Emails name the school and the term only, never a child or a class, and
+  are only sent while the family still has something to answer.
+- Every term, question, offer, answer and outcome is audited, and the
+  term-only switch too.
+
+### M7a — Family accounts (done)
+
+- Account lines are read-only to people and can't be changed by anyone: a
+  database trigger refuses every update, so a mistake can only be
+  cancelled by an opposite line, and both stay visible.
+- Only the school's owners add lines, through functions that check the
+  family is theirs; parents see only their own family's statement;
+  instructors and other schools see none.
+- Every line is audited; deleting a family removes its account and wipes
+  it from earlier audit entries, as before.
+- No money moves through Ovyko yet; card details will only ever be held by
+  the payment provider (M7b).
+
+### Ovyko's plan (done)
+
+- Billing runs on Ovyko's own Stripe account; Ovyko never sees card or
+  bank details. Only the server records a plan, from Stripe's own word
+  (asked again, not taken from the message), and only for messages about
+  Ovyko's own account: a school's subscriptions on its own Stripe account
+  are ignored.
+- Only a school's owners see or manage its plan. A billing problem never
+  locks a school or its families out.
+
+### Ovyko totals (done)
+
+- Numbers across all schools only; no name of a school, family or child.
+- Only people listed as platform admins (added in the SQL editor, never
+  through the app), and only after two-step sign-in. Anyone else gets
+  "not found".
+
+### M7d part 1 — Government vouchers (done)
+
+- Only owners turn a voucher into money off (a credit, at most the
+  scheme's value); a parent can only hand one over, for their own child.
+- A code can be handed over once per school; uniqueness isn't checked
+  across schools, so one school can't learn another's vouchers.
+- Owners and the family's parents see a family's vouchers; instructors
+  and other schools see none. Audited.
+
+### Founding-schools waitlist (done)
+
+- The public form saves through one function that checks every field and
+  requires consent to be emailed (Spam Act); the table itself can't be read
+  or written by anyone through the app.
+- Only platform admins, after two-step sign-in, see the list.
+- No email is sent on sign-up: an open form that emails any address it's
+  given could be used to send mail to strangers. A hidden field turns away
+  simple bots.
+
+### M8 — This month with Ovyko, and what families want (done)
+
+- "This month with Ovyko" is for the school's owners only, and counts
+  only the school's own records.
+- A family's requests for other times go to their own school only; no
+  other provider sees them (no marketplace, CLAUDE.md rule 13). Parents
+  ask and withdraw for their own children only; owners see and act on
+  their own school's requests; instructors see none. Audited.
+- Families choose from their school's level and location names through a
+  function that returns names only; the rules on what parents can read
+  weren't widened.
+
+### M6g — Support access (done)
+
+- Ovyko support sees a school only after its owner lets them in, for 48
+  hours (or until the owner ends it), and only after two-step sign-in.
+- Support sees how the school is set up, never who is in it: no child,
+  parent or family is named, and no health notes, restrictions, contact
+  details or accounts are shown. Read only.
+- Every look is an audit event the school's owners see on the same page;
+  letting support in and ending it are audited too. Instructors and
+  parents can't do either.
+
+### M7c part 2 — Instalments (done)
+
+- The card or bank account is saved by Stripe, on Stripe's own page, with
+  the parent's agreement; Ovyko keeps only Stripe's reference to it, on
+  the school's own Stripe account.
+- Only the server takes later instalments, when the database's schedule
+  calls it with `CRON_SECRET`; each is claimed once and charged once
+  (Stripe's idempotency key is the payment's id).
+- Stripe's messages about a payment the server took count only from that
+  school's account, for that payment and amount; messages about a payment
+  page are never taken for an instalment.
+- Parents start plans only for their own family; nobody changes a plan or
+  instalment directly. Schools opt in; the switch is audited, as are plans
+  and instalments.
+- A failed instalment is never retried behind the parent's back: the plan
+  stops and the parent is emailed.
+
+### M7c part 1 — Fee reminders (done)
+
+- Reminder emails name the school and an amount, never a child, and are
+  checked again just before sending, so a family that has paid, or has
+  left, gets nothing.
+- Schools opt in (they are emails to the school's customers); only owners
+  switch it, and the switch is audited.
+
+### M7b — Card and direct-debit payments (done)
+
+- Card and bank details only ever go to Stripe, on Stripe's own page;
+  Ovyko never sees or stores them.
+- Each school is its own seller on its own Stripe account; families' money
+  never passes through Ovyko's account.
+- Stripe's messages are read only with a valid signature
+  (`STRIPE_WEBHOOK_SECRET`). Even then a payment counts only if it comes
+  from that school's own Stripe account, for the payment page Ovyko opened,
+  for the amount Ovyko asked; repeats change nothing. A school's own Stripe
+  account can't mark another school's family as paid.
+- Only the server records a school's Stripe account and settles payments
+  (functions only the secret key may call); parents can start paying only
+  their own family's account; instructors see nothing.
+- Online payment lines can't be cancelled in Ovyko, only refunded in
+  Stripe, so an account can't claim money wasn't paid.
+- Locally and in CI the app only ever talks to Stripe's test double.
+- Reviewed on 4 October 2026 (`docs/M7_PAYMENTS.md`, "Review fixes"):
+  no paying twice, messages that can't be lost or replayed out of order,
+  and account changes read from Stripe itself.
+
 ### M6 — Migration and pilot (before real children's data)
 
 - **Supabase Pro and leaked password protection.** Upgrade the cloud project
   to Pro (backups and point-in-time recovery need it too) and turn on
   Supabase Auth's check against known leaked passwords.
-- **Two-step sign-in for owners.** Required for owners; optional for
-  instructors and parents.
+- ~~**Two-step sign-in for owners.**~~ Done in M6d. Optional for instructors
+  and parents comes later.
 - **Parent invites.** Parents are invited by email and set their own
   password. Nobody else ever sees or sets a parent's password.
 - ~~**Health notes (need to know).**~~ Done in M6d.
 - ~~**Custody and pickup restrictions.**~~ Done in M6d: the school records
   them (the person restricted may be a parent), instructors see a warning
   without the details.
-- **Export and deletion.** Owners can export a family's data and delete a
-  family on request, as the Australian Privacy Act allows parents to ask.
-  Deletions are audited.
-- **Internal admin access.** Platform support can see a school's data only when
-  the school grants access, for a limited time, and every action is audited.
+- ~~**Export and deletion.**~~ Done in M6d.
+- ~~**Internal admin access.**~~ Done in M6g.
 - **Backups and breach response.** Confirm daily backups and point-in-time
   recovery on the cloud project. Write a short data-breach response plan
   (Notifiable Data Breaches scheme).
@@ -211,6 +356,10 @@ Ovyko should do better than the usual weaknesses of class-management software:
   instructor, with reminders to the owner before expiry.
 - **View logging.** Record who viewed a child's record, not only who changed it
   (done for health notes and restrictions in M6d).
+- **Analytics stays off until its location is chosen.** PostHog has no
+  Australian region, so there's no default host: analytics runs only when both
+  a key and a host are set, and an overseas host must be named in the privacy
+  policy first. Events carry no names, emails or child details either way.
 - **Error reporting hygiene.** When Sentry and PostHog are added, strip names,
   emails and child details before anything leaves Ovyko.
 

@@ -1,7 +1,9 @@
 import "server-only";
 import type { Database } from "@/lib/supabase/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { lessonMoment } from "@/lib/format";
+import { formatMoney } from "@/lib/domain/accounts";
+import { shortDate } from "@/lib/domain/terms";
+import { dayName, formatTime, lessonMoment } from "@/lib/format";
 import * as messages from "./messages";
 import { appUrl, EmailOff, sendEmail } from "./transport";
 
@@ -165,6 +167,193 @@ async function build(
           lessons: times,
           url: appUrl("/family"),
           settingsUrl: appUrl("/family/account"),
+        }),
+      };
+    }
+    case "reenrolment_ask":
+    case "reenrolment_reminder": {
+      const termId = (d.payload as { term_id?: string }).term_id;
+      if (!termId) return null;
+      const term = one(
+        await admin
+          .from("terms")
+          .select("name, starts_on, reply_by, applied_at")
+          .eq("id", termId)
+          .maybeSingle(),
+      );
+      const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: org?.timezone ?? "Australia/Sydney",
+      }).format(new Date());
+      if (!term || term.applied_at || term.starts_on <= today) return null;
+      // Only while this parent's family still has something to answer
+      // (a reminder) or to see (the ask).
+      const families = one(
+        await admin.from("family_members").select("family_id").eq("user_id", d.recipient_user_id),
+      ) as { family_id: string }[] | null;
+      let open = admin
+        .from("reenrolment_asks")
+        .select("id, children!inner (family_id)")
+        .eq("term_id", termId)
+        .in(
+          "children.family_id",
+          (families ?? []).map((f) => f.family_id),
+        );
+      if (d.kind === "reenrolment_reminder") open = open.is("answer", null);
+      const waiting = one(await open.limit(1)) as unknown[] | null;
+      if (!waiting?.length) return null;
+      const replyBy = term.reply_by ? shortDate(term.reply_by) : null;
+      const message =
+        d.kind === "reenrolment_ask" ? messages.reenrolmentAsk : messages.reenrolmentReminder;
+      return { to, email: message({ school, term: term.name, replyBy, url: appUrl("/family") }) };
+    }
+    case "payment_receipt": {
+      const paymentId = (d.payload as { payment_id?: string }).payment_id;
+      if (!paymentId) return null;
+      const payment = one(
+        await admin
+          .from("online_payments")
+          .select("amount_cents, status, method, paid_at")
+          .eq("id", paymentId)
+          .maybeSingle(),
+      );
+      if (!payment || payment.status !== "paid" || !payment.paid_at) return null;
+      const paidOn = new Intl.DateTimeFormat("en-CA", {
+        timeZone: org?.timezone ?? "Australia/Sydney",
+      }).format(new Date(payment.paid_at));
+      return {
+        to,
+        email: messages.paymentReceipt({
+          school,
+          amount: formatMoney(payment.amount_cents),
+          method: payment.method === "direct_debit" ? "Direct debit" : "Card",
+          paidOn: shortDate(paidOn),
+          reference: paymentId.slice(0, 8).toUpperCase(),
+          url: appUrl("/family/fees"),
+        }),
+      };
+    }
+    case "place_offered": {
+      const offerId = (d.payload as { offer_id?: string }).offer_id;
+      if (!offerId) return null;
+      const offer = one(
+        await admin
+          .from("place_offers")
+          .select(
+            "status, expires_at, classes (weekday, start_time, levels!classes_organisation_id_level_id_fkey (name), locations (name))",
+          )
+          .eq("id", offerId)
+          .maybeSingle(),
+      ) as unknown as {
+        status: string;
+        expires_at: string;
+        classes: {
+          weekday: number;
+          start_time: string;
+          levels: { name: string } | null;
+          locations: { name: string } | null;
+        } | null;
+      } | null;
+      // Answered, withdrawn or run out since: nothing to tell.
+      if (
+        !offer ||
+        offer.status !== "offered" ||
+        new Date(offer.expires_at) <= new Date() ||
+        !offer.classes
+      )
+        return null;
+      const c = offer.classes;
+      const until = lessonMoment(offer.expires_at, org?.timezone ?? "Australia/Sydney");
+      return {
+        to,
+        email: messages.placeOffered({
+          school,
+          klass: `${dayName(c.weekday)}s at ${formatTime(c.start_time)}, ${c.levels?.name ?? ""}, ${c.locations?.name ?? ""}`,
+          heldUntil: `${until.time} ${until.date}`,
+          url: appUrl("/family"),
+        }),
+      };
+    }
+    case "place_confirmed": {
+      const enrolmentId = (d.payload as { enrolment_id?: string }).enrolment_id;
+      if (!enrolmentId) return null;
+      const placed = one(
+        await admin
+          .from("enrolments")
+          .select(
+            "status, classes (weekday, start_time, levels!classes_organisation_id_level_id_fkey (name), locations (name))",
+          )
+          .eq("id", enrolmentId)
+          .maybeSingle(),
+      ) as unknown as {
+        status: string;
+        classes: {
+          weekday: number;
+          start_time: string;
+          levels: { name: string } | null;
+          locations: { name: string } | null;
+        } | null;
+      } | null;
+      if (!placed || placed.status !== "active" || !placed.classes) return null;
+      const c = placed.classes;
+      return {
+        to,
+        email: messages.placeConfirmed({
+          school,
+          klass: `${dayName(c.weekday)}s at ${formatTime(c.start_time)}, ${c.levels?.name ?? ""}, ${c.locations?.name ?? ""}`,
+          url: appUrl("/family"),
+        }),
+      };
+    }
+    case "payment_failed": {
+      const paymentId = (d.payload as { payment_id?: string }).payment_id;
+      if (!paymentId) return null;
+      const payment = one(
+        await admin
+          .from("online_payments")
+          .select("amount_cents, status, method, instalments (id)")
+          .eq("id", paymentId)
+          .maybeSingle(),
+      );
+      if (!payment || payment.status !== "failed") return null;
+      return {
+        to,
+        email: messages.paymentFailed({
+          school,
+          amount: formatMoney(payment.amount_cents),
+          url: appUrl("/family/fees"),
+          method: payment.method === "card" ? "card" : "direct_debit",
+          instalment: (payment.instalments ?? []).length > 0,
+        }),
+      };
+    }
+    case "fee_reminder": {
+      const p = d.payload as { family_id?: string; stage?: string; due_on?: string };
+      if (!p.family_id || !p.due_on || !["soon", "due", "overdue"].includes(p.stage ?? ""))
+        return null;
+      const { data, error } = await admin.rpc("family_dues", { p_family: p.family_id });
+      if (error) throw error;
+      const dues = data?.[0];
+      // Switched off, paid, or no longer this parent's family since.
+      if (!dues?.reminders_on) return null;
+      const amount = p.stage === "soon" ? dues.owing_cents : dues.overdue_cents;
+      if (amount <= 0) return null;
+      const member = one(
+        await admin
+          .from("family_members")
+          .select("user_id")
+          .eq("family_id", p.family_id)
+          .eq("user_id", d.recipient_user_id)
+          .maybeSingle(),
+      );
+      if (!member) return null;
+      return {
+        to,
+        email: messages.feeReminder({
+          school,
+          stage: p.stage as "soon" | "due" | "overdue",
+          amount: formatMoney(amount),
+          dueOn: shortDate(p.due_on),
+          url: appUrl("/family/fees"),
         }),
       };
     }

@@ -114,11 +114,17 @@ test.describe("reaching families", () => {
     await page.goto("/family/account");
     const toggle = page.getByRole("switch", { name: /Lesson-day reminders/ });
     await expect(toggle).toBeChecked();
-    await toggle.click();
+    // Each switch saves in the background; reload only once it has.
+    const saved = () =>
+      page.waitForResponse(
+        (r) =>
+          r.request().method() === "POST" && r.request().headers()["next-action"] !== undefined,
+      );
+    await Promise.all([saved(), toggle.click()]);
     await expect(toggle).not.toBeChecked();
     await page.reload();
     await expect(toggle).not.toBeChecked();
-    await toggle.click();
+    await Promise.all([saved(), toggle.click()]);
     await page.reload();
     await expect(toggle).toBeChecked();
   });

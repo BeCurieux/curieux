@@ -94,3 +94,128 @@ export function invite(p: { school: string; family: string; joinUrl: string }): 
     },
   ]);
 }
+
+// Next term (M6e). Neutral like the rest: no child, class or place named.
+export function reenrolmentAsk(p: {
+  school: string;
+  term: string;
+  replyBy: string | null;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`${from}: are you staying for ${p.term}?`, "Answer in one tap in Ovyko.", [
+    `${from} is asking families whether they're keeping their places for ${p.term}.`,
+    p.replyBy
+      ? `Please answer by ${p.replyBy}. It takes one tap per child.`
+      : "It takes one tap per child.",
+    { button: "Answer in Ovyko", href: p.url },
+    { small: "If you don't answer, your places are kept." },
+  ]);
+}
+
+export function reenrolmentReminder(p: {
+  school: string;
+  term: string;
+  replyBy: string | null;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`Reminder: ${p.term} at ${from}`, "Let them know if you're staying.", [
+    `${from} hasn't heard from you about ${p.term} yet.`,
+    p.replyBy ? `Please answer by ${p.replyBy}.` : "Please answer when you can.",
+    { button: "Answer in Ovyko", href: p.url },
+    { small: "If you don't answer, your places are kept." },
+  ]);
+}
+
+export function paymentReceipt(p: {
+  school: string;
+  amount: string;
+  method: string;
+  paidOn: string;
+  reference: string;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`Receipt from ${from}`, `Payment received: ${p.amount}.`, [
+    `${from} has received your payment of ${p.amount}. Thank you.`,
+    `Paid ${p.paidOn}, by ${p.method.toLowerCase()}. Reference: ${p.reference}.`,
+    { button: "See your statement", href: p.url },
+    { small: "Payments are made to your activity provider through Stripe." },
+  ]);
+}
+
+export function feeReminder(p: {
+  school: string;
+  stage: "soon" | "due" | "overdue";
+  amount: string;
+  dueOn: string;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  const lead = {
+    soon: `You have ${p.amount} to pay to ${from}, due ${p.dueOn}.`,
+    due: `${p.amount} is due to ${from} today.`,
+    overdue: `${p.amount} was due to ${from} on ${p.dueOn} and hasn't been paid yet.`,
+  }[p.stage];
+  return build(
+    p.stage === "overdue" ? `Fees overdue at ${from}` : `Fees from ${from}`,
+    "See your fees in Ovyko.",
+    [
+      lead,
+      { button: "See your fees", href: p.url },
+      {
+        small:
+          p.stage === "overdue"
+            ? "If you've paid in the last few days, thank you: it can take a little while to show."
+            : `${from} sends fee reminders through Ovyko. If you've just paid, you can ignore this.`,
+      },
+    ],
+  );
+}
+
+export function paymentFailed(p: {
+  school: string;
+  amount: string;
+  url: string;
+  method: "card" | "direct_debit";
+  instalment: boolean;
+}): Email {
+  const from = school(p.school);
+  const what = p.method === "card" ? "card payment" : "direct debit";
+  return build("A payment didn't go through", "You can pay again in Ovyko.", [
+    `Your ${p.instalment ? "instalment" : what} of ${p.amount} to ${from} didn't go through. Your ${p.method === "card" ? "card's bank" : "bank"} can tell you why.`,
+    p.instalment
+      ? "Nothing has been taken, and the rest of your instalments are cancelled. What's left is simply owed; you can pay it by card or direct debit."
+      : "Nothing has been taken. You can pay again by card or direct debit.",
+    { button: "Pay again", href: p.url },
+  ]);
+}
+
+// A child placed from the family's request (M8b). Names the class, not the
+// child.
+export function placeConfirmed(p: { school: string; klass: string; url: string }): Email {
+  const from = school(p.school);
+  return build(`A place at ${from}`, "The time you asked for is yours.", [
+    `Good news: ${from} has a place for you at the time you asked for: ${p.klass}.`,
+    { button: "See it in Ovyko", href: p.url },
+    { small: "If it no longer suits, let your activity provider know." },
+  ]);
+}
+
+// A place held for the family at a time they asked for (M8c). Names the
+// class, not the child.
+export function placeOffered(p: {
+  school: string;
+  klass: string;
+  heldUntil: string;
+  url: string;
+}): Email {
+  const from = school(p.school);
+  return build(`A place has come up at ${from}`, "It's held for you for 48 hours.", [
+    `${from} has a place at a time you asked for: ${p.klass}.`,
+    `It's held for you until ${p.heldUntil}. Open Ovyko to say yes or no thanks.`,
+    { button: "Answer in Ovyko", href: p.url },
+    { small: "If you don't answer, the place goes to the next family waiting." },
+  ]);
+}

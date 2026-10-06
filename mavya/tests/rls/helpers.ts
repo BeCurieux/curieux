@@ -90,6 +90,22 @@ export const TABLES = [
   "child_health",
   "child_restrictions",
   "sensitive_views",
+  "terms",
+  "reenrolment_asks",
+  "ledger_entries",
+  "payment_accounts",
+  "online_payments",
+  "voucher_claims",
+  "platform_admins",
+  "school_subscriptions",
+  "instalment_plans",
+  "instalments",
+  "support_grants",
+  "place_wishes",
+  "waitlist_signups",
+  "place_offers",
+  "waitlist_enquiries",
+  "retention_followups",
 ] as const;
 
 // Puts a family back as seeded: cancels their booked make-ups and takes back

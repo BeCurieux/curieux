@@ -508,3 +508,192 @@ Where Ovyko stands against this plan, and what to decide:
    question a careful owner asks. Add it to the risks.
 9. **AI stays out of v0.1** unless approved (`CLAUDE.md` rule 11); the "AI
    operational assistant" add-on belongs to a later phase.
+
+## Notes on competitors and the path to revenue (2 October 2026)
+
+From public sources (review sites, app stores, privacy policies); figures
+are approximate and review sites carry few, often invited, reviews.
+
+### The competition
+
+| | SimplySwim | iClassPro |
+|---|---|---|
+| Who | Wyong, NSW. Founded 2010 by Kylie McGrath with her developer husband; grew by word of mouth | US company, many activities |
+| Payments | Built in, through Worldpay | Built in |
+| Data | Location not stated in its privacy policy | US East Coast; families consent to the transfer |
+| Owners say | About 4.8/5: outstanding support, all-in-one. Complaints: slow setup, learning curve, paid add-ons | Not yet researched |
+| Parents say | Parent app about 2.4/5: clunky, insists on exact location | Not yet researched |
+
+Their strengths are support and payments. Their weak spots are the parent
+experience and setup, which are Ovyko's strongest points.
+
+### Competitors the first research missed (4 October 2026)
+
+The first research looked at software sold to independent swim schools and
+missed larger players. Public sources only; check before quoting.
+
+**Xplor Technologies: the biggest threat, and a likely buyer.**
+- Formed in 2021 from Transaction Services Group (founded in New Zealand)
+  and Clearent (US payments). In Australia it owns Debitsuccess (direct
+  debit billing for fitness since 1994) and Clubware (gym software).
+- In September 2025 it agreed to merge with Clubessential Holdings: about
+  130,000 customers, 2,500 staff, US$47 billion a year in payments and
+  nearly US$900 million in revenue.
+- Sells swim school and aquatic centre software in Australia (Xplor
+  Recreation, formerly PerfectMind, being renamed nextRec): classes,
+  skills, parent portal, online enrolment, term and ongoing billing.
+- Reviews are few (about 4.0–4.3/5 on Capterra, 12 reviews) but the
+  complaints are telling: poor customer service, features that don't work
+  well together, hard reporting, unhelpful when customers leave.
+- What it means: Xplor already sells "software plus payments", the
+  position Ovyko is building towards, and has a payments business behind
+  it. It wins on breadth and money, not on care for small schools. Its
+  product is built for councils and large recreation centres first.
+
+**Other Australian players.**
+- **SwimDesk (GreeneDesk, Eltham VIC).** Assessments, progress and parent
+  engagement for swim schools; runs beside a centre's main system. Used by
+  large centres (PARC, Casey RACE, the SA Aquatic Centre). Competes with
+  Ovyko's skills and parent experience, not its admin.
+- **Leisure centre systems (Envibe, Centaman, Xplor).** Councils and
+  operators like the YMCA run their aquatic centres, and the swim lessons
+  inside them, on these.
+
+**Where swim lessons happen matters.** Many children learn in council
+aquatic centres run on enterprise leisure systems, bought by tender.
+Ovyko's customers are **independent swim schools** (owner-run, often their
+own pool) and other activity schools; councils are a different, slower
+sale. Counts of "swim schools" need to separate the two.
+
+**Abroad, if Ovyko expands:** Jackrabbit and iClassPro (US leaders in
+swim, gymnastics and dance), DaySmart (bought Sawyer, kids' activities,
+2023), and The Access Group (bought ClassForKids, UK, 2023).
+
+**Ovyko's answer stays the same, sharper:** win independent schools on
+how much of the school runs itself (make-ups, re-enrolment, chasing fees,
+vouchers), on care and setup, and on the parent experience. Don't try to
+out-feature Xplor for councils.
+
+### Who might buy Ovyko
+
+Working back from a sale at about A$20 million: buyers of businesses like
+this pay about 4–6 times yearly recurring revenue (more from a buyer that
+needs it), so about A$3.5–4 million a year: roughly 500–600 locations at
+about A$6,800 each (subscription plus about 0.5% of fees), with about
+A$200 million a year of school fees flowing through Ovyko. Likely buyers,
+in order: Xplor; The Access Group; DaySmart; Jackrabbit or iClassPro;
+long-term software holders (Constellation, Volaris, Jonas), who pay on
+profit; payment companies (Global Payments paid A$305 million for Ezidebit
+in 2014 for its software-linked recurring payments). What raises the
+price: payment volume, schools that stay, schools paying more over time,
+a business that runs without its founders, and clean, secure data.
+
+### Who will switch
+
+Switching is hard for schools already collecting fees through a
+competitor: every family re-enters bank details, staff retrain, parents
+change apps. Target, easiest first:
+
+1. New schools about to open.
+2. Schools on spreadsheets, paper or generic tools.
+3. Unhappy schools (price rises, slipping support, parent complaints).
+4. Multi-activity schools where swim-only software fits badly.
+
+Leave happy SimplySwim and iClassPro schools until Ovyko takes payments.
+
+### The most lucrative path
+
+Ovyko as the whole system for recurring kids' activities, taking payments:
+
+1. **Win the first schools** (above). If switching proves too hard, a
+   "fill empty spots" add-on that runs beside a school's current system is
+   a way in, if that system lets Ovyko read its timetable.
+2. **Build payments** (M7) straight after the pilot proves the loop. They
+   are the main barrier to winning competitors' schools, and they roughly
+   double what each school is worth: the subscription plus a small share of
+   every fee families pay, growing as the school grows.
+3. **Expand to gymnastics, dance and martial arts** on the same engine.
+   Swim alone supports a solid, profitable business; reaching beyond it is
+   what makes Ovyko large.
+
+Rough illustration at this plan's Core price (A$349–449 a month per
+location) plus about 0.5% of fees on a school collecting A$400k a year:
+about A$6,000–7,500 per school a year, so roughly A$1.2–1.5 million a year
+at 200 schools and A$3–3.75 million at 500. Assumptions to test, not
+forecasts.
+
+Weighed and set aside for now: aquatic centres and councils (large but slow
+to buy; later), school-run programs and kids' therapy groups (real but
+niche), a family app across all activities (needs many providers first, and
+discovery is outside v0.1), adult fitness (crowded, drop-in rather than
+enrolment) and childcare (regulation and subsidy systems).
+
+### Next
+
+The risk is now selling, not building. Before more large features, talk to
+10 swim school owners in 6–8 weeks: three or more keen and one pilot
+started is a go; most happy with what they have means change the target or
+the offer.
+
+## Notes on payments and government vouchers (3 October 2026)
+
+The money in vertical software comes from four things: holding the
+records, money flowing through it, rules customers fear getting wrong, and
+spreading through a network. Ovyko already has the records and the rules
+(child safety, privacy, audit). Payments add the money.
+
+### Government kids' vouchers: the hook
+
+Several states give families vouchers for sport and creative activities,
+which providers must redeem. As of October 2026:
+
+- **NSW Active and Creative Kids:** two A$50 vouchers per child a year, for
+  sport, swimming, dance, music, art and more. Families get a voucher number
+  from Service NSW. Registered providers redeem each one by hand in the
+  Service NSW Business Bureau app, and the government pays the provider.
+- **Queensland FairPlay:** redeemed by registered providers through the
+  Queensland Government's online portal.
+- **South Australia:** a sports voucher scheme exists; its provider process
+  is not yet checked.
+
+Today schools collect voucher numbers by email or at the desk, type each
+one in, take the amount off the right family's bill and chase the ones that
+fail, in bursts of hundreds when new vouchers open.
+
+### How it works in Ovyko
+
+1. Parents enter a voucher number when they re-enrol for the next term
+   (M6e); Ovyko takes it off that child's fee at once.
+2. The owner sees one list to redeem ("18 vouchers"), with each number next
+   to the child.
+3. The owner redeems them in the government's system and ticks them off.
+   A failed voucher goes back on the family's bill and the parent is told.
+4. Discounts, money owed by the government and money received reconcile.
+
+Neither NSW nor Queensland appears to offer software a way to redeem
+automatically, so the school still enters them in the government's system.
+Ovyko removes the collecting, chasing, bill adjustments and reconciliation.
+If a state opens a connection for software, Ovyko could do the last step
+too; worth asking.
+
+### Where the money is
+
+The vouchers themselves are small (A$100 per child a year in NSW). They
+are the reason schools want Ovyko to handle their fees. With payments (M7),
+families pay the term fee in Ovyko, upfront or by instalment, less any
+voucher; the money reaches the school through Stripe Connect, and Ovyko
+takes a small share on top of the subscription. A school with 500 children
+at about A$250 a term moves roughly A$500,000 a year.
+
+The pitch: "Re-enrolment, fees and vouchers in one place. No chasing, no
+spreadsheets." No competitor reviewed leads with voucher handling.
+
+### To confirm before building
+
+- Each state's provider rules: whether a voucher can go against a term fee,
+  and how long the government takes to pay.
+- Whether any state offers a connection for software to redeem directly.
+- Stripe Connect set-up for Ovyko and its schools (M7).
+
+Sources: service.nsw.gov.au (Active and Creative Kids, provider FAQs),
+qld.gov.au (FairPlay activity providers).

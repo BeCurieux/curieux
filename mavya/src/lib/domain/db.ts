@@ -40,6 +40,35 @@ export function explain(error: PostgrestError): DomainError {
     case "invite_closed":
     case "invite_wrong_email":
     case "safety_invalid":
+    case "delete_unconfirmed":
+    case "term_invalid":
+    case "term_overlap":
+    case "term_locked":
+    case "term_none":
+    case "term_started":
+    case "term_not_asked":
+    case "reply_by_invalid":
+    case "move_invalid":
+    case "answer_invalid":
+    case "ledger_invalid":
+    case "already_cancelled":
+    case "online_line":
+    case "payments_off":
+    case "nothing_owing":
+    case "voucher_invalid":
+    case "voucher_used":
+    case "payment_opening":
+    case "payment_too_large":
+    case "plan_invalid":
+    case "support_invalid":
+    case "wish_invalid":
+    case "wish_closed":
+    case "waitlist_invalid":
+    case "offer_invalid":
+    case "offer_closed":
+    case "join_invalid":
+    case "join_closed":
+    case "followup_invalid":
       return new DomainError(error.message);
   }
   switch (error.code) {

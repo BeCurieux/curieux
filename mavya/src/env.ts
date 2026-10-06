@@ -21,10 +21,9 @@ const publicSchema = z.object({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
   NEXT_PUBLIC_SENTRY_DSN: optionalString,
   NEXT_PUBLIC_POSTHOG_KEY: optionalString,
-  NEXT_PUBLIC_POSTHOG_HOST: z
-    .string()
-    .optional()
-    .transform((value) => value || "https://eu.i.posthog.com"),
+  // No default: PostHog has no Australian region, so where analytics goes
+  // is a deliberate choice. Without both a key and a host, it stays off.
+  NEXT_PUBLIC_POSTHOG_HOST: optionalString,
 });
 
 const serverSchema = z
@@ -51,6 +50,23 @@ const serverSchema = z
       .optional()
       .transform((value) => (value ? value : undefined))
       .pipe(z.string().min(32).optional()),
+    // Card payments (M7b). Off unless set. The secret key starts sk_test_
+    // or sk_live_; the webhook secret (whsec_) checks Stripe's messages. Two
+    // webhook endpoints (schools' accounts, and Ovyko's own for its plan)
+    // have a secret each: give both, separated by a comma.
+    STRIPE_SECRET_KEY: optionalString.pipe(
+      z
+        .string()
+        .regex(/^[sr]k_(test|live)_/)
+        .optional(),
+    ),
+    STRIPE_WEBHOOK_SECRET: optionalString.pipe(z.string().startsWith("whsec_").optional()),
+    // Local and CI only: Stripe's test double (stripe-mock), e.g.
+    // http://localhost:12111. Never set in a deployed environment.
+    STRIPE_API_URL: optionalString.pipe(z.url().optional()),
+    // Ovyko's plan (docs/SUBSCRIPTIONS.md): the price schools pay, per
+    // location, in Ovyko's own Stripe account.
+    STRIPE_SCHOOL_PRICE_ID: optionalString.pipe(z.string().startsWith("price_").optional()),
   })
   .superRefine((env, ctx) => {
     const need = (key: keyof typeof env) => {
@@ -63,6 +79,7 @@ const serverSchema = z
     }
     if (env.EMAIL_TRANSPORT === "resend") need("RESEND_API_KEY");
     if (env.EMAIL_TRANSPORT === "mailpit") need("MAILPIT_URL");
+    if (env.STRIPE_SECRET_KEY) need("APP_URL");
   });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

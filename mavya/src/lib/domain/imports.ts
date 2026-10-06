@@ -1,11 +1,22 @@
 import type { Json } from "@/lib/supabase/database.types";
 import { DomainError, explain, must, type Db } from "./db";
+import {
+  FILE_LABELS,
+  matchColumns,
+  needLabel,
+  parseCsv,
+  readMoney,
+  splitName,
+  type Chosen,
+  type ImportFile,
+} from "./import-columns";
 
 // Moving a school in (docs/M6_MIGRATION_PILOT.md, M6a). This file only reads
 // the school's CSV files into tidy rows. Matching, checks and saving all
 // happen in the database's import_school, so the rules live in one place.
 
-export type ImportFile = "classes" | "students";
+export type { ImportFile } from "./import-columns";
+export { parseCsv } from "./import-columns";
 // A problem row didn't come across; a note (note: true) did, with a caveat.
 export type ImportProblem = { file: ImportFile; row: number; message: string; note?: boolean };
 
@@ -35,114 +46,27 @@ export type StudentRow = {
   class_time: string | null;
 };
 
+// Positive when the family owes, negative when it's in credit.
+export type BalanceRow = {
+  row: number;
+  parent_email: string | null;
+  parent_phone: string | null;
+  balance_cents: number;
+  due_on: string | null;
+};
+
+export type CreditRow = {
+  row: number;
+  parent_email: string | null;
+  parent_phone: string | null;
+  first_name: string;
+  last_name: string | null;
+  date_of_birth: string | null;
+  credits: number;
+  expires_on: string | null;
+};
+
 export const MAX_ROWS = 5000;
-
-// ------------------------------------------------------------------ CSV
-
-// RFC 4180: commas, quoted fields with "" for a quote, CRLF or LF. A byte
-// order mark (Excel adds one) is dropped. Blank lines are skipped.
-export function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let quoted = false;
-  const input = text.replace(/^﻿/, "");
-  for (let i = 0; i < input.length; i++) {
-    const ch = input[i]!;
-    if (quoted) {
-      if (ch === '"') {
-        if (input[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else quoted = false;
-      } else field += ch;
-    } else if (ch === '"') quoted = true;
-    else if (ch === ",") {
-      row.push(field);
-      field = "";
-    } else if (ch === "\n" || ch === "\r") {
-      if (ch === "\r" && input[i + 1] === "\n") i++;
-      row.push(field);
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
-      field = "";
-    } else field += ch;
-  }
-  row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
-  return rows;
-}
-
-// Headers people actually use, all mapped to one name.
-const key = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
-
-const CLASS_COLUMNS: Record<string, keyof ClassRow | "end_time"> = {
-  class: "name",
-  classname: "name",
-  name: "name",
-  level: "level",
-  levelname: "level",
-  program: "program",
-  programme: "program",
-  location: "location",
-  venue: "location",
-  pool: "location",
-  site: "location",
-  day: "weekday",
-  weekday: "weekday",
-  dayofweek: "weekday",
-  start: "start_time",
-  starttime: "start_time",
-  time: "start_time",
-  end: "end_time",
-  endtime: "end_time",
-  duration: "duration_minutes",
-  durationminutes: "duration_minutes",
-  length: "duration_minutes",
-  minutes: "duration_minutes",
-  capacity: "capacity",
-  places: "capacity",
-  maxstudents: "capacity",
-  size: "capacity",
-  instructor: "instructor_email",
-  instructoremail: "instructor_email",
-  teacher: "instructor_email",
-  teacheremail: "instructor_email",
-};
-
-const STUDENT_COLUMNS: Record<string, keyof StudentRow> = {
-  firstname: "first_name",
-  childfirstname: "first_name",
-  studentfirstname: "first_name",
-  givenname: "first_name",
-  lastname: "last_name",
-  surname: "last_name",
-  familyname: "last_name",
-  childlastname: "last_name",
-  studentlastname: "last_name",
-  dateofbirth: "date_of_birth",
-  dob: "date_of_birth",
-  birthdate: "date_of_birth",
-  birthday: "date_of_birth",
-  parent: "parent_name",
-  parentname: "parent_name",
-  guardian: "parent_name",
-  guardianname: "parent_name",
-  contactname: "parent_name",
-  email: "parent_email",
-  parentemail: "parent_email",
-  guardianemail: "parent_email",
-  contactemail: "parent_email",
-  phone: "parent_phone",
-  mobile: "parent_phone",
-  parentphone: "parent_phone",
-  parentmobile: "parent_phone",
-  contactphone: "parent_phone",
-  class: "class",
-  classname: "class",
-  classday: "class_weekday",
-  classtime: "class_time",
-};
 
 // ------------------------------------------------------------------ values
 
@@ -199,75 +123,63 @@ const text = (v: string | undefined) => (v?.trim() ? v.trim() : null);
 // ------------------------------------------------------------------ files
 
 type Read<T> = { rows: T[]; problems: ImportProblem[] };
+type Record_ = { row: number; get: (k: string) => string | undefined };
 
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// The file's rows, each read by detail. Null, with the problem, when a
+// detail the file needs has no column.
 function table(
   csv: string,
   file: ImportFile,
-  columns: Record<string, string>,
-): {
-  records: { row: number; get: (k: string) => string | undefined }[];
-  problems: ImportProblem[];
-} {
+  chosen?: Chosen,
+): { records: Record_[]; problems: ImportProblem[] } {
   const all = parseCsv(csv);
   if (all.length === 0)
     return { records: [], problems: [{ file, row: 1, message: "This file is empty." }] };
   if (all.length - 1 > MAX_ROWS)
     throw new DomainError(`That file has more than ${MAX_ROWS} rows. Split it into smaller files.`);
-  const header = all[0]!.map((h) => columns[key(h)]);
+  const { columns, missing } = matchColumns(
+    file,
+    all[0]!.map((h) => h.trim()),
+    chosen,
+  );
+  if (missing.length)
+    return {
+      records: [],
+      problems: [
+        {
+          file,
+          row: 1,
+          message: `The ${FILE_LABELS[file].toLowerCase()} file needs a column for: ${missing
+            .map((k) => needLabel(file, k))
+            .join(", ")}.`,
+        },
+      ],
+    };
   const records = all.slice(1).map((cells, i) => ({
     // Row numbers as the school sees them in a spreadsheet: the header is row 1.
     row: i + 2,
     get: (k: string) => {
-      const at = header.indexOf(k);
-      return at < 0 ? undefined : cells[at];
+      const at = columns[k];
+      return at === null || at === undefined ? undefined : cells[at];
     },
   }));
   return { records, problems: [] };
 }
 
-function missingColumns(csv: string, columns: Record<string, string>, needed: string[][]) {
-  const header = (parseCsv(csv)[0] ?? []).map((h) => columns[key(h)]);
-  return needed.filter((any) => !any.some((k) => header.includes(k))).map((any) => any[0]!);
+// A child's name from first and last name columns, or one name column.
+function childName(r: Record_) {
+  const full = text(r.get("full_name"));
+  const split = full ? splitName(full) : { first: "", last: "" };
+  return {
+    first: text(r.get("first_name")) ?? (split.first || null),
+    last: text(r.get("last_name")) ?? (split.last || null),
+  };
 }
 
-const CLASS_NEEDS = [
-  ["name"],
-  ["level"],
-  ["location"],
-  ["weekday"],
-  ["start_time"],
-  ["duration_minutes", "end_time"],
-  ["capacity"],
-];
-const STUDENT_NEEDS = [["first_name"], ["last_name"], ["date_of_birth"]];
-
-const LABELS: Record<string, string> = {
-  name: "Class",
-  level: "Level",
-  location: "Location",
-  weekday: "Day",
-  start_time: "Start time",
-  duration_minutes: "Duration (or End time)",
-  capacity: "Capacity",
-  first_name: "First name",
-  last_name: "Last name",
-  date_of_birth: "Date of birth",
-};
-
-export function readClasses(csv: string): Read<ClassRow> {
-  const missing = missingColumns(csv, CLASS_COLUMNS, CLASS_NEEDS);
-  if (missing.length)
-    return {
-      rows: [],
-      problems: [
-        {
-          file: "classes",
-          row: 1,
-          message: `The classes file needs these columns: ${missing.map((m) => LABELS[m]).join(", ")}.`,
-        },
-      ],
-    };
-  const { records, problems } = table(csv, "classes", CLASS_COLUMNS);
+export function readClasses(csv: string, chosen?: Chosen): Read<ClassRow> {
+  const { records, problems } = table(csv, "classes", chosen);
   const rows: ClassRow[] = [];
   for (const r of records) {
     const say = (message: string) => problems.push({ file: "classes", row: r.row, message });
@@ -306,41 +218,29 @@ export function readClasses(csv: string): Read<ClassRow> {
   return { rows, problems };
 }
 
-export function readStudents(csv: string): Read<StudentRow> {
-  const missing = missingColumns(csv, STUDENT_COLUMNS, STUDENT_NEEDS);
-  if (missing.length)
-    return {
-      rows: [],
-      problems: [
-        {
-          file: "students",
-          row: 1,
-          message: `The students file needs these columns: ${missing.map((m) => LABELS[m]).join(", ")}.`,
-        },
-      ],
-    };
-  const { records, problems } = table(csv, "students", STUDENT_COLUMNS);
+export function readStudents(csv: string, chosen?: Chosen): Read<StudentRow> {
+  const { records, problems } = table(csv, "students", chosen);
   const rows: StudentRow[] = [];
   for (const r of records) {
     const say = (message: string) => problems.push({ file: "students", row: r.row, message });
+    const name = childName(r);
     const dob = readDate(r.get("date_of_birth") ?? "");
     const classDay = text(r.get("class_weekday"));
     const classTime = text(r.get("class_time"));
     const weekday = classDay ? readWeekday(classDay) : null;
     const time = classTime ? readTime(classTime) : null;
     const email = text(r.get("parent_email"))?.toLowerCase() ?? null;
-    if (!text(r.get("first_name"))) say("This child has no first name.");
+    if (!name.first) say("This child has no first name.");
     else if (dob === null)
       say(`"${r.get("date_of_birth") ?? ""}" isn't a date of birth, like 31/12/2019.`);
-    else if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      say(`"${email}" isn't an email address.`);
+    else if (email && !EMAIL.test(email)) say(`"${email}" isn't an email address.`);
     else if (classDay && weekday === null) say(`"${classDay}" isn't a day of the week.`);
     else if (classTime && time === null) say(`"${classTime}" isn't a time, like 4:30pm.`);
     else
       rows.push({
         row: r.row,
-        first_name: text(r.get("first_name"))!,
-        last_name: text(r.get("last_name")) ?? "",
+        first_name: name.first,
+        last_name: name.last ?? "",
         date_of_birth: dob,
         parent_name: text(r.get("parent_name")),
         parent_email: email,
@@ -353,9 +253,120 @@ export function readStudents(csv: string): Read<StudentRow> {
   return { rows, problems };
 }
 
+// One row per family. owingNegative: the school's system writes money owed
+// as a negative number, so the balance column is read the other way round.
+export function readBalances(
+  csv: string,
+  chosen?: Chosen,
+  owingNegative = false,
+): Read<BalanceRow> {
+  const { records, problems } = table(csv, "balances", chosen);
+  const rows: BalanceRow[] = [];
+  for (const r of records) {
+    const say = (message: string) => problems.push({ file: "balances", row: r.row, message });
+    const email = text(r.get("parent_email"))?.toLowerCase() ?? null;
+    const balance = readMoney(r.get("balance") ?? "");
+    const credit = readMoney(r.get("credit") ?? "");
+    const dueText = text(r.get("due_on"));
+    const due = dueText ? readDate(dueText) : null;
+    if (balance === null) say(`"${r.get("balance")}" isn't an amount of money, like 120.50.`);
+    else if (credit === null) say(`"${r.get("credit")}" isn't an amount of money, like 120.50.`);
+    else if (email && !EMAIL.test(email)) say(`"${email}" isn't an email address.`);
+    else if (dueText && due === null) say(`"${dueText}" isn't a date, like 31/12/2026.`);
+    else {
+      const cents = (owingNegative ? -balance : balance) - Math.abs(credit);
+      if (cents === 0) continue;
+      rows.push({
+        row: r.row,
+        parent_email: email,
+        parent_phone: text(r.get("parent_phone")),
+        balance_cents: cents,
+        due_on: due,
+      });
+    }
+  }
+  return { rows, problems };
+}
+
+// One row per child.
+export function readCredits(csv: string, chosen?: Chosen): Read<CreditRow> {
+  const { records, problems } = table(csv, "credits", chosen);
+  const rows: CreditRow[] = [];
+  for (const r of records) {
+    const say = (message: string) => problems.push({ file: "credits", row: r.row, message });
+    const name = childName(r);
+    const email = text(r.get("parent_email"))?.toLowerCase() ?? null;
+    const creditsText = text(r.get("credits")) ?? "0";
+    const credits = Number(creditsText);
+    const dobText = text(r.get("date_of_birth"));
+    const dob = dobText ? readDate(dobText) : null;
+    const expiresText = text(r.get("expires_on"));
+    const expires = expiresText ? readDate(expiresText) : null;
+    if (!name.first) say("This row has no child's first name.");
+    else if (!Number.isInteger(credits) || credits < 0 || credits > 50)
+      say(`"${creditsText}" isn't a number of credits from 0 to 50.`);
+    else if (email && !EMAIL.test(email)) say(`"${email}" isn't an email address.`);
+    else if (dobText && dob === null) say(`"${dobText}" isn't a date of birth, like 31/12/2019.`);
+    else if (expiresText && expires === null)
+      say(`"${expiresText}" isn't a date, like 31/12/2026.`);
+    else if (credits > 0)
+      rows.push({
+        row: r.row,
+        parent_email: email,
+        parent_phone: text(r.get("parent_phone")),
+        first_name: name.first,
+        last_name: name.last,
+        date_of_birth: dob,
+        credits,
+        expires_on: expires,
+      });
+  }
+  return { rows, problems };
+}
+
 // ------------------------------------------------------------------ the database
 
-export type Counts = { classes: number; families: number; children: number; enrolments: number };
+export type Counts = {
+  classes: number;
+  families: number;
+  children: number;
+  enrolments: number;
+  // Families given a balance, and make-up credits (M6h).
+  balances: number;
+  credits: number;
+};
+
+// The balances brought across, to check against the old system's totals.
+export type Money = {
+  owingFamilies: number;
+  owingCents: number;
+  creditFamilies: number;
+  creditCents: number;
+};
+
+type MoneyJson = {
+  owing_families: number;
+  owing_cents: number;
+  credit_families: number;
+  credit_cents: number;
+};
+
+const toMoney = (m: MoneyJson | undefined): Money => ({
+  owingFamilies: m?.owing_families ?? 0,
+  owingCents: Number(m?.owing_cents ?? 0),
+  creditFamilies: m?.credit_families ?? 0,
+  creditCents: Number(m?.credit_cents ?? 0),
+});
+
+// Imports from before M6h have no balances or credits.
+const toCounts = (c: Partial<Counts> | undefined): Counts => ({
+  classes: c?.classes ?? 0,
+  families: c?.families ?? 0,
+  children: c?.children ?? 0,
+  enrolments: c?.enrolments ?? 0,
+  balances: c?.balances ?? 0,
+  credits: c?.credits ?? 0,
+});
 
 export type ImportReport = {
   batchId: string | null;
@@ -363,11 +374,14 @@ export type ImportReport = {
   existing: Counts;
   problems: ImportProblem[];
   notes: ImportProblem[];
+  money: Money;
 };
 
 export type ImportRows = {
   classes: ClassRow[];
   students: StudentRow[];
+  balances: BalanceRow[];
+  credits: CreditRow[];
   fileNames: string[];
   // Rows the app couldn't read, listed with the database's own problems.
   readProblems: ImportProblem[];
@@ -388,6 +402,8 @@ export async function importSchool(
       p_file_names: input.fileNames,
       p_commit: commit,
       p_read_problems: input.readProblems as unknown as Json,
+      p_balances: input.balances as unknown as Json,
+      p_credits: input.credits as unknown as Json,
     }),
   ) as {
     batch_id: string | null;
@@ -395,13 +411,15 @@ export async function importSchool(
     existing: Counts;
     problems: ImportProblem[];
     notes: ImportProblem[];
+    money: MoneyJson;
   };
   return {
     batchId: out.batch_id,
-    added: out.added,
-    existing: out.existing,
+    added: toCounts(out.added),
+    existing: toCounts(out.existing),
     problems: out.problems,
     notes: out.notes,
+    money: toMoney(out.money),
   };
 }
 
@@ -409,9 +427,10 @@ export type ImportBatch = {
   id: string;
   createdAt: string;
   fileNames: string[];
-  rows: { classes: number; students: number };
+  rows: Record<ImportFile, number>;
   added: Counts;
   existing: Counts;
+  money: Money;
   problems: ImportProblem[];
   undoneAt: string | null;
 };
@@ -427,17 +446,24 @@ type BatchRow = {
 
 function toBatch(r: BatchRow): ImportBatch {
   const counts = r.counts as {
-    rows: { classes: number; students: number };
-    added: Counts;
-    existing: Counts;
+    rows: Partial<Record<ImportFile, number>>;
+    added: Partial<Counts>;
+    existing: Partial<Counts>;
+    money?: MoneyJson;
   };
   return {
     id: r.id,
     createdAt: r.created_at,
     fileNames: r.file_names,
-    rows: counts.rows,
-    added: counts.added,
-    existing: counts.existing,
+    rows: {
+      classes: counts.rows?.classes ?? 0,
+      students: counts.rows?.students ?? 0,
+      balances: counts.rows?.balances ?? 0,
+      credits: counts.rows?.credits ?? 0,
+    },
+    added: toCounts(counts.added),
+    existing: toCounts(counts.existing),
+    money: toMoney(counts.money),
     problems: r.problems as ImportProblem[],
     undoneAt: r.undone_at,
   };
@@ -471,7 +497,7 @@ export async function importSummary(
     in_ovyko: Counts;
     can_undo: boolean;
   };
-  return { inOvyko: out.in_ovyko, canUndo: out.can_undo };
+  return { inOvyko: toCounts(out.in_ovyko), canUndo: out.can_undo };
 }
 
 export async function undoImport(db: Db, id: string) {

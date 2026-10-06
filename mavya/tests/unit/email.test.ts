@@ -17,6 +17,18 @@ describe("email wording", () => {
     expect(e.html).toContain('href="https://app.ovyko.com.au/family/claim/abc"');
   });
 
+  it("a place offered says where and until when, never who", () => {
+    const e = messages.placeOffered({
+      school: "Aqua House",
+      klass: "Tuesdays at 4:30pm, Level 2, Riverside",
+      heldUntil: "6:30pm Thu 8 Oct",
+      url: "https://app.ovyko.com.au/family",
+    });
+    expect(outside(e)).toBe("A place has come up at Aqua House It's held for you for 48 hours.");
+    expect(e.text).toContain("Tuesdays at 4:30pm, Level 2, Riverside");
+    expect(e.text).toContain("held for you until 6:30pm Thu 8 Oct");
+  });
+
   it("a reminder names the activity and time only", () => {
     const one = messages.lessonReminder({
       school: "Aqua House",

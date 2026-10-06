@@ -358,6 +358,7 @@ export type Database = {
           location_id: string;
           name: string;
           organisation_id: string;
+          price_per_lesson_cents: number | null;
           program_id: string;
           start_time: string;
           weekday: number;
@@ -373,6 +374,7 @@ export type Database = {
           location_id: string;
           name: string;
           organisation_id: string;
+          price_per_lesson_cents?: number | null;
           program_id: string;
           start_time: string;
           weekday: number;
@@ -388,6 +390,7 @@ export type Database = {
           location_id?: string;
           name?: string;
           organisation_id?: string;
+          price_per_lesson_cents?: number | null;
           program_id?: string;
           start_time?: string;
           weekday?: number;
@@ -781,6 +784,246 @@ export type Database = {
           },
         ];
       };
+      instalment_plans: {
+        Row: {
+          created_at: string;
+          family_id: string;
+          id: string;
+          organisation_id: string;
+          payment_method_id: string | null;
+          payment_method_type: string | null;
+          payments: number;
+          started_by: string | null;
+          status: string;
+          stripe_customer_id: string | null;
+          total_cents: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          family_id: string;
+          id?: string;
+          organisation_id: string;
+          payment_method_id?: string | null;
+          payment_method_type?: string | null;
+          payments: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_customer_id?: string | null;
+          total_cents: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          family_id?: string;
+          id?: string;
+          organisation_id?: string;
+          payment_method_id?: string | null;
+          payment_method_type?: string | null;
+          payments?: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_customer_id?: string | null;
+          total_cents?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "instalment_plans_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "instalment_plans_started_by_fkey";
+            columns: ["started_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      instalments: {
+        Row: {
+          amount_cents: number;
+          due_on: string;
+          family_id: string;
+          id: string;
+          online_payment_id: string | null;
+          organisation_id: string;
+          plan_id: string;
+          seq: number;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_cents: number;
+          due_on: string;
+          family_id: string;
+          id?: string;
+          online_payment_id?: string | null;
+          organisation_id: string;
+          plan_id: string;
+          seq: number;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_cents?: number;
+          due_on?: string;
+          family_id?: string;
+          id?: string;
+          online_payment_id?: string | null;
+          organisation_id?: string;
+          plan_id?: string;
+          seq?: number;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "instalments_organisation_id_online_payment_id_fkey";
+            columns: ["organisation_id", "online_payment_id"];
+            isOneToOne: false;
+            referencedRelation: "online_payments";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "instalments_organisation_id_plan_id_fkey";
+            columns: ["organisation_id", "plan_id"];
+            isOneToOne: false;
+            referencedRelation: "instalment_plans";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      ledger_entries: {
+        Row: {
+          amount_cents: number;
+          cancels_id: string | null;
+          charge_key: string | null;
+          child_id: string | null;
+          class_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          due_on: string | null;
+          family_id: string;
+          id: string;
+          import_batch_id: string | null;
+          kind: string;
+          lessons: number | null;
+          method: string | null;
+          online_payment_id: string | null;
+          organisation_id: string;
+          paid_on: string | null;
+          term_id: string | null;
+          unit_cents: number | null;
+        };
+        Insert: {
+          amount_cents: number;
+          cancels_id?: string | null;
+          charge_key?: string | null;
+          child_id?: string | null;
+          class_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description: string;
+          due_on?: string | null;
+          family_id: string;
+          id?: string;
+          import_batch_id?: string | null;
+          kind: string;
+          lessons?: number | null;
+          method?: string | null;
+          online_payment_id?: string | null;
+          organisation_id: string;
+          paid_on?: string | null;
+          term_id?: string | null;
+          unit_cents?: number | null;
+        };
+        Update: {
+          amount_cents?: number;
+          cancels_id?: string | null;
+          charge_key?: string | null;
+          child_id?: string | null;
+          class_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          due_on?: string | null;
+          family_id?: string;
+          id?: string;
+          import_batch_id?: string | null;
+          kind?: string;
+          lessons?: number | null;
+          method?: string | null;
+          online_payment_id?: string | null;
+          organisation_id?: string;
+          paid_on?: string | null;
+          term_id?: string | null;
+          unit_cents?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_cancels_id_fkey";
+            columns: ["cancels_id"];
+            isOneToOne: true;
+            referencedRelation: "ledger_entries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_online_payment_id_fkey";
+            columns: ["organisation_id", "online_payment_id"];
+            isOneToOne: false;
+            referencedRelation: "online_payments";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "ledger_entries_organisation_id_term_id_fkey";
+            columns: ["organisation_id", "term_id"];
+            isOneToOne: false;
+            referencedRelation: "terms";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
       levels: {
         Row: {
           active: boolean;
@@ -930,6 +1173,7 @@ export type Database = {
           child_id: string;
           expires_at: string;
           id: string;
+          import_batch_id: string | null;
           issued_at: string;
           organisation_id: string;
           reason: string;
@@ -941,6 +1185,7 @@ export type Database = {
           child_id: string;
           expires_at: string;
           id?: string;
+          import_batch_id?: string | null;
           issued_at?: string;
           organisation_id: string;
           reason: string;
@@ -952,6 +1197,7 @@ export type Database = {
           child_id?: string;
           expires_at?: string;
           id?: string;
+          import_batch_id?: string | null;
           issued_at?: string;
           organisation_id?: string;
           reason?: string;
@@ -960,6 +1206,13 @@ export type Database = {
           status?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "makeup_credits_import_batch_id_fkey";
+            columns: ["import_batch_id"];
+            isOneToOne: false;
+            referencedRelation: "import_batches";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "makeup_credits_organisation_id_child_id_fkey";
             columns: ["organisation_id", "child_id"];
@@ -1034,35 +1287,394 @@ export type Database = {
           },
         ];
       };
+      online_payments: {
+        Row: {
+          amount_cents: number;
+          checkout_session_id: string | null;
+          created_at: string;
+          family_id: string;
+          id: string;
+          method: string | null;
+          organisation_id: string;
+          paid_at: string | null;
+          payment_intent_id: string | null;
+          pays_off_plan: string | null;
+          platform_fee_cents: number;
+          refunded_cents: number;
+          started_by: string | null;
+          status: string;
+          stripe_account_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_cents: number;
+          checkout_session_id?: string | null;
+          created_at?: string;
+          family_id: string;
+          id?: string;
+          method?: string | null;
+          organisation_id: string;
+          paid_at?: string | null;
+          payment_intent_id?: string | null;
+          pays_off_plan?: string | null;
+          platform_fee_cents: number;
+          refunded_cents?: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_account_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_cents?: number;
+          checkout_session_id?: string | null;
+          created_at?: string;
+          family_id?: string;
+          id?: string;
+          method?: string | null;
+          organisation_id?: string;
+          paid_at?: string | null;
+          payment_intent_id?: string | null;
+          pays_off_plan?: string | null;
+          platform_fee_cents?: number;
+          refunded_cents?: number;
+          started_by?: string | null;
+          status?: string;
+          stripe_account_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "online_payments_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "online_payments_pays_off_plan_fkey";
+            columns: ["pays_off_plan"];
+            isOneToOne: false;
+            referencedRelation: "instalment_plans";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "online_payments_started_by_fkey";
+            columns: ["started_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organisations: {
         Row: {
           activity_type: string;
+          auto_place_offers: boolean;
           created_at: string;
+          fee_reminders: boolean;
           id: string;
+          instalments_on: boolean;
+          is_demo: boolean;
+          lessons_in_term_only: boolean;
           name: string;
+          owner_two_step_required: boolean;
           slug: string;
           status: string;
           timezone: string;
+          voucher_schemes: string[];
+          waitlist_page_on: boolean;
         };
         Insert: {
           activity_type: string;
+          auto_place_offers?: boolean;
           created_at?: string;
+          fee_reminders?: boolean;
           id?: string;
+          instalments_on?: boolean;
+          is_demo?: boolean;
+          lessons_in_term_only?: boolean;
           name: string;
+          owner_two_step_required?: boolean;
           slug: string;
           status?: string;
           timezone?: string;
+          voucher_schemes?: string[];
+          waitlist_page_on?: boolean;
         };
         Update: {
           activity_type?: string;
+          auto_place_offers?: boolean;
           created_at?: string;
+          fee_reminders?: boolean;
           id?: string;
+          instalments_on?: boolean;
+          is_demo?: boolean;
+          lessons_in_term_only?: boolean;
           name?: string;
+          owner_two_step_required?: boolean;
           slug?: string;
           status?: string;
           timezone?: string;
+          voucher_schemes?: string[];
+          waitlist_page_on?: boolean;
         };
         Relationships: [];
+      };
+      payment_accounts: {
+        Row: {
+          charges_enabled: boolean;
+          created_at: string;
+          details_submitted: boolean;
+          organisation_id: string;
+          payouts_enabled: boolean;
+          stripe_account_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          charges_enabled?: boolean;
+          created_at?: string;
+          details_submitted?: boolean;
+          organisation_id: string;
+          payouts_enabled?: boolean;
+          stripe_account_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          charges_enabled?: boolean;
+          created_at?: string;
+          details_submitted?: boolean;
+          organisation_id?: string;
+          payouts_enabled?: boolean;
+          stripe_account_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_accounts_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: true;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      place_offers: {
+        Row: {
+          answered_at: string | null;
+          answered_by: string | null;
+          child_id: string;
+          class_id: string;
+          created_at: string;
+          enrolment_id: string | null;
+          expires_at: string;
+          family_id: string;
+          id: string;
+          offered_by: string | null;
+          organisation_id: string;
+          status: string;
+          wish_id: string;
+        };
+        Insert: {
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id: string;
+          class_id: string;
+          created_at?: string;
+          enrolment_id?: string | null;
+          expires_at: string;
+          family_id: string;
+          id?: string;
+          offered_by?: string | null;
+          organisation_id: string;
+          status?: string;
+          wish_id: string;
+        };
+        Update: {
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id?: string;
+          class_id?: string;
+          created_at?: string;
+          enrolment_id?: string | null;
+          expires_at?: string;
+          family_id?: string;
+          id?: string;
+          offered_by?: string | null;
+          organisation_id?: string;
+          status?: string;
+          wish_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "place_offers_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_offers_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_offers_offered_by_fkey";
+            columns: ["offered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_offers_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_offers_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_offers_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_offers_wish_id_fkey";
+            columns: ["wish_id"];
+            isOneToOne: false;
+            referencedRelation: "place_wishes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      place_wishes: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          created_by: string | null;
+          earliest: string;
+          family_id: string;
+          id: string;
+          latest: string;
+          level_id: string | null;
+          location_id: string | null;
+          note: string | null;
+          organisation_id: string;
+          placed_enrolment_id: string | null;
+          status: string;
+          updated_at: string;
+          weekdays: number[];
+        };
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          earliest: string;
+          family_id: string;
+          id?: string;
+          latest: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id: string;
+          placed_enrolment_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          weekdays: number[];
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          earliest?: string;
+          family_id?: string;
+          id?: string;
+          latest?: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id?: string;
+          placed_enrolment_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          weekdays?: number[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "place_wishes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_level_id_fkey";
+            columns: ["organisation_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_organisation_id_location_id_fkey";
+            columns: ["organisation_id", "location_id"];
+            isOneToOne: false;
+            referencedRelation: "locations";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "place_wishes_placed_enrolment_id_fkey";
+            columns: ["placed_enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      platform_admins: {
+        Row: {
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "platform_admins_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       policy_sets: {
         Row: {
@@ -1196,6 +1808,189 @@ export type Database = {
           },
         ];
       };
+      reenrolment_asks: {
+        Row: {
+          answer: string | null;
+          answered_at: string | null;
+          answered_by: string | null;
+          child_id: string;
+          class_id: string;
+          created_at: string;
+          emailed_at: string | null;
+          enrolment_id: string;
+          id: string;
+          offered_class_id: string | null;
+          organisation_id: string;
+          outcome: string | null;
+          term_id: string;
+        };
+        Insert: {
+          answer?: string | null;
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id: string;
+          class_id: string;
+          created_at?: string;
+          emailed_at?: string | null;
+          enrolment_id: string;
+          id?: string;
+          offered_class_id?: string | null;
+          organisation_id: string;
+          outcome?: string | null;
+          term_id: string;
+        };
+        Update: {
+          answer?: string | null;
+          answered_at?: string | null;
+          answered_by?: string | null;
+          child_id?: string;
+          class_id?: string;
+          created_at?: string;
+          emailed_at?: string | null;
+          enrolment_id?: string;
+          id?: string;
+          offered_class_id?: string | null;
+          organisation_id?: string;
+          outcome?: string | null;
+          term_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reenrolment_asks_answered_by_fkey";
+            columns: ["answered_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_enrolment_id_fkey";
+            columns: ["enrolment_id"];
+            isOneToOne: false;
+            referencedRelation: "enrolments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_class_id_fkey";
+            columns: ["organisation_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_offered_class_id_fkey";
+            columns: ["organisation_id", "offered_class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "reenrolment_asks_organisation_id_term_id_fkey";
+            columns: ["organisation_id", "term_id"];
+            isOneToOne: false;
+            referencedRelation: "terms";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      retention_followups: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          family_id: string;
+          id: string;
+          note: string | null;
+          organisation_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          family_id: string;
+          id?: string;
+          note?: string | null;
+          organisation_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          family_id?: string;
+          id?: string;
+          note?: string | null;
+          organisation_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "retention_followups_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "retention_followups_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      school_subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean;
+          created_at: string;
+          current_period_end: string | null;
+          locations: number | null;
+          organisation_id: string;
+          price_cents: number | null;
+          status: string | null;
+          stripe_customer_id: string;
+          stripe_subscription_id: string | null;
+          trial_end: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          locations?: number | null;
+          organisation_id: string;
+          price_cents?: number | null;
+          status?: string | null;
+          stripe_customer_id: string;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          locations?: number | null;
+          organisation_id?: string;
+          price_cents?: number | null;
+          status?: string | null;
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "school_subscriptions_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: true;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       sensitive_views: {
         Row: {
           child_id: string;
@@ -1322,6 +2117,118 @@ export type Database = {
           },
         ];
       };
+      support_grants: {
+        Row: {
+          created_at: string;
+          ended_at: string | null;
+          ended_by: string | null;
+          expires_at: string;
+          granted_by: string | null;
+          id: string;
+          note: string | null;
+          organisation_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          expires_at: string;
+          granted_by?: string | null;
+          id?: string;
+          note?: string | null;
+          organisation_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          expires_at?: string;
+          granted_by?: string | null;
+          id?: string;
+          note?: string | null;
+          organisation_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_grants_ended_by_fkey";
+            columns: ["ended_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_grants_granted_by_fkey";
+            columns: ["granted_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_grants_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      terms: {
+        Row: {
+          applied_at: string | null;
+          asked_at: string | null;
+          asked_by: string | null;
+          created_at: string;
+          ends_on: string;
+          id: string;
+          name: string;
+          organisation_id: string;
+          reply_by: string | null;
+          starts_on: string;
+        };
+        Insert: {
+          applied_at?: string | null;
+          asked_at?: string | null;
+          asked_by?: string | null;
+          created_at?: string;
+          ends_on: string;
+          id?: string;
+          name: string;
+          organisation_id: string;
+          reply_by?: string | null;
+          starts_on: string;
+        };
+        Update: {
+          applied_at?: string | null;
+          asked_at?: string | null;
+          asked_by?: string | null;
+          created_at?: string;
+          ends_on?: string;
+          id?: string;
+          name?: string;
+          organisation_id?: string;
+          reply_by?: string | null;
+          starts_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "terms_asked_by_fkey";
+            columns: ["asked_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "terms_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       users: {
         Row: {
           auth_id: string;
@@ -1423,17 +2330,269 @@ export type Database = {
           },
         ];
       };
+      voucher_claims: {
+        Row: {
+          amount_cents: number | null;
+          child_id: string | null;
+          code: string;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          decline_reason: string | null;
+          family_id: string;
+          id: string;
+          ledger_entry_id: string | null;
+          organisation_id: string;
+          scheme: string;
+          status: string;
+          submitted_by: string | null;
+        };
+        Insert: {
+          amount_cents?: number | null;
+          child_id?: string | null;
+          code: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decline_reason?: string | null;
+          family_id: string;
+          id?: string;
+          ledger_entry_id?: string | null;
+          organisation_id: string;
+          scheme: string;
+          status?: string;
+          submitted_by?: string | null;
+        };
+        Update: {
+          amount_cents?: number | null;
+          child_id?: string | null;
+          code?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decline_reason?: string | null;
+          family_id?: string;
+          id?: string;
+          ledger_entry_id?: string | null;
+          organisation_id?: string;
+          scheme?: string;
+          status?: string;
+          submitted_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "voucher_claims_decided_by_fkey";
+            columns: ["decided_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_ledger_entry_id_fkey";
+            columns: ["ledger_entry_id"];
+            isOneToOne: true;
+            referencedRelation: "ledger_entries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_organisation_id_child_id_fkey";
+            columns: ["organisation_id", "child_id"];
+            isOneToOne: false;
+            referencedRelation: "children";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_organisation_id_family_id_fkey";
+            columns: ["organisation_id", "family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "voucher_claims_submitted_by_fkey";
+            columns: ["submitted_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      waitlist_enquiries: {
+        Row: {
+          child_first_name: string;
+          child_last_name: string;
+          created_at: string;
+          date_of_birth: string;
+          earliest: string;
+          email: string;
+          id: string;
+          latest: string;
+          level_id: string | null;
+          location_id: string | null;
+          note: string | null;
+          organisation_id: string;
+          parent_name: string;
+          phone: string | null;
+          weekdays: number[];
+        };
+        Insert: {
+          child_first_name: string;
+          child_last_name: string;
+          created_at?: string;
+          date_of_birth: string;
+          earliest: string;
+          email: string;
+          id?: string;
+          latest: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id: string;
+          parent_name: string;
+          phone?: string | null;
+          weekdays: number[];
+        };
+        Update: {
+          child_first_name?: string;
+          child_last_name?: string;
+          created_at?: string;
+          date_of_birth?: string;
+          earliest?: string;
+          email?: string;
+          id?: string;
+          latest?: string;
+          level_id?: string | null;
+          location_id?: string | null;
+          note?: string | null;
+          organisation_id?: string;
+          parent_name?: string;
+          phone?: string | null;
+          weekdays?: number[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_enquiries_organisation_id_fkey";
+            columns: ["organisation_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "waitlist_enquiries_organisation_id_level_id_fkey";
+            columns: ["organisation_id", "level_id"];
+            isOneToOne: false;
+            referencedRelation: "levels";
+            referencedColumns: ["organisation_id", "id"];
+          },
+          {
+            foreignKeyName: "waitlist_enquiries_organisation_id_location_id_fkey";
+            columns: ["organisation_id", "location_id"];
+            isOneToOne: false;
+            referencedRelation: "locations";
+            referencedColumns: ["organisation_id", "id"];
+          },
+        ];
+      };
+      waitlist_signups: {
+        Row: {
+          consented_at: string;
+          created_at: string;
+          current_system: string | null;
+          email: string;
+          id: string;
+          name: string;
+          next_break: string | null;
+          phone: string | null;
+          school: string;
+          suburb: string;
+          swimmers: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          consented_at: string;
+          created_at?: string;
+          current_system?: string | null;
+          email: string;
+          id?: string;
+          name: string;
+          next_break?: string | null;
+          phone?: string | null;
+          school: string;
+          suburb: string;
+          swimmers?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          consented_at?: string;
+          created_at?: string;
+          current_system?: string | null;
+          email?: string;
+          id?: string;
+          name?: string;
+          next_break?: string | null;
+          phone?: string | null;
+          school?: string;
+          suburb?: string;
+          swimmers?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
       accept_invite: { Args: { p_code: string }; Returns: string };
+      add_account_line: {
+        Args: {
+          p_amount_cents: number;
+          p_child?: string;
+          p_family: string;
+          p_kind: string;
+          p_reason: string;
+        };
+        Returns: string;
+      };
       add_child_restriction: {
         Args: { p_child: string; p_details: string; p_kind: string; p_person: string };
         Returns: string;
       };
+      add_place_wish: {
+        Args: {
+          p_child: string;
+          p_earliest: string;
+          p_latest: string;
+          p_level: string;
+          p_location: string;
+          p_note: string;
+          p_weekdays: number[];
+        };
+        Returns: string;
+      };
+      add_waitlist_enquiry: { Args: { p_enquiry: string }; Returns: Json };
+      am_platform_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      answer_place_offer: { Args: { p_accept: boolean; p_offer: string }; Returns: string };
+      answer_term_ask: { Args: { p_answer: string; p_ask: string }; Returns: undefined };
+      apply_terms_at: { Args: { p_now: string }; Returns: number };
+      ask_families: { Args: { p_reply_by: string; p_term: string }; Returns: number };
+      attach_checkout_session: {
+        Args: { p_payment: string; p_session: string };
+        Returns: undefined;
+      };
+      attach_plan_payment_method: {
+        Args: {
+          p_account: string;
+          p_customer?: string;
+          p_payment: string;
+          p_payment_method?: string;
+          p_type?: string;
+        };
+        Returns: boolean;
+      };
       book_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string };
+      can_pay_online: { Args: { p_org: string }; Returns: boolean };
+      cancel_ledger_entry: { Args: { p_entry: string; p_reason: string }; Returns: string };
       cancel_lessons: { Args: { p_date: string; p_location: string }; Returns: number };
       cancel_makeup: { Args: { p_booking: string }; Returns: boolean };
       check_makeup: { Args: { p_credit: string; p_occurrence: string }; Returns: string[] };
@@ -1444,6 +2603,18 @@ export type Database = {
           viewed_at: string;
           viewer_name: string;
           viewer_role: string;
+        }[];
+      };
+      claim_due_instalments: {
+        Args: { p_limit?: number };
+        Returns: {
+          amount_cents: number;
+          payment_id: string;
+          payment_method_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+          stripe_customer_id: string;
         }[];
       };
       claim_email_deliveries: {
@@ -1479,7 +2650,60 @@ export type Database = {
           outcome: string;
         }[];
       };
+      class_opportunities: {
+        Args: { p_min?: number; p_org: string };
+        Returns: {
+          children: number;
+          level_id: string;
+          level_name: string;
+          location_id: string;
+          location_name: string;
+          start_time: string;
+          weekday: number;
+        }[];
+      };
+      create_term_fees: { Args: { p_term: string }; Returns: number };
       decline_offer: { Args: { p_code: string }; Returns: boolean };
+      decline_voucher: { Args: { p_claim: string; p_reason: string }; Returns: undefined };
+      delete_family: { Args: { p_confirm: string; p_family: string }; Returns: string[] };
+      delete_term: { Args: { p_term: string }; Returns: undefined };
+      end_support_access: { Args: { p_org: string }; Returns: boolean };
+      export_family: { Args: { p_family: string }; Returns: Json };
+      families_at_risk: {
+        Args: { p_org: string };
+        Returns: {
+          contact_name: string;
+          email: string;
+          family_id: string;
+          family_name: string;
+          phone: string;
+          reasons: Json;
+        }[];
+      };
+      family_balances: {
+        Args: { p_org: string };
+        Returns: {
+          balance_cents: number;
+          display_name: string;
+          family_id: string;
+          overdue_cents: number;
+        }[];
+      };
+      family_dues: {
+        Args: { p_family: string };
+        Returns: {
+          overdue_cents: number;
+          owing_cents: number;
+          reminders_on: boolean;
+        }[];
+      };
+      family_owing: {
+        Args: { p_family: string };
+        Returns: {
+          owing_now: number;
+          owing_with_plan: number;
+        }[];
+      };
       family_parents: {
         Args: { p_family: string };
         Returns: {
@@ -1501,10 +2725,14 @@ export type Database = {
         Args: { p_error?: string; p_id: string; p_outcome: string; p_provider_id?: string };
         Returns: undefined;
       };
+      follow_up_family: { Args: { p_family: string; p_note?: string }; Returns: string };
+      grant_support_access: { Args: { p_note: string; p_org: string }; Returns: string };
       import_school: {
         Args: {
+          p_balances?: Json;
           p_classes: Json;
           p_commit: boolean;
+          p_credits?: Json;
           p_file_names: string[];
           p_org: string;
           p_read_problems?: Json;
@@ -1513,6 +2741,7 @@ export type Database = {
         Returns: Json;
       };
       import_summary: { Args: { p_batch: string }; Returns: Json };
+      instalments_offered: { Args: { p_org: string }; Returns: boolean };
       invite_details: {
         Args: { p_code: string };
         Returns: {
@@ -1523,6 +2752,39 @@ export type Database = {
         }[];
       };
       invite_parent: { Args: { p_email: string; p_family: string }; Returns: string };
+      join_school_waitlist: {
+        Args: {
+          p_child_first_name: string;
+          p_child_last_name: string;
+          p_consent: boolean;
+          p_date_of_birth: string;
+          p_earliest: string;
+          p_email: string;
+          p_latest: string;
+          p_level: string;
+          p_location: string;
+          p_note: string;
+          p_parent_name: string;
+          p_phone: string;
+          p_slug: string;
+          p_weekdays: number[];
+        };
+        Returns: undefined;
+      };
+      join_waitlist: {
+        Args: {
+          p_consent: boolean;
+          p_current_system: string;
+          p_email: string;
+          p_name: string;
+          p_next_break: string;
+          p_phone: string;
+          p_school: string;
+          p_suburb: string;
+          p_swimmers: string;
+        };
+        Returns: undefined;
+      };
       makeup_options: {
         Args: { p_credit: string };
         Returns: {
@@ -1540,6 +2802,42 @@ export type Database = {
       };
       makeup_policy: { Args: { p_org: string }; Returns: Json };
       mark_notifications_read: { Args: Record<PropertyKey, never>; Returns: undefined };
+      my_place_offers: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          child_first_name: string;
+          child_id: string;
+          class_name: string;
+          expires_at: string;
+          level_name: string;
+          location_name: string;
+          offer_id: string;
+          organisation_name: string;
+          start_time: string;
+          weekday: number;
+        }[];
+      };
+      my_term_asks: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          answer: string;
+          child_first_name: string;
+          class_location: string;
+          class_name: string;
+          class_start: string;
+          class_weekday: number;
+          id: string;
+          offered_class_name: string;
+          offered_location: string;
+          offered_start: string;
+          offered_weekday: number;
+          reply_by: string;
+          school: string;
+          starts_on: string;
+          term_name: string;
+        }[];
+      };
+      my_voucher_schemes: { Args: { p_org: string }; Returns: string[] };
       offer_details: {
         Args: { p_code: string };
         Returns: {
@@ -1557,7 +2855,10 @@ export type Database = {
           timezone: string;
         }[];
       };
+      offer_place: { Args: { p_class: string; p_wish: string }; Returns: string };
       offer_spot: { Args: { p_child: string; p_occurrence: string }; Returns: string };
+      offer_term_move: { Args: { p_ask: string; p_class: string }; Returns: undefined };
+      online_payment_status: { Args: { p_account: string; p_payment: string }; Returns: string };
       open_spots: {
         Args: { p_days?: number; p_org: string };
         Returns: {
@@ -1569,6 +2870,68 @@ export type Database = {
           starts_at: string;
         }[];
       };
+      ovyko_month: {
+        Args: { p_month: string; p_org: string };
+        Returns: {
+          absences_by_parents: number;
+          chased_paid_cents: number;
+          chased_paid_families: number;
+          instalments_cents: number;
+          instalments_taken: number;
+          makeups_booked_by_parents: number;
+          makeups_delivered: number;
+          makeups_value_cents: number;
+          offers_automatic: number;
+          offers_claimed: number;
+          paid_online_cents: number;
+          paid_online_count: number;
+          reenrol_answers: number;
+          reminders_sent: number;
+          staying: number;
+        }[];
+      };
+      owner_two_step_needed: { Args: Record<PropertyKey, never>; Returns: boolean };
+      pay_rest_of_plan: {
+        Args: { p_family: string };
+        Returns: {
+          amount_cents: number;
+          checkout_session_id: string;
+          payment_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+        }[];
+      };
+      payment_account_disconnected: { Args: { p_account: string }; Returns: boolean };
+      place_from_wish: { Args: { p_class: string; p_wish: string }; Returns: string };
+      platform_months: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          month: string;
+          new_schools: number;
+          ovyko_fees_cents: number;
+          paid_online_cents: number;
+        }[];
+      };
+      platform_totals: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          children_enrolled: number;
+          families: number;
+          fees_charged_365d_cents: number;
+          monthly_recurring_cents: number;
+          ovyko_fees_30d_cents: number;
+          ovyko_fees_365d_cents: number;
+          paid_online_30d_cents: number;
+          paid_online_365d_cents: number;
+          recorded_payments_365d_cents: number;
+          schools: number;
+          schools_paying: number;
+          schools_taking_payments: number;
+          schools_teaching: number;
+        }[];
+      };
+      prepare_term_asks: { Args: { p_term: string }; Returns: number };
       preview_cancel_lessons: {
         Args: { p_date: string; p_location: string };
         Returns: {
@@ -1579,21 +2942,57 @@ export type Database = {
           makeups: number;
         }[];
       };
+      queue_fee_reminders_at: { Args: { p_now: string }; Returns: number };
       queue_lesson_reminders_at: { Args: { p_now: string }; Returns: number };
       record_attendance: {
         Args: { p_child_id: string; p_occurrence_id: string; p_status: string };
         Returns: undefined;
       };
+      record_lost_dispute: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_dispute: string;
+          p_payment_intent: string;
+        };
+        Returns: number;
+      };
+      record_online_refund: {
+        Args: { p_account: string; p_payment_intent: string; p_refunded_cents: number };
+        Returns: number;
+      };
+      record_payment: {
+        Args: {
+          p_amount_cents: number;
+          p_family: string;
+          p_method: string;
+          p_note?: string;
+          p_paid_on: string;
+        };
+        Returns: string;
+      };
       record_progress: {
         Args: { p_child_id: string; p_skill_id: string; p_status: string };
         Returns: undefined;
+      };
+      record_refund_failed: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_payment_intent: string;
+          p_refund: string;
+        };
+        Returns: number;
       };
       record_sign_in: {
         Args: { p_email: string; p_ip: string; p_succeeded: boolean };
         Returns: undefined;
       };
+      redeem_voucher: { Args: { p_amount_cents: number; p_claim: string }; Returns: string };
+      remind_term_families: { Args: { p_term: string }; Returns: number };
       remove_child_restriction: { Args: { p_restriction: string }; Returns: undefined };
       remove_staff_member: { Args: { p_membership_id: string }; Returns: undefined };
+      remove_waitlist_enquiry: { Args: { p_enquiry: string }; Returns: undefined };
       report_absence: {
         Args: { p_child: string; p_occurrence: string; p_reason?: string };
         Returns: {
@@ -1618,10 +3017,140 @@ export type Database = {
         Returns: undefined;
       };
       save_makeup_policy: { Args: { p_config: Json; p_org: string }; Returns: number };
+      save_payment_account: {
+        Args: {
+          p_account: string;
+          p_charges: boolean;
+          p_details: boolean;
+          p_org: string;
+          p_payouts: boolean;
+        };
+        Returns: string;
+      };
+      save_school_customer: { Args: { p_customer: string; p_org: string }; Returns: string };
+      save_school_subscription: {
+        Args: {
+          p_cancel_at_period_end: boolean;
+          p_customer: string;
+          p_locations: number;
+          p_period_end: string;
+          p_price_cents: number;
+          p_status: string;
+          p_subscription: string;
+          p_trial_end: string;
+        };
+        Returns: boolean;
+      };
+      save_term: {
+        Args: {
+          p_ends_on: string;
+          p_name: string;
+          p_org: string;
+          p_starts_on: string;
+          p_term?: string;
+        };
+        Returns: string;
+      };
+      school_plan_state: {
+        Args: { p_org: string };
+        Returns: {
+          locations: number;
+          state: string;
+          trial_ends: string;
+        }[];
+      };
+      set_auto_place_offers: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      set_fee_reminders: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      set_instalments_on: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
       set_lesson_reminders: { Args: { p_on: boolean }; Returns: undefined };
+      set_lessons_in_term_only: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      set_voucher_schemes: { Args: { p_org: string; p_schemes: string[] }; Returns: undefined };
+      set_waitlist_page: { Args: { p_on: boolean; p_org: string }; Returns: undefined };
+      settle_instalment_payment: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_payment: string;
+          p_payment_intent: string;
+          p_status: string;
+        };
+        Returns: string;
+      };
+      settle_online_payment: {
+        Args: {
+          p_account: string;
+          p_amount_cents: number;
+          p_method?: string;
+          p_payment: string;
+          p_payment_intent?: string;
+          p_session: string;
+          p_status: string;
+        };
+        Returns: string;
+      };
       setup_progress: { Args: { p_org: string }; Returns: Json };
       sign_in_allowed: { Args: { p_email: string; p_ip: string }; Returns: boolean };
+      start_instalment_plan: {
+        Args: { p_family: string; p_payments: number };
+        Returns: {
+          amount_cents: number;
+          checkout_session_id: string;
+          payment_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+        }[];
+      };
+      start_online_payment: {
+        Args: { p_family: string };
+        Returns: {
+          amount_cents: number;
+          checkout_session_id: string;
+          payment_id: string;
+          platform_fee_cents: number;
+          school_name: string;
+          stripe_account_id: string;
+        }[];
+      };
+      submit_voucher: {
+        Args: { p_child: string; p_code: string; p_scheme: string };
+        Returns: string;
+      };
+      support_looks: {
+        Args: { p_org: string };
+        Returns: {
+          looked_at: string;
+          looked_by: string;
+        }[];
+      };
+      support_school_view: { Args: { p_org: string }; Returns: Json };
+      support_schools: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          expires_at: string;
+          name: string;
+          note: string;
+          organisation_id: string;
+        }[];
+      };
+      term_summary: {
+        Args: { p_term: string };
+        Returns: {
+          capacity: number;
+          class_id: string;
+          free_next_term: number;
+          leaving: number;
+          moving_in: number;
+          moving_out: number;
+          staying: number;
+          waiting: number;
+        }[];
+      };
       undo_import: { Args: { p_batch: string }; Returns: undefined };
+      update_payment_account: {
+        Args: { p_account: string; p_charges: boolean; p_details: boolean; p_payouts: boolean };
+        Returns: boolean;
+      };
       vacancy_candidates: {
         Args: { p_occurrence: string };
         Returns: {
@@ -1636,7 +3165,55 @@ export type Database = {
           offer_status: string;
         }[];
       };
+      waitlist: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          consented_at: string;
+          created_at: string;
+          current_system: string | null;
+          email: string;
+          id: string;
+          name: string;
+          next_break: string | null;
+          phone: string | null;
+          school: string;
+          suburb: string;
+          swimmers: string | null;
+          updated_at: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "waitlist_signups";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      waitlist_page: { Args: { p_slug: string }; Returns: Json };
+      wish_choices: {
+        Args: { p_org: string };
+        Returns: {
+          id: string;
+          kind: string;
+          name: string;
+          program: string;
+          sort_order: number;
+        }[];
+      };
+      wish_matches: {
+        Args: { p_org: string };
+        Returns: {
+          class_id: string;
+          class_name: string;
+          location_name: string;
+          spare: number;
+          start_time: string;
+          weekday: number;
+          wish_id: string;
+        }[];
+      };
       withdraw_absence: { Args: { p_absence: string }; Returns: undefined };
+      withdraw_place_offer: { Args: { p_offer: string }; Returns: undefined };
+      withdraw_place_wish: { Args: { p_wish: string }; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;

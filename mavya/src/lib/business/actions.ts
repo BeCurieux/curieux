@@ -4,17 +4,22 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import * as enrolments from "@/lib/domain/enrolments";
+import * as accounts from "@/lib/domain/accounts";
 import * as families from "@/lib/domain/families";
 import * as fill from "@/lib/domain/fill";
 import * as imports from "@/lib/domain/imports";
+import { FILES, type Chosen, type ImportFile } from "@/lib/domain/import-columns";
 import * as invites from "@/lib/domain/invites";
 import * as messages from "@/lib/email/messages";
 import { appUrl, emailOn, sendEmail } from "@/lib/email/transport";
 import * as makeups from "@/lib/domain/makeups";
+import * as privacy from "@/lib/domain/privacy";
 import * as progress from "@/lib/domain/progress";
 import * as safety from "@/lib/domain/safety";
 import * as staff from "@/lib/domain/staff";
+import * as terms from "@/lib/domain/terms";
 import * as timetable from "@/lib/domain/timetable";
+import * as vouchers from "@/lib/domain/vouchers";
 import {
   attempt,
   fieldErrors,
@@ -23,6 +28,7 @@ import {
   requiredText,
   type FormState,
 } from "@/lib/forms";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireOwner } from "./owner";
 
 // Owners' writes. Each action checks the caller is an owner, validates the
@@ -31,6 +37,17 @@ import { requireOwner } from "./owner";
 // duplicates) have the final say. Every change is audited by the database.
 
 const id = z.uuid("Choose an option.");
+
+// "25", "25.50" or "$1,025" → whole cents.
+const dollars = (label: string) =>
+  z
+    .string()
+    .transform((v) => v.replace(/[$,\s]/g, ""))
+    .refine(
+      (v) => /^\d{1,7}(\.\d{1,2})?$/.test(v),
+      `Enter ${label.toLowerCase()} in dollars, like 25.50.`,
+    )
+    .transform((v) => Math.round(Number(v) * 100));
 
 function validTimezone(tz: string) {
   try {
@@ -165,6 +182,7 @@ const classSchema = z.object({
     .int()
     .min(1, "At least 1 place.")
     .max(200, "At most 200 places."),
+  price: dollars("Price per lesson").optional(),
 });
 
 export async function saveClass(
@@ -181,7 +199,8 @@ export async function saveClass(
   const program = programs.find((p) => p.levels.some((l) => l.id === parsed.data.levelId));
   if (!program) return { error: "Choose a level.", fieldErrors: { levelId: "Choose a level." } };
 
-  const input = { ...parsed.data, programId: program.id };
+  const { price, ...rest } = parsed.data;
+  const input = { ...rest, programId: program.id, pricePerLessonCents: price ?? null };
   let savedId = classId;
   const failed = await attempt(async () => {
     if (classId) await timetable.updateClass(db, classId, input);
@@ -441,36 +460,68 @@ async function readUpload(formData: FormData, name: string) {
   return { name: file.name, text: await file.text() };
 }
 
+// The columns the owner matched by hand for one file ("map.students.first_name"
+// = the header's text, or "" for not in the file). Without any, the file's
+// columns are matched by name.
+function chosenColumns(formData: FormData, file: ImportFile): Chosen | undefined {
+  const prefix = `map.${file}.`;
+  const chosen: Chosen = {};
+  for (const [name, value] of formData.entries())
+    if (name.startsWith(prefix) && typeof value === "string")
+      chosen[name.slice(prefix.length)] = value.slice(0, 200);
+  return Object.keys(chosen).length ? chosen : undefined;
+}
+
 // Reads the school's files and checks them: what would be added, what's
 // already here, and every row that can't come across. Saves nothing.
 export async function checkImport(_: ImportState, formData: FormData): Promise<ImportState> {
   const { db, organisationId } = await requireOwner();
-  let classesFile, studentsFile;
+  const files: Partial<Record<ImportFile, { name: string; text: string }>> = {};
   try {
-    classesFile = await readUpload(formData, "classes");
-    studentsFile = await readUpload(formData, "students");
+    for (const file of FILES) {
+      const upload = await readUpload(formData, file);
+      if (upload) files[file] = upload;
+    }
   } catch {
     return { error: "Each file must be smaller than 2 MB." };
   }
-  if (!classesFile && !studentsFile)
-    return { error: "Choose a classes file, a students file or both." };
-  for (const f of [classesFile, studentsFile])
-    if (f && !/\.csv$/i.test(f.name))
+  const uploads = FILES.flatMap((f) => (files[f] ? [files[f]] : []));
+  if (uploads.length === 0) return { error: "Choose at least one file." };
+  for (const f of uploads)
+    if (!/\.csv$/i.test(f.name))
       return { error: `"${f.name}" isn't a CSV file. Export it as CSV and try again.` };
 
   const out: ImportState = {};
   const failed = await attempt(async () => {
-    const classes = classesFile
-      ? imports.readClasses(classesFile.text)
-      : { rows: [], problems: [] };
-    const students = studentsFile
-      ? imports.readStudents(studentsFile.text)
-      : { rows: [], problems: [] };
+    const none = { rows: [], problems: [] };
+    const classes = files.classes
+      ? imports.readClasses(files.classes.text, chosenColumns(formData, "classes"))
+      : none;
+    const students = files.students
+      ? imports.readStudents(files.students.text, chosenColumns(formData, "students"))
+      : none;
+    const balances = files.balances
+      ? imports.readBalances(
+          files.balances.text,
+          chosenColumns(formData, "balances"),
+          formData.get("owing_negative") === "on",
+        )
+      : none;
+    const credits = files.credits
+      ? imports.readCredits(files.credits.text, chosenColumns(formData, "credits"))
+      : none;
     const input: imports.ImportRows = {
       classes: classes.rows,
       students: students.rows,
-      fileNames: [classesFile?.name, studentsFile?.name].filter((n): n is string => Boolean(n)),
-      readProblems: [...classes.problems, ...students.problems],
+      balances: balances.rows,
+      credits: credits.rows,
+      fileNames: uploads.map((f) => f.name),
+      readProblems: [
+        ...classes.problems,
+        ...students.problems,
+        ...balances.problems,
+        ...credits.problems,
+      ],
     };
     out.report = await imports.importSchool(db, organisationId, input, false);
     out.rows = JSON.stringify(input);
@@ -482,12 +533,12 @@ export async function checkImport(_: ImportState, formData: FormData): Promise<I
 const importRowsSchema = z.object({
   classes: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
   students: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
-  fileNames: z.array(z.string().max(200)).max(2),
+  balances: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
+  credits: z.array(z.record(z.string(), z.unknown())).max(imports.MAX_ROWS),
+  fileNames: z.array(z.string().max(200)).max(4),
   readProblems: z
-    .array(
-      z.object({ file: z.enum(["classes", "students"]), row: z.number(), message: z.string() }),
-    )
-    .max(imports.MAX_ROWS * 2),
+    .array(z.object({ file: z.enum(FILES), row: z.number(), message: z.string() }))
+    .max(imports.MAX_ROWS * 4),
 });
 
 // Saves what was checked, all at once, then opens the import's page.
@@ -632,4 +683,335 @@ export async function removeRestriction(
   if (failed) return failed;
   revalidatePath(`/business/families/${familyId}`, "layout");
   return { ok: "Restriction removed." };
+}
+
+// Deleting a family on request (M6d). The database deletes and audits; the
+// server then removes sign-in accounts of parents who now belong nowhere.
+export type DeleteFamilyState = FormState & { confirm?: string };
+
+export async function deleteFamily(
+  _: DeleteFamilyState,
+  formData: FormData,
+): Promise<DeleteFamilyState> {
+  const { db } = await requireOwner();
+  const familyId = String(formData.get("familyId") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (!id.safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  let leaving: string[] = [];
+  const failed = await attempt(async () => {
+    leaving = await privacy.deleteFamily(db, familyId, confirm);
+  });
+  if (failed) return { ...failed, confirm };
+  const admin = createAdminClient();
+  for (const authId of leaving) {
+    const { error } = await admin.auth.admin.deleteUser(authId);
+    if (error) console.error("removing a deleted family's parent account failed", error);
+  }
+  revalidatePath("/business/families");
+  redirect("/business/families?deleted=1");
+}
+
+// ------------------------------------------------------------------ terms
+
+// Terms and re-enrolment (M6e). The database checks dates, overlaps and
+// places, and audits every change.
+
+const day = (label: string) =>
+  z.string({ error: `Choose the ${label}.` }).regex(/^\d{4}-\d{2}-\d{2}$/, `Choose the ${label}.`);
+
+const termSchema = z
+  .object({
+    name: requiredText(60, "Name"),
+    startsOn: day("first day"),
+    endsOn: day("last day"),
+  })
+  .refine((t) => t.endsOn >= t.startsOn, {
+    path: ["endsOn"],
+    message: "The last day can't be before the first.",
+  });
+
+const termPath = (termId: string) => `/business/settings/terms/${termId}`;
+
+export async function saveTerm(
+  termId: string | null,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const parsed = termSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  let saved = termId;
+  const failed = await attempt(async () => {
+    saved = await terms.saveTerm(db, organisationId, parsed.data, termId ?? undefined);
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  if (!termId) redirect(termPath(saved!));
+  return { ok: "Term saved." };
+}
+
+export async function deleteTerm(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  const failed = await attempt(() => terms.deleteTerm(db, termId));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  redirect("/business/settings/terms");
+}
+
+export async function setLessonsInTermOnly(on: boolean): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const failed = await attempt(() => terms.setLessonsInTermOnly(db, organisationId, on === true));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return {
+    ok: on ? "Lessons now run only during your terms." : "Lessons now run all year.",
+  };
+}
+
+export async function prepareTermAsks(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  const failed = await attempt(async () => {
+    await terms.prepareAsks(db, termId);
+  });
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return { ok: "Ready." };
+}
+
+export async function askFamilies(
+  termId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  const parsed = z
+    .object({ termId: id, replyBy: day("reply-by date") })
+    .safeParse({ ...formValues(formData), termId });
+  if (!parsed.success) return fieldErrors(parsed.error);
+  let emailed = 0;
+  const failed = await attempt(async () => {
+    emailed = await terms.askFamilies(db, termId, parsed.data.replyBy);
+  });
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return {
+    ok:
+      emailed === 0
+        ? "Reply-by date saved. Everyone has already been asked."
+        : `Asked ${emailed} ${emailed === 1 ? "family" : "families"}.`,
+  };
+}
+
+export async function remindTermFamilies(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  let reminded = 0;
+  const failed = await attempt(async () => {
+    reminded = await terms.remindFamilies(db, termId);
+  });
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return {
+    ok:
+      reminded === 0
+        ? "Everyone has answered."
+        : `Reminded ${reminded} ${reminded === 1 ? "family" : "families"}.`,
+  };
+}
+
+export async function offerTermMove(
+  termId: string,
+  askId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  const classId = String(formData.get("classId") ?? "");
+  if (!id.safeParse(askId).success || (classId !== "" && !id.safeParse(classId).success))
+    return { error: "That didn't work. Try again." };
+  const failed = await attempt(() => terms.offerMove(db, askId, classId || null));
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return { ok: classId ? "Move offered." : "Offer taken back." };
+}
+
+export async function recordTermAnswer(
+  termId: string,
+  askId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  const parsed = z
+    .object({ askId: id, answer: z.enum(["stay", "move", "leave"], "Choose an answer.") })
+    .safeParse({ askId, answer: formData.get("answer") });
+  if (!parsed.success) return { error: "Choose an answer." };
+  const failed = await attempt(() => terms.answerAsk(db, askId, parsed.data.answer));
+  if (failed) return failed;
+  revalidatePath(termPath(termId));
+  return { ok: "Answer saved." };
+}
+
+// ------------------------------------------------------------------ family accounts
+
+// Family accounts (M7a). Lines are added, never changed; the database
+// checks the family is the owner's and audits each line.
+
+const familyPath = (familyId: string) => `/business/families/${familyId}`;
+
+export async function setFeeReminders(on: boolean): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const failed = await attempt(() => accounts.setFeeReminders(db, organisationId, on === true));
+  if (failed) return failed;
+  revalidatePath("/business/settings/accounts");
+  return {
+    ok: on
+      ? "Families will get fee reminders by email."
+      : "Fee reminders are off. Ovyko still tells parents when a direct debit fails.",
+  };
+}
+
+export async function createTermFees(termId: string): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(termId).success) return { error: "That didn't work. Try again." };
+  let added = 0;
+  const failed = await attempt(async () => {
+    added = await accounts.createTermFees(db, termId);
+  });
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return {
+    ok:
+      added === 0
+        ? "Everyone already has their fees for this term."
+        : `Added ${added} term ${added === 1 ? "fee" : "fees"}.`,
+  };
+}
+
+const paymentSchema = z.object({
+  amount: dollars("Amount"),
+  method: z.enum(["bank_transfer", "card", "cash", "other"], "Choose how it was paid."),
+  paidOn: day("date it was paid"),
+  note: optionalText(200, "Note"),
+});
+
+export async function recordPayment(
+  familyId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  const parsed = paymentSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() =>
+    accounts.recordPayment(db, familyId, {
+      amountCents: parsed.data.amount,
+      method: parsed.data.method,
+      paidOn: parsed.data.paidOn,
+      note: parsed.data.note,
+    }),
+  );
+  if (failed) return failed;
+  revalidatePath(familyPath(familyId));
+  return { ok: `Payment of ${accounts.formatMoney(parsed.data.amount)} recorded.` };
+}
+
+const lineSchema = z.object({
+  kind: z.enum(["credit", "charge"], "Choose credit or charge."),
+  amount: dollars("Amount"),
+  reason: requiredText(200, "Reason"),
+});
+
+export async function addAccountLine(
+  familyId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(familyId).success) return { error: "That didn't work. Try again." };
+  const parsed = lineSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() =>
+    accounts.addLine(db, familyId, {
+      kind: parsed.data.kind,
+      amountCents: parsed.data.amount,
+      reason: parsed.data.reason,
+    }),
+  );
+  if (failed) return failed;
+  revalidatePath(familyPath(familyId));
+  return { ok: parsed.data.kind === "credit" ? "Credit added." : "Charge added." };
+}
+
+export async function cancelAccountLine(
+  familyId: string,
+  lineId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(familyId).success || !id.safeParse(lineId).success)
+    return { error: "That didn't work. Try again." };
+  const parsed = z.object({ reason: requiredText(180, "Reason") }).safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => accounts.cancelLine(db, lineId, parsed.data.reason));
+  if (failed) return failed;
+  revalidatePath(familyPath(familyId));
+  return { ok: "Line cancelled." };
+}
+
+// Government activity vouchers (M7d).
+
+export async function setVoucherSchemes(_: FormState, formData: FormData): Promise<FormState> {
+  const { db, organisationId } = await requireOwner();
+  const schemes = formData
+    .getAll("scheme")
+    .map(String)
+    .filter((s): s is vouchers.Scheme => vouchers.isScheme(s));
+  const failed = await attempt(() => vouchers.setVoucherSchemes(db, organisationId, schemes));
+  if (failed) return failed;
+  revalidatePath("/business/settings/accounts");
+  return {
+    ok:
+      schemes.length === 0
+        ? "Families can't hand over vouchers in Ovyko."
+        : "Saved. Families can hand over these vouchers on their Fees screen.",
+  };
+}
+
+const redeemSchema = z.object({ amount: dollars("Amount") });
+
+export async function redeemVoucher(
+  claimId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(claimId).success) return { error: "That didn't work. Try again." };
+  const parsed = redeemSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => vouchers.redeemVoucher(db, claimId, parsed.data.amount));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: `Redeemed: ${accounts.formatMoney(parsed.data.amount)} credited.` };
+}
+
+const declineSchema = z.object({ reason: requiredText(200, "Reason") });
+
+export async function declineVoucher(
+  claimId: string,
+  _: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { db } = await requireOwner();
+  if (!id.safeParse(claimId).success) return { error: "That didn't work. Try again." };
+  const parsed = declineSchema.safeParse(formValues(formData));
+  if (!parsed.success) return fieldErrors(parsed.error);
+  const failed = await attempt(() => vouchers.declineVoucher(db, claimId, parsed.data.reason));
+  if (failed) return failed;
+  revalidatePath("/business", "layout");
+  return { ok: "Declined. The family can see why." };
 }

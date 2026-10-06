@@ -1,4 +1,4 @@
-import { Mail, Pencil, Phone, Plus, UserRound } from "lucide-react";
+import { Download, Mail, Pencil, Phone, Plus, Trash2, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,6 +11,10 @@ import { getFamily } from "@/lib/domain/families";
 import { familyAccess } from "@/lib/domain/invites";
 import { safetyFlags } from "@/lib/domain/safety";
 import { SafetyFlags } from "@/components/safety/safety-notes";
+import { Balance, Statement } from "@/components/accounts/statement";
+import { AddLineForm, CancelLine, RecordPaymentForm } from "@/components/business/account-forms";
+import { balanceOf, familyLines } from "@/lib/domain/accounts";
+import { schoolToday } from "@/lib/domain/terms";
 import { ageOn, formatDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Family" };
@@ -20,13 +24,16 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
   const { db } = await requireOwner();
   const family = await getFamily(db, id);
   if (!family) notFound();
-  const [{ parents, pending }, flags] = await Promise.all([
+  const [{ parents, pending }, flags, lines] = await Promise.all([
     familyAccess(db, id),
     safetyFlags(
       db,
       family.children.map((c) => c.id),
     ),
+    familyLines(db, id),
   ]);
+  const childName = (childId: string | null) =>
+    family.children.find((c) => c.id === childId)?.firstName ?? null;
 
   return (
     <div className="rise flex flex-col gap-6">
@@ -190,6 +197,63 @@ export default async function FamilyPage({ params }: { params: Promise<{ id: str
             ))}
           </ul>
         )}
+      </section>
+
+      <section
+        aria-labelledby="account"
+        className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
+      >
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 id="account" className="font-display text-2xl font-semibold tracking-tight">
+            Account
+          </h2>
+          <Balance cents={balanceOf(lines)} className="text-2xl" />
+        </div>
+        <Statement
+          lines={lines}
+          childName={childName}
+          action={(line) => <CancelLine familyId={id} lineId={line.id} label={line.description} />}
+        />
+        <details className="rounded-md border border-line p-4">
+          <summary className="cursor-pointer font-semibold">Record a payment</summary>
+          <div className="mt-4">
+            <RecordPaymentForm familyId={id} today={schoolToday()} />
+          </div>
+        </details>
+        <details className="rounded-md border border-line p-4">
+          <summary className="cursor-pointer font-semibold">Add a credit or charge</summary>
+          <div className="mt-4">
+            <AddLineForm familyId={id} />
+          </div>
+        </details>
+      </section>
+
+      <section
+        aria-labelledby="privacy"
+        className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
+      >
+        <div>
+          <h2 id="privacy" className="font-display text-2xl font-semibold tracking-tight">
+            Their data
+          </h2>
+          <p className="text-muted">
+            When a family asks for a copy of what you hold about them, or for it to be deleted.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <form action={`/business/families/${id}/export`} method="post">
+            <Button type="submit" variant="soft">
+              <Download aria-hidden />
+              Download their data
+            </Button>
+          </form>
+          <Button asChild variant="ghost">
+            <Link href={`/business/families/${id}/delete`}>
+              <Trash2 aria-hidden />
+              Delete this family
+            </Link>
+          </Button>
+        </div>
       </section>
     </div>
   );

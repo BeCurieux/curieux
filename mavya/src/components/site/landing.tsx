@@ -54,6 +54,25 @@ const STEPS = [
   },
 ];
 
+const PROTECTIONS = [
+  {
+    title: "Health notes, need to know",
+    body: "Allergies reach only that child’s instructors, and every look is recorded.",
+  },
+  {
+    title: "Pickup restrictions",
+    body: "Instructors see a clear warning. The private details stay with you.",
+  },
+  {
+    title: "Two-step sign-in for owners",
+    body: "A code from your phone, so a stolen password opens nothing.",
+  },
+  {
+    title: "Privacy requests in a click",
+    body: "Download or delete a family’s data when they ask.",
+  },
+];
+
 const AUDIENCES = [
   {
     title: "For your business",
@@ -62,6 +81,8 @@ const AUDIENCES = [
       "Lessons scheduled for you, week after week",
       "Rosters, capacity and open spots at a glance",
       "Every change recorded, and who made it",
+      "We move you in from your old system, and prove it matches",
+      "Invite parents by email in one tap",
     ],
   },
   {
@@ -71,6 +92,7 @@ const AUDIENCES = [
       "Report an absence in two taps",
       "Book make-ups without calling",
       "See each new skill as it’s achieved",
+      "A reminder on lesson days, by email",
     ],
   },
   {
@@ -80,6 +102,7 @@ const AUDIENCES = [
       "Big one-tap attendance, poolside",
       "Update skills in seconds",
       "Families see the progress straight away",
+      "Allergy and pickup warnings on the roster",
     ],
   },
 ];
@@ -182,6 +205,9 @@ export function Landing() {
               <Button asChild variant="ghost" size="lg">
                 <a href="#demo">Watch the demo</a>
               </Button>
+              <Button asChild variant="soft" size="lg">
+                <Link href="/founding">Join the founding schools</Link>
+              </Button>
             </div>
           </div>
           <ExampleScreens />
@@ -193,11 +219,12 @@ export function Landing() {
               id="demo-heading"
               className="font-display text-4xl leading-tight font-semibold tracking-tight sm:text-5xl"
             >
-              Watch the 1-minute demo
+              Watch the 90-second demo
             </h2>
             <p className="max-w-2xl text-[#3d4050]">
-              One missed swimming lesson, handled by a parent, the owner and an instructor. Captions
-              on screen, no sound needed.
+              A week at a swim school: a missed lesson, a place filled from the waiting list, fees
+              and progress, handled by a parent, the owner and an instructor. Captions on screen, no
+              sound needed.
             </p>
           </div>
           <video
@@ -268,21 +295,34 @@ export function Landing() {
 
         <section
           aria-labelledby="privacy"
-          className="flex flex-col gap-5 rounded-lg bg-surface-soft p-6 sm:flex-row sm:p-8"
+          className="flex flex-col gap-6 rounded-lg bg-surface-soft p-6 sm:p-8"
         >
-          <span className="grid size-13 shrink-0 place-items-center rounded-full bg-ink text-white">
-            <ShieldCheck aria-hidden className="size-6" />
-          </span>
-          <div className="flex flex-col gap-2">
-            <h2 id="privacy" className="font-display text-2xl font-semibold">
-              Built for children’s privacy
-            </h2>
-            <p className="max-w-3xl text-[#3d4050]">
-              Your families belong to your business alone. Parents see only their own children, and
-              instructors only the children they teach. Every change is recorded. Data is hosted in
-              Sydney.
-            </p>
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+            <span className="grid size-13 shrink-0 place-items-center rounded-full bg-ink text-white">
+              <ShieldCheck aria-hidden className="size-6" />
+            </span>
+            <div className="flex flex-col gap-2">
+              <h2 id="privacy" className="font-display text-2xl font-semibold">
+                Built to protect children
+              </h2>
+              <p className="max-w-3xl text-[#3d4050]">
+                Your families belong to your business alone. Parents see only their own children,
+                and instructors only the children they teach. Every change is recorded. Data is
+                hosted in Sydney.
+              </p>
+            </div>
           </div>
+          <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            {PROTECTIONS.map((p) => (
+              <li key={p.title} className="flex gap-2">
+                <Check aria-hidden className="mt-1 size-4 shrink-0 text-success" />
+                <span>
+                  <span className="block font-bold">{p.title}</span>
+                  <span className="text-[#3d4050]">{p.body}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section

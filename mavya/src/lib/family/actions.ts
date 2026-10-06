@@ -8,6 +8,8 @@ import { DomainError } from "@/lib/domain/db";
 import * as fill from "@/lib/domain/fill";
 import * as makeups from "@/lib/domain/makeups";
 import * as safety from "@/lib/domain/safety";
+import * as terms from "@/lib/domain/terms";
+import * as vouchers from "@/lib/domain/vouchers";
 import { markAllRead } from "@/lib/domain/notifications";
 import type { FormState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -164,4 +166,41 @@ export async function saveChildHealth(_: FormState, formData: FormData): Promise
   if ("error" in result) return result;
   revalidatePath("/family/kids", "layout");
   return { ok: "Saved. Their instructor will see this before class." };
+}
+
+// Next term (M6e): stay, leave, or move to the class the school offered.
+// The database checks the child is theirs and the term hasn't started.
+export async function answerTermAsk(askId: string, answer: terms.Answer): Promise<FormState> {
+  const parsed = z
+    .object({ askId: id, answer: z.enum(["stay", "move", "leave"]) })
+    .safeParse({ askId, answer });
+  if (!parsed.success) return { error: "That didn't work. Try again." };
+  const db = await familyDb();
+  const result = await attempt(() => terms.answerAsk(db, askId, parsed.data.answer));
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/family", "layout");
+  return { ok: "Thanks, your answer is saved." };
+}
+
+const voucherSchema = z.object({
+  childId: z.uuid("Choose a child."),
+  scheme: z.string().refine(vouchers.isScheme, "Choose the voucher."),
+  code: z.string().trim().min(4, "Enter the voucher's code.").max(60, "Enter the voucher's code."),
+});
+
+// Hands a government activity voucher over to the school (M7d).
+export async function submitVoucher(_: FormState, formData: FormData): Promise<FormState> {
+  const parsed = voucherSchema.safeParse({
+    childId: formData.get("childId"),
+    scheme: formData.get("scheme"),
+    code: formData.get("code") ?? "",
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the details." };
+  const db = await familyDb();
+  const result = await attempt(() =>
+    vouchers.submitVoucher(db, { ...parsed.data, scheme: parsed.data.scheme as vouchers.Scheme }),
+  );
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/family/fees");
+  return { ok: "Thanks. Your activity provider will redeem it and take it off your fees." };
 }

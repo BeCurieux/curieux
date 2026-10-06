@@ -8,7 +8,12 @@ import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext, firstName } from "@/lib/demo/context";
 import { classSlug } from "@/lib/demo/service";
+import { formatMoney } from "@/lib/domain/accounts";
 import { fillTally, openSpots, type Tally } from "@/lib/domain/fill";
+import { jobsWithoutStaff, monthOf, ovykoMonth, type OvykoMonth } from "@/lib/domain/month";
+import { schoolToday } from "@/lib/domain/terms";
+import { familiesAtRisk } from "@/lib/domain/retention";
+import { classOpportunities, openWishes } from "@/lib/domain/wishes";
 import { setupProgress, setupSteps } from "@/lib/domain/invites";
 import { classViews, ownerNumbers, type ClassView } from "@/lib/domain/lessons";
 import { listClasses } from "@/lib/domain/timetable";
@@ -38,10 +43,19 @@ export default async function BusinessHome() {
     );
   }
 
-  const [stats, open, tally] = await Promise.all([
+  const { data: org } = await db
+    .from("organisations")
+    .select("timezone")
+    .eq("id", organisationId)
+    .single();
+  const [stats, open, tally, month, opportunities, wishes, atRisk] = await Promise.all([
     ownerNumbers(db, classes),
     openSpots(db, organisationId),
     fillTally(db, organisationId),
+    ovykoMonth(db, organisationId, monthOf(schoolToday(org?.timezone ?? "Australia/Sydney"))),
+    classOpportunities(db, organisationId),
+    openWishes(db, organisationId),
+    familiesAtRisk(db, organisationId),
   ]);
   // The same count Fill Empty Spots shows.
   const spots = open.reduce((sum, s) => sum + s.spots, 0);
@@ -105,10 +119,91 @@ export default async function BusinessHome() {
         </dl>
       </section>
 
+      <MonthCard month={month} />
+
+      {atRisk.length > 0 ? (
+        <section
+          aria-labelledby="at-risk"
+          className="flex flex-col gap-3 rounded-lg border border-[#f3c9bf] bg-[#fff6f3] p-6 sm:flex-row sm:items-center"
+        >
+          <div className="flex-1">
+            <h2 id="at-risk" className="font-semibold text-muted">
+              Families who might leave
+            </h2>
+            <p className="font-display text-2xl leading-snug font-semibold">
+              {atRisk.length} {atRisk.length === 1 ? "family is" : "families are"} showing warning
+              signs
+            </p>
+          </div>
+          <Link
+            href="/business/retention"
+            className="inline-flex items-center gap-1 font-semibold underline-offset-4 hover:underline"
+          >
+            See who
+            <ArrowRight aria-hidden className="size-4" />
+          </Link>
+        </section>
+      ) : null}
+
+      {wishes.length > 0 ? (
+        <section
+          aria-labelledby="wants"
+          className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-6 sm:flex-row sm:items-center"
+        >
+          <div className="flex-1">
+            <h2 id="wants" className="font-semibold text-muted">
+              What families want
+            </h2>
+            <p className="font-display text-2xl leading-snug font-semibold">
+              {wishes.length} {wishes.length === 1 ? "request" : "requests"} for other times
+              {opportunities.length > 0
+                ? ` · ${opportunities.length} new class ${opportunities.length === 1 ? "opportunity" : "opportunities"}`
+                : ""}
+            </p>
+          </div>
+          <Link
+            href="/business/demand"
+            className="inline-flex items-center gap-1 font-semibold underline-offset-4 hover:underline"
+          >
+            See them
+            <ArrowRight aria-hidden className="size-4" />
+          </Link>
+        </section>
+      ) : null}
+
       <TallyCard tally={tally} />
 
       <ClassCards classes={classes} />
     </div>
+  );
+}
+
+// The headline of "This month with Ovyko" (docs/M8_NETWORK.md, M8a).
+function MonthCard({ month }: { month: OvykoMonth }) {
+  const jobs = jobsWithoutStaff(month);
+  return (
+    <section
+      aria-labelledby="month"
+      className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-6 sm:flex-row sm:items-center"
+    >
+      <div className="flex-1">
+        <h2 id="month" className="font-semibold text-muted">
+          This month with Ovyko
+        </h2>
+        <p className="font-display text-2xl leading-snug font-semibold">
+          {formatMoney(month.paidOnlineCents)} collected · {month.makeupsDelivered}{" "}
+          {month.makeupsDelivered === 1 ? "place" : "places"} filled · {jobs}{" "}
+          {jobs === 1 ? "job" : "jobs"} done without the front desk
+        </p>
+      </div>
+      <Link
+        href="/business/month"
+        className="inline-flex items-center gap-1 font-semibold underline-offset-4 hover:underline"
+      >
+        See the month
+        <ArrowRight aria-hidden className="size-4" />
+      </Link>
+    </section>
   );
 }
 

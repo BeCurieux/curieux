@@ -79,5 +79,15 @@ export async function requireViewer(): Promise<Viewer> {
 export async function requireShell(shell: Shell): Promise<Viewer> {
   const viewer = await requireViewer();
   if (!viewer.shells.includes(shell)) redirect(homePath(viewer.shells));
+  if (shell === "business" && (await ownerTwoStepNeeded())) redirect("/two-step");
   return viewer;
 }
+
+// Whether this session must pass two-step sign-in before acting as an owner
+// (M6d). The database enforces it; this only sends the owner to do it.
+export const ownerTwoStepNeeded = cache(async (): Promise<boolean> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("owner_two_step_needed");
+  if (error) throw error;
+  return data === true;
+});
