@@ -15,7 +15,9 @@ let peakInstructor: Session;
 let burrows: Session;
 let chen: Session;
 
-// Upcoming lessons, soonest first.
+// Upcoming lessons, soonest first, counted from now (as the seed does), so
+// "a week away" (index 1) stays inside the 14-day booking window whatever
+// time of day the tests run.
 const lessons: Record<string, { id: string; starts_at: string }[]> = {};
 
 async function upcoming(owner: Session, classId: string) {
@@ -24,7 +26,7 @@ async function upcoming(owner: Session, classId: string) {
     .select("id, starts_at")
     .eq("class_id", classId)
     .eq("status", "scheduled")
-    .gt("starts_at", new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString())
+    .gt("starts_at", new Date().toISOString())
     .order("starts_at");
   if (error) throw error;
   return data;

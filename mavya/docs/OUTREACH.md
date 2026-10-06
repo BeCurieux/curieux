@@ -22,27 +22,39 @@ say about a school, don't send the message yet.
 
 ## 1. First message (email or a message to the school's page)
 
-**Subject:** A question about make-ups at [School name]
+Ovyko is made on the Central Coast; say "here on the Coast" to Central
+Coast schools and "just up the road on the Central Coast" elsewhere. No
+call is asked for: the owner can look in their own time with "Try it
+yourself" on the website (`docs/TRY_IT_YOURSELF.md`), and reply by email.
+
+**Subject:** A little app for [School name], made on the Central Coast
 
 > Hi [Owner's first name],
 >
-> I'm [Your name], and I'm building Ovyko, software for swim schools,
-> here in [city/area]. I noticed [something specific: your Facebook post
-> asking families to swap make-up times / the waitlist on your Junior
-> Squad page / that you've opened a second pool in X].
+> I hope the new term's off to a good start!
 >
-> I'm not selling anything yet. I'm talking to owners about the jobs that
-> eat their week: absences, make-ups, chasing fees, re-enrolment. Would
-> you have 20 minutes in the next couple of weeks to tell me how it works
-> at [School name] today? Happy to come to you, or call at a time that
-> suits around lessons.
+> I'm [Your name], and I've been building Ovyko here on the Central Coast.
+> It's a simple app for swim schools that takes care of the fiddly bits:
+> absences, make-ups, waiting lists and chasing fees, so you and your team
+> get your evenings back.
 >
-> Thanks,
+> I came across [something specific: your Facebook post asking families to
+> swap make-up times / the waitlist on your Junior Squad page / that
+> you've opened a second pool in X] and thought you might like a look.
+>
+> There's a 90-second video, or you can click around a pretend swim
+> school of your own, at www.ovyko.com.au ("Try it yourself").
+>
+> If anything catches your eye, just hit reply. And I'd love to know how
+> you handle make-ups at [School name] today; even a one-line answer helps
+> me build the right thing.
+>
+> Thanks so much,
 > [Your name]
-> Ovyko · hello@ovyko.com.au · [phone]
+> Ovyko · hello@ovyko.com.au
 >
-> If you'd rather not hear from me again, just reply "no thanks" and I
-> won't.
+> P.S. If it's not for you, no worries at all. Just reply "no thanks" and
+> I won't email again.
 
 ## 2. A personal video (60 seconds, filmed on your phone)
 
@@ -50,7 +62,7 @@ Send as a link in message 1 or as a follow-up. Unpolished is fine; being
 real matters more than lighting.
 
 > "Hi [Owner's first name], I'm [Your name]. I'm building Ovyko, software
-> for swim schools here in [area]. I saw [the specific thing], and it made
+> for swim schools on the Central Coast. I saw [the specific thing], and it made
 > me think you deal with what I keep hearing from owners: a family can't
 > make Wednesday, someone at the desk spends ten minutes finding them a
 > make-up, and the spot they left sits empty.
@@ -59,31 +71,41 @@ real matters more than lighting.
 > rules, and their spot is offered to another family automatically. Nobody
 > at the desk touches it.
 >
-> I'm not asking you to buy anything. I'd love 20 minutes to hear how you
-> handle it today. If that's useful, reply to my email. Thanks for
-> watching."
+> I'm not asking you to buy anything. Have a click around the pretend
+> school at ovyko.com.au, and if it's useful, reply to my email. Thanks
+> for watching."
 
 ## 3. Follow-up (once, 5 days later)
 
-> Hi [Owner's first name], just checking this reached you, as it can get
-> lost in a busy week. I'm talking to a handful of owners in [area] this
-> month and would value your view, even 15 minutes on the phone. If now's
-> not a good time, tell me when your next term break is and I'll check
-> back then.
+**Subject:** Re: A little app for [School name], made on the Central Coast
+
+> Hi [Owner's first name],
 >
-> [Your name] · Ovyko · hello@ovyko.com.au
+> Just floating this back up, as I know term time is busy! The 90-second
+> demo, and a pretend school to click around, are at www.ovyko.com.au
+> whenever you have a moment over a cuppa.
+>
+> If you'd like to try it with a few of your real classes, just reply and
+> I'll set it up.
+>
+> Have a great week,
+> [Your name]
 
 Then stop. No third message unless they reply.
 
-## 4. After a conversation (same day)
+## 4. When someone replies with interest (same day)
 
-> Hi [Owner's first name], thank you for the time today. The thing that
-> stuck with me was [their words: e.g. "Tuesdays you spend an hour on
-> make-up calls"].
+> Hi [Owner's first name],
 >
-> As promised, here's [the 2-minute demo video / the page about moving
-> schools in]. No pressure at all. And if you know another owner who'd
-> have a view, I'd be grateful for an introduction.
+> Thanks so much for having a look! [Answer what they said, in their
+> words.]
+>
+> I'm opening Ovyko to a handful of founding schools before [next term]:
+> your school moved across for free, and the first term free too. Would
+> you like me to set you up so you can try it with your own classes?
+>
+> And if another owner comes to mind who'd enjoy a look, I'd be really
+> grateful for an introduction.
 >
 > [Your name]
 
