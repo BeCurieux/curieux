@@ -20,6 +20,13 @@ import { setAutoOffers, setWaitlistPageOn } from "@/lib/wishes/actions";
 
 export const metadata: Metadata = { title: "What families want" };
 
+// "2020-08-12" → "12 Aug 2020".
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const bornOn = (iso: string) => {
+  const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+};
+
 // What families have asked for, new classes worth running, and places that
 // match now (docs/M8_NETWORK.md, M8b).
 export default async function DemandPage({
@@ -86,7 +93,7 @@ export default async function DemandPage({
               <li key={e.id} className="flex flex-col gap-3 px-5 py-4">
                 <span>
                   <span className="block font-semibold">
-                    {e.childFirstName} {e.childLastName} · born {e.dateOfBirth}
+                    {e.childFirstName} {e.childLastName} · born {bornOn(e.dateOfBirth)}
                   </span>
                   <span className="block text-sm text-muted">
                     {e.weekdays.map((d) => dayName(d).slice(0, 3)).join(", ")},{" "}

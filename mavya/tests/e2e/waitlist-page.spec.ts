@@ -104,7 +104,7 @@ test.describe("a waiting-list page for new families", () => {
     await expect(page).toHaveURL(/\/business$/);
     await page.goto("/business/demand");
     const families = page.getByRole("region", { name: "New families" });
-    await expect(families).toContainText("Lulu Harbour · born 2020-06-01");
+    await expect(families).toContainText("Lulu Harbour · born 1 Jun 2020");
     await expect(families).toContainText("Wed, 3:30pm to 6:00pm · Starfish");
     await families.getByRole("button", { name: "Add to the waiting list" }).click();
     await expect(page.getByRole("region", { name: "New families" })).toHaveCount(0);
