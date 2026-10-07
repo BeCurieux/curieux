@@ -23,13 +23,15 @@ let avaAbsence: string;
 let code: string;
 let offerId: string;
 
+// Upcoming lessons, soonest first, counted from now as the seed counts its
+// demo absences, so index 0 is the lesson with the seeded free spot.
 async function upcoming(owner: Session, classId: string) {
   const { data, error } = await owner.client
     .from("class_occurrences")
     .select("id, starts_at")
     .eq("class_id", classId)
     .eq("status", "scheduled")
-    .gt("starts_at", new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString())
+    .gt("starts_at", new Date().toISOString())
     .order("starts_at");
   if (error) throw error;
   return data;
@@ -493,7 +495,12 @@ describe("automatic offers (M5.5)", () => {
     const { data: options } = await burrows.client.rpc("makeup_options", {
       p_credit: credit!.id,
     });
-    const elsewhere = options!.find((o) => o.occurrence_id !== avaOffer.occurrence_id)!;
+    // Far enough off that the booking can be cancelled again later (a late
+    // cancellation keeps the credit, by the school's rules).
+    const later = Date.now() + 3 * 60 * 60 * 1000;
+    const elsewhere = options!.find(
+      (o) => o.occurrence_id !== avaOffer.occurrence_id && Date.parse(o.starts_at) > later,
+    )!;
     const { error } = await burrows.client.rpc("book_makeup", {
       p_credit: credit!.id,
       p_occurrence: elsewhere.occurrence_id,

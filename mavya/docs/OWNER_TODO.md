@@ -6,10 +6,8 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 ## Now
 
 - [x] Database changes 24 to 41 run in Supabase and merged (6 October 2026).
-- [ ] **Run the waiting database change** for "Try it yourself". In the
-      Supabase SQL editor, paste and run this file, then tell Claude "done":
-  1. `supabase/migrations/20261025000042_try_it_yourself.sql`
-- [ ] **Merge the pull request** (say "merge") once the above is done.
+- [x] "Try it yourself" (database change 42) run and merged; checked live on
+      7 October 2026.
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
       Ovyko with your own email, then in the Supabase SQL editor run
@@ -47,7 +45,15 @@ Kept up to date as items are done. Never put passwords or keys in this file.
     (Authentication → URL Configuration) set the Site URL to
     `https://www.ovyko.com.au` and add `https://www.ovyko.com.au/**` to the
     redirect URLs, so sign-in and invite links use the new address.
-- [ ] Google Workspace, bought directly from Google (hello@ovyko.com.au).
+- [x] Google Workspace for hello@ovyko.com.au, with Gmail's MX, SPF and DKIM
+      records (7 October 2026; SPF and DKIM pass).
+- [ ] **Email deliverability.** Add the DMARC record where the SPF record is:
+      TXT, name `_dmarc`, value
+      `v=DMARC1; p=none; rua=mailto:hello@ovyko.com.au`. Then send a test
+      email to a personal address and check "Show original" shows SPF, DKIM
+      and DMARC all PASS. A new domain can still land in spam for a few days:
+      mark it "Not spam", and send a few everyday emails before writing to
+      schools.
 - [ ] Trademark search for "Ovyko".
 - [ ] Privacy lawyer review (privacy policy, school data agreement, parent
       notice).
