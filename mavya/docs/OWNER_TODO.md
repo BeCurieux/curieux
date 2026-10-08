@@ -66,10 +66,46 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 ## Services and settings
 
 - [ ] Supabase: turn off public sign-ups; upgrade to Pro.
-- [ ] Resend (sending email): create the account and verify the domain.
-- [ ] Vercel environment variables: `EMAIL_TRANSPORT=resend`, `EMAIL_FROM`,
-      `RESEND_API_KEY`, `APP_URL`, `CRON_SECRET`.
-- [ ] Supabase Vault secrets: `ovyko_app_url`, `ovyko_cron_secret`.
+### Turn on Ovyko's own emails (before the first real school)
+
+Checked 8 October 2026: the database's email schedule runs every minute
+but has nowhere to send, so lesson reminders, place offers and parent
+invites are written down and never posted. The pretend schools from Try it
+yourself never send email either way. Do these four steps in order, in one
+sitting (about 30 minutes). Never paste a key or secret into a chat.
+
+- [ ] **1. Resend** (the service that posts Ovyko's emails). Sign up at
+      resend.com with hello@ovyko.com.au. Under Domains, add
+      `ovyko.com.au`. Resend shows a few DNS records (one DKIM record
+      named `resend._domainkey`, and records for a `send` subdomain). Add
+      them where you added the Google ones. They sit beside Google's and
+      don't replace them. Wait until Resend says Verified. Then under API
+      keys, make a key with "Sending access" and keep it open in that tab.
+- [ ] **2. Make the cron secret.** It's a password the database and the
+      website share. In your password manager, generate a random password
+      of 40 letters and numbers (no symbols) and save it as "Ovyko
+      CRON_SECRET".
+- [ ] **3. Vercel** → the Ovyko project → Settings → Environment
+      Variables, Production. Add:
+      - `EMAIL_TRANSPORT` = `resend`
+      - `EMAIL_FROM` = `Ovyko <hello@ovyko.com.au>`
+      - `RESEND_API_KEY` = the key from step 1
+      - `APP_URL` = `https://www.ovyko.com.au`
+      - `CRON_SECRET` = the password from step 2
+
+      Then Deployments → the latest one → ⋯ → Redeploy, so the site picks
+      them up.
+- [ ] **4. Supabase** → SQL Editor → New query. Paste the two lines below,
+      put the step 2 password between the quotes on the second line, and
+      Run. Then close the tab without saving the query.
+
+      ```sql
+      select vault.create_secret('https://www.ovyko.com.au', 'ovyko_app_url');
+      select vault.create_secret('PASTE-THE-CRON-SECRET-HERE', 'ovyko_cron_secret');
+      ```
+
+      Tell Claude "done". Claude checks that both names exist (never
+      their values) and that the queue empties.
 
 ## Stripe (card and direct-debit payments, M7b)
 
