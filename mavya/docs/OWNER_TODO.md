@@ -47,13 +47,10 @@ Kept up to date as items are done. Never put passwords or keys in this file.
     redirect URLs, so sign-in and invite links use the new address.
 - [x] Google Workspace for hello@ovyko.com.au, with Gmail's MX, SPF and DKIM
       records (7 October 2026; SPF and DKIM pass).
-- [ ] **Email deliverability.** Add the DMARC record where the SPF record is:
-      TXT, name `_dmarc`, value
-      `v=DMARC1; p=none; rua=mailto:hello@ovyko.com.au`. Then send a test
-      email to a personal address and check "Show original" shows SPF, DKIM
-      and DMARC all PASS. A new domain can still land in spam for a few days:
-      mark it "Not spam", and send a few everyday emails before writing to
-      schools.
+- [x] **Email deliverability.** DMARC record added; SPF, DKIM and DMARC
+      all pass (8 October 2026). A new domain can still land in spam for a
+      few days: mark it "Not spam", and send a few everyday emails before
+      writing to schools.
 - [ ] Trademark search for "Ovyko".
 - [ ] Privacy lawyer review (privacy policy, school data agreement, parent
       notice).
