@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+
+# Next.js build output.
+.next/
+next-env.d.ts
+
+# `pnpm smoke` output: screenshots and rendered videos.
+smoke-out/

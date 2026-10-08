@@ -1,0 +1,57 @@
+# Does Reelkit still typecheck, pass its tests, and build?
+#
+# No secrets and no network beyond installing packages: the importer's tests
+# inject their own transport, and with no ANTHROPIC_API_KEY the ad writer runs
+# on templates.
+
+name: reelkit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "reelkit/**"
+      - ".github/workflows/reelkit.yml"
+  pull_request:
+    paths:
+      - "reelkit/**"
+      - ".github/workflows/reelkit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reelkit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: reelkit
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v5
+        with:
+          package_json_file: reelkit/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: reelkit/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
