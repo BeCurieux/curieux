@@ -39,7 +39,7 @@ Build & Deployment → Root Directory:
 | `curieux` | `haunted` | yes — ignore only |
 | `curieux-rifc` | `waterline` | shares `waterline/vercel.json` — being deleted, see below |
 | *(not yet created)* | `tildie` | yes — framework, build, ignore, the daily prune cron; see `tildie/SHOPIFY-APP.md`, stage 4 |
-| *(not yet created)* | `reelkit` | yes — framework, build, ignore; set `IMAGE_PROXY_SECRET` before the first deploy |
+| *(not yet created)* | `reelkit` | yes — framework, build, ignore; set `IMAGE_PROXY_SECRET` before the first deploy; Supabase and Stripe setup is in `reelkit/README.md` |
 
 Every Root Directory above is **already set** — this half needed no work. The
 values are not guesses: Vercel's own PR comment carries a base64 payload naming

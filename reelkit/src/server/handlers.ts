@@ -12,14 +12,28 @@ import { MAX_DESCRIPTION_CHARS, MAX_IMAGES, type Product } from "../product/type
 import type { Drafter } from "../script/claude.js";
 import { factsFrom } from "../script/facts.js";
 import { writeAds } from "../script/write.js";
+import type { Credits } from "../billing/credits.js";
+import { FREE_CREDITS, PACKS, packById, priceLabel } from "../billing/packs.js";
+import type { Checkout, VerifyWebhook } from "../billing/stripe.js";
+import { applyStripeEvent } from "../billing/webhook.js";
 import { clientKey, type Limiter } from "./limit.js";
+import type { Viewer } from "./supabase.js";
 
 export type Deps = {
+  production: boolean;
   transport: Transport;
   lookup: Lookup;
   imageSecret: string;
   etsyKey?: string;
   drafter?: Drafter;
+  /** Who is signed in. Always null when accounts are off. */
+  viewer: (req: Request) => Promise<Viewer | null>;
+  /** Present when accounts are on (Supabase configured). */
+  credits?: Credits;
+  /** Present when payments are on (Stripe configured, and accounts on). */
+  checkout?: Checkout;
+  verifyWebhook?: VerifyWebhook;
+  appUrl?: string;
   importLimit: Limiter;
   writeLimit: Limiter;
   log?: (event: string, data: Record<string, unknown>) => void;
@@ -84,12 +98,18 @@ export const ProductBody = z.object({
   imageCount: z.number().int().min(1).max(MAX_IMAGES),
 });
 
+/**
+ * May this deployment call the model at all? Locally, always (if there is a
+ * key). In production, only with accounts in front of it: otherwise anyone
+ * could spend the Anthropic budget, and templates are the safe answer.
+ */
+export function aiAvailable(deps: Deps): boolean {
+  return Boolean(deps.drafter) && (Boolean(deps.credits) || !deps.production);
+}
+
 export async function handleWrite(req: Request, deps: Deps): Promise<Response> {
   const parsed = ProductBody.safeParse(await body(req));
   if (!parsed.success) return json({ error: "The product details are incomplete." }, 400);
-
-  // Templates are free; only a model call spends the budget.
-  const drafter = deps.drafter && deps.writeLimit(clientKey(req)) ? deps.drafter : undefined;
 
   const p = parsed.data;
   const product: Product = {
@@ -101,11 +121,125 @@ export async function handleWrite(req: Request, deps: Deps): Promise<Response> {
     images: Array.from({ length: p.imageCount }, () => ""),
   };
   const facts = factsFrom(product);
-  const report = await writeAds(facts, drafter);
+
+  // No model: templates, free, no account needed.
+  if (!aiAvailable(deps)) {
+    const report = await writeAds(facts);
+    return json({ ads: report.ads, ai: false });
+  }
+
+  // Model, no accounts (local development): free, rate limited per address.
+  if (!deps.credits) {
+    const drafter = deps.writeLimit(clientKey(req)) ? deps.drafter : undefined;
+    const report = await writeAds(facts, drafter);
+    logFallback(deps, report);
+    return json({ ads: report.ads, ai: true });
+  }
+
+  // Model, with accounts: one credit per set of three, taken before the call
+  // so two tabs cannot both spend the last one, and given back if the model
+  // produced nothing usable.
+  const who = await deps.viewer(req);
+  if (!who) return json({ error: "Sign in to write your ads.", signIn: true }, 401);
+  if (!deps.writeLimit(`user:${who.id}`)) {
+    return json({ error: "That's a lot of ads in an hour. Try again a little later." }, 429);
+  }
+
+  const ref = crypto.randomUUID();
+  const left = await deps.credits.spend(who.id, ref);
+  if (left === null) {
+    return json(
+      { error: "You're out of credits.", buy: Boolean(deps.checkout), credits: 0 },
+      402,
+    );
+  }
+
+  let credits = left;
+  try {
+    const report = await writeAds(facts, deps.drafter);
+    logFallback(deps, report);
+    if (!report.ads.some((a) => a.by === "claude")) {
+      credits = (await deps.credits.refund(who.id, ref)) ?? credits;
+      return json({ ads: report.ads, ai: true, refunded: true, credits });
+    }
+    return json({ ads: report.ads, ai: true, credits });
+  } catch (e) {
+    await deps.credits.refund(who.id, ref);
+    throw e;
+  }
+}
+
+function logFallback(deps: Deps, report: Awaited<ReturnType<typeof writeAds>>) {
   if (report.rejected.length || report.drafterError) {
     deps.log?.("write.fallback", { rejected: report.rejected, error: report.drafterError });
   }
-  return json({ ads: report.ads, facts: { name: facts.name, price: facts.price, shop: facts.shop } });
+}
+
+// ------------------------------------------------------------------ me
+
+export async function handleMe(req: Request, deps: Deps): Promise<Response> {
+  const who = deps.credits ? await deps.viewer(req) : null;
+  return json({
+    accounts: Boolean(deps.credits),
+    payments: Boolean(deps.checkout),
+    ai: aiAvailable(deps),
+    freeCredits: FREE_CREDITS,
+    packs: PACKS.map((p) => ({ id: p.id, name: p.name, credits: p.credits, price: priceLabel(p) })),
+    viewer: who ? { email: who.email ?? null } : null,
+    ...(who && deps.credits ? { credits: await deps.credits.balance(who.id) } : {}),
+  });
+}
+
+// ------------------------------------------------------------------ billing
+
+const CheckoutBody = z.object({ pack: z.string() });
+
+export async function handleCheckout(req: Request, deps: Deps): Promise<Response> {
+  if (!deps.checkout || !deps.credits) return json({ error: "Buying credits isn't switched on yet." }, 503);
+  const who = await deps.viewer(req);
+  if (!who) return json({ error: "Sign in to buy credits.", signIn: true }, 401);
+  const parsed = CheckoutBody.safeParse(await body(req));
+  const pack = parsed.success ? packById(parsed.data.pack) : undefined;
+  if (!pack) return json({ error: "That pack doesn't exist." }, 400);
+
+  const origin = deps.appUrl ?? new URL(req.url).origin;
+  try {
+    const url = await deps.checkout({ pack, user: who, origin });
+    return json({ url });
+  } catch (e) {
+    deps.log?.("checkout.error", { message: e instanceof Error ? e.message : String(e) });
+    return json({ error: "Checkout couldn't start. Please try again." }, 502);
+  }
+}
+
+/**
+ * Stripe's word that a payment happened. The signature is checked over the
+ * raw body before anything is read from it. A database failure answers 500
+ * so Stripe sends the event again; everything else answers 200, because a
+ * retry of an event we chose to ignore would only be ignored again.
+ */
+export async function handleWebhook(req: Request, deps: Deps): Promise<Response> {
+  if (!deps.verifyWebhook || !deps.credits) return new Response("Payments are off", { status: 503 });
+  const signature = req.headers.get("stripe-signature");
+  if (!signature) return new Response("Missing signature", { status: 400 });
+  const raw = await req.text();
+
+  let event;
+  try {
+    event = deps.verifyWebhook(raw, signature);
+  } catch {
+    return new Response("Bad signature", { status: 400 });
+  }
+
+  let outcome;
+  try {
+    outcome = await applyStripeEvent(event, deps.credits);
+  } catch (e) {
+    deps.log?.("webhook.error", { event: event.id, message: e instanceof Error ? e.message : String(e) });
+    return new Response("Try again", { status: 500 });
+  }
+  if (outcome === "mismatch") deps.log?.("webhook.mismatch", { event: event.id, type: event.type });
+  return json({ received: true, outcome });
 }
 
 // ------------------------------------------------------------------ image

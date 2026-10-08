@@ -8,6 +8,8 @@ const SECRET = "test-secret";
 
 function deps(routes: Record<string, () => Response> = {}, over: Partial<Deps> = {}): Deps {
   return {
+    production: false,
+    viewer: async () => null,
     transport: async (url) => routes[url]?.() ?? new Response("nope", { status: 404 }),
     lookup: async () => ["93.184.216.34"],
     imageSecret: SECRET,
