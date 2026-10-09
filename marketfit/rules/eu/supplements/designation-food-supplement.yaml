@@ -1,0 +1,19 @@
+kind: warning_text
+title: The product is not sold under the name "food supplement"
+fix: >-
+  Print the legal name "food supplement" on the label in each label language
+  (de: Nahrungsergänzungsmittel, fr: complément alimentaire). A brand or fancy
+  name may appear as well, but does not replace it.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: food supplement
+    de: Nahrungsergänzungsmittel
+    fr: complément alimentaire
+citation:
+  regulation: Directive 2002/46/EC (food supplements)
+  url: https://eur-lex.europa.eu/eli/dir/2002/46/oj
+  effective_from: "2002-07-12"
+  article: Art. 6(1)

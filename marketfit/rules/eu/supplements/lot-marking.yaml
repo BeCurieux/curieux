@@ -1,0 +1,13 @@
+kind: required_field
+title: No lot or batch identification
+fix: Print a lot or batch code on the pack, preceded by "L" unless clearly distinguishable.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [batch_code]
+citation:
+  regulation: Directive 2011/91/EU (indications or marks identifying the lot)
+  article: Art. 2 and 4
+  url: https://eur-lex.europa.eu/eli/dir/2011/91/oj
+  effective_from: "2011-12-16"

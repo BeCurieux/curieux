@@ -1,0 +1,14 @@
+kind: language
+title: The label is not in English
+fix: Give all mandatory information in English.
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  mode: all
+  languages: [en]
+citation:
+  regulation: Regulation (EU) No 1169/2011 as it applies in Great Britain (assimilated law)
+  url: https://www.legislation.gov.uk/eur/2011/1169/contents
+  effective_from: "2014-12-13"
+  article: Art. 15(1)

@@ -1,0 +1,13 @@
+kind: required_field
+title: The recommended daily dose is not stated
+fix: State the portion recommended for daily consumption, e.g. "Take 2 capsules a day".
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [daily_dose]
+citation:
+  regulation: Directive 2002/46/EC (food supplements)
+  url: https://eur-lex.europa.eu/eli/dir/2002/46/oj
+  effective_from: "2002-07-12"
+  article: Art. 6(3)(b)

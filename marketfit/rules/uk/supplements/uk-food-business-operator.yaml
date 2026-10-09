@@ -1,0 +1,15 @@
+kind: required_field
+title: No UK food business operator name and address
+fix: >-
+  Name the food business operator responsible for the product and give a UK
+  address. For Great Britain an EU-only address is no longer enough.
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  facts: [responsible_person_name, responsible_person_address]
+citation:
+  regulation: Regulation (EU) No 1169/2011 as it applies in Great Britain (assimilated law)
+  url: https://www.legislation.gov.uk/eur/2011/1169/contents
+  effective_from: "2014-12-13"
+  article: Art. 8(1) and 9(1)(h)

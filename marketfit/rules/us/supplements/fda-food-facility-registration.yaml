@@ -1,0 +1,14 @@
+kind: registration
+title: The manufacturing facility must be registered with FDA
+fix: Confirm the facility that manufactures, packs or holds the product is registered with FDA (renewed every even-numbered year).
+severity: advisory
+confidence: drafted
+version: 1
+params:
+  action: Confirm food facility registration with FDA
+  url: https://www.fda.gov/food/online-registration-food-facilities
+citation:
+  regulation: 21 CFR Part 1, Subpart H
+  article: § 1.225
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-1/subpart-H
+  effective_from: "2003-12-12"

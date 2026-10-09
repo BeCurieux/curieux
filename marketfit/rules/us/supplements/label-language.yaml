@@ -1,0 +1,14 @@
+kind: language
+title: The label is not in English
+fix: Give all required label information in English (Puerto Rico may use Spanish).
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  mode: all
+  languages: [en]
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.15(c)
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

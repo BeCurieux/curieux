@@ -1,0 +1,16 @@
+kind: warning_text
+title: The "do not exceed the recommended daily dose" warning is missing
+fix: Add the warning not to exceed the stated recommended daily dose, in each label language.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: Do not exceed the recommended daily dose.
+    de: Die angegebene empfohlene tägliche Verzehrsmenge darf nicht überschritten werden.
+    fr: Ne pas dépasser la dose journalière recommandée.
+citation:
+  regulation: Directive 2002/46/EC (food supplements)
+  url: https://eur-lex.europa.eu/eli/dir/2002/46/oj
+  effective_from: "2002-07-12"
+  article: Art. 6(3)(c)

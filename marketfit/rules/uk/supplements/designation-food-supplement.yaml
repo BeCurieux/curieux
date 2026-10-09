@@ -1,0 +1,14 @@
+kind: warning_text
+title: The product is not sold under the name "food supplement"
+fix: Print the name "food supplement" on the label. A brand name may appear as well but does not replace it.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: food supplement
+citation:
+  regulation: The Food Supplements (England) Regulations 2003 (SI 2003/1387)
+  url: https://www.legislation.gov.uk/uksi/2003/1387/regulation/6
+  effective_from: "2003-08-01"
+  article: reg. 6

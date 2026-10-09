@@ -1,0 +1,15 @@
+kind: prohibited_substance
+title: Contains ephedrine alkaloids, which make a dietary supplement adulterated
+fix: Remove ephedra and ephedrine alkaloids from the formulation before selling in the US.
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  substances:
+    - name: ephedrine alkaloids
+      aliases: [ephedra, ephedra sinica, ma huang, ephedrine]
+citation:
+  regulation: 21 CFR Part 119
+  article: § 119.1
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-119
+  effective_from: "2004-04-12"

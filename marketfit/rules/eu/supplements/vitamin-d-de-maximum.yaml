@@ -1,0 +1,18 @@
+kind: limit
+title: Vitamin D above the German recommended maximum for supplements
+fix: >-
+  For Germany, consider reducing vitamin D to at most 20 µg per daily dose.
+  This is a national recommendation, not EU law; other member states differ.
+severity: advisory
+confidence: needs_review
+version: 1
+params:
+  nutrient: vitamin d
+  aliases: [cholecalciferol, vitamin d3, ergocalciferol, vitamin d2]
+  max: 20
+  unit: µg
+citation:
+  regulation: BfR, Updated maximum level proposals for vitamins and minerals in food supplements (2021)
+  article: Vitamin D
+  url: https://www.bfr.bund.de/en/
+  effective_from: "2021-03-15"

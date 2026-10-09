@@ -1,0 +1,13 @@
+kind: required_field
+title: No lot or batch identification
+fix: Print a lot or batch code on the pack.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [batch_code]
+citation:
+  regulation: The Food (Lot Marking) Regulations 1996 (SI 1996/1502)
+  article: reg. 3
+  url: https://www.legislation.gov.uk/uksi/1996/1502/contents
+  effective_from: "1996-07-01"

@@ -1,0 +1,16 @@
+kind: claim
+title: The copy makes a disease claim
+fix: >-
+  Remove wording that says the product diagnoses, treats, cures, mitigates or
+  prevents a disease. A dietary supplement may make structure/function claims
+  only, with the FDA disclaimer.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  phrases: [cures, cure for, treats, heals, prevents disease, anti-cancer, lowers blood pressure, reverses diabetes]
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.93(g)
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

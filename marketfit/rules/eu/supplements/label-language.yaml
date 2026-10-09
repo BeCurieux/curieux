@@ -1,0 +1,17 @@
+kind: language
+title: The label is not in a language of the v1 EU language packs
+fix: >-
+  Mandatory information must be in a language easily understood where the
+  product is sold. Add German for Germany and Austria, French for France and
+  Belgium (French-speaking).
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  mode: any
+  languages: [de, fr]
+citation:
+  regulation: Regulation (EU) No 1169/2011 (food information to consumers)
+  url: https://eur-lex.europa.eu/eli/reg/2011/1169/oj
+  effective_from: "2014-12-13"
+  article: Art. 15(1)

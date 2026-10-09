@@ -1,0 +1,16 @@
+kind: claim
+title: The copy attributes disease-preventing or curing properties to the product
+fix: >-
+  Remove wording that says the product prevents, treats or cures a disease.
+  Health claims must be on the EU register of authorised claims and worded
+  as authorised.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  phrases: [cures, cure for, treats, heals, prevents disease, anti-cancer, heilt, guérit]
+citation:
+  regulation: Regulation (EU) No 1169/2011 (food information to consumers)
+  url: https://eur-lex.europa.eu/eli/reg/2011/1169/oj
+  effective_from: "2014-12-13"
+  article: Art. 7(3)

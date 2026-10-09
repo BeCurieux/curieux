@@ -1,0 +1,16 @@
+kind: warning_text
+title: The "not a substitute for a varied diet" statement is missing
+fix: Add the statement that food supplements should not be used as a substitute for a varied diet, in each label language.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: Food supplements should not be used as a substitute for a varied and balanced diet and a healthy lifestyle.
+    de: Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene und abwechslungsreiche Ernährung und eine gesunde Lebensweise.
+    fr: Les compléments alimentaires ne doivent pas être utilisés comme substituts d'un régime alimentaire varié et équilibré et d'un mode de vie sain.
+citation:
+  regulation: Directive 2002/46/EC (food supplements)
+  url: https://eur-lex.europa.eu/eli/dir/2002/46/oj
+  effective_from: "2002-07-12"
+  article: Art. 6(3)(d)

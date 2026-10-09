@@ -1,0 +1,14 @@
+kind: warning_text
+title: The "out of reach of young children" statement is missing
+fix: Add a statement that the product should be stored out of the reach of young children.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: Store out of the reach of young children.
+citation:
+  regulation: The Food Supplements (England) Regulations 2003 (SI 2003/1387)
+  url: https://www.legislation.gov.uk/uksi/2003/1387/regulation/6
+  effective_from: "2003-08-01"
+  article: reg. 6

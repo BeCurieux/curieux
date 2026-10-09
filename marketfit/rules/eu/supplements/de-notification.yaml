@@ -1,0 +1,14 @@
+kind: registration
+title: "Germany: notify the BVL before first placing on the market"
+fix: Submit the product notification to the BVL, with a label sample, before first selling in Germany.
+severity: advisory
+confidence: drafted
+version: 1
+params:
+  action: Notify the Federal Office of Consumer Protection and Food Safety (BVL)
+  url: https://www.bvl.bund.de/
+citation:
+  regulation: Nahrungsergänzungsmittelverordnung (NemV)
+  article: § 5
+  url: https://www.gesetze-im-internet.de/nemv/__5.html
+  effective_from: "2004-05-28"

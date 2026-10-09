@@ -1,0 +1,67 @@
+# Does MarketFit typecheck, pass its tests, hold its coverage bar, build, and
+# do its migration, seed and RLS policies behave on a real Postgres?
+#
+# Scoped to marketfit/, like the other products' workflows. No secrets and no
+# network beyond installing packages: the engine is pure, Shopify and Supabase
+# are faked in the tests, and db:check runs a throwaway local Postgres.
+
+name: marketfit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "marketfit/**"
+      - ".github/workflows/marketfit.yml"
+  pull_request:
+    paths:
+      - "marketfit/**"
+      - ".github/workflows/marketfit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marketfit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: marketfit
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v5
+        with:
+          package_json_file: marketfit/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: marketfit/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Tests with coverage: fails below 90% on the engine and the rules loader.
+      - name: Tests
+        run: pnpm coverage
+
+      # Every rule file valid; prints the per-market summary.
+      - name: Rules
+        run: pnpm rules
+
+      - name: Build
+        run: pnpm build
+
+      # The runner image ships PostgreSQL server binaries; db:check finds them.
+      - name: Migration, seed and RLS
+        run: pnpm db:check

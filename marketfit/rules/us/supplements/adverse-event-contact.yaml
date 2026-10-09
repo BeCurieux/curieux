@@ -1,0 +1,13 @@
+kind: required_field
+title: No domestic address or phone number for adverse event reports
+fix: Add a US address or US phone number through which the responsible person can receive serious adverse event reports.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [adverse_event_contact]
+citation:
+  regulation: Federal Food, Drug, and Cosmetic Act § 403(y) (21 U.S.C. 343(y))
+  article: § 403(y)
+  url: https://www.law.cornell.edu/uscode/text/21/343
+  effective_from: "2007-12-22"

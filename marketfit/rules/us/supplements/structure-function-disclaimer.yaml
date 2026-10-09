@@ -1,0 +1,16 @@
+kind: warning_text
+title: Structure/function claims are made without the FDA disclaimer
+fix: Wherever a structure/function claim appears, add the disclaimer, linked to the claim by a symbol if it is not adjacent.
+severity: needs_attention
+confidence: drafted
+version: 1
+applies_if:
+  fact_present: claims
+params:
+  texts:
+    en: This statement has not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.93(b)–(c)
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

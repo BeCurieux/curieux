@@ -1,0 +1,13 @@
+kind: required_field
+title: No name and place of business of the manufacturer, packer or distributor
+fix: Give the name and place of business (city, state and ZIP) of the manufacturer, packer or distributor.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [manufacturer_name, manufacturer_address]
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.5
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

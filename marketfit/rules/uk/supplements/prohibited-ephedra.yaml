@@ -1,0 +1,15 @@
+kind: prohibited_substance
+title: Contains ephedra, which may not be added to foods in Great Britain
+fix: Remove ephedra herb and its preparations from the formulation before selling in Great Britain.
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  substances:
+    - name: ephedra
+      aliases: [ephedra sinica, ma huang, ephedrine alkaloids]
+citation:
+  regulation: Regulation (EC) No 1925/2006 as it applies in Great Britain, Annex III Part A
+  article: Art. 8 and Annex III Part A
+  url: https://www.legislation.gov.uk/eur/2006/1925/annex/III
+  effective_from: "2019-05-14"

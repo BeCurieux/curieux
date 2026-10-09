@@ -1,0 +1,13 @@
+kind: required_field
+title: No Supplement Facts panel
+fix: Add a Supplement Facts panel in the format FDA prescribes.
+severity: blocked
+confidence: drafted
+version: 1
+params:
+  facts: [nutrition_panel]
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.36
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

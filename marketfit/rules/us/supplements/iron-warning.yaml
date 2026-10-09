@@ -1,0 +1,16 @@
+kind: warning_text
+title: An iron-containing product without the accidental-overdose warning
+fix: Add the iron accidental-overdose warning exactly as worded.
+severity: blocked
+confidence: drafted
+version: 1
+applies_if:
+  ingredient_any: [iron, ferrous, ferric]
+params:
+  texts:
+    en: "WARNING: Accidental overdose of iron-containing products is a leading cause of fatal poisoning in children under 6. Keep this product out of reach of children. In case of accidental overdose, call a doctor or poison control center immediately."
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.17(e)
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

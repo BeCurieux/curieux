@@ -1,0 +1,13 @@
+kind: required_field
+title: The net quantity of contents is not stated
+fix: State the net quantity of contents on the principal display panel (count, weight or measure).
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [net_quantity]
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.105
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"

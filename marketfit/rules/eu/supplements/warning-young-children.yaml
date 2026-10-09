@@ -1,0 +1,16 @@
+kind: warning_text
+title: The "out of reach of young children" statement is missing
+fix: Add the statement that the product should be stored out of the reach of young children, in each label language.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: Store out of the reach of young children.
+    de: Für kleine Kinder unzugänglich aufbewahren.
+    fr: Tenir hors de portée des jeunes enfants.
+citation:
+  regulation: Directive 2002/46/EC (food supplements)
+  url: https://eur-lex.europa.eu/eli/dir/2002/46/oj
+  effective_from: "2002-07-12"
+  article: Art. 6(3)(e)

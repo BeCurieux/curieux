@@ -1,0 +1,13 @@
+kind: required_field
+title: The net quantity is not stated
+fix: State the net quantity (for capsules and tablets, the number of units and their weight as applicable).
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  facts: [net_quantity]
+citation:
+  regulation: Regulation (EU) No 1169/2011 (food information to consumers)
+  url: https://eur-lex.europa.eu/eli/reg/2011/1169/oj
+  effective_from: "2014-12-13"
+  article: Art. 9(1)(e)

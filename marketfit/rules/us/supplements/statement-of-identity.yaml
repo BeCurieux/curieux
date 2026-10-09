@@ -1,0 +1,17 @@
+kind: warning_text
+title: The statement of identity does not say "dietary supplement"
+fix: >-
+  Identify the product as a "dietary supplement" on the principal display
+  panel. "Supplement" may replace "dietary" with the name of the dietary
+  ingredient (e.g. "vitamin C supplement") — confirm the wording with counsel.
+severity: needs_attention
+confidence: drafted
+version: 1
+params:
+  texts:
+    en: dietary supplement
+citation:
+  regulation: 21 CFR Part 101
+  article: § 101.3(g)
+  url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101
+  effective_from: "1994-10-25"
