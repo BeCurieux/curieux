@@ -61,10 +61,10 @@ a fully labelled EU, UK and US product passes every one and a bare product
 does not — so a typo in a mandatory statement fails CI rather than every
 merchant's product.
 
-## Decisions — where M1 departs from the brief, and why
+## Decisions — agreed 2026-10-09
 
-These are calls made to keep moving. Each is cheap to reverse now and
-expensive later, so they want an answer.
+Each of these departed from the original brief; the owner agreed all of them
+on 2026-10-09 and BUILD_BRIEF.md now says the same. The reasoning is kept here.
 
 1. **A fourth score, `not_assessed`.** §5 lists three. §2.1 ("if a rule isn't
    in the database, the product says not assessed") and §9 ("no score without
@@ -84,11 +84,12 @@ expensive later, so they want an answer.
    guidance for embedded apps; there is no redirect-based OAuth route. The
    first authenticated request from the embedded page *is* the install.
 
-4. **Billing: probably not the Billing API.** §3 and §7.6 say Shopify Billing
+4. **Billing: Shopify App Pricing, not the Billing API.** §3 and §7.6 say Shopify Billing
    API. When tildie built its app (2026-09-28), Shopify's docs said new public
    apps default to **Shopify App Pricing** (plans in the Partner Dashboard,
    Shopify-hosted plan page, and an instruction not to call
-   `appSubscriptionCreate`). Not touched in M1; it decides how M3 is built.
+   `appSubscriptionCreate`). M3 builds on App Pricing, after re-reading
+   Shopify's current docs to confirm it is still the rule.
 
 5. **Columns added to §4**, each for a reason given at the top of the
    migration: `rules.title`, `rules.fix`, `rules.applies_if` (the US iron
@@ -116,13 +117,10 @@ expensive later, so they want an answer.
    the other products here; `vercel.json` carries the per-directory ignore
    command from DEPLOYS.md.
 
-### Worth a look before M2
-
-`tildie/` already scans product copy against cited, versioned rule packs and
-already counts supplement brands among its buyers (tildie/BRIEF.md §7b). The
-two products are kept separate here and share no code beyond the copied
-Shopify modules, but the overlap — two apps in one admin making claims about
-the same supplement labels — is a positioning decision for the founder.
+10. **MarketFit and Tildie stay separate.** `tildie/` also scans product
+    copy against cited, versioned rule packs and counts supplement brands
+    among its buyers (tildie/BRIEF.md §7b). The owner chose to keep the two
+    products separate; they share no code beyond the copied Shopify modules.
 
 ## What only the owner can do
 

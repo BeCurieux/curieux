@@ -1,8 +1,8 @@
 # Build Brief — Cross-Border Readiness for Shopify (working name: MARKETFIT)
 
-Keep this file as the source of truth; update it as decisions change. Where the
-build has departed from it, the departure is recorded in README.md,
-"Decisions", rather than by silently editing the text below.
+Keep this file as the source of truth; update it as decisions change. The
+decisions agreed after M1 (2026-10-09) are written into the text below and
+marked *[decided 2026-10-09]*; README.md, "Decisions", has the reasoning.
 
 ## 1. What we are building
 
@@ -46,12 +46,19 @@ portal) is v2+ and must not leak into v1.
 * Next.js (App Router) + TypeScript
 * Supabase (Postgres, auth, RLS, edge functions for scheduled jobs)
 * Shopify: Admin GraphQL API, OAuth, app embedded via App Bridge, webhooks
-  (`products/update`, `app/uninstalled`). Note: Shopify's official template is
-  Remix; we stay on Next.js to match existing studio apps — use
-  `@shopify/shopify-api` + App Bridge React.
-* Stripe Billing is not used for merchant billing — Shopify apps must bill
-  through the Shopify Billing API (recurring app charges). Stripe only for the
-  one-off Market Entry Review sold off-platform (later).
+  (`products/create|update|delete`, `app/uninstalled`, and the three
+  compliance topics). Note: Shopify's official template is Remix; we stay on
+  Next.js to match existing studio apps — and, to match them fully, use the
+  studio's own tested Shopify modules (copied from `tildie/`) with App Bridge
+  and Polaris web components from Shopify's CDN, not `@shopify/shopify-api` or
+  App Bridge React. Install is Shopify-managed with token exchange for expiring
+  offline tokens, not redirect OAuth. *[decided 2026-10-09]*
+* Stripe Billing is not used for merchant billing — Shopify apps bill through
+  Shopify. For a new public app that means **Shopify App Pricing** (plans in
+  the Partner Dashboard, Shopify-hosted plan page; the app reads the active
+  plan and never creates a charge), not the Billing API — to be re-confirmed
+  against Shopify's docs when M3 starts. *[decided 2026-10-09]* Stripe only for
+  the one-off Market Entry Review sold off-platform (later).
 * Anthropic API for extraction and drafting (structured outputs with JSON
   schemas; temperature low).
 * Playwright for end-to-end tests against a dev store.
@@ -73,6 +80,9 @@ market_entitlements merchant_id, market_code, active_until
 ```
 
 RLS: merchants see only their own rows. Rules are global, read-only to merchants.
+Policies key on a `merchant_id` claim in the JWT; the server uses the secret
+key. The columns added to this list in M1 are listed at the top of the
+migration. *[decided 2026-10-09]*
 
 ## 5. Rules engine
 
@@ -94,7 +104,10 @@ RLS: merchants see only their own rows. Rules are global, read-only to merchants
   * `claim` (prohibited/restricted health claims — v1 does keyword/phrase
     matching against an authorised-claims list; semantic claim checking is v2)
 * Scoring: any `blocked` fail → blocked; any `needs_attention` fail → needs
-  attention; else ready. Advisories never change the score.
+  attention; no verified rule applies, or a scored rule could not be checked →
+  **not assessed**; else ready. Only `verified`, non-advisory rules score;
+  advisories and registration to-dos never change the score.
+  *[decided 2026-10-09]*
 
 ## 6. AI usage (narrow and schema-bound)
 
@@ -124,7 +137,7 @@ Never let model output write directly to `rules`.
    generated label/listing text, copy button, optional "push to Shopify"
    (writes to metafields + translations, never overwrites the main description
    without confirmation).
-6. Billing via Shopify Billing API. Plans: Starter $149/mo (1 market, ≤50
+6. Billing via Shopify App Pricing (§3). Plans: Starter $149/mo (1 market, ≤50
    SKUs), Growth $349/mo (3 markets, ≤250 SKUs), Scale $799/mo (all markets,
    unlimited). Annual = 10 months.
 7. Weekly email digest: new findings, rules updated, SKUs that changed and need
@@ -138,8 +151,8 @@ Never let model output write directly to `rules`.
 * **M2 (week 3–4):** extraction pipeline (text only), facts confirmation UI,
   assessment + dashboard, findings view with citations.
 * **M3 (week 5–6):** drafting (label text, listing copy, DE/FR),
-  push-to-Shopify metafields, Shopify Billing plans + entitlements gating, App
-  Store listing assets.
+  push-to-Shopify metafields, Shopify App Pricing plans + entitlements gating,
+  App Store listing assets.
 * **M4 (week 7–8):** label image/PDF extraction, weekly digest, Playwright e2e
   on a dev store, App Store review submission checklist (GDPR webhooks, privacy
   policy, data retention).
@@ -161,3 +174,10 @@ Cosmetics or any second category; markets beyond EU/UK/US; languages beyond
 EN/DE/FR; semantic claims analysis; agency/partner portal;
 responsible-person/EPR fulfilment (link out only); customs/duties/tax (link to
 existing apps); non-Shopify platforms.
+
+## 11. Decided, and why it stays this way
+
+* MarketFit and Tildie (`tildie/`) stay separate products sharing no code
+  beyond the copied Shopify modules, despite both reading supplement labels
+  against cited rules. *[decided 2026-10-09]*
+* MarketFit lives in the studio monorepo as `marketfit/`. *[decided 2026-10-09]*
