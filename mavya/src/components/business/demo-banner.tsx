@@ -12,13 +12,13 @@ export function DemoBanner({ expiresAt }: { expiresAt: string }) {
   return (
     <section
       aria-label="Demo school"
-      className="mb-6 flex flex-col gap-3 rounded-md bg-[#e8e3ff] px-4 py-3 text-[#2e2366] sm:flex-row sm:items-center sm:justify-between"
+      className="mb-6 flex flex-col gap-2 rounded-md bg-[#e8e3ff] px-4 py-3 text-sm text-[#2e2366] sm:flex-row sm:items-center sm:justify-between sm:text-base"
     >
       <p>
-        <span className="font-semibold">This is a pretend school, just for you.</span> Click
-        anything: nothing here sends emails or takes payments, and it’s deleted {until}.
+        <span className="font-semibold">This is a pretend school, just for you.</span> Tap anything:
+        nothing here sends emails or takes payments, and it’s deleted {until}.
       </p>
-      <div className="flex shrink-0 flex-wrap items-center gap-4 font-semibold">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 font-semibold">
         <Link href="/founding" className="underline underline-offset-2">
           Join the founding schools
         </Link>

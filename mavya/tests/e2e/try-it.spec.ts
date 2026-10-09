@@ -27,6 +27,20 @@ test.describe("try it yourself", () => {
     await expect(banner).toContainText("nothing here sends emails or takes payments");
     await expect(page.getByRole("heading", { name: "Hi Alex" })).toBeVisible();
     await expect(page.getByText("3 families are showing warning signs")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Getting set up" })).toHaveCount(0);
+    await expect(page.getByText("2 spots can be filled this week")).toBeVisible();
+
+    // The tour's first step: fill a spot someone can't make.
+    const tour = page.getByRole("region", { name: "Try these four things" });
+    await tour.getByRole("link", { name: /Fill a spot/ }).click();
+    await expect(page.getByRole("heading", { name: "2 open spots, ready to offer" })).toBeVisible();
+    await page.getByRole("button", { name: "Offer spot" }).first().click();
+    await expect(page.getByText("Offered").first()).toBeVisible();
+
+    // The last: the Harpers' account, where a payment is recorded.
+    await page.goto("/business");
+    await tour.getByRole("link", { name: /Record a payment/ }).click();
+    await expect(page.getByRole("heading", { name: "Harper Family" })).toBeVisible();
 
     await page.goto("/business/families");
     await expect(page.getByText("Harper Family")).toBeVisible();

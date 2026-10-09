@@ -4,6 +4,7 @@ import Link from "next/link";
 import { OccupancyBar } from "@/components/business/occupancy-bar";
 import { SetupChecklist } from "@/components/business/setup-checklist";
 import { Stat } from "@/components/business/stat";
+import { TryThese } from "@/components/business/try-these";
 import { EmptyState } from "@/components/demo/empty-state";
 import { Button } from "@/components/ui/button";
 import { businessContext, firstName } from "@/lib/demo/context";
@@ -21,12 +22,27 @@ import { listClasses } from "@/lib/domain/timetable";
 export const metadata: Metadata = { title: "Today" };
 
 export default async function BusinessHome() {
-  const { viewer, db, organisationId, organisationName } = await businessContext();
+  const { viewer, db, organisationId, organisationName, sandbox } = await businessContext();
   const [classes, progress] = await Promise.all([
     listClasses(db, { activeOnly: true }).then((list) => classViews(db, list)),
     setupProgress(db, organisationId),
   ]);
-  const setup = <SetupChecklist steps={setupSteps(progress)} />;
+  // A visitor trying Ovyko gets a short tour instead of set-up steps.
+  const harper = sandbox
+    ? ((
+        await db
+          .from("families")
+          .select("id")
+          .eq("organisation_id", organisationId)
+          .eq("display_name", "Harper Family")
+          .maybeSingle()
+      ).data?.id ?? null)
+    : null;
+  const setup = sandbox ? (
+    <TryThese harper={harper} />
+  ) : (
+    <SetupChecklist steps={setupSteps(progress)} />
+  );
 
   if (classes.length === 0) {
     return (

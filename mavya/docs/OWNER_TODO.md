@@ -8,6 +8,9 @@ Kept up to date as items are done. Never put passwords or keys in this file.
 - [x] Database changes 24 to 41 run in Supabase and merged (6 October 2026).
 - [x] "Try it yourself" (database change 42) run and merged; checked live on
       7 October 2026.
+- [ ] Database change 43 (a livelier "Try it yourself" school): run
+      `supabase/migrations/20261026000043_livelier_demo.sql` in the
+      Supabase SQL editor, then say "done".
 
 - [ ] **See Ovyko's totals.** After the database changes: sign up in
       Ovyko with your own email, then in the Supabase SQL editor run
