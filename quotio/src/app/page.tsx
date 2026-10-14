@@ -1,0 +1,310 @@
+// The homepage (brief §9, §10, §42).
+//
+// Two jobs, in this order: show the product working, then let someone start.
+// So the hero is mostly a real, interactive widget rather than a screenshot of
+// one, and the thing directly beneath it is the prompt box — the most
+// important interaction on the page.
+
+import Link from "next/link";
+import type { Metadata } from "next";
+import { PromptBox } from "@/components/create/PromptBox";
+import { PromptToTool } from "@/components/brand/PromptToTool";
+import { Illustration } from "@/components/illustrations/Illustration";
+import { HeroArt, HeroLeaves } from "@/components/site/HeroArt";
+import { SiteFooter, SiteHeader, Sparkles, Squiggle } from "@/components/site/Chrome";
+import { ArrowRightIcon, ChartIcon, LinkIcon, PencilIcon, SparkleIcon } from "@/components/ui/Icons";
+import { WidgetRenderer } from "@/components/widget/WidgetRenderer";
+import { brand } from "@/config/brand";
+import { currentUser, isRegistered } from "@/lib/auth/session";
+import { HERO_TEMPLATE_SLUG, TEMPLATES, templateBySlug } from "@/lib/templates/catalogue";
+import { widgetSchema } from "@/lib/widget/schema";
+
+export const metadata: Metadata = {
+  description: brand.heroSupport,
+};
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { from?: string };
+}) {
+  const user = await currentUser();
+  const heroTemplate = templateBySlug(HERO_TEMPLATE_SLUG)!;
+
+  // The hero widget is the real runtime, with analytics and the badge off: it
+  // isn't published, so it has nothing to record and nothing to advertise.
+  // The welcome screen is dropped so it opens on an actual question — a hero
+  // that shows a "Get started" button is showing the least interesting frame.
+  const demo = widgetSchema.parse({
+    ...heroTemplate.document,
+    id: "hero-demo",
+    slug: heroTemplate.slug,
+    status: "published",
+    intro: undefined,
+    settings: { ...heroTemplate.document.settings, leadCapture: { mode: "none", fields: ["email"] } },
+  });
+
+  return (
+    <>
+      <SiteHeader signedIn={isRegistered(user)} />
+
+      {/* §22: someone arrived by clicking a badge on somebody else's widget. */}
+      {searchParams.from === "badge" ? (
+        <div className="border-b border-purple-mid bg-purple-soft">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3 px-5 py-3 text-sm">
+            <strong className="font-bold text-purple">Like that widget?</strong>
+            <span className="text-slate">You can make your own in about two minutes.</span>
+            <Link href="#build" className="btn-soft py-2">
+              Make one <ArrowRightIcon size={16} />
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
+      <main>
+        {/* ---- Hero ------------------------------------------------ */}
+        <section className="relative overflow-hidden">
+          <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-yellow-soft blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 top-40 h-80 w-80 rounded-full bg-purple-soft blur-3xl" />
+
+          <div className="relative mx-auto grid max-w-[1240px] gap-12 px-5 pb-12 pt-14 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:items-center lg:gap-10 lg:pb-14 lg:pt-20">
+            <div>
+              <span className="badge">
+                <SparkleIcon size={13} />
+                Playful, but smart
+              </span>
+
+              <h1 className="mt-5 text-display">
+                {brand.heroHeadline.lead}
+                <br />
+                <span className="relative inline-block text-purple">
+                  {brand.heroHeadline.accent}
+                  <Squiggle className="absolute -bottom-3 left-0 h-4 w-full text-mint" />
+                </span>
+              </h1>
+
+              <p className="mt-7 max-w-md text-lg leading-relaxed text-slate">{brand.heroSupport}</p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href="#build" className="btn btn-lg">
+                  Start building for free
+                  <ArrowRightIcon size={18} />
+                </Link>
+                <Link href="/templates" className="btn-secondary btn-lg">
+                  View templates
+                </Link>
+              </div>
+
+              <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2">
+                {brand.heroProofPoints.map((point) => (
+                  <li key={point} className="flex items-center gap-2 text-sm font-medium text-slate">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-mint-soft text-mint">
+                      ✓
+                    </span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+
+              <HeroArt className="mt-7 hidden h-auto w-full max-w-md lg:block" />
+            </div>
+
+            <div>
+              {/* The decoration is anchored to the card, not the column, so it
+                  tucks into the corner rather than drifting under the caption. */}
+              <div className="relative">
+                <Sparkles className="absolute -left-8 -top-6 hidden h-14 w-14 text-yellow lg:block" />
+                {/* Opens on the bedrooms grid: six illustrated answers make a
+                    far better first impression than three, and the taller card
+                    balances the column instead of floating in the middle. */}
+                <WidgetRenderer
+                  widget={demo}
+                  live={false}
+                  showBadge={false}
+                  initialStepId="bedrooms"
+                />
+                <HeroLeaves className="pointer-events-none absolute -bottom-8 -right-10 hidden h-32 w-40 lg:block" />
+              </div>
+              <p className="mt-4 text-center text-xs font-medium text-muted">
+                This one is real — try it.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ---- The prompt box (§10) -------------------------------- */}
+        <section id="build" className="scroll-mt-20 px-5 pb-9 pt-6">
+          <div className="mx-auto max-w-4xl text-center">
+            {/* The mark sits above the heading it illustrates — sentence in,
+                working tool out — rather than being scattered as decoration. */}
+            <PromptToTool height={60} className="mx-auto mb-5 text-navy" />
+            <h2 className="text-title">What do you want your website to do?</h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate">
+              Describe it in your own words. We&rsquo;ll build it, then you change whatever you
+              don&rsquo;t like.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-8 max-w-2xl">
+            <PromptBox variant="hero" />
+          </div>
+
+          <p className="mx-auto mt-5 max-w-md text-center text-xs leading-relaxed text-muted">
+            No account needed to build one. We only ask who you are when you publish.
+          </p>
+        </section>
+
+        {/* ---- Three promises -------------------------------------- */}
+        <section className="px-5 py-9">
+          <div className="mx-auto max-w-6xl">
+            {/* One panel, three columns — a row of separate cards fragments
+                what is really a single claim about the product. */}
+            <div className="panel grid gap-8 px-7 py-9 sm:grid-cols-3 sm:gap-7 sm:px-10 sm:py-10">
+              <PromiseCard
+                tone="lavender"
+                icon={<PencilIcon size={25} />}
+                title="Build in minutes"
+                body="Describe it in a sentence, or start from a template. Change anything afterwards."
+              />
+              <PromiseCard
+                tone="yellow"
+                icon={<LinkIcon size={25} />}
+                title="Share anywhere"
+                body="One line of script and it resizes itself to fit your page. Or just send the link."
+              />
+              <PromiseCard
+                tone="mint"
+                icon={<ChartIcon size={25} />}
+                title="See what happens"
+                body="Views, starts and completions. Enough to see what's working."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ---- How it works ---------------------------------------- */}
+        <section className="px-5 py-9">
+          <div className="mx-auto max-w-6xl">
+            <div className="panel overflow-hidden px-6 py-12 sm:px-12">
+              <div className="max-w-lg">
+                <p className="eyebrow">How it works</p>
+                <h2 className="mt-3 text-title">Four steps, and none of them are “learn our editor”.</h2>
+              </div>
+
+              <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { n: 1, t: "Describe it", b: "One sentence about what you want to ask and what it costs." },
+                  { n: 2, t: "Make it yours", b: "Change any question or price. It updates as you type." },
+                  { n: 3, t: "Publish", b: "A hosted page, or paste one line into your site." },
+                  { n: 4, t: "Watch it work", b: "Completions, clicks, and on Pro the leads it brings in." },
+                ].map((step) => (
+                  <li key={step.n} className="rounded-card border border-rule bg-white p-5">
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-purple text-sm font-bold text-white">
+                      {step.n}
+                    </span>
+                    <p className="mt-3 font-bold">{step.t}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate">{step.b}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        {/* ---- Templates ------------------------------------------- */}
+        <section className="px-5 py-9">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="max-w-md">
+                <p className="eyebrow">Made for any idea you have</p>
+                <h2 className="mt-3 text-title">From real estate to fitness.</h2>
+                {/* No count. Writing one down here means it's wrong the first
+                    time somebody adds a template, and rendering the numeral
+                    reads worse than not mentioning it at all. */}
+                <p className="mt-3 text-slate">
+                  Each one built for a different kind of business, and each one a working widget
+                  rather than a picture of one.
+                </p>
+              </div>
+              <Link href="/templates" className="btn-secondary">
+                All templates
+                <ArrowRightIcon size={16} />
+              </Link>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {TEMPLATES.slice(0, 4).map((template) => (
+                <Link
+                  key={template.slug}
+                  href={`/templates/${template.slug}`}
+                  className="card group p-5 transition hover:-translate-y-0.5 hover:shadow-lift"
+                >
+                  <Illustration name={template.illustration} size={52} />
+                  <p className="mt-4 font-bold leading-tight">{template.name}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                    {template.type}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate">{template.tagline}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ---- Closing ---------------------------------------------- */}
+        <section className="px-5 py-9">
+          <div className="mx-auto max-w-3xl rounded-hero border border-rule bg-navy px-6 py-14 text-center text-white sm:px-12">
+            {/* Not "Build once. Use anywhere." — the footer strip says that
+                two hundred pixels further down. */}
+            <h2 className="text-title text-white">Ready to make one?</h2>
+            <p className="mx-auto mt-4 max-w-sm text-white/70">
+              Building and publishing are both free. We only ask who you are at the very end.
+            </p>
+            <Link
+              href="#build"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-btn bg-white px-6 py-4 text-base font-semibold text-navy transition hover:bg-lavender"
+            >
+              Start building for free
+              <ArrowRightIcon size={18} />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </>
+  );
+}
+
+function PromiseCard({
+  tone,
+  icon,
+  title,
+  body,
+}: {
+  tone: "lavender" | "mint" | "yellow";
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  // One pale disc and two saturated ones, as in the reference — three pale
+  // circles in a row would disappear into the panel behind them. Each pairs
+  // its mark with a colour that stays legible on it.
+  const tones = {
+    lavender: "bg-purple-soft text-purple",
+    yellow: "bg-yellow text-navy",
+    mint: "bg-mint text-white",
+  } as const;
+
+  return (
+    <div className="flex gap-4">
+      <span className={`grid h-14 w-14 flex-none place-items-center rounded-full ${tones[tone]}`}>
+        {icon}
+      </span>
+      <div className="min-w-0 pt-1">
+        <p className="font-bold leading-tight">{title}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-slate">{body}</p>
+      </div>
+    </div>
+  );
+}
