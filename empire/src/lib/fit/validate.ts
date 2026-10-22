@@ -42,6 +42,7 @@ export const progressSchema = z.object({
         cost: z.number().min(0).max(1e7).optional(),
         fixed: z.number().min(0).max(1e7).optional(),
         start: z.number().min(0).max(1e7).optional(),
+        unpaid: z.number().min(0).max(168).optional(),
       }),
     )
     .optional(),

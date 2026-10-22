@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 import { CONTACT, COUNTRIES, OPPORTUNITIES, SKILLS, TECH } from "@/lib/fit/data";
 import {
+  calcCore,
   calculate,
   gates,
   plan,
@@ -192,22 +193,43 @@ describe("Fit Finder engine", () => {
     expect(whyFits(first!, a).length).toBeGreaterThan(0);
     expect(risks(first!, a).at(-1)).toMatch(/^Main reason it fails: /);
     expect(plan(first!, a).map((d) => d.d)).toEqual([1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
-    expect(gates(first!, a).go[2]).toContain("A$30/hr");
+    const g = gates(first!, a);
+    expect(g.go.at(-1)).toContain("A$30/hr");
+    expect(g.go.some((x) => x.startsWith("Or, in a slow-buying market"))).toBe(true);
+    expect(g.insufficient[0]).toMatch(/^Fewer than 5 real conversations/);
   });
 
-  it("calculator: nothing until price and hours are in, then the report's maths", () => {
+  it("calculator: nothing until price and hours are in, then the report's maths with 2 unpaid hours", () => {
     const a: Answers = { ...answers(rng(2)), country: "Australia", hours: 10, minrate: 30 };
     const s = scoreAll(a).find((x) => x.o.id === 1)!;
     expect(calculate(s, a, { price: 0, hrs: 1, cost: 0, fixed: 0, start: 150 })).toBeNull();
-    // 10 hrs/week = 43.33 hrs/month; 1.5 hrs per session → capacity 28.88.
+    // 10 hrs/week less 2 unpaid = 8 paid; 8 × 52 / 12 = 34.67 hrs/month;
+    // 1.5 hrs per session → capacity 23.1. Per hour still spreads over all
+    // 43.33 monthly hours.
     const c = calculate(s, a, { price: 60, hrs: 1.5, cost: 5, fixed: 20, start: 150 })!;
+    expect(c.unpaid).toBe(2);
+    expect(c.paidHours).toBe(8);
     expect(c.margin).toBe(55);
     expect(c.breakEven).toBe(3);
-    expect(c.capacity).toBe(28);
-    expect(c.scenarios.map((x) => x.n)).toEqual([7, 14, 28]);
-    expect(c.scenarios[1]!.p).toBe(14 * 55 - 20);
-    expect(c.scenarios[1]!.h).toBeCloseTo((14 * 55 - 20) / ((10 * 52) / 12));
-    expect(c.signal).toBe("only-full"); // ~A$17/hr at half busy, ~A$35 full
+    expect(c.capacity).toBe(23);
+    expect(c.scenarios.map((x) => x.n)).toEqual([5, 11, 23]);
+    expect(c.scenarios[1]!.p).toBe(11 * 55 - 20);
+    expect(c.scenarios[1]!.h).toBeCloseTo((11 * 55 - 20) / ((10 * 52) / 12));
+    expect(c.signal).toBe("below"); // ~A$13.50/hr at half busy, ~A$28.73 full
+    // Her own unpaid figure replaces the allowance; 0 gives the v1.4 maths.
+    const none = calculate(s, a, {
+      price: 60,
+      hrs: 1.5,
+      cost: 5,
+      fixed: 20,
+      start: 150,
+      unpaid: 0,
+    })!;
+    expect(none.scenarios.map((x) => x.n)).toEqual([7, 14, 28]);
+    expect(none.signal).toBe("only-full");
+    expect(
+      calculate(s, a, { price: 60, hrs: 1, cost: 0, fixed: 0, start: 0, unpaid: 12 })!.signal,
+    ).toBe("no-time");
     expect(calculate(s, a, { price: 10, hrs: 1, cost: 12, fixed: 0, start: 0 })!.signal).toBe(
       "loss",
     );
@@ -237,5 +259,64 @@ describe("Fit Finder answers", () => {
     expect(parseAnswers(JSON.parse(JSON.stringify(stored)))).toEqual(stored);
     expect(parseAnswers({ ...a, country: "Atlantis" })).toBeNull();
     expect(parseAnswers({ ...a, hours: 400 })).toBeNull();
+  });
+});
+
+// The corrected report (content/corrections/report.patch) and the app must
+// agree: same top three with tie-breakers, same calculator numbers.
+const fixed = createRequire(import.meta.url)("../fixtures/fit-reference-corrected.cjs") as {
+  scoreAll: (opts: unknown[], a: unknown) => unknown[];
+  top3: (scored: unknown[]) => { o: { id: number } }[];
+  calcNums: (
+    c: Record<string, number | string | undefined>,
+    H: number,
+  ) => {
+    margin: number;
+    paid: number;
+    unpaid: number;
+    be: number | null;
+    sc: { f: number; n: number; p: number; h: number }[];
+  } | null;
+  OPTS: unknown[];
+};
+
+describe("corrected Income Fit Report", () => {
+  it("ranks exactly like the app, tie-breakers included, on 5,000 answer sets", () => {
+    const r = rng(77);
+    for (let n = 0; n < 5000; n += 1) {
+      const a = answers(r);
+      expect(top3(scoreAll(a)).map((s) => s.o.id)).toEqual(
+        fixed.top3(fixed.scoreAll(fixed.OPTS, { ...a, block: +a.block })).map((s) => s.o.id),
+      );
+    }
+  });
+
+  it("calculates exactly like the app, with and without her own unpaid hours", () => {
+    const r = rng(5);
+    for (let n = 0; n < 2000; n += 1) {
+      const H = 1 + Math.floor(r() * 40);
+      const c = {
+        price: Math.round(r() * 200),
+        hrs: pick(r, [0, 0.25, 0.5, 1, 1.5, 3, 8]),
+        cost: Math.round(r() * 50),
+        fixed: Math.round(r() * 100),
+        start: Math.round(r() * 800),
+        unpaid: pick(r, [undefined, 0, 1, 2, 3.5, 50]),
+      };
+      const mine = calcCore(c, H, 30, "sale", "A$");
+      const theirs = fixed.calcNums(c, H);
+      if (!theirs) {
+        expect(mine).toBeNull();
+        continue;
+      }
+      expect(mine).not.toBeNull();
+      expect([mine!.margin, mine!.paidHours, mine!.unpaid, mine!.breakEven]).toEqual([
+        theirs.margin,
+        theirs.paid,
+        theirs.unpaid,
+        theirs.be,
+      ]);
+      expect(mine!.scenarios).toEqual(theirs.sc);
+    }
   });
 });

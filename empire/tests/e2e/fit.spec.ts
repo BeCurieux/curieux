@@ -36,12 +36,17 @@ test("with the Income Fit Test: full report, calculator and 14-day plan, saved",
     page.getByText(/Research on this idea last checked 1[67] October 2026/),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Go, adjust or stop." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Not enough evidence yet" })).toBeVisible();
+  await expect(page.getByText(/^Or, in a slow-buying market/)).toBeVisible();
 
   // Calculator: nothing until real numbers go in.
   await expect(page.getByText(/a made-up price would be a made-up result/)).toBeVisible();
   await page.getByLabel(/^Price per /).fill("60");
   await page.getByLabel(/^Hours per /).fill("1.5");
   await expect(page.getByText(/to win back your start-up/)).toBeVisible();
+  // 2 unpaid hours a week come off the hours that can be sold.
+  await expect(page.getByLabel("Unpaid hours a week")).toHaveValue("2");
+  await expect(page.getByText(/in your \d+ paid hrs\/week/)).toBeVisible();
   await expect(page.locator("#calc-status")).toHaveText("Saved to your account");
 
   // Tick Day 4 and it stays ticked.

@@ -2,14 +2,21 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { saveFitProgress } from "@/app/studio/fit/actions";
-import { calcCore, type PlanDay, type Scored } from "@/lib/fit/engine";
+import { UNPAID_HOURS, calcCore, type PlanDay, type Scored } from "@/lib/fit/engine";
 import type { FitProgress } from "@/lib/domain/records";
 
 // The report's two interactive parts — the calculator and the dated 14-day
 // plan — with her inputs saved to her account as she goes. The calculator
 // uses the engine's own calcCore(), so browser and tests run the same maths.
 
-type Calc = { price?: number; hrs?: number; cost?: number; fixed?: number; start?: number };
+type Calc = {
+  price?: number;
+  hrs?: number;
+  cost?: number;
+  fixed?: number;
+  start?: number;
+  unpaid?: number;
+};
 
 function useSaver(resultId: string) {
   const pending = useRef<Partial<FitProgress> | null>(null);
@@ -88,7 +95,9 @@ export function Calculator({
 }) {
   const id = String(scored.o.id);
   const { save, state } = useSaver(resultId);
-  const [c, setC] = useState<Calc>(progress.calc?.[id] ?? { start: scored.cap, cost: 0, fixed: 0 });
+  const [c, setC] = useState<Calc>(
+    progress.calc?.[id] ?? { start: scored.cap, cost: 0, fixed: 0, unpaid: UNPAID_HOURS },
+  );
 
   const update = (k: keyof Calc, v: string) => {
     const next = { ...c, [k]: v === "" ? undefined : Math.max(0, Number(v)) };
@@ -137,6 +146,12 @@ export function Calculator({
         )}
         {field("fixed", `Monthly running costs (${sym})`, "Software, subscriptions, insurance.")}
         {field(
+          "unpaid",
+          "Unpaid hours a week",
+          `Finding customers, messages and admin that nobody pays for. ${UNPAID_HOURS} is the kit's allowance; change it if yours is different.`,
+          "0.5",
+        )}
+        {field(
           "start",
           `Start-up cost (${sym})`,
           "Prefilled with our estimate (EST) for your country. Change it to your real number.",
@@ -161,7 +176,7 @@ export function Calculator({
               <b>{result.breakEven === null ? "never at this price" : result.breakEven}</b>
             </p>
             <p className="flex justify-between gap-2">
-              <span>Most you could do a month in {weeklyHours} hrs/week</span>
+              <span>Most you could do a month in your {result.paidHours} paid hrs/week</span>
               <b>{result.capacity}</b>
             </p>
             <table className="w-full text-left">
@@ -190,10 +205,10 @@ export function Calculator({
               {result.message}
             </p>
             <p className="text-mute text-xs">
-              "Busy" is the share of your {weeklyHours} weekly hours spent on paid work. Before tax.
-              A scenario from your inputs, not a forecast. "Per hour" spreads profit over all{" "}
-              {weeklyHours} of your weekly hours, because unpaid hours spent finding customers are
-              still your hours.
+              "Busy" is the share of your {result.paidHours} paid hours a week (your {weeklyHours}{" "}
+              hours less {result.unpaid} unpaid) that customers actually buy. Before tax. A scenario
+              from your inputs, not a forecast. "Per hour" spreads profit over all {weeklyHours} of
+              your weekly hours, because unpaid hours spent finding customers are still your hours.
             </p>
           </div>
         )}

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Turn your product idea into a coordinated Shopify launch: brand blueprint, Sidekick prompts, product copy, photo briefs, launch marketing and a checklist. Big plans. Real life.",
 };
 
-export const viewport: Viewport = { themeColor: "#632B39" };
+export const viewport: Viewport = { themeColor: "#43252c" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

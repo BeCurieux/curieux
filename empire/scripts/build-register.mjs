@@ -266,18 +266,38 @@ const REFUND =
 const LABELS = "Label every figure FACT, EST or UNKNOWN, with the date checked.";
 const LAWYER =
   "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products.";
+const HONEST_DAY14 =
+  "Round 2: the report gains the Scorecard's separate 'not enough evidence' verdict, the slow-buying-market path and the workbook's 2 unpaid hours a week; everything else matches the corrected report (content/corrections/).";
+const PROMISE =
+  "Her Little Empire's promise everywhere: 'Make your own money. Know what you're getting into.' with the website's supporting line; 'Big plans. Real life.' stays the tagline.";
+const RECORDS = "Record keeping follows the Rules Guides (most recently checked).";
 const DECISIONS = {
   "income-fit-test": [QUIZ],
   "fit-report": [
     "Free users see their top three ideas with one line on why each fits; the full report (calculator, country rules, dated 14-day plan, go/adjust/stop) stays with Income Fit Test owners and bundle buyers.",
     "Products vs services and recurring vs one-off are tie-breakers in scoring.",
     DAY14.replace("this file is to match it", "everything else matches it"),
+    HONEST_DAY14,
   ],
-  "start-here": [QUIZ, REFUND],
-  "14-day-test-plan": [QUIZ, DAY14, LABELS],
-  "ai-shortcut-system": [QUIZ, DAY14, LABELS],
-  "go-no-go-scorecard": [DAY14],
-  workbook: [QUIZ, DAY14, LABELS, LAWYER],
+  "start-here": [QUIZ, REFUND, PROMISE],
+  "14-day-test-plan": [QUIZ, DAY14, HONEST_DAY14, LABELS],
+  "ai-shortcut-system": [QUIZ, DAY14, HONEST_DAY14, LABELS],
+  "go-no-go-scorecard": [DAY14, HONEST_DAY14],
+  workbook: [QUIZ, DAY14, HONEST_DAY14, LABELS, LAWYER],
+  "14-day-tracker": [RECORDS, LABELS],
+  "side-income-money-system": [RECORDS + " Its table already matches them."],
+  "30-day-faceless-content-plan": [
+    "Day 13 poll results: the Rules Guides don't cover it; suggested fix is 'Share the results on day 16' (two of three places already say so).",
+    LABELS,
+  ],
+  "price-it-right": [
+    "Source of truth for pricing rules. Its own worked example ($380 founding, then $420, against 'start at the middle', about $400) is for the founder to check.",
+  ],
+  "90-day-grow-plan": [
+    "Pricing matches Price It Right (raise 15–25% (EST, not a rule), 30 days' notice) and points to it.",
+  ],
+  "100-faceless-hooks": ["@herlittleempire.co is the correct handle."],
+  "comment-to-dm-kit": ["@herlittleempire.co is the correct handle."],
   "opportunity-cards": [LABELS, LAWYER],
   "first-5-customers": [LAWYER, LABELS],
   "client-paperwork-kit": [LAWYER],
@@ -295,11 +315,13 @@ const DECISIONS = {
   "faceless-content-system-workbook": ["Unreleased: not on sale yet.", LABELS],
   "faceless-not-anonymous-workbook": ["Unreleased: not on sale yet."],
   "brand-in-a-box": [
+    "The founding-price preview uses Price It Right's example: $380 (usually $420).",
     "The Brand Blueprint is labelled as Empire Studio's own method and doesn't claim to come from Brand-in-a-Box.",
   ],
   "brand-system": [
     "The website and current product PDFs win: Bodoni Moda 800 for headings, grey #564B4E, no stock photos of people (faceless brand).",
     "Footer: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com. No former trading name anywhere.",
+    PROMISE,
   ],
 };
 

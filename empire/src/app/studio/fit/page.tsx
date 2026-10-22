@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FitQuiz } from "@/components/fit/quiz";
 import { Card, PageHeader } from "@/components/ui/card";
+import { PROMISE, PROMISE_SUPPORT } from "@/content/brand";
 import { OPPORTUNITIES } from "@/lib/fit/data";
 import { studio } from "@/lib/studio/context";
 
@@ -12,14 +13,14 @@ export default async function FitFinder() {
   const past = await repo.listFitResults();
   return (
     <main id="main" className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
-      <PageHeader
-        eyebrow="The Income Fit Test · Fit Finder"
-        title="Find the idea that fits your real week."
-      >
-        Twenty questions about your time, budget, skills and limits. Your answers are scored against{" "}
-        {OPPORTUNITIES.length} researched ideas, and you get your top three, with why each fits.
-        With The Income Fit Test, the full report adds the rules where you live, a calculator, a
-        dated 14-day test and your go, adjust or stop lines.
+      <PageHeader eyebrow="The Income Fit Test · Fit Finder" title={PROMISE}>
+        <p>{PROMISE_SUPPORT}</p>
+        <p className="mt-3 text-base">
+          Twenty questions about your time, budget, skills and limits, scored against{" "}
+          {OPPORTUNITIES.length} researched ideas. You get your top three, with why each fits. With
+          The Income Fit Test, the full report adds the rules where you live, a calculator, a dated
+          14-day test and your Day 14 decision lines.
+        </p>
       </PageHeader>
       {past.length > 0 ? (
         <Card className="mb-6">

@@ -14,6 +14,10 @@ export async function signIn(page: Page) {
 
 export async function takeQuiz(page: Page) {
   await page.goto("/studio/fit");
+  // Her Little Empire's promise heads the Fit Finder.
+  await expect(
+    page.getByRole("heading", { name: "Make your own money. Know what you're getting into." }),
+  ).toBeVisible();
   const choose = async (label: string) => {
     await page.getByRole("button", { name: label, exact: false }).first().click();
     await page.getByRole("button", { name: "Next →" }).click();

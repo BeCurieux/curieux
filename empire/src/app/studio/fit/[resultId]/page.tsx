@@ -330,9 +330,10 @@ export default async function FitReport({ params }: { params: Promise<{ resultId
               const g = gates(s1, a);
               return (
                 <>
-                  <div className="grid gap-3 md:grid-cols-3">
+                  <div className="grid gap-3 md:grid-cols-2">
                     {(
                       [
+                        ["Not enough evidence yet", g.insufficient, "bg-blush-soft"],
                         ["Go: next test", g.go, "bg-[#eef6f0]"],
                         ["Adjust: change one thing", g.adjust, "bg-[#fbf3e2]"],
                         ["Stop: and that's a result", g.stop, "bg-ivory"],

@@ -13,6 +13,13 @@ import type { Answers } from "./questions";
 // one-off (`rp`), now break ties. They never change a score, a band or a
 // filter; they only reorder ideas whose fit (total + priority) is equal,
 // ahead of the shipped commercial-evidence tie-breaker.
+//
+// Three more, from the kit's own Scorecard and workbook (founder, 22 Oct
+// 2026; "they're the honest version"): Day 14 has a separate "not enough
+// evidence" verdict and a slow-buying-market path, and the calculator keeps
+// 2 unpaid hours a week (finding customers, messages, admin) out of the
+// hours that can be sold. The corrected report carries the same rules
+// (tests/fixtures/fit-reference-corrected.cjs).
 
 export interface Scored {
   o: Opportunity;
@@ -374,15 +381,23 @@ export interface CalcInputs {
   cost: number;
   fixed: number;
   start: number;
+  /** Unpaid hours a week; UNPAID_HOURS when not given. */
+  unpaid?: number;
 }
+
+/** The workbook's allowance for unpaid hours a week: finding customers, messages, admin. */
+export const UNPAID_HOURS = 2;
 
 export interface CalcResult {
   margin: number;
   /** Units to win back the start-up; null when each unit loses money. */
   breakEven: number | null;
   capacity: number;
+  /** Weekly hours left for paid work after the unpaid ones. */
+  paidHours: number;
+  unpaid: number;
   scenarios: { f: number; n: number; p: number; h: number }[];
-  signal: "loss" | "ok" | "only-full" | "below";
+  signal: "loss" | "ok" | "only-full" | "below" | "no-time";
   message: string;
 }
 
@@ -404,10 +419,14 @@ export function calcCore(
   const cost = +(c.cost ?? 0) || 0;
   const fixed = +(c.fixed ?? 0) || 0;
   const start = +(c.start ?? 0) || 0;
+  const unpaid = c.unpaid === undefined || c.unpaid === null ? UNPAID_HOURS : +c.unpaid || 0;
   const mH = (H * 52) / 12;
+  const paidHours = Math.max(0, H - unpaid);
   if (!price || !hrs) return null;
   const margin = price - cost;
-  const cap = mH / hrs;
+  // Only the hours left after unpaid work can be sold; profit is still
+  // spread over all her hours, because the unpaid ones are hers too.
+  const cap = (paidHours * 52) / 12 / hrs;
   const scenarios = [0.25, 0.5, 1].map((f) => {
     const n = Math.floor(cap * f);
     const p = n * margin - fixed;
@@ -417,12 +436,18 @@ export function calcCore(
   const mid = scenarios[1]!;
   const full = scenarios[2]!;
   const m = (v: number) => money(sym, v);
-  const base = { margin, breakEven, capacity: Math.floor(cap), scenarios };
+  const base = { margin, breakEven, capacity: Math.floor(cap), paidHours, unpaid, scenarios };
   if (margin <= 0)
     return {
       ...base,
       signal: "loss",
       message: `Each ${u} costs more than it earns at this price. Change the price or the costs before anything else.`,
+    };
+  if (paidHours === 0)
+    return {
+      ...base,
+      signal: "no-time",
+      message: `With ${unpaid} unpaid hours a week, none of your ${H} hours are left for paid work. Free up more hours, or cut the unpaid ones, before you test this.`,
     };
   if (mid.h >= floor)
     return {
@@ -453,6 +478,7 @@ export function gates(s: Scored, a: Answers) {
       product
         ? "1+ order or pre-order, and 1+ person asked about price"
         : "2+ people asked about price or booking unprompted, and 1+ firm, dated yes or deposit",
+      "Or, in a slow-buying market (B2B retainers, anything with approvals, high-ticket packages): 2+ people asked about price or timing unprompted, and their feedback was specific (what they'd change, when they'd need it, what they'd pay). Commitments may come after 14 days.",
       `Your calculator, with real numbers, shows ${floor}/hr or more at 50% busy`,
     ],
     adjust: [
@@ -465,6 +491,11 @@ export function gates(s: Scored, a: Answers) {
       "Or you don't want another 14 days of this",
       "Go to your back-up below. You found out for the price of this kit and two weeks.",
     ],
-    note: "Fewer than 5 real conversations isn't a no; it's not enough evidence yet. Try a different place to find people and repeat Days 9-12.",
+    insufficient: [
+      "Fewer than 5 real conversations with people who fit your customer type",
+      "That isn't a no; it's not enough information. Repeat Days 9-12 with a different channel or a sharper customer type, aiming for five to ten real conversations. Don't spend money on the idea yet.",
+      "If a second round still can't reach five people, the problem is reach, and that's an answer about this idea for you.",
+    ],
+    note: "Check in this order: enough evidence first, then go, adjust or stop.",
   };
 }

@@ -15,8 +15,8 @@
 
 Done: **FIT Finder** (1) with Vee's free tier and tie-breakers, brand identity and HLE methods for five generators, Empire Studio's own Brand Blueprint method (2), a partial store brief (3), hooks imported (6). Next:
 
-1. **Vee's open items** in `content/REGISTER.md` §3 "Still open" (promise formula, pricing rules, Gumroad ids and the buy link); document fixes in `content/CORRECTIONS.md`.
-2. **Go/No-Go Scorecard with the full criteria** — port the workbook's scorecard formula and its 20 audit checks as tests (`content/audit/fit-kit-methods.md` §a, §c).
+1. **Vee's open items** in `content/REGISTER.md` §3 "Still open" (30-Day Plan Day 13, Price It Right's own example, Gumroad ids and the buy link); document fixes, and the ready-to-apply report patches, in `content/CORRECTIONS.md`.
+2. **Go/No-Go Scorecard, interactive** — the twelve questions and gates as a Day 14 form, using the corrected report's go line (hourly-rate condition instead of the total of 24) and its four outcomes; the workbook's audit checks as tests (`content/audit/fit-kit-methods.md` §a, §c).
 3. **Brand Blueprint gaps** — how to choose an accent colour and a voice rubric (Empire Studio's own method; Vee to approve).
 4. **Shopify launch workflow** — no Her Little Empire Shopify method exists yet; write one (theme brief and Sidekick prompts) in HLE's voice.
 5. **Pricing calculator** from Price It Right (floor = hours × minimum hourly return + costs + fees; market low/mid/high rules), with tests from its worked example ($35 × 8 h → $280 floor); add Little Offer Kit's digital-product tiers and the Gumroad fee formula (7 → 5.80, 12 → 10.30, 19 → 16.60, 27 → 23.80).

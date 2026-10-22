@@ -93,6 +93,7 @@
       "founder_decisions": [
         "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
         "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Round 2: the report gains the Scorecard's separate 'not enough evidence' verdict, the slow-buying-market path and the workbook's 2 unpaid hours a week; everything else matches the corrected report (content/corrections/).",
         "Label every figure FACT, EST or UNKNOWN, with the date checked."
       ]
     },
@@ -159,7 +160,10 @@
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
       "built": "Plan ticks and calculator inputs saved per result",
-      "founder_decisions": []
+      "founder_decisions": [
+        "Record keeping follows the Rules Guides (most recently checked).",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked."
+      ]
     },
     {
       "priority": 1,
@@ -240,6 +244,7 @@
       "founder_decisions": [
         "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
         "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Round 2: the report gains the Scorecard's separate 'not enough evidence' verdict, the slow-buying-market path and the workbook's 2 unpaid hours a week; everything else matches the corrected report (content/corrections/).",
         "Label every figure FACT, EST or UNKNOWN, with the date checked."
       ]
     },
@@ -319,7 +324,8 @@
       "founder_decisions": [
         "Free users see their top three ideas with one line on why each fits; the full report (calculator, country rules, dated 14-day plan, go/adjust/stop) stays with Income Fit Test owners and bundle buyers.",
         "Products vs services and recurring vs one-off are tie-breakers in scoring.",
-        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; everything else matches it."
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; everything else matches it.",
+        "Round 2: the report gains the Scorecard's separate 'not enough evidence' verdict, the slow-buying-market path and the workbook's 2 unpaid hours a week; everything else matches the corrected report (content/corrections/)."
       ]
     },
     {
@@ -386,7 +392,8 @@
       "source_reviewed": true,
       "built": "Day 14 gates in the FIT Finder report (the report's version)",
       "founder_decisions": [
-        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it."
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Round 2: the report gains the Scorecard's separate 'not enough evidence' verdict, the slow-buying-market path and the workbook's 2 unpaid hours a week; everything else matches the corrected report (content/corrections/)."
       ]
     },
     {
@@ -721,7 +728,8 @@
       "built": null,
       "founder_decisions": [
         "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
-        "Use exactly 'Full refund within 14 days of purchase, no questions asked.'; any consumer-rights mention goes in its own sentence after it."
+        "Use exactly 'Full refund within 14 days of purchase, no questions asked.'; any consumer-rights mention goes in its own sentence after it.",
+        "Her Little Empire's promise everywhere: 'Make your own money. Know what you're getting into.' with the website's supporting line; 'Big plans. Real life.' stays the tagline."
       ]
     },
     {
@@ -811,6 +819,7 @@
       "founder_decisions": [
         "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
         "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Round 2: the report gains the Scorecard's separate 'not enough evidence' verdict, the slow-buying-market path and the workbook's 2 unpaid hours a week; everything else matches the corrected report (content/corrections/).",
         "Label every figure FACT, EST or UNKNOWN, with the date checked.",
         "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products."
       ]
@@ -881,6 +890,7 @@
       "source_reviewed": true,
       "built": null,
       "founder_decisions": [
+        "The founding-price preview uses Price It Right's example: $380 (usually $420).",
         "The Brand Blueprint is labelled as Empire Studio's own method and doesn't claim to come from Brand-in-a-Box."
       ]
     },
@@ -916,7 +926,8 @@
       "built": "Empire Studio's colours, fonts and labels",
       "founder_decisions": [
         "The website and current product PDFs win: Bodoni Moda 800 for headings, grey #564B4E, no stock photos of people (faceless brand).",
-        "Footer: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com. No former trading name anywhere."
+        "Footer: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com. No former trading name anywhere.",
+        "Her Little Empire's promise everywhere: 'Make your own money. Know what you're getting into.' with the website's supporting line; 'Big plans. Real life.' stays the tagline."
       ]
     },
     {
@@ -1430,7 +1441,9 @@
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
       "built": null,
-      "founder_decisions": []
+      "founder_decisions": [
+        "Source of truth for pricing rules. Its own worked example ($380 founding, then $420, against 'start at the middle', about $400) is for the founder to check."
+      ]
     },
     {
       "priority": 5,
@@ -1517,7 +1530,9 @@
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
       "built": null,
-      "founder_decisions": []
+      "founder_decisions": [
+        "Record keeping follows the Rules Guides (most recently checked). Its table already matches them."
+      ]
     },
     {
       "priority": 6,
@@ -1627,7 +1642,9 @@
       "group": "Content and starter kits",
       "source_reviewed": true,
       "built": "content/hooks/hooks.json (100 hooks, verbatim) used by social_content",
-      "founder_decisions": []
+      "founder_decisions": [
+        "@herlittleempire.co is the correct handle."
+      ]
     },
     {
       "priority": 6,
@@ -1764,7 +1781,10 @@
       "group": "Content and starter kits",
       "source_reviewed": true,
       "built": "Method: social_content (weekly rhythm, launch week days 23–29)",
-      "founder_decisions": []
+      "founder_decisions": [
+        "Day 13 poll results: the Rules Guides don't cover it; suggested fix is 'Share the results on day 16' (two of three places already say so).",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked."
+      ]
     },
     {
       "priority": 6,
@@ -1924,7 +1944,9 @@
       "group": "Content and starter kits",
       "source_reviewed": true,
       "built": "Listed as a social_content source; templates not yet used",
-      "founder_decisions": []
+      "founder_decisions": [
+        "@herlittleempire.co is the correct handle."
+      ]
     },
     {
       "priority": 6,
@@ -2222,7 +2244,9 @@
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
       "built": null,
-      "founder_decisions": []
+      "founder_decisions": [
+        "Pricing matches Price It Right (raise 15–25% (EST, not a rule), 30 days' notice) and points to it."
+      ]
     },
     {
       "priority": 7,

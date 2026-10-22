@@ -18,7 +18,7 @@
 | Brand book and print style                                                                                      | Empire Studio's own colours, fonts and labels                                                                                       | `src/app/globals.css`, `public/fonts/`                   |
 | `catalog.py`                                                                                                    | The product catalogue, prices and bundles (bundles unlock their contents)                                                           | `src/content/catalogue.ts`                               |
 
-**The FIT Finder is a 1:1 port.** The shipped JavaScript engine is kept verbatim as a test fixture and run beside the TypeScript port on 5,000 random answer sets: identical scores, bands and "why it's out" reasons, and identical top threes whenever she has no product/service or recurring/one-off preference. The one change, at Vee's request: those two answers now break ties between ideas of equal fit. It scores the opportunity data embedded in the shipped report, which proves `opportunities.json` matches it exactly (it does: 0 differences).
+**The FIT Finder is a 1:1 port.** The shipped JavaScript engine is kept verbatim as a test fixture and run beside the TypeScript port on 5,000 random answer sets: identical scores, bands and "why it's out" reasons, and identical top threes whenever she has no product/service or recurring/one-off preference. Vee's changes on top: those two answers break ties between ideas of equal fit, and Day 14 and the calculator gain the Scorecard's "not enough evidence" verdict, the slow-buying path and 2 unpaid hours a week. The corrected report carries the same rules and is tested against the app. It scores the opportunity data embedded in the shipped report, which proves `opportunities.json` matches it exactly (it does: 0 differences).
 
 **Free and paid.** Everyone sees their top three ideas with one line on why each fits. The full report (calculator, rules for their country, dated 14-day plan and go/adjust/stop) unlocks for people who own The Income Fit Test, directly or in The Empire Bundle or The Whole Empire. The buy link is `https://herlittleempireco.gumroad.com/l/income-fit-test` until the Gumroad scripts confirm it.
 
@@ -53,20 +53,29 @@ Versions: the product PDFs say "Version 1.1 · October 2026". The Income Fit Tes
 | 11  | Brand-in-a-Box has no brand method                        | Label the Brand Blueprint as Empire Studio's own method.                                                               | Yes ("Empire Studio method" badge; no Brand-in-a-Box attribution)                        | —              |
 | 12  | Fit Check, Sell It Simply and the faceless workbooks      | Fit Check is free (`fit-check`); the other three are unreleased.                                                       | Yes (catalogue status)                                                                   | —              |
 
+### Round 2 (22 October 2026)
+
+| Finding                        | Decision                                                                                                                         | Done in the app                                                                     | Documents                             |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------- |
+| Day 14: what the report lacked | Keep all three: separate "not enough evidence" verdict, slow-buying path, 2 unpaid hours a week. "They're the honest version."   | Yes (four Day 14 boxes; unpaid-hours field in the calculator)                       | CORRECTIONS §4 (report patches ready) |
+| Consumer-rights sentence       | Approved: "This is on top of your rights under consumer law."                                                                    | Already                                                                             | CORRECTIONS §2                        |
+| Promise                        | "Make your own money. Know what you're getting into." + the website's supporting line; "Big plans. Real life." stays the tagline | Fit Finder page and site footer (`src/content/brand.ts`)                            | CORRECTIONS §6                        |
+| Pricing rules                  | Price It Right is the source of truth; the 90-Day Grow Plan matches it and points to it                                          | No pricing rules in the app yet; the planned pricing calculator uses Price It Right | CORRECTIONS §7                        |
+| Record keeping                 | The Rules Guides win                                                                                                             | The FIT report's rules already come from them                                       | CORRECTIONS §8                        |
+| Instagram handle               | @herlittleempire.co is correct                                                                                                   | —                                                                                   | CORRECTIONS §9                        |
+
 ### Still open
 
-1. **Old generators in `source/`:** `cards.py` builds 25 cards, not the 23 shipped; `quickstart.py` builds an outdated Australia-only guide with old ASIC fees and a Centrelink line that contradicts the current Rules Guide. The generators for the current Cards, Start Here and Rules Guides aren't in the folder.
-2. **Record keeping:** the 14-Day Tracker says "five to seven years"; Side Income Money System's dated table says the US default is 3 years.
-3. **30-Day Plan Day 13:** results shared "the next day" in one place, "day 16" in two others.
-4. **Pricing rules disagree:** Price It Right raises by 15–25% (EST) with 30 days' notice; the 90-Day Grow Plan says "one clear step" with no notice period. Price It Right's worked example ($380 founding, then $420) doesn't follow its own "start at the middle" rule, and Brand-in-a-Box shows the same package as "usually $480".
-5. **Five different "one-sentence promise" formulas** across Little Offer Kit, Sell It Simply, AI Business Assistant Pack, the 90-Day plan and Fit Check. The app uses Sell It Simply's for brand positioning and Little Offer Kit's for product listings until Vee picks one.
-6. **Gumroad product ids** for `src/content/catalogue.ts`, and confirmation of the buy link (coming from Vee's Gumroad scripts).
-7. Is **"@herlittleempire.co"** (100 Faceless Hooks, Comment-to-DM) the right handle?
+1. **Old generators in `source/`:** `cards.py` builds 25 cards, not the 23 shipped; `quickstart.py` builds an outdated Australia-only guide with old ASIC fees and a Centrelink line that contradicts the current Rules Guide. The generators for the current Cards, Start Here and Rules Guides, and the script that injects the scoring engine into the report, aren't in the folder.
+2. **30-Day Plan Day 13:** the Rules Guides don't cover it (it's about poll results). Suggested: "Share the results on day 16", as two of three places say (CORRECTIONS §8).
+3. **Price It Right's own worked example** ($380 founding, then $420) doesn't follow its "start at the middle" rule (about $400). Now that it's the source of truth, change the example or add a founding-price rule (CORRECTIONS §7).
+4. **Customer promise templates:** the five "one-sentence promise" formulas inside the products are for buyers writing their own promise. The app uses Sell It Simply's for brand positioning and Little Offer Kit's for product listings unless Vee wants one formula.
+5. **Gumroad product ids** for `src/content/catalogue.ts`, and confirmation of the buy link (coming from Vee's Gumroad scripts).
 
 ### Compliance notes (against the README rules)
 
 - **Family details in buyer-facing examples** (Faceless Not Anonymous "mum of one on the coast of NSW", Comment-to-DM "toddler on my hip"). Fine as templates; the app's generators never default to family references.
-- **Self-promotion inside products** (Fit Check CTAs and "@herlittleempire.co" in 100 Faceless Hooks and Comment-to-DM; VA kit cross-sell). Stripped from what the app shows store owners.
+- **Self-promotion inside products** (Fit Check CTAs and @herlittleempire.co, the confirmed handle, in 100 Faceless Hooks and Comment-to-DM; VA kit cross-sell). Stripped from what the app shows store owners, because it's about Her Little Empire, not their shop.
 - **Personalised legal output risk:** Client Paperwork Kit and AI pack prompt 6.6 must stay static templates, never AI-filled agreements.
 
 No income claims, fake urgency, fake testimonials, MLM or PLR/MRR were found in any product. Several products explicitly reject them.

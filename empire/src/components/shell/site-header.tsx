@@ -2,6 +2,7 @@ import Link from "next/link";
 import { currentUser } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/ui/button";
 import { Imprint } from "./imprint";
+import { PROMISE, TAGLINE } from "@/content/brand";
 import { Wordmark } from "./wordmark";
 
 export async function SiteHeader() {
@@ -42,10 +43,13 @@ export function SiteFooter() {
   return (
     <footer className="border-line mt-24 border-t">
       <div className="text-mute mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <p>
-          <span className="text-aubergine font-serif text-base">Her Little Empire</span> — Big
-          plans. Real life.
-        </p>
+        <div>
+          <p>
+            <span className="text-aubergine font-serif text-base">Her Little Empire</span> —{" "}
+            {PROMISE}
+          </p>
+          <p className="mt-1">{TAGLINE}</p>
+        </div>
         <nav aria-label="Legal" className="flex flex-wrap gap-4">
           <Link href="/pricing" className="hover:text-aubergine">
             Pricing

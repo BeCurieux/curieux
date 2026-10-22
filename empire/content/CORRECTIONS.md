@@ -1,8 +1,30 @@
 # Corrections for the Her Little Empire documents
 
-From Vee's answers to the audit (22 October 2026). Empire Studio already follows every decision below. This list is for the **documents** (the PDFs, the workbook and the generators in `source/`), so they say the same thing as the app.
+From Vee's answers to the audit (two rounds, 22 October 2026). Empire Studio already follows every decision below. This list is for the **documents** (the PDFs, the workbook and the generators in `source/`), so they say the same thing as the app.
 
 Nothing here has been applied to a live file or a Gumroad listing. Each fix is for Vee (or her build scripts) to make on the next revision. Locations come from the audit records in [`audit/`](audit/) and the register ([`register.csv`](register.csv)).
+
+## At a glance: what changes in each file
+
+| File                                                          | Sections                                                           |
+| ------------------------------------------------------------- | ------------------------------------------------------------------ |
+| The Income Fit Report (kit HTML and `source/report_src.html`) | §4a (patches ready)                                                |
+| Start Here                                                    | §1 question count, §2 refund, §4b, §6 promise                      |
+| Workbook                                                      | §1 version and questions, §3 labels, §4b calculators and scorecard |
+| Opportunity Cards                                             | §1 version, §3 labels                                              |
+| AI Shortcut System                                            | §1 version and Workflow 1, §3 labels, §4b Workflows 10–11          |
+| 14-Day Test Plan                                              | §1 version and Days 1–2, §3 labels, §4b Day 14                     |
+| Go / No-Go Scorecard                                          | §1 version, §4b                                                    |
+| Rules Guides                                                  | §1 version, §3 (add FACT labels)                                   |
+| `source/common.py`                                            | §1 version                                                         |
+| Fit Check freebie                                             | §1 question count, §2 refund                                       |
+| 14-Day Tracker                                                | §3 labels, §8 record keeping                                       |
+| 90-Day Grow Plan                                              | §7 pricing                                                         |
+| Brand-in-a-Box                                                | §3 labels, §7 founding-price example                               |
+| Price It Right                                                | §7 (check its own worked example)                                  |
+| 30-Day Faceless Content Plan                                  | §3 labels, §8 Day 13                                               |
+| Brand book (visual identity)                                  | §1 sample count, §5 footer and brand, §6 promise                   |
+| Other product PDFs with unlabelled figures                    | §3 (by document)                                                   |
 
 ## 1. 20 questions, v1.4, everywhere
 
@@ -152,27 +174,42 @@ The unlabelled figures and claims found, by document:
 - Spam laws: Spam Act (AU), PECR (UK), CASL (CA), CAN-SPAM (US), UEMA (NZ); in AU and CA even one commercial email needs consent (Legal claim, unlabelled and undated.)
 - Unlabelled legal statements (spam laws) conflict with the labelling rule. 'Clear boundaries protect your family time' is generic, not about Vee.
 
-## 4. Day 14 rules and the calculator: the Income Fit Report is the source of truth
+## 4. Day 14 rules and the calculator: the corrected Income Fit Report is the source of truth
 
-The report's rules (`gates` and `calcCore` in `src/lib/fit/engine.ts`, ported word for word):
+Vee's decisions: the Income Fit Report is the source of truth for Day 14 and the calculator, and it **gains three things from the Scorecard and workbook**, because they're the honest version: a separate **"not enough evidence" verdict**, the **slow-buying market** path, and the **2 unpaid hours a week** allowance.
 
-- **Go: next test.** 5+ real conversations with people who fit the customer type; for a service, 2+ people asked about price or booking unprompted and 1+ firm, dated yes or deposit (for a product, 1+ order or pre-order and 1+ person asked about price); and the calculator, with real numbers, shows her minimum hourly rate or more at 50% busy.
-- **Adjust.** Demand is there but a number is off, or there's interest without commitments. Change one thing and **repeat Days 9–12**. Two adjust rounds with no commitment means stop.
-- **Stop.** 5+ real conversations and nobody asked about price, or she doesn't want another 14 days.
-- **Fewer than 5 conversations** isn't a no: not enough evidence yet; find a different place and repeat Days 9–12.
-- **Calculator.** Capacity = monthly hours (weekly × 52 ÷ 12) ÷ hours per unit. Scenarios at 25%, 50% and 100% of capacity (whole units, rounded down). Profit = units × (price − cost per unit) − monthly fixed costs; hourly return = profit ÷ monthly hours. Break-even = start-up ÷ margin, rounded up (units to win back the start-up). Signal from the 50% and 100% scenarios against her floor.
+### 4a. The report itself (ready to apply)
 
-To match it:
+The changes are written as patches. They were tested by applying them to the supplied v1.4 files and opening the result in a browser, with no script errors:
 
-| File                                                  | Differs how                                                                                                                            | Change                                                                                                           |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Go / No-Go Scorecard (PDF and workbook "3 Scorecard") | Verdict from a 12-question total (24+ = next test) and a demand gate; no hourly-rate condition; ADJUST re-runs Days 7–12               | Use the report's go/adjust/stop lines above, including the minimum-hourly-rate condition, and "repeat Days 9–12" |
-| 14-Day Test Plan, Day 14                              | Restates the scorecard's verdicts                                                                                                      | The report's lines                                                                                               |
-| AI Shortcut System, Workflows 10 and 11               | Workflow 11 asks for a "GO / ADJUST / STOP band" the scorecard doesn't have; Workflow 10's example says "fewer than ten conversations" | The report's three outcomes; five conversations                                                                  |
-| Workbook calculators (2A, 2B, 2C)                     | 20% / 50% / 80% of (hours − 2 unpaid hours); break-even on fixed costs; scenarios called "Base"; Plan and Scorecard say "moderate"     | The report's model above (25 / 50 / 100%, no unpaid-hours term, break-even on start-up), one scenario name       |
-| Start Here                                            | "uses the same scoring and gives the same top three"                                                                                   | True once the workbook matches; until then, say the report is the reference                                      |
+- [`corrections/report.patch`](corrections/report.patch) for `kit/00_Your_Income_Fit_Report.html` (the shipped file, including the scoring engine);
+- [`corrections/report_src.patch`](corrections/report_src.patch) for `source/report_src.html` (the engine there is injected at `/*ENGINE*/`, so make the `top3` change in the engine source too: see the first two hunks of `report.patch`).
 
-**Check before applying:** the report has no "slow-buying market" path and no separate INSUFFICIENT EVIDENCE verdict (it's the "fewer than 5" note), and it doesn't count the 2 unpaid hours a week the workbook allows for. Matching the report removes all three from the scorecard and workbook. If Vee wants any of them kept, the report (and the app) should gain them instead.
+Apply from the `01_income-fit-test/` folder with `patch -p1 < report.patch` (and the same for `report_src.patch`). Empire Studio runs the same rules: `tests/fixtures/fit-reference-corrected.cjs` is extracted from the patched report, and the tests require identical top threes on 5,000 answer sets and identical calculator numbers on 2,000 input sets.
+
+What the patches change:
+
+| Part                 | v1.4                                           | Corrected                                                                                                                                                                                                                                                                                    |
+| -------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Day 14 verdicts      | Go, Adjust, Stop; "fewer than 5" as a footnote | **Not enough evidence yet** is its own verdict, checked first: "Fewer than 5 real conversations… That isn't a no; it's not enough information. Repeat Days 9-12 with a different channel or a sharper customer type… If a second round still can't reach five people, the problem is reach…" |
+| Go                   | Service or product demand line only            | Adds: "Or, in a slow-buying market (B2B retainers, anything with approvals, high-ticket packages): 2+ people asked about price or timing unprompted, and their feedback was specific… Commitments may come after 14 days."                                                                   |
+| Calculator           | All weekly hours can be sold                   | New field **Unpaid hours a week** (default 2; finding customers, messages, admin). Only the hours left can be sold; profit per hour is still spread over all her hours. A new message if unpaid hours take the whole week.                                                                   |
+| Ranking              | Ties go to her priority                        | Then to products/services and recurring/one-off, as she said she'd prefer (Vee's earlier decision)                                                                                                                                                                                           |
+| "How we scored this" | "Ties go to what you said matters most."       | Adds the preference tie-breaker                                                                                                                                                                                                                                                              |
+
+The version line still says v1.4 (Vee: "v1.4 everywhere"). If the corrected report ships as a new revision, change the version in every kit file together.
+
+### 4b. Everything else matches the corrected report
+
+The corrected report's rules: **not enough evidence** (fewer than 5 real conversations) first; then **go** (5+ conversations; for a service 2+ asked about price or booking and 1+ firm, dated yes or deposit; for a product 1+ order or pre-order and 1+ asked about price; in a slow-buying market 2+ asked about price or timing and specific feedback, commitments possibly after 14 days; and the calculator shows her minimum hourly rate or more at 50% busy); **adjust** (change one thing and repeat Days 9–12; two adjust rounds with no commitment means stop); **stop** (5+ conversations and nobody asked about price, or she doesn't want another 14 days). Calculator: paid hours = weekly hours − unpaid hours (2 unless she changes it); capacity = paid hours × 52 ÷ 12 ÷ hours per unit; scenarios at 25%, 50% and 100% of capacity (whole units, rounded down); profit = units × (price − cost per unit) − monthly fixed costs; per hour = profit ÷ all her monthly hours; break-even = start-up ÷ margin, rounded up.
+
+| File                                                  | Differs how                                                                                                                                                                                                                        | Change                                                                                                                                                                           |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Go / No-Go Scorecard (PDF and workbook "3 Scorecard") | Already has the not-enough-evidence gate and the slow-buying path. NEXT TEST needs a total of 24+, with no hourly-rate condition; gate-failed ADJUST re-runs Days 7–12                                                             | Keep the gates. Replace "total 24 or more" with "the calculator shows your minimum hourly rate or more at 50% busy". Both ADJUST texts: "change one thing and repeat Days 9–12". |
+| 14-Day Test Plan, Day 14                              | Restates the scorecard                                                                                                                                                                                                             | The four outcomes above                                                                                                                                                          |
+| AI Shortcut System, Workflows 10 and 11               | Workflow 11 asks for a "GO / ADJUST / STOP band"; Workflow 10's example says "fewer than ten conversations"                                                                                                                        | The four outcomes; five conversations                                                                                                                                            |
+| Workbook calculators (2A, 2B, 2C)                     | 20% / 50% / 80% of paid hours; per hour over hours worked; break-even on fixed costs; the product sheet's unpaid default is 2.5 and it models demand per week; scenarios called "Base" while the Plan and Scorecard say "moderate" | The report's model above (25 / 50 / 100% of paid hours, per hour over all hours, break-even on start-up), unpaid default 2 on every sheet, one scenario name                     |
+| Start Here                                            | "uses the same scoring and gives the same top three"                                                                                                                                                                               | True once the workbook matches                                                                                                                                                   |
 
 ## 5. Footer and brand
 
@@ -184,3 +221,46 @@ To match it:
 | Brand book (imagery)                | stock photos allowed                                  | no stock photos of people (faceless brand)                             |
 
 The website and current product PDFs already follow these (print style v2).
+
+## 6. The promise and the tagline
+
+Vee's decision: the website's promise is the promise everywhere; "Big plans. Real life." stays as the tagline, never the promise.
+
+- **Promise:** "Make your own money. Know what you're getting into."
+- **Supporting line:** "Find the side income that fits your real week, see what it really costs and takes, check the rules where you live, then test it for 14 days before you spend big."
+- **Tagline:** "Big plans. Real life."
+
+| File                                  | Says now                                                        | Change to                                              |
+| ------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| Start Here, under "start here."       | "Find the income idea that fits your life. Test it in 14 days." | The promise, then the supporting line                  |
+| The Income Fit Report, cover          | The promise (already)                                           | No change                                              |
+| Product PDFs (cover and running foot) | "Big plans. Real life." as the tagline                          | No change: that's the tagline's job                    |
+| Brand book                            | Tagline under the mark; no promise                              | Add the promise and supporting line beside the tagline |
+
+The "one-sentence promise" templates inside Little Offer Kit, Sell It Simply, the AI Business Assistant Pack, the 90-Day Grow Plan and Fit Check help a _buyer_ write the promise for her own business. They aren't Her Little Empire's promise and aren't changed by this.
+
+## 7. Pricing: Price It Right is the source of truth
+
+| File                                                                   | Says now                                                                                            | Change to                                                                                                                                          |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 90-Day Grow Plan, "How to test a higher price"                         | "Raise in one clear step, not lots of small ones. Example only, in any currency: from $40 to $50."  | "A common rule of thumb is to raise by 15–25% for the next buyer (EST, not a rule). See Price It Right, 'The price check'."                        |
+| 90-Day Grow Plan, same box                                             | "Keep existing customers on their current price for a set time, and tell them the date it changes." | "Give existing customers at least 30 days' notice of the date it changes (Price It Right, 'Price rise for a regular client')."                     |
+| 90-Day Grow Plan, "Message to existing customers about a price change" | "from [date], my price for [offer] will be [new price]."                                            | "from [date, at least 30 days away], my price for [offer] will be [new price]." Or replace the template with a pointer to Price It Right's script. |
+| 90-Day Grow Plan, "Signs your price may be too low"                    | Its own list                                                                                        | Keep the list (Price It Right has no equivalent), and add: "Then use Price It Right to set the new price."                                         |
+| Brand-in-a-Box preview                                                 | "The Tidy-Up for $380 (usually $480) until 30 November."                                            | Use Price It Right's worked example: founding $380, then $420 ("$380 (usually $420)").                                                             |
+
+**Inside Price It Right itself (for Vee to check):** its worked example (floor $280, five offers $250–$600, middle about $400) prices at $380 founding then $420. That doesn't follow its own rule "If the floor sits between low and middle, start at the middle" (about $400), and the guide has no rule for founding discounts or for when the floor is above the middle or below the low. Since it's now the source of truth, either change the example to $400 or add a sentence saying a founding price can sit just under the middle.
+
+## 8. Record keeping (and 30-Day Plan Day 13)
+
+The Rules Guides win: they were checked most recently (17 October 2026 for Australia, 19 October 2026 for the others). Side Income Money System's table already matches them.
+
+| File                                       | Says now                                                         | Change to                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 14-Day Tracker, "Every dollar · Money log" | "most countries expect you to keep them for five to seven years" | "How long to keep them depends on where you live: Australia, most records for five years; US, three years by default (longer in some cases); UK, at least five years after the 31 January filing deadline; Canada, six years from the end of the tax year they relate to; New Zealand, at least seven tax years (FACT, checked 17–19 October 2026). Your Rules Guide has the details." |
+
+**30-Day Faceless Content Plan, Day 13:** the plan table says "Share the results the next day", while the Day 13 caption says "On day 16, share the results" and the story prompts schedule it for Day 16. The Rules Guides don't cover this one (it's about Instagram polls, not rules), so it needs its own call. Suggested, because two of the three places already say it: change the plan table to "Share the results on day 16."
+
+## 9. Instagram handle
+
+**@herlittleempire.co** is confirmed correct. The products that use it (100 Faceless Hooks, Comment-to-DM Kit) need no change. Empire Studio still strips these self-promotional lines from what it shows store owners, because they're about Her Little Empire, not the owner's shop.
