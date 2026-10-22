@@ -25,9 +25,20 @@ export const SELLER = {
   email: "hello@herlittleempire.com",
 } as const;
 
+/**
+ * The Launch Pack's display price from a plain number (US dollars). A "$"
+ * in a .env file starts a variable reference to Next.js, so "US$49" there
+ * would display as "US"; the currency is added here instead. Anything that
+ * isn't a whole number from 1 to 999 falls back to 49.
+ */
+export function launchPackPriceLabel(raw: string | undefined): string {
+  const n = Number(raw);
+  return `US$${Number.isInteger(n) && n >= 1 && n <= 999 ? n : 49}`;
+}
+
 export const LAUNCH_PACK = {
   name: "Shopify Launch Pack",
-  priceLabel: process.env.NEXT_PUBLIC_LAUNCH_PACK_PRICE_LABEL ?? "US$49",
+  priceLabel: launchPackPriceLabel(process.env.NEXT_PUBLIC_LAUNCH_PACK_PRICE_USD),
   refundDays: 14,
   generationsPerPack: 80,
   productsPerPack: 10,

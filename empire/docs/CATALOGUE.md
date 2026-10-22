@@ -4,10 +4,10 @@ From Vee's `catalog.py` ("single source of truth: products, files, prices, bundl
 
 ## New software
 
-| Product              | Price                                                                     | Status                                                          |
-| -------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Empire Studio — free | US$0                                                                      | New: brand preview, one Sidekick prompt, every workflow visible |
-| Shopify Launch Pack  | US$39–59 (default label US$49; set `NEXT_PUBLIC_LAUNCH_PACK_PRICE_LABEL`) | New, one-time: 80 generations, 10 products, all studios, export |
+| Product              | Price                                                                       | Status                                                          |
+| -------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Empire Studio — free | US$0                                                                        | New: brand preview, one Sidekick prompt, every workflow visible |
+| Shopify Launch Pack  | US$39–59 (default US$49; set `NEXT_PUBLIC_LAUNCH_PACK_PRICE_USD`, a number) | New, one-time: 80 generations, 10 products, all studios, export |
 
 ## Existing products (unchanged)
 

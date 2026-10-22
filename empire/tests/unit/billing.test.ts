@@ -323,3 +323,16 @@ describe("catalogue status (founder, 22 Oct 2026)", () => {
     expect(CONSUMER_RIGHTS).toMatch(/^[A-Z].*consumer law\.$/);
   });
 });
+
+describe("Launch Pack price label", () => {
+  it("adds the currency in code, so a .env file can't swallow it", async () => {
+    const { launchPackPriceLabel } = await import("@/lib/billing/plans");
+    expect(launchPackPriceLabel("49")).toBe("US$49");
+    expect(launchPackPriceLabel("59")).toBe("US$59");
+    expect(launchPackPriceLabel(undefined)).toBe("US$49");
+    // What Next.js leaves of "US$49" in a .env file, and other junk.
+    expect(launchPackPriceLabel("US")).toBe("US$49");
+    expect(launchPackPriceLabel("49.5")).toBe("US$49");
+    expect(launchPackPriceLabel("0")).toBe("US$49");
+  });
+});
