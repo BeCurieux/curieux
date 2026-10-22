@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/inter";
+
+/*
+ * Her Little Empire brand tokens.
+ *
+ * Contrast (WCAG, measured): ink on ivory 13.8:1, oxblood on ivory 9.9:1,
+ * ink-soft on ivory 6.7:1, ink on blush 10.3:1, oxblood on blush 7.4:1.
+ * Accent pink (#E8819F) is 2.4:1 on ivory — decoration only, never text or
+ * the only signal of state.
+ */
+:root {
+  --ivory: #f8f4ed;
+  --paper: #fffdf9;
+  --oxblood: #632b39;
+  --oxblood-deep: #4c1f2b;
+  --blush: #eaced1;
+  --blush-soft: #f4e6e7;
+  --ink: #282528;
+  --ink-soft: #5b5458;
+  --pink: #e8819f;
+  --line: #e4d9d0;
+  --success: #2f6b4e;
+  --warning: #8a5a12;
+  --danger: #9b2c2c;
+}
+
+@theme inline {
+  --color-ivory: var(--ivory);
+  --color-paper: var(--paper);
+  --color-oxblood: var(--oxblood);
+  --color-oxblood-deep: var(--oxblood-deep);
+  --color-blush: var(--blush);
+  --color-blush-soft: var(--blush-soft);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-pink: var(--pink);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-serif: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    color: var(--oxblood);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  :focus-visible {
+    outline: 3px solid var(--oxblood);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--blush);
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--oxblood);
+  }
+  .prose-empire p + p {
+    margin-top: 0.75rem;
+  }
+  .field-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    padding: 0.7rem 0.9rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .field-input:focus {
+    outline: 3px solid var(--blush);
+    border-color: var(--oxblood);
+  }
+  .field-input[aria-invalid="true"] {
+    border-color: var(--danger);
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
