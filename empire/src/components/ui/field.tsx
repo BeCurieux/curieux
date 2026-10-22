@@ -20,12 +20,12 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-ink block text-sm font-semibold">
+      <label htmlFor={id} className="text-charcoal block text-sm font-semibold">
         {label}
-        {optional ? <span className="text-ink-soft ml-2 font-normal">optional</span> : null}
+        {optional ? <span className="text-mute ml-2 font-normal">optional</span> : null}
       </label>
       {hint ? (
-        <p id={`${id}-hint`} className="text-ink-soft text-sm">
+        <p id={`${id}-hint`} className="text-mute text-sm">
           {hint}
         </p>
       ) : null}

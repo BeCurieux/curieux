@@ -45,15 +45,18 @@ export async function findPurchasesAction(_prev: FormState, _form: FormData): Pr
   };
 }
 
-/** Local backend only: give yourself a Launch Pack to try the paid studio. */
-export async function devGrantAction(): Promise<void> {
+/** Local backend only: give yourself a product to try the paid parts. */
+export async function devGrantAction(
+  productType: "launch_pack" | "library:income-fit-test",
+): Promise<void> {
   if (serverEnv().EMPIRE_BACKEND !== "local") return;
+  if (productType !== "launch_pack" && productType !== "library:income-fit-test") return;
   const user = await requireUser();
   const repo = systemRepo();
   const { purchase } = await repo.upsertPurchase({
     provider: "gumroad",
     externalPurchaseId: `local-${randomUUID()}`,
-    productType: "launch_pack",
+    productType,
     email: user.email,
     status: "paid",
     amountCents: 0,

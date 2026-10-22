@@ -48,7 +48,7 @@ export function StudioNav({ profileId, brandName }: { profileId: string; brandNa
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-medium ${
-                      active ? "bg-oxblood text-ivory" : "text-ink hover:bg-blush-soft"
+                      active ? "bg-aubergine text-ivory" : "text-charcoal hover:bg-blush-soft"
                     }`}
                   >
                     {label}

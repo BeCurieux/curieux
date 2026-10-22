@@ -41,3 +41,20 @@ describe("claims guard", () => {
     expect(checkClaims({ a: "[Add whether it ships in 2 days]" }, profile())).toEqual([]);
   });
 });
+
+describe("Her Little Empire house rules", () => {
+  it("always flags PLR/MRR, MLM recruiting and the old trading name, even if 'verified'", () => {
+    const p = profile({ verifiedClaims: ["PLR", "join my team", "Ovyko"] });
+    const warnings = checkClaims(
+      {
+        a: "Comes with PLR rights.",
+        b: "Join my team and build a downline.",
+        c: "A product of Ovyko.",
+      },
+      p,
+    ).join("\n");
+    expect(warnings).toMatch(/PLR/);
+    expect(warnings).toMatch(/MLM/);
+    expect(warnings).toMatch(/old trading name/);
+  });
+});

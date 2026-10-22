@@ -41,20 +41,20 @@ export function ConsentBanner() {
       aria-label="Cookie choice"
       className="no-print border-line bg-paper fixed inset-x-3 bottom-3 z-40 mx-auto max-w-xl rounded-2xl border p-4 shadow-lg sm:inset-x-auto sm:right-4"
     >
-      <p className="text-ink text-sm">
+      <p className="text-charcoal text-sm">
         We use one first-party cookie to understand which parts of Empire Studio help people (no ad
         trackers, ever). Sign-in cookies are always on because the studio needs them.
       </p>
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => choose(true)}
-          className="bg-oxblood text-ivory min-h-11 rounded-full px-4 text-sm font-semibold"
+          className="bg-aubergine text-ivory min-h-11 rounded-full px-4 text-sm font-semibold"
         >
           That's fine
         </button>
         <button
           onClick={() => choose(false)}
-          className="border-oxblood text-oxblood min-h-11 rounded-full border px-4 text-sm font-semibold"
+          className="border-aubergine text-aubergine min-h-11 rounded-full border px-4 text-sm font-semibold"
         >
           No thanks
         </button>

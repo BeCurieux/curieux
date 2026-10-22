@@ -10,6 +10,7 @@ stores the same shapes in one JSON file. Domain types: `src/lib/domain`.
 | `profile_versions`  | (version history)              | profile_id, version, facts, brand, note                                                                                                                                                                                                 | trigger only (read-only to the owner)                     |
 | `products`          | Product                        | name, category, materials, dimensions, colour_options, benefits, intended_use, customer_problem, price, care, shipping, verified_claims, image_notes, image_paths                                                                       | the owner                                                 |
 | `generations`       | Generation                     | module, product_id, `version`, status, source (ai/mock/edit/restore), section, input_snapshot, output, warnings, error, model_version, profile_version                                                                                  | the owner for edits/restores; the server for model output |
+| `fit_results`       | (FIT Finder)                   | answers (the 20 quiz answers), progress (start date, ticked days, calculator inputs per idea), engine_version                                                                                                                           | the owner                                                 |
 | `launch_tasks`      | LaunchTask                     | task_key, category, label, status, notes                                                                                                                                                                                                | the owner                                                 |
 | `purchases`         | (payment record)               | provider, external_purchase_id (unique), product_type, email, user_id, status, licence key, amounts                                                                                                                                     | server only; invisible to customers                       |
 | `entitlements`      | Entitlement                    | product_type (`launch_pack` or `library:<slug>`), payment_provider, external_purchase_id (unique), status, expires_at                                                                                                                   | server only; read-only to the owner                       |
@@ -32,6 +33,10 @@ user_id)`, so nothing can point at another customer's profile even if the
 - **At most five profiles** per account, whatever the app allows.
 - **Deleting a login** cascades to everything she owns. Purchases keep the
   payment record with `user_id` set to null.
+
+## FIT Finder results
+
+Only her answers and progress are stored. The report is recomputed from the answers by the deterministic engine each time it's opened, so it can't drift from the scoring. The server merges each progress change into what's saved, so the calculator and the plan never overwrite each other.
 
 ## Assets and versions
 

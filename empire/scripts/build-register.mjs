@@ -1,332 +1,335 @@
-// Builds content/register.json and content/register.csv from the one list
-// below, so the two can't drift apart. Run: node scripts/build-register.mjs
+// Builds content/register.json and content/register.csv — the content
+// inventory and source-to-feature mapping — from the audit records.
+// Run: node scripts/build-register.mjs
 //
-// RULES FOR THIS FILE
-// - Only the founder's addendum (2026-10-22) is a source so far. Nothing
-//   here is taken from the documents themselves — they haven't been
-//   supplied. Every field the documents would answer is "unknown".
-// - Fields marked `proposed` are our planning hypotheses about where an
-//   asset could go, to be confirmed or changed once the source is read.
-// - Never fill an "unknown" from memory or guesswork. Replace it from the
-//   document, citing section, and set `source_reviewed: true`.
+// Sources:
+//   content/audit/fit-kit.json          Income Fit Test kit (PDFs, workbook)
+//   content/audit/products-offer.json   offer, money, brand and add-on products
+//   content/audit/products-content.json faceless products, starter kits
+//   EXTRA below                          the FIT engine sources, the brand
+//                                        system, and assets that weren't found
+//
+// Every audit entry was read from the founder's documents (22 Oct 2026) and
+// cites file and section; see content/audit/*-methods.md for the methods.
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
-const UNKNOWN = "unknown — source not supplied";
+const read = (f) => JSON.parse(readFileSync(f, "utf8"));
+const group = (g) => (x) => ({ ...x, group: g });
 
-const assets = [
+const audited = [
+  ...read("content/audit/fit-kit.json").map(group("Income Fit Test kit")),
+  ...read("content/audit/products-offer.json").map(group("Offer, money and add-ons")),
+  ...read("content/audit/products-content.json").map(group("Content and starter kits")),
+];
+
+const base = {
+  content_types: [],
+  duplicates_with: [],
+  missing_information: [],
+  research_verification: [],
+  compliance_flags: [],
+  sections: [],
+};
+
+const EXTRA = [
   {
+    ...base,
     id: "income-fit-test",
-    title: "Income Fit Test",
-    group: "FIT",
-    proposed_destination: "FIT Finder — interactive questionnaire",
-    proposed_form: "interactive feature + structured data (questions, options, scoring)",
-    expected_content_types: ["question", "formula"],
-    duplicates_with: ["income-fit-report", "fit-methodology"],
-    research_flags: [
-      "Any income or earnings figures need a source and date, and must not read as a promise (FTC / ACCC earnings-claim rules).",
+    title: "The Income Fit Test (product)",
+    group: "Income Fit Test kit",
+    file: "01_income-fit-test/",
+    version: "v1.4 (Start Here); 1.3 on other files",
+    price_usd: 19,
+    product: "The Income Fit Test",
+    content_summary:
+      "The flagship: an offline personalised report (20-question quiz, top three of 23 researched ideas, calculator, rules for five countries, a dated 14-day plan and go/adjust/stop), plus the workbook, opportunity cards, AI shortcut system, 14-day test plan, scorecard and rules guides.",
+    customer_problem: "Which side income fits my real week, and how do I test it cheaply?",
+    content_types: ["question", "formula", "research", "workflow", "guidance"],
+    proposed_destination: "FIT Finder",
+    proposed_form: "interactive feature (built)",
+    duplicates_with: ["fit-report", "workbook", "start-here"],
+    missing_information: [
+      "Version numbering differs between files (1.4 vs 1.3).",
+      "Question count is stated as 20, 19, 17 + optional and 15 in different files.",
     ],
-    legal_flags: ["Earnings claims", "Not financial advice disclaimer"],
-    priority: 1,
+    reuse: {
+      status: "built",
+      reason: "Converted into the FIT Finder: src/lib/fit, app/studio/fit.",
+    },
   },
   {
-    id: "income-fit-report",
-    title: "Income Fit Report",
-    group: "FIT",
-    proposed_destination: "FIT Finder — results and report",
-    proposed_form: "interactive feature (deterministic scoring) + downloadable report",
-    expected_content_types: ["guidance", "example"],
-    duplicates_with: ["income-fit-test", "opportunity-cards"],
-    research_flags: ["Retain sources, caveats and review dates for every statistic."],
-    legal_flags: ["Earnings claims", "Not financial advice disclaimer"],
-    priority: 1,
-  },
-  {
-    id: "fit-methodology",
-    title: "FIT scoring questions and methodology (17-question assessment)",
-    group: "FIT",
-    proposed_destination: "FIT Finder — scoring engine",
-    proposed_form: "structured data + deterministic calculation (no AI)",
-    expected_content_types: ["question", "formula"],
-    duplicates_with: ["income-fit-test"],
-    research_flags: [
-      "Reconstruct the exact scoring from source; flag any step that's ambiguous rather than guessing.",
+    ...base,
+    id: "fit-report",
+    title: "Your Income Fit Report (quiz and scoring engine)",
+    group: "Income Fit Test kit",
+    file: "01_income-fit-test/kit/00_Your_Income_Fit_Report.html; source/report_src.html",
+    version: "v1.4",
+    price_usd: null,
+    content_summary:
+      "The interactive report: 18 scored questions plus a minimum hourly rate and an optional name (20 in total), the Fit Finder scoring ported from the workbook's Options sheet (columns AF–AZ), top three, why it fits, risks, a calculator, country rules summaries, a dated 14-day plan, Day 14 gates and back-ups.",
+    customer_problem: "Personalised result from the quiz.",
+    content_types: ["question", "formula", "guidance"],
+    proposed_destination: "FIT Finder quiz and report",
+    proposed_form: "interactive feature (built)",
+    duplicates_with: [
+      "workbook (same scoring)",
+      "14-day-test-plan (report has a shorter dated version)",
+      "go-no-go-scorecard (report adds an hourly-rate gate)",
     ],
-    legal_flags: [],
-    priority: 1,
-    known_facts: ["17 questions (per addendum)"],
-  },
-  {
-    id: "opportunity-cards",
-    title: "Opportunity cards (23)",
-    group: "FIT",
-    proposed_destination: "FIT Finder — structured research database",
-    proposed_form: "structured data (one record per opportunity model)",
-    expected_content_types: ["research", "guidance"],
-    duplicates_with: ["income-fit-report", "starter-kits"],
-    research_flags: [
-      "Each card's market data, costs and platform rules need a source and a review date; platform fees and rules change.",
+    missing_information: [
+      "Two answers are asked but never used in scoring: products-or-services (psa) and recurring-or-project (rp). 'Sells without pitching' feeds only the risks text, not the score.",
+      "The report's calculator model differs from the workbook's; both are kept as shipped.",
     ],
-    legal_flags: ["Earnings claims", "Platform terms (Etsy, Shopify, etc.) may have changed"],
-    priority: 1,
-    known_facts: ["23 opportunity models (per addendum); individual titles unknown"],
+    research_verification: ["Currency conversions use October 2026 rates (EST)."],
+    reuse: {
+      status: "built",
+      reason:
+        "Ported 1:1 to src/lib/fit/engine.ts; tests run the shipped JavaScript beside the port on 5,000 answer sets with identical results.",
+    },
   },
   {
-    id: "five-country-guidance",
-    title: "Five-country guidance",
-    group: "FIT",
-    proposed_destination: "FIT Finder + Launch Workspace — country-specific notes",
-    proposed_form: "structured data keyed by country, shown as guidance with review dates",
-    expected_content_types: ["research", "guidance"],
-    duplicates_with: [],
-    research_flags: [
-      "Tax, business registration and consumer-law guidance must be re-verified per country before reuse, with a review date.",
+    ...base,
+    id: "opportunity-database",
+    title: "Opportunity database (23 options)",
+    group: "Income Fit Test kit",
+    file: "01_income-fit-test/opportunities.json; source/options.py",
+    version: "database v1.1",
+    price_usd: null,
+    content_summary:
+      "Machine-readable fields for all 23 opportunities: scoring inputs and the text for what you do, who pays, reach, first test, poor fit and what to verify.",
+    customer_problem: "Researched, comparable ideas.",
+    content_types: ["research"],
+    proposed_destination: "Opportunity research database",
+    proposed_form: "structured data (built)",
+    duplicates_with: [
+      "opportunity-cards (same 23, as PDF)",
+      "fit-report (embedded copy — verified identical, 0 differences)",
     ],
-    legal_flags: [
-      "Tax / legal guidance — needs qualified review per country",
-      "Must be framed as general information",
+    research_verification: [
+      "Figures in the text carry FACT/EST/UNKNOWN labels; money is AUD unless stated. Re-verify dated figures before each kit revision.",
     ],
-    priority: 2,
-    known_facts: ["Five countries (per addendum); which five is unknown"],
+    reuse: {
+      status: "built",
+      reason: "content/fit/opportunities.json is the single source for the FIT Finder.",
+    },
   },
   {
-    id: "starter-kits",
-    title: "Starter kits (all)",
-    group: "Kits",
-    proposed_destination: "Business-specific launch pathways",
-    proposed_form: "structured pathways (tasks + guidance) in the Launch Workspace",
-    expected_content_types: ["workflow", "template", "guidance"],
-    duplicates_with: ["business-starter-system", "opportunity-cards"],
-    research_flags: [],
-    legal_flags: [],
-    priority: 3,
-    known_facts: ["Number and titles of kits unknown"],
+    ...base,
+    id: "fit-country-rules",
+    title: "Country rules (report summaries and rules.py)",
+    group: "Income Fit Test kit",
+    file: "01_income-fit-test/source/rules.py; report RULES block",
+    version: "checked 17 Oct 2026 (AU), 19 Oct 2026 (US, UK, CA, NZ)",
+    price_usd: null,
+    content_summary:
+      "Short dated summaries per country in the report, labelled fact or unknown. rules.py builds the full Rules Guide from research files that aren't in the folder, and holds the US chapter back unless a US_READY flag is set.",
+    customer_problem: "What rules apply where I live?",
+    content_types: ["research", "guidance"],
+    proposed_destination: "FIT Finder report § The rules where you live",
+    proposed_form: "structured data (built), with the full guide as a downloadable resource",
+    duplicates_with: ["rules-guides"],
+    missing_information: [
+      "The research_*.md files rules.py reads are not in the folder.",
+      "Whether the shipped US chapter is final (US_READY) is unknown.",
+    ],
+    research_verification: ["Every line needs re-checking at each country's tax-year change."],
+    compliance_flags: [],
+    reuse: {
+      status: "built",
+      reason: "src/lib/fit/rules.ts, word for word with dates and labels.",
+    },
   },
   {
+    ...base,
+    id: "brand-system",
+    title: "Her Little Empire visual identity",
+    group: "Brand",
+    file: "03_brand/visual-identity.html; 03_brand/PRINT_STYLE.md; 03_brand/fonts/",
+    version: "brand book v1 / print style v2, Oct 2026",
+    price_usd: null,
+    content_summary:
+      "Colour tokens, font roles, devices (running head, numbering, footnote, one rose word), imagery do/don't, motion and the two-second check.",
+    customer_problem: "Consistent, recognisable brand.",
+    content_types: ["guidance"],
+    proposed_destination: "Empire Studio's own look",
+    proposed_form: "design tokens (adopted)",
+    missing_information: [
+      "Grey: #6E6264 (brand book) vs #564B4E (README, print style).",
+      "Bodoni weight 700 vs 800; stock photos allowed (v1) vs banned (v2).",
+    ],
+    compliance_flags: [
+      "The brand book footer names the former trading entity and a different contact email. Do not ship that footer; the app uses Her Little Empire's seller details.",
+    ],
+    reuse: {
+      status: "built",
+      reason:
+        "Adopted in src/app/globals.css with the brand's own font files (print style v2 wins where they disagree).",
+    },
+  },
+  {
+    ...base,
+    id: "video-course",
+    title: "Video Course",
+    group: "Income Fit Test kit",
+    file: "not supplied (catalog.py lists Her-Little-Empire_Income-Fit-Test_Video-Course_v1.3.zip)",
+    version: "v1.3 per catalog.py",
+    price_usd: 6,
+    content_summary: "unknown — not in the folder",
+    customer_problem: "unknown",
+    proposed_destination: "Guided learning beside the FIT Finder",
+    proposed_form: "educational content",
+    missing_information: ["Entire course"],
+    reuse: { status: "blocked", reason: "Source not supplied." },
+  },
+  {
+    ...base,
     id: "business-starter-system",
     title: "Business Starter System",
-    group: "Systems",
-    proposed_destination: "Empire Studio — Shopify launch workflow and Launch Workspace checklist",
-    proposed_form:
-      "workflow + checklist data + AI instructions (methodology for theme_brief, theme_prompts, launch checklist)",
-    expected_content_types: ["workflow", "template", "guidance"],
-    duplicates_with: [
-      "your-little-offer-kit",
-      "price-it-right",
-      "first-5-customers",
-      "starter-kits",
-    ],
-    research_flags: [
-      "Any platform-specific steps (Shopify settings, fees) must be checked against current Shopify docs.",
-    ],
-    legal_flags: ["Policy templates need country review"],
-    priority: 3,
+    group: "Named in the addendum, not found",
+    file: "not found — not in catalog.py, filenames or document text",
+    version: "n/a",
+    price_usd: null,
+    content_summary:
+      "Does not exist in the supplied files. Its likely material is spread across Little Offer Kit, Price It Right and First 5 Customers (see consolidation).",
+    customer_problem: "n/a",
+    proposed_destination: "Shopify launch workflow (no Shopify method exists yet)",
+    proposed_form: "n/a",
+    missing_information: ["The product itself, if it exists elsewhere."],
+    reuse: { status: "blocked", reason: "Not found." },
   },
   {
-    id: "brand-in-a-box",
-    title: "Brand-in-a-Box",
-    group: "Kits",
-    proposed_destination: "Empire Studio — Brand Blueprint generator",
-    proposed_form:
-      "AI instructions (methodology for brand_blueprint) + worksheet as downloadable resource",
-    expected_content_types: ["workflow", "template", "example"],
-    duplicates_with: ["business-starter-system"],
-    research_flags: [],
-    legal_flags: ["Trademark / name-check guidance, if present, needs care"],
-    priority: 2,
-  },
-  {
-    id: "your-little-offer-kit",
-    title: "Your Little Offer Kit",
-    group: "Kits",
-    proposed_destination: "Offer-building workflow; Product Writer methodology",
-    proposed_form: "interactive workflow + AI instructions (product_listing, homepage_copy)",
-    expected_content_types: ["workflow", "template", "example"],
-    duplicates_with: ["business-starter-system"],
-    research_flags: [],
-    legal_flags: [],
-    priority: 4,
-  },
-  {
-    id: "price-it-right",
-    title: "Price It Right",
-    group: "Kits",
-    proposed_destination: "Interactive pricing tool",
-    proposed_form: "interactive calculator with tested formulas",
-    expected_content_types: ["formula", "template", "example"],
-    duplicates_with: [
-      "business-starter-system",
-      "money-operations-kit",
-      "side-income-money-system",
-    ],
-    research_flags: ["Platform and payment fees in any worked example must be current and dated."],
-    legal_flags: ["Tax treatment varies by country"],
-    priority: 5,
-  },
-  {
-    id: "first-5-customers",
-    title: "First 5 Customers",
-    group: "Kits",
-    proposed_destination: "Launch marketing pathway; methodology for email_sequence",
-    proposed_form: "workflow + AI instructions",
-    expected_content_types: ["workflow", "template", "example"],
-    duplicates_with: ["business-starter-system", "faceless-content-system"],
-    research_flags: [],
-    legal_flags: [
-      "Email marketing consent rules (CAN-SPAM, Spam Act, GDPR/PECR) if outreach scripts are included",
-    ],
-    priority: 4,
-  },
-  {
-    id: "faceless-content-system",
-    title: "Faceless Content System",
-    group: "Systems",
-    proposed_destination: "Content Studio; methodology for social_content",
-    proposed_form: "AI instructions + editable calendar + library",
-    expected_content_types: ["workflow", "template", "example"],
-    duplicates_with: ["100-faceless-hooks", "30-day-faceless-content-plan"],
-    research_flags: ["Platform feature claims (Reels, TikTok) change often — date them."],
-    legal_flags: ["Music/licensing guidance, if present"],
-    priority: 6,
-  },
-  {
-    id: "100-faceless-hooks",
-    title: "100 Faceless Hooks",
-    group: "Micro-tools",
-    proposed_destination: "Searchable, adaptable hook library in Content Studio",
-    proposed_form: "structured data (one record per hook, tagged) + AI adaptation to her brand",
-    expected_content_types: ["template", "example"],
-    duplicates_with: ["faceless-content-system"],
-    research_flags: [],
-    legal_flags: ["Check hooks for income or results claims"],
-    priority: 6,
-  },
-  {
-    id: "30-day-faceless-content-plan",
-    title: "30-Day Faceless Content Plan",
-    group: "Micro-tools",
-    proposed_destination: "Editable social calendar",
-    proposed_form: "structured data + saved, editable calendar",
-    expected_content_types: ["workflow", "template"],
-    duplicates_with: ["faceless-content-system"],
-    research_flags: [],
-    legal_flags: [],
-    priority: 6,
-  },
-  {
+    ...base,
     id: "money-operations-kit",
     title: "Money & Operations Kit",
-    group: "Kits",
+    group: "Named in the addendum, not found",
+    file: "not found — not in catalog.py, filenames or document text",
+    version: "n/a",
+    price_usd: null,
+    content_summary:
+      "Does not exist in the supplied files. Side Income Money System and Client Paperwork Kit cover the same ground.",
+    customer_problem: "n/a",
     proposed_destination: "Money Calculator",
-    proposed_form: "interactive calculators with tested formulas + downloadable worksheets",
-    expected_content_types: ["formula", "template"],
-    duplicates_with: ["side-income-money-system", "price-it-right"],
-    research_flags: ["Tax rates or thresholds must be sourced, country-specific and dated."],
-    legal_flags: ["Tax / accounting guidance — general information only"],
-    priority: 5,
+    proposed_form: "n/a",
+    missing_information: ["The product itself, if it exists elsewhere."],
+    reuse: { status: "blocked", reason: "Not found." },
   },
   {
-    id: "side-income-money-system",
-    title: "Side Income Money System",
-    group: "Systems",
-    proposed_destination: "Money Calculator",
-    proposed_form: "interactive calculators + downloadable worksheets",
-    expected_content_types: ["formula", "template", "guidance"],
-    duplicates_with: ["money-operations-kit", "price-it-right"],
-    research_flags: ["As above."],
-    legal_flags: ["Tax / accounting guidance — general information only", "Earnings claims"],
-    priority: 5,
-  },
-  {
-    id: "reality-calculator",
-    title: "Reality Calculator",
-    group: "Micro-tools",
-    proposed_destination: "Interactive calculator (FIT Finder or Money Calculator)",
-    proposed_form: "interactive calculator with tested formulas",
-    expected_content_types: ["formula"],
-    duplicates_with: ["money-operations-kit", "price-it-right"],
-    research_flags: [
-      "Reconstruct formulas exactly; write tests from the document's worked examples.",
-    ],
-    legal_flags: ["Earnings claims"],
-    priority: 5,
-  },
-  {
-    id: "14-day-tracker",
-    title: "14-Day Tracker",
-    group: "Micro-tools",
-    proposed_destination: "Saved progress and task management (Launch Workspace)",
-    proposed_form: "structured tasks with saved status",
-    expected_content_types: ["workflow"],
-    duplicates_with: ["business-starter-system"],
-    research_flags: [],
-    legal_flags: [],
-    priority: 3,
-  },
-  {
+    ...base,
     id: "course-manuscripts",
-    title: "Course manuscripts",
-    group: "Courses",
-    proposed_destination: "Guided learning; short articles beside each studio step",
-    proposed_form: "educational articles + implementation tasks",
-    expected_content_types: ["guidance", "example"],
-    duplicates_with: [],
-    research_flags: ["Date-sensitive claims to re-verify."],
-    legal_flags: [],
-    priority: 7,
-  },
-  {
-    id: "course-assignments",
-    title: "Course assignments",
-    group: "Courses",
-    proposed_destination: "Guided implementation tasks",
-    proposed_form: "tasks in the Launch Workspace",
-    expected_content_types: ["workflow"],
-    duplicates_with: ["course-manuscripts"],
-    research_flags: [],
-    legal_flags: [],
-    priority: 7,
-  },
-  {
-    id: "prompt-libraries",
-    title: "Prompt libraries and supporting resources",
-    group: "Resources",
-    proposed_destination: "AI instructions for the generators (content/methodology)",
-    proposed_form: "AI instruction",
-    expected_content_types: ["template"],
-    duplicates_with: [],
-    research_flags: ["Check prompts for claims the guard would flag."],
-    legal_flags: [],
-    priority: 4,
+    title: "Course manuscripts and assignments",
+    group: "Named in the addendum, not found",
+    file: "not supplied",
+    version: "n/a",
+    price_usd: null,
+    content_summary:
+      "No manuscripts were in the folder. The Faceless Content System workbook is described as a course workbook; the video course is listed in catalog.py but not supplied.",
+    customer_problem: "n/a",
+    proposed_destination: "Guided learning and implementation tasks",
+    proposed_form: "educational content + tasks",
+    missing_information: ["Manuscripts and assignments"],
+    reuse: { status: "blocked", reason: "Not supplied." },
   },
 ];
 
+// The addendum's conversion order.
+const PRIORITY = {
+  "income-fit-test": 1,
+  "fit-report": 1,
+  "opportunity-database": 1,
+  "opportunity-cards": 1,
+  workbook: 1,
+  "fit-country-rules": 1,
+  "rules-guides": 1,
+  "go-no-go-scorecard": 1,
+  "14-day-test-plan": 1,
+  "14-day-tracker": 1,
+  "start-here": 1,
+  "ai-shortcut-system": 1,
+  "brand-system": 2,
+  "brand-in-a-box": 2,
+  "sell-it-simply-workbook": 2,
+  "business-starter-system": 3,
+  "little-offer-kit": 4,
+  "get-found": 4,
+  "first-5-customers": 4,
+  "ai-business-assistant-pack": 4,
+  "price-it-right": 5,
+  "side-income-money-system": 5,
+  "money-operations-kit": 5,
+  "faceless-content-system-workbook": 6,
+  "100-faceless-hooks": 6,
+  "30-day-faceless-content-plan": 6,
+  "faceless-not-anonymous-workbook": 6,
+  "comment-to-dm-kit": 6,
+};
+
+// What has been built from each, in this release.
+const BUILT = {
+  "income-fit-test":
+    "FIT Finder (quiz, report, calculator, dated 14-day plan, Day 14 gates), saved per account",
+  "fit-report": "src/lib/fit/engine.ts (1:1 port, parity-tested)",
+  "opportunity-database": "content/fit/opportunities.json",
+  "fit-country-rules": "src/lib/fit/rules.ts",
+  "go-no-go-scorecard": "Day 14 gates in the FIT Finder report (the report's version)",
+  "14-day-test-plan": "Dated, saveable plan in the FIT Finder report (the report's version)",
+  "14-day-tracker": "Plan ticks and calculator inputs saved per result",
+  "brand-system": "Empire Studio's colours, fonts and labels",
+  "sell-it-simply-workbook":
+    "Methods: brand_blueprint, homepage_copy, product_listing, image_briefs, email_sequence, theme_brief",
+  "little-offer-kit": "Methods: product_listing, homepage_copy, email_sequence, design rules",
+  "brand-in-a-box": "Palette and font rules in the brand_blueprint method",
+  "get-found": "SEO and title rules in the product_listing method",
+  "first-5-customers": "Honesty rules in the email_sequence method",
+  "ai-business-assistant-pack": "Ideal-customer, benefits and FAQ prompts in the methods",
+  "faceless-content-system-workbook": "Method: social_content (formats, caption template)",
+  "30-day-faceless-content-plan": "Method: social_content (weekly rhythm, launch week days 23–29)",
+  "100-faceless-hooks": "content/hooks/hooks.json (100 hooks, verbatim) used by social_content",
+  "faceless-not-anonymous-workbook": "Trust rules in social_content and theme_brief",
+  "comment-to-dm-kit": "Listed as a social_content source; templates not yet used",
+};
+
+const NOT_REVIEWED = new Set([
+  "video-course",
+  "business-starter-system",
+  "money-operations-kit",
+  "course-manuscripts",
+]);
+
+const assets = [...audited, ...EXTRA].map((a) => ({
+  priority: PRIORITY[a.id] ?? 7,
+  ...a,
+  source_reviewed: !NOT_REVIEWED.has(a.id),
+  built: BUILT[a.id] ?? null,
+}));
+
+const ids = new Set();
+for (const a of assets) {
+  if (ids.has(a.id)) throw new Error(`duplicate id ${a.id}`);
+  ids.add(a.id);
+}
+
 const register = {
-  generated: new Date().toISOString().slice(0, 10),
+  generated: "2026-10-22",
   source:
-    "Founder addendum to the Empire Studio brief, 2026-10-22. Source documents not yet supplied.",
+    "Her Little Empire documents supplied 22 Oct 2026 (README_FOR_CLAUDE_CODE.md and 01_income-fit-test, 02_products, 03_brand), audited file by file.",
   fields: {
-    original_document: "File name and section the content comes from.",
-    version: "Version or date of the document.",
-    product_status: "Live on Gumroad / retired / draft.",
-    intended_use: "What it was made for, in the founder's words.",
-    customer_problem: "The problem it solves for the customer.",
-    missing_information: "Gaps in the source to resolve before converting.",
-    reuse: "immediate | needs-work | blocked (awaiting source).",
+    file: "Original document(s), relative to the supplied folder.",
+    sections: "Its sections, in order.",
+    customer_problem: "The problem it addresses, in the document's framing.",
+    content_types: "research, guidance, question, formula, template, workflow, example.",
+    proposed_destination: "Where it goes in FIT Finder or Empire Studio.",
+    proposed_form:
+      "Interactive feature, structured data, AI instruction, educational article or downloadable resource.",
+    duplicates_with: "Overlap with other assets.",
+    missing_information: "Gaps and inconsistencies.",
+    research_verification:
+      "Figures, rules and claims to re-check, and whether they're labelled and dated.",
+    compliance_flags: "Conflicts with the founder's rules.",
+    reuse: "built | immediate | needs-work | blocked, with the reason.",
+    built: "What this release built from it.",
   },
-  assets: assets.map((a) => ({
-    ...a,
-    original_document: UNKNOWN,
-    version: UNKNOWN,
-    product_status: UNKNOWN,
-    intended_use: UNKNOWN,
-    customer_problem: UNKNOWN,
-    missing_information: ["Entire source document"],
-    known_facts: a.known_facts ?? [],
-    source_reviewed: false,
-    proposed: true,
-    reuse: "blocked — awaiting source",
-  })),
+  assets: assets.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id)),
 };
 
 writeFileSync("content/register.json", `${JSON.stringify(register, null, 2)}\n`);
@@ -336,27 +339,37 @@ const columns = [
   "id",
   "title",
   "group",
-  "original_document",
+  "file",
   "version",
-  "product_status",
-  "intended_use",
+  "price_usd",
   "customer_problem",
-  "expected_content_types",
+  "content_types",
   "proposed_destination",
   "proposed_form",
   "duplicates_with",
   "missing_information",
-  "research_flags",
-  "legal_flags",
-  "known_facts",
-  "reuse",
+  "research_verification",
+  "compliance_flags",
+  "reuse_status",
+  "reuse_reason",
+  "built",
   "source_reviewed",
 ];
+const flat = (v) =>
+  Array.isArray(v)
+    ? v.map((x) => (typeof x === "object" ? Object.values(x).join(": ") : String(x))).join(" | ")
+    : v && typeof v === "object"
+      ? Object.values(v).join(": ")
+      : String(v ?? "");
 const cell = (v) => {
-  const s = Array.isArray(v) ? v.join("; ") : String(v ?? "");
+  const s = flat(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
-const rows = [...register.assets].sort((a, b) => a.priority - b.priority);
+const rows = register.assets.map((a) => ({
+  ...a,
+  reuse_status: typeof a.reuse === "object" ? a.reuse.status : a.reuse,
+  reuse_reason: typeof a.reuse === "object" ? a.reuse.reason : "",
+}));
 writeFileSync(
   "content/register.csv",
   [columns.join(","), ...rows.map((r) => columns.map((c) => cell(r[c])).join(","))].join("\n") +

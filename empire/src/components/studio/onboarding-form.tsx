@@ -67,10 +67,10 @@ export function OnboardingForm() {
               aria-current={i === step ? "step" : undefined}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm ${
                 i === step
-                  ? "bg-oxblood text-ivory"
+                  ? "bg-aubergine text-ivory"
                   : i < step
-                    ? "bg-blush text-ink"
-                    : "border-line text-ink-soft border"
+                    ? "bg-blush text-charcoal"
+                    : "border-line text-mute border"
               }`}
             >
               <span aria-hidden>{i + 1}</span> {label}
@@ -105,7 +105,7 @@ export function OnboardingForm() {
             {pending ? "Saving…" : "Save and build my blueprint"}
           </Button>
         )}
-        <p className="text-ink-soft text-sm">
+        <p className="text-mute text-sm">
           Step {step + 1} of {STEPS.length}. You can change any of this later.
         </p>
       </div>

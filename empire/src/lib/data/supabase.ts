@@ -11,6 +11,8 @@ import type { ModuleKey } from "@/lib/domain/modules";
 import type {
   AnalyticsEvent,
   Entitlement,
+  FitProgress,
+  FitResult,
   Generation,
   LaunchTask,
   Purchase,
@@ -182,6 +184,16 @@ const toUsage = (r: Row): UsageRow => ({
   outputTokens: r.output_tokens as number,
   estimatedCost: Number(r.estimated_cost),
   createdAt: r.created_at as string,
+});
+
+const toFit = (r: Row): FitResult => ({
+  id: r.id as string,
+  userId: r.user_id as string,
+  answers: r.answers as FitResult["answers"],
+  progress: (r.progress as FitProgress) ?? {},
+  engineVersion: r.engine_version as string,
+  createdAt: r.created_at as string,
+  updatedAt: r.updated_at as string,
 });
 
 export class SupabaseUserRepo implements UserRepo {
@@ -447,6 +459,53 @@ export class SupabaseUserRepo implements UserRepo {
         .gte("created_at", sinceIso),
     );
     return (rows as Row[]).map(toUsage);
+  }
+
+  async listFitResults() {
+    const rows = check(
+      await this.db
+        .from("fit_results")
+        .select("*")
+        .eq("user_id", this.userId)
+        .order("created_at", { ascending: false }),
+    );
+    return (rows as Row[]).map(toFit);
+  }
+
+  async getFitResult(id: string) {
+    const row = check(
+      await this.db
+        .from("fit_results")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .maybeSingle(),
+    );
+    return row ? toFit(row as Row) : null;
+  }
+
+  async createFitResult(answers: FitResult["answers"], engineVersion: string) {
+    const row = check(
+      await this.db
+        .from("fit_results")
+        .insert({ user_id: this.userId, answers, engine_version: engineVersion })
+        .select("*")
+        .single(),
+    );
+    return toFit(row as Row);
+  }
+
+  async updateFitProgress(id: string, progress: FitProgress) {
+    const row = check(
+      await this.db
+        .from("fit_results")
+        .update({ progress, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .select("*")
+        .single(),
+    );
+    return toFit(row as Row);
   }
 }
 

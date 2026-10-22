@@ -79,6 +79,7 @@ const NAMED: Record<string, string> = {
   pink: "#E8819F",
   rose: "#C9737F",
   oxblood: "#632B39",
+  aubergine: "#43252C",
   burgundy: "#6B2234",
   red: "#B23A3A",
   terracotta: "#B8643F",

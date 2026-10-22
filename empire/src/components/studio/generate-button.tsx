@@ -53,7 +53,7 @@ export function GenerateButton({
       <Button type="button" onClick={run} disabled={pending || Boolean(disabledReason)}>
         {pending ? "Writing…" : label}
       </Button>
-      <p aria-live="polite" className="text-ink-soft text-sm">
+      <p aria-live="polite" className="text-mute text-sm">
         {pending ? WAITING[tick % WAITING.length] : (disabledReason ?? "")}
       </p>
       {error ? <Notice tone="danger">{error}</Notice> : null}

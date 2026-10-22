@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/shell/site-header";
 import { PageHeader } from "@/components/ui/card";
-import { LAUNCH_PACK } from "@/lib/billing/plans";
+import { LAUNCH_PACK, REFUND_POLICY, SELLER } from "@/lib/billing/plans";
 
 export const metadata: Metadata = { title: "Terms and refunds" };
 
@@ -21,9 +21,8 @@ export default function Terms() {
         </p>
         <h2 className="mt-8 text-2xl">Refunds</h2>
         <p>
-          Ask within {LAUNCH_PACK.refundDays} days of purchase and you'll get a full refund, no
-          questions. After a refund, your saved work stays in your account, but the pack's remaining
-          generations and exports stop.
+          {REFUND_POLICY} After a refund, your saved work stays in your account, but the pack's
+          remaining generations and exports stop.
         </p>
         <h2 className="mt-8 text-2xl">Your content</h2>
         <p>
@@ -37,6 +36,15 @@ export default function Terms() {
           Empire Studio isn't made by or affiliated with Shopify. Shopify Sidekick prompts are
           suggestions: what Sidekick does depends on your theme and plan. Work on a duplicate theme
           and review every change before publishing.
+        </p>
+        <h2 className="mt-8 text-2xl">Who you're buying from</h2>
+        <p>
+          {SELLER.name}, ABN {SELLER.abn}, {SELLER.country}. A registered business name; not
+          registered for GST. Questions:{" "}
+          <a href={`mailto:${SELLER.email}`} className="underline">
+            {SELLER.email}
+          </a>
+          .
         </p>
         <h2 className="mt-8 text-2xl">Earlier Her Little Empire downloads</h2>
         <p>Anything you bought before stays yours on Gumroad under the terms you bought it with.</p>

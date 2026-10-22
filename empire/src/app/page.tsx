@@ -2,7 +2,7 @@ import { SiteFooter, SiteHeader } from "@/components/shell/site-header";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/card";
 import { ViewBeacon } from "@/components/beacon";
-import { LAUNCH_PACK } from "@/lib/billing/plans";
+import { LAUNCH_PACK, REFUND_POLICY } from "@/lib/billing/plans";
 
 const OUTPUTS = [
   ["Brand Blueprint", "Positioning, ideal customer, palette, type, tone and photo direction."],
@@ -52,7 +52,7 @@ export default function Home() {
             <h1 className="text-5xl sm:text-6xl lg:text-7xl">
               Your Shopify launch, written, planned and ready to paste.
             </h1>
-            <p className="text-ink-soft mt-6 max-w-xl text-xl">
+            <p className="text-mute mt-6 max-w-xl text-xl">
               Tell us about your business once. Get a coordinated launch pack — brand, store setup,
               product copy, photo briefs, emails and a checklist — that all sound like you.
             </p>
@@ -62,9 +62,9 @@ export default function Home() {
                 See what's included
               </ButtonLink>
             </div>
-            <p className="text-ink-soft mt-4 text-sm">Ambitious. Unavailable for nonsense.</p>
+            <p className="text-mute mt-4 text-sm">Ambitious. Unavailable for nonsense.</p>
           </div>
-          <Card className="bg-oxblood text-ivory self-start">
+          <Card className="bg-aubergine text-ivory self-start">
             <div className="flex items-center justify-between gap-3">
               <p className="eyebrow text-blush">Sample Sidekick prompt</p>
               <Badge tone="blush">Example brand</Badge>
@@ -72,7 +72,7 @@ export default function Home() {
             <p className="text-blush mt-3 text-sm">
               For a made-up shop, Juniper &amp; Thread. Yours uses your name, colours and words.
             </p>
-            <pre className="bg-oxblood-deep text-ivory mt-4 rounded-2xl p-4 font-mono text-[0.8rem] leading-relaxed whitespace-pre-wrap">
+            <pre className="bg-aubergine-deep text-ivory mt-4 rounded-2xl p-4 font-mono text-[0.8rem] leading-relaxed whitespace-pre-wrap">
               {`In my theme settings, update the colour scheme for Juniper & Thread: background #F5EFE3, text #262326, buttons and links #632B39, secondary section background #E9E0D0. Set headings to Lora and body text to Karla. Don't change any section content and don't publish.`}
             </pre>
             <p className="text-blush mt-4 text-sm">
@@ -92,7 +92,7 @@ export default function Home() {
               {OUTPUTS.map(([title, body]) => (
                 <li key={title} className="border-blush border-t-2 pt-4">
                   <h3 className="text-xl">{title}</h3>
-                  <p className="text-ink-soft mt-2">{body}</p>
+                  <p className="text-mute mt-2">{body}</p>
                 </li>
               ))}
             </ul>
@@ -115,9 +115,9 @@ export default function Home() {
               ],
             ].map(([title, body], i) => (
               <li key={title} className="bg-blush-soft rounded-3xl p-6">
-                <span className="text-oxblood font-serif text-4xl">{i + 1}</span>
+                <span className="text-aubergine font-num text-4xl">{i + 1}</span>
                 <h3 className="mt-3 text-xl">{title}</h3>
-                <p className="text-ink-soft mt-2">{body}</p>
+                <p className="text-mute mt-2">{body}</p>
               </li>
             ))}
           </ol>
@@ -130,8 +130,8 @@ export default function Home() {
             <dl className="mt-8 grid gap-8 md:grid-cols-2">
               {HONEST.map(([title, body]) => (
                 <div key={title}>
-                  <dt className="text-oxblood font-serif text-xl">{title}</dt>
-                  <dd className="text-ink-soft mt-2">{body}</dd>
+                  <dt className="text-aubergine font-serif text-xl">{title}</dt>
+                  <dd className="text-mute mt-2">{body}</dd>
                 </div>
               ))}
             </dl>
@@ -140,10 +140,9 @@ export default function Home() {
 
         <section className="mx-auto max-w-6xl px-5 py-16 text-center sm:px-8">
           <h2 className="text-4xl">Try it free. Upgrade when it's earned it.</h2>
-          <p className="text-ink-soft mx-auto mt-4 max-w-xl text-lg">
+          <p className="text-mute mx-auto mt-4 max-w-xl text-lg">
             The free studio gives you a brand preview and a real Sidekick prompt for your store. The{" "}
-            {LAUNCH_PACK.name} is {LAUNCH_PACK.priceLabel}, once, with a {LAUNCH_PACK.refundDays}
-            -day no-questions refund.
+            {LAUNCH_PACK.name} is {LAUNCH_PACK.priceLabel}, once. {REFUND_POLICY}
           </p>
           <div className="mt-8 flex justify-center">
             <ButtonLink href="/sign-in?start=1">Start free</ButtonLink>

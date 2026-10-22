@@ -26,7 +26,7 @@ export default async function SignInPage({
           <h1 className="mt-3 text-4xl">
             {start ? "Let's build your launch." : "Sign in to your studio"}
           </h1>
-          <p className="text-ink-soft mt-3 mb-6">
+          <p className="text-mute mt-3 mb-6">
             {start
               ? "Free to start, no card. One email address is all we need."
               : "Use the email you signed up (or bought) with."}

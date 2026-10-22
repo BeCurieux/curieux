@@ -170,6 +170,29 @@ select 'B' || g, 'Other', 'x', 'x', 'US', 'USD', 'idea', 'digital' from generate
 select pg_temp.expect_error($q$insert into public.business_profiles (brand_name, category, audience, products_summary, market, currency, stage, fulfilment) values ('B6', 'Other', 'x', 'x', 'US', 'USD', 'idea', 'digital')$q$, 'sixth profile');
 commit;
 
+-- Fit Finder results are private to their owner.
+begin;
+select pg_temp.act_as('22222222-2222-2222-2222-222222222222');
+insert into public.fit_results (answers, engine_version) values ('{"country":"Australia"}', 'v1.4');
+commit;
+begin;
+select pg_temp.act_as('11111111-1111-1111-1111-111111111111');
+insert into public.fit_results (answers, engine_version) values ('{"country":"Canada"}', 'v1.4');
+do $$ begin
+  if (select count(*) from public.fit_results) <> 1 then raise exception 'ava sees other fit results'; end if;
+end $$;
+update public.fit_results set progress = '{"x":1}' where answers->>'country' = 'Australia';
+commit;
+do $$ begin
+  if (select progress from public.fit_results where answers->>'country' = 'Australia') <> '{}'::jsonb then
+    raise exception 'ava changed bea fit result';
+  end if;
+end $$;
+begin;
+select pg_temp.act_as('11111111-1111-1111-1111-111111111111');
+select pg_temp.expect_error($q$insert into public.fit_results (user_id, answers, engine_version) values ('22222222-2222-2222-2222-222222222222', '{}', 'v1.4')$q$, 'fit result as another user');
+commit;
+
 -- Deleting a login removes everything she owns.
 delete from auth.users where id = '11111111-1111-1111-1111-111111111111';
 do $$ begin
@@ -177,6 +200,7 @@ do $$ begin
     raise exception 'profiles survived account deletion';
   end if;
   if (select count(*) from public.generations) <> 0 then raise exception 'generations survived'; end if;
+  if (select count(*) from public.fit_results where user_id = '11111111-1111-1111-1111-111111111111') <> 0 then raise exception 'fit results survived'; end if;
 end $$;
 
 \echo 'row level security: all checks passed'

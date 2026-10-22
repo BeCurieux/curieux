@@ -9,6 +9,8 @@ import type { ModuleKey } from "@/lib/domain/modules";
 import type {
   AnalyticsEvent,
   Entitlement,
+  FitProgress,
+  FitResult,
   Generation,
   LaunchTask,
   ProductType,
@@ -86,6 +88,11 @@ export interface UserRepo {
 
   listEntitlements(): Promise<Entitlement[]>;
   listUsage(sinceIso: string): Promise<UsageRow[]>;
+
+  listFitResults(): Promise<FitResult[]>;
+  getFitResult(id: string): Promise<FitResult | null>;
+  createFitResult(answers: FitResult["answers"], engineVersion: string): Promise<FitResult>;
+  updateFitProgress(id: string, progress: FitProgress): Promise<FitResult>;
 }
 
 export interface PurchaseUpsert {

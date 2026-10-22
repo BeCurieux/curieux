@@ -28,6 +28,7 @@ export const EVENTS = [
   "purchase_verified",
   "purchase_refunded",
   "task_updated",
+  "fit_completed",
 ] as const;
 export type EventName = (typeof EVENTS)[number];
 

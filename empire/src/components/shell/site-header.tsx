@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { currentUser } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/ui/button";
+import { Imprint } from "./imprint";
 import { Wordmark } from "./wordmark";
 
 export async function SiteHeader() {
@@ -9,7 +10,10 @@ export async function SiteHeader() {
     <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
       <Wordmark />
       <nav aria-label="Site" className="flex items-center gap-1 sm:gap-4">
-        <Link href="/pricing" className="text-ink hover:text-oxblood px-2 py-2 text-sm font-medium">
+        <Link
+          href="/pricing"
+          className="text-charcoal hover:text-aubergine px-2 py-2 text-sm font-medium"
+        >
           Pricing
         </Link>
         {user ? (
@@ -20,7 +24,7 @@ export async function SiteHeader() {
           <>
             <Link
               href="/sign-in"
-              className="text-ink hover:text-oxblood px-2 py-2 text-sm font-medium"
+              className="text-charcoal hover:text-aubergine px-2 py-2 text-sm font-medium"
             >
               Sign in
             </Link>
@@ -37,25 +41,28 @@ export async function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="border-line mt-24 border-t">
-      <div className="text-ink-soft mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8">
+      <div className="text-mute mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <p>
-          <span className="text-oxblood font-serif text-base">Her Little Empire</span> — Big plans.
-          Real life.
+          <span className="text-aubergine font-serif text-base">Her Little Empire</span> — Big
+          plans. Real life.
         </p>
         <nav aria-label="Legal" className="flex flex-wrap gap-4">
-          <Link href="/pricing" className="hover:text-oxblood">
+          <Link href="/pricing" className="hover:text-aubergine">
             Pricing
           </Link>
-          <Link href="/terms" className="hover:text-oxblood">
+          <Link href="/terms" className="hover:text-aubergine">
             Terms and refunds
           </Link>
-          <Link href="/privacy" className="hover:text-oxblood">
+          <Link href="/privacy" className="hover:text-aubergine">
             Privacy
           </Link>
-          <a href="https://herlittleempire.com" className="hover:text-oxblood">
+          <a href="https://herlittleempire.com" className="hover:text-aubergine">
             herlittleempire.com
           </a>
         </nav>
+      </div>
+      <div className="mx-auto max-w-6xl px-5 pb-10 sm:px-8">
+        <Imprint />
       </div>
     </footer>
   );

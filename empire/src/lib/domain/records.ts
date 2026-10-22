@@ -114,3 +114,26 @@ export interface UploadRecord {
   bytes: number;
   createdAt: string;
 }
+
+/** A Fit Finder result: her answers and her 14-day progress. */
+export interface FitResult {
+  id: string;
+  userId: string;
+  answers: Record<string, string | number>;
+  progress: FitProgress;
+  engineVersion: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FitProgress {
+  /** ISO date the 14-day test starts. */
+  start?: string;
+  /** Plan days she has ticked. */
+  done?: number[];
+  /** Calculator inputs, per opportunity id. */
+  calc?: Record<
+    string,
+    { price?: number; hrs?: number; cost?: number; fixed?: number; start?: number }
+  >;
+}

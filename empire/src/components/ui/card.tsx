@@ -17,11 +17,11 @@ export function Badge({
   ...props
 }: ComponentProps<"span"> & { tone?: "blush" | "ink" | "success" | "warning" | "outline" }) {
   const tones = {
-    blush: "bg-blush text-ink",
-    ink: "bg-ink text-ivory",
+    blush: "bg-blush text-charcoal",
+    ink: "bg-charcoal text-ivory",
     success: "bg-[#e3efe7] text-success",
     warning: "bg-[#f6ead2] text-warning",
-    outline: "border border-line text-ink-soft",
+    outline: "border border-line text-mute",
   };
   return (
     <span
@@ -44,7 +44,7 @@ export function PageHeader({
     <header className="mb-8 max-w-3xl">
       {eyebrow ? <p className="eyebrow mb-3">{eyebrow}</p> : null}
       <h1 className="text-4xl sm:text-5xl">{title}</h1>
-      {children ? <div className="text-ink-soft mt-4 text-lg">{children}</div> : null}
+      {children ? <div className="text-mute mt-4 text-lg">{children}</div> : null}
     </header>
   );
 }
@@ -69,8 +69,8 @@ export function Notice({
       role={tone === "danger" ? "alert" : "status"}
       className={`rounded-2xl border p-4 text-sm ${tones[tone]}`}
     >
-      {title ? <p className="text-ink mb-1 font-semibold">{title}</p> : null}
-      <div className="text-ink">{children}</div>
+      {title ? <p className="text-charcoal mb-1 font-semibold">{title}</p> : null}
+      <div className="text-charcoal">{children}</div>
     </div>
   );
 }

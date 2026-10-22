@@ -8,6 +8,8 @@ import type { Product } from "@/lib/domain/product";
 import type {
   AnalyticsEvent,
   Entitlement,
+  FitProgress,
+  FitResult,
   Generation,
   LaunchTask,
   Purchase,
@@ -39,6 +41,7 @@ interface Data {
   purchases: Purchase[];
   usage: UsageRow[];
   events: AnalyticsEvent[];
+  fitResults: FitResult[];
 }
 
 const empty = (): Data => ({
@@ -52,6 +55,7 @@ const empty = (): Data => ({
   purchases: [],
   usage: [],
   events: [],
+  fitResults: [],
 });
 
 const now = () => new Date().toISOString();
@@ -66,8 +70,10 @@ export class LocalStore {
 
   constructor(private readonly file: string) {}
 
+  // Re-read on every operation: the dev server can run requests in more
+  // than one worker, and a copy cached in one would overwrite another's
+  // writes. Fine for the local backend's job (development and tests).
   private async load(): Promise<Data> {
-    if (this.data) return this.data;
     try {
       this.data = { ...empty(), ...(JSON.parse(await readFile(this.file, "utf8")) as Data) };
     } catch {
@@ -357,6 +363,44 @@ class LocalUserRepo implements UserRepo {
   listUsage(sinceIso: string) {
     return this.store.tx((d) => this.mine(d.usage).filter((u) => u.createdAt >= sinceIso), false);
   }
+
+  listFitResults() {
+    return this.store.tx(
+      (d) => this.mine(d.fitResults).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      false,
+    );
+  }
+
+  getFitResult(id: string) {
+    return this.store.tx((d) => this.mine(d.fitResults).find((r) => r.id === id) ?? null, false);
+  }
+
+  createFitResult(answers: FitResult["answers"], engineVersion: string) {
+    return this.store.tx((d) => {
+      const at = now();
+      const result: FitResult = {
+        id: randomUUID(),
+        userId: this.userId,
+        answers,
+        progress: {},
+        engineVersion,
+        createdAt: at,
+        updatedAt: at,
+      };
+      d.fitResults.push(result);
+      return result;
+    });
+  }
+
+  updateFitProgress(id: string, progress: FitProgress) {
+    return this.store.tx((d) => {
+      const result = this.mine(d.fitResults).find((r) => r.id === id);
+      if (!result) throw new Error("not found");
+      result.progress = progress;
+      result.updatedAt = now();
+      return result;
+    });
+  }
 }
 
 class LocalSystemRepo implements SystemRepo {
@@ -518,6 +562,7 @@ class LocalSystemRepo implements SystemRepo {
       d.tasks = d.tasks.filter((t) => t.userId !== userId);
       d.entitlements = d.entitlements.filter((e) => e.userId !== userId);
       d.usage = d.usage.filter((u) => u.userId !== userId);
+      d.fitResults = d.fitResults.filter((r) => r.userId !== userId);
       // Purchases are the business's financial record and stay, detached.
       for (const p of d.purchases) if (p.userId === userId) p.userId = null;
       d.events = d.events.map((e) => (e.userId === userId ? { ...e, userId: null } : e));

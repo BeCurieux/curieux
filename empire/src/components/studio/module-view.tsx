@@ -70,14 +70,20 @@ export async function ModuleView({
           >
             {kind.label}
           </Badge>
-          {method.status === "interim" ? <Badge tone="outline">Interim method</Badge> : null}
+          <Badge tone="outline">
+            {method.status === "source"
+              ? "Her Little Empire method"
+              : method.status === "partial"
+                ? "Her Little Empire method · some gaps"
+                : "Interim method"}
+          </Badge>
         </div>
         <h1 className="mt-4 text-4xl sm:text-5xl">
           {info.title}
-          {context ? <span className="text-ink-soft block text-2xl">{context}</span> : null}
+          {context ? <span className="text-mute block text-2xl">{context}</span> : null}
         </h1>
-        <p className="text-ink-soft mt-3 text-lg">{info.summary}</p>
-        <p className="text-ink mt-2 text-sm">{kind.explain}</p>
+        <p className="text-mute mt-3 text-lg">{info.summary}</p>
+        <p className="text-charcoal mt-2 text-sm">{kind.explain}</p>
       </header>
 
       {!current && !allowed ? (
@@ -96,7 +102,7 @@ export async function ModuleView({
       {!current && allowed ? (
         <Card>
           <h2 className="text-2xl">Ready when you are</h2>
-          <p className="text-ink-soft mt-2">
+          <p className="text-mute mt-2">
             We'll use {profile.brand ? "your Brand Blueprint and " : ""}your business details
             {info.scope === "product" ? " and this product's facts" : ""}. Anything missing is
             flagged, not made up.
@@ -109,7 +115,7 @@ export async function ModuleView({
               Tip:{" "}
               <Link
                 href={`/studio/${profile.id}/brand`}
-                className="text-oxblood font-semibold underline"
+                className="text-aubergine font-semibold underline"
               >
                 make your Brand Blueprint
               </Link>{" "}
@@ -125,7 +131,7 @@ export async function ModuleView({
               disabledReason={refusal?.message}
             />
           </div>
-          <p className="text-ink-soft mt-2 text-sm">
+          <p className="text-mute mt-2 text-sm">
             {remaining} generation{remaining === 1 ? "" : "s"} left.
           </p>
         </Card>
@@ -169,7 +175,7 @@ export async function ModuleView({
             regenerableSections={preview ? [] : sectionsOf(module, current.output!)}
             readOnly={false}
           />
-          {refusal && allowed ? <p className="text-ink-soft text-sm">{refusal.message}</p> : null}
+          {refusal && allowed ? <p className="text-mute text-sm">{refusal.message}</p> : null}
           {sampleOnly ? (
             <Card className="bg-blush-soft">
               <h2 className="text-2xl">Nine more prompts in the Launch Pack</h2>
@@ -198,11 +204,19 @@ export async function ModuleView({
         }))}
       />
 
-      {method.status === "interim" ? (
-        <p className="text-ink-soft text-xs">
-          Interim method: this module currently runs on a general launch method while the Her Little
-          Empire framework it's based on is being converted. Outputs record which method made them.
-        </p>
+      {method.status !== "source" ? (
+        <div className="text-mute text-xs">
+          <p>
+            {method.status === "partial"
+              ? "Built on Her Little Empire's own method, with a few gaps still to fill:"
+              : "No Her Little Empire method exists for this yet, so a general method runs under the brand's rules:"}
+          </p>
+          <ul className="mt-1 list-disc pl-5">
+            {method.gaps.map((g) => (
+              <li key={g}>{g}</li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );

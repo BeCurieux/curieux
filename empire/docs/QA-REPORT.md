@@ -1,11 +1,9 @@
 # Pre-launch QA report
 
-**Date:** 2026-10-22 · **Build:** branch `claude/exciting-ritchie-eayswn`
+**Date:** 2026-10-22 (updated after the Her Little Empire content audit) · **Build:** branch `claude/exciting-ritchie-eayswn`
 
 **Verdict:** ready for a **private test with real Shopify sellers on the
-mock generator or a capped AI budget**. **Not yet ready to take money:**
-the items under "Not yet verified" need a real run first, and the
-Her Little Empire source methods haven't been converted (`content/REGISTER.md`).
+mock generator or a capped AI budget**. **Not yet ready to take money:** the items under "Not yet verified" need a real run first, and Vee's decisions in `content/REGISTER.md` §3 are open.
 
 ## Verified automatically
 
@@ -31,6 +29,18 @@ Her Little Empire source methods haven't been converted (`content/REGISTER.md`).
 | Build, lint, types, format                | `next build`, ESLint, `tsc`, Prettier                                                                                                                       | Pass                                                                              |
 
 Totals: 69 unit tests, the RLS suite, 16 Playwright tests (8 × desktop and phone).
+
+## Added after the content audit
+
+| Area                 | How                                                                                                                                                      | Result                                                                                                                                                                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FIT Finder scoring   | The shipped v1.4 JavaScript run beside the TypeScript port on 5,000 random answer sets, scoring the data embedded in the shipped report                  | Identical scores, bands, top threes and reasons                                                                                                                                                     |
+| FIT Finder flow      | Playwright, desktop and 390 px: quiz → preview for non-owners; quiz → full report → calculator → tick a day → reload, all saved                          | Pass. Three real bugs fixed on the way: saved answers failed re-validation (404), the calculator and plan overwrote each other's progress, and a reload within the save delay lost calculator input |
+| FIT Finder isolation | RLS suite: another customer's results can't be read, changed or created; deleted with the account                                                        | Pass                                                                                                                                                                                                |
+| Bundles              | Owning a bundle unlocks its contents (Empire Bundle → FIT Finder); library purchases never unlock the Launch Pack                                        | Pass                                                                                                                                                                                                |
+| House rules          | Guard always flags PLR/MRR, MLM recruiting and the former trading name; exact refund sentence from one constant everywhere; seller details on every page | Pass                                                                                                                                                                                                |
+| Generator methods    | Offline outputs in the HLE methods still validate and pass the claims guard (physical and digital, sparse profile); 100 hooks verified word for word     | Pass                                                                                                                                                                                                |
+| Brand                | Your colour tokens and font files; contrast measured (rose kept to large text)                                                                           | Pass                                                                                                                                                                                                |
 
 ## Not yet verified — do these before charging
 
@@ -63,5 +73,6 @@ Totals: 69 unit tests, the RLS suite, 16 Playwright tests (8 × desktop and phon
   return HTTP 200 with the 404 page; no data is rendered.
 - Image generation, Shopify OAuth and social publishing are intentionally
   not built (brief: later phases).
-- All eight generator methods are **interim** until the HLE documents are
-  converted.
+- Generator methods: five use Her Little Empire's own methods; the Brand
+  Blueprint and store brief are partial; Sidekick prompts are interim (no HLE
+  Shopify method exists).

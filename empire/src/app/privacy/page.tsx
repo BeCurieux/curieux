@@ -28,9 +28,9 @@ export default function Privacy() {
           refunded, never your card.
         </p>
         <p>
-          You can download all your data, or delete your account and everything in it, from your
-          account page. Purchase records are kept (without a link to your account) because tax law
-          requires it.
+          Questions about your data: hello@herlittleempire.com. You can download all your data, or
+          delete your account and everything in it, from your account page. Purchase records are
+          kept (without a link to your account) because tax law requires it.
         </p>
       </main>
       <SiteFooter />

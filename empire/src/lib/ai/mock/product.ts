@@ -65,18 +65,20 @@ export function mockProductListing(
   const opener = problem
     ? `If ${problem}, ${product.name} is the fix.`
     : `${product.name}, made for ${audience}.`;
+  // Little Offer Kit › "Product description" template: promise, who it's
+  // for, what's inside, format and what she'll need, what it's not.
+  const promise = problem
+    ? `${product.name} helps ${audience} when ${problem}.`
+    : `${product.name} helps ${audience} [get what result] [in how long].`;
   const description = [
-    sentence(opener),
-    benefits.length
-      ? sentence(`It's ${benefits.slice(0, 3).join(", ")}`)
-      : "[Describe what it does, in a sentence or two.]",
-    use ? sentence(`Made for ${use}`) : "",
-    product.materials
-      ? sentence(`${digital ? "What you get" : "Made from"}: ${product.materials}`)
-      : "",
+    sentence(promise),
+    `This is for you if:\n- ${problem ? sentence(problem[0]!.toUpperCase() + problem.slice(1)) : "[situation 1]"}\n- ${use ? sentence(`You want it for ${use}`) : "[situation 2]"}\n- [situation 3]`,
+    `What's inside:\n${(benefits.length ? benefits.slice(0, 4) : ["[Part 1 — what it helps you do]", "[Part 2]"]).map((b) => `- ${b[0]!.toUpperCase()}${b.slice(1)}`).join("\n")}${product.materials ? `\n- ${digital ? "What you get" : "Made from"}: ${product.materials}` : ""}`,
     facts.length ? facts.map((f) => sentence(f)).join(" ") : "",
-    product.careInstructions ? sentence(`Care: ${product.careInstructions}`) : "",
+    product.careInstructions ? `Care: ${sentence(product.careInstructions)}` : "",
     product.shippingInfo ? sentence(product.shippingInfo) : "[Add delivery details.]",
+    "What it's not: [e.g. a custom order / a full system].",
+    "Questions before you buy? Email [your email].",
   ]
     .filter(Boolean)
     .join("\n\n");

@@ -24,7 +24,7 @@ export default async function PrintPack({ params }: { params: Promise<{ profileI
       <header className="border-line mb-10 border-b pb-6">
         <p className="eyebrow">Launch pack</p>
         <h1 className="mt-2 text-5xl">{profile.brandName}</h1>
-        <p className="text-ink-soft mt-2">
+        <p className="text-mute mt-2">
           Check every fact, claim and image before you publish. Sidekick prompts are instructions;
           photo briefs are plans.
         </p>
@@ -34,7 +34,7 @@ export default async function PrintPack({ params }: { params: Promise<{ profileI
           <h2 className="mb-4 text-3xl">
             {MODULES[g.module].title}
             {g.productId ? (
-              <span className="text-ink-soft block text-xl">{names.get(g.productId)}</span>
+              <span className="text-mute block text-xl">{names.get(g.productId)}</span>
             ) : null}
           </h2>
           <ReadOnly value={g.output} />

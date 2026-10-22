@@ -37,7 +37,7 @@ function Task({ task, readOnly }: { task: ChecklistRow; readOnly: boolean }) {
     <li className="border-line bg-paper rounded-2xl border p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h3
-          className={`font-sans text-lg font-semibold ${status === "complete" ? "text-success" : "text-ink"}`}
+          className={`font-sans text-lg font-semibold ${status === "complete" ? "text-success" : "text-charcoal"}`}
         >
           {task.label}
         </h3>
@@ -67,19 +67,19 @@ function Task({ task, readOnly }: { task: ChecklistRow; readOnly: boolean }) {
       <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
         <div>
           <dt className="font-semibold">What to do</dt>
-          <dd className="text-ink-soft">{task.what}</dd>
+          <dd className="text-mute">{task.what}</dd>
         </div>
         <div>
           <dt className="font-semibold">Why it matters</dt>
-          <dd className="text-ink-soft">{task.why}</dd>
+          <dd className="text-mute">{task.why}</dd>
         </div>
         <div>
           <dt className="font-semibold">You'll end up with</dt>
-          <dd className="text-ink-soft">{task.output}</dd>
+          <dd className="text-mute">{task.output}</dd>
         </div>
         <div>
           <dt className="font-semibold">Use</dt>
-          <dd className="text-ink-soft">{task.tool}</dd>
+          <dd className="text-mute">{task.tool}</dd>
         </div>
       </dl>
       <div className="mt-3">
@@ -100,7 +100,7 @@ function Task({ task, readOnly }: { task: ChecklistRow; readOnly: boolean }) {
           }}
           className="field-input mt-1 text-sm"
         />
-        <p aria-live="polite" className="text-ink-soft mt-1 h-4 text-xs">
+        <p aria-live="polite" className="text-mute mt-1 h-4 text-xs">
           {saved === "saving"
             ? "Saving…"
             : saved === "saved"
@@ -129,7 +129,7 @@ export function Checklist({ tasks, readOnly }: { tasks: ChecklistRow[]; readOnly
               <h2 id={`c-${category}`} className="text-2xl">
                 {category}
               </h2>
-              <p className="text-ink-soft text-sm">
+              <p className="text-mute text-sm">
                 {done} of {rows.length}
               </p>
             </div>

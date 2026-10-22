@@ -18,7 +18,7 @@ export default async function ProductModule({
     <div className="space-y-4">
       <Link
         href={`/studio/${profile.id}/products/${product.id}`}
-        className="no-print text-oxblood text-sm font-semibold underline"
+        className="no-print text-aubergine text-sm font-semibold underline"
       >
         ← {product.name}
       </Link>

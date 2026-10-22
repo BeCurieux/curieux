@@ -29,10 +29,10 @@ export function VersionHistory({ versions }: { versions: VersionRow[] }) {
   if (versions.length === 0) return null;
   return (
     <details className="no-print border-line bg-paper rounded-3xl border p-5 sm:p-7">
-      <summary className="text-oxblood cursor-pointer font-serif text-xl">
+      <summary className="text-aubergine cursor-pointer font-serif text-xl">
         Version history ({versions.length})
       </summary>
-      <p className="text-ink-soft mt-2 text-sm">
+      <p className="text-mute mt-2 text-sm">
         Every save and regeneration is kept. Restoring copies an old version to the top.
       </p>
       {message ? (
@@ -51,7 +51,7 @@ export function VersionHistory({ versions }: { versions: VersionRow[] }) {
                   <span className="text-success ml-2 text-sm font-normal">current</span>
                 ) : null}
               </p>
-              <p className="text-ink-soft text-sm">
+              <p className="text-mute text-sm">
                 {new Date(v.createdAt).toLocaleString()}
                 {v.status === "failed" ? ` — didn't work: ${v.error ?? "unknown error"}` : ""}
               </p>
@@ -67,7 +67,7 @@ export function VersionHistory({ versions }: { versions: VersionRow[] }) {
                     router.refresh();
                   })
                 }
-                className="border-oxblood text-oxblood hover:bg-blush-soft min-h-10 rounded-full border px-4 text-sm font-semibold"
+                className="border-aubergine text-aubergine hover:bg-blush-soft min-h-10 rounded-full border px-4 text-sm font-semibold"
               >
                 Restore
               </button>

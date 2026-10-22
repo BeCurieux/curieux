@@ -17,6 +17,8 @@ The service-role key is used only in `SupabaseSystemRepo` and to insert
 model-written generations after ownership is checked through the customer's
 own client. `server-only` makes importing it from browser code a build error.
 
+FIT Finder results (`fit_results`) follow the same rule: the RLS suite proves one customer can't read, change or create another's results, and they're deleted with her account.
+
 ## AI safety and prompt injection
 
 - Customer text is placed only inside `<customer_data>` as JSON, with `</`

@@ -31,7 +31,7 @@ export default async function Assets({ params }: { params: Promise<{ profileId: 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl">Your launch pack</h2>
-            <p className="text-ink-soft mt-1">
+            <p className="text-mute mt-1">
               Markdown files that paste cleanly into Shopify, email tools and docs — or print it.
             </p>
           </div>
@@ -39,7 +39,7 @@ export default async function Assets({ params }: { params: Promise<{ profileId: 
             <div className="flex flex-wrap gap-2">
               <a
                 href={`/api/export/${profile.id}`}
-                className="bg-oxblood text-ivory hover:bg-oxblood-deep inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
+                className="bg-aubergine text-ivory hover:bg-aubergine-deep inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
               >
                 Download ZIP
               </a>
@@ -53,9 +53,9 @@ export default async function Assets({ params }: { params: Promise<{ profileId: 
         </div>
       </Card>
       {assets.length === 0 ? (
-        <p className="text-ink-soft">
+        <p className="text-mute">
           Nothing yet.{" "}
-          <Link href={`/studio/${profile.id}`} className="text-oxblood font-semibold underline">
+          <Link href={`/studio/${profile.id}`} className="text-aubergine font-semibold underline">
             Pick a workflow
           </Link>{" "}
           to make your first asset.
@@ -71,9 +71,9 @@ export default async function Assets({ params }: { params: Promise<{ profileId: 
                 <span>
                   <span className="font-semibold">{MODULES[g.module].title}</span>
                   {g.productId ? (
-                    <span className="text-ink-soft"> · {names.get(g.productId) ?? "Product"}</span>
+                    <span className="text-mute"> · {names.get(g.productId) ?? "Product"}</span>
                   ) : null}
-                  <span className="text-ink-soft block text-sm">
+                  <span className="text-mute block text-sm">
                     Version {g.version} · {new Date(g.createdAt).toLocaleDateString()}
                   </span>
                 </span>

@@ -172,13 +172,13 @@ function Node({
     return (
       <fieldset className="space-y-3">
         {depth > 0 ? (
-          <legend className="text-ink mb-2 text-sm font-semibold">{labelFor(name)}</legend>
+          <legend className="text-charcoal mb-2 text-sm font-semibold">{labelFor(name)}</legend>
         ) : null}
         {value.map((item, i) =>
           objects ? (
             <div key={i} className="border-line bg-ivory rounded-2xl border p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
-                <p className="text-oxblood text-sm font-semibold">{itemTitle(item, i)}</p>
+                <p className="text-aubergine text-sm font-semibold">{itemTitle(item, i)}</p>
                 <div className="flex items-center gap-1">
                   <CopyButton
                     text={sectionMarkdown(name, [item])}
@@ -194,7 +194,7 @@ function Node({
                           value.filter((_, j) => j !== i),
                         )
                       }
-                      className="text-ink-soft hover:text-danger min-h-9 px-2 text-sm"
+                      className="text-mute hover:text-danger min-h-9 px-2 text-sm"
                       aria-label={`Remove ${itemTitle(item, i)}`}
                     >
                       Remove
@@ -235,7 +235,7 @@ function Node({
                       value.filter((_, j) => j !== i),
                     )
                   }
-                  className="text-ink-soft hover:text-danger min-h-11 px-2 text-sm"
+                  className="text-mute hover:text-danger min-h-11 px-2 text-sm"
                   aria-label={`Remove ${labelFor(name)} ${i + 1}`}
                 >
                   ✕
@@ -248,7 +248,7 @@ function Node({
           <button
             type="button"
             onClick={() => onChange(path, [...value, value.length > 0 ? blank(value[0]!) : ""])}
-            className="text-oxblood min-h-10 text-sm font-semibold hover:underline"
+            className="text-aubergine min-h-10 text-sm font-semibold hover:underline"
           >
             + Add {labelFor(name).toLowerCase().replace(/s$/, "")}
           </button>
@@ -284,7 +284,10 @@ function Node({
       <div
         className={`flex items-center justify-between gap-2 ${topLevel && !COPY_LEAF.has(name) ? "sr-only" : ""}`}
       >
-        <label htmlFor={id} className={topLevel ? "sr-only" : "text-ink text-sm font-semibold"}>
+        <label
+          htmlFor={id}
+          className={topLevel ? "sr-only" : "text-charcoal text-sm font-semibold"}
+        >
           {label}
         </label>
         {COPY_LEAF.has(name) && typeof value === "string" ? (
@@ -538,10 +541,10 @@ export function AssetEditor(props: EditorProps) {
       {props.locked.map((key) => (
         <section
           key={key}
-          className="border-oxblood/40 bg-blush-soft rounded-3xl border border-dashed p-5 sm:p-7"
+          className="border-aubergine/40 bg-blush-soft rounded-3xl border border-dashed p-5 sm:p-7"
         >
           <h2 className="text-2xl">{labelFor(key)}</h2>
-          <p className="text-ink mt-2">
+          <p className="text-charcoal mt-2">
             Part of the Launch Pack. Upgrade and it'll be here, ready to edit — nothing you've made
             so far is lost.
           </p>

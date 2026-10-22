@@ -67,8 +67,8 @@ export default async function Admin() {
               {funnel.map(([label, n, r]) => (
                 <tr key={label} className="border-line border-t">
                   <th className="py-2 font-medium">{label}</th>
-                  <td className="py-2 text-right font-serif text-xl">{n}</td>
-                  <td className="text-ink-soft w-16 py-2 text-right">{r}</td>
+                  <td className="font-num py-2 text-right text-xl">{n}</td>
+                  <td className="text-mute w-16 py-2 text-right">{r}</td>
                 </tr>
               ))}
             </tbody>
@@ -81,12 +81,12 @@ export default async function Admin() {
               {usage.map(([label, n]) => (
                 <tr key={label} className="border-line border-t">
                   <th className="py-2 font-medium">{label}</th>
-                  <td className="py-2 text-right font-serif text-xl">{n}</td>
+                  <td className="font-num py-2 text-right text-xl">{n}</td>
                 </tr>
               ))}
               <tr className="border-line border-t">
                 <th className="py-2 font-medium">Copies + downloads per successful generation</th>
-                <td className="py-2 text-right font-serif text-xl">
+                <td className="font-num py-2 text-right text-xl">
                   {e("generation_succeeded")
                     ? (
                         (e("asset_copied") + e("asset_downloaded")) /
@@ -102,35 +102,35 @@ export default async function Admin() {
           <h2 className="text-2xl">Customers and cost</h2>
           <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
             <div>
-              <dt className="text-ink-soft">Accounts</dt>
-              <dd className="font-serif text-3xl">{m.users}</dd>
+              <dt className="text-mute">Accounts</dt>
+              <dd className="font-num text-3xl">{m.users}</dd>
             </div>
             <div>
-              <dt className="text-ink-soft">Paying customers</dt>
-              <dd className="font-serif text-3xl">{m.payingCustomers}</dd>
+              <dt className="text-mute">Paying customers</dt>
+              <dd className="font-num text-3xl">{m.payingCustomers}</dd>
             </div>
             <div>
-              <dt className="text-ink-soft">7-day repeat users</dt>
-              <dd className="font-serif text-3xl">{m.repeatUsers7d}</dd>
+              <dt className="text-mute">7-day repeat users</dt>
+              <dd className="font-num text-3xl">{m.repeatUsers7d}</dd>
             </div>
             <div>
-              <dt className="text-ink-soft">30-day repeat users</dt>
-              <dd className="font-serif text-3xl">{m.repeatUsers30d}</dd>
+              <dt className="text-mute">30-day repeat users</dt>
+              <dd className="font-num text-3xl">{m.repeatUsers30d}</dd>
             </div>
             <div>
-              <dt className="text-ink-soft">AI cost, last 30 days</dt>
-              <dd className="font-serif text-3xl">US${m.costLast30Days.toFixed(2)}</dd>
+              <dt className="text-mute">AI cost, last 30 days</dt>
+              <dd className="font-num text-3xl">US${m.costLast30Days.toFixed(2)}</dd>
             </div>
             <div>
-              <dt className="text-ink-soft">Avg cost per paying customer</dt>
-              <dd className="font-serif text-3xl">
+              <dt className="text-mute">Avg cost per paying customer</dt>
+              <dd className="font-num text-3xl">
                 {m.payingCustomers
                   ? `US$${(m.costLast30Days / m.payingCustomers).toFixed(2)}`
                   : "—"}
               </dd>
             </div>
           </dl>
-          <p className="text-ink-soft mt-4 text-sm">
+          <p className="text-mute mt-4 text-sm">
             Daily AI ceiling: US${env.EMPIRE_AI_DAILY_BUDGET_USD}. Provider:{" "}
             {env.EMPIRE_AI_PROVIDER} ({env.EMPIRE_AI_MODEL}).
           </p>
@@ -147,15 +147,13 @@ export default async function Admin() {
                 </li>
               ))}
             {Object.keys(m.sources).length === 0 ? (
-              <li className="text-ink-soft">
-                No signups yet. Add ?utm_source=… to links you share.
-              </li>
+              <li className="text-mute">No signups yet. Add ?utm_source=… to links you share.</li>
             ) : null}
           </ul>
         </Card>
         <Card className="lg:col-span-2">
           <h2 className="text-2xl">Content conversion status</h2>
-          <p className="text-ink-soft mt-1 text-sm">
+          <p className="text-mute mt-1 text-sm">
             Which modules run on a Her Little Empire method, and which are still interim
             (content/REGISTER.md).
           </p>
@@ -172,7 +170,7 @@ export default async function Admin() {
               </li>
             ))}
           </ul>
-          <p className="text-ink-soft mt-4 text-sm">
+          <p className="text-mute mt-4 text-sm">
             Catalogue items with Gumroad ids filled in:{" "}
             {CATALOGUE.filter((c) => c.gumroadProductIds.length > 0).length} of {CATALOGUE.length}.
           </p>

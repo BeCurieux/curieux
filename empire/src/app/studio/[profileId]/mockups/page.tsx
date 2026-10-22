@@ -44,7 +44,7 @@ export default async function Mockups({ params }: { params: Promise<{ profileId:
             <li key={p.id}>
               <Link
                 href={`/studio/${profile.id}/products/${p.id}/image_briefs`}
-                className="group border-line bg-paper hover:border-oxblood block rounded-3xl border p-6"
+                className="group border-line bg-paper hover:border-aubergine block rounded-3xl border p-6"
               >
                 <h2 className="text-2xl group-hover:underline">{p.name}</h2>
                 <div className="mt-3">

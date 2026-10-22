@@ -5,9 +5,7 @@ export default function NotFound() {
     <main id="main" className="mx-auto max-w-xl px-5 py-24 text-center">
       <p className="eyebrow">404</p>
       <h1 className="mt-3 text-4xl">That page isn't here.</h1>
-      <p className="text-ink-soft mt-3">
-        It may have moved, or it belongs to someone else's studio.
-      </p>
+      <p className="text-mute mt-3">It may have moved, or it belongs to someone else's studio.</p>
       <div className="mt-6 flex justify-center">
         <ButtonLink href="/studio">Back to your studio</ButtonLink>
       </div>

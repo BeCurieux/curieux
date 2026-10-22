@@ -141,7 +141,7 @@ describe("Gumroad purchases", () => {
       "sale-2",
       sale({
         externalPurchaseId: "sale-2",
-        productType: "library:income-fit-report",
+        productType: "library:income-fit-test",
         licenseKey: null,
       }),
     );
@@ -152,7 +152,7 @@ describe("Gumroad purchases", () => {
     expect(claimed.map((p) => p.externalPurchaseId).sort()).toEqual(["sale-1", "sale-2"]);
     const access = await accessOf(user.id);
     expect(access.plan).toBe("launch_pack");
-    expect(access.library).toEqual(["income-fit-report"]);
+    expect(access.library).toEqual(["income-fit-test"]);
   });
 
   it("keeps an earlier library purchase separate from the Launch Pack", async () => {
@@ -260,5 +260,32 @@ describe("GumroadProvider", () => {
       "url_params[empire_ref]": "r",
     });
     expect(parsePing(form)).toEqual({ saleId: "S1", productId: "LP", licenseKey: "K", ref: "r" });
+  });
+});
+
+describe("library bundles", () => {
+  it("a bundle counts as owning everything in it, including the Income Fit Test", async () => {
+    const { accessFrom } = await import("@/lib/billing/plans");
+    const ent = (productType: string) => ({
+      id: productType,
+      userId: "u",
+      productType: productType as never,
+      paymentProvider: "gumroad" as const,
+      externalPurchaseId: productType,
+      status: "active" as const,
+      expiresAt: null,
+      createdAt: "",
+      updatedAt: "",
+    });
+    const empire = accessFrom([ent("library:empire-bundle")]);
+    expect(empire.fitFinder).toBe(true);
+    expect(empire.library).toEqual(
+      expect.arrayContaining(["income-fit-test", "brand-in-a-box", "price-it-right"]),
+    );
+    expect(empire.plan).toBe("free");
+    const faceless = accessFrom([ent("library:faceless-content-bundle")]);
+    expect(faceless.fitFinder).toBe(false);
+    expect(faceless.library).toContain("100-faceless-hooks");
+    expect(accessFrom([ent("library:the-whole-empire")]).library).toHaveLength(19);
   });
 });

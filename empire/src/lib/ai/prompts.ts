@@ -1,4 +1,4 @@
-import { METHODOLOGY } from "@/content/methodology";
+import { HOUSE_RULES, METHODOLOGY } from "@/content/methodology";
 import {
   MODULES,
   SIDEKICK_PROMPT_KEYS,
@@ -28,7 +28,9 @@ Non-negotiable rules:
 6. Use the spelling and currency of her selling market.
 7. Shopify Sidekick prompts are instructions for Sidekick, not promises. Sidekick's abilities depend on her theme and plan. Never claim it will build a complete theme from one prompt. Always tell her to work on a duplicate of her live theme, preview on mobile and desktop, and publish only after review.
 8. Avoid clichés: elevate, unlock, unleash, game-changer, journey, curated, seamless, "in today's world", "look no further".
-9. Respond only with JSON matching the required schema.`;
+9. Respond only with JSON matching the required schema.
+
+${HOUSE_RULES}`;
 
 const MODULE_TASKS: Record<ModuleKey, string> = {
   brand_blueprint: "Create her Brand Blueprint.",
@@ -70,6 +72,6 @@ ${escapeForTag(JSON.stringify(customerData(input), null, 2))}
 
 Task: ${MODULE_TASKS[input.module]}${sample}
 
-Method to follow:
+Method to follow (Her Little Empire's own, from its product documents${method.status === "source" ? "" : "; where it is silent, use good judgement within the rules above"}):
 ${method.instructions}`;
 }

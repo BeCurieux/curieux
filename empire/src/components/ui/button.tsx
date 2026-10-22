@@ -5,9 +5,9 @@ const base =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
 const variants = {
-  primary: "bg-oxblood text-ivory hover:bg-oxblood-deep",
-  secondary: "border border-oxblood text-oxblood hover:bg-blush-soft",
-  quiet: "text-oxblood underline-offset-4 hover:underline px-2",
+  primary: "bg-aubergine text-ivory hover:bg-aubergine-deep",
+  secondary: "border border-aubergine text-aubergine hover:bg-blush-soft",
+  quiet: "text-aubergine underline-offset-4 hover:underline px-2",
   danger: "border border-danger text-danger hover:bg-red-50",
 } as const;
 

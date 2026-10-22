@@ -46,7 +46,7 @@ export function ReadOnly({
         .filter(([key]) => key !== "key")
         .map(([key, v]) => (
           <div key={key}>
-            <dt className="text-oxblood text-sm font-semibold">{labelFor(key)}</dt>
+            <dt className="text-aubergine text-sm font-semibold">{labelFor(key)}</dt>
             <dd className="mt-1">
               <ReadOnly value={v} name={key} depth={depth + 1} />
             </dd>

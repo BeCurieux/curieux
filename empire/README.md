@@ -9,7 +9,12 @@ and mockup briefs, launch emails, a social launch kit and an adaptive launch
 checklist — all versioned, copyable and exportable.
 
 It writes only from her facts, flags what's missing instead of inventing
-it, and never promises sales.
+it, and never promises sales. Its methods come from Her Little Empire's own
+products (`content/REGISTER.md`).
+
+It also includes the **FIT Finder** — the Income Fit Test's 20-question quiz,
+report, calculator and dated 14-day plan, saved to her account. It unlocks
+for Income Fit Test owners (directly or in a bundle).
 
 ## Run it locally (no accounts needed)
 
@@ -22,8 +27,8 @@ npm run dev
 
 Open http://localhost:3000, click **Start free**, sign in with any email
 (the local backend signs you straight in), and go. Data lives in
-`.data/local/empire.json`. To try the paid studio, open **Account → Local
-only: give me a Launch Pack**. Generation uses the free offline writer
+`.data/local/empire.json`. To try the paid parts, open **Account** and use
+the local-only buttons to give yourself a Launch Pack or the Income Fit Test. Generation uses the free offline writer
 until you set `EMPIRE_AI_PROVIDER=anthropic` and `ANTHROPIC_API_KEY` in
 `.env.local` (see `.env.example`).
 
@@ -63,7 +68,12 @@ CI runs all of these (`.github/workflows/empire.yml`).
   `npm run test:rls`.
 - **Prices and allowances:** `src/lib/billing/plans.ts` — the pricing page,
   limits and studio locks all read from it.
-- **Content conversion:** `content/REGISTER.md`.
+- **Content conversion:** `content/REGISTER.md`; rebuild the register with
+  `node scripts/build-register.mjs`.
+- **FIT Finder:** the opportunity data is `content/fit/opportunities.json`
+  (Vee's file, verbatim). When the kit's engine changes, replace
+  `tests/fixtures/fit-reference.cjs` with the shipped engine and port the change;
+  the parity test tells you if they differ.
 - **Refund reconciliation** runs daily via `vercel.json` cron.
 - **Data requests:** customers export or delete their own data from Account.
 

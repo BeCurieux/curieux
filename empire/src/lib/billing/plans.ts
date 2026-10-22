@@ -1,4 +1,5 @@
 import type { ModuleKey } from "@/lib/domain/modules";
+import { expandLibrary } from "@/content/catalogue";
 import type { Entitlement } from "@/lib/domain/records";
 
 // What each kind of account may do, in one place. The pricing page, the
@@ -9,6 +10,17 @@ import type { Entitlement } from "@/lib/domain/records";
 // work: everything generated stays saved, editable, copyable and exportable
 // for as long as the account exists. What it does not buy is unlimited AI:
 // each pack includes a fixed allowance of generations, stated up front.
+
+/** The founder's exact refund wording. Use this constant; never paraphrase it. */
+export const REFUND_POLICY = "Full refund within 14 days of purchase, no questions asked.";
+
+/** Seller details, as on every Her Little Empire product. */
+export const SELLER = {
+  name: "Her Little Empire",
+  abn: "38 813 430 864",
+  country: "Australia",
+  email: "hello@herlittleempire.com",
+} as const;
 
 export const LAUNCH_PACK = {
   name: "Shopify Launch Pack",
@@ -39,16 +51,21 @@ export interface Access {
   /** Brand Blueprint shows a preview and theme prompts show one sample. */
   preview: boolean;
   canExport: boolean;
-  /** Existing Her Little Empire downloads she owns (content/catalogue.ts slugs). */
+  /** Existing Her Little Empire products she owns, bundles expanded (content/catalogue.ts slugs). */
   library: string[];
+  /** Owns the Income Fit Test (directly or in a bundle): the full FIT Finder report. */
+  fitFinder: boolean;
 }
 
 export function accessFrom(entitlements: Entitlement[]): Access {
   const active = entitlements.filter((e) => e.status === "active");
   const packs = active.filter((e) => e.productType === "launch_pack").length;
-  const library = active
-    .filter((e) => e.productType.startsWith("library:"))
-    .map((e) => e.productType.slice("library:".length));
+  // A bundle counts as owning everything in it.
+  const library = expandLibrary(
+    active
+      .filter((e) => e.productType.startsWith("library:"))
+      .map((e) => e.productType.slice("library:".length)),
+  );
   if (packs === 0) {
     return {
       plan: "free",
@@ -60,6 +77,7 @@ export function accessFrom(entitlements: Entitlement[]): Access {
       preview: true,
       canExport: false,
       library,
+      fitFinder: library.includes("income-fit-test"),
     };
   }
   return {
@@ -72,6 +90,7 @@ export function accessFrom(entitlements: Entitlement[]): Access {
     preview: false,
     canExport: true,
     library,
+    fitFinder: library.includes("income-fit-test"),
   };
 }
 

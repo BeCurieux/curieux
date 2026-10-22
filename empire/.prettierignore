@@ -6,3 +6,7 @@ test-results
 package-lock.json
 content/register.json
 content/register.csv
+content/fit/opportunities.json
+tests/fixtures/
+content/hooks/hooks.json
+content/audit/

@@ -36,11 +36,11 @@ export async function HubPage({
             <li key={module}>
               <Link
                 href={`/studio/${profile.id}/m/${module}`}
-                className="group border-line bg-paper hover:border-oxblood block h-full rounded-3xl border p-6"
+                className="group border-line bg-paper hover:border-aubergine block h-full rounded-3xl border p-6"
               >
                 <p className="eyebrow">Step {i + 1}</p>
                 <h2 className="mt-2 text-2xl group-hover:underline">{info.title}</h2>
-                <p className="text-ink-soft mt-2">{info.summary}</p>
+                <p className="text-mute mt-2">{info.summary}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge tone="outline">{KIND_LABELS[info.kind].label}</Badge>
                   {made ? (

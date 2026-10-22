@@ -64,13 +64,13 @@ export default async function Overview({ params }: { params: Promise<{ profileId
         <h1 className="mt-3 text-4xl sm:text-5xl">
           What shall we build for {profile.brandName} today?
         </h1>
-        <p className="text-ink-soft mt-3 text-lg">
+        <p className="text-mute mt-3 text-lg">
           Pick one. Each workflow reads your Brand Blueprint, so it all fits together.
         </p>
       </header>
 
       {!profile.brand ? (
-        <Card className="bg-oxblood text-ivory">
+        <Card className="bg-aubergine text-ivory">
           <p className="eyebrow text-blush">Start here</p>
           <h2 className="text-ivory mt-2 text-3xl">Make your Brand Blueprint first</h2>
           <p className="text-blush mt-2 max-w-2xl">
@@ -79,7 +79,7 @@ export default async function Overview({ params }: { params: Promise<{ profileId
           <div className="mt-5">
             <Link
               href={`/studio/${profile.id}/brand`}
-              className="bg-ivory text-oxblood inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
+              className="bg-ivory text-aubergine inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
             >
               Build my blueprint
             </Link>
@@ -104,11 +104,11 @@ export default async function Overview({ params }: { params: Promise<{ profileId
             <li key={w.href}>
               <Link
                 href={`/studio/${profile.id}/${w.href}`}
-                className="group border-line bg-paper hover:border-oxblood block h-full rounded-3xl border p-6 transition-colors"
+                className="group border-line bg-paper hover:border-aubergine block h-full rounded-3xl border p-6 transition-colors"
               >
                 <h2 className="text-2xl group-hover:underline">{w.title}</h2>
-                <p className="text-ink-soft mt-2">{w.body}</p>
-                <p className="text-oxblood mt-4 text-sm font-semibold">
+                <p className="text-mute mt-2">{w.body}</p>
+                <p className="text-aubergine mt-4 text-sm font-semibold">
                   {w.href === "launch"
                     ? `${done} of ${relevant.length} done`
                     : w.modules.length > 0
@@ -126,7 +126,7 @@ export default async function Overview({ params }: { params: Promise<{ profileId
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl">Your plan</h2>
-            <p className="text-ink-soft mt-1">
+            <p className="text-mute mt-1">
               {access.plan === "free"
                 ? "Free studio"
                 : `Launch Pack${access.packs > 1 ? ` × ${access.packs}` : ""}`}{" "}

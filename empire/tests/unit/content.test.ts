@@ -17,7 +17,7 @@ describe("content register", () => {
 
   it("a method only claims to come from source once that source has been reviewed", () => {
     for (const [module, method] of Object.entries(METHODOLOGY)) {
-      if (method.status !== "source") continue;
+      if (method.status === "interim") continue;
       for (const id of method.sources) {
         const asset = register.assets.find((a) => a.id === id)!;
         expect(asset.source_reviewed, `${module} cites ${id}`).toBe(true);

@@ -53,10 +53,10 @@ export default async function ProductPage({
           <Link
             key={module}
             href={`${base}/${module}`}
-            className="group border-line bg-paper hover:border-oxblood block rounded-3xl border p-6"
+            className="group border-line bg-paper hover:border-aubergine block rounded-3xl border p-6"
           >
             <h2 className="text-2xl group-hover:underline">{title}</h2>
-            <p className="text-ink-soft mt-2">{body}</p>
+            <p className="text-mute mt-2">{body}</p>
             <div className="mt-3">
               {assets.has(`${module}:${product.id}`) ? (
                 <Badge tone="success">Made</Badge>
@@ -97,7 +97,7 @@ export default async function ProductPage({
                       className="aspect-square w-full rounded-xl object-cover"
                     />
                     <form action={removeProductImageAction.bind(null, product.id, key)}>
-                      <button className="text-ink-soft hover:text-danger min-h-9 text-xs">
+                      <button className="text-mute hover:text-danger min-h-9 text-xs">
                         Remove
                       </button>
                     </form>
@@ -105,9 +105,7 @@ export default async function ProductPage({
                 ))}
               </ul>
             ) : (
-              <p className="text-ink-soft mt-2 text-sm">
-                Optional. Your photos stay private to you.
-              </p>
+              <p className="text-mute mt-2 text-sm">Optional. Your photos stay private to you.</p>
             )}
             <div className="mt-4">
               <UploadForm
@@ -120,7 +118,7 @@ export default async function ProductPage({
           </Card>
           <Card>
             <h2 className="text-xl">Remove product</h2>
-            <p className="text-ink-soft mt-2 text-sm">
+            <p className="text-mute mt-2 text-sm">
               Deletes the product, its photos and its listings and briefs.
             </p>
             <form action={deleteProductAction.bind(null, product.id)} className="mt-3">

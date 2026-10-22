@@ -27,7 +27,7 @@ export default async function Products({ params }: { params: Promise<{ profileId
               <li key={p.id}>
                 <Link
                   href={`/studio/${profile.id}/products/${p.id}`}
-                  className="group border-line bg-paper hover:border-oxblood block rounded-3xl border p-6"
+                  className="group border-line bg-paper hover:border-aubergine block rounded-3xl border p-6"
                 >
                   <h2 className="text-2xl group-hover:underline">{p.name}</h2>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -55,7 +55,7 @@ export default async function Products({ params }: { params: Promise<{ profileId
         <h2 className="text-2xl">
           {products.length === 0 ? "Add your first product" : "Add another product"}
         </h2>
-        <p className="text-ink-soft mt-1 mb-6 text-sm">
+        <p className="text-mute mt-1 mb-6 text-sm">
           {products.length} of {access.productsPerProfile} product
           {access.productsPerProfile === 1 ? "" : "s"} on your plan.
         </p>

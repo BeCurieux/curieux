@@ -15,10 +15,7 @@ own app and leaves the site untouched.
 3. **Brand consistency.** The studio uses the brand tokens in
    `src/app/globals.css` (ivory, oxblood, blush, ink, accent pink). If the
    site's exact fonts differ from Fraunces/Inter, change them there.
-4. **FIT Finder.** When FIT Finder's code and source documents are
-   available, it can either stay on the main site and hand off with a link
-   that pre-fills onboarding (planned: `/sign-in?start=1&category=…`) or
-   move into this app as a route (`content/REGISTER.md`, priority 1).
+4. **FIT Finder.** Now built into the studio at `/studio/fit` (the Income Fit Test's engine, ported 1:1). With Vee's approval (it's a live listing), link to it from the Income Fit Test's Gumroad page and the kit's Start Here.
 5. **Gumroad.** Existing product pages stay as they are. Add one line to
    relevant listings pointing to the studio (`MIGRATION.md`).
 6. **Shared sign-in** across site and studio is not needed now; if the site

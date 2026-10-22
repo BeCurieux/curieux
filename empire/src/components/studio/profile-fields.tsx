@@ -106,7 +106,9 @@ export function BusinessFields({
         placeholder="Linen aprons and kitchen textiles"
       />
       <fieldset className="space-y-2">
-        <legend className="text-ink text-sm font-semibold">How does it reach customers?</legend>
+        <legend className="text-charcoal text-sm font-semibold">
+          How does it reach customers?
+        </legend>
         {FULFILMENT.map((f) => (
           <label
             key={f}
@@ -117,7 +119,7 @@ export function BusinessFields({
               name="fulfilment"
               value={f}
               defaultChecked={(defaults?.fulfilment ?? "physical") === f}
-              className="accent-oxblood size-4"
+              className="accent-aubergine size-4"
             />
             <span>{FULFILMENT_LABELS[f]}</span>
           </label>

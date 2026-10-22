@@ -1,0 +1,702 @@
+[
+  {
+    "id": "hook-001",
+    "text": "Nobody tells you this about [topic] until you've already started.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-002",
+    "text": "If you only have [number] minutes a day, read this before you start [thing].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-003",
+    "text": "[Number] things I wish I'd known before my first [client / sale / order].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-004",
+    "text": "Stop doing [common habit] if you want [realistic result].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-005",
+    "text": "The [topic] mistake almost every beginner makes (and the simple fix).",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-006",
+    "text": "You don't need [thing people think they need] to start [side income idea].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-007",
+    "text": "Here's what [side income idea] can look like in a normal week.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": "Worked example in source (\"How to use a hook\" section), niche: Virtual assistant (VA). Filled-in version (example): Here's what VA work can look like in a normal week, around school hours."
+  },
+  {
+    "id": "hook-008",
+    "text": "[Number] signs [side income idea] might suit your week (and [number] signs it won't).",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-009",
+    "text": "Read this if you've been \"about to start\" [thing] for months.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-010",
+    "text": "The quiet part about [topic] that rarely makes it into reels.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-011",
+    "text": "Before you buy another course on [topic], try this first.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-012",
+    "text": "[Side income idea] in nap time: what's realistic and what isn't.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-013",
+    "text": "This is your sign to stop overthinking [decision] and test it small.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-014",
+    "text": "[Number] questions to ask yourself before you start [side income idea].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": "Worked example in source (\"How to use a hook\" section), niche: Tutoring. Filled-in version (example): 5 questions to ask yourself before you start tutoring online."
+  },
+  {
+    "id": "hook-015",
+    "text": "Most advice about [topic] assumes you have [resource]. This doesn't.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-016",
+    "text": "Unpopular opinion: [your honest opinion about topic].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-017",
+    "text": "What we'd do first if we were starting [side income idea] with [number] hours a week.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-018",
+    "text": "[Thing A] vs [thing B]: which one fits a busy week?",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-019",
+    "text": "You're not behind. You're [kind reframe].",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-020",
+    "text": "[Topic] in [number] simple steps, for people with no spare time.",
+    "category": "Stop the scroll",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-021",
+    "text": "Save this for the next time you [situation].",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-022",
+    "text": "[Number] [templates / scripts / prompts] for [task] you'll want to keep.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": "Worked example in source (\"How to use a hook\" section), niche: Etsy printables. Filled-in version (example): 6 Canva layouts for designing planner printables you'll want to keep."
+  },
+  {
+    "id": "hook-023",
+    "text": "The [topic] checklist we go back to every [week / month].",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-024",
+    "text": "Copy this [template / script] for your next [task].",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-025",
+    "text": "Bookmark this before your next [event / launch / client call].",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-026",
+    "text": "[Number] free tools for [task] (and what each one is good for).",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-027",
+    "text": "A step-by-step [topic] plan for weeks when you only have [number] hours.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-028",
+    "text": "Every [topic] term explained in one line each.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-029",
+    "text": "Your [topic] cheat sheet: [number] things to check before you [action].",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-030",
+    "text": "The order we'd do [process] in, from first step to last.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-031",
+    "text": "[Number] [captions / emails / messages] you can adapt in under [number] minutes.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-032",
+    "text": "Keep this handy: what to say when a [client / customer] asks [question].",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-033",
+    "text": "A [daily / weekly] [topic] routine that fits around school pick-up.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-034",
+    "text": "[Number] prompts to plan a month of [content type] in one sitting.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-035",
+    "text": "The [topic] glossary for anyone who feels lost in the jargon.",
+    "category": "Make them save",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-036",
+    "text": "Be honest: what's stopping you from starting [thing]?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-037",
+    "text": "[Option A] or [option B]? Tell us which you'd pick and why.",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-038",
+    "text": "What's one [topic] question you've been too shy to ask?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-039",
+    "text": "Finish this sentence: \"I'd start [thing] if only ___.\"",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": "Worked example in source (\"How to use a hook\" section), niche: Baking. Filled-in version (example): Finish this sentence: \"I'd start taking cake orders if only ___.\""
+  },
+  {
+    "id": "hook-040",
+    "text": "How many hours a week do you really have for [thing]? No judgement.",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-041",
+    "text": "Which part of [process] feels hardest right now: [A], [B] or [C]?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-042",
+    "text": "What's the best piece of [topic] advice you've ever been given?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-043",
+    "text": "In three words, how is your [thing] going this week?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-044",
+    "text": "Rate your [topic] confidence from 1 to 10. We'll go first: [our number].",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-045",
+    "text": "Tell us your [niche / idea] and we'll reply with one question to think about.",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-046",
+    "text": "What did you try first: [option A], [option B] or something else?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-047",
+    "text": "What would you add to this list of [topic] [tips / tools]?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-048",
+    "text": "Agree or disagree: [statement about topic].",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-049",
+    "text": "What's one small win you had with [thing] this week?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-050",
+    "text": "If you could learn only one [topic] skill this month, which would it be?",
+    "category": "Make them comment",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-051",
+    "text": "Send this to the friend who keeps saying \"I should start [thing]\".",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-052",
+    "text": "For anyone who needs to hear this today: [kind message].",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-053",
+    "text": "For every mum trying to fit [thing] around [life thing].",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-054",
+    "text": "If your friend is thinking about [side income idea], send her this first.",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-055",
+    "text": "What we'd tell a close friend before she starts [thing].",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-056",
+    "text": "A gentle reminder for anyone building something in the gaps of their day.",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-057",
+    "text": "[Number] myths about [topic] that need to retire.",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-058",
+    "text": "The honest [topic] chat your group chat needs.",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-059",
+    "text": "For the friend who always asks how you [do thing].",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-060",
+    "text": "To the woman starting [thing] at [time of day]: this one's for you.",
+    "category": "Make them share",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-061",
+    "text": "Why we don't show our face (and what we show you instead).",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-062",
+    "text": "How we check every [tip / tool] before we share it.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-063",
+    "text": "What we got wrong about [topic], and what we do now.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-064",
+    "text": "We won't tell you [common hype claim]. Here's what we'll tell you instead.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-065",
+    "text": "The honest pros and cons of [side income idea].",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": "Worked example in source (\"How to use a hook\" section), niche: Pinterest management. Filled-in version (example): The honest pros and cons of Pinterest management as a side income."
+  },
+  {
+    "id": "hook-066",
+    "text": "Our [number]-step process for [task], shown screen by screen.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-067",
+    "text": "Where our [information / figures] come from: [source].",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-068",
+    "text": "A look at a [day / week] of [side income idea], hands and screens only.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-069",
+    "text": "What [side income idea] costs to start: the parts people skip.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-070",
+    "text": "Questions you've asked us about [topic], answered plainly.",
+    "category": "Build trust while faceless",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-071",
+    "text": "Not sure which side income fits your week? Start here.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-072",
+    "text": "We made [product] for the woman who [specific situation].",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-073",
+    "text": "Still deciding between [option A] and [option B]? This is what [product] helps you work out.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-074",
+    "text": "What's inside [product], page by page.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-075",
+    "text": "Who [product] is for (and who it isn't for).",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-076",
+    "text": "You asked how to [task], so we put it all in one place: [product].",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-077",
+    "text": "The [number]-minute [quiz / test / check] that helps you [realistic outcome].",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-078",
+    "text": "Before you spend money on [thing], [product] helps you check whether it fits.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-079",
+    "text": "What you'll have after [time] with [product]: [tangible output].",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-080",
+    "text": "[Product] in [number] slides: what it is, what it does, what it costs.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-081",
+    "text": "Why we priced [product] at [price].",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-082",
+    "text": "The question we get most about [product], answered.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-083",
+    "text": "[Free resource] or [paid product]? How to choose what you need right now.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-084",
+    "text": "A peek at [page / section] from [product].",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-085",
+    "text": "If [pain point] sounds familiar, [product] was made for you.",
+    "category": "Soft sell / lead to the offer",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-086",
+    "text": "Quick poll: have you started [thing] yet? [Yes / Not yet]",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-087",
+    "text": "This or that: [option A] or [option B]?",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-088",
+    "text": "Ask us anything about [topic]. (Question box)",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-089",
+    "text": "Slide 1 of [number]: the [topic] mistake we see most.",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-090",
+    "text": "This week's [topic] lesson: [lesson].",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-091",
+    "text": "Behind the scenes: making [thing] today, hands only.",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-092",
+    "text": "Quiz: which of these is [question]? [A / B / C]",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-093",
+    "text": "Tap through for [number] [tips] in under a minute.",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-094",
+    "text": "Slider: how ready do you feel to start [thing]?",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-095",
+    "text": "Today's tiny task: [task]. Reply \"done\" when it's done.",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-096",
+    "text": "Myth or fact: [statement about topic]",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-097",
+    "text": "On our desk today: [task / tool / project].",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-098",
+    "text": "Can we be honest about [topic] for a second?",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-099",
+    "text": "Your question, our answer: [question].",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  },
+  {
+    "id": "hook-100",
+    "text": "Before you go: [one takeaway]. The full version is on our latest post.",
+    "category": "Story slides",
+    "tags": [],
+    "notes": ""
+  }
+]

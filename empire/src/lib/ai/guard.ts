@@ -23,6 +23,28 @@ interface Rule {
 }
 
 const RULES: Rule[] = [
+  // Her Little Empire house rules (README_FOR_CLAUDE_CODE): never PLR/MRR,
+  // never MLM, never the old trading entity's name.
+  {
+    label: "resell-rights (PLR/MRR) language",
+    pattern:
+      /\b(PLR|MRR|private label rights|master resell rights|resell rights|done-for-you products to resell)\b/i,
+    advice: "Her Little Empire never sells or promotes PLR or MRR. Remove it.",
+    always: true,
+  },
+  {
+    label: "MLM-style recruiting",
+    pattern:
+      /\b(downline|upline|join my team|recruit(ing)? others|network marketing|be your own boss and earn)\b/i,
+    advice: "Her Little Empire doesn't promote MLM or recruitment schemes. Remove it.",
+    always: true,
+  },
+  {
+    label: "the old trading name",
+    pattern: /\bOvyko\b/i,
+    advice: "The business is Her Little Empire. Remove it.",
+    always: true,
+  },
   {
     label: "a review or testimonial",
     pattern:

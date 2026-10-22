@@ -63,7 +63,7 @@ export function UploadForm({
       <label htmlFor={field} className="block text-sm font-semibold">
         {label}
       </label>
-      <p id={`${field}-hint`} className="text-ink-soft text-sm">
+      <p id={`${field}-hint`} className="text-mute text-sm">
         {hint}
       </p>
       <input
@@ -72,7 +72,7 @@ export function UploadForm({
         type="file"
         accept="image/jpeg,image/png,image/webp"
         aria-describedby={`${field}-hint`}
-        className="file:bg-blush file:text-ink block w-full text-sm file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:px-4 file:font-semibold"
+        className="file:bg-blush file:text-charcoal block w-full text-sm file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:px-4 file:font-semibold"
       />
       <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Uploading…" : "Upload"}
