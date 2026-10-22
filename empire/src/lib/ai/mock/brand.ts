@@ -14,14 +14,35 @@ import {
 } from "./util";
 
 const TRAIT_PRACTICE: [RegExp, string][] = [
-  [/warm|kind|friendly|caring/i, "Write like you're talking to one person. Use 'you'. Thank people properly."],
-  [/witty|funny|cheeky|playful|fun/i, "One light line per page is plenty. The joke never gets in the way of the facts."],
-  [/calm|gentle|soft|quiet/i, "Short sentences, no exclamation marks in a row, nothing shouty in capitals."],
+  [
+    /warm|kind|friendly|caring/i,
+    "Write like you're talking to one person. Use 'you'. Thank people properly.",
+  ],
+  [
+    /witty|funny|cheeky|playful|fun/i,
+    "One light line per page is plenty. The joke never gets in the way of the facts.",
+  ],
+  [
+    /calm|gentle|soft|quiet/i,
+    "Short sentences, no exclamation marks in a row, nothing shouty in capitals.",
+  ],
   [/bold|confident|direct|ambitious/i, "Say the point first. Cut 'just', 'maybe' and 'kind of'."],
-  [/clear|honest|transparent|practical/i, "Specifics over adjectives: sizes, materials, timings — the things people actually ask."],
-  [/luxe|elegant|refined|premium|sophisticated/i, "Fewer words, chosen carefully. Let space and photography do the selling."],
-  [/considered|thoughtful|careful/i, "Explain the why behind a choice — a material, a size, a detail."],
-  [/earthy|natural|grounded/i, "Describe texture and process honestly; never imply eco credentials you can't show."],
+  [
+    /clear|honest|transparent|practical/i,
+    "Specifics over adjectives: sizes, materials, timings — the things people actually ask.",
+  ],
+  [
+    /luxe|elegant|refined|premium|sophisticated/i,
+    "Fewer words, chosen carefully. Let space and photography do the selling.",
+  ],
+  [
+    /considered|thoughtful|careful/i,
+    "Explain the why behind a choice — a material, a size, a detail.",
+  ],
+  [
+    /earthy|natural|grounded/i,
+    "Describe texture and process honestly; never imply eco credentials you can't show.",
+  ],
 ];
 
 function practiceFor(trait: string): string {
@@ -38,8 +59,7 @@ const PHOTO: Record<ReturnType<typeof styleFamily>, string> = {
     "Natural light, real textures (linen, wood, paper, stone) and hands at work. Warm tones; nothing staged to look like something it isn't.",
   playful:
     "Bright, even light and colour-blocked backgrounds from the palette. Movement and hands in shot; crop boldly.",
-  luxe:
-    "Directional soft light with gentle shadow, close crops on detail, one accent colour per image. Fewer, better photos.",
+  luxe: "Directional soft light with gentle shadow, close crops on detail, one accent colour per image. Fewer, better photos.",
   classic:
     "Clean daylight, neutral backgrounds and a consistent angle for every product, with one lifestyle image per product in a real setting.",
 };
@@ -88,7 +108,9 @@ export function mockBrandBlueprint(profile: BusinessProfile): BrandBlueprint {
         "Pressure: countdowns, stock scares and invented deadlines.",
       ],
     },
-    photography: PHOTO[family] + ` Keep every image within the ${colour} palette above so the store looks like one brand.`,
+    photography:
+      PHOTO[family] +
+      ` Keep every image within the ${colour} palette above so the store looks like one brand.`,
     consistency: [
       `Use the brand name exactly as “${name}” everywhere.`,
       `Stick to the ${colour} palette; one accent per image or section.`,

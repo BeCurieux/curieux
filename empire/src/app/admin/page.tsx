@@ -20,11 +20,27 @@ export default async function Admin() {
   const rate = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : "—");
   const funnel: [string, number, string][] = [
     ["Landing views", e("landing_viewed"), ""],
-    ["Free previews started", e("preview_started"), rate(e("preview_started"), e("landing_viewed"))],
+    [
+      "Free previews started",
+      e("preview_started"),
+      rate(e("preview_started"), e("landing_viewed")),
+    ],
     ["Signups", e("signup_completed"), rate(e("signup_completed"), e("preview_started"))],
-    ["Business profiles", e("profile_completed"), rate(e("profile_completed"), e("signup_completed"))],
-    ["Checkouts started", e("checkout_started"), rate(e("checkout_started"), e("profile_completed"))],
-    ["Verified purchases", e("purchase_verified"), rate(e("purchase_verified"), e("checkout_started"))],
+    [
+      "Business profiles",
+      e("profile_completed"),
+      rate(e("profile_completed"), e("signup_completed")),
+    ],
+    [
+      "Checkouts started",
+      e("checkout_started"),
+      rate(e("checkout_started"), e("profile_completed")),
+    ],
+    [
+      "Verified purchases",
+      e("purchase_verified"),
+      rate(e("purchase_verified"), e("checkout_started")),
+    ],
     ["Refunds", e("purchase_refunded"), rate(e("purchase_refunded"), e("purchase_verified"))],
   ];
   const usage: [string, number][] = [
@@ -49,7 +65,11 @@ export default async function Admin() {
           <table className="mt-4 w-full text-left text-sm">
             <tbody>
               {funnel.map(([label, n, r]) => (
-                <tr key={label} className="border-t border-line"><th className="py-2 font-medium">{label}</th><td className="py-2 text-right font-serif text-xl">{n}</td><td className="w-16 py-2 text-right text-ink-soft">{r}</td></tr>
+                <tr key={label} className="border-line border-t">
+                  <th className="py-2 font-medium">{label}</th>
+                  <td className="py-2 text-right font-serif text-xl">{n}</td>
+                  <td className="text-ink-soft w-16 py-2 text-right">{r}</td>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -59,40 +79,103 @@ export default async function Admin() {
           <table className="mt-4 w-full text-left text-sm">
             <tbody>
               {usage.map(([label, n]) => (
-                <tr key={label} className="border-t border-line"><th className="py-2 font-medium">{label}</th><td className="py-2 text-right font-serif text-xl">{n}</td></tr>
+                <tr key={label} className="border-line border-t">
+                  <th className="py-2 font-medium">{label}</th>
+                  <td className="py-2 text-right font-serif text-xl">{n}</td>
+                </tr>
               ))}
-              <tr className="border-t border-line"><th className="py-2 font-medium">Copies + downloads per successful generation</th><td className="py-2 text-right font-serif text-xl">{e("generation_succeeded") ? ((e("asset_copied") + e("asset_downloaded")) / e("generation_succeeded")).toFixed(1) : "—"}</td></tr>
+              <tr className="border-line border-t">
+                <th className="py-2 font-medium">Copies + downloads per successful generation</th>
+                <td className="py-2 text-right font-serif text-xl">
+                  {e("generation_succeeded")
+                    ? (
+                        (e("asset_copied") + e("asset_downloaded")) /
+                        e("generation_succeeded")
+                      ).toFixed(1)
+                    : "—"}
+                </td>
+              </tr>
             </tbody>
           </table>
         </Card>
         <Card>
           <h2 className="text-2xl">Customers and cost</h2>
           <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
-            <div><dt className="text-ink-soft">Accounts</dt><dd className="font-serif text-3xl">{m.users}</dd></div>
-            <div><dt className="text-ink-soft">Paying customers</dt><dd className="font-serif text-3xl">{m.payingCustomers}</dd></div>
-            <div><dt className="text-ink-soft">7-day repeat users</dt><dd className="font-serif text-3xl">{m.repeatUsers7d}</dd></div>
-            <div><dt className="text-ink-soft">30-day repeat users</dt><dd className="font-serif text-3xl">{m.repeatUsers30d}</dd></div>
-            <div><dt className="text-ink-soft">AI cost, last 30 days</dt><dd className="font-serif text-3xl">US${m.costLast30Days.toFixed(2)}</dd></div>
-            <div><dt className="text-ink-soft">Avg cost per paying customer</dt><dd className="font-serif text-3xl">{m.payingCustomers ? `US$${(m.costLast30Days / m.payingCustomers).toFixed(2)}` : "—"}</dd></div>
+            <div>
+              <dt className="text-ink-soft">Accounts</dt>
+              <dd className="font-serif text-3xl">{m.users}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Paying customers</dt>
+              <dd className="font-serif text-3xl">{m.payingCustomers}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">7-day repeat users</dt>
+              <dd className="font-serif text-3xl">{m.repeatUsers7d}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">30-day repeat users</dt>
+              <dd className="font-serif text-3xl">{m.repeatUsers30d}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">AI cost, last 30 days</dt>
+              <dd className="font-serif text-3xl">US${m.costLast30Days.toFixed(2)}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Avg cost per paying customer</dt>
+              <dd className="font-serif text-3xl">
+                {m.payingCustomers
+                  ? `US$${(m.costLast30Days / m.payingCustomers).toFixed(2)}`
+                  : "—"}
+              </dd>
+            </div>
           </dl>
-          <p className="mt-4 text-sm text-ink-soft">Daily AI ceiling: US${env.EMPIRE_AI_DAILY_BUDGET_USD}. Provider: {env.EMPIRE_AI_PROVIDER} ({env.EMPIRE_AI_MODEL}).</p>
+          <p className="text-ink-soft mt-4 text-sm">
+            Daily AI ceiling: US${env.EMPIRE_AI_DAILY_BUDGET_USD}. Provider:{" "}
+            {env.EMPIRE_AI_PROVIDER} ({env.EMPIRE_AI_MODEL}).
+          </p>
         </Card>
         <Card>
           <h2 className="text-2xl">Where signups come from</h2>
           <ul className="mt-4 space-y-1 text-sm">
-            {Object.entries(m.sources).sort((a, b) => b[1] - a[1]).map(([s, n]) => <li key={s} className="flex justify-between border-t border-line py-2"><span>{s}</span><span>{n}</span></li>)}
-            {Object.keys(m.sources).length === 0 ? <li className="text-ink-soft">No signups yet. Add ?utm_source=… to links you share.</li> : null}
+            {Object.entries(m.sources)
+              .sort((a, b) => b[1] - a[1])
+              .map(([s, n]) => (
+                <li key={s} className="border-line flex justify-between border-t py-2">
+                  <span>{s}</span>
+                  <span>{n}</span>
+                </li>
+              ))}
+            {Object.keys(m.sources).length === 0 ? (
+              <li className="text-ink-soft">
+                No signups yet. Add ?utm_source=… to links you share.
+              </li>
+            ) : null}
           </ul>
         </Card>
         <Card className="lg:col-span-2">
           <h2 className="text-2xl">Content conversion status</h2>
-          <p className="mt-1 text-sm text-ink-soft">Which modules run on a Her Little Empire method, and which are still interim (content/REGISTER.md).</p>
+          <p className="text-ink-soft mt-1 text-sm">
+            Which modules run on a Her Little Empire method, and which are still interim
+            (content/REGISTER.md).
+          </p>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {Object.entries(METHODOLOGY).map(([key, method]) => (
-              <li key={key} className="flex justify-between rounded-xl border border-line px-4 py-2 text-sm"><span>{MODULES[key as keyof typeof MODULES].title}</span><span className={method.status === "source" ? "text-success" : "text-warning"}>{method.status}</span></li>
+              <li
+                key={key}
+                className="border-line flex justify-between rounded-xl border px-4 py-2 text-sm"
+              >
+                <span>{MODULES[key as keyof typeof MODULES].title}</span>
+                <span className={method.status === "source" ? "text-success" : "text-warning"}>
+                  {method.status}
+                </span>
+              </li>
             ))}
           </ul>
-          <p className="mt-4 text-sm text-ink-soft">Catalogue items with Gumroad ids filled in: {CATALOGUE.filter((c) => c.gumroadProductIds.length > 0).length} of {CATALOGUE.length}.</p>
+          <p className="text-ink-soft mt-4 text-sm">
+            Catalogue items with Gumroad ids filled in:{" "}
+            {CATALOGUE.filter((c) => c.gumroadProductIds.length > 0).length} of {CATALOGUE.length}.
+          </p>
         </Card>
       </div>
     </main>

@@ -6,12 +6,16 @@ import { expect, test, type Page } from "@playwright/test";
 // → edit → copy → save. Plus the paid path, customer isolation and
 // accessibility. Every test signs up a fresh email, so tests don't share data.
 
-const unique = (name: string) => `${name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@example.test`;
+const unique = (name: string) =>
+  `${name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@example.test`;
 
 async function signUp(page: Page, email: string) {
   await page.goto("/");
   await page.getByRole("button", { name: "No thanks" }).click();
-  await page.getByRole("link", { name: /Start free/ }).first().click();
+  await page
+    .getByRole("link", { name: /Start free/ })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/sign-in/);
   await page.getByLabel("Your email").fill(email);
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -75,14 +79,20 @@ test("create account → brand details → Sidekick prompts → edit → copy �
 
   // It persists, with history, and an old version can be restored.
   await page.reload();
-  await expect(page.getByLabel("Prompt", { exact: true }).first()).toContainText("Keep the header logo centred.");
+  await expect(page.getByLabel("Prompt", { exact: true }).first()).toContainText(
+    "Keep the header logo centred.",
+  );
   await page.getByText(/Version history \(2\)/).click();
   await page.getByRole("button", { name: "Restore" }).click();
   await expect(page.getByText("Restored version 1 as version 3.")).toBeVisible();
-  await expect(page.getByLabel("Prompt", { exact: true }).first()).not.toContainText("Keep the header logo centred.");
+  await expect(page.getByLabel("Prompt", { exact: true }).first()).not.toContainText(
+    "Keep the header logo centred.",
+  );
 });
 
-test("the Launch Pack: product writer flags gaps, marketing generates, the pack exports", async ({ page }) => {
+test("the Launch Pack: product writer flags gaps, marketing generates, the pack exports", async ({
+  page,
+}) => {
   await signUp(page, unique("bea"));
   await onboard(page, "Bea Prints");
 
@@ -93,7 +103,9 @@ test("the Launch Pack: product writer flags gaps, marketing generates, the pack 
   await page.getByRole("link", { name: "Empire Studio" }).first().click();
   await page.getByRole("link", { name: "Products" }).click();
   await page.getByLabel("Product name").fill("The Everyday Apron");
-  await page.getByLabel("Materials, ingredients or what's included").fill("100% European flax linen");
+  await page
+    .getByLabel("Materials, ingredients or what's included")
+    .fill("100% European flax linen");
   await page.getByLabel("Price").fill("89");
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByText("Product saved.")).toBeVisible();
@@ -144,7 +156,9 @@ for (const path of ["/", "/pricing", "/sign-in"]) {
   test(`no serious accessibility issues on ${path}`, async ({ page }) => {
     await page.goto(path);
     const results = await new AxeBuilder({ page }).analyze();
-    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    const serious = results.violations.filter(
+      (v) => v.impact === "serious" || v.impact === "critical",
+    );
     expect(serious.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   });
 }
@@ -155,7 +169,17 @@ test("no serious accessibility issues in the studio", async ({ page }) => {
   await page.getByRole("button", { name: "Generate brand blueprint" }).click();
   await expect(page.getByText("Version 1", { exact: true })).toBeVisible();
   for (const results of [await new AxeBuilder({ page }).analyze()]) {
-    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-    expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`)).toEqual([]);
+    const serious = results.violations.filter(
+      (v) => v.impact === "serious" || v.impact === "critical",
+    );
+    expect(
+      serious.map(
+        (v) =>
+          `${v.id}: ${v.nodes
+            .map((n) => n.target.join(" "))
+            .slice(0, 3)
+            .join(", ")}`,
+      ),
+    ).toEqual([]);
   }
 });

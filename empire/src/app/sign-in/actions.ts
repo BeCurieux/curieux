@@ -18,7 +18,11 @@ export interface SignInState {
 const emailSchema = z.email("That doesn't look like an email address.").max(200);
 
 export async function signIn(_prev: SignInState, form: FormData): Promise<SignInState> {
-  const parsed = emailSchema.safeParse(String(form.get("email") ?? "").trim().toLowerCase());
+  const parsed = emailSchema.safeParse(
+    String(form.get("email") ?? "")
+      .trim()
+      .toLowerCase(),
+  );
   if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message };
   const email = parsed.data;
 
@@ -46,7 +50,10 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
   if (error) {
     // Rate limits and the like. Don't reveal whether the account exists.
     console.error("sign-in", error.message);
-    return { status: "error", message: "We couldn't send a link just now. Wait a minute and try again." };
+    return {
+      status: "error",
+      message: "We couldn't send a link just now. Wait a minute and try again.",
+    };
   }
   return { status: "sent", email };
 }

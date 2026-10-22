@@ -28,8 +28,14 @@ export function CopyButton({
     setTimeout(() => setState("idle"), 2000);
   };
   return (
-    <button type="button" onClick={copy} className={buttonClass(variant, variant === "quiet" ? "min-h-9 text-sm" : "")}>
-      <span aria-live="polite">{state === "copied" ? "Copied ✓" : state === "failed" ? "Select and copy" : label}</span>
+    <button
+      type="button"
+      onClick={copy}
+      className={buttonClass(variant, variant === "quiet" ? "min-h-9 text-sm" : "")}
+    >
+      <span aria-live="polite">
+        {state === "copied" ? "Copied ✓" : state === "failed" ? "Select and copy" : label}
+      </span>
     </button>
   );
 }

@@ -27,12 +27,25 @@ describe("offline generator", () => {
   }
 
   it("works for a sparse profile with no colours, products or claims", async () => {
-    const p = profile({ colours: "", personality: "", visualStyle: "", verifiedClaims: [], goal: "" });
+    const p = profile({
+      colours: "",
+      personality: "",
+      visualStyle: "",
+      verifiedClaims: [],
+      goal: "",
+    });
     for (const key of MODULE_KEYS) {
       const result = await provider.generate({
         module: key,
         profile: p,
-        product: product({ materials: "", benefits: "", customerProblem: "", intendedUse: "", price: null, imageNotes: "" }),
+        product: product({
+          materials: "",
+          benefits: "",
+          customerProblem: "",
+          intendedUse: "",
+          price: null,
+          imageNotes: "",
+        }),
         products: [],
         options: {},
       });
@@ -41,7 +54,12 @@ describe("offline generator", () => {
   });
 
   it("writes all ten Sidekick prompts using the real brand details", async () => {
-    const result = await provider.generate({ module: "theme_prompts", profile: profile(), products: [], options: {} });
+    const result = await provider.generate({
+      module: "theme_prompts",
+      profile: profile(),
+      products: [],
+      options: {},
+    });
     const pack = MODULE_SCHEMAS.theme_prompts.parse(result.output);
     expect(pack.prompts.map((p) => p.key)).toEqual([...SIDEKICK_PROMPT_KEYS]);
     expect(pack.prompts[0]!.prompt).toContain("Juniper & Thread");
@@ -51,12 +69,23 @@ describe("offline generator", () => {
   });
 
   it("gives free accounts a single sample prompt", async () => {
-    const result = await provider.generate({ module: "theme_prompts", profile: profile(), products: [], options: { sampleOnly: true } });
+    const result = await provider.generate({
+      module: "theme_prompts",
+      profile: profile(),
+      products: [],
+      options: { sampleOnly: true },
+    });
     expect(MODULE_SCHEMAS.theme_prompts.parse(result.output).prompts).toHaveLength(1);
   });
 
   it("flags missing product facts instead of inventing them", async () => {
-    const result = await provider.generate({ module: "product_listing", profile: profile(), product: product(), products: [], options: {} });
+    const result = await provider.generate({
+      module: "product_listing",
+      profile: profile(),
+      product: product(),
+      products: [],
+      options: {},
+    });
     const listing = MODULE_SCHEMAS.product_listing.parse(result.output);
     expect(listing.missingInformation.join(" ")).toMatch(/dimensions/i);
     expect(listing.missingInformation.join(" ")).toMatch(/shipping/i);
@@ -64,7 +93,12 @@ describe("offline generator", () => {
   });
 
   it("uses US spelling for a US market", async () => {
-    const result = await provider.generate({ module: "brand_blueprint", profile: profile({ market: "United States", currency: "USD" }), products: [], options: {} });
+    const result = await provider.generate({
+      module: "brand_blueprint",
+      profile: profile({ market: "United States", currency: "USD" }),
+      products: [],
+      options: {},
+    });
     expect(JSON.stringify(result.output)).toContain("color palette");
   });
 });

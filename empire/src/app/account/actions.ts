@@ -22,7 +22,8 @@ export async function claimLicenseAction(_prev: FormState, form: FormData): Prom
   try {
     const result = await claimLicense(billingDeps(), user.id, key);
     if (!result.ok) return { message: result.message };
-    if (result.event === "created") await track("purchase_verified", user.id, { product_type: result.purchase.productType });
+    if (result.event === "created")
+      await track("purchase_verified", user.id, { product_type: result.purchase.productType });
   } catch (error) {
     console.error("claim licence", error);
     return { message: "We couldn't reach Gumroad just now. Try again in a minute." };
@@ -66,7 +67,11 @@ export async function devGrantAction(): Promise<void> {
 
 export async function deleteAccountAction(_prev: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser();
-  if (String(form.get("confirm") ?? "").trim().toUpperCase() !== "DELETE") {
+  if (
+    String(form.get("confirm") ?? "")
+      .trim()
+      .toUpperCase() !== "DELETE"
+  ) {
     return { message: "Type DELETE to confirm." };
   }
   await deleteAllUploads(user.id);

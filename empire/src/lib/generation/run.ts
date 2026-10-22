@@ -9,7 +9,12 @@ import { customerData } from "@/lib/ai/prompts";
 import { accessFrom, mayGenerate, type Access } from "@/lib/billing/plans";
 import { systemRepo } from "@/lib/data";
 import type { UserRepo } from "@/lib/data/repo";
-import { MODULES, MODULE_SCHEMAS, type AnyModuleOutput, type ModuleKey } from "@/lib/domain/modules";
+import {
+  MODULES,
+  MODULE_SCHEMAS,
+  type AnyModuleOutput,
+  type ModuleKey,
+} from "@/lib/domain/modules";
 import type { BusinessProfile } from "@/lib/domain/profile";
 import { missingProductInformation, type Product } from "@/lib/domain/product";
 import type { Generation } from "@/lib/domain/records";
@@ -34,9 +39,15 @@ import { mergeSection, sectionsOf } from "./sections";
 
 export type RunResult =
   | { ok: true; generation: Generation }
-  | { ok: false; reason: "not_found" | "locked" | "allowance" | "hourly" | "platform" | "failed" | "invalid"; message: string };
+  | {
+      ok: false;
+      reason: "not_found" | "locked" | "allowance" | "hourly" | "platform" | "failed" | "invalid";
+      message: string;
+    };
 
-export async function loadAccess(repo: UserRepo): Promise<{ access: Access; used: number; lastHour: number }> {
+export async function loadAccess(
+  repo: UserRepo,
+): Promise<{ access: Access; used: number; lastHour: number }> {
   const [entitlements, usage] = await Promise.all([
     repo.listEntitlements(),
     repo.listUsage(new Date(0).toISOString()),
@@ -54,8 +65,11 @@ async function withTimeout<T>(ms: number, work: (signal: AbortSignal) => Promise
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
+      // Settle first, then abort: the provider's own abort error must not win the race.
+      reject(
+        new GenerationError("That took too long, so we stopped it. Try again.", undefined, true),
+      );
       controller.abort();
-      reject(new GenerationError("That took too long, so we stopped it. Try again.", undefined, true));
     }, ms);
   });
   try {
@@ -80,11 +94,14 @@ export async function runGeneration(request: RunRequest): Promise<RunResult> {
   const info = MODULES[module];
 
   const profile = await repo.getProfile(request.profileId);
-  if (!profile) return { ok: false, reason: "not_found", message: "We couldn't find that business." };
+  if (!profile)
+    return { ok: false, reason: "not_found", message: "We couldn't find that business." };
 
   let product: Product | undefined;
   if (info.scope === "product") {
-    product = request.productId ? ((await repo.getProduct(request.productId)) ?? undefined) : undefined;
+    product = request.productId
+      ? ((await repo.getProduct(request.productId)) ?? undefined)
+      : undefined;
     if (!product || product.profileId !== profile.id) {
       return { ok: false, reason: "not_found", message: "We couldn't find that product." };
     }
@@ -92,9 +109,9 @@ export async function runGeneration(request: RunRequest): Promise<RunResult> {
 
   let base: Generation | undefined;
   if (request.section) {
-    base = (await repo.listGenerations(profile.id, { module, productId: product?.id ?? null })).find(
-      (g) => g.status === "succeeded",
-    );
+    base = (
+      await repo.listGenerations(profile.id, { module, productId: product?.id ?? null })
+    ).find((g) => g.status === "succeeded");
     if (!base?.output || !sectionsOf(module, base.output).includes(request.section)) {
       return { ok: false, reason: "invalid", message: "That section can't be regenerated." };
     }
@@ -105,12 +122,16 @@ export async function runGeneration(request: RunRequest): Promise<RunResult> {
   if (refusal) return { ok: false, ...refusal };
 
   const dayAgo = new Date(Date.now() - 86_400_000).toISOString();
-  if (env.EMPIRE_AI_PROVIDER !== "mock" && (await systemRepo().platformCostSince(dayAgo)) >= env.EMPIRE_AI_DAILY_BUDGET_USD) {
+  if (
+    env.EMPIRE_AI_PROVIDER !== "mock" &&
+    (await systemRepo().platformCostSince(dayAgo)) >= env.EMPIRE_AI_DAILY_BUDGET_USD
+  ) {
     console.error("AI daily budget reached");
     return {
       ok: false,
       reason: "platform",
-      message: "Empire Studio has paused new generations for a little while. Your work is safe — try again later.",
+      message:
+        "Empire Studio has paused new generations for a little while. Your work is safe — try again later.",
     };
   }
 
@@ -125,26 +146,40 @@ export async function runGeneration(request: RunRequest): Promise<RunResult> {
     methodology: { status: METHODOLOGY[module].status, version: METHODOLOGY[module].version },
   };
 
-  await track("generation_requested", repo.userId, { module, section: request.section ?? "all", plan: access.plan });
+  await track("generation_requested", repo.userId, {
+    module,
+    section: request.section ?? "all",
+    plan: access.plan,
+  });
 
   let usage = { inputTokens: 0, outputTokens: 0 };
   let model = provider.name === "mock" ? "mock-1" : env.EMPIRE_AI_MODEL;
   let output: AnyModuleOutput;
   try {
-    const result = await withTimeout(env.EMPIRE_AI_TIMEOUT_MS, (signal) => provider.generate({ ...input, signal }));
+    const result = await withTimeout(env.EMPIRE_AI_TIMEOUT_MS, (signal) =>
+      provider.generate({ ...input, signal }),
+    );
     usage = result.usage;
     model = result.model;
     const parsed = MODULE_SCHEMAS[module].safeParse(result.output);
     if (!parsed.success) {
-      throw new GenerationError("The result didn't come out in the right shape. Try again.", usage, true);
+      throw new GenerationError(
+        "The result didn't come out in the right shape. Try again.",
+        usage,
+        true,
+      );
     }
     output = finalise(module, parsed.data as AnyModuleOutput, profile, product, options.sampleOnly);
     if (base?.output && request.section) {
-      output = MODULE_SCHEMAS[module].parse(mergeSection(module, base.output, output, request.section)) as AnyModuleOutput;
+      output = MODULE_SCHEMAS[module].parse(
+        mergeSection(module, base.output, output, request.section),
+      ) as AnyModuleOutput;
     }
   } catch (error) {
     const message =
-      error instanceof GenerationError ? error.message : "Something went wrong while writing this. Try again.";
+      error instanceof GenerationError
+        ? error.message
+        : "Something went wrong while writing this. Try again.";
     if (error instanceof GenerationError) usage = error.usage;
     if (!(error instanceof GenerationError)) console.error("generation failed", module, error);
     const failed = await repo.addGeneration({
@@ -168,7 +203,8 @@ export async function runGeneration(request: RunRequest): Promise<RunResult> {
       operation: "generate_failed",
       inputTokens: usage.inputTokens,
       outputTokens: usage.outputTokens,
-      estimatedCost: provider.name === "mock" ? 0 : estimateCost(model, usage.inputTokens, usage.outputTokens),
+      estimatedCost:
+        provider.name === "mock" ? 0 : estimateCost(model, usage.inputTokens, usage.outputTokens),
     });
     await track("generation_failed", repo.userId, { module });
     return { ok: false, reason: "failed", message };
@@ -195,11 +231,16 @@ export async function runGeneration(request: RunRequest): Promise<RunResult> {
     operation: "generate",
     inputTokens: usage.inputTokens,
     outputTokens: usage.outputTokens,
-    estimatedCost: provider.name === "mock" ? 0 : estimateCost(model, usage.inputTokens, usage.outputTokens),
+    estimatedCost:
+      provider.name === "mock" ? 0 : estimateCost(model, usage.inputTokens, usage.outputTokens),
   });
 
   if (module === "brand_blueprint") {
-    await repo.updateProfile(profile.id, { brand: output as BusinessProfile["brand"] }, "Brand Blueprint generated");
+    await repo.updateProfile(
+      profile.id,
+      { brand: output as BusinessProfile["brand"] },
+      "Brand Blueprint generated",
+    );
   }
   await track("generation_succeeded", repo.userId, { module });
   return { ok: true, generation };
@@ -235,9 +276,12 @@ export async function saveVersion(
   baseId: string,
   output: unknown,
   source: "edit" | "restore",
-): Promise<{ ok: true; generation: Generation } | { ok: false; message: string; issues?: string[] }> {
+): Promise<
+  { ok: true; generation: Generation } | { ok: false; message: string; issues?: string[] }
+> {
   const base = await repo.getGeneration(baseId);
-  if (!base || base.status !== "succeeded") return { ok: false, message: "We couldn't find that version." };
+  if (!base || base.status !== "succeeded")
+    return { ok: false, message: "We couldn't find that version." };
   // Sections hidden in a free preview aren't sent to the browser, so an edit
   // may arrive without them; keep the saved ones rather than failing.
   const merged =
@@ -249,12 +293,16 @@ export async function saveVersion(
     return {
       ok: false,
       message: "Some fields need fixing before this can be saved.",
-      issues: parsed.error.issues.slice(0, 8).map((i) => `${i.path.join(" › ") || "field"}: ${i.message}`),
+      issues: parsed.error.issues
+        .slice(0, 8)
+        .map((i) => `${i.path.join(" › ") || "field"}: ${i.message}`),
     };
   }
   const profile = await repo.getProfile(base.profileId);
   if (!profile) return { ok: false, message: "We couldn't find that business." };
-  const product = base.productId ? ((await repo.getProduct(base.productId)) ?? undefined) : undefined;
+  const product = base.productId
+    ? ((await repo.getProduct(base.productId)) ?? undefined)
+    : undefined;
   const value = parsed.data as AnyModuleOutput;
   const generation = await repo.addGeneration({
     profileId: base.profileId,

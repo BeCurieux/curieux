@@ -96,7 +96,19 @@ export function labelFor(key: string): string {
   return spaced[0]!.toUpperCase() + spaced.slice(1);
 }
 
-const TITLE_KEYS = ["title", "subject", "section", "trait", "name", "label", "feature", "question", "headline", "day", "purpose"];
+const TITLE_KEYS = [
+  "title",
+  "subject",
+  "section",
+  "trait",
+  "name",
+  "label",
+  "feature",
+  "question",
+  "headline",
+  "day",
+  "purpose",
+];
 
 function titleOf(item: Record<string, unknown>, index: number): string {
   for (const key of TITLE_KEYS) {
@@ -139,7 +151,8 @@ function field(key: string, value: unknown, depth: number): string {
   if (key === "prompt" && typeof value === "string") {
     return `**${label}:**\n\n> ${value.replace(/\n/g, "\n> ")}`;
   }
-  if (typeof value === "string" && !value.includes("\n") && value.length < 140) return `**${label}:** ${value}`;
+  if (typeof value === "string" && !value.includes("\n") && value.length < 140)
+    return `**${label}:** ${value}`;
   if (typeof value === "string" || typeof value === "number") return `**${label}:**\n\n${value}`;
   if (Array.isArray(value) && value.length === 0) return "";
   return `**${label}:**\n\n${render(value, depth)}`;

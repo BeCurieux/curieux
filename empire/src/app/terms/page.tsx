@@ -15,32 +15,31 @@ export default function Terms() {
         <h2 className="mt-8 text-2xl">What you're buying</h2>
         <p>
           The {LAUNCH_PACK.name} is a one-time purchase for one business. It includes{" "}
-          {LAUNCH_PACK.generationsPerPack} AI generations and up to {LAUNCH_PACK.productsPerPack} products.
-          Everything you create stays available to view, edit, copy and export while your account exists.
-          It doesn't include unlimited or ongoing AI generation.
+          {LAUNCH_PACK.generationsPerPack} AI generations and up to {LAUNCH_PACK.productsPerPack}{" "}
+          products. Everything you create stays available to view, edit, copy and export while your
+          account exists. It doesn't include unlimited or ongoing AI generation.
         </p>
         <h2 className="mt-8 text-2xl">Refunds</h2>
         <p>
-          Ask within {LAUNCH_PACK.refundDays} days of purchase and you'll get a full refund, no questions.
-          After a refund, your saved work stays in your account, but the pack's remaining generations and
-          exports stop.
+          Ask within {LAUNCH_PACK.refundDays} days of purchase and you'll get a full refund, no
+          questions. After a refund, your saved work stays in your account, but the pack's remaining
+          generations and exports stop.
         </p>
         <h2 className="mt-8 text-2xl">Your content</h2>
         <p>
-          What you write and what Empire Studio generates for you is yours to use in your business. You're
-          responsible for checking it's accurate before you publish it — especially product facts, claims,
-          prices, policies and images. Empire Studio doesn't guarantee sales or results.
+          What you write and what Empire Studio generates for you is yours to use in your business.
+          You're responsible for checking it's accurate before you publish it — especially product
+          facts, claims, prices, policies and images. Empire Studio doesn't guarantee sales or
+          results.
         </p>
         <h2 className="mt-8 text-2xl">Shopify and other tools</h2>
         <p>
-          Empire Studio isn't made by or affiliated with Shopify. Shopify Sidekick prompts are suggestions:
-          what Sidekick does depends on your theme and plan. Work on a duplicate theme and review every
-          change before publishing.
+          Empire Studio isn't made by or affiliated with Shopify. Shopify Sidekick prompts are
+          suggestions: what Sidekick does depends on your theme and plan. Work on a duplicate theme
+          and review every change before publishing.
         </p>
         <h2 className="mt-8 text-2xl">Earlier Her Little Empire downloads</h2>
-        <p>
-          Anything you bought before stays yours on Gumroad under the terms you bought it with.
-        </p>
+        <p>Anything you bought before stays yours on Gumroad under the terms you bought it with.</p>
       </main>
       <SiteFooter />
     </>

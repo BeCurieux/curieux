@@ -51,16 +51,29 @@ export class AnthropicProvider implements AIProvider {
       );
     } catch (error) {
       if (error instanceof Anthropic.RateLimitError) {
-        throw new GenerationError("The writing service is busy. Try again in a minute.", undefined, true);
+        throw new GenerationError(
+          "The writing service is busy. Try again in a minute.",
+          undefined,
+          true,
+        );
       }
       if (error instanceof Anthropic.APIConnectionTimeoutError || input.signal?.aborted) {
-        throw new GenerationError("That took too long, so we stopped it. Try again.", undefined, true);
+        throw new GenerationError(
+          "That took too long, so we stopped it. Try again.",
+          undefined,
+          true,
+        );
       }
-      if (error instanceof Anthropic.InternalServerError || error instanceof Anthropic.APIConnectionError) {
+      if (
+        error instanceof Anthropic.InternalServerError ||
+        error instanceof Anthropic.APIConnectionError
+      ) {
         throw new GenerationError("The writing service had a hiccup. Try again.", undefined, true);
       }
       if (error instanceof Anthropic.APIError) {
-        throw new GenerationError(`The writing service refused the request (${error.status ?? "error"}).`);
+        throw new GenerationError(
+          `The writing service refused the request (${error.status ?? "error"}).`,
+        );
       }
       throw error;
     }
@@ -74,7 +87,10 @@ export class AnthropicProvider implements AIProvider {
     };
 
     if (response.stop_reason === "refusal") {
-      throw new GenerationError("This request couldn't be completed. Try rewording your details.", usage);
+      throw new GenerationError(
+        "This request couldn't be completed. Try rewording your details.",
+        usage,
+      );
     }
     if (response.stop_reason === "max_tokens") {
       throw new GenerationError("The result was too long and got cut off. Try again.", usage, true);

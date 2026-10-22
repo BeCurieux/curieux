@@ -13,10 +13,21 @@ import { BusinessFields, CustomerFields, PracticalFields, StyleFields } from "./
 
 const STEPS = ["Your business", "Your customer", "The look", "Practicalities"] as const;
 const STEP_OF: Record<string, number> = {
-  brandName: 0, category: 0, productsSummary: 0, fulfilment: 0, stage: 0, websiteUrl: 0,
-  audience: 1, goal: 1,
-  personality: 2, visualStyle: 2, colours: 2,
-  market: 3, currency: 3, verifiedClaims: 3, prohibitedClaims: 3,
+  brandName: 0,
+  category: 0,
+  productsSummary: 0,
+  fulfilment: 0,
+  stage: 0,
+  websiteUrl: 0,
+  audience: 1,
+  goal: 1,
+  personality: 2,
+  visualStyle: 2,
+  colours: 2,
+  market: 3,
+  currency: 3,
+  verifiedClaims: 3,
+  prohibitedClaims: 3,
 };
 
 export function OnboardingForm() {
@@ -26,14 +37,18 @@ export function OnboardingForm() {
 
   // When the server sends errors back, jump to the first step with one.
   useEffect(() => {
-    const first = Object.keys(state.errors ?? {}).map((k) => STEP_OF[k] ?? 0).sort()[0];
+    const first = Object.keys(state.errors ?? {})
+      .map((k) => STEP_OF[k] ?? 0)
+      .sort()[0];
     // Responding to a server result that just arrived, not deriving state.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (first !== undefined) setStep(first);
   }, [state]);
 
   const next = () => {
-    const fields = form.current?.querySelectorAll<HTMLInputElement>(`[data-step="${step}"] [required]`);
+    const fields = form.current?.querySelectorAll<HTMLInputElement>(
+      `[data-step="${step}"] [required]`,
+    );
     for (const field of fields ?? []) {
       if (!field.checkValidity()) {
         field.reportValidity();
@@ -51,7 +66,11 @@ export function OnboardingForm() {
             <span
               aria-current={i === step ? "step" : undefined}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm ${
-                i === step ? "bg-oxblood text-ivory" : i < step ? "bg-blush text-ink" : "border border-line text-ink-soft"
+                i === step
+                  ? "bg-oxblood text-ivory"
+                  : i < step
+                    ? "bg-blush text-ink"
+                    : "border-line text-ink-soft border"
               }`}
             >
               <span aria-hidden>{i + 1}</span> {label}
@@ -71,7 +90,7 @@ export function OnboardingForm() {
           {child}
         </div>
       ))}
-      <div className="flex flex-wrap items-center gap-3 border-t border-line pt-6">
+      <div className="border-line flex flex-wrap items-center gap-3 border-t pt-6">
         {step > 0 ? (
           <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>
             Back
@@ -86,7 +105,9 @@ export function OnboardingForm() {
             {pending ? "Saving…" : "Save and build my blueprint"}
           </Button>
         )}
-        <p className="text-sm text-ink-soft">Step {step + 1} of {STEPS.length}. You can change any of this later.</p>
+        <p className="text-ink-soft text-sm">
+          Step {step + 1} of {STEPS.length}. You can change any of this later.
+        </p>
       </div>
     </form>
   );

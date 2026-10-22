@@ -31,13 +31,25 @@ export const EVENTS = [
 ] as const;
 export type EventName = (typeof EVENTS)[number];
 
-const ALLOWED_PROPS = new Set(["module", "source", "plan", "section", "status", "format", "path", "reason", "product_type"]);
+const ALLOWED_PROPS = new Set([
+  "module",
+  "source",
+  "plan",
+  "section",
+  "status",
+  "format",
+  "path",
+  "reason",
+  "product_type",
+]);
 
 export const CONSENT_COOKIE = "empire_consent";
 export const ANON_COOKIE = "empire_anon";
 export const SOURCE_COOKIE = "empire_source";
 
-export function cleanProps(props: Record<string, unknown>): Record<string, string | number | boolean> {
+export function cleanProps(
+  props: Record<string, unknown>,
+): Record<string, string | number | boolean> {
   const out: Record<string, string | number | boolean> = {};
   for (const [key, value] of Object.entries(props)) {
     if (!ALLOWED_PROPS.has(key)) continue;
@@ -56,7 +68,8 @@ export async function track(
     let anonymousId: string | null = null;
     try {
       const jar = await cookies();
-      if (jar.get(CONSENT_COOKIE)?.value === "yes") anonymousId = jar.get(ANON_COOKIE)?.value ?? null;
+      if (jar.get(CONSENT_COOKIE)?.value === "yes")
+        anonymousId = jar.get(ANON_COOKIE)?.value ?? null;
     } catch {
       // Outside a request (tests, cron): no cookies, no anonymous id.
     }

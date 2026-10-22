@@ -48,7 +48,10 @@ export const themeBriefSchema = z.object({
   homepageObjective: s(600),
   customerPositioning: s(600),
   visualDirection: s(900),
-  navigation: z.array(z.object({ label: s(40), purpose: s(240) })).min(2).max(8),
+  navigation: z
+    .array(z.object({ label: s(40), purpose: s(240) }))
+    .min(2)
+    .max(8),
   homepageSections: z
     .array(z.object({ section: s(80), purpose: s(300), content: s(600) }))
     .min(3)
@@ -84,7 +87,10 @@ export const homepageCopySchema = z.object({
   heroSubheadline: s(300),
   primaryCta: s(40),
   secondaryCta: s(40),
-  valueProps: z.array(z.object({ title: s(80), body: s(300) })).min(2).max(5),
+  valueProps: z
+    .array(z.object({ title: s(80), body: s(300) }))
+    .min(2)
+    .max(5),
   featuredCollectionIntro: s(400),
   aboutBlurb: s(1200),
   emailSignupHeadline: s(120),
@@ -98,7 +104,10 @@ export const productListingSchema = z.object({
   title: s(120),
   shortDescription: s(400),
   description: s(3000),
-  bullets: z.array(z.object({ feature: s(120), benefit: s(240) })).min(2).max(8),
+  bullets: z
+    .array(z.object({ feature: s(120), benefit: s(240) }))
+    .min(2)
+    .max(8),
   specifications: z.array(z.object({ label: s(60), value: s(300) })).max(15),
   faq: z.array(qa).min(1).max(8),
   seoTitle: s(70),
@@ -127,9 +136,7 @@ export const imageBriefsSchema = z.object({
   lifestyle: imageBriefSchema,
   instagram: imageBriefSchema,
   canvaSteps: list(12),
-  aiEditPrompts: z
-    .array(z.object({ purpose: s(160), prompt: s(1200), caution: s(400) }))
-    .max(5),
+  aiEditPrompts: z.array(z.object({ purpose: s(160), prompt: s(1200), caution: s(400) })).max(5),
 });
 
 const emailSchema = z.object({

@@ -12,8 +12,8 @@ export function SignInForm({ local }: { local: boolean }) {
   if (state.status === "sent") {
     return (
       <Notice tone="success" title="Check your inbox">
-        We've sent a sign-in link to <strong>{state.email}</strong>. It works once and expires in an hour. No
-        email after a couple of minutes? Check spam, or try again.
+        We've sent a sign-in link to <strong>{state.email}</strong>. It works once and expires in an
+        hour. No email after a couple of minutes? Check spam, or try again.
       </Notice>
     );
   }
@@ -24,7 +24,11 @@ export function SignInForm({ local }: { local: boolean }) {
       <Field
         id="email"
         label="Your email"
-        hint={local ? "Local mode: you'll be signed in straight away." : "We'll email you a link. No password to forget."}
+        hint={
+          local
+            ? "Local mode: you'll be signed in straight away."
+            : "We'll email you a link. No password to forget."
+        }
         error={error}
       >
         <input

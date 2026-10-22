@@ -22,7 +22,9 @@ describe("claims guard", () => {
 
   it("accepts a claim that is in her verified facts", () => {
     const p = profile({ verifiedClaims: ["Handmade in Melbourne", "Certified organic cotton"] });
-    expect(checkClaims({ a: "Handmade in Melbourne from certified organic cotton." }, p)).toEqual([]);
+    expect(checkClaims({ a: "Handmade in Melbourne from certified organic cotton." }, p)).toEqual(
+      [],
+    );
   });
 
   it("always flags income claims", () => {

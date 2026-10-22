@@ -38,7 +38,12 @@ async function record(deps: BillingDeps, sale: VerifiedSale, userId: string | nu
  */
 export async function handlePing(
   deps: BillingDeps,
-  ping: { saleId: string | null; productId: string | null; licenseKey: string | null; ref: string | null },
+  ping: {
+    saleId: string | null;
+    productId: string | null;
+    licenseKey: string | null;
+    ref: string | null;
+  },
 ) {
   if (!ping.saleId) return null;
   let sale = await deps.provider.lookupSale(ping.saleId);
@@ -54,14 +59,25 @@ export async function handlePing(
 /** She typed in a licence key from her Gumroad receipt. */
 export async function claimLicense(deps: BillingDeps, userId: string, licenseKey: string) {
   const sale = await deps.provider.verifyLicense(licenseKey);
-  if (!sale) return { ok: false as const, message: "We couldn't verify that key. Check it against your Gumroad receipt." };
+  if (!sale)
+    return {
+      ok: false as const,
+      message: "We couldn't verify that key. Check it against your Gumroad receipt.",
+    };
   const existing = await deps.repo.getPurchase("gumroad", sale.externalPurchaseId);
   if (existing?.userId && existing.userId !== userId) {
-    return { ok: false as const, message: "That purchase is already linked to another account. Email us and we'll sort it out." };
+    return {
+      ok: false as const,
+      message:
+        "That purchase is already linked to another account. Email us and we'll sort it out.",
+    };
   }
   const result = await record(deps, sale, userId);
   if (result.purchase.status !== "paid") {
-    return { ok: false as const, message: "That purchase was refunded, so it can't unlock the pack." };
+    return {
+      ok: false as const,
+      message: "That purchase was refunded, so it can't unlock the pack.",
+    };
   }
   return { ok: true as const, ...result };
 }

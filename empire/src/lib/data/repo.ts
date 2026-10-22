@@ -1,4 +1,9 @@
-import type { BrandBlueprint, BusinessProfile, ProfileFacts, ProfileVersion } from "@/lib/domain/profile";
+import type {
+  BrandBlueprint,
+  BusinessProfile,
+  ProfileFacts,
+  ProfileVersion,
+} from "@/lib/domain/profile";
 import type { Product, ProductInput } from "@/lib/domain/product";
 import type { ModuleKey } from "@/lib/domain/modules";
 import type {

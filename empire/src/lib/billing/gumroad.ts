@@ -39,7 +39,10 @@ export interface GumroadConfig {
   fetch?: typeof fetch;
 }
 
-export function productTypeFor(productId: string, launchPackProductId: string | null): ProductType | null {
+export function productTypeFor(
+  productId: string,
+  launchPackProductId: string | null,
+): ProductType | null {
   if (launchPackProductId && productId === launchPackProductId) return "launch_pack";
   const slug = librarySlugFor(productId);
   return slug ? `library:${slug}` : null;
@@ -83,14 +86,21 @@ export class GumroadProvider implements BillingProvider {
       const response = await this.fetch(`${API}/licenses/verify`, {
         method: "POST",
         headers: { "content-type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ product_id: id, license_key: key, increment_uses_count: "false" }),
+        body: new URLSearchParams({
+          product_id: id,
+          license_key: key,
+          increment_uses_count: "false",
+        }),
         signal: AbortSignal.timeout(10_000),
       });
       if (response.status === 404) continue;
       if (!response.ok) throw new Error(`gumroad licence check failed: ${response.status}`);
       const body = (await response.json()) as { success?: boolean; purchase?: GumroadSale };
       if (body.success && body.purchase) {
-        return this.toVerified({ ...body.purchase, product_id: body.purchase.product_id ?? id }, key);
+        return this.toVerified(
+          { ...body.purchase, product_id: body.purchase.product_id ?? id },
+          key,
+        );
       }
     }
     return null;
@@ -111,20 +121,26 @@ export class GumroadProvider implements BillingProvider {
   async salesForEmail(email: string): Promise<VerifiedSale[]> {
     if (!this.config.accessToken) return [];
     const out: VerifiedSale[] = [];
-    let page: string | null = `${API}/sales?email=${encodeURIComponent(email.trim().toLowerCase())}`;
+    let page: string | null =
+      `${API}/sales?email=${encodeURIComponent(email.trim().toLowerCase())}`;
     for (let i = 0; page && i < 5; i += 1) {
       const response: Response = await this.fetch(page, {
         headers: { authorization: `Bearer ${this.config.accessToken}` },
         signal: AbortSignal.timeout(10_000),
       });
       if (!response.ok) throw new Error(`gumroad sales search failed: ${response.status}`);
-      const body = (await response.json()) as { sales?: GumroadSale[]; next_page_url?: string | null };
+      const body = (await response.json()) as {
+        sales?: GumroadSale[];
+        next_page_url?: string | null;
+      };
       for (const sale of body.sales ?? []) {
         const verified = this.toVerified(sale, null);
         // Gumroad matches emails loosely; only exact matches count.
         if (verified && verified.email === email.trim().toLowerCase()) out.push(verified);
       }
-      page = body.next_page_url ? new URL(body.next_page_url, "https://api.gumroad.com").toString() : null;
+      page = body.next_page_url
+        ? new URL(body.next_page_url, "https://api.gumroad.com").toString()
+        : null;
     }
     return out;
   }

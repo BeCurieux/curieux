@@ -23,7 +23,8 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if ((process.env.EMPIRE_BACKEND ?? "local") === "local") {
-    if (isProtected(pathname) && !request.cookies.get(LOCAL_SESSION_COOKIE)) return toSignIn(request);
+    if (isProtected(pathname) && !request.cookies.get(LOCAL_SESSION_COOKIE))
+      return toSignIn(request);
     return NextResponse.next();
   }
 

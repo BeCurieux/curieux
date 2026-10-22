@@ -39,7 +39,12 @@ export const isUS = (market: string) => US.test(market);
 /** British/Australian spelling unless she sells in the US. */
 export function spell(market: string, word: "colour" | "favourite" | "personalise" | "organise") {
   if (!isUS(market)) return word;
-  return { colour: "color", favourite: "favorite", personalise: "personalize", organise: "organize" }[word];
+  return {
+    colour: "color",
+    favourite: "favorite",
+    personalise: "personalize",
+    organise: "organize",
+  }[word];
 }
 
 export function audienceShort(profile: BusinessProfile): string {
@@ -54,7 +59,10 @@ export function traitWords(profile: BusinessProfile): string[] {
   const given = listFrom(profile.personality).slice(0, 5);
   if (given.length >= 3) return given;
   const fallback = ["warm", "clear", "considered", "quietly confident", "practical"];
-  return [...given, ...fallback.filter((t) => !given.includes(t))].slice(0, Math.max(3, given.length));
+  return [...given, ...fallback.filter((t) => !given.includes(t))].slice(
+    0,
+    Math.max(3, given.length),
+  );
 }
 
 const NAMED: Record<string, string> = {
@@ -131,7 +139,9 @@ export function contrast(a: string, b: string): number {
 }
 
 /** A usable palette: her colours first, padded with neutrals that pass contrast. */
-export function buildPalette(profile: BusinessProfile): { name: string; hex: string; use: string }[] {
+export function buildPalette(
+  profile: BusinessProfile,
+): { name: string; hex: string; use: string }[] {
   const named = namedColours(profile);
   const light = named.filter((s) => luminance(s.hex) > 0.6);
   const dark = named.filter((s) => luminance(s.hex) < 0.08);
@@ -176,7 +186,8 @@ export function styleFamily(profile: BusinessProfile): StyleFamily {
 
 export const FONTS: Record<StyleFamily, { headings: string; body: string; notes: string }> = {
   minimal: {
-    headings: "A clean grotesque such as Work Sans or Inter, medium weight, generous letter spacing on small caps labels.",
+    headings:
+      "A clean grotesque such as Work Sans or Inter, medium weight, generous letter spacing on small caps labels.",
     body: "The same family at regular weight, 16px or larger.",
     notes: "One family keeps it calm. Use weight and size, not extra fonts, for hierarchy.",
   },
@@ -186,7 +197,8 @@ export const FONTS: Record<StyleFamily, { headings: string; body: string; notes:
     notes: "Pair the warm serif with plenty of space and natural textures in photos.",
   },
   playful: {
-    headings: "A rounded or chunky display face such as Fredoka or DM Serif Display at large sizes.",
+    headings:
+      "A rounded or chunky display face such as Fredoka or DM Serif Display at large sizes.",
     body: "A friendly, highly legible sans such as DM Sans, 16px or larger.",
     notes: "Let headings carry the personality; keep body text plain so it stays easy to read.",
   },

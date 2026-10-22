@@ -32,13 +32,16 @@ export function StudioNav({ profileId, brandName }: { profileId: string; brandNa
     ["Saved assets", `${base}/assets`],
   ] as const;
   return (
-    <div className="no-print border-b border-line bg-ivory">
+    <div className="no-print border-line bg-ivory border-b">
       <div className="mx-auto max-w-6xl px-5 pt-4 sm:px-8">
         <p className="eyebrow truncate">{brandName}</p>
         <nav aria-label="Studio" className="-mx-5 mt-2 overflow-x-auto px-5 sm:mx-0 sm:px-0">
           <ul className="flex min-w-max gap-1 pb-3">
             {items.map(([label, href]) => {
-              const active = href === base ? pathname === base : pathname.startsWith(href) || owns(href, pathname, base);
+              const active =
+                href === base
+                  ? pathname === base
+                  : pathname.startsWith(href) || owns(href, pathname, base);
               return (
                 <li key={href}>
                   <Link

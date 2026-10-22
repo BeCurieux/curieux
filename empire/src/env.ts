@@ -35,7 +35,7 @@ const serverSchema = z
     ANTHROPIC_API_KEY: optional,
     EMPIRE_AI_MODEL: z.string().default("claude-opus-5-5"),
     EMPIRE_AI_EFFORT: z.enum(["low", "medium", "high"]).default("low"),
-    EMPIRE_AI_TIMEOUT_MS: z.coerce.number().int().min(10_000).max(300_000).default(120_000),
+    EMPIRE_AI_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(300_000).default(120_000),
     // Hard stop for the whole platform per rolling 24 hours, in US dollars.
     EMPIRE_AI_DAILY_BUDGET_USD: z.coerce.number().min(0).default(25),
 
@@ -66,7 +66,8 @@ const serverSchema = z
         message: "the local backend has no real sign-in and must not serve production",
       });
     }
-    if (env.EMPIRE_AI_PROVIDER === "anthropic") need("ANTHROPIC_API_KEY", "required for EMPIRE_AI_PROVIDER=anthropic");
+    if (env.EMPIRE_AI_PROVIDER === "anthropic")
+      need("ANTHROPIC_API_KEY", "required for EMPIRE_AI_PROVIDER=anthropic");
     if (env.GUMROAD_PRODUCT_URL) {
       need("GUMROAD_PRODUCT_ID", "needed to verify Gumroad purchases");
       need("GUMROAD_PING_SECRET", "needed to accept Gumroad pings");

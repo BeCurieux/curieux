@@ -20,18 +20,18 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="block text-sm font-semibold text-ink">
+      <label htmlFor={id} className="text-ink block text-sm font-semibold">
         {label}
-        {optional ? <span className="ml-2 font-normal text-ink-soft">optional</span> : null}
+        {optional ? <span className="text-ink-soft ml-2 font-normal">optional</span> : null}
       </label>
       {hint ? (
-        <p id={`${id}-hint`} className="text-sm text-ink-soft">
+        <p id={`${id}-hint`} className="text-ink-soft text-sm">
           {hint}
         </p>
       ) : null}
       {children}
       {error ? (
-        <p id={`${id}-error`} className="text-sm font-medium text-danger">
+        <p id={`${id}-error`} className="text-danger text-sm font-medium">
           {error}
         </p>
       ) : null}
@@ -40,5 +40,8 @@ export function Field({
 }
 
 export function describedBy(id: string, hint?: unknown, error?: unknown) {
-  return [hint ? `${id}-hint` : null, error ? `${id}-error` : null].filter(Boolean).join(" ") || undefined;
+  return (
+    [hint ? `${id}-hint` : null, error ? `${id}-error` : null].filter(Boolean).join(" ") ||
+    undefined
+  );
 }

@@ -1,6 +1,10 @@
 import { HubPage } from "@/components/studio/hub";
 
-export default async function MarketingStudio({ params }: { params: Promise<{ profileId: string }> }) {
+export default async function MarketingStudio({
+  params,
+}: {
+  params: Promise<{ profileId: string }>;
+}) {
   const { profileId } = await params;
   return (
     <HubPage

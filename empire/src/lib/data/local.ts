@@ -249,7 +249,11 @@ class LocalUserRepo implements UserRepo {
     });
   }
 
-  updateProduct(id: string, input: Parameters<UserRepo["updateProduct"]>[1], imagePaths?: string[]) {
+  updateProduct(
+    id: string,
+    input: Parameters<UserRepo["updateProduct"]>[1],
+    imagePaths?: string[],
+  ) {
     return this.store.tx((d) => {
       const product = this.mine(d.products).find((p) => p.id === id);
       if (!product) throw new Error("not found");
@@ -294,7 +298,8 @@ class LocalUserRepo implements UserRepo {
         throw new Error("not found");
       }
       const siblings = this.mine(d.generations).filter(
-        (g) => g.profileId === row.profileId && g.module === row.module && g.productId === row.productId,
+        (g) =>
+          g.profileId === row.profileId && g.module === row.module && g.productId === row.productId,
       );
       const generation: Generation = {
         ...row,
@@ -309,10 +314,7 @@ class LocalUserRepo implements UserRepo {
   }
 
   listTasks(profileId: string) {
-    return this.store.tx(
-      (d) => this.mine(d.tasks).filter((t) => t.profileId === profileId),
-      false,
-    );
+    return this.store.tx((d) => this.mine(d.tasks).filter((t) => t.profileId === profileId), false);
   }
 
   ensureTasks(profileId: string, tasks: Parameters<UserRepo["ensureTasks"]>[1]) {
@@ -353,10 +355,7 @@ class LocalUserRepo implements UserRepo {
   }
 
   listUsage(sinceIso: string) {
-    return this.store.tx(
-      (d) => this.mine(d.usage).filter((u) => u.createdAt >= sinceIso),
-      false,
-    );
+    return this.store.tx((d) => this.mine(d.usage).filter((u) => u.createdAt >= sinceIso), false);
   }
 }
 
@@ -488,7 +487,9 @@ class LocalSystemRepo implements SystemRepo {
         activeEntitlements: d.entitlements.filter((e) => e.status === "active").length,
         refundedEntitlements: d.entitlements.filter((e) => e.status === "refunded").length,
         generations: {
-          succeeded: d.generations.filter((g) => g.status === "succeeded" && (g.source === "ai" || g.source === "mock")).length,
+          succeeded: d.generations.filter(
+            (g) => g.status === "succeeded" && (g.source === "ai" || g.source === "mock"),
+          ).length,
           failed: d.generations.filter((g) => g.status === "failed").length,
         },
         costLast30Days: d.usage

@@ -14,8 +14,8 @@ export default async function NewProfile() {
   return (
     <main id="main" className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
       <PageHeader eyebrow="Ten minutes, tops" title="Tell us about your business.">
-        Plain answers are perfect. Everything Empire Studio makes is built from what you say here — and nothing
-        you don't.
+        Plain answers are perfect. Everything Empire Studio makes is built from what you say here —
+        and nothing you don't.
       </PageHeader>
       <Card>
         <OnboardingForm />

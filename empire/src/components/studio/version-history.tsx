@@ -28,20 +28,30 @@ export function VersionHistory({ versions }: { versions: VersionRow[] }) {
   const [message, setMessage] = useState<string | null>(null);
   if (versions.length === 0) return null;
   return (
-    <details className="no-print rounded-3xl border border-line bg-paper p-5 sm:p-7">
-      <summary className="cursor-pointer font-serif text-xl text-oxblood">Version history ({versions.length})</summary>
-      <p className="mt-2 text-sm text-ink-soft">Every save and regeneration is kept. Restoring copies an old version to the top.</p>
-      {message ? <p role="status" className="mt-3 text-sm font-medium text-success">{message}</p> : null}
-      <ol className="mt-4 divide-y divide-line">
+    <details className="no-print border-line bg-paper rounded-3xl border p-5 sm:p-7">
+      <summary className="text-oxblood cursor-pointer font-serif text-xl">
+        Version history ({versions.length})
+      </summary>
+      <p className="text-ink-soft mt-2 text-sm">
+        Every save and regeneration is kept. Restoring copies an old version to the top.
+      </p>
+      {message ? (
+        <p role="status" className="text-success mt-3 text-sm font-medium">
+          {message}
+        </p>
+      ) : null}
+      <ol className="divide-line mt-4 divide-y">
         {versions.map((v) => (
           <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
             <div>
               <p className="font-semibold">
                 Version {v.version} · {SOURCE[v.source] ?? v.source}
                 {v.section ? ` (${v.section.replace(/^prompt:/, "prompt ")})` : ""}
-                {v.current ? <span className="ml-2 text-sm font-normal text-success">current</span> : null}
+                {v.current ? (
+                  <span className="text-success ml-2 text-sm font-normal">current</span>
+                ) : null}
               </p>
-              <p className="text-sm text-ink-soft">
+              <p className="text-ink-soft text-sm">
                 {new Date(v.createdAt).toLocaleString()}
                 {v.status === "failed" ? ` — didn't work: ${v.error ?? "unknown error"}` : ""}
               </p>
@@ -57,7 +67,7 @@ export function VersionHistory({ versions }: { versions: VersionRow[] }) {
                     router.refresh();
                   })
                 }
-                className="min-h-10 rounded-full border border-oxblood px-4 text-sm font-semibold text-oxblood hover:bg-blush-soft"
+                className="border-oxblood text-oxblood hover:bg-blush-soft min-h-10 rounded-full border px-4 text-sm font-semibold"
               >
                 Restore
               </button>

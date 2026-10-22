@@ -1,6 +1,11 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { BrandBlueprint, BusinessProfile, ProfileFacts, ProfileVersion } from "@/lib/domain/profile";
+import type {
+  BrandBlueprint,
+  BusinessProfile,
+  ProfileFacts,
+  ProfileVersion,
+} from "@/lib/domain/profile";
 import type { Product, ProductInput } from "@/lib/domain/product";
 import type { ModuleKey } from "@/lib/domain/modules";
 import type {
@@ -188,14 +193,23 @@ export class SupabaseUserRepo implements UserRepo {
 
   async listProfiles() {
     const rows = check(
-      await this.db.from("business_profiles").select("*").eq("user_id", this.userId).order("created_at"),
+      await this.db
+        .from("business_profiles")
+        .select("*")
+        .eq("user_id", this.userId)
+        .order("created_at"),
     );
     return (rows as Row[]).map(toProfile);
   }
 
   async getProfile(id: string) {
     const row = check(
-      await this.db.from("business_profiles").select("*").eq("id", id).eq("user_id", this.userId).maybeSingle(),
+      await this.db
+        .from("business_profiles")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .maybeSingle(),
     );
     return row ? toProfile(row as Row) : null;
   }
@@ -211,7 +225,11 @@ export class SupabaseUserRepo implements UserRepo {
     return toProfile(row as Row);
   }
 
-  async updateProfile(id: string, patch: { facts?: ProfileFacts; brand?: BrandBlueprint | null; logoPath?: string | null }, note: string) {
+  async updateProfile(
+    id: string,
+    patch: { facts?: ProfileFacts; brand?: BrandBlueprint | null; logoPath?: string | null },
+    note: string,
+  ) {
     const update: Row = { last_note: note.slice(0, 200) };
     if (patch.facts) Object.assign(update, factsToRow(patch.facts));
     if (patch.brand !== undefined) update.brand = patch.brand;
@@ -266,7 +284,12 @@ export class SupabaseUserRepo implements UserRepo {
 
   async getProduct(id: string) {
     const row = check(
-      await this.db.from("products").select("*").eq("id", id).eq("user_id", this.userId).maybeSingle(),
+      await this.db
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .maybeSingle(),
     );
     return row ? toProduct(row as Row) : null;
   }
@@ -286,7 +309,13 @@ export class SupabaseUserRepo implements UserRepo {
     const update = productToRow(input);
     if (imagePaths) update.image_paths = imagePaths;
     const row = check(
-      await this.db.from("products").update(update).eq("id", id).eq("user_id", this.userId).select("*").single(),
+      await this.db
+        .from("products")
+        .update(update)
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .select("*")
+        .single(),
     );
     return toProduct(row as Row);
   }
@@ -295,7 +324,10 @@ export class SupabaseUserRepo implements UserRepo {
     check(await this.db.from("products").delete().eq("id", id).eq("user_id", this.userId));
   }
 
-  async listGenerations(profileId: string, filter: { module?: ModuleKey; productId?: string | null } = {}) {
+  async listGenerations(
+    profileId: string,
+    filter: { module?: ModuleKey; productId?: string | null } = {},
+  ) {
     let query = this.db
       .from("generations")
       .select("*")
@@ -305,14 +337,22 @@ export class SupabaseUserRepo implements UserRepo {
     if (filter.productId === null) query = query.is("product_id", null);
     else if (filter.productId) query = query.eq("product_id", filter.productId);
     const rows = check(
-      await query.order("created_at", { ascending: false }).order("version", { ascending: false }).limit(500),
+      await query
+        .order("created_at", { ascending: false })
+        .order("version", { ascending: false })
+        .limit(500),
     );
     return (rows as Row[]).map(toGeneration);
   }
 
   async getGeneration(id: string) {
     const row = check(
-      await this.db.from("generations").select("*").eq("id", id).eq("user_id", this.userId).maybeSingle(),
+      await this.db
+        .from("generations")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .maybeSingle(),
     );
     return row ? toGeneration(row as Row) : null;
   }
@@ -348,12 +388,19 @@ export class SupabaseUserRepo implements UserRepo {
 
   async listTasks(profileId: string) {
     const rows = check(
-      await this.db.from("launch_tasks").select("*").eq("profile_id", profileId).eq("user_id", this.userId),
+      await this.db
+        .from("launch_tasks")
+        .select("*")
+        .eq("profile_id", profileId)
+        .eq("user_id", this.userId),
     );
     return (rows as Row[]).map(toTask);
   }
 
-  async ensureTasks(profileId: string, tasks: { taskKey: string; category: string; label: string; status: LaunchTask["status"] }[]) {
+  async ensureTasks(
+    profileId: string,
+    tasks: { taskKey: string; category: string; label: string; status: LaunchTask["status"] }[],
+  ) {
     if (tasks.length === 0) return;
     check(
       await this.db.from("launch_tasks").upsert(
@@ -375,7 +422,13 @@ export class SupabaseUserRepo implements UserRepo {
     if (patch.status) update.status = patch.status;
     if (patch.notes !== undefined) update.notes = patch.notes;
     const row = check(
-      await this.db.from("launch_tasks").update(update).eq("id", id).eq("user_id", this.userId).select("*").single(),
+      await this.db
+        .from("launch_tasks")
+        .update(update)
+        .eq("id", id)
+        .eq("user_id", this.userId)
+        .select("*")
+        .single(),
     );
     return toTask(row as Row);
   }
@@ -387,7 +440,11 @@ export class SupabaseUserRepo implements UserRepo {
 
   async listUsage(sinceIso: string) {
     const rows = check(
-      await this.db.from("usage_ledger").select("*").eq("user_id", this.userId).gte("created_at", sinceIso),
+      await this.db
+        .from("usage_ledger")
+        .select("*")
+        .eq("user_id", this.userId)
+        .gte("created_at", sinceIso),
     );
     return (rows as Row[]).map(toUsage);
   }
@@ -411,7 +468,9 @@ export class SupabaseSystemRepo implements SystemRepo {
   }
 
   async platformCostSince(sinceIso: string) {
-    const rows = check(await this.db.from("usage_ledger").select("estimated_cost").gte("created_at", sinceIso));
+    const rows = check(
+      await this.db.from("usage_ledger").select("estimated_cost").gte("created_at", sinceIso),
+    );
     return (rows as Row[]).reduce((sum, r) => sum + Number(r.estimated_cost), 0);
   }
 
@@ -470,7 +529,11 @@ export class SupabaseSystemRepo implements SystemRepo {
 
   async unclaimedPurchasesFor(email: string) {
     const rows = check(
-      await this.db.from("purchases").select("*").is("user_id", null).eq("email", email.trim().toLowerCase()),
+      await this.db
+        .from("purchases")
+        .select("*")
+        .is("user_id", null)
+        .eq("email", email.trim().toLowerCase()),
     );
     return (rows as Row[]).map(toPurchase);
   }
@@ -491,7 +554,11 @@ export class SupabaseSystemRepo implements SystemRepo {
 
   async purchasesToRecheck(sinceIso: string) {
     const rows = check(
-      await this.db.from("purchases").select("*").eq("status", "paid").gte("purchased_at", sinceIso),
+      await this.db
+        .from("purchases")
+        .select("*")
+        .eq("status", "paid")
+        .gte("purchased_at", sinceIso),
     );
     return (rows as Row[]).map(toPurchase);
   }
@@ -534,10 +601,18 @@ export class SupabaseSystemRepo implements SystemRepo {
     const since90 = new Date(Date.now() - 90 * 86_400_000).toISOString();
     const since30 = new Date(Date.now() - 30 * 86_400_000).toISOString();
     const [events, profiles, entitlements, generations, cost, users] = await Promise.all([
-      this.db.from("analytics_events").select("name,user_id,props,created_at").gte("created_at", since90).limit(50_000),
+      this.db
+        .from("analytics_events")
+        .select("name,user_id,props,created_at")
+        .gte("created_at", since90)
+        .limit(50_000),
       this.db.from("business_profiles").select("id", { count: "exact", head: true }),
       this.db.from("entitlements").select("user_id,status"),
-      this.db.from("generations").select("status,source").in("source", ["ai", "mock"]).limit(100_000),
+      this.db
+        .from("generations")
+        .select("status,source")
+        .in("source", ["ai", "mock"])
+        .limit(100_000),
       this.db.from("usage_ledger").select("estimated_cost").gte("created_at", since30),
       this.db.auth.admin.listUsers({ perPage: 1 }),
     ]);
@@ -559,7 +634,10 @@ export class SupabaseSystemRepo implements SystemRepo {
         succeeded: gen.filter((g) => g.status === "succeeded").length,
         failed: gen.filter((g) => g.status === "failed").length,
       },
-      costLast30Days: ((check(cost) as Row[]) ?? []).reduce((s, r) => s + Number(r.estimated_cost), 0),
+      costLast30Days: ((check(cost) as Row[]) ?? []).reduce(
+        (s, r) => s + Number(r.estimated_cost),
+        0,
+      ),
       payingCustomers: new Set(ent.filter((e) => e.status === "active").map((e) => e.user_id)).size,
       repeatUsers7d: repeat7d,
       repeatUsers30d: repeat30d,

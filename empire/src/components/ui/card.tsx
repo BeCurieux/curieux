@@ -5,7 +5,7 @@ export function Card({ className = "", ...props }: ComponentProps<"section">) {
   const background = /(^|\s)bg-/.test(className) ? "" : "bg-paper";
   return (
     <section
-      className={`rounded-3xl border border-line ${background} p-5 shadow-[0_1px_0_rgba(40,37,40,0.04)] sm:p-7 ${className}`}
+      className={`border-line rounded-3xl border ${background} p-5 shadow-[0_1px_0_rgba(40,37,40,0.04)] sm:p-7 ${className}`}
       {...props}
     />
   );
@@ -44,7 +44,7 @@ export function PageHeader({
     <header className="mb-8 max-w-3xl">
       {eyebrow ? <p className="eyebrow mb-3">{eyebrow}</p> : null}
       <h1 className="text-4xl sm:text-5xl">{title}</h1>
-      {children ? <div className="mt-4 text-lg text-ink-soft">{children}</div> : null}
+      {children ? <div className="text-ink-soft mt-4 text-lg">{children}</div> : null}
     </header>
   );
 }
@@ -65,8 +65,11 @@ export function Notice({
     danger: "border-[#e2b4b4] bg-[#fbeeee]",
   };
   return (
-    <div role={tone === "danger" ? "alert" : "status"} className={`rounded-2xl border p-4 text-sm ${tones[tone]}`}>
-      {title ? <p className="mb-1 font-semibold text-ink">{title}</p> : null}
+    <div
+      role={tone === "danger" ? "alert" : "status"}
+      className={`rounded-2xl border p-4 text-sm ${tones[tone]}`}
+    >
+      {title ? <p className="text-ink mb-1 font-semibold">{title}</p> : null}
       <div className="text-ink">{children}</div>
     </div>
   );

@@ -28,7 +28,9 @@ export async function saveUpload(
     await writeFile(target, bytes);
     return { ok: true, path: key };
   }
-  const { error } = await (await userClient()).storage
+  const { error } = await (
+    await userClient()
+  ).storage
     .from("uploads")
     .upload(key, bytes, { contentType: checked.type, upsert: false });
   if (error) return { ok: false, message: "That upload didn't work. Try again." };

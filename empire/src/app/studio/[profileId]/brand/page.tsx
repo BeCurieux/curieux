@@ -18,23 +18,34 @@ export default async function BrandPage({
     <div className="space-y-8">
       {welcome ? (
         <Notice tone="success" title={`Welcome, ${profile.brandName}.`}>
-          Your business details are saved. Next: your Brand Blueprint — everything else builds on it.
+          Your business details are saved. Next: your Brand Blueprint — everything else builds on
+          it.
         </Notice>
       ) : null}
       <ModuleView profileId={profile.id} module="brand_blueprint" />
       <Card>
         <h2 className="text-2xl">Your business details</h2>
-        <p className="mt-2 text-ink-soft">
-          The facts every generator reads. Changing them never rewrites existing assets — you choose what to regenerate.
+        <p className="text-ink-soft mt-2">
+          The facts every generator reads. Changing them never rewrites existing assets — you choose
+          what to regenerate.
         </p>
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
-          <Link href={`/studio/${profile.id}/profile`} className="font-semibold text-oxblood underline">Edit business details</Link>
+          <Link
+            href={`/studio/${profile.id}/profile`}
+            className="text-oxblood font-semibold underline"
+          >
+            Edit business details
+          </Link>
         </div>
         <details className="mt-5">
-          <summary className="cursor-pointer text-sm font-semibold">Profile history ({history.length} versions)</summary>
-          <ol className="mt-3 space-y-1 text-sm text-ink-soft">
+          <summary className="cursor-pointer text-sm font-semibold">
+            Profile history ({history.length} versions)
+          </summary>
+          <ol className="text-ink-soft mt-3 space-y-1 text-sm">
             {history.slice(0, 20).map((v) => (
-              <li key={v.id}>Version {v.version} · {v.note} · {new Date(v.createdAt).toLocaleString()}</li>
+              <li key={v.id}>
+                Version {v.version} · {v.note} · {new Date(v.createdAt).toLocaleString()}
+              </li>
             ))}
           </ol>
         </details>

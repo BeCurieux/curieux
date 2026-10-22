@@ -36,4 +36,5 @@ export function currentAssets(generations: Generation[]): Map<string, Generation
   return out;
 }
 
-export const assetKey = (module: ModuleKey, productId: string | null) => `${module}:${productId ?? "-"}`;
+export const assetKey = (module: ModuleKey, productId: string | null) =>
+  `${module}:${productId ?? "-"}`;

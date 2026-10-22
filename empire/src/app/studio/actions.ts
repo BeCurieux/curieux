@@ -56,7 +56,8 @@ function factsFrom(form: FormData) {
 export async function createProfileAction(_prev: FormState, form: FormData): Promise<FormState> {
   const { repo } = await studio();
   const parsed = factsFrom(form);
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), message: "A few answers need another look." };
+  if (!parsed.success)
+    return { errors: fieldErrors(parsed.error), message: "A few answers need another look." };
   const [{ access }, existing] = await Promise.all([loadAccess(repo), repo.listProfiles()]);
   if (existing.length >= access.profiles) {
     return {
@@ -69,29 +70,55 @@ export async function createProfileAction(_prev: FormState, form: FormData): Pro
   const profile = await repo.createProfile(parsed.data);
   await repo.ensureTasks(
     profile.id,
-    tasksFor(profile).map((t) => ({ taskKey: t.key, category: t.category, label: t.label, status: "not_started" as const })),
+    tasksFor(profile).map((t) => ({
+      taskKey: t.key,
+      category: t.category,
+      label: t.label,
+      status: "not_started" as const,
+    })),
   );
   await track("profile_completed", repo.userId, { plan: access.plan });
   redirect(`/studio/${profile.id}/brand?welcome=1`);
 }
 
-export async function updateProfileAction(profileId: string, _prev: FormState, form: FormData): Promise<FormState> {
+export async function updateProfileAction(
+  profileId: string,
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   const { repo } = await studio();
   const profile = await repo.getProfile(profileId);
   if (!profile) return { message: "We couldn't find that business." };
   const parsed = factsFrom(form);
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), message: "A few answers need another look." };
-  await repo.updateProfile(profileId, { facts: parsed.data as ProfileFacts }, "Business details edited");
+  if (!parsed.success)
+    return { errors: fieldErrors(parsed.error), message: "A few answers need another look." };
+  await repo.updateProfile(
+    profileId,
+    { facts: parsed.data as ProfileFacts },
+    "Business details edited",
+  );
   // A change to what she sells changes which tasks apply; add any new ones.
   await repo.ensureTasks(
     profileId,
-    tasksFor(parsed.data).map((t) => ({ taskKey: t.key, category: t.category, label: t.label, status: "not_started" as const })),
+    tasksFor(parsed.data).map((t) => ({
+      taskKey: t.key,
+      category: t.category,
+      label: t.label,
+      status: "not_started" as const,
+    })),
   );
   revalidatePath(`/studio/${profileId}`, "layout");
-  return { ok: true, message: "Saved. Your existing assets are untouched — regenerate any you'd like refreshed." };
+  return {
+    ok: true,
+    message: "Saved. Your existing assets are untouched — regenerate any you'd like refreshed.",
+  };
 }
 
-export async function uploadLogoAction(profileId: string, _prev: FormState, form: FormData): Promise<FormState> {
+export async function uploadLogoAction(
+  profileId: string,
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   const { repo, user } = await studio();
   const profile = await repo.getProfile(profileId);
   if (!profile) return { message: "We couldn't find that business." };
@@ -130,7 +157,10 @@ export async function generateAction(input: {
   return result.ok ? { ok: true } : { ok: false, message: result.message, reason: result.reason };
 }
 
-export async function saveEditAction(generationId: string, output: unknown): Promise<GenerateResult & { issues?: string[] }> {
+export async function saveEditAction(
+  generationId: string,
+  output: unknown,
+): Promise<GenerateResult & { issues?: string[] }> {
   const { repo } = await studio();
   const result = await saveVersion(repo, generationId, output, "edit");
   if (!result.ok) return { ok: false, message: result.message, issues: result.issues };
@@ -145,7 +175,10 @@ export async function restoreAction(generationId: string): Promise<GenerateResul
   const result = await saveVersion(repo, generationId, base.output, "restore");
   if (!result.ok) return { ok: false, message: result.message };
   revalidatePath(`/studio/${result.generation.profileId}`, "layout");
-  return { ok: true, message: `Restored version ${base.version} as version ${result.generation.version}.` };
+  return {
+    ok: true,
+    message: `Restored version ${base.version} as version ${result.generation.version}.`,
+  };
 }
 
 function productFrom(form: FormData) {
@@ -167,11 +200,19 @@ function productFrom(form: FormData) {
   });
 }
 
-export async function createProductAction(profileId: string, _prev: FormState, form: FormData): Promise<FormState> {
+export async function createProductAction(
+  profileId: string,
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   const { repo } = await studio();
   const parsed = productFrom(form);
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), message: "A few details need another look." };
-  const [{ access }, products] = await Promise.all([loadAccess(repo), repo.listProducts(profileId)]);
+  if (!parsed.success)
+    return { errors: fieldErrors(parsed.error), message: "A few details need another look." };
+  const [{ access }, products] = await Promise.all([
+    loadAccess(repo),
+    repo.listProducts(profileId),
+  ]);
   if (products.length >= access.productsPerProfile) {
     return {
       message:
@@ -189,12 +230,17 @@ export async function createProductAction(profileId: string, _prev: FormState, f
   redirect(`/studio/${profileId}/products/${product.id}?added=1`);
 }
 
-export async function updateProductAction(productId: string, _prev: FormState, form: FormData): Promise<FormState> {
+export async function updateProductAction(
+  productId: string,
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   const { repo } = await studio();
   const product = await repo.getProduct(productId);
   if (!product) return { message: "We couldn't find that product." };
   const parsed = productFrom(form);
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), message: "A few details need another look." };
+  if (!parsed.success)
+    return { errors: fieldErrors(parsed.error), message: "A few details need another look." };
   await repo.updateProduct(productId, parsed.data);
   revalidatePath(`/studio/${product.profileId}`, "layout");
   return { ok: true, message: "Saved. Regenerate the listing or briefs to use the new details." };
@@ -209,7 +255,11 @@ export async function deleteProductAction(productId: string): Promise<void> {
   redirect(`/studio/${product.profileId}/products`);
 }
 
-export async function uploadProductImageAction(productId: string, _prev: FormState, form: FormData): Promise<FormState> {
+export async function uploadProductImageAction(
+  productId: string,
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   const { repo, user } = await studio();
   const product = await repo.getProduct(productId);
   if (!product) return { message: "We couldn't find that product." };
@@ -228,7 +278,11 @@ export async function removeProductImageAction(productId: string, key: string): 
   const product = await repo.getProduct(productId);
   if (!product || !product.imagePaths.includes(key)) return;
   await deleteUpload(user.id, key);
-  await repo.updateProduct(productId, product, product.imagePaths.filter((p) => p !== key));
+  await repo.updateProduct(
+    productId,
+    product,
+    product.imagePaths.filter((p) => p !== key),
+  );
   revalidatePath(`/studio/${product.profileId}`, "layout");
 }
 

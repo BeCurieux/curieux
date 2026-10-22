@@ -4,7 +4,13 @@ import { track, type EventName } from "@/lib/analytics/track";
 
 // Events the browser reports. Only these names; properties are filtered by
 // track()'s allow list, so nothing a customer typed can be sent.
-const CLIENT_EVENTS = new Set<EventName>(["landing_viewed", "pricing_viewed", "preview_started", "asset_copied", "asset_downloaded"]);
+const CLIENT_EVENTS = new Set<EventName>([
+  "landing_viewed",
+  "pricing_viewed",
+  "preview_started",
+  "asset_copied",
+  "asset_downloaded",
+]);
 
 export async function POST(request: Request) {
   let body: { name?: unknown; props?: unknown };
@@ -15,7 +21,8 @@ export async function POST(request: Request) {
   }
   const name = typeof body.name === "string" ? (body.name as EventName) : null;
   if (!name || !CLIENT_EVENTS.has(name)) return NextResponse.json({ ok: false }, { status: 400 });
-  const props = body.props && typeof body.props === "object" ? (body.props as Record<string, unknown>) : {};
+  const props =
+    body.props && typeof body.props === "object" ? (body.props as Record<string, unknown>) : {};
   const user = await currentUser().catch(() => null);
   await track(name, user?.id ?? null, props);
   return NextResponse.json({ ok: true });

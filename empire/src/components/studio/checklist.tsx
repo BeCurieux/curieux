@@ -34,11 +34,17 @@ function Task({ task, readOnly }: { task: ChecklistRow; readOnly: boolean }) {
   };
 
   return (
-    <li className="rounded-2xl border border-line bg-paper p-4 sm:p-5">
+    <li className="border-line bg-paper rounded-2xl border p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h3 className={`font-sans text-lg font-semibold ${status === "complete" ? "text-success" : "text-ink"}`}>{task.label}</h3>
+        <h3
+          className={`font-sans text-lg font-semibold ${status === "complete" ? "text-success" : "text-ink"}`}
+        >
+          {task.label}
+        </h3>
         <div className="flex items-center gap-2">
-          <label htmlFor={`s-${task.id}`} className="sr-only">Status for {task.label}</label>
+          <label htmlFor={`s-${task.id}`} className="sr-only">
+            Status for {task.label}
+          </label>
           <select
             id={`s-${task.id}`}
             value={status}
@@ -51,19 +57,35 @@ function Task({ task, readOnly }: { task: ChecklistRow; readOnly: boolean }) {
             className="field-input min-h-11 w-auto py-2 text-sm"
           >
             {STATUSES.map((s) => (
-              <option key={s} value={s}>{TASK_STATUS_LABELS[s]}</option>
+              <option key={s} value={s}>
+                {TASK_STATUS_LABELS[s]}
+              </option>
             ))}
           </select>
         </div>
       </div>
       <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-        <div><dt className="font-semibold">What to do</dt><dd className="text-ink-soft">{task.what}</dd></div>
-        <div><dt className="font-semibold">Why it matters</dt><dd className="text-ink-soft">{task.why}</dd></div>
-        <div><dt className="font-semibold">You'll end up with</dt><dd className="text-ink-soft">{task.output}</dd></div>
-        <div><dt className="font-semibold">Use</dt><dd className="text-ink-soft">{task.tool}</dd></div>
+        <div>
+          <dt className="font-semibold">What to do</dt>
+          <dd className="text-ink-soft">{task.what}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Why it matters</dt>
+          <dd className="text-ink-soft">{task.why}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">You'll end up with</dt>
+          <dd className="text-ink-soft">{task.output}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Use</dt>
+          <dd className="text-ink-soft">{task.tool}</dd>
+        </div>
       </dl>
       <div className="mt-3">
-        <label htmlFor={`n-${task.id}`} className="text-sm font-semibold">Notes</label>
+        <label htmlFor={`n-${task.id}`} className="text-sm font-semibold">
+          Notes
+        </label>
         <textarea
           id={`n-${task.id}`}
           value={notes}
@@ -78,8 +100,14 @@ function Task({ task, readOnly }: { task: ChecklistRow; readOnly: boolean }) {
           }}
           className="field-input mt-1 text-sm"
         />
-        <p aria-live="polite" className="mt-1 h-4 text-xs text-ink-soft">
-          {saved === "saving" ? "Saving…" : saved === "saved" ? "Saved" : saved === "error" ? "Couldn't save — check your connection." : ""}
+        <p aria-live="polite" className="text-ink-soft mt-1 h-4 text-xs">
+          {saved === "saving"
+            ? "Saving…"
+            : saved === "saved"
+              ? "Saved"
+              : saved === "error"
+                ? "Couldn't save — check your connection."
+                : ""}
         </p>
       </div>
     </li>
@@ -92,15 +120,23 @@ export function Checklist({ tasks, readOnly }: { tasks: ChecklistRow[]; readOnly
     <div className="space-y-10">
       {categories.map((category) => {
         const rows = tasks.filter((t) => t.category === category);
-        const done = rows.filter((t) => t.status === "complete" || t.status === "not_applicable").length;
+        const done = rows.filter(
+          (t) => t.status === "complete" || t.status === "not_applicable",
+        ).length;
         return (
           <section key={category} aria-labelledby={`c-${category}`}>
             <div className="mb-3 flex items-baseline justify-between gap-2">
-              <h2 id={`c-${category}`} className="text-2xl">{category}</h2>
-              <p className="text-sm text-ink-soft">{done} of {rows.length}</p>
+              <h2 id={`c-${category}`} className="text-2xl">
+                {category}
+              </h2>
+              <p className="text-ink-soft text-sm">
+                {done} of {rows.length}
+              </p>
             </div>
             <ul className="space-y-3">
-              {rows.map((t) => <Task key={t.id} task={t} readOnly={readOnly} />)}
+              {rows.map((t) => (
+                <Task key={t.id} task={t} readOnly={readOnly} />
+              ))}
             </ul>
           </section>
         );

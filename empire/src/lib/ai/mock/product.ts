@@ -1,9 +1,23 @@
 import type { BusinessProfile } from "@/lib/domain/profile";
 import { missingProductInformation, type Product } from "@/lib/domain/product";
 import type { ModuleOutput } from "@/lib/domain/modules";
-import { audienceShort, brandName, buildPalette, clip, isDigital, listFrom, lower, price, sentence, spell } from "./util";
+import {
+  audienceShort,
+  brandName,
+  buildPalette,
+  clip,
+  isDigital,
+  listFrom,
+  lower,
+  price,
+  sentence,
+  spell,
+} from "./util";
 
-export function mockProductListing(profile: BusinessProfile, product: Product): ModuleOutput<"product_listing"> {
+export function mockProductListing(
+  profile: BusinessProfile,
+  product: Product,
+): ModuleOutput<"product_listing"> {
   const name = brandName(profile);
   const audience = audienceShort(profile);
   const digital = isDigital(profile);
@@ -17,26 +31,49 @@ export function mockProductListing(profile: BusinessProfile, product: Product): 
       feature: clip(benefit[0]!.toUpperCase() + benefit.slice(1), 120),
       benefit: use ? clip(`So it works for ${use}.`, 240) : "[Say what this means for her day.]",
     })),
-    ...(product.materials ? [{ feature: clip(product.materials, 120), benefit: "[Why this material or format matters.]" }] : []),
+    ...(product.materials
+      ? [
+          {
+            feature: clip(product.materials, 120),
+            benefit: "[Why this material or format matters.]",
+          },
+        ]
+      : []),
   ];
-  while (bullets.length < 2) bullets.push({ feature: "[A real feature]", benefit: "[What it does for the customer]" });
+  while (bullets.length < 2)
+    bullets.push({ feature: "[A real feature]", benefit: "[What it does for the customer]" });
 
   const specs: { label: string; value: string }[] = [];
-  if (product.materials) specs.push({ label: digital ? "Includes" : "Materials", value: clip(product.materials, 300) });
+  if (product.materials)
+    specs.push({ label: digital ? "Includes" : "Materials", value: clip(product.materials, 300) });
   if (product.dimensions) specs.push({ label: "Size", value: clip(product.dimensions, 300) });
-  if (product.colourOptions) specs.push({ label: spell(profile.market, "colour") === "color" ? "Colors" : "Colours", value: clip(product.colourOptions, 300) });
-  if (product.careInstructions) specs.push({ label: "Care", value: clip(product.careInstructions, 300) });
-  if (product.shippingInfo) specs.push({ label: digital ? "Delivery" : "Shipping", value: clip(product.shippingInfo, 300) });
-  for (const fact of facts.slice(0, 4)) specs.push({ label: "Good to know", value: clip(fact, 300) });
+  if (product.colourOptions)
+    specs.push({
+      label: spell(profile.market, "colour") === "color" ? "Colors" : "Colours",
+      value: clip(product.colourOptions, 300),
+    });
+  if (product.careInstructions)
+    specs.push({ label: "Care", value: clip(product.careInstructions, 300) });
+  if (product.shippingInfo)
+    specs.push({
+      label: digital ? "Delivery" : "Shipping",
+      value: clip(product.shippingInfo, 300),
+    });
+  for (const fact of facts.slice(0, 4))
+    specs.push({ label: "Good to know", value: clip(fact, 300) });
 
   const opener = problem
     ? `If ${problem}, ${product.name} is the fix.`
     : `${product.name}, made for ${audience}.`;
   const description = [
     sentence(opener),
-    benefits.length ? sentence(`It's ${benefits.slice(0, 3).join(", ")}`) : "[Describe what it does, in a sentence or two.]",
+    benefits.length
+      ? sentence(`It's ${benefits.slice(0, 3).join(", ")}`)
+      : "[Describe what it does, in a sentence or two.]",
     use ? sentence(`Made for ${use}`) : "",
-    product.materials ? sentence(`${digital ? "What you get" : "Made from"}: ${product.materials}`) : "",
+    product.materials
+      ? sentence(`${digital ? "What you get" : "Made from"}: ${product.materials}`)
+      : "",
     facts.length ? facts.map((f) => sentence(f)).join(" ") : "",
     product.careInstructions ? sentence(`Care: ${product.careInstructions}`) : "",
     product.shippingInfo ? sentence(product.shippingInfo) : "[Add delivery details.]",
@@ -49,10 +86,20 @@ export function mockProductListing(profile: BusinessProfile, product: Product): 
       ? { question: "What size is it?", answer: clip(sentence(product.dimensions), 800) }
       : { question: "What size is it?", answer: "[Add the dimensions.]" },
     product.shippingInfo
-      ? { question: digital ? "How do I receive it?" : "When will it arrive?", answer: clip(sentence(product.shippingInfo), 800) }
-      : { question: digital ? "How do I receive it?" : "When will it arrive?", answer: "[Add your delivery details.]" },
+      ? {
+          question: digital ? "How do I receive it?" : "When will it arrive?",
+          answer: clip(sentence(product.shippingInfo), 800),
+        }
+      : {
+          question: digital ? "How do I receive it?" : "When will it arrive?",
+          answer: "[Add your delivery details.]",
+        },
   ];
-  if (product.careInstructions) faq.push({ question: "How do I care for it?", answer: clip(sentence(product.careInstructions), 800) });
+  if (product.careInstructions)
+    faq.push({
+      question: "How do I care for it?",
+      answer: clip(sentence(product.careInstructions), 800),
+    });
 
   const seoTitle = clip(`${product.name} | ${name}`, 70);
   const seoDescription = clip(
@@ -81,7 +128,10 @@ export function mockProductListing(profile: BusinessProfile, product: Product): 
   };
 }
 
-export function mockImageBriefs(profile: BusinessProfile, product: Product): ModuleOutput<"image_briefs"> {
+export function mockImageBriefs(
+  profile: BusinessProfile,
+  product: Product,
+): ModuleOutput<"image_briefs"> {
   const palette = profile.brand?.colourPalette ?? buildPalette(profile);
   const bg = palette[0]!;
   const soft = palette[3] ?? palette[0]!;
@@ -104,9 +154,13 @@ export function mockImageBriefs(profile: BusinessProfile, product: Product): Mod
     primary: {
       ...base,
       purpose: "The main listing photo and collection thumbnail.",
-      setup: clip(`${subject}, centred, filling about 70% of the frame. What it is: ${described}.`, 800),
+      setup: clip(
+        `${subject}, centred, filling about 70% of the frame. What it is: ${described}.`,
+        800,
+      ),
       background: `Plain ${bg.name.toLowerCase()} (${bg.hex}) paper or wall.`,
-      lighting: "Soft daylight from a window to one side; a white card on the other side to lift shadows.",
+      lighting:
+        "Soft daylight from a window to one side; a white card on the other side to lift shadows.",
       composition: "Straight on or a slight three-quarter angle. Same angle for every product.",
       aspectRatio: "1:1 square (2048 × 2048px)",
       shotList: ["Front", "Three-quarter angle", "Back or alternative side"],
@@ -114,21 +168,36 @@ export function mockImageBriefs(profile: BusinessProfile, product: Product): Mod
     detail: {
       ...base,
       purpose: "Shows quality and answers “what's it like up close?”",
-      setup: clip(`Close-ups of ${product.materials ? `the ${lower(product.materials)}` : "the most important detail"} on ${product.name}.`, 800),
+      setup: clip(
+        `Close-ups of ${product.materials ? `the ${lower(product.materials)}` : "the most important detail"} on ${product.name}.`,
+        800,
+      ),
       background: `Same as the main photo, or ${soft.name.toLowerCase()} (${soft.hex}).`,
       lighting: "Raking side light to show texture; avoid flash.",
       composition: "Fill the frame with one detail per shot. Keep it sharp — tap to focus.",
       aspectRatio: "4:5 portrait (1600 × 2000px)",
-      shotList: ["Texture or finish", "Closure, edge or seam", product.dimensions ? "Size reference beside a common object" : "Size reference (add dimensions to your product first)"],
+      shotList: [
+        "Texture or finish",
+        "Closure, edge or seam",
+        product.dimensions
+          ? "Size reference beside a common object"
+          : "Size reference (add dimensions to your product first)",
+      ],
     },
     lifestyle: {
       ...base,
-      props: ["Only everyday items that suit your customer — nothing that could be mistaken for part of the product"],
+      props: [
+        "Only everyday items that suit your customer — nothing that could be mistaken for part of the product",
+      ],
       purpose: `Helps ${audienceShort(profile)} picture it in her own life.`,
-      setup: clip(`${product.name} in use${product.intendedUse ? `: ${lower(product.intendedUse)}` : ""}. Hands in shot work well if you'd rather not show faces.`, 800),
+      setup: clip(
+        `${product.name} in use${product.intendedUse ? `: ${lower(product.intendedUse)}` : ""}. Hands in shot work well if you'd rather not show faces.`,
+        800,
+      ),
       background: "A real, tidy setting in your palette's tones.",
       lighting: "Natural daylight; shoot mid-morning or late afternoon for softer light.",
-      composition: "Product in the foreground and in focus; leave space at the top for text if you'll use it as a banner.",
+      composition:
+        "Product in the foreground and in focus; leave space at the top for text if you'll use it as a banner.",
       aspectRatio: "4:5 portrait for product pages; 16:9 landscape for the homepage banner",
       shotList: ["In use", "In context, wider", "A moment just before or after use"],
     },
@@ -138,8 +207,10 @@ export function mockImageBriefs(profile: BusinessProfile, product: Product): Mod
       setup: `Your best primary or lifestyle photo, with a short line of text added in Canva.`,
       background: `Photo, or a ${soft.hex} panel for the text.`,
       lighting: "As the source photo.",
-      composition: "Keep the product in the centre two-thirds — Instagram crops the edges in the grid.",
-      aspectRatio: "4:5 (1080 × 1350px) for feed; 9:16 (1080 × 1920px) for Stories and Reels covers",
+      composition:
+        "Keep the product in the centre two-thirds — Instagram crops the edges in the grid.",
+      aspectRatio:
+        "4:5 (1080 × 1350px) for feed; 9:16 (1080 × 1920px) for Stories and Reels covers",
       shotList: ["Feed post", "Story version", "Reel cover"],
     },
     canvaSteps: [
@@ -158,7 +229,8 @@ export function mockImageBriefs(profile: BusinessProfile, product: Product): Mod
       },
       {
         purpose: "Extend a photo to fit a banner",
-        prompt: "Extend the background on the left and right to make a 16:9 image, matching the existing surface and light. Do not alter, move or add to the product.",
+        prompt:
+          "Extend the background on the left and right to make a 16:9 image, matching the existing surface and light. Do not alter, move or add to the product.",
         caution: "Don't use generated scenes as if they were real places or uses.",
       },
     ],

@@ -25,30 +25,43 @@ export async function HubPage({
   const assets = currentAssets(await repo.listGenerations(profile.id));
   return (
     <div>
-      <PageHeader eyebrow={eyebrow} title={title}>{intro}</PageHeader>
+      <PageHeader eyebrow={eyebrow} title={title}>
+        {intro}
+      </PageHeader>
       <ol className="grid gap-4 md:grid-cols-3">
         {modules.map((module, i) => {
           const info = MODULES[module];
           const made = assets.get(`${module}:-`);
           return (
             <li key={module}>
-              <Link href={`/studio/${profile.id}/m/${module}`} className="group block h-full rounded-3xl border border-line bg-paper p-6 hover:border-oxblood">
+              <Link
+                href={`/studio/${profile.id}/m/${module}`}
+                className="group border-line bg-paper hover:border-oxblood block h-full rounded-3xl border p-6"
+              >
                 <p className="eyebrow">Step {i + 1}</p>
                 <h2 className="mt-2 text-2xl group-hover:underline">{info.title}</h2>
-                <p className="mt-2 text-ink-soft">{info.summary}</p>
+                <p className="text-ink-soft mt-2">{info.summary}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge tone="outline">{KIND_LABELS[info.kind].label}</Badge>
-                  {made ? <Badge tone="success">Made · v{made.version}</Badge> : moduleAllowed(access, module) ? <Badge tone="blush">Not made yet</Badge> : <Badge tone="outline">Launch Pack</Badge>}
+                  {made ? (
+                    <Badge tone="success">Made · v{made.version}</Badge>
+                  ) : moduleAllowed(access, module) ? (
+                    <Badge tone="blush">Not made yet</Badge>
+                  ) : (
+                    <Badge tone="outline">Launch Pack</Badge>
+                  )}
                 </div>
               </Link>
             </li>
           );
         })}
       </ol>
-      <Card className="mt-8 bg-blush-soft">
+      <Card className="bg-blush-soft mt-8">
         <h2 className="text-2xl">Before you start</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5">
-          {safety.map((s) => <li key={s}>{s}</li>)}
+          {safety.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
         </ul>
       </Card>
     </div>

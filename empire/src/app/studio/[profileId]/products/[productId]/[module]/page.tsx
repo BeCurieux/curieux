@@ -16,10 +16,18 @@ export default async function ProductModule({
   if (!product || product.profileId !== profile.id) notFound();
   return (
     <div className="space-y-4">
-      <Link href={`/studio/${profile.id}/products/${product.id}`} className="no-print text-sm font-semibold text-oxblood underline">
+      <Link
+        href={`/studio/${profile.id}/products/${product.id}`}
+        className="no-print text-oxblood text-sm font-semibold underline"
+      >
         ← {product.name}
       </Link>
-      <ModuleView profileId={profile.id} module={module} productId={product.id} context={product.name} />
+      <ModuleView
+        profileId={profile.id}
+        module={module}
+        productId={product.id}
+        context={product.name}
+      />
     </div>
   );
 }

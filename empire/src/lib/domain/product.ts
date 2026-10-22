@@ -64,7 +64,13 @@ export function missingProductInformation(
   if (!product.benefits) missing.push("What it does for the customer (functional benefits).");
   if (!product.customerProblem) missing.push("The problem it solves for your customer.");
   if (product.price === null) missing.push("Price.");
-  if (physical && !product.careInstructions && /cloth|fabric|linen|cotton|wool|silk|leather|wood|ceramic|candle|jewel|silver|gold|brass/i.test(`${product.materials} ${product.category} ${product.name}`)) {
+  if (
+    physical &&
+    !product.careInstructions &&
+    /cloth|fabric|linen|cotton|wool|silk|leather|wood|ceramic|candle|jewel|silver|gold|brass/i.test(
+      `${product.materials} ${product.category} ${product.name}`,
+    )
+  ) {
     missing.push("Care instructions.");
   }
   if (physical && !product.shippingInfo) {

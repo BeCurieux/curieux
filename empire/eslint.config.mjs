@@ -10,7 +10,10 @@ export default defineConfig([
       // The UI is mostly microcopy; plain apostrophes in JSX text render
       // correctly and are far easier to read and edit than &apos;.
       "react/no-unescaped-entities": "off",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" },
+      ],
     },
   },
   globalIgnores([

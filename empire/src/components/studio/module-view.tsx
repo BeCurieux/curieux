@@ -45,7 +45,9 @@ export async function ModuleView({
   if (output && preview) {
     const all = Object.keys(output);
     locked = all.filter((key) => !preview.includes(key));
-    output = Object.fromEntries(Object.entries(output).filter(([key]) => preview.includes(key))) as AnyModuleOutput;
+    output = Object.fromEntries(
+      Object.entries(output).filter(([key]) => preview.includes(key)),
+    ) as AnyModuleOutput;
   }
 
   const stale = current && module !== "brand_blueprint" && current.profileVersion < profile.version;
@@ -55,24 +57,35 @@ export async function ModuleView({
     <div className="space-y-6">
       <header className="max-w-3xl">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={info.kind === "copy" ? "success" : info.kind === "instruction" ? "ink" : info.kind === "brief" ? "warning" : "blush"}>
+          <Badge
+            tone={
+              info.kind === "copy"
+                ? "success"
+                : info.kind === "instruction"
+                  ? "ink"
+                  : info.kind === "brief"
+                    ? "warning"
+                    : "blush"
+            }
+          >
             {kind.label}
           </Badge>
           {method.status === "interim" ? <Badge tone="outline">Interim method</Badge> : null}
         </div>
         <h1 className="mt-4 text-4xl sm:text-5xl">
           {info.title}
-          {context ? <span className="block text-2xl text-ink-soft">{context}</span> : null}
+          {context ? <span className="text-ink-soft block text-2xl">{context}</span> : null}
         </h1>
-        <p className="mt-3 text-lg text-ink-soft">{info.summary}</p>
-        <p className="mt-2 text-sm text-ink">{kind.explain}</p>
+        <p className="text-ink-soft mt-3 text-lg">{info.summary}</p>
+        <p className="text-ink mt-2 text-sm">{kind.explain}</p>
       </header>
 
       {!current && !allowed ? (
         <Card className="bg-blush-soft">
           <h2 className="text-2xl">Part of the Launch Pack</h2>
           <p className="mt-2">
-            {info.summary} Built from your brand details — your saved work carries straight over when you upgrade.
+            {info.summary} Built from your brand details — your saved work carries straight over
+            when you upgrade.
           </p>
           <div className="mt-5">
             <ButtonLink href="/account">See the Launch Pack</ButtonLink>
@@ -83,20 +96,38 @@ export async function ModuleView({
       {!current && allowed ? (
         <Card>
           <h2 className="text-2xl">Ready when you are</h2>
-          <p className="mt-2 text-ink-soft">
+          <p className="text-ink-soft mt-2">
             We'll use {profile.brand ? "your Brand Blueprint and " : ""}your business details
-            {info.scope === "product" ? " and this product's facts" : ""}. Anything missing is flagged, not made up.
-            {sampleOnly ? " The free studio writes one sample prompt; the Launch Pack writes all ten." : ""}
+            {info.scope === "product" ? " and this product's facts" : ""}. Anything missing is
+            flagged, not made up.
+            {sampleOnly
+              ? " The free studio writes one sample prompt; the Launch Pack writes all ten."
+              : ""}
           </p>
           {!profile.brand && module !== "brand_blueprint" ? (
             <p className="mt-2 text-sm">
-              Tip: <Link href={`/studio/${profile.id}/brand`} className="font-semibold text-oxblood underline">make your Brand Blueprint</Link> first so everything matches.
+              Tip:{" "}
+              <Link
+                href={`/studio/${profile.id}/brand`}
+                className="text-oxblood font-semibold underline"
+              >
+                make your Brand Blueprint
+              </Link>{" "}
+              first so everything matches.
             </p>
           ) : null}
           <div className="mt-5">
-            <GenerateButton profileId={profile.id} module={module} productId={productId} label={`Generate ${info.title.toLowerCase()}`} disabledReason={refusal?.message} />
+            <GenerateButton
+              profileId={profile.id}
+              module={module}
+              productId={productId}
+              label={`Generate ${info.title.toLowerCase()}`}
+              disabledReason={refusal?.message}
+            />
           </div>
-          <p className="mt-2 text-sm text-ink-soft">{remaining} generation{remaining === 1 ? "" : "s"} left.</p>
+          <p className="text-ink-soft mt-2 text-sm">
+            {remaining} generation{remaining === 1 ? "" : "s"} left.
+          </p>
         </Card>
       ) : null}
 
@@ -108,8 +139,8 @@ export async function ModuleView({
 
       {stale ? (
         <Notice tone="warning" title="Your business details have changed since this was made">
-          This was written from an earlier version of your profile. Keep it as it is, or regenerate to use your
-          latest details — your current version stays in the history either way.
+          This was written from an earlier version of your profile. Keep it as it is, or regenerate
+          to use your latest details — your current version stays in the history either way.
         </Notice>
       ) : null}
 
@@ -138,12 +169,17 @@ export async function ModuleView({
             regenerableSections={preview ? [] : sectionsOf(module, current.output!)}
             readOnly={false}
           />
-          {refusal && allowed ? <p className="text-sm text-ink-soft">{refusal.message}</p> : null}
+          {refusal && allowed ? <p className="text-ink-soft text-sm">{refusal.message}</p> : null}
           {sampleOnly ? (
             <Card className="bg-blush-soft">
               <h2 className="text-2xl">Nine more prompts in the Launch Pack</h2>
-              <p className="mt-2">Hero, announcement bar, featured products, benefits, product page, FAQ, about, email signup and footer — each with what to check after.</p>
-              <div className="mt-4"><ButtonLink href="/account">See the Launch Pack</ButtonLink></div>
+              <p className="mt-2">
+                Hero, announcement bar, featured products, benefits, product page, FAQ, about, email
+                signup and footer — each with what to check after.
+              </p>
+              <div className="mt-4">
+                <ButtonLink href="/account">See the Launch Pack</ButtonLink>
+              </div>
             </Card>
           ) : null}
         </>
@@ -163,9 +199,9 @@ export async function ModuleView({
       />
 
       {method.status === "interim" ? (
-        <p className="text-xs text-ink-soft">
-          Interim method: this module currently runs on a general launch method while the Her Little Empire
-          framework it's based on is being converted. Outputs record which method made them.
+        <p className="text-ink-soft text-xs">
+          Interim method: this module currently runs on a general launch method while the Her Little
+          Empire framework it's based on is being converted. Outputs record which method made them.
         </p>
       ) : null}
     </div>

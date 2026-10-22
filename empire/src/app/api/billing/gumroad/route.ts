@@ -13,12 +13,14 @@ import { track } from "@/lib/analytics/track";
 // Always answers 200 once the token is right, so Gumroad doesn't retry a
 // ping we deliberately ignored.
 
-const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
+const same = (a: string, b: string) =>
+  a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 export async function POST(request: NextRequest) {
   const secret = serverEnv().GUMROAD_PING_SECRET;
   const token = request.nextUrl.searchParams.get("token") ?? "";
-  if (!secret || !same(token, secret)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  if (!secret || !same(token, secret))
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
   const form = new URLSearchParams(await request.text());
   try {
@@ -27,8 +29,14 @@ export async function POST(request: NextRequest) {
       console.warn("gumroad ping could not be verified", form.get("sale_id"));
       return NextResponse.json({ ok: true, verified: false });
     }
-    if (result.event === "created") await track("purchase_verified", result.purchase.userId, { product_type: result.purchase.productType });
-    if (result.event === "refunded") await track("purchase_refunded", result.purchase.userId, { product_type: result.purchase.productType });
+    if (result.event === "created")
+      await track("purchase_verified", result.purchase.userId, {
+        product_type: result.purchase.productType,
+      });
+    if (result.event === "refunded")
+      await track("purchase_refunded", result.purchase.userId, {
+        product_type: result.purchase.productType,
+      });
     return NextResponse.json({ ok: true, verified: true });
   } catch (error) {
     // Let Gumroad retry: something on our side or theirs failed.

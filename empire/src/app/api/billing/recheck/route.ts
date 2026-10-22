@@ -10,7 +10,11 @@ import { recheck } from "@/lib/billing/service";
 export async function GET(request: NextRequest) {
   const secret = serverEnv().CRON_SECRET;
   const given = request.headers.get("authorization")?.replace(/^Bearer /, "") ?? "";
-  if (!secret || given.length !== secret.length || !timingSafeEqual(Buffer.from(given), Buffer.from(secret))) {
+  if (
+    !secret ||
+    given.length !== secret.length ||
+    !timingSafeEqual(Buffer.from(given), Buffer.from(secret))
+  ) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   const result = await recheck(billingDeps());

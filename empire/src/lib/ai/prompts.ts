@@ -1,5 +1,10 @@
 import { METHODOLOGY } from "@/content/methodology";
-import { MODULES, SIDEKICK_PROMPT_KEYS, SIDEKICK_PROMPT_TITLES, type ModuleKey } from "@/lib/domain/modules";
+import {
+  MODULES,
+  SIDEKICK_PROMPT_KEYS,
+  SIDEKICK_PROMPT_TITLES,
+  type ModuleKey,
+} from "@/lib/domain/modules";
 import { profileForPrompt } from "@/lib/domain/profile";
 import { productForPrompt } from "@/lib/domain/product";
 import type { GenerationInput } from "./provider";
@@ -55,9 +60,10 @@ export function customerData(input: GenerationInput): Record<string, unknown> {
 
 export function userPrompt(input: GenerationInput): string {
   const method = METHODOLOGY[input.module];
-  const sample = input.module === "theme_prompts" && input.options.sampleOnly
-    ? "\nThis is a free sample: include only the global_design prompt."
-    : "";
+  const sample =
+    input.module === "theme_prompts" && input.options.sampleOnly
+      ? "\nThis is a free sample: include only the global_design prompt."
+      : "";
   return `<customer_data>
 ${escapeForTag(JSON.stringify(customerData(input), null, 2))}
 </customer_data>

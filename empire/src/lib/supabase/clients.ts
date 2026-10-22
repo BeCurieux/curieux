@@ -18,18 +18,22 @@ import { serverEnv } from "@/env";
 export async function userClient(): Promise<SupabaseClient> {
   const env = serverEnv();
   const cookieStore = await cookies();
-  return createServerClient(env.NEXT_PUBLIC_SUPABASE_URL!, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (toSet) => {
-        try {
-          for (const { name, value, options } of toSet) cookieStore.set(name, value, options);
-        } catch {
-          // Server Components can't set cookies; the proxy refreshes sessions.
-        }
+  return createServerClient(
+    env.NEXT_PUBLIC_SUPABASE_URL!,
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (toSet) => {
+          try {
+            for (const { name, value, options } of toSet) cookieStore.set(name, value, options);
+          } catch {
+            // Server Components can't set cookies; the proxy refreshes sessions.
+          }
+        },
       },
     },
-  });
+  );
 }
 
 let admin: SupabaseClient | undefined;

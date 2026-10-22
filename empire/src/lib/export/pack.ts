@@ -10,7 +10,11 @@ import { toMarkdown } from "./markdown";
 // person can find their way around, plus a README and the checklist.
 
 const slug = (value: string) =>
-  value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "item";
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50) || "item";
 
 export function packFiles(
   profile: BusinessProfile,
@@ -26,7 +30,8 @@ export function packFiles(
     if (!g.output) continue;
     const info = MODULES[g.module];
     const product = g.productId ? byProduct.get(g.productId) : undefined;
-    const folder = info.scope === "product" ? `products/${slug(product?.name ?? "product")}` : info.studio;
+    const folder =
+      info.scope === "product" ? `products/${slug(product?.name ?? "product")}` : info.studio;
     files.push({
       path: `${folder}/${slug(info.title)}.md`,
       content: toMarkdown(g.module, g.output, product?.name ?? profile.brandName),
@@ -36,9 +41,15 @@ export function packFiles(
   const applicable = new Set(tasksFor(profile).map((t) => t.key));
   const checklist = tasks
     .filter((t) => applicable.has(t.taskKey))
-    .map((t) => `- [${t.status === "complete" ? "x" : " "}] ${t.label} — ${TASK_STATUS_LABELS[t.status]}${t.notes ? `\n  Notes: ${t.notes}` : ""}`)
+    .map(
+      (t) =>
+        `- [${t.status === "complete" ? "x" : " "}] ${t.label} — ${TASK_STATUS_LABELS[t.status]}${t.notes ? `\n  Notes: ${t.notes}` : ""}`,
+    )
     .join("\n");
-  files.push({ path: "launch-checklist.md", content: `# Launch checklist — ${profile.brandName}\n\n${checklist}\n` });
+  files.push({
+    path: "launch-checklist.md",
+    content: `# Launch checklist — ${profile.brandName}\n\n${checklist}\n`,
+  });
 
   files.push({
     path: "README.md",

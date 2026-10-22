@@ -18,8 +18,30 @@ type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 
 const ENUMS: Record<string, string[]> = { manualAdjustments: ["unlikely", "possible", "likely"] };
 const MONO = new Set(["prompt"]);
-const LONG = new Set(["prompt", "body", "description", "aboutBlurb", "caption", "setup", "idealCustomer", "positioning", "photography"]);
-const COPY_LEAF = new Set(["prompt", "body", "description", "subject", "caption", "seoTitle", "seoDescription", "shortDescription", "heroHeadline", "heroSubheadline", "aboutBlurb"]);
+const LONG = new Set([
+  "prompt",
+  "body",
+  "description",
+  "aboutBlurb",
+  "caption",
+  "setup",
+  "idealCustomer",
+  "positioning",
+  "photography",
+]);
+const COPY_LEAF = new Set([
+  "prompt",
+  "body",
+  "description",
+  "subject",
+  "caption",
+  "seoTitle",
+  "seoDescription",
+  "shortDescription",
+  "heroHeadline",
+  "heroSubheadline",
+  "aboutBlurb",
+]);
 
 function setAt(root: Json, path: (string | number)[], value: Json): Json {
   if (path.length === 0) return value;
@@ -64,14 +86,29 @@ function Leaf({
 }) {
   if (typeof value === "number") {
     return (
-      <input id={id} type="number" value={value} readOnly={readOnly} onChange={(e) => onChange(Number(e.target.value))} className="field-input max-w-32" />
+      <input
+        id={id}
+        type="number"
+        value={value}
+        readOnly={readOnly}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="field-input max-w-32"
+      />
     );
   }
   if (ENUMS[name]) {
     return (
-      <select id={id} value={String(value)} disabled={readOnly} onChange={(e) => onChange(e.target.value)} className="field-input max-w-48">
+      <select
+        id={id}
+        value={String(value)}
+        disabled={readOnly}
+        onChange={(e) => onChange(e.target.value)}
+        className="field-input max-w-48"
+      >
         {ENUMS[name].map((option) => (
-          <option key={option} value={option}>{option}</option>
+          <option key={option} value={option}>
+            {option}
+          </option>
         ))}
       </select>
     );
@@ -82,8 +119,18 @@ function Leaf({
     const valid = /^#[0-9a-f]{6}$/i.test(text);
     return (
       <div className="flex items-center gap-3">
-        <span aria-hidden className="size-11 shrink-0 rounded-xl border border-line" style={{ background: valid ? text : "transparent" }} />
-        <input id={id} value={text} readOnly={readOnly} onChange={(e) => onChange(e.target.value)} className="field-input max-w-40 font-mono" />
+        <span
+          aria-hidden
+          className="border-line size-11 shrink-0 rounded-xl border"
+          style={{ background: valid ? text : "transparent" }}
+        />
+        <input
+          id={id}
+          value={text}
+          readOnly={readOnly}
+          onChange={(e) => onChange(e.target.value)}
+          className="field-input max-w-40 font-mono"
+        />
       </div>
     );
   }
@@ -115,37 +162,82 @@ function Node({
   depth: number;
 }) {
   const id = `f-${path.join("-")}`;
-  const label = typeof path.at(-1) === "number" ? `${labelFor(name)} ${(path.at(-1) as number) + 1}` : labelFor(name);
+  const label =
+    typeof path.at(-1) === "number"
+      ? `${labelFor(name)} ${(path.at(-1) as number) + 1}`
+      : labelFor(name);
 
   if (Array.isArray(value)) {
     const objects = value.length > 0 && typeof value[0] === "object" && value[0] !== null;
     return (
       <fieldset className="space-y-3">
-        {depth > 0 ? <legend className="mb-2 text-sm font-semibold text-ink">{labelFor(name)}</legend> : null}
+        {depth > 0 ? (
+          <legend className="text-ink mb-2 text-sm font-semibold">{labelFor(name)}</legend>
+        ) : null}
         {value.map((item, i) =>
           objects ? (
-            <div key={i} className="rounded-2xl border border-line bg-ivory p-4">
+            <div key={i} className="border-line bg-ivory rounded-2xl border p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
-                <p className="text-sm font-semibold text-oxblood">{itemTitle(item, i)}</p>
+                <p className="text-oxblood text-sm font-semibold">{itemTitle(item, i)}</p>
                 <div className="flex items-center gap-1">
-                  <CopyButton text={sectionMarkdown(name, [item])} label="Copy" event={{ section: name }} />
+                  <CopyButton
+                    text={sectionMarkdown(name, [item])}
+                    label="Copy"
+                    event={{ section: name }}
+                  />
                   {!readOnly ? (
-                    <button type="button" onClick={() => onChange(path, value.filter((_, j) => j !== i))} className="min-h-9 px-2 text-sm text-ink-soft hover:text-danger" aria-label={`Remove ${itemTitle(item, i)}`}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onChange(
+                          path,
+                          value.filter((_, j) => j !== i),
+                        )
+                      }
+                      className="text-ink-soft hover:text-danger min-h-9 px-2 text-sm"
+                      aria-label={`Remove ${itemTitle(item, i)}`}
+                    >
                       Remove
                     </button>
                   ) : null}
                 </div>
               </div>
-              <Node path={[...path, i]} name={name} value={item} onChange={onChange} readOnly={readOnly} depth={depth + 1} />
+              <Node
+                path={[...path, i]}
+                name={name}
+                value={item}
+                onChange={onChange}
+                readOnly={readOnly}
+                depth={depth + 1}
+              />
             </div>
           ) : (
             <div key={i} className="flex items-start gap-2">
-              <label htmlFor={`${id}-${i}`} className="sr-only">{`${labelFor(name)} ${i + 1}`}</label>
+              <label
+                htmlFor={`${id}-${i}`}
+                className="sr-only"
+              >{`${labelFor(name)} ${i + 1}`}</label>
               <div className="flex-1">
-                <Leaf id={`${id}-${i}`} name={name} value={item} onChange={(v) => onChange([...path, i], v)} readOnly={readOnly} />
+                <Leaf
+                  id={`${id}-${i}`}
+                  name={name}
+                  value={item}
+                  onChange={(v) => onChange([...path, i], v)}
+                  readOnly={readOnly}
+                />
               </div>
               {!readOnly ? (
-                <button type="button" onClick={() => onChange(path, value.filter((_, j) => j !== i))} className="min-h-11 px-2 text-sm text-ink-soft hover:text-danger" aria-label={`Remove ${labelFor(name)} ${i + 1}`}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onChange(
+                      path,
+                      value.filter((_, j) => j !== i),
+                    )
+                  }
+                  className="text-ink-soft hover:text-danger min-h-11 px-2 text-sm"
+                  aria-label={`Remove ${labelFor(name)} ${i + 1}`}
+                >
                   ✕
                 </button>
               ) : null}
@@ -156,7 +248,7 @@ function Node({
           <button
             type="button"
             onClick={() => onChange(path, [...value, value.length > 0 ? blank(value[0]!) : ""])}
-            className="min-h-10 text-sm font-semibold text-oxblood hover:underline"
+            className="text-oxblood min-h-10 text-sm font-semibold hover:underline"
           >
             + Add {labelFor(name).toLowerCase().replace(/s$/, "")}
           </button>
@@ -171,7 +263,15 @@ function Node({
         {Object.entries(value)
           .filter(([key]) => key !== "key")
           .map(([key, child]) => (
-            <Node key={key} path={[...path, key]} name={key} value={child} onChange={onChange} readOnly={readOnly} depth={depth + 1} />
+            <Node
+              key={key}
+              path={[...path, key]}
+              name={key}
+              value={child}
+              onChange={onChange}
+              readOnly={readOnly}
+              depth={depth + 1}
+            />
           ))}
       </div>
     );
@@ -181,18 +281,44 @@ function Node({
   const topLevel = path.length === 1;
   return (
     <div className="space-y-1.5">
-      <div className={`flex items-center justify-between gap-2 ${topLevel && !COPY_LEAF.has(name) ? "sr-only" : ""}`}>
-        <label htmlFor={id} className={topLevel ? "sr-only" : "text-sm font-semibold text-ink"}>{label}</label>
-        {COPY_LEAF.has(name) && typeof value === "string" ? <CopyButton text={value} label={name === "prompt" ? "Copy prompt" : "Copy"} event={{ section: name }} /> : null}
+      <div
+        className={`flex items-center justify-between gap-2 ${topLevel && !COPY_LEAF.has(name) ? "sr-only" : ""}`}
+      >
+        <label htmlFor={id} className={topLevel ? "sr-only" : "text-ink text-sm font-semibold"}>
+          {label}
+        </label>
+        {COPY_LEAF.has(name) && typeof value === "string" ? (
+          <CopyButton
+            text={value}
+            label={name === "prompt" ? "Copy prompt" : "Copy"}
+            event={{ section: name }}
+          />
+        ) : null}
       </div>
-      <Leaf id={id} name={name} value={value} onChange={(v) => onChange(path, v)} readOnly={readOnly} />
+      <Leaf
+        id={id}
+        name={name}
+        value={value}
+        onChange={(v) => onChange(path, v)}
+        readOnly={readOnly}
+      />
     </div>
   );
 }
 
 function itemTitle(item: Json, i: number) {
   if (item && typeof item === "object" && !Array.isArray(item)) {
-    for (const key of ["title", "subject", "section", "trait", "name", "label", "feature", "question", "purpose"]) {
+    for (const key of [
+      "title",
+      "subject",
+      "section",
+      "trait",
+      "name",
+      "label",
+      "feature",
+      "question",
+      "purpose",
+    ]) {
       const v = (item as Record<string, Json>)[key];
       if (typeof v === "string" && v) return v.length > 60 ? `${v.slice(0, 57)}…` : v;
     }
@@ -221,7 +347,11 @@ export function AssetEditor(props: EditorProps) {
   const router = useRouter();
   const [draft, setDraft] = useState<Json>(props.output as unknown as Json);
   const [dirty, setDirty] = useState(false);
-  const [message, setMessage] = useState<{ tone: "success" | "danger"; text: string; issues?: string[] } | null>(null);
+  const [message, setMessage] = useState<{
+    tone: "success" | "danger";
+    text: string;
+    issues?: string[];
+  } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const [baseId, setBaseId] = useState(props.generationId);
@@ -233,7 +363,10 @@ export function AssetEditor(props: EditorProps) {
     setDirty(false);
   }
 
-  const markdown = useMemo(() => toMarkdown(props.module, draft as unknown as AnyModuleOutput, props.title), [draft, props.module, props.title]);
+  const markdown = useMemo(
+    () => toMarkdown(props.module, draft as unknown as AnyModuleOutput, props.title),
+    [draft, props.module, props.title],
+  );
 
   const onChange = (path: (string | number)[], value: Json) => {
     setDraft((current) => setAt(current, path, value));
@@ -246,7 +379,11 @@ export function AssetEditor(props: EditorProps) {
     startTransition(async () => {
       const result = await saveEditAction(props.generationId, draft);
       setBusy(null);
-      setMessage(result.ok ? { tone: "success", text: result.message ?? "Saved." } : { tone: "danger", text: result.message ?? "Couldn't save.", issues: result.issues });
+      setMessage(
+        result.ok
+          ? { tone: "success", text: result.message ?? "Saved." }
+          : { tone: "danger", text: result.message ?? "Couldn't save.", issues: result.issues },
+      );
       if (result.ok) {
         setDirty(false);
         router.refresh();
@@ -255,12 +392,32 @@ export function AssetEditor(props: EditorProps) {
   };
 
   const regenerate = (section: string | null) => {
-    if (dirty && !window.confirm("You have unsaved edits. Regenerating replaces what's on screen with a new version (your saved versions are kept). Continue?")) return;
+    if (
+      dirty &&
+      !window.confirm(
+        "You have unsaved edits. Regenerating replaces what's on screen with a new version (your saved versions are kept). Continue?",
+      )
+    )
+      return;
     setBusy(section ?? "all");
     startTransition(async () => {
-      const result = await generateAction({ profileId: props.profileId, module: props.module, productId: props.productId, section });
+      const result = await generateAction({
+        profileId: props.profileId,
+        module: props.module,
+        productId: props.productId,
+        section,
+      });
       setBusy(null);
-      setMessage(result.ok ? { tone: "success", text: section ? `Regenerated “${labelFor(section.replace(/^prompt:/, ""))}”.` : "Regenerated. Your previous version is in the history below." } : { tone: "danger", text: result.message ?? "That didn't work." });
+      setMessage(
+        result.ok
+          ? {
+              tone: "success",
+              text: section
+                ? `Regenerated “${labelFor(section.replace(/^prompt:/, ""))}”.`
+                : "Regenerated. Your previous version is in the history below.",
+            }
+          : { tone: "danger", text: result.message ?? "That didn't work." },
+      );
       router.refresh();
     });
   };
@@ -280,14 +437,30 @@ export function AssetEditor(props: EditorProps) {
 
   return (
     <div className="space-y-6">
-      <div className="no-print sticky top-0 z-20 -mx-5 flex flex-wrap items-center gap-2 border-b border-line bg-ivory/95 px-5 py-3 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border">
+      <div className="no-print border-line bg-ivory/95 sticky top-0 z-20 -mx-5 flex flex-wrap items-center gap-2 border-b px-5 py-3 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border">
         <Badge tone="outline">Version {props.version}</Badge>
-        {dirty ? <Badge tone="warning">Unsaved changes</Badge> : <Badge tone="success">Saved</Badge>}
+        {dirty ? (
+          <Badge tone="warning">Unsaved changes</Badge>
+        ) : (
+          <Badge tone="success">Saved</Badge>
+        )}
         <div className="ml-auto flex flex-wrap gap-2">
-          <CopyButton text={markdown} label="Copy all" event={{ module: props.module }} variant="secondary" />
-          <Button type="button" variant="secondary" onClick={download}>Download .md</Button>
+          <CopyButton
+            text={markdown}
+            label="Copy all"
+            event={{ module: props.module }}
+            variant="secondary"
+          />
+          <Button type="button" variant="secondary" onClick={download}>
+            Download .md
+          </Button>
           {props.canRegenerate ? (
-            <Button type="button" variant="secondary" onClick={() => regenerate(null)} disabled={busy !== null}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => regenerate(null)}
+              disabled={busy !== null}
+            >
               {busy === "all" ? "Writing…" : "Regenerate all"}
             </Button>
           ) : null}
@@ -304,37 +477,74 @@ export function AssetEditor(props: EditorProps) {
           {message.text}
           {message.issues ? (
             <ul className="mt-2 list-disc pl-5">
-              {message.issues.map((issue) => <li key={issue}>{issue}</li>)}
+              {message.issues.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
             </ul>
           ) : null}
         </Notice>
       ) : null}
 
       {entries.map(([key, value]) => (
-        <section key={key} aria-labelledby={`h-${key}`} className="rounded-3xl border border-line bg-paper p-5 sm:p-7">
+        <section
+          key={key}
+          aria-labelledby={`h-${key}`}
+          className="border-line bg-paper rounded-3xl border p-5 sm:p-7"
+        >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 id={`h-${key}`} className="text-2xl">{labelFor(key)}</h2>
+            <h2 id={`h-${key}`} className="text-2xl">
+              {labelFor(key)}
+            </h2>
             <div className="no-print flex items-center gap-1">
-              <CopyButton text={sectionMarkdown(key, value)} label="Copy" event={{ module: props.module, section: key }} />
+              <CopyButton
+                text={sectionMarkdown(key, value)}
+                label="Copy"
+                event={{ module: props.module, section: key }}
+              />
               {props.canRegenerate && props.regenerableSections.includes(key) ? (
-                <Button type="button" variant="quiet" onClick={() => regenerate(key)} disabled={busy !== null}>
+                <Button
+                  type="button"
+                  variant="quiet"
+                  onClick={() => regenerate(key)}
+                  disabled={busy !== null}
+                >
                   {busy === key ? "Writing…" : "Regenerate"}
                 </Button>
               ) : null}
             </div>
           </div>
           {key === "prompts" && Array.isArray(value) ? (
-            <PromptCards prompts={value} readOnly={props.readOnly} onChange={onChange} canRegenerate={props.canRegenerate} busy={busy} regenerate={regenerate} />
+            <PromptCards
+              prompts={value}
+              readOnly={props.readOnly}
+              onChange={onChange}
+              canRegenerate={props.canRegenerate}
+              busy={busy}
+              regenerate={regenerate}
+            />
           ) : (
-            <Node path={[key]} name={key} value={value} onChange={onChange} readOnly={props.readOnly} depth={0} />
+            <Node
+              path={[key]}
+              name={key}
+              value={value}
+              onChange={onChange}
+              readOnly={props.readOnly}
+              depth={0}
+            />
           )}
         </section>
       ))}
 
       {props.locked.map((key) => (
-        <section key={key} className="rounded-3xl border border-dashed border-oxblood/40 bg-blush-soft p-5 sm:p-7">
+        <section
+          key={key}
+          className="border-oxblood/40 bg-blush-soft rounded-3xl border border-dashed p-5 sm:p-7"
+        >
           <h2 className="text-2xl">{labelFor(key)}</h2>
-          <p className="mt-2 text-ink">Part of the Launch Pack. Upgrade and it'll be here, ready to edit — nothing you've made so far is lost.</p>
+          <p className="text-ink mt-2">
+            Part of the Launch Pack. Upgrade and it'll be here, ready to edit — nothing you've made
+            so far is lost.
+          </p>
         </section>
       ))}
     </div>
@@ -360,9 +570,17 @@ function PromptCards({
     <ol className="space-y-5">
       {prompts.map((raw, i) => {
         const p = raw as Record<string, Json>;
-        const tone = p.manualAdjustments === "likely" ? "warning" : p.manualAdjustments === "possible" ? "blush" : "success";
+        const tone =
+          p.manualAdjustments === "likely"
+            ? "warning"
+            : p.manualAdjustments === "possible"
+              ? "blush"
+              : "success";
         return (
-          <li key={String(p.key ?? i)} className="rounded-2xl border border-line bg-ivory p-4 sm:p-5">
+          <li
+            key={String(p.key ?? i)}
+            className="border-line bg-ivory rounded-2xl border p-4 sm:p-5"
+          >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <p className="eyebrow">Prompt {i + 1}</p>
@@ -371,14 +589,26 @@ function PromptCards({
               <div className="no-print flex flex-wrap items-center gap-1">
                 <Badge tone={tone}>Manual tweaks {String(p.manualAdjustments)}</Badge>
                 {canRegenerate ? (
-                  <Button type="button" variant="quiet" onClick={() => regenerate(`prompt:${String(p.key)}`)} disabled={busy !== null}>
+                  <Button
+                    type="button"
+                    variant="quiet"
+                    onClick={() => regenerate(`prompt:${String(p.key)}`)}
+                    disabled={busy !== null}
+                  >
                     {busy === `prompt:${String(p.key)}` ? "Writing…" : "Regenerate"}
                   </Button>
                 ) : null}
               </div>
             </div>
             <div className="mt-4">
-              <Node path={["prompts", i]} name="prompts" value={raw} onChange={onChange} readOnly={readOnly} depth={1} />
+              <Node
+                path={["prompts", i]}
+                name="prompts"
+                value={raw}
+                onChange={onChange}
+                readOnly={readOnly}
+                depth={1}
+              />
             </div>
           </li>
         );

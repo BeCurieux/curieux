@@ -23,13 +23,15 @@ export function mergeSection(
     const key = section.slice("prompt:".length);
     if (!(SIDEKICK_PROMPT_KEYS as readonly string[]).includes(key)) return base;
     const basePrompts = (base as { prompts: { key: string }[] }).prompts;
-    const replacement = (fresh as { prompts: { key: string }[] }).prompts.find((p) => p.key === key);
+    const replacement = (fresh as { prompts: { key: string }[] }).prompts.find(
+      (p) => p.key === key,
+    );
     if (!replacement) return base;
     return {
       ...base,
       prompts: basePrompts.map((p) => (p.key === key ? replacement : p)),
     } as AnyModuleOutput;
   }
-  if (!(section in base) || !(section in fresh)) return base;
+  if (!Object.hasOwn(base, section) || !Object.hasOwn(fresh, section)) return base;
   return { ...base, [section]: (fresh as Record<string, unknown>)[section] } as AnyModuleOutput;
 }

@@ -4,3 +4,5 @@ node_modules
 playwright-report
 test-results
 package-lock.json
+content/register.json
+content/register.csv
