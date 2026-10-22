@@ -71,6 +71,8 @@ export interface Opportunity {
   test: string;
   poor: string;
   verify: string;
+  /** When this idea's research was last checked (its Opportunity Card). */
+  checked: string;
 }
 
 interface SourceOption {
@@ -112,6 +114,39 @@ const db = source as unknown as {
   extra: { CAMERA: number[] };
 };
 
+// Every figure carries a FACT / EST / UNKNOWN label (founder's rule). A few
+// figures in the text fields repeat a figure that's labelled on the
+// opportunity's card but not in the field itself; these add the card's own
+// label, without changing the founder's file. Instructions inside a test
+// ("list 15 items", "a 30-minute session") are the plan, not claims, and
+// stay as written.
+const LABELS: { id: number; field: keyof SourceOption; after: string; label: string }[] = [
+  { id: 2, field: "poor_fit", after: "Preply takes 33% of early lesson income", label: "FACT" },
+  { id: 6, field: "poor_fit", after: "4-12 weeks to a first sale", label: "EST" },
+  { id: 10, field: "who_pays", after: "0% in Australia since July 2026", label: "FACT" },
+  { id: 11, field: "reach", after: "nothing up to AU$25,000 in sales", label: "FACT" },
+  { id: 12, field: "poor_fit", after: "4-16 weeks to a first sale", label: "EST" },
+  { id: 17, field: "poor_fit", after: "US$5-10/hr set-up bids exist", label: "EST" },
+  { id: 18, field: "verify", after: "US guides cite US$300-1,500/mo", label: "EST" },
+  { id: 19, field: "poor_fit", after: "US$20-40 per video bids exist", label: "EST" },
+  { id: 21, field: "who_pays", after: "AU$10K-100K a month", label: "EST" },
+  { id: 21, field: "poor_fit", after: "US$35 sequences", label: "EST" },
+  { id: 22, field: "verify", after: "suggests AU$0.25/word", label: "FACT" },
+];
+
+function labelled(o: SourceOption, field: keyof SourceOption): string {
+  let text = String(o[field]);
+  for (const l of LABELS)
+    if (l.id === o.id && l.field === field) {
+      if (!text.includes(l.after)) throw new Error(`label anchor missing: ${o.id} ${field}`);
+      text = text.replace(l.after, `${l.after} (${l.label})`);
+    }
+  return text;
+}
+
+/** "Last checked" on each Opportunity Card (cards 1–15: 16 Oct, 16–23: 17 Oct 2026). */
+const checkedOn = (id: number) => (id <= 15 ? "16 October 2026" : "17 October 2026");
+
 export const OPPORTUNITIES: Opportunity[] = db.options.map((o) => ({
   id: o.id,
   name: o.name,
@@ -138,12 +173,13 @@ export const OPPORTUNITIES: Opportunity[] = db.options.map((o) => ({
   comp: o.competition,
   pitch: o.pitching,
   camera: db.extra.CAMERA.includes(o.id) ? "Yes" : "No",
-  do: o.do,
-  who: o.who_pays,
-  reach: o.reach,
-  test: o.first_test,
-  poor: o.poor_fit,
-  verify: o.verify,
+  do: labelled(o, "do"),
+  who: labelled(o, "who_pays"),
+  reach: labelled(o, "reach"),
+  test: labelled(o, "first_test"),
+  poor: labelled(o, "poor_fit"),
+  verify: labelled(o, "verify"),
+  checked: checkedOn(o.id),
 }));
 
 /** What one unit of each opportunity is called, for the calculator. */

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Calculator, PlanTracker } from "@/components/fit/report-widgets";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/card";
-import { catalogueItem } from "@/content/catalogue";
+import { INCOME_FIT_TEST_URL, catalogueItem } from "@/content/catalogue";
 import { OPPORTUNITIES, UNIT } from "@/lib/fit/data";
 import { country, gates, plan, risks, scoreAll, top3, whyFits } from "@/lib/fit/engine";
 import { parseAnswers } from "@/lib/fit/validate";
@@ -50,7 +50,7 @@ export default async function FitReport({ params }: { params: Promise<{ resultId
   const [sym] = [country(a.country)[1]];
   const name = a.name.trim();
   const product = catalogueItem("income-fit-test")!;
-  const buyUrl = process.env.NEXT_PUBLIC_INCOME_FIT_TEST_URL || "https://herlittleempire.com";
+  const buyUrl = process.env.NEXT_PUBLIC_INCOME_FIT_TEST_URL || INCOME_FIT_TEST_URL;
   const chips = [
     `${a.hours} hr${a.hours === 1 ? "" : "s"} a week`,
     `${a.block}-hour blocks`,
@@ -95,29 +95,49 @@ export default async function FitReport({ params }: { params: Promise<{ resultId
       </header>
 
       {!access.fitFinder ? (
-        <Card className="border-aubergine">
-          <h2 className="text-2xl">Your full report is part of {product.title}</h2>
-          <p className="mt-2">
-            You've seen your first pick. The full report adds your top three side by side, why each
-            fits you and what could go wrong, a calculator with your go/stop line, the rules for
-            your country, a dated 14-day test and your Day 14 decision rules — saved here as you
-            work through it.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href={buyUrl}
-              className="bg-aubergine text-ivory hover:bg-aubergine-deep inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
+        <>
+          {t.length > 0 ? (
+            <Section
+              label="Your top three"
+              title={t.length === 1 ? "Your best fit." : "What fits you best."}
             >
-              Get {product.title} (US${product.priceUsd})
-            </a>
-            <ButtonLink href="/account" variant="secondary">
-              I already bought it
-            </ButtonLink>
-          </div>
-          <p className="text-mute mt-3 text-sm">
-            Bought it on Gumroad? Sign in with the same email and it unlocks here. {REFUND_POLICY}
-          </p>
-        </Card>
+              <ol className="space-y-3" aria-label="Your top ideas">
+                {t.map((s, k) => (
+                  <li key={s.o.id} className="bg-ivory rounded-2xl p-4">
+                    <h3 className="text-xl">
+                      {k + 1}. {s.o.name}
+                    </h3>
+                    <p className="mt-1">
+                      {whyFits(s, a)[0] ?? `It ${s.strengths[0] ?? "passed all your limits"}.`}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </Section>
+          ) : null}
+          <Card className="border-aubergine">
+            <h2 className="text-2xl">Your full report is part of {product.title}</h2>
+            <p className="mt-2">
+              The full report adds a calculator with your go/stop line, the rules for your country,
+              a dated 14-day test and your Day 14 go, adjust or stop rules, saved here as you work
+              through it.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href={buyUrl}
+                className="bg-aubergine text-ivory hover:bg-aubergine-deep inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
+              >
+                Get {product.title} (US${product.priceUsd})
+              </a>
+              <ButtonLink href="/account" variant="secondary">
+                I already bought it
+              </ButtonLink>
+            </div>
+            <p className="text-mute mt-3 text-sm">
+              Bought it on Gumroad? Sign in with the same email and it unlocks here. {REFUND_POLICY}
+            </p>
+          </Card>
+        </>
       ) : !s1 ? (
         <Section label="What's ruling ideas out" title="Loosen one constraint">
           <p className="text-mute">
@@ -184,13 +204,18 @@ export default async function FitReport({ params }: { params: Promise<{ resultId
             </div>
             <p className="text-mute text-sm">
               To start, hours and first income are estimates <Badge tone="outline">EST</Badge> from
-              our research, converted from AUD at October 2026 rates. Fit is out of 36: lifestyle,
-              practical readiness and commercial evidence, 12 each.
+              our research (checked {[...new Set(t.map((s) => s.o.checked))].join(" and ")}),
+              converted from AUD at October 2026 rates. Fit is out of 36: lifestyle, practical
+              readiness and commercial evidence, 12 each.
             </p>
           </Section>
 
           <Section label="02 · Your #1" title={s1.o.name}>
             <p className="text-lg">{s1.o.do}</p>
+            <p className="text-mute text-sm">
+              Research on this idea last checked {s1.o.checked}, from its Opportunity Card. Figures
+              are labelled FACT, EST or UNKNOWN.
+            </p>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl bg-[#eef6f0] p-4">
                 <h3 className="text-xl">Why it fits you</h3>

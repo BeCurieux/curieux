@@ -4,11 +4,15 @@ import { signIn, takeQuiz } from "./fit-helpers";
 // The Income Fit Test, converted: the 20-question Fit Finder, its report,
 // calculator and dated 14-day plan, saved to the account.
 
-test("without the Income Fit Test: the first pick, then an honest offer", async ({ page }) => {
+test("without the Income Fit Test: the top three, then an honest offer", async ({ page }) => {
   await signIn(page);
   await takeQuiz(page);
   await expect(page.getByRole("heading", { name: "Vee, here's what fits." })).toBeVisible();
   await expect(page.getByText(/^Test .+ first\./)).toBeVisible();
+  // Free: the top three ideas, one line each on why.
+  const top = page.getByRole("list", { name: "Your top ideas" }).getByRole("listitem");
+  await expect(top).toHaveCount(3);
+  for (const item of await top.all()) await expect(item.locator("p")).toHaveCount(1);
   await expect(
     page.getByRole("heading", { name: /Your full report is part of The Income Fit Test/ }),
   ).toBeVisible();
@@ -27,7 +31,10 @@ test("with the Income Fit Test: full report, calculator and 14-day plan, saved",
   await expect(page.getByRole("heading", { name: "Side by side." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Why it fits you" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Check these first." })).toBeVisible();
-  await expect(page.getByText(/checked 17 October 2026/)).toBeVisible();
+  await expect(page.getByText(/Rules Guide, checked 17 October 2026/)).toBeVisible();
+  await expect(
+    page.getByText(/Research on this idea last checked 1[67] October 2026/),
+  ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Go, adjust or stop." })).toBeVisible();
 
   // Calculator: nothing until real numbers go in.

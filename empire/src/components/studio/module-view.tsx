@@ -75,7 +75,9 @@ export async function ModuleView({
               ? "Her Little Empire method"
               : method.status === "partial"
                 ? "Her Little Empire method · some gaps"
-                : "Interim method"}
+                : method.status === "studio"
+                  ? "Empire Studio method"
+                  : "Interim method"}
           </Badge>
         </div>
         <h1 className="mt-4 text-4xl sm:text-5xl">
@@ -209,7 +211,9 @@ export async function ModuleView({
           <p>
             {method.status === "partial"
               ? "Built on Her Little Empire's own method, with a few gaps still to fill:"
-              : "No Her Little Empire method exists for this yet, so a general method runs under the brand's rules:"}
+              : method.status === "studio"
+                ? "Empire Studio's own method, written for this tool under Her Little Empire's rules. Still open:"
+                : "No Her Little Empire method exists for this yet, so a general method runs under the brand's rules:"}
           </p>
           <ul className="mt-1 list-disc pl-5">
             {method.gaps.map((g) => (

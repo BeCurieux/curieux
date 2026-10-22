@@ -4,9 +4,8 @@ import type { BusinessProfile } from "@/lib/domain/profile";
 //
 // Deterministic on purpose: it's the same good advice every time, costs
 // nothing to produce and can't hallucinate. It adapts to what she sells
-// (physical, digital or both) and how far along she is. Interim content —
-// the Business Starter System's own checklist will replace or extend it
-// once supplied (content/register.json, "business-starter-system").
+// (physical, digital or both) and how far along she is. Interim content:
+// no Her Little Empire Shopify launch method exists yet.
 //
 // Ticking every box doesn't make a store compliant; the workspace says so.
 // Every task starts "not started", whatever her stage: we never assume

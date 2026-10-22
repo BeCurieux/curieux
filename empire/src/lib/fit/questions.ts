@@ -4,10 +4,9 @@ import { CONTACT, COUNTRIES, SKILLS, TECH } from "./data";
 // (Income Fit Test v1.4): 18 that drive scoring, plus the minimum hourly
 // rate (it sets the go/stop line) and an optional first name.
 //
-// Two answers are asked but not used by the scoring engine in v1.4:
-// `psa` (products or services) and `rp` (recurring or one-off). They are
-// kept so the experience matches the kit; content/REGISTER.md flags this
-// for the founder to decide.
+// Two answers didn't affect the v1.4 scoring: `psa` (products or services)
+// and `rp` (recurring or one-off). At the founder's request they now break
+// ties between ideas of equal fit (engine.ts, `byFit`).
 
 export type QuestionType = "choice" | "num" | "text";
 

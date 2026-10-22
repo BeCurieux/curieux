@@ -17,8 +17,9 @@ export default async function FitFinder() {
         title="Find the idea that fits your real week."
       >
         Twenty questions about your time, budget, skills and limits. Your answers are scored against{" "}
-        {OPPORTUNITIES.length} researched ideas, and you get your top three, the rules where you
-        live, a calculator and a dated 14-day test.
+        {OPPORTUNITIES.length} researched ideas, and you get your top three, with why each fits.
+        With The Income Fit Test, the full report adds the rules where you live, a calculator, a
+        dated 14-day test and your go, adjust or stop lines.
       </PageHeader>
       {past.length > 0 ? (
         <Card className="mb-6">

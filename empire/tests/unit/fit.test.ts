@@ -1,7 +1,16 @@
 import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 import { CONTACT, COUNTRIES, OPPORTUNITIES, SKILLS, TECH } from "@/lib/fit/data";
-import { calculate, gates, plan, risks, scoreAll, top3, whyFits } from "@/lib/fit/engine";
+import {
+  calculate,
+  gates,
+  plan,
+  preference,
+  risks,
+  scoreAll,
+  top3,
+  whyFits,
+} from "@/lib/fit/engine";
 import { QUESTIONS, type Answers } from "@/lib/fit/questions";
 import { RULES } from "@/lib/fit/rules";
 
@@ -112,8 +121,49 @@ describe("Fit Finder engine", () => {
           s.weak,
         ]),
       );
-      expect(top3(mine).map((s) => s.o.id)).toEqual(ref.top3(theirs).map((s) => s.o.id));
+      // With no stated preference the order is the shipped one. With one,
+      // only ideas of equal fit may swap places.
+      if (a.psa === "Either" && a.rp === "Either")
+        expect(top3(mine).map((s) => s.o.id)).toEqual(ref.top3(theirs).map((s) => s.o.id));
+      const fit = (xs: { key: number }[]) => xs.map((s) => Math.floor(s.key));
+      expect(fit(top3(mine))).toEqual(fit(ref.top3(theirs) as unknown as { key: number }[]));
     }
+  });
+
+  it("breaks ties on products/services and recurring/one-off, never changing a score", () => {
+    const r = rng(9);
+    let reordered = 0;
+    for (let n = 0; n < 2000; n += 1) {
+      const a = answers(r);
+      const neutral = scoreAll({ ...a, psa: "Either", rp: "Either" });
+      const stated = scoreAll(a);
+      expect(stated.map((s) => [s.total, s.key, s.band])).toEqual(
+        neutral.map((s) => [s.total, s.key, s.band]),
+      );
+      const t = top3(stated);
+      for (let k = 1; k < t.length; k += 1) {
+        const [x, y] = [t[k - 1]!, t[k]!];
+        if (Math.floor(x.key) === Math.floor(y.key)) expect(x.pref).toBeGreaterThanOrEqual(y.pref);
+      }
+      if (
+        t.map((s) => s.o.id).join() !==
+        top3(neutral)
+          .map((s) => s.o.id)
+          .join()
+      )
+        reordered += 1;
+    }
+    expect(reordered).toBeGreaterThan(0);
+    const tutor = OPPORTUNITIES.find((o) => o.id === 1)!; // Service, Recurring
+    expect(preference(tutor, { psa: "Services", rp: "Recurring" })).toBe(2);
+    expect(preference(tutor, { psa: "Products", rp: "Project" })).toBe(0);
+    expect(preference(tutor, { psa: "Either", rp: "Either" })).toBe(0);
+  });
+
+  it("labels every market figure and dates each idea's research", () => {
+    expect(OPPORTUNITIES.find((o) => o.id === 10)!.who).toContain("July 2026 (FACT)");
+    expect(OPPORTUNITIES.find((o) => o.id === 22)!.verify).toContain("AU$0.25/word (FACT)");
+    for (const o of OPPORTUNITIES) expect(o.checked).toMatch(/^1[67] October 2026$/);
   });
 
   it("explains a recommendation in the report's words", () => {

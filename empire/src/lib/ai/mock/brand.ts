@@ -110,7 +110,7 @@ export function mockBrandBlueprint(profile: BusinessProfile): BrandBlueprint {
     },
     photography:
       PHOTO[family] +
-      ` Keep every image within the ${colour} palette above so the store looks like one brand.`,
+      ` Keep every image within the ${colour} palette above so the store looks like one brand. Your own photos only: no stock photos of people.`,
     consistency: [
       `Use the brand name exactly as “${name}” everywhere.`,
       `Stick to the ${colour} palette; one accent per image or section.`,

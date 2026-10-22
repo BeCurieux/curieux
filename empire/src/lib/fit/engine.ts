@@ -7,6 +7,12 @@ import type { Answers } from "./questions";
 // structured data instead of HTML. tests/unit/fit.test.ts runs the original
 // JavaScript (tests/fixtures/fit-reference.cjs) beside this port on
 // thousands of answer sets and requires identical results.
+//
+// One addition, at the founder's request (October 2026): the two answers
+// v1.4 asked but never used, products vs services (`psa`) and recurring vs
+// one-off (`rp`), now break ties. They never change a score, a band or a
+// filter; they only reorder ideas whose fit (total + priority) is equal,
+// ahead of the shipped commercial-evidence tie-breaker.
 
 export interface Scored {
   o: Opportunity;
@@ -17,6 +23,8 @@ export interface Scored {
   total: number;
   AW: number;
   key: number;
+  /** How many of her stated preferences (products/services, recurring/one-off) it matches, 0–2. */
+  pref: number;
   band: "Filtered out" | "Strong fit" | "Good fit" | "Possible with changes" | "Weak fit";
   filtered: boolean;
   strengths: string[];
@@ -44,7 +52,17 @@ type ScoringAnswers = Pick<
   | "skill2"
   | "remote"
   | "camera"
->;
+> &
+  Partial<Pick<Answers, "psa" | "rp">>;
+
+const PSA_MATCH: Record<string, string> = { Products: "Product", Services: "Service" };
+
+/** 1 for each stated preference the idea matches; "Either" (or no answer) matches nothing. */
+export function preference(o: Opportunity, a: Partial<Pick<Answers, "psa" | "rp">>): number {
+  const psa = a.psa && PSA_MATCH[a.psa] === o.psa ? 1 : 0;
+  const rp = a.rp && a.rp !== "Either" && a.rp === o.rp ? 1 : 0;
+  return psa + rp;
+}
 
 export function country(name: string) {
   return COUNTRIES.find((c) => c[0] === name) ?? COUNTRIES[0];
@@ -159,6 +177,7 @@ export function scoreAll(a: ScoringAnswers, opts: Opportunity[] = OPPORTUNITIES)
       total,
       AW,
       key,
+      pref: preference(o, a),
       band,
       filtered,
       strengths: crit.filter((x) => x[0] === 3).map((x) => x[1]),
@@ -172,8 +191,17 @@ export function scoreAll(a: ScoringAnswers, opts: Opportunity[] = OPPORTUNITIES)
 export function top3(scored: Scored[]): Scored[] {
   return scored
     .filter((s) => !s.filtered && s.total >= 15)
-    .sort((x, y) => y.key - x.key)
+    .sort(byFit)
     .slice(0, 3);
+}
+
+/**
+ * Best first: fit (total + priority, the whole part of `key`), then her
+ * stated preferences, then the shipped tie-breakers (commercial evidence,
+ * then catalogue order) carried in the fraction of `key`.
+ */
+export function byFit(x: Scored, y: Scored): number {
+  return Math.floor(y.key) - Math.floor(x.key) || y.pref - x.pref || y.key - x.key;
 }
 
 export const money = (sym: string, v: number) => sym + Math.round(v).toLocaleString("en");

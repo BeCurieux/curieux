@@ -164,7 +164,13 @@ export default async function Admin() {
                 className="border-line flex justify-between rounded-xl border px-4 py-2 text-sm"
               >
                 <span>{MODULES[key as keyof typeof MODULES].title}</span>
-                <span className={method.status === "source" ? "text-success" : "text-warning"}>
+                <span
+                  className={
+                    method.status === "source" || method.status === "studio"
+                      ? "text-success"
+                      : "text-warning"
+                  }
+                >
                   {method.status}
                 </span>
               </li>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/shell/site-header";
 import { PageHeader } from "@/components/ui/card";
-import { LAUNCH_PACK, REFUND_POLICY, SELLER } from "@/lib/billing/plans";
+import { CONSUMER_RIGHTS, LAUNCH_PACK, REFUND_POLICY, SELLER } from "@/lib/billing/plans";
 
 export const metadata: Metadata = { title: "Terms and refunds" };
 
@@ -21,8 +21,8 @@ export default function Terms() {
         </p>
         <h2 className="mt-8 text-2xl">Refunds</h2>
         <p>
-          {REFUND_POLICY} After a refund, your saved work stays in your account, but the pack's
-          remaining generations and exports stop.
+          {REFUND_POLICY} {CONSUMER_RIGHTS} After a refund, your saved work stays in your account,
+          but the pack's remaining generations and exports stop.
         </p>
         <h2 className="mt-8 text-2xl">Your content</h2>
         <p>

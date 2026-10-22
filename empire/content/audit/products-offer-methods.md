@@ -560,24 +560,18 @@ Other launch-checklist sources in scope:
 
 ## g. Duplication and consolidation
 
-### g.1 Do the named products exist?
+### g.1 Products named in the brief that don't exist yet
 
-- **"Business Starter System": does not exist.** It is not in catalog.py (`FILES`, `NAME`, `PRICE`, `BUNDLES`), not a filename, and not in the text of any PDF, JSON, HTML, Python or Markdown file in `hle/` (full-text search, including the Income Fit Test PDFs and workbook XML).
-- **"Money & Operations Kit": does not exist.** Same search, no match.
-
-### g.2 What appears to correspond to them (inference from content, not stated anywhere)
-
-- *Business Starter System*: the "start a small business" material is spread across Little Offer Kit (pick, build, price and launch one product), Price It Right (first price) and First 5 Customers (first sales). The nearest catalog grouping is **The Empire Bundle** (US$39): Income Fit Test, video course, First 5 Customers, Get Found, Price It Right, 14-Day Tracker, Brand-in-a-Box. It does *not* include Little Offer Kit.
-- *Money & Operations Kit*: Side Income Money System (money records, set-aside, thresholds) plus Client Paperwork Kit (operations paperwork). Supporting pieces: 90-day-grow-plan "Four simple systems", the 14-Day Tracker money log, and Price It Right's invoice and payment terms. No bundle groups these. Client Paperwork Kit is not yet on Gumroad (catalog `ON_GUMROAD`).
+Two products named in the addendum aren't in the supplied files. At the founder's request (22 Oct 2026) they aren't referenced until they exist. The overlaps below are grouped by topic instead.
 
 ### g.3 Pair-by-pair consolidation (proposed authoritative version + distinctive material to keep)
 
-**1. "Business Starter System" ↔ Little Offer Kit (offer definition and product copy)**
+**1. Offer definition and product copy (Little Offer Kit, Sell It Simply)**
 - Authoritative for product copy: **Sell It Simply six-part sales page**. It is the superset: it adds PROBLEM, "This is NOT for you if" and "After you pay".
 - Keep from LOK: "WHY WE MADE IT" ("No income claims"), "WHAT IT'S NOT", the five FAQ answers including "Can I share it with a friend?", BUTTON TEXT, the product description template ("Format ... Instant download. You'll need: ..."), the receipt template, the four-question idea score and the weekend plan.
 - Promise formula: there are five variants (b.1). Proposal: positioning (brand_blueprint) uses the SIS "I help [who, specifically] get [result] without [the thing they dread]"; product promise (product_listing) uses the LOK "[Product] helps [who] [get what result] in [how long]". **Owner decision.**
 
-**2. "Business Starter System" ↔ Price It Right (pricing)**
+**2. Pricing (Price It Right, Little Offer Kit, 90-Day Grow Plan)**
 - Authoritative for the pricing calculator: **Price It Right floor/market/value**. It is the only explicit formula with decision rules.
 - Add LOK for digital products: price tiers, the "simpler/similar/more complete" positioning, the simple-number list and the fee maths.
 - Resolve before implementing:
@@ -586,12 +580,12 @@ Other launch-checklist sources in scope:
   - Fix the founding-price example mismatch ($420 vs "usually $480").
 - Keep from PIR: package template, "Not included" rule of thumb, price check signal table, scripts, payment terms. Keep from 90-day: the six "signs your price may be too low".
 
-**3. "Business Starter System" ↔ First 5 Customers (first sales and launch messages)**
+**3. First sales and launch messages (First 5 Customers, Sell It Simply, Little Offer Kit)**
 - Authoritative for 1:1 outreach: **First 5 Customers**: the four-step script structure, the 5/day on Days 3-12 rhythm, one follow-up after 3-4 days, and the evidence definitions.
 - Authoritative for email launch sequence: **Sell It Simply** welcome sequence + honest launch-price email, with the LOK launch email as the announcement.
 - Keep: LOK's inbound-only DMs (DM 1-3), the 14-Day Tracker thresholds, and Get Found's "ask every customer, not just the happy ones". That rule should override the happy-customer-only phrasing of the F5C review scripts.
 
-**4. "Money & Operations Kit" ↔ Side Income Money System (money)**
+**4. Money and operations (Side Income Money System, 90-Day Grow Plan, Client Paperwork Kit)**
 - Authoritative for money records and set-aside: **Side Income Money System**, with day-level FACT labels and the explicit A-E formula.
 - Authoritative for real hourly return: **90-day-grow-plan formula** (with worked example). The 14-Day Tracker and AI pack 7.2 are consistent with it.
 - Fix the Tracker's "five to seven years" retention line to point to the SIMS country table.

@@ -13,13 +13,13 @@ From Vee's `catalog.py` ("single source of truth: products, files, prices, bundl
 
 | Product                                  | Price | On Gumroad | In Empire Studio                        |
 | ---------------------------------------- | ----- | ---------- | --------------------------------------- |
-| The Income Fit Test                      | 19    | yes        | **FIT Finder unlocked for owners**      |
+| The Income Fit Test                      | 19    | yes        | **full FIT Finder report for owners**   |
 | Video Course                             | 6     | yes        | not supplied yet                        |
 | First 5 Customers                        | 7     | yes        | launch-email honesty rules              |
 | Get Found                                | 7     | yes        | listing SEO rules                       |
 | Price It Right                           | 5     | yes        | planned: pricing calculator             |
 | 14-Day Tracker                           | 4     | yes        | FIT Finder saved progress               |
-| Brand-in-a-Box                           | 9     | yes        | Brand Blueprint palette/font rules      |
+| Brand-in-a-Box                           | 9     | yes        | downloadable only                       |
 | 100 Faceless Hooks                       | 9     | yes        | social kit hooks; planned: hook library |
 | Comment-to-DM Kit                        | 12    | yes        | social method source                    |
 | 30-Day Faceless Content Plan             | 17    | yes        | social launch week                      |
@@ -35,7 +35,16 @@ From Vee's `catalog.py` ("single source of truth: products, files, prices, bundl
 
 **Bundles** (owning a bundle counts as owning everything in it): The Empire Bundle US$39 (Income Fit Test, video course and the five add-ons); The Faceless Content Bundle US$29 (hooks, 30-day plan, comment-to-DM, Get Found); The Whole Empire US$99 (all 19).
 
-**Not in `catalog.py`:** Sell It Simply, the Faceless Content System workbook, Faceless & Not Anonymous and the Fit Check freebie have finished PDFs but no price or Gumroad status — decide whether they're products, bonuses or retired drafts. **Not found at all:** Business Starter System, Money & Operations Kit.
+**Not in `catalog.py`** (status from Vee, 22 Oct 2026):
+
+| Product                  | Status                                      | In Empire Studio                                         |
+| ------------------------ | ------------------------------------------- | -------------------------------------------------------- |
+| The 5-Question Fit Check | **free** on Gumroad (permalink `fit-check`) | the FIT Finder's free tier: top three with one line each |
+| Sell It Simply           | unreleased                                  | listing, homepage, photo and email methods               |
+| Faceless Content System  | unreleased                                  | social method                                            |
+| Faceless & Not Anonymous | unreleased                                  | trust rules                                              |
+
+The Income Fit Test's buy link is `https://herlittleempireco.gumroad.com/l/income-fit-test` until the Gumroad scripts confirm it.
 
 **Not offered yet, by design:** Studio subscription (US$29/month) until repeat use is proven; Pro (US$99/month) until real automation exists.
 

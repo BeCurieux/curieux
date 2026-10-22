@@ -72,6 +72,6 @@ ${escapeForTag(JSON.stringify(customerData(input), null, 2))}
 
 Task: ${MODULE_TASKS[input.module]}${sample}
 
-Method to follow (Her Little Empire's own, from its product documents${method.status === "source" ? "" : "; where it is silent, use good judgement within the rules above"}):
+Method to follow (${method.status === "studio" ? "Empire Studio's own, under Her Little Empire's rules" : "Her Little Empire's own, from its product documents"}${method.status === "source" ? "" : "; where it is silent, use good judgement within the rules above"}):
 ${method.instructions}`;
 }

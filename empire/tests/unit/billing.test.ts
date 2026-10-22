@@ -289,3 +289,37 @@ describe("library bundles", () => {
     expect(accessFrom([ent("library:the-whole-empire")]).library).toHaveLength(19);
   });
 });
+
+describe("catalogue status (founder, 22 Oct 2026)", () => {
+  it("Fit Check is free, three workbooks are unreleased, The Whole Empire is catalog.py", async () => {
+    const { BUNDLES, CATALOGUE, INCOME_FIT_TEST_URL, catalogueItem } =
+      await import("@/content/catalogue");
+    expect(catalogueItem("fit-check-freebie")).toMatchObject({
+      priceUsd: 0,
+      status: "free",
+      gumroadPermalink: "fit-check",
+    });
+    const unreleased = CATALOGUE.filter((i) => i.status === "unreleased").map((i) => i.slug);
+    expect(unreleased.sort()).toEqual([
+      "faceless-content-system-workbook",
+      "faceless-not-anonymous-workbook",
+      "sell-it-simply-workbook",
+    ]);
+    for (const i of CATALOGUE.filter((x) => x.status === "unreleased"))
+      expect(i.priceUsd).toBeNull();
+    const whole = BUNDLES.find((b) => b.slug === "the-whole-empire")!;
+    expect(whole.contents).toHaveLength(19);
+    expect(whole.contents).not.toContain("fit-check-freebie");
+    expect(whole.contents).not.toContain("sell-it-simply-workbook");
+    expect(INCOME_FIT_TEST_URL).toBe("https://herlittleempireco.gumroad.com/l/income-fit-test");
+  });
+
+  it("the footer and refund wording are exact", async () => {
+    const { CONSUMER_RIGHTS, REFUND_POLICY, SELLER } = await import("@/lib/billing/plans");
+    expect(`${SELLER.name} · ABN ${SELLER.abn} · ${SELLER.email}`).toBe(
+      "Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com",
+    );
+    expect(REFUND_POLICY).toBe("Full refund within 14 days of purchase, no questions asked.");
+    expect(CONSUMER_RIGHTS).toMatch(/^[A-Z].*consumer law\.$/);
+  });
+});

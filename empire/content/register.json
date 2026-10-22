@@ -13,7 +13,8 @@
     "research_verification": "Figures, rules and claims to re-check, and whether they're labelled and dated.",
     "compliance_flags": "Conflicts with the founder's rules.",
     "reuse": "built | immediate | needs-work | blocked, with the reason.",
-    "built": "What this release built from it."
+    "built": "What this release built from it.",
+    "founder_decisions": "The founder's answers to the audit (22 Oct 2026)."
   },
   "assets": [
     {
@@ -88,7 +89,12 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": "Dated, saveable plan in the FIT Finder report (the report's version)"
+      "built": "Dated, saveable plan in the FIT Finder report (the report's version)",
+      "founder_decisions": [
+        "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked."
+      ]
     },
     {
       "priority": 1,
@@ -152,7 +158,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "Plan ticks and calculator inputs saved per result"
+      "built": "Plan ticks and calculator inputs saved per result",
+      "founder_decisions": []
     },
     {
       "priority": 1,
@@ -229,7 +236,12 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": [
+        "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked."
+      ]
     },
     {
       "priority": 1,
@@ -264,7 +276,8 @@
         "reason": "src/lib/fit/rules.ts, word for word with dates and labels."
       },
       "source_reviewed": true,
-      "built": "src/lib/fit/rules.ts"
+      "built": "src/lib/fit/rules.ts",
+      "founder_decisions": []
     },
     {
       "priority": 1,
@@ -279,8 +292,8 @@
         "go-no-go-scorecard (report adds an hourly-rate gate)"
       ],
       "missing_information": [
-        "Two answers are asked but never used in scoring: products-or-services (psa) and recurring-or-project (rp). 'Sells without pitching' feeds only the risks text, not the score.",
-        "The report's calculator model differs from the workbook's; both are kept as shipped."
+        "'Sells without pitching' feeds only the risks text, not the score.",
+        "The workbook's calculator model differs from the report's; the report is the source of truth (founder, 22 Oct 2026) and the workbook is to be brought into line (content/CORRECTIONS.md)."
       ],
       "research_verification": [
         "Currency conversions use October 2026 rates (EST)."
@@ -299,10 +312,15 @@
       "proposed_form": "interactive feature (built)",
       "reuse": {
         "status": "built",
-        "reason": "Ported 1:1 to src/lib/fit/engine.ts; tests run the shipped JavaScript beside the port on 5,000 answer sets with identical results."
+        "reason": "Ported 1:1 to src/lib/fit/engine.ts; tests run the shipped JavaScript beside the port on 5,000 answer sets with identical scores. Products/services and recurring/one-off now break ties (founder, 22 Oct 2026)."
       },
       "source_reviewed": true,
-      "built": "src/lib/fit/engine.ts (1:1 port, parity-tested)"
+      "built": "src/lib/fit/engine.ts (1:1 port, parity-tested)",
+      "founder_decisions": [
+        "Free users see their top three ideas with one line on why each fits; the full report (calculator, country rules, dated 14-day plan, go/adjust/stop) stays with Income Fit Test owners and bundle buyers.",
+        "Products vs services and recurring vs one-off are tie-breakers in scoring.",
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; everything else matches it."
+      ]
     },
     {
       "priority": 1,
@@ -366,7 +384,10 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": "Day 14 gates in the FIT Finder report (the report's version)"
+      "built": "Day 14 gates in the FIT Finder report (the report's version)",
+      "founder_decisions": [
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it."
+      ]
     },
     {
       "priority": 1,
@@ -383,8 +404,8 @@
         "start-here"
       ],
       "missing_information": [
-        "Version numbering differs between files (1.4 vs 1.3).",
-        "Question count is stated as 20, 19, 17 + optional and 15 in different files."
+        "Version numbering differs between files (1.4 vs 1.3); the founder confirmed v1.4 (see content/CORRECTIONS.md).",
+        "Question count is stated as 20, 19, 17 + optional and 15 in different files; the founder confirmed 20."
       ],
       "research_verification": [],
       "compliance_flags": [],
@@ -405,7 +426,10 @@
         "reason": "Converted into the FIT Finder: src/lib/fit, app/studio/fit."
       },
       "source_reviewed": true,
-      "built": "FIT Finder (quiz, report, calculator, dated 14-day plan, Day 14 gates), saved per account"
+      "built": "FIT Finder (quiz, report, calculator, dated 14-day plan, Day 14 gates), saved per account",
+      "founder_decisions": [
+        "The quiz is 20 questions and the kit is v1.4: use that everywhere."
+      ]
     },
     {
       "priority": 1,
@@ -511,7 +535,6 @@
         "By country (checked 19 Oct 2026): every rate and rule cell needs re-checking. Examples: UK tutoring £30-50/hr (EST, May 2026); Canada Job Bank wage floors 2023-24 (FACT); US BLS bookkeeping median US$24.36/hr May 2025 (FACT); IRS PTIN $18.75 (FACT); eBay US 13.6% final value fee up to US$7,500 (FACT); Trade Me no success fee since 10 March 2026, Ping 2.19% (FACT); Depop US 0% from 15 Jul 2024 (FACT); UK rent-a-room £7,500 (FACT); NZ 8.5% flat-rate credit (FACT); US interpreters median US$28.93/hr (FACT)."
       ],
       "compliance_flags": [
-        "'lawyer' appears in product copy on card 16 ('Only admitted lawyers may engage in legal practice'; '...questions to a lawyer or the Fair Work Ombudsman'; '...must go to a lawyer'). Card 23 says 'legal advice needs admission'. These are referrals, not credential claims, but the owner rule says never use 'lawyer' near a product.",
         "Third-party income figures appear (for example card 14 'A$5K-50K a month' claims, card 12 'a few hundred pounds a month', card 20 '92,100 sales'). Each is framed as unverified or promotional, not as an HLE claim. Low risk, but review against the no-income-claims rule.",
         "Card body figures are labelled FACT/EST/UNKNOWN with per-card dates, but several repeated figures in 'Who pays', 'How you reach them' and 'Why this might be a poor fit' have no label (cards 2, 10, 11). The index and excluded list have no labels.",
         "No [the former trading entity], no refund wording, no testimonials, no urgency, no AI people found."
@@ -522,7 +545,11 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": [
+        "Label every figure FACT, EST or UNKNOWN, with the date checked.",
+        "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products."
+      ]
     },
     {
       "priority": 1,
@@ -554,7 +581,8 @@
         "reason": "content/fit/opportunities.json is the single source for the FIT Finder."
       },
       "source_reviewed": true,
-      "built": "content/fit/opportunities.json"
+      "built": "content/fit/opportunities.json",
+      "founder_decisions": []
     },
     {
       "priority": 1,
@@ -623,7 +651,8 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 1,
@@ -689,7 +718,11 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": [
+        "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
+        "Use exactly 'Full refund within 14 days of purchase, no questions asked.'; any consumer-rights mention goes in its own sentence after it."
+      ]
     },
     {
       "priority": 1,
@@ -765,7 +798,6 @@
       ],
       "compliance_flags": [
         "Income goal input (C23) is framed as 'Context only — a goal is not evidence it can be earned.' Acceptable.",
-        "AC17 (Options, option 16) text: '...award and dismissal questions must go to a lawyer or the Fair Work Ombudsman.' This puts 'lawyer' in product copy (it is a referral, not a credential claim; flag for the owner).",
         "Calculators label every scenario 'Scenario, not a forecast'. No income claims found.",
         "No refund wording, no [the former trading entity], no testimonials."
       ],
@@ -775,7 +807,13 @@
       },
       "group": "Income Fit Test kit",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": [
+        "The quiz is 20 questions and the kit is v1.4: use that everywhere.",
+        "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked.",
+        "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products."
+      ]
     },
     {
       "priority": 2,
@@ -841,7 +879,10 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "Palette and font rules in the brand_blueprint method"
+      "built": null,
+      "founder_decisions": [
+        "The Brand Blueprint is labelled as Empire Studio's own method and doesn't claim to come from Brand-in-a-Box."
+      ]
     },
     {
       "priority": 2,
@@ -850,12 +891,11 @@
       ],
       "duplicates_with": [],
       "missing_information": [
-        "Grey: #6E6264 (brand book) vs #564B4E (README, print style).",
-        "Bodoni weight 700 vs 800; stock photos allowed (v1) vs banned (v2)."
+        "Resolved (founder, 22 Oct 2026): Bodoni Moda 800 for headings, grey #564B4E, no stock photos of people. The brand book v1 still says #6E6264, 700 and allows stock photos; see content/CORRECTIONS.md."
       ],
       "research_verification": [],
       "compliance_flags": [
-        "The brand book footer names the former trading entity and a different contact email. Do not ship that footer; the app uses Her Little Empire's seller details."
+        "The brand book footer names the former trading entity. Replace it with: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com (content/CORRECTIONS.md)."
       ],
       "sections": [],
       "id": "brand-system",
@@ -873,7 +913,11 @@
         "reason": "Adopted in src/app/globals.css with the brand's own font files (print style v2 wins where they disagree)."
       },
       "source_reviewed": true,
-      "built": "Empire Studio's colours, fonts and labels"
+      "built": "Empire Studio's colours, fonts and labels",
+      "founder_decisions": [
+        "The website and current product PDFs win: Bodoni Moda 800 for headings, grey #564B4E, no stock photos of people (faceless brand).",
+        "Footer: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com. No former trading name anywhere."
+      ]
     },
     {
       "priority": 2,
@@ -966,34 +1010,10 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "Methods: brand_blueprint, homepage_copy, product_listing, image_briefs, email_sequence, theme_brief"
-    },
-    {
-      "priority": 3,
-      "content_types": [],
-      "duplicates_with": [],
-      "missing_information": [
-        "The product itself, if it exists elsewhere."
-      ],
-      "research_verification": [],
-      "compliance_flags": [],
-      "sections": [],
-      "id": "business-starter-system",
-      "title": "Business Starter System",
-      "group": "Named in the addendum, not found",
-      "file": "not found — not in catalog.py, filenames or document text",
-      "version": "n/a",
-      "price_usd": null,
-      "content_summary": "Does not exist in the supplied files. Its likely material is spread across Little Offer Kit, Price It Right and First 5 Customers (see consolidation).",
-      "customer_problem": "n/a",
-      "proposed_destination": "Shopify launch workflow (no Shopify method exists yet)",
-      "proposed_form": "n/a",
-      "reuse": {
-        "status": "blocked",
-        "reason": "Not found."
-      },
-      "source_reviewed": false,
-      "built": null
+      "built": "Methods: homepage_copy, product_listing, image_briefs, email_sequence, theme_brief; named steps in Empire Studio's own brand_blueprint method",
+      "founder_decisions": [
+        "Unreleased: not on sale yet. Its methods still power Empire Studio's generators."
+      ]
     },
     {
       "priority": 4,
@@ -1073,7 +1093,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "Ideal-customer, benefits and FAQ prompts in the methods"
+      "built": "Ideal-customer, benefits and FAQ prompts in the methods",
+      "founder_decisions": []
     },
     {
       "priority": 4,
@@ -1135,7 +1156,6 @@
         "Cover footer: 'observations on the date shown' but no date is shown."
       ],
       "compliance_flags": [
-        "'lawyer' appears near a product: Option 16 watch-out 'send award, contract and dismissal questions to a lawyer or the relevant body'. Conflicts literally with the owner's rule.",
         "Option 7 script begins 'I'm a local mum ...': a user-voice template, not Vee, but generators should not default to family references (faceless founder rule).",
         "Review requests target customers who are pleased ('I'm so glad the sessions are helping'), while Get Found's Google Business Profile page says 'Don't ask only happy customers for reviews'. Internal tension.",
         "Founding-price asks are compliant only if real; the document requires 'Never invent proof ... no \"only 2 spots left\" unless it's true'."
@@ -1146,7 +1166,11 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "Honesty rules in the email_sequence method"
+      "built": "Honesty rules in the email_sequence method",
+      "founder_decisions": [
+        "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products.",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked."
+      ]
     },
     {
       "priority": 4,
@@ -1225,7 +1249,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "SEO and title rules in the product_listing method"
+      "built": "SEO and title rules in the product_listing method",
+      "founder_decisions": []
     },
     {
       "priority": 4,
@@ -1318,34 +1343,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": "Methods: product_listing, homepage_copy, email_sequence, design rules"
-    },
-    {
-      "priority": 5,
-      "content_types": [],
-      "duplicates_with": [],
-      "missing_information": [
-        "The product itself, if it exists elsewhere."
-      ],
-      "research_verification": [],
-      "compliance_flags": [],
-      "sections": [],
-      "id": "money-operations-kit",
-      "title": "Money & Operations Kit",
-      "group": "Named in the addendum, not found",
-      "file": "not found — not in catalog.py, filenames or document text",
-      "version": "n/a",
-      "price_usd": null,
-      "content_summary": "Does not exist in the supplied files. Side Income Money System and Client Paperwork Kit cover the same ground.",
-      "customer_problem": "n/a",
-      "proposed_destination": "Money Calculator",
-      "proposed_form": "n/a",
-      "reuse": {
-        "status": "blocked",
-        "reason": "Not found."
-      },
-      "source_reviewed": false,
-      "built": null
+      "built": "Methods: product_listing, homepage_copy, email_sequence, design rules",
+      "founder_decisions": []
     },
     {
       "priority": 5,
@@ -1430,7 +1429,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 5,
@@ -1516,7 +1516,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 6,
@@ -1625,7 +1626,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": "content/hooks/hooks.json (100 hooks, verbatim) used by social_content"
+      "built": "content/hooks/hooks.json (100 hooks, verbatim) used by social_content",
+      "founder_decisions": []
     },
     {
       "priority": 6,
@@ -1761,7 +1763,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": "Method: social_content (weekly rhythm, launch week days 23–29)"
+      "built": "Method: social_content (weekly rhythm, launch week days 23–29)",
+      "founder_decisions": []
     },
     {
       "priority": 6,
@@ -1920,7 +1923,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": "Listed as a social_content source; templates not yet used"
+      "built": "Listed as a social_content source; templates not yet used",
+      "founder_decisions": []
     },
     {
       "priority": 6,
@@ -2029,7 +2033,11 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": "Method: social_content (formats, caption template)"
+      "built": "Method: social_content (formats, caption template)",
+      "founder_decisions": [
+        "Unreleased: not on sale yet.",
+        "Label every figure FACT, EST or UNKNOWN, with the date checked."
+      ]
     },
     {
       "priority": 6,
@@ -2123,7 +2131,10 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": "Trust rules in social_content and theme_brief"
+      "built": "Trust rules in social_content and theme_brief",
+      "founder_decisions": [
+        "Unreleased: not on sale yet."
+      ]
     },
     {
       "priority": 7,
@@ -2210,7 +2221,8 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 7,
@@ -2284,7 +2296,6 @@
         "Unlabelled legal claims: consumer protection may apply to individuals; some terms may not be enforceable (service agreement callout); privacy laws may apply only above a certain size (privacy intro)."
       ],
       "compliance_flags": [
-        "'lawyer' appears 11 times, plus 'attorney' and 'solicitor', including in a cover item ('\"Get it checked\": where to find a local lawyer or free legal help') and the clause table header 'Questions to ask a lawyer'. The owner rule says: never use 'lawyer', 'barrister' or 'counsel' near a product. The context is referral, not Vee's credentials, but it literally conflicts; owner decision needed.",
         "Personalised legal outputs: turning these templates into an AI generator that fills in agreements for a specific user would risk the 'no personalised legal outputs' rule. Keep them as static starting templates with the standard disclaimer.",
         "The testimonial content is about collecting real testimonials with consent: compliant.",
         "Refund wording only appears in agreement clauses (deposit refundable or not); it is not HLE's own refund policy."
@@ -2295,7 +2306,10 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": [
+        "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products."
+      ]
     },
     {
       "priority": 7,
@@ -2322,7 +2336,8 @@
         "reason": "Not supplied."
       },
       "source_reviewed": false,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 7,
@@ -2434,7 +2449,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 7,
@@ -2491,7 +2507,12 @@
       },
       "group": "Offer, money and add-ons",
       "source_reviewed": true,
-      "built": null
+      "built": "Free tier of the FIT Finder: top three ideas, one line on why each fits",
+      "founder_decisions": [
+        "Free, on Gumroad at the permalink fit-check.",
+        "The quiz is 20 questions and the kit is v1.4: the Fit Check's '17 questions (plus 2 optional)' changes to 20.",
+        "Use exactly 'Full refund within 14 days of purchase, no questions asked.'; any consumer-rights mention goes in its own sentence after it."
+      ]
     },
     {
       "priority": 7,
@@ -2596,7 +2617,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 7,
@@ -2703,7 +2725,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 7,
@@ -2804,7 +2827,8 @@
       },
       "group": "Content and starter kits",
       "source_reviewed": true,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     },
     {
       "priority": 7,
@@ -2831,7 +2855,8 @@
         "reason": "Source not supplied."
       },
       "source_reviewed": false,
-      "built": null
+      "built": null,
+      "founder_decisions": []
     }
   ]
 }

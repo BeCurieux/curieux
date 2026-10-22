@@ -11,6 +11,10 @@ import type { ModuleKey } from "@/lib/domain/modules";
 //   source  — the method comes from the documents.
 //   partial — built from the documents, with gaps the founder must fill
 //             (listed in `gaps`); the studio says so.
+//   studio  — Empire Studio's own method (founder's decision): written for
+//             this tool under Her Little Empire's rules, borrowing named
+//             steps from the documents, but not claimed to come from any
+//             one product.
 //   interim — no Her Little Empire method exists for this yet; a general
 //             method runs under the brand's rules, and the studio says so.
 //
@@ -18,7 +22,7 @@ import type { ModuleKey } from "@/lib/domain/modules";
 // snapshot, so outputs made before a method changes can be found later.
 
 export interface Methodology {
-  status: "interim" | "partial" | "source";
+  status: "interim" | "partial" | "studio" | "source";
   version: string;
   /** Asset ids in content/register.json this method comes from. */
   sources: string[];
@@ -38,38 +42,31 @@ export const HOUSE_RULES = `Her Little Empire house rules (Little Offer Kit, Sel
 
 export const METHODOLOGY: Record<ModuleKey, Methodology> = {
   brand_blueprint: {
-    status: "partial",
-    version: "hle-1",
-    sources: [
-      "sell-it-simply-workbook",
-      "brand-in-a-box",
-      "little-offer-kit",
-      "ai-business-assistant-pack",
-    ],
+    status: "studio",
+    version: "studio-1",
+    sources: ["sell-it-simply-workbook", "little-offer-kit", "ai-business-assistant-pack"],
     gaps: [
-      "How to choose the brand's accent colour (Brand-in-a-Box only says one accent carries the brand).",
+      "How to choose the brand's accent colour.",
       "A voice and tone rubric beyond 'describe your voice in three words'.",
       "Photo direction beyond natural light, a clean background and showing hands, desk or process.",
       "Which promise formula to use (five versions exist across the products).",
     ],
-    instructions: `Build the blueprint in this order.
+    instructions: `Empire Studio's own brand method. Build the blueprint in this order.
 1. Her words first (Sell It Simply › Position: "Find her words"): use the customer's own phrases where she gave any; sort them into "the moment it hurts", "the worry underneath" and "what she wishes would happen". The most repeated phrases become headline and subject-line material.
 2. Ideal customer (AI Business Assistant Pack 1.1): one paragraph — her situation, what she's struggling with, what she's already tried, and what would make her say yes.
 3. Positioning (Sell It Simply › "My positioning card"): who it's for in one line, the moment it helps, why it's better for her than the generic version, the catch to handle, who it is NOT for. Then the promise: "I help [who, specifically] get [result] without [the thing they dread]."
 4. Personality and tone (Sell It Simply › "Faceless, but still a person"): the voice in three words (for example "calm, practical, kind") and one honest line about why the business exists. Default tone if she gives none: "warm, plain, friendly, no hype" (AI Business Assistant Pack › About me).
-5. Palette (Brand-in-a-Box; Little Offer Kit › "Simple design rules"): three colours — one accent that carries the brand and is used everywhere, plus a light neutral (cream) and a near-black. Prefer colours she named. Dark text on light backgrounds.
-6. Typography (Brand-in-a-Box; Little Offer Kit): two fonts at most — an elegant serif for headings and a clean sans for body text.
-7. Photography (Sell It Simply › Images; Get Found): the real product, hands, desk or process; natural light; a clean background. Never the founder's face unless she wants it; never children's faces or anything that locates a home.
+5. Palette (Little Offer Kit › "Simple design rules"): three colours — one accent that carries the brand and is used everywhere, plus a light neutral (cream) and a near-black. Prefer colours she named. Dark text on light backgrounds.
+6. Typography (Little Offer Kit): two fonts at most — an elegant serif for headings and a clean sans for body text.
+7. Photography (Sell It Simply › Images; Get Found): the real product, hands, desk or process; natural light; a clean background. No stock photos of people. Never the founder's face unless she wants it; never children's faces or anything that locates a home.
 8. Consistency (Little Offer Kit; Sell It Simply): use the colours the same way everywhere; colours, fonts and tone match across shop, posts and emails.
-9. Honesty (Brand-in-a-Box): real quotes only, with permission; real founding offers only; a "usually" price only if it's the real price.`,
+9. Honesty (house rules): real quotes only, with permission; real founding offers only; a "usually" price only if it's the real price.`,
   },
   theme_brief: {
     status: "partial",
     version: "hle-1",
     sources: ["sell-it-simply-workbook", "little-offer-kit", "faceless-not-anonymous-workbook"],
-    gaps: [
-      "No Her Little Empire document covers Shopify store setup (the Business Starter System named in the brief doesn't exist in the files).",
-    ],
+    gaps: ["No Her Little Empire document covers Shopify store setup yet."],
     instructions: `Plan a beginner-friendly Shopify homepage a free theme can build with standard sections, checked against Her Little Empire's page rules.
 - Every page must answer (Sell It Simply › "Five-question page check"): What is it, and who is it for? What will she have? What exactly does she get? Is it right for her, or not ("not for you if")? What happens after she pays?
 - Read it "as if you were a tired parent scrolling at 9pm: does it say what it is in 5 seconds?" (Little Offer Kit › sales page).
@@ -140,7 +137,7 @@ Email signup: invite people to hear about new things; no fake discount. Every li
 - Honesty test: the image shows something the buyer actually gets; if props, frames or printing aren't included, the image or caption says so; colours match the real product; no reviews, badges or buyer counts that aren't real; disclose AI where the platform requires it (Etsy does). "Preview images match exactly what the buyer gets" (Little Offer Kit).
 - Light and setting: natural light on a clean background (Get Found); "printed page near a window, daylight" (Sell It Simply).
 - Faceless filming (Faceless Content System): hands, desk, process; check every frame for private details — names, addresses, children's faces, school logos, other people's screens.
-- Never: AI-generated people presented as real, luxury props, glossy forced-smile stock, anyone presented as the founder who isn't.
+- Never: stock photos of people (the brand is faceless), AI-generated people presented as real, luxury props, anyone presented as the founder who isn't.
 - Platform sizes: Instagram Reels 9:16; Pinterest 2:3; keep cover text in the middle so grid crops don't cut it.`,
   },
   email_sequence: {

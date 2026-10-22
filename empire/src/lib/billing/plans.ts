@@ -14,6 +14,9 @@ import type { Entitlement } from "@/lib/domain/records";
 /** The founder's exact refund wording. Use this constant; never paraphrase it. */
 export const REFUND_POLICY = "Full refund within 14 days of purchase, no questions asked.";
 
+/** Where consumer rights are mentioned, they follow the refund sentence as their own sentence. */
+export const CONSUMER_RIGHTS = "This is on top of your rights under consumer law.";
+
 /** Seller details, as on every Her Little Empire product. */
 export const SELLER = {
   name: "Her Little Empire",

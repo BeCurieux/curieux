@@ -50,8 +50,8 @@ const EXTRA = [
     proposed_form: "interactive feature (built)",
     duplicates_with: ["fit-report", "workbook", "start-here"],
     missing_information: [
-      "Version numbering differs between files (1.4 vs 1.3).",
-      "Question count is stated as 20, 19, 17 + optional and 15 in different files.",
+      "Version numbering differs between files (1.4 vs 1.3); the founder confirmed v1.4 (see content/CORRECTIONS.md).",
+      "Question count is stated as 20, 19, 17 + optional and 15 in different files; the founder confirmed 20.",
     ],
     reuse: {
       status: "built",
@@ -78,14 +78,14 @@ const EXTRA = [
       "go-no-go-scorecard (report adds an hourly-rate gate)",
     ],
     missing_information: [
-      "Two answers are asked but never used in scoring: products-or-services (psa) and recurring-or-project (rp). 'Sells without pitching' feeds only the risks text, not the score.",
-      "The report's calculator model differs from the workbook's; both are kept as shipped.",
+      "'Sells without pitching' feeds only the risks text, not the score.",
+      "The workbook's calculator model differs from the report's; the report is the source of truth (founder, 22 Oct 2026) and the workbook is to be brought into line (content/CORRECTIONS.md).",
     ],
     research_verification: ["Currency conversions use October 2026 rates (EST)."],
     reuse: {
       status: "built",
       reason:
-        "Ported 1:1 to src/lib/fit/engine.ts; tests run the shipped JavaScript beside the port on 5,000 answer sets with identical results.",
+        "Ported 1:1 to src/lib/fit/engine.ts; tests run the shipped JavaScript beside the port on 5,000 answer sets with identical scores. Products/services and recurring/one-off now break ties (founder, 22 Oct 2026).",
     },
   },
   {
@@ -155,11 +155,10 @@ const EXTRA = [
     proposed_destination: "Empire Studio's own look",
     proposed_form: "design tokens (adopted)",
     missing_information: [
-      "Grey: #6E6264 (brand book) vs #564B4E (README, print style).",
-      "Bodoni weight 700 vs 800; stock photos allowed (v1) vs banned (v2).",
+      "Resolved (founder, 22 Oct 2026): Bodoni Moda 800 for headings, grey #564B4E, no stock photos of people. The brand book v1 still says #6E6264, 700 and allows stock photos; see content/CORRECTIONS.md.",
     ],
     compliance_flags: [
-      "The brand book footer names the former trading entity and a different contact email. Do not ship that footer; the app uses Her Little Empire's seller details.",
+      "The brand book footer names the former trading entity. Replace it with: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com (content/CORRECTIONS.md).",
     ],
     reuse: {
       status: "built",
@@ -181,38 +180,6 @@ const EXTRA = [
     proposed_form: "educational content",
     missing_information: ["Entire course"],
     reuse: { status: "blocked", reason: "Source not supplied." },
-  },
-  {
-    ...base,
-    id: "business-starter-system",
-    title: "Business Starter System",
-    group: "Named in the addendum, not found",
-    file: "not found — not in catalog.py, filenames or document text",
-    version: "n/a",
-    price_usd: null,
-    content_summary:
-      "Does not exist in the supplied files. Its likely material is spread across Little Offer Kit, Price It Right and First 5 Customers (see consolidation).",
-    customer_problem: "n/a",
-    proposed_destination: "Shopify launch workflow (no Shopify method exists yet)",
-    proposed_form: "n/a",
-    missing_information: ["The product itself, if it exists elsewhere."],
-    reuse: { status: "blocked", reason: "Not found." },
-  },
-  {
-    ...base,
-    id: "money-operations-kit",
-    title: "Money & Operations Kit",
-    group: "Named in the addendum, not found",
-    file: "not found — not in catalog.py, filenames or document text",
-    version: "n/a",
-    price_usd: null,
-    content_summary:
-      "Does not exist in the supplied files. Side Income Money System and Client Paperwork Kit cover the same ground.",
-    customer_problem: "n/a",
-    proposed_destination: "Money Calculator",
-    proposed_form: "n/a",
-    missing_information: ["The product itself, if it exists elsewhere."],
-    reuse: { status: "blocked", reason: "Not found." },
   },
   {
     ...base,
@@ -249,14 +216,12 @@ const PRIORITY = {
   "brand-system": 2,
   "brand-in-a-box": 2,
   "sell-it-simply-workbook": 2,
-  "business-starter-system": 3,
   "little-offer-kit": 4,
   "get-found": 4,
   "first-5-customers": 4,
   "ai-business-assistant-pack": 4,
   "price-it-right": 5,
   "side-income-money-system": 5,
-  "money-operations-kit": 5,
   "faceless-content-system-workbook": 6,
   "100-faceless-hooks": 6,
   "30-day-faceless-content-plan": 6,
@@ -276,9 +241,8 @@ const BUILT = {
   "14-day-tracker": "Plan ticks and calculator inputs saved per result",
   "brand-system": "Empire Studio's colours, fonts and labels",
   "sell-it-simply-workbook":
-    "Methods: brand_blueprint, homepage_copy, product_listing, image_briefs, email_sequence, theme_brief",
+    "Methods: homepage_copy, product_listing, image_briefs, email_sequence, theme_brief; named steps in Empire Studio's own brand_blueprint method",
   "little-offer-kit": "Methods: product_listing, homepage_copy, email_sequence, design rules",
-  "brand-in-a-box": "Palette and font rules in the brand_blueprint method",
   "get-found": "SEO and title rules in the product_listing method",
   "first-5-customers": "Honesty rules in the email_sequence method",
   "ai-business-assistant-pack": "Ideal-customer, benefits and FAQ prompts in the methods",
@@ -286,22 +250,73 @@ const BUILT = {
   "30-day-faceless-content-plan": "Method: social_content (weekly rhythm, launch week days 23–29)",
   "100-faceless-hooks": "content/hooks/hooks.json (100 hooks, verbatim) used by social_content",
   "faceless-not-anonymous-workbook": "Trust rules in social_content and theme_brief",
+  "fit-check-freebie": "Free tier of the FIT Finder: top three ideas, one line on why each fits",
   "comment-to-dm-kit": "Listed as a social_content source; templates not yet used",
 };
 
-const NOT_REVIEWED = new Set([
-  "video-course",
-  "business-starter-system",
-  "money-operations-kit",
-  "course-manuscripts",
-]);
+const NOT_REVIEWED = new Set(["video-course", "course-manuscripts"]);
+
+// The founder's answers to the audit (Vee, 22 Oct 2026). Document fixes
+// they call for are listed in content/CORRECTIONS.md.
+const QUIZ = "The quiz is 20 questions and the kit is v1.4: use that everywhere.";
+const DAY14 =
+  "The Income Fit Report is the source of truth for the Day 14 rules and the calculator; this file is to match it.";
+const REFUND =
+  "Use exactly 'Full refund within 14 days of purchase, no questions asked.'; any consumer-rights mention goes in its own sentence after it.";
+const LABELS = "Label every figure FACT, EST or UNKNOWN, with the date checked.";
+const LAWYER =
+  "Keep the 'ask a lawyer' referrals: they're responsible. The rule only bans describing the founder as a lawyer, barrister or counsel near products.";
+const DECISIONS = {
+  "income-fit-test": [QUIZ],
+  "fit-report": [
+    "Free users see their top three ideas with one line on why each fits; the full report (calculator, country rules, dated 14-day plan, go/adjust/stop) stays with Income Fit Test owners and bundle buyers.",
+    "Products vs services and recurring vs one-off are tie-breakers in scoring.",
+    DAY14.replace("this file is to match it", "everything else matches it"),
+  ],
+  "start-here": [QUIZ, REFUND],
+  "14-day-test-plan": [QUIZ, DAY14, LABELS],
+  "ai-shortcut-system": [QUIZ, DAY14, LABELS],
+  "go-no-go-scorecard": [DAY14],
+  workbook: [QUIZ, DAY14, LABELS, LAWYER],
+  "opportunity-cards": [LABELS, LAWYER],
+  "first-5-customers": [LAWYER, LABELS],
+  "client-paperwork-kit": [LAWYER],
+  "fit-check-freebie": [
+    "Free, on Gumroad at the permalink fit-check.",
+    QUIZ.replace(
+      "use that everywhere",
+      "the Fit Check's '17 questions (plus 2 optional)' changes to 20",
+    ),
+    REFUND,
+  ],
+  "sell-it-simply-workbook": [
+    "Unreleased: not on sale yet. Its methods still power Empire Studio's generators.",
+  ],
+  "faceless-content-system-workbook": ["Unreleased: not on sale yet.", LABELS],
+  "faceless-not-anonymous-workbook": ["Unreleased: not on sale yet."],
+  "brand-in-a-box": [
+    "The Brand Blueprint is labelled as Empire Studio's own method and doesn't claim to come from Brand-in-a-Box.",
+  ],
+  "brand-system": [
+    "The website and current product PDFs win: Bodoni Moda 800 for headings, grey #564B4E, no stock photos of people (faceless brand).",
+    "Footer: Her Little Empire · ABN 38 813 430 864 · hello@herlittleempire.com. No former trading name anywhere.",
+  ],
+};
+
+const isLawyerFlag = (f) =>
+  typeof f === "string" && /'lawyer' appears|puts 'lawyer' in product copy/.test(f);
 
 const assets = [...audited, ...EXTRA].map((a) => ({
   priority: PRIORITY[a.id] ?? 7,
   ...a,
+  // Decided: these referrals stay (see founder_decisions).
+  compliance_flags: (a.compliance_flags ?? []).filter((f) => !isLawyerFlag(f)),
   source_reviewed: !NOT_REVIEWED.has(a.id),
   built: BUILT[a.id] ?? null,
+  founder_decisions: DECISIONS[a.id] ?? [],
 }));
+for (const id of Object.keys(DECISIONS))
+  if (!assets.some((a) => a.id === id)) throw new Error(`decision for unknown asset ${id}`);
 
 const ids = new Set();
 for (const a of assets) {
@@ -328,6 +343,7 @@ const register = {
     compliance_flags: "Conflicts with the founder's rules.",
     reuse: "built | immediate | needs-work | blocked, with the reason.",
     built: "What this release built from it.",
+    founder_decisions: "The founder's answers to the audit (22 Oct 2026).",
   },
   assets: assets.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id)),
 };
@@ -354,6 +370,7 @@ const columns = [
   "reuse_reason",
   "built",
   "source_reviewed",
+  "founder_decisions",
 ];
 const flat = (v) =>
   Array.isArray(v)
