@@ -193,6 +193,19 @@ select pg_temp.act_as('11111111-1111-1111-1111-111111111111');
 select pg_temp.expect_error($q$insert into public.fit_results (user_id, answers, engine_version) values ('22222222-2222-2222-2222-222222222222', '{}', 'v1.4')$q$, 'fit result as another user');
 commit;
 
+-- Trigger functions aren't callable over the API (they still fire: the
+-- inserts and updates above went through them).
+do $$
+declare f text;
+begin
+  foreach f in array array['limit_profiles', 'bump_profile_version', 'snapshot_profile', 'check_product_images', 'assign_generation_version'] loop
+    if has_function_privilege('anon', 'public.' || f || '()', 'execute')
+      or has_function_privilege('authenticated', 'public.' || f || '()', 'execute') then
+      raise exception 'trigger function % is executable by API roles', f;
+    end if;
+  end loop;
+end $$;
+
 -- Deleting a login removes everything she owns.
 delete from auth.users where id = '11111111-1111-1111-1111-111111111111';
 do $$ begin

@@ -29,6 +29,8 @@ user_id)`, so nothing can point at another customer's profile even if the
   save, and a snapshot written to `profile_versions` with `last_note`.
   Generation versions are assigned by trigger per asset (profile, module,
   product) under an advisory lock.
+- **Trigger functions** run only as triggers: API roles can't execute them
+  (they'd otherwise appear as `/rest/v1/rpc` endpoints).
 - **Photos** must live under the owner's own storage folder.
 - **At most five profiles** per account, whatever the app allows.
 - **Deleting a login** cascades to everything she owns. Purchases keep the
