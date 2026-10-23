@@ -1,0 +1,998 @@
+[
+  {
+    "id": "faceless-content-system-workbook",
+    "title": "Faceless Content System Workbook",
+    "file": {
+      "json": "02_products/content/faceless-content-system-workbook.json",
+      "pdf": "02_products/pdf/faceless-content-system-workbook.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": null,
+    "bundles": [],
+    "content_summary": "Companion workbook to a 'Faceless Content System' course: one page per module (6 modules) plus planners and trackers (tagline; 'Start here'). Module 1 gives six faceless formats with what each is 'often good for' and effort, a 25-item no-face b-roll list and an AI presenter labelling rule. Module 2 gives four hook kinds (Stop, Save, Share, Conversation), four reusable hook formulas, a four-part caption template and an 'Honest caption check'. Module 3 covers grid style, series planning, a profile tidy-up and a 9-post grid planner; Module 4 is a short comment-to-DM set-up with public replies, two DM templates and a test checklist. Module 5 is a 'two-hour week' batching plan with a weekly output checklist (3 reels, 1 carousel, 1 quote); Module 6 defines five numbers to read about seven days after posting and a keep/tweak/drop rule, followed by a 30-day tracker and review.",
+    "sections": [
+      "Start here: How to use this workbook",
+      "Module 1: Formats without your face",
+      "Module 1: 25 things to film without your face",
+      "Module 2: Hooks and captions",
+      "Module 2: Your hook bank",
+      "Module 3: A grid that looks established",
+      "Module 3: Your 9-post grid planner",
+      "Module 4: Comment-to-DM",
+      "Module 5: Your two-hour week",
+      "Module 6: Read your numbers",
+      "Tracker: Your 30-day tracker",
+      "Review: Your 30-day review"
+    ],
+    "customer_problem": "Cover: 'show up without your face.' Tagline: 'The companion workbook to the Faceless Content System course: one page per module, plus your planners and trackers.' Module 1 intro: 'Trust comes from showing real work, a clear method and honest limits.'",
+    "content_types": [
+      "guidance",
+      "formula",
+      "template",
+      "workflow",
+      "example",
+      "question"
+    ],
+    "proposed_destination": "Empire Studio social_content generator (AI instructions: formats, hook kinds/formulas, caption template, honest caption check); Content Studio (grid planner, two-hour week planner, 30-day tracker, keep/tweak/drop review).",
+    "proposed_form": "AI instruction (formats, hook formulas, caption template, caption compliance check) + interactive feature (grid planner, weekly planner, tracker) + structured data (25 b-roll ideas, six formats table).",
+    "duplicates_with": [
+      {
+        "id": "30-day-faceless-content-plan",
+        "note": "Both have a '25 things to film without your face' list (different items), a format table (6 formats here vs 4 there) and a tracker/review; metrics timing differs (about 7 days here vs 'a day or two after' there)."
+      },
+      {
+        "id": "100-faceless-hooks",
+        "note": "Four hook kinds (Stop/Save/Share/Conversation) are a subset of the 100 Hooks seven goals; 'Send this to the friend with 40 tabs open' parallels hook 51."
+      },
+      {
+        "id": "comment-to-dm-kit",
+        "note": "Module 4 (keyword, public replies, DM 1/DM 2, test checklist) is a condensed version of the kit's Flow 1 and testing checklist; only this file mentions follow-gates."
+      },
+      {
+        "id": "faceless-not-anonymous-workbook",
+        "note": "AI presenter labelling rule and honest-proof rules overlap with FNA Module 4 and 'AI and helpers: what to disclose'."
+      }
+    ],
+    "missing_information": [
+      "Not in catalog.py: no price, no bundle, no Gumroad status. Whether the 'Faceless Content System course' exists or is sold: unknown.",
+      "The course videos the workbook accompanies are not in the source folder.",
+      "Callout says 'Everything here was checked when we made it' but gives no check date.",
+      "No content pillars are defined anywhere in this file (pillar-like structure exists only in the 30-day plan's teach/trust/show/sell rhythm).",
+      "Reel structure (beats, length, on-screen text timing) not specified here.",
+      "Not in catalog.py PRICE/NAME/FILES; catalog title therefore unknown."
+    ],
+    "research_verification": [
+      {
+        "item": "Example two-hour week: 40 min, 50 min, 10 min, 5 min blocks (Module 5)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Time estimates not labelled EST; owner rule requires a label."
+      },
+      {
+        "item": "'Wait about seven days after posting' before reading numbers (Module 6)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Guidance, unlabelled."
+      },
+      {
+        "item": "Instagram AI label exists and should be used (Module 1 callout)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform rule, undated; 'checked when we made it' only."
+      },
+      {
+        "item": "Profile grid shows a shorter crop of each reel cover (Module 3 callout)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform behaviour, undated."
+      },
+      {
+        "item": "Comment-to-DM tool behaviour, plans and limits (Module 4)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Tells user to check the tool's current plan and limits; no figures given."
+      }
+    ],
+    "compliance_flags": [
+      "No conflicts found with income, urgency, testimonial, [the former trading entity], lawyer/barrister/counsel, PLR/MRR or family rules. The 'Honest caption check' and AI presenter rule match README rules.",
+      "Unlabelled time figures (Module 5) conflict with the 'label every figure FACT/EST/UNKNOWN with check date' rule.",
+      "Refund wording in PDF imprint matches the required wording exactly (checked in pdf/faceless-content-system-workbook.pdf).",
+      "Checklist item 'Packing a school bag, then sitting down to work' and the privacy callout about children's faces/school logos: content is consistent with the faceless-founder rule, but generated b-roll briefs must keep the 'check nothing private is visible' step."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Strong, compliant method material, but the product is unpriced and outside the catalog, time figures need EST labels, and its format/metrics guidance conflicts in places with the 30-day plan; reconcile before encoding as AI instructions."
+    }
+  },
+  {
+    "id": "faceless-not-anonymous-workbook",
+    "title": "Faceless & Not Anonymous Workbook",
+    "file": {
+      "json": "02_products/content/faceless-not-anonymous-workbook.json",
+      "pdf": "02_products/pdf/faceless-not-anonymous-workbook.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": null,
+    "bundles": [],
+    "content_summary": "Companion workbook to a 'Faceless & Not Anonymous' course, with one page per module, built on the idea 'people trust what they can check' ('Start here' callout). Module 1 separates faceless ('you choose not to show your face') from anonymous ('nobody can tell who is responsible') and notes when faceless is harder (one-to-one personality services, coaching, in-home local services, regulated work). Module 2 is a five-layer trust stack (Name, Contact, Policies, Pages, Replies) scored 0-2, with templates for a plain-words refund policy and a founder contact block. Modules 3-4 cover recognisable look/voice/signature and 'proof without hype' (remove-the-hype checklist, FACT/EST/UNKNOWN labelling table, a one-time review request). Modules 5-6 give boundaries, a founder note and three replies to 'who's behind this?', an AI/helper disclosure checklist, a 14-item trust audit scored out of 28, an ask-a-friend script and a three-monthly re-audit schedule.",
+    "sections": [
+      "Start here: How to use this workbook",
+      "Module 1: Why faceless works, and when it doesn't",
+      "Module 2: Your trust stack",
+      "Module 3: A brand people recognise without your face",
+      "Module 4: Proof without hype",
+      "Module 5: Answering \"who's behind this?\"",
+      "Module 5 · extra: AI and helpers: what to disclose",
+      "Module 6: Your trust audit",
+      "Module 6 · extra: Ask someone else to look",
+      "Keep going: Re-audit every three months"
+    ],
+    "customer_problem": "Module 1 intro: 'Faceless means you choose not to show your face. Anonymous means nobody can tell who is responsible. Be the first, never the second.' 'Start here' callout: 'people trust what they can check. A face is only one thing they can check, and not the most important one.'",
+    "content_types": [
+      "guidance",
+      "question",
+      "template",
+      "workflow",
+      "example"
+    ],
+    "proposed_destination": "Empire Studio store-trust/launch checklist (trust stack and trust audit as a pre-launch check of the Shopify store); social_content guardrails (AI disclosure, proof-without-hype, number labelling); FAQ generator ('who's behind this?' replies).",
+    "proposed_form": "Interactive feature (trust stack and 14-item trust audit scorer) + AI instruction (honesty/disclosure guardrails, founder note and reply templates) + structured data (audit items).",
+    "duplicates_with": [
+      {
+        "id": "faceless-content-system-workbook",
+        "note": "AI presenter rule and 'no invented results or testimonials' repeat across both; brand look/voice worksheet (Module 3) overlaps FCS Module 3 grid style."
+      },
+      {
+        "id": "30-day-faceless-content-plan",
+        "note": "Day 9 ('Why you started') and Day 20 (values) captions cover founder-story ground similar to the FNA founder note."
+      },
+      {
+        "id": "100-faceless-hooks",
+        "note": "Trust hooks 61-70 (e.g. 61 'Why we don't show our face') are the social-post side of FNA Modules 1 and 5."
+      }
+    ],
+    "missing_information": [
+      "Not in catalog.py: no price, no bundle, no Gumroad status. Course videos not in source folder; whether the course is sold: unknown.",
+      "No jurisdiction-specific display rules beyond 'for example, an ABN in Australia'; the user is told to check their register/regulator.",
+      "Trust stack has no guidance on Shopify-specific pages (policy pages, contact page settings).",
+      "Not in catalog.py PRICE/NAME/FILES; catalog title therefore unknown."
+    ],
+    "research_verification": [
+      {
+        "item": "Refund template placeholders: [14] days, refunds within [5-10] working days",
+        "label": "none (placeholders)",
+        "check_date": "none",
+        "status": "Bracketed defaults, not presented as facts."
+      },
+      {
+        "item": "Gumroad fee example in labelling table: \"Gumroad's fee is [x]% (FACT, checked [month year])\"",
+        "label": "FACT placeholder",
+        "check_date": "placeholder",
+        "status": "Demonstrates the owner's labelling rule; no real figure."
+      },
+      {
+        "item": "'Total score (out of 28)'",
+        "label": "n/a",
+        "check_date": "n/a",
+        "status": "Verified internally: 14 audit items x max 2 = 28."
+      },
+      {
+        "item": "AI labelling and platform settings",
+        "label": "none",
+        "check_date": "none",
+        "status": "Callout: 'Labelling rules and platform settings change. Check the platform's current AI label'."
+      }
+    ],
+    "compliance_flags": [
+      "Refund policy template ('within [14] days ... refund you in full. No questions, no forms.') and founder block ('[14]-day refund, no questions') differ from the required wording. They are templates for the buyer's own business, so they may be acceptable, but the app must never use them as Her Little Empire's own refund text.",
+      "Founder-note and contact-block examples use family details ('e.g. mum of one', 'a mum of one on the coast of NSW') and the rude reply offers '[optional: for my family's sake]'. These are buyer-facing examples, but if reused in HLE's own copy they would conflict with 'keep Vee's family off the internet'. Flag for owner.",
+      "AI disclosure checklist matches the 'label AI people/voices' rule. No income claims, fake urgency or PLR/MRR found; 'No income screenshots or \"$10k months\"' is an anti-hype instruction.",
+      "Closing callout gives hello@herlittleempire.com, which matches the README seller email. PDF imprint refund wording matches exactly."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "High-value guardrail and trust-audit content that fits a store launch, but it's unpriced and outside the catalog, and the family-detail examples and refund-template wording need owner sign-off before the app reuses them."
+    }
+  },
+  {
+    "id": "100-faceless-hooks",
+    "title": "100 Faceless Hooks",
+    "file": {
+      "json": "02_products/content/100-faceless-hooks.json",
+      "pdf": "02_products/pdf/100-faceless-hooks.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 9,
+    "bundles": [
+      {
+        "slug": "faceless-content-bundle",
+        "name": "The Faceless Content Bundle",
+        "price_usd": 29,
+        "source": "catalog.py BUNDLES"
+      },
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "A swipe file of 100 numbered fill-in-the-blank hooks for text-on-screen reels, carousel covers and story slides, grouped by goal (cover; 'How this swipe file works'). Seven goal groups: Stop the scroll (1-20), Make them save (21-35), Make them comment (36-50), Make them share (51-60), Build trust while faceless (61-70), Soft sell / lead to the offer (71-85), Story slides (86-100). A seven-step 'From hook to post' method and five worked examples (VA, Etsy printables, tutoring, baking, Pinterest management). 20 'comment KEYWORD' calls to action, plus a rules checklist covering engagement bait, giveaways and approved automation tools. A 'Make it yours' worksheet, a hook rewrite formula, a 'What not to do' list and a 7-day hook practice plan of about 20-30 minutes a day (EST).",
+    "sections": [
+      "Start here: How this swipe file works",
+      "Method: How to use a hook",
+      "Hooks 1-20: Hooks to stop the scroll",
+      "Hooks 21-35: Hooks that make people save",
+      "Hooks 36-50: Hooks that start a conversation",
+      "Hooks 51-60: Hooks people want to share",
+      "Hooks 61-70: Hooks that build trust without your face",
+      "Hooks 71-85: Soft-sell hooks that lead to your offer",
+      "Hooks 86-100: Hooks for story slides",
+      "Calls to action: 20 comment KEYWORD calls to action",
+      "Worksheet: Make it yours (and what not to do)",
+      "Practice plan: Your 7-day hook practice plan"
+    ],
+    "customer_problem": "'Start here' intro: 'A hook is the first line someone sees. On a faceless account, it does the job a face would do: it makes the right person stop.' Tagline: '...so you never start from a blank slide again.'",
+    "content_types": [
+      "formula",
+      "template",
+      "guidance",
+      "workflow",
+      "example"
+    ],
+    "proposed_destination": "Content Studio searchable hook library (hooks.json); social_content generator (hook selection by goal, 7-step method, CTA library, what-not-to-do as negative constraints).",
+    "proposed_form": "Structured data (100 hooks, 20 CTAs) + AI instruction (7-step method, rewrite formula, what-not-to-do) + interactive feature (hook library with goal filter, 'tried / result' tracking per hook number).",
+    "duplicates_with": [
+      {
+        "id": "faceless-content-system-workbook",
+        "note": "FCS's four hook kinds and four formulas are a smaller version of this taxonomy; FCS 'Your hook bank' (write 10, keep 3) is a practice exercise like the 7-day plan."
+      },
+      {
+        "id": "30-day-faceless-content-plan",
+        "note": "The 30-day plan has its own 30 hooks, one per day, written separately (e.g. Day 12 echoes hook 3; Day 22 echoes hook 18/37)."
+      },
+      {
+        "id": "comment-to-dm-kit",
+        "note": "The 20 CTAs and 'Keep your CTAs within the rules' overlap the kit's caption templates and 'What not to do' list."
+      }
+    ],
+    "missing_information": [
+      "Hooks have no tags, formats or per-hook notes in the source; category is only the section's goal.",
+      "Worked example #22 quotes the hook as '[Number] [templates] for [task]...' but hook 22 reads '[Number] [templates / scripts / prompts] for [task]...' (minor mismatch).",
+      "No check date for the Instagram engagement-bait and promotion rules cited.",
+      "Several hooks assume HLE's side-income audience (e.g. '[side income idea]', 12 'nap time', 33 'school pick-up', 53 'every mum'); Shopify-store variants are not provided."
+    ],
+    "research_verification": [
+      {
+        "item": "7-day practice plan: about 20 to 30 minutes a day; per-day times 20-30 min",
+        "label": "EST",
+        "check_date": "none",
+        "status": "Labelled EST in the table header and intro; no check date (it's an estimate of effort, so a date matters less)."
+      },
+      {
+        "item": "Instagram treats 'tag 3 friends', 'like if you agree', 'comment to win' as engagement bait",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform rule, undated, no source."
+      },
+      {
+        "item": "Giveaways must follow Instagram's promotion rules and local competition laws; affiliate disclosure rules differ by country",
+        "label": "none",
+        "check_date": "none",
+        "status": "Directs user to official guidance; no figures."
+      },
+      {
+        "item": "'Fake stats: \"90% of mums...\" with no source'",
+        "label": "n/a",
+        "check_date": "n/a",
+        "status": "Negative example, not a claim."
+      }
+    ],
+    "compliance_flags": [
+      "No income claims; 'Money promises' are explicitly banned in 'What not to do'. No fake urgency, testimonials, PLR/MRR, [the former trading entity] or lawyer terms found.",
+      "CTA 2, CTA 13 and the closing callout promote HLE's own free Fit Check / Income Fit Test and the handle '@herlittleempire.co'. These must be stripped or replaced for Empire Studio users. Whether '@herlittleempire.co' is the correct handle is unknown, and no other file in scope confirms it.",
+      "Hook 81 'Why we priced [product] at [price]' and soft-sell hooks are fine, but generated posts must keep the 'only use a hook if the post delivers exactly what it says' rule.",
+      "PDF imprint refund wording matches exactly."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Clean, numbered, verbatim-extractable data (exactly 100 hooks plus 20 CTAs), with explicit honesty rules. Only HLE self-promo CTAs and audience-specific wording need filtering at display time."
+    }
+  },
+  {
+    "id": "30-day-faceless-content-plan",
+    "title": "30-Day Faceless Content Plan",
+    "file": {
+      "json": "02_products/content/30-day-faceless-content-plan.json",
+      "pdf": "02_products/pdf/30-day-faceless-content-plan.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 17,
+    "bundles": [
+      {
+        "slug": "faceless-content-bundle",
+        "name": "The Faceless Content Bundle",
+        "price_usd": 29,
+        "source": "catalog.py BUNDLES"
+      },
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "A done-for-you month of Instagram content for a faceless small business selling a service or digital product: 12 reels, 10 carousels and 8 story days (cover; verified by counting the Days 1-30 table). Uses a teach/trust/show/sell rhythm over four weekly focuses, with week 4 (days 22-30) as 'a gentle launch' of the user's offer. Each day has format · type, idea, hook and template/notes, plus a full caption template (story days include frame-by-frame scripts) and a daily story prompt. Ten carousel templates T01-T10 (PowerPoint files that open in Canva) are mapped to days. A routine section gives a 30-45 minute daily option and a batch option (about 3-4 hours a week). Also includes a four-format explainer, 25 b-roll ideas, keyword/hashtag/posting-time and platform-rule guidance, an accessibility checklist with an alt-text formula, a tracking sheet and a day-30 review.",
+    "sections": [
+      "Start here: How this plan works",
+      "Your routine: 30-45 minutes a day, or one batch day",
+      "Set up: Fill your brackets once",
+      "Formats: Faceless content types, explained",
+      "Film it: 25 things to film without your face",
+      "The plan: Your 30 days",
+      "Captions · Days 1-10: Caption templates: days 1-10",
+      "Captions · Days 11-20: Caption templates: days 11-20",
+      "Captions · Days 21-30: Caption templates: days 21-30",
+      "Stories: 30 daily story prompts",
+      "Get found: Keywords, hashtags and posting times",
+      "Accessibility: Make every post easy for everyone",
+      "Track: Your 30-day tracking sheet",
+      "Day 30: What to repeat next month"
+    ],
+    "customer_problem": "'Start here' intro: 'This is a month of Instagram content you can fill in and post, without ever showing your face. Every day has a format, an idea, a hook, a caption template and a story prompt. You bring your niche, your offer and your words.'",
+    "content_types": [
+      "template",
+      "workflow",
+      "guidance",
+      "formula",
+      "example",
+      "question"
+    ],
+    "proposed_destination": "social_content generator: seven-day launch calendar (derive from week 4), reel/carousel/caption/story structures, hashtag rule, accessibility rules; Content Studio editable calendar (30 days as seed data); image_briefs (b-roll list, filming tips).",
+    "proposed_form": "Structured data (30 day rows, 30 caption templates, 30 story prompts, T01-T10 map) + AI instruction (weekly rhythm, good-faceless-post rules, keyword/hashtag rules, accessibility) + interactive feature (editable calendar, tracker).",
+    "duplicates_with": [
+      {
+        "id": "faceless-content-system-workbook",
+        "note": "Second '25 things to film' list; format table (4 formats vs FCS's 6); tracker/review; different time models (30-45 min/day vs two-hour week)."
+      },
+      {
+        "id": "100-faceless-hooks",
+        "note": "Its 30 daily hooks are separate from the 100-hook library; some are near-variants (e.g. Day 12 vs hook 3)."
+      },
+      {
+        "id": "comment-to-dm-kit",
+        "note": "The 'Set up' callout on comment-keyword CTAs and the 'only send DMs to people who've contacted you' rule repeat the kit's rules in short."
+      }
+    ],
+    "missing_information": [
+      "Carousel templates T01-T10 ('Carousel-Templates.zip' in catalog.py FILES) are not in the source folder.",
+      "Inconsistency: Day 13 plan row says 'Share the results the next day', but the Day 13 caption says 'On day 16, share the results' and story prompt Day 16 shares Day 13's results.",
+      "No hashtag examples (only bracketed sets A/B/C). No Shopify-specific guidance; the 'offer' is a service or digital product.",
+      "Reel length/beat timing is given only loosely ('Add 1-3 lines of text that change every few seconds')."
+    ],
+    "research_verification": [
+      {
+        "item": "Carousel: 'Up to 20 swipeable slides in one post (check the app, limits change)'",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform limit, unlabelled and undated. Needs FACT + check date."
+      },
+      {
+        "item": "Stories 'disappear after 24 hours'",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform rule, unlabelled."
+      },
+      {
+        "item": "Film vertically (9:16)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Format spec, unlabelled."
+      },
+      {
+        "item": "3-5 hashtags per post; 'Hashtags still help a little'",
+        "label": "none",
+        "check_date": "none",
+        "status": "Guidance, unlabelled."
+      },
+      {
+        "item": "Engagement bait: 'Instagram says it may show these posts less'",
+        "label": "none",
+        "check_date": "none",
+        "status": "Attributed to Instagram, no source or date."
+      },
+      {
+        "item": "Business accounts may only have certain sounds, depending on licensing",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform rule, undated."
+      },
+      {
+        "item": "Routine: 30-45 minutes a day; batch about 3-4 hours a week; review 20 minutes",
+        "label": "none",
+        "check_date": "none",
+        "status": "Effort estimates not labelled EST."
+      },
+      {
+        "item": "12 reels / 10 carousels / 8 story days",
+        "label": "n/a",
+        "check_date": "n/a",
+        "status": "Verified against the Days 1-30 table: reels on 1,4,7,9,12,15,18,20,23,26,28,30; carousels on 2,5,8,11,14,16,19,22,24,27; stories on 3,6,10,13,17,21,25,29."
+      }
+    ],
+    "compliance_flags": [
+      "Launch days handle urgency correctly: Day 23 'Only mention a close date if it's real', Day 29 'Countdown sticker only for a real deadline', week-4 callout 'No pressure, no fake countdowns'. Day 27 case study is 'Your own real work only, with written permission. No made-up numbers.'",
+      "Day 9 caption example 'at home with a toddler' is a buyer template example, not about Vee. Low risk.",
+      "Unlabelled platform figures (20 slides, 24 hours, 9:16) conflict with the labelling rule.",
+      "No income claims ('It can't promise followers, sales or income'). PDF imprint refund wording matches exactly."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Directly usable structure for the calendar and the launch week, but the carousel template files are missing, platform figures need FACT labels and dates, the Day 13/16 inconsistency needs fixing, and service/digital-product framing needs a Shopify-store variant."
+    }
+  },
+  {
+    "id": "comment-to-dm-kit",
+    "title": "Comment-to-DM Kit",
+    "file": {
+      "json": "02_products/content/comment-to-dm-kit.json",
+      "pdf": "02_products/pdf/comment-to-dm-kit.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 12,
+    "bundles": [
+      {
+        "slug": "faceless-content-bundle",
+        "name": "The Faceless Content Bundle",
+        "price_usd": 29,
+        "source": "catalog.py BUNDLES"
+      },
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "Sets up 'comment a keyword, get a DM' on Instagram using ManyChat, with a free manual saved-replies alternative (cover; 'No tool' section). Opens with dated platform rules (checked Oct 2026): one private reply per comment within 7 days, a single-block first DM, the 24-hour window opening only on a reply or regular-button tap, once per person per post, and stricter rules for Live. Gives keyword rules and 30 keyword ideas across 7 niches, a ManyChat connection-method table, a Free-plan table (25 active contacts, 4 live automations), and a step-by-step build of the comment automation. Three word-for-word DM flows (freebie delivery; product link with a qualifying question; service enquiry to booking), each with a follow-up and a polite exit. Also an optional email-consent ask, 10 caption templates and 5 story-reply prompts. Closes with a messaging-window table, a 'what not to do' list, spam-law pointers by country, a testing checklist, troubleshooting and a weekly tracker with no targets.",
+    "sections": [
+      "Start here: How comment-to-DM works",
+      "Checklist: What you need before you start",
+      "Step 1: Choosing your keyword",
+      "Step 2: Set-up walkthrough in ManyChat",
+      "No tool: If you don't want to pay for a tool: saved replies",
+      "Flow 1: DM flow: freebie delivery",
+      "Flow 2: DM flow: product link with a short qualifying question",
+      "Flow 3: DM flow: service enquiry to booking",
+      "Rules: Follow-ups that respect the 24-hour window, and what not to do",
+      "Templates: 10 post and caption templates that invite the comment",
+      "Templates: 5 story sticker prompts",
+      "Check: Testing checklist and troubleshooting",
+      "Tracker: Weekly tracking worksheet"
+    ],
+    "customer_problem": "Tagline: 'Set up \"comment a keyword, get a DM\" on Instagram for your small digital-product or service business, with word-for-word flows, captions and an honest way to track it.'",
+    "content_types": [
+      "research",
+      "guidance",
+      "template",
+      "workflow",
+      "example",
+      "formula"
+    ],
+    "proposed_destination": "social_content generator CTAs (keyword CTA patterns, caption templates); launch sequence (Flow 2 product-link flow for a Shopify product); educational content (platform rules, needs dated re-verification).",
+    "proposed_form": "Educational article (rules, set-up walkthrough; re-verify regularly) + structured data (30 keywords, 3 flows, 10 caption templates, 5 story prompts) + AI instruction (keyword rules, what-not-to-do as constraints).",
+    "duplicates_with": [
+      {
+        "id": "faceless-content-system-workbook",
+        "note": "FCS Module 4 is a condensed Flow 1 with the same 'Send it to me' button pattern and a shorter test checklist."
+      },
+      {
+        "id": "100-faceless-hooks",
+        "note": "20 comment-KEYWORD CTAs and CTA rules overlap with this kit's 10 caption templates and 'What not to do'."
+      },
+      {
+        "id": "30-day-faceless-content-plan",
+        "note": "Its comment-keyword callout and DM rule are a summary of this kit's rules."
+      }
+    ],
+    "missing_information": [
+      "Several items are explicitly UNKNOWN: how 'active contact' is counted, delays/follow-ups on Free, keywords per trigger on Free, the Instagram ads trigger, native Instagram comment-to-DM automation, sticker-tap triggers, and whether 'comment KEYWORD' posts get less reach.",
+      "No Shopify integration guidance (e.g. product links with tracking only via '?src=ig-planner').",
+      "Some sources are weak: 'Commonly advised by ManyChat community moderators', a ManyChat community moderator (July 2026), and an 'Inro guide' for menu names."
+    ],
+    "research_verification": [
+      {
+        "item": "Meta: one private reply per comment, within 7 days",
+        "label": "none (sourced)",
+        "check_date": "Oct 2026",
+        "status": "Sourced to Meta developer docs, dated; not explicitly tagged FACT."
+      },
+      {
+        "item": "ManyChat first private reply = one content block; 24-hour window opens only on reply/regular button; once per person per post",
+        "label": "none (sourced)",
+        "check_date": "Oct 2026",
+        "status": "Sourced to ManyChat Help Centre, dated."
+      },
+      {
+        "item": "Live private replies only during broadcast",
+        "label": "none (sourced)",
+        "check_date": "Oct 2026",
+        "status": "Meta developer docs, dated."
+      },
+      {
+        "item": "Personal accounts can't connect to ManyChat",
+        "label": "none (sourced)",
+        "check_date": "Oct 2026",
+        "status": "ManyChat Help Centre, dated."
+      },
+      {
+        "item": "ManyChat Free: up to 25 active contacts/month; up to 4 live automations; 'Powered by Manychat' branding",
+        "label": "none",
+        "check_date": "Oct 2026 (table title)",
+        "status": "Dated but not tagged FACT/EST."
+      },
+      {
+        "item": "ManyChat Essential US$14/month (250 contacts), Pro US$29/month (2,500 contacts); plans changed March 2026",
+        "label": "EST",
+        "check_date": "Oct 2026",
+        "status": "Compliant: labelled EST and dated."
+      },
+      {
+        "item": "24h-7 days: manual inbox messages only; after 7 days only message tags",
+        "label": "none (sourced)",
+        "check_date": "Oct 2026",
+        "status": "ManyChat Help Centre, dated."
+      },
+      {
+        "item": "Meta API caps each text at 1,000 bytes",
+        "label": "none",
+        "check_date": "Oct 2026",
+        "status": "Dated, unlabelled."
+      },
+      {
+        "item": "ManyChat comment trigger supports boosted posts since June 2024",
+        "label": "none",
+        "check_date": "Oct 2026",
+        "status": "Dated, attributed to ManyChat."
+      },
+      {
+        "item": "Story likes don't trigger automation",
+        "label": "none",
+        "check_date": "July 2026",
+        "status": "Source is a community moderator, so weak."
+      },
+      {
+        "item": "Set-up 'about 30 minutes'; prep 'Ten minutes'",
+        "label": "none",
+        "check_date": "none",
+        "status": "Effort estimates not labelled EST."
+      },
+      {
+        "item": "Spam/marketing law pointers (CASL; ACMA, ICO, FTC, CRTC, DIA)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Regulator pointers only; no claims of specific thresholds."
+      }
+    ],
+    "compliance_flags": [
+      "Platform automation risk: depends on third-party ManyChat and Meta rules that the file itself says change often. Every rule carries an Oct 2026 date, so it must be re-verified on a schedule before the app shows it.",
+      "Consent: the optional email ask (Flow 1) includes privacy-policy and opt-in wording with 'A starting template, not legal advice' — good, but the app should not auto-enable email capture.",
+      "Caption template 5 'with a toddler on my hip 😅' is a buyer template, low risk; it would be inappropriate as HLE's own copy under the faceless-founder rule.",
+      "'We use this ourselves: comment FIT...' is HLE self-promotion; strip for Empire Studio users.",
+      "Fake urgency explicitly banned; story template 3 'Countdown to launch (real date only)'. No income claims ('Don't promise results'). PDF imprint refund wording matches exactly."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Best-sourced document in scope and directly relevant to launch CTAs, but its value depends on dated third-party platform rules and ManyChat pricing (Oct 2026) that need re-verification, and several items are UNKNOWN. Templates are reusable now; the rules need a verification process."
+    }
+  },
+  {
+    "id": "etsy-digital-downloads-starter-kit",
+    "title": "Etsy Digital Downloads Starter Kit",
+    "file": {
+      "json": "02_products/content/etsy-digital-downloads-starter-kit.json",
+      "pdf": "02_products/pdf/etsy-digital-downloads-starter-kit.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 29,
+    "bundles": [
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "Takes a beginner from picking a micro-niche to planning, listing and launching a first ten digital downloads on Etsy over about 30 days of short sessions ('Start here'). Niche selection via a 5-step idea process and an 8-question scoring worksheet (out of 40), with a rule to drop ideas scoring 1 on insider knowledge or trademark safety. Free demand checks (logged-out search bar suggestions, a page-one review-count check labelled a 'ROUGH signal only') and a 'What to avoid' section (trademarks, flooded printables, copying, Canva licence). A first-10-products 'family' plan, a listing title formula, tag guidance, a description structure, photo/mock-up, pricing (fees deliberately not listed) and file-delivery checklists, plus a 'Start here' buyer page template. A launch checklist, Etsy-compliant review rules, Pinterest as a second traffic source and a week-by-week 30-day plan.",
+    "sections": [
+      "Start here: How this kit works",
+      "Step 1: Pick a micro-niche",
+      "Step 2: Check demand without paid tools",
+      "Step 3: What to avoid",
+      "Step 4: Plan your first 10 products",
+      "Template: Your listing template",
+      "Checklist: Photos and mock-ups",
+      "Worksheet: Pricing your downloads",
+      "Checklist: File delivery",
+      "Checklist: Launch checklist",
+      "Reviews: Reviews, the right way",
+      "Traffic: Pinterest as your second traffic source",
+      "Plan: Your 30-day plan"
+    ],
+    "customer_problem": "Tagline: 'Pick a micro-niche you know from the inside, check it has room, and plan, list and launch your first ten digital downloads on Etsy.' 'Start here': 'The trade-off: the shop is small and slow at first.'",
+    "content_types": [
+      "guidance",
+      "workflow",
+      "template",
+      "question",
+      "formula",
+      "example"
+    ],
+    "proposed_destination": "Starter-kit launch pathway, future Etsy module. Platform-neutral steps (niche scoring, first-10 product family, description structure, mock-up checklist, file delivery, 'Start here' page) can feed the Shopify digital-product pathway and image_briefs.",
+    "proposed_form": "Interactive feature (niche scorer, first-10 planner, launch checklist) + AI instruction (listing title/description structure, mock-up brief rules) + downloadable resource ('Start here' page template).",
+    "duplicates_with": [
+      {
+        "id": "pinterest-manager-starter-kit",
+        "note": "Both teach Pinterest search-bar keyword research and pin making; Etsy kit's Pinterest section is a seller-side subset."
+      },
+      {
+        "id": "comment-to-dm-kit",
+        "note": "Both warn not to move marketplace buyers off-platform via DMs."
+      }
+    ],
+    "missing_information": [
+      "No Etsy fee figures (deliberate: 'We don't list Etsy fee amounts here because they change'); listing title length, tag count, image sizes and file limits are all 'check Etsy's current' with no figures.",
+      "No Shopify equivalent steps (store setup, digital delivery app, policies).",
+      "Time to first sale is UNKNOWN / 'weeks to months (EST)'."
+    ],
+    "research_verification": [
+      {
+        "item": "'A first sale can take weeks to months. How long is UNKNOWN'",
+        "label": "UNKNOWN",
+        "check_date": "none",
+        "status": "Labelled; no date."
+      },
+      {
+        "item": "'Slow is normal here. A first sale can take weeks to months (EST)'",
+        "label": "EST",
+        "check_date": "none",
+        "status": "Labelled EST; no check date."
+      },
+      {
+        "item": "Etsy can remove listings and suspend shops after an IP report",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform rule, points to Etsy's IP policy; undated."
+      },
+      {
+        "item": "Etsy prohibits offering discounts/freebies/refunds in exchange for reviews",
+        "label": "none",
+        "check_date": "none",
+        "status": "Platform rule, undated."
+      },
+      {
+        "item": "Tax on digital downloads differs by country (GST AU/NZ, VAT UK, US/Canada sales tax); Etsy collects some",
+        "label": "none",
+        "check_date": "none",
+        "status": "General pointer, no figures."
+      },
+      {
+        "item": "Fees, title length, tag slots, image ratio, file size/count limits",
+        "label": "n/a",
+        "check_date": "n/a",
+        "status": "Intentionally left to the user to check; no figures given."
+      }
+    ],
+    "compliance_flags": [
+      "No income claims ('We make no promises about sales or income'). Review guidance is Etsy-compliant and anti-fake. No PLR/MRR: the kit tells users not to resell Canva stock elements and to sell only their own designs.",
+      "Feedback/outreach messages limited to 'people you know or groups whose rules allow it', which is consistent with spam rules.",
+      "Unlabelled undated platform rules (IP removals, review incentives) conflict mildly with the labelling rule.",
+      "PDF imprint refund wording matches exactly. No [the former trading entity], lawyer, testimonial or family issues found."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Well structured and compliant, but Etsy is a future module. For the Shopify-first app, the platform-neutral steps need re-framing and the Etsy-specific rules need dated verification."
+    }
+  },
+  {
+    "id": "pinterest-manager-starter-kit",
+    "title": "Pinterest Manager Starter Kit",
+    "file": {
+      "json": "02_products/content/pinterest-manager-starter-kit.json",
+      "pdf": "02_products/pdf/pinterest-manager-starter-kit.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 29,
+    "bundles": [
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "Helps a beginner start a small Pinterest management service for product brands and bloggers, with packages, workflows and reporting (tagline). Covers what the role does (keywords, pin design, scheduling, board optimisation, monthly reporting), who pays (including 'Etsy and Shopify sellers') and honest watch-outs (offshore pricing, churn, US-centred demand). Templates: three illustrative packages with placeholder prices, a free 30-day-pins audit checklist and one-page summary, an 18-question onboarding questionnaire, and a monthly client report. Workflows: a 10-step keyword research process using the search bar, guided search and Pinterest Trends; a pin design checklist (2:3, 1000 x 1500 px labelled FACT, Oct 2026); and a 4-week pin calendar with a monthly rhythm. Scripts for warm-route client finding, boundaries and a day-by-day first-30-days plan.",
+    "sections": [
+      "Start here: What a Pinterest manager does",
+      "Step 1: Choosing a niche of clients",
+      "Template: 3 example service packages",
+      "Template: The free audit (last 30 days of pins)",
+      "Template: Client onboarding questionnaire",
+      "Workflow: Keyword research workflow",
+      "Checklist: Pin design checklist",
+      "Template: 4-week pin calendar",
+      "Template: Monthly client report",
+      "Scripts: Finding your first clients",
+      "Scripts: Boundaries",
+      "Plan: Your first 30 days"
+    ],
+    "customer_problem": "Tagline: 'Start a small Pinterest management service for product brands and bloggers, with clear packages, workflows and honest reporting.' Intro: 'A Pinterest manager helps a brand show up in those searches, consistently, month after month.'",
+    "content_types": [
+      "research",
+      "guidance",
+      "workflow",
+      "template",
+      "question",
+      "example"
+    ],
+    "proposed_destination": "Starter-kit launch pathway (service business). Also feeds social_content/image_briefs for Shopify merchants via the keyword workflow and pin design checklist, since the store owner can use Pinterest as a traffic channel.",
+    "proposed_form": "Interactive feature (30-day pathway checklist, package builder, pin calendar) + AI instruction (pin design rules, keyword workflow) + downloadable resource (onboarding questionnaire, report template).",
+    "duplicates_with": [
+      {
+        "id": "etsy-digital-downloads-starter-kit",
+        "note": "Overlapping Pinterest keyword and pin-making guidance (Etsy kit 'Pinterest as your second traffic source')."
+      },
+      {
+        "id": "va-starter-kit",
+        "note": "Same pathway skeleton (choose niche/services, packages, founding rate, warm openers, boundaries, onboarding, 30-day table) and the same founding-rate callout wording as the tutor kit."
+      }
+    ],
+    "missing_information": [
+      "Package prices are placeholders; rate evidence exists only for the US. 'No Australian evidence in our research, and little for the UK, Canada or NZ'.",
+      "The Income Fit Test 'Pinterest management Opportunity Card' it builds on is out of scope.",
+      "No Shopify-specific pin/catalogue set-up steps beyond 'Rich Pins or product catalogue set up, if relevant'."
+    ],
+    "research_verification": [
+      {
+        "item": "Retainers roughly US$300-1,500 a month (US freelance and agency pricing guides)",
+        "label": "EST",
+        "check_date": "October 2026",
+        "status": "Compliant: labelled EST with date; sources not named."
+      },
+      {
+        "item": "Pin format 2:3, e.g. 1000 x 1500 px",
+        "label": "FACT",
+        "check_date": "Oct 2026",
+        "status": "Compliant."
+      },
+      {
+        "item": "In Australia and Canada even one unsolicited commercial email or DM can breach spam law; no bulk threshold",
+        "label": "none",
+        "check_date": "none",
+        "status": "Legal claim, unlabelled and undated; points to regulators. Needs a FACT label and check date."
+      },
+      {
+        "item": "'Pinterest results take months' / 'usually take a few months'",
+        "label": "none",
+        "check_date": "none",
+        "status": "Unlabelled estimate."
+      },
+      {
+        "item": "Pinterest Analytics metric names/definitions",
+        "label": "none",
+        "check_date": "none",
+        "status": "Callout: 'Metric names and definitions can change.'"
+      }
+    ],
+    "compliance_flags": [
+      "Founding-rate scripts are guarded against fake discounts ('Only call it a founding rate if your regular price is already set...'). OK.",
+      "Review request is permission-based. No income claims: the boundaries script says 'I can't promise specific traffic or sales numbers'. The rate figure is labelled EST.",
+      "Unlabelled spam-law statement conflicts with the labelling rule.",
+      "'Agree a time window for calls that suits your family hours' is generic and not about Vee. PDF imprint refund wording matches exactly."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Complete pathway, but it's a service business, not a Shopify store, so it only fits Empire Studio if service pathways are in scope. The pin and keyword workflows are reusable now for store marketing."
+    }
+  },
+  {
+    "id": "tutor-lesson-starter-kit",
+    "title": "Tutor & Lesson Starter Kit",
+    "file": {
+      "json": "02_products/content/tutor-lesson-starter-kit.json",
+      "pdf": "02_products/pdf/tutor-lesson-starter-kit.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 29,
+    "bundles": [
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "Takes a beginner from choosing a subject and student type to booking a first five regular online students (tagline; 'Start here'). Compares four student types by hours and needs, and platform vs direct teaching. The 'platform rule' is that students met on a platform stay on it; Preply commission is given as an EST (Oct 2026). Templates: lesson plan, a 50-minute first-lesson structure, a trial-lesson script with platform and direct asks, welcome/reschedule/progress/payment messages and a 10-clause cancellation policy (marked 'not legal advice'). A safeguarding section lists background-check types by country (AU, UK, NZ, CA, US) and a safe-practice checklist for teaching children. A pricing worksheet with an illustrative per-hour calculation including prep time, a first-5-students plan and tracker, and a 30-day plan.",
+    "sections": [
+      "Start here: How this kit works",
+      "Step 1: Choose your subject and student type",
+      "Step 2: Platform or direct?",
+      "Template: Lesson plan template",
+      "Structure: Your first-lesson structure",
+      "Script: Trial lesson script",
+      "Set-up: Booking and payment set-up",
+      "Templates: Parent and student messages",
+      "Template: Cancellation policy",
+      "Safeguarding: Safeguarding and background checks",
+      "Worksheet: Pricing your lessons",
+      "Plan: Your first 5 students",
+      "Plan: Your 30-day plan"
+    ],
+    "customer_problem": "Tagline: 'Choose what and who you teach, set up simple lessons, bookings and policies, and find your first five students online.' Step 1 intro: 'Maths tutor is broad. Maths for adults returning to study is easy to choose.'",
+    "content_types": [
+      "research",
+      "guidance",
+      "template",
+      "workflow",
+      "question",
+      "formula",
+      "example"
+    ],
+    "proposed_destination": "Starter-kit launch pathway (service business; not Shopify-specific). Possible future service-booking module.",
+    "proposed_form": "Interactive feature (30-day pathway checklist, pricing calculator, students tracker) + downloadable resource (lesson plan, policy and message templates) + educational article (safeguarding by country, with dated verification).",
+    "duplicates_with": [
+      {
+        "id": "va-starter-kit",
+        "note": "Shared pathway skeleton and the identical founding-rate / fake-discount callout (also in Pinterest kit)."
+      },
+      {
+        "id": "pinterest-manager-starter-kit",
+        "note": "Same structure for warm outreach, spam-law callout and 30-day plan."
+      }
+    ],
+    "missing_information": [
+      "All rates are 'UNKNOWN until you check'; the illustrative table has a [price] placeholder.",
+      "No Shopify relevance stated; selling lessons through a store is not discussed.",
+      "Safeguarding table gives check names only, with no dates, costs or eligibility details (explicitly varies)."
+    ],
+    "research_verification": [
+      {
+        "item": "Preply keeps the full fee for each new student's trial lesson, then commission about 33% down to 18%",
+        "label": "EST",
+        "check_date": "Oct 2026",
+        "status": "Compliant (third-party breakdown, unnamed)."
+      },
+      {
+        "item": "Background-check names per country (WWCC, DBS/PVG/AccessNI, NZ Police vetting, vulnerable sector check, US varies by state)",
+        "label": "none",
+        "check_date": "none",
+        "status": "Legal/regulatory pointers, unlabelled and undated."
+      },
+      {
+        "item": "Session lengths 45-60 min; first lesson about 50 minutes; trial 30 minutes; 90-second profile video; aim for three trial lessons in week 1",
+        "label": "none",
+        "check_date": "none",
+        "status": "Guidance figures, unlabelled."
+      },
+      {
+        "item": "Illustrative pricing: 20 minutes prep, 80 minutes total, formula (price minus fees) / 80 x 60",
+        "label": "illustrative",
+        "check_date": "n/a",
+        "status": "Labelled illustrative, not EST/FACT."
+      },
+      {
+        "item": "Local private rates and trial-to-regular conversion",
+        "label": "UNKNOWN",
+        "check_date": "n/a",
+        "status": "Correctly labelled."
+      }
+    ],
+    "compliance_flags": [
+      "Testimonial request is permission-based ('first name only. Happy to show you the wording first'), with a ban on incentives. OK.",
+      "Founding-rate ask is guarded against fake discounts. No income claims ('We make no promises about income or student numbers').",
+      "Cancellation policy references a refund 'for that lesson'. It's a buyer's own policy template, not HLE's refund wording, so it's acceptable as a template.",
+      "Unlabelled safeguarding/legal pointers conflict with the labelling rule. PDF imprint refund wording matches exactly. No [the former trading entity] or lawyer terms."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Thorough and compliant, but it's a service pathway with no Shopify fit, and safeguarding/legal content needs dated verification before the app shows it."
+    }
+  },
+  {
+    "id": "va-starter-kit",
+    "title": "VA & Online Business Manager Starter Kit",
+    "file": {
+      "json": "02_products/content/va-starter-kit.json",
+      "pdf": "02_products/pdf/va-starter-kit.pdf"
+    },
+    "version": "1.1 (PDF cover imprint: 'Version 1.1 · October 2026.' (not stated in the content JSON))",
+    "price_usd": 29,
+    "bundles": [
+      {
+        "slug": "the-whole-empire",
+        "name": "The Whole Empire",
+        "price_usd": 99,
+        "source": "catalog.py BUNDLES (contents = all FILES keys)"
+      }
+    ],
+    "content_summary": "Sets up a small virtual assistant service that fits limited hours, from first 2-3 services to a first paying client, with a later VA-to-OBM path (tagline; 'Start here'). Service selection steps and six starter service ideas (including 'Order and supplier admin' for 'Shopify and Etsy sellers'), three illustrative packages (5, 10, 15-20 hours a week) and a one-page services menu template. A floor-rate pricing method (earnings + costs + tax set-aside divided by billable hours) with an illustrative example, and an AU$35-65/hour EST range to check. Client-finding openers, a 20-minute discovery-call script with a paid two-week pilot, onboarding/security checklists, a welcome email, 20 SOP templates, a weekly report and boundaries scripts. A tools overview by category, signs of OBM readiness and a day-by-day first-30-days plan.",
+    "sections": [
+      "Start here: What this kit is for",
+      "Step 1: Choose your first 2-3 services",
+      "Template: Your services menu, with 3 example packages",
+      "Worksheet: Pricing worksheet",
+      "Scripts: Finding your first clients and the discovery call",
+      "Template: Client onboarding checklist and welcome email",
+      "SOPs 1-10: SOP templates: inbox, calendar and money admin",
+      "SOPs 11-20: SOP templates: customers, content and systems",
+      "Template: Weekly client report",
+      "Scripts: Boundaries and hours scripts",
+      "Overview: Tools overview",
+      "Growing: When to move from VA to OBM",
+      "Plan: Your first 30 days"
+    ],
+    "customer_problem": "Tagline: 'Set up a small, steady virtual assistant service that fits your hours, with the scripts, templates and systems to run it calmly.' 'Start here': 'This kit walks you from \"I could do that\" to your first paying client and a calm way of working.'",
+    "content_types": [
+      "research",
+      "guidance",
+      "workflow",
+      "template",
+      "formula",
+      "question",
+      "example"
+    ],
+    "proposed_destination": "Starter-kit launch pathway (service business). The 20 SOPs could seed an operations/admin library for Shopify store owners (order and supplier follow-up, review requests, newsletter preparation).",
+    "proposed_form": "Interactive feature (30-day pathway checklist, floor-rate calculator) + structured data (20 SOPs) + downloadable resource (services menu, welcome email, report templates).",
+    "duplicates_with": [
+      {
+        "id": "pinterest-manager-starter-kit",
+        "note": "Same pathway skeleton (services/packages, founding rate, five warm openers, boundaries, onboarding, 30-day table)."
+      },
+      {
+        "id": "tutor-lesson-starter-kit",
+        "note": "Same founding-rate and spam-law guidance; similar payment-reminder/late-payment scripts."
+      }
+    ],
+    "missing_information": [
+      "Rate evidence only for Australia ('2026', no month); US/UK/CA/NZ left to the user.",
+      "The Income Fit Test 'VA to OBM Opportunity Card' it builds on is out of scope.",
+      "No Shopify-store pathway; Shopify appears only as a client type."
+    ],
+    "research_verification": [
+      {
+        "item": "Australia freelance marketplace listings suggested roughly AU$35-65 an hour",
+        "label": "EST",
+        "check_date": "2026 (no month)",
+        "status": "Labelled EST; check date lacks a month."
+      },
+      {
+        "item": "Floor-rate example: 1,500 + 120 + 400 = 2,020 / 40 = 50.50",
+        "label": "illustrative ('example')",
+        "check_date": "n/a",
+        "status": "Arithmetic verified (2,020/40 = 50.5). Labelled example, not EST."
+      },
+      {
+        "item": "Spam laws: Spam Act (AU), PECR (UK), CASL (CA), CAN-SPAM (US), UEMA (NZ); in AU and CA even one commercial email needs consent",
+        "label": "none",
+        "check_date": "none",
+        "status": "Legal claim, unlabelled and undated."
+      },
+      {
+        "item": "Invoice chasing tiers: day 1-7, 8-21, over 21 days; rate-raise notice at least 30 days",
+        "label": "none",
+        "check_date": "n/a",
+        "status": "Process guidance, not external facts."
+      }
+    ],
+    "compliance_flags": [
+      "No income claims ('There is no single right rate... Every number on this page is illustrative'); the rate range is labelled EST.",
+      "Founding rate has an end date in writing (Pricing tips); review requests follow platform rules and ban writing reviews for clients.",
+      "Unlabelled legal statements (spam laws) conflict with the labelling rule. 'Clear boundaries protect your family time' is generic, not about Vee.",
+      "Cross-sell 'our First 5 Customers guide (sold separately) has first-client scripts for 23 side-income ideas' is HLE self-promotion; strip in the app. PDF imprint refund wording matches exactly."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Strong service pathway and SOP library, but not a Shopify-store pathway. Legal pointers need dated labels, and the HLE cross-sells need removing."
+    }
+  }
+]

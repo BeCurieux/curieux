@@ -1,0 +1,89 @@
+--- a/source/report_src.html
++++ b/source/report_src.html
+@@ -102,10 +102,10 @@
+ .day input[type=checkbox]{width:22px;height:22px;accent-color:var(--aub);margin-top:4px}
+ .done-note{font-size:15px;color:var(--mute);margin-top:14px}
+ /* decision */
+-.gates{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
++.gates{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+ .gate{padding:20px;border:1px solid var(--line);background:var(--paper)}
+ .gate h3{font-size:22px}
+-.gate.go{border-top:5px solid var(--good)}.gate.adj{border-top:5px solid var(--warn)}.gate.stop{border-top:5px solid var(--ink)}
++.gate.go{border-top:5px solid var(--good)}.gate.adj{border-top:5px solid var(--warn)}.gate.stop{border-top:5px solid var(--ink)}.gate.few{border-top:5px solid var(--blush)}
+ .gate ul{padding-left:18px;margin:10px 0 0}.gate li{margin:6px 0;font-size:15.5px}
+ .backup{margin-top:20px;display:grid;gap:14px}
+ .printonly{display:none}
+@@ -286,37 +286,44 @@
+ }
+ function calcHTML(s){
+  const o = s.o, u = UNIT[o.id] || "sale";
+- const c = C[o.id] || (C[o.id] = {start: s.cap, price: "", hrs: "", cost: 0, fixed: 0});
++ const c = C[o.id] || (C[o.id] = {start: s.cap, price: "", hrs: "", cost: 0, fixed: 0, unpaid: 2});
+  return `<div class="calc" id="calc">
+   <div>
+    <div class="field"><label>Price per ${esc(u)} (${sym()})</label><input class="inp" type="number" min="0" data-c="price" value="${esc(c.price)}" placeholder="Your price"><small>From your Day 5 research. Check before you rely on it: ${esc(o.verify)}</small></div>
+    <div class="field"><label>Hours per ${esc(u)}, incl. admin</label><input class="inp" type="number" min="0" step="0.25" data-c="hrs" value="${esc(c.hrs)}" placeholder="e.g. 1.5"></div>
+    <div class="field"><label>Costs per ${esc(u)} (${sym()})</label><input class="inp" type="number" min="0" data-c="cost" value="${esc(c.cost)}"><small>Materials, postage, platform and payment fees.</small></div>
+    <div class="field"><label>Monthly running costs (${sym()})</label><input class="inp" type="number" min="0" data-c="fixed" value="${esc(c.fixed)}"><small>Software, subscriptions, insurance.</small></div>
++   <div class="field"><label>Unpaid hours a week</label><input class="inp" type="number" min="0" step="0.5" data-c="unpaid" value="${esc(c.unpaid === undefined ? 2 : c.unpaid)}"><small>Finding customers, messages and admin that nobody pays for. 2 is the kit's allowance; change it if yours is different.</small></div>
+    <div class="field"><label>Start-up cost (${sym()})</label><input class="inp" type="number" min="0" data-c="start" value="${esc(c.start)}"><small>Prefilled with our estimate <span class="tag est">EST</span> for your country. Change it to your real number.</small></div>
+   </div>
+   <div class="out" id="calcout"></div>
+  </div>`;
+ }
++function calcNums(c, H){
++ const price = +c.price, hrs = +c.hrs, cost = +c.cost || 0, fixed = +c.fixed || 0, start = +c.start || 0, unpaid = c.unpaid === undefined || c.unpaid === "" ? 2 : +c.unpaid || 0, mH = H * 52 / 12, paid = Math.max(0, H - unpaid);
++ if (!price || !hrs) return null;
++ const margin = price - cost, cap = paid * 52 / 12 / hrs;
++ const sc = [0.25, 0.5, 1].map(f => { const n = Math.floor(cap * f), p = n * margin - fixed; return {f, n, p, h: p / mH}; });
++ return {margin, cap, paid, unpaid, sc, be: margin > 0 ? Math.ceil(start / margin) : null};
++}
+ function calcOut(s){
+  const o = s.o, c = C[o.id], u = UNIT[o.id] || "sale";
+- const price = +c.price, hrs = +c.hrs, cost = +c.cost || 0, fixed = +c.fixed || 0, start = +c.start || 0, H = +A.hours, mH = H * 52 / 12;
+- if (!price || !hrs) return `<p class="empty">Enter your price and hours per ${esc(u)} to see your break-even, your real hourly return and three scenarios. Nothing is filled in for you, because a made-up price would be a made-up result.</p>`;
+- const margin = price - cost, cap = mH / hrs;
+- const sc = [0.25, 0.5, 1].map(f => { const n = Math.floor(cap * f), p = n * margin - fixed; return {f, n, p, h: p / mH}; });
+- const be = margin > 0 ? Math.ceil(start / margin) : null;
++ const H = +A.hours, k = calcNums(c, H);
++ if (!k) return `<p class="empty">Enter your price and hours per ${esc(u)} to see your break-even, your real hourly return and three scenarios. Nothing is filled in for you, because a made-up price would be a made-up result.</p>`;
++ const {margin, cap, paid, unpaid, sc, be} = k;
+  const mid = sc[1], floor = +A.minrate;
+  const sig = margin <= 0 ? `<div class="signal low">Each ${esc(u)} costs more than it earns at this price. Change the price or the costs before anything else.</div>`
++   : paid === 0 ? `<div class="signal low">With ${unpaid} unpaid hours a week, none of your ${H} hours are left for paid work. Free up more hours, or cut the unpaid ones, before you test this.</div>`
+    : mid.h >= floor ? `<div class="signal ok">At half your hours booked, this returns about ${money(mid.h)} an hour, at or above your ${money(floor)} floor. Worth testing.</div>`
+    : sc[2].h >= floor ? `<div class="signal">You only reach your ${money(floor)}/hr floor if nearly all your hours are paid work, which is rare early on. Test a higher price, or count this as a Day 14 warning sign.</div>`
+    : `<div class="signal low">Even fully booked, this returns about ${money(sc[2].h)} an hour, below your ${money(floor)} floor. Raise the price, cut the hours per ${esc(u)}, or treat it as a stop signal.</div>`;
+  return `<div class="row"><span>Earned per ${esc(u)} after costs</span><b>${money(margin)}</b></div>
+   <div class="row"><span>${esc(u[0].toUpperCase() + u.slice(1))}s to win back your start-up</span><b>${be === null ? "never at this price" : be}</b></div>
+-  <div class="row"><span>Most you could do a month in ${H} hrs/week</span><b>${Math.floor(cap)}</b></div>
++  <div class="row"><span>Most you could do a month in your ${paid} paid hrs/week</span><b>${Math.floor(cap)}</b></div>
+   <table class="scen"><tr><th>Busy</th><th class="n">Sold / mo</th><th class="n">Profit / mo</th><th class="n">Per hr</th></tr>
+   ${sc.map(x => `<tr><td>${x.f * 100}%</td><td class="n">${x.n}</td><td class="n">${money(x.p)}</td><td class="n">${money(x.h)}</td></tr>`).join("")}</table>
+   ${sig}
+-  <p style="font-size:13px;color:var(--mute)">"Busy" is the share of your ${H} weekly hours spent on paid work. Before tax. A scenario from your inputs, not a forecast. "Per hour" spreads profit over all ${H} of your weekly hours, because unpaid hours spent finding customers are still your hours.</p>`;
++  <p style="font-size:13px;color:var(--mute)">"Busy" is the share of your ${paid} paid hours a week (your ${H} hours less ${unpaid} unpaid) that customers actually buy. Before tax. A scenario from your inputs, not a forecast. "Per hour" spreads profit over all ${H} of your weekly hours, because unpaid hours spent finding customers are still your hours.</p>`;
+ }
+ function report(){
+  const scored = scoreAll(OPTS, {...A, block: +A.block}), t = top3(scored), co = ctry(), name = (A.name || "").trim();
+@@ -368,16 +375,17 @@
+   h += `<div class="sec pagebreak"><span class="lab">06 · Day 14</span><h2>Go, adjust <em>or stop.</em></h2>
+    <p class="lead">Decide on evidence that people will buy, not on whether you enjoyed it. Your lines, set now so day-14 you can't move them:</p>
+    <div class="gates">
+-    <div class="gate go"><h3>Go: next test</h3><ul><li>5+ real conversations with people who fit your customer type</li><li>${prod ? "1+ order or pre-order, and 1+ person asked about price" : "2+ people asked about price or booking unprompted, and 1+ firm, dated yes or deposit"}</li><li>Your calculator, with real numbers, shows ${money(+A.minrate)}/hr or more at 50% busy</li></ul></div>
++    <div class="gate few"><h3>Not enough evidence yet</h3><ul><li>Fewer than 5 real conversations with people who fit your customer type</li><li>That isn't a no; it's not enough information. Repeat Days 9-12 with a different channel or a sharper customer type, aiming for five to ten real conversations. Don't spend money on the idea yet.</li><li>If a second round still can't reach five people, the problem is reach, and that's an answer about this idea for you.</li></ul></div>
++    <div class="gate go"><h3>Go: next test</h3><ul><li>5+ real conversations with people who fit your customer type</li><li>${prod ? "1+ order or pre-order, and 1+ person asked about price" : "2+ people asked about price or booking unprompted, and 1+ firm, dated yes or deposit"}</li><li>Or, in a slow-buying market (B2B retainers, anything with approvals, high-ticket packages): 2+ people asked about price or timing unprompted, and their feedback was specific (what they'd change, when they'd need it, what they'd pay). Commitments may come after 14 days.</li><li>Your calculator, with real numbers, shows ${money(+A.minrate)}/hr or more at 50% busy</li></ul></div>
+     <div class="gate adj"><h3>Adjust: change one thing</h3><ul><li>Demand is there but a number is off (price, hours or costs)</li><li>Or there's interest without commitments yet</li><li>Change one thing (price, offer, customer or channel) and repeat Days 9-12. Two adjust rounds with no commitment means stop.</li></ul></div>
+     <div class="gate stop"><h3>Stop: and that's a result</h3><ul><li>5+ real conversations and nobody asked about price</li><li>Or you don't want another 14 days of this</li><li>Go to your back-up below. You found out for the price of this kit and two weeks.</li></ul></div>
+    </div>
+-   <p class="mute" style="font-size:15px">Fewer than 5 real conversations isn't a no; it's not enough evidence yet. Try a different place to find people and repeat Days 9-12. The full scorecard is in your Go / No-Go Scorecard.</p></div>`;
++   <p class="mute" style="font-size:15px">Check in this order: enough evidence first, then go, adjust or stop. The full scorecard is in your Go / No-Go Scorecard.</p></div>`;
+   // 7 backups
+   if (t.length > 1) h += `<div class="sec"><span class="lab">07 · Your back-ups</span><h2>If your first pick is a <em>no.</em></h2><div class="backup">${t.slice(1).map((s,k) => `<div class="box"><h3><span style="font-family:LoraNum,Lora,serif">${k+2}.</span> ${esc(s.o.name)}</h3><p style="margin-top:6px">${esc(whyFits(s).filter(x => !/^It (needs about|works in|doesn't rely|can be done)/.test(x)).slice(0,2).join(" "))} Start-up about ${s.sym}${s.cap.toLocaleString("en")} <span class="tag est">EST</span>, first income often around ${s.o.weeks} week${s.o.weeks>1?"s":""}.</p><p><b>Cheapest first test:</b> ${esc(s.o.test)}</p></div>`).join("")}</div></div>`;
+   const f = scored.filter(x => x.filtered);
+   h += `<div class="sec"><span class="lab">08 · How we scored this</span><h2>No black <em>box.</em></h2>
+-   <p>Every idea is first checked against your hard limits (hours, budget, evenings, car, space, checks, contact, camera, remote, and money within 8 weeks). Anything that fails one is ruled out. What's left is scored out of 36: lifestyle fit (hours, blocks, evenings, contact), practical readiness (skills counted twice, budget, tech), and commercial evidence (demand, whether income can grow beyond your hours, competition, and speed to first income). Ties go to what you said matters most. It's a fixed set of rules, not AI, and it can't know your local market, your network or your talent. That's what the 14 days are for.</p>
++   <p>Every idea is first checked against your hard limits (hours, budget, evenings, car, space, checks, contact, camera, remote, and money within 8 weeks). Anything that fails one is ruled out. What's left is scored out of 36: lifestyle fit (hours, blocks, evenings, contact), practical readiness (skills counted twice, budget, tech), and commercial evidence (demand, whether income can grow beyond your hours, competition, and speed to first income). Ties go to what you said matters most, then to whether it matches what you said you'd prefer (products or services, recurring or one-off). It's a fixed set of rules, not AI, and it can't know your local market, your network or your talent. That's what the 14 days are for.</p>
+    ${f.length ? `<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:700">${f.length} ideas ruled out for you, and why</summary><ul style="font-size:15px">${f.map(x => `<li><b>${esc(x.o.name)}</b>: ${esc(x.why.join("; "))}</li>`).join("")}</ul></details>` : ""}</div>`;
+  }
+  h += `<div class="actions noprint"><button class="btn" id="print">Save as PDF / print</button><button class="btn ghost" id="edit">Change my answers</button><button class="btn ghost" id="restart">Start again</button></div>

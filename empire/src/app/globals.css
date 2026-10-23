@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/*
+ * Her Little Empire visual identity (PRINT_STYLE v2 and the brand book,
+ * October 2026). Fonts are the brand's own files, self-hosted from
+ * public/fonts (all SIL Open Font License).
+ *
+ * Contrast (WCAG, measured): charcoal on ivory 14.3:1, aubergine on ivory
+ * 12.2:1, mute on ivory 7.5:1, rose-ink on ivory 5.1:1, charcoal on blush
+ * 10.5:1, ivory on aubergine 12.2:1. Rose (#DA5265) is 3.5:1 on ivory:
+ * large text and decoration only, never body text — as the brand book says.
+ * No black backgrounds and no hot pink, anywhere.
+ */
+
+@font-face {
+  font-family: "Bodoni Moda";
+  src: url("/fonts/bodoni-moda-latin-opsz-normal.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bodoni Moda";
+  src: url("/fonts/bodoni-moda-latin-opsz-italic.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-latin-500-normal.woff2") format("woff2");
+  font-weight: 400 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-latin-500-italic.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-latin-700-normal.woff2") format("woff2");
+  font-weight: 600 700;
+  font-display: swap;
+}
+/* The brand ships Inter 500/600/700; 500 is the brand's reading weight. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin-500-normal.woff2") format("woff2");
+  font-weight: 400 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin-700-normal.woff2") format("woff2");
+  font-weight: 700 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Caveat";
+  src: url("/fonts/caveat-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --aubergine: #43252c;
+  --aubergine-deep: #331c22;
+  --ivory: #f7f2e9;
+  --paper: #fffcf7;
+  --blush: #eacacb;
+  /* A tint of blush (half blush, half paper) for large soft panels. */
+  --blush-soft: #f5e3e1;
+  --rose: #da5265;
+  --rose-ink: #b8384c;
+  --charcoal: #242122;
+  --line: #e3d8cf;
+  --mute: #564b4e;
+  --success: #2f6b4e;
+  --warning: #8a5a12;
+  --danger: #9b2c2c;
+}
+
+@theme inline {
+  --color-aubergine: var(--aubergine);
+  --color-aubergine-deep: var(--aubergine-deep);
+  --color-ivory: var(--ivory);
+  --color-paper: var(--paper);
+  --color-blush: var(--blush);
+  --color-blush-soft: var(--blush-soft);
+  --color-rose: var(--rose);
+  --color-rose-ink: var(--rose-ink);
+  --color-charcoal: var(--charcoal);
+  --color-line: var(--line);
+  --color-mute: var(--mute);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-serif: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  --font-num: "Lora", Georgia, serif;
+  --font-hand: "Caveat", cursive;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--ivory);
+    color: var(--charcoal);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-variant-numeric: lining-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    color: var(--aubergine);
+    font-weight: 800;
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+  }
+  em {
+    font-style: italic;
+  }
+  :focus-visible {
+    outline: 3px solid var(--aubergine);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--blush);
+  }
+}
+
+@layer components {
+  /* Labels: Inter 700, uppercase, wide tracking, rose-ink (PRINT_STYLE v2). */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rose-ink);
+  }
+  /* Numbers are never set in Bodoni (its numerals look odd): Lora instead. */
+  .font-num {
+    font-family: var(--font-num);
+    font-weight: 500;
+  }
+  .prose-empire p + p {
+    margin-top: 0.75rem;
+  }
+  .field-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    padding: 0.7rem 0.9rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--charcoal);
+  }
+  .field-input:focus {
+    outline: 3px solid var(--blush);
+    border-color: var(--aubergine);
+  }
+  .field-input[aria-invalid="true"] {
+    border-color: var(--danger);
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

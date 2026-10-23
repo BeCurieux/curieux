@@ -1,0 +1,527 @@
+[
+  {
+    "id": "start-here",
+    "title": "Start Here",
+    "file": "01_income-fit-test/kit/00_Start_Here.pdf",
+    "version": "1.4 (header and footer: 'Version 1.4 · 21 October 2026')",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "Two-page orientation guide. Page 1 gives five steps: open the offline report, answer '17 Fit Finder questions, plus where you live and the least you'd accept for an hour of your time', read the report and save it as a PDF, read the three matching Opportunity Cards, and start Day 4 of the 14-Day Test Plan because 'Your report has done Days 1 to 3'. Page 2 shows a sample Fit Finder result for 'A fictional mother in Australia' (Email flows 12/12/10 → 34; Resume writing 12/12/9 → 33; VA 12/11/9 → 32, all 'Strong fit'), noting that 12 of the 23 options were filtered out. It also has a which-tool-which-day map, the seven-file list, formats and printing, help/refunds/corrections, a note about a planned optional membership, and a 'what this kit is / is not' box. The sample matches the workbook's cached default result exactly.",
+    "sections": [
+      "Start in five minutes",
+      "What a result looks like (sample Fit Finder result)",
+      "Which tool, which day",
+      "The seven files",
+      "Formats and printing",
+      "Help, refunds and corrections",
+      "What this kit is / What it is not"
+    ],
+    "customer_problem": "'Find the income idea that fits your life. Test it in 14 days.' The work fits 'around school pick-up, a day job or whatever else fills your week.' (00_Start_Here.pdf, p.1)",
+    "content_types": [
+      "guidance",
+      "example"
+    ],
+    "proposed_destination": [
+      "FIT Finder questionnaire/results",
+      "downloadable resource"
+    ],
+    "proposed_form": [
+      "educational article",
+      "structured data"
+    ],
+    "duplicates_with": [
+      "workbook: the sample profile and result (34/33/32) are the workbook's pre-loaded default inputs and cached outputs on '1 Fit Finder' and 'Income Pathway'",
+      "14-day-test-plan: the 'Which tool, which day' map repeats the plan's day-to-workflow assignments",
+      "ai-shortcut-system: the workflow-per-day mapping is repeated",
+      "rules-guides / opportunity-cards / go-no-go-scorecard: the disclaimer block and ABN/refund footer appear in each",
+      "01_income-fit-test/source/quickstart.py: holds an OLDER Start Here (6 parts, '25 researched options', 'GO, ADJUST or STOP', 'Australian Quick Start'). It does not generate this v1.4 PDF",
+      "source/common.py (shared by all PDF generators): VERSION = 'Version 1.3 · 21 October 2026', the DISCLAIMER text, nav links and the cover/band templates. It imports restyle_html from /home/claude/brand/print, which is not in the folder, so the build is not reproducible from these sources alone. Its CSS colours (#D0245C, #121012) are not the README brand tokens."
+    ],
+    "missing_information": [
+      "Question count: says '17 Fit Finder questions, plus where you live and the least you'd accept for an hour' (= 19). The report has 20 (it adds a name question), and the workbook asks 17 plus location plus 2 optional (income goal, free-text week), with no minimum-hourly question.",
+      "Step 5 says the report has done Days 1-3, but 'Which tool, which day' still assigns Days 1-2 to the Workbook Fit Finder and Workflow 1. Both paths are offered without saying which one is primary.",
+      "'The seven files' lists 00-06 PDFs and the workbook but leaves out 00_Your_Income_Fit_Report.html, which is the eighth file in the kit folder.",
+      "Price is not stated in this file. The README says US$19, but that is outside the kit documents.",
+      "Version mismatch: this file says 1.4, but every other PDF in the kit and the workbook say Version 1.3 (21 October 2026).",
+      "The generator for this v1.4 PDF is not in source/ (quickstart.py builds an older version)."
+    ],
+    "research_verification": [
+      "'one established seller charges about US$400 a flow, EST' (sample table, Option 1). Labelled EST but no check date on this page; the card cites 'Fiverr: Klaviyo expert cost guide (Aug 2026)', last checked 17 Oct 2026.",
+      "'Twelve of the 23 options were filtered out for this profile'. Verified against the workbook: 12 filtered (options 1, 3, 7, 8, 11, 12, 14, 15, 16, 17, 19, 23).",
+      "'Change one answer (say, five hours in one-hour blocks) and the third option changes'. Verified by re-implementing the workbook logic: #3 becomes Language conversation lessons (12/9/8 → 29).",
+      "Workbook compatibility claim: 'built for Excel and tested with LibreOffice; Numbers and Google Sheets aren't tested yet'. Not a figure, but a product claim to re-check."
+    ],
+    "compliance_flags": [
+      "Refund wording differs: 'Full refund within 14 days of purchase, no questions asked, on top of your consumer rights.' (Help, refunds and corrections). The required sentence is followed by an extra clause. The footer uses the exact wording.",
+      "'A fictional mother in Australia' is labelled fictional and 'not customer outcomes'. This is acceptable: it is not an AI person and not a testimonial.",
+      "Membership mention ('We're planning an optional membership') has no urgency. No issue."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Content is clean, but the question count, the 'report did Days 1-3' versus 'Days 1-2 Workbook' path and the version number (1.4 versus 1.3 elsewhere) must be reconciled before it becomes onboarding copy."
+    }
+  },
+  {
+    "id": "workbook",
+    "title": "The Income Fit Test — Workbook",
+    "file": "01_income-fit-test/kit/01_Workbook.xlsx",
+    "version": "1.3 (Start Here sheet B3: 'Version 1.3 · 21 October 2026'; Options A26 notes v1.3 changes)",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "Nine-sheet spreadsheet: Start Here, 1 Fit Finder, Income Pathway, 2A Service, 2B Product, 2C Asset, 3 Scorecard, Audit and Options. 795 formulas. The Fit Finder scores all 23 options from the Options database against 17 answers plus country. Each option gets lifestyle, practical-readiness and commercial scores (each of 12, total of 36), hard filters with stated reasons, a priority bonus and a deterministic rank key. The three Reality Calculators model pessimistic, base and optimistic scenarios, breakeven and start-up recovery, plus a 5/10/15-hours table (Service and Product only). The Scorecard implements the evidence-gate verdict (NEXT TEST, ADJUST, STOP or INSUFFICIENT EVIDENCE). The Audit sheet holds 20 PASS/FAIL checks against the pre-loaded inputs. Start-up figures are converted from A$ at fixed early-October 2026 rates.",
+    "sections": [
+      "Start Here (sheet)",
+      "1 Fit Finder (sheet)",
+      "Income Pathway (sheet)",
+      "2A Service (Reality Calculator — Services)",
+      "2B Product (Reality Calculator — Products)",
+      "2C Asset (Reality Calculator — Assets)",
+      "3 Scorecard (Go / No-Go Scorecard)",
+      "Audit (reproduce the sample by hand)",
+      "Options (researched database + scoring columns AF-AZ, currency table BB-BG, camera flag BH)"
+    ],
+    "customer_problem": "'The Fit Finder scores your circumstances against researched options; it does not know whether your customers will pay.' and 'The rate you charge and the return you earn are different, because admin and marketing hours are real and unpaid.' (Start Here B18; 2A Service B3)",
+    "content_types": [
+      "question",
+      "formula",
+      "template",
+      "research",
+      "example",
+      "guidance"
+    ],
+    "proposed_destination": [
+      "FIT Finder questionnaire/results",
+      "calculator",
+      "go/no-go scorecard",
+      "opportunity research database",
+      "downloadable resource"
+    ],
+    "proposed_form": [
+      "interactive feature",
+      "structured data",
+      "downloadable resource"
+    ],
+    "duplicates_with": [
+      "opportunities.json: the Options sheet columns A-AD match opportunities.json field for field for all 23 rows (the only differences are blank tag2 values stored as '' in JSON and empty cells in xlsx). The camera flag BH matches opportunities.json extra.CAMERA [1,2,13].",
+      "opportunity-cards: Options Y-AD text ('what you would actually do', who pays, reach, first test, poor fit, verify) is the same as the card text. The dot ratings U-X match the cards' four dots.",
+      "go-no-go-scorecard: '3 Scorecard' copies the PDF's 12 questions, 0-3 scales and gates. Wording differences are listed in fit-kit-methods.md section e.",
+      "14-day-test-plan: Start Here sheet steps 3-4 map to plan Days 3, 6 and 14.",
+      "00_Your_Income_Fit_Report.html (out of scope): Start Here PDF claims the workbook 'uses the same scoring and gives the same top three'. The report's calculator uses different scenarios (see methods.md section e).",
+      "source/build_workbook.py generates this file. It saves as '01_Workbook_v1.3.xlsx' and imports options.py."
+    ],
+    "missing_information": [
+      "Answers 'Prefer selling products or services?' (C16) and 'Prefer recurring clients or one-off projects?' (C17) are collected but not used in any scoring or filter formula. They only appear as text on Income Pathway B8. In the default sample ('prefers services and recurring clients'), #1 and #2 are Project-type options.",
+      "Options columns P (rate evidence), X (pitching load), M (Product/Service/Asset), N (Recurring/Project) and C (group) feed no formula. The cards say the four dots 'feed the Fit Finder's commercial score', but pitching (X) is not part of COMMERCIAL FEASIBILITY (AU = demand + leverage + competition + speed).",
+      "AO 'Checks or resources needed (info)' is calculated but not used in PRACTICAL READINESS (AP = 2×skills + capital + tech).",
+      "There is no 'least you'd accept for an hour' input, though the report and the Scorecard question 'Profitability on paper' both rely on it.",
+      "Scenario naming: the calculators say 'Base', while the Plan, Scorecard PDF and Workflows say 'moderate scenario'.",
+      "2C Asset has no 5/10/15-hours table and no 'share of headline rate' row. Its manual method for other assets is text only.",
+      "The Scorecard cannot enforce 'Two ADJUST rounds without a commitment is a STOP' because it keeps no history.",
+      "Audit B27 cites 'the QA report', which is not in the kit.",
+      "2B Product F15 note 'The number v1.0 was missing' is internal version history in customer-facing text.",
+      "Version 1.3 in the workbook versus 1.4 for the product and Start Here PDF."
+    ],
+    "research_verification": [
+      "Currency rates per AU$1: US$ 0.6928, £ 0.5243, C$ 0.9891, A$ 1, NZ$ 1.2362, other → US$ 0.6928. Header says 'approx., early Oct 2026'. Options BB9 cites exchange-rates.org. No FACT/EST label and no exact check date.",
+      "Options K 'Min start-up (AU$, researched)' per option (0-400). Not labelled. The cards give wider EST ranges (for example card 8 'A$0-800 (EST)' versus K=100; card 15 'A$265-1,500 (EST)' versus K=400).",
+      "Options O 'Weeks to first dollar (EST)'. Point values derived from the card ranges (for example card 14 '3-9 months' → 26; card 12 '4-16 weeks' → 10). The derivation is not documented.",
+      "2A F10: 'Card payments are usually 2-3%; tutoring and freelance platforms often take 15-33%'. Unlabelled, undated.",
+      "2B F10: 'Etsy: 6.5% transaction fee + payment processing ... roughly 9.5-11% (EST). Sales that come through Etsy Offsite Ads cost another 12-15%. Own store: about 2-3%.' EST only on the first figure; no date.",
+      "2C F12: 'Airbnb host-only fee for independent hosts, EST 2026' (15.5%). EST with year only.",
+      "2A F12 'Two hours is a realistic minimum'; F13 'many new businesses sell only a few hours in the first months'. Unlabelled assertions.",
+      "Illustrative defaults (A$45/hr, A$180 start-up, A$60/month, 1.8%; A$45/unit, A$9 materials, 9.5%, A$450, A$40; A$95/night, 18 nights, 15.5%, A$25/booking, A$400, A$30) are flagged as illustrative but not dated.",
+      "Start Here B18: 'Rates and costs come from marketplace and official pages on 16-17 October 2026'."
+    ],
+    "compliance_flags": [
+      "Income goal input (C23) is framed as 'Context only — a goal is not evidence it can be earned.' Acceptable.",
+      "AC17 (Options, option 16) text: '...award and dismissal questions must go to a lawyer or the Fair Work Ombudsman.' This puts 'lawyer' in product copy (it is a referral, not a credential claim; flag for the owner).",
+      "Calculators label every scenario 'Scenario, not a forecast'. No income claims found.",
+      "No refund wording, no [the former trading entity], no testimonials."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Formulas are deterministic, internally consistent and self-tested (20 Audit rows PASS). They can be ported to code directly, with tests built from the Audit sheet. The unused C16/C17 answers and the 'moderate/base' naming need an owner decision but do not block porting."
+    }
+  },
+  {
+    "id": "opportunity-cards",
+    "title": "The Opportunity Cards",
+    "file": "01_income-fit-test/kit/02_Opportunity_Cards.pdf",
+    "version": "1.3 (footer 'Version 1.3 · 21 October 2026'; index notes 'Version 1.1 replaced eight low-leverage options')",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "39-page research catalogue of 23 income options, one card each, researched in Australia (cards last checked 16 Oct 2026 for 1-15 and 17 Oct 2026 for 16-23). It is followed by 'By country' pages (checked 19 Oct 2026) giving a key rule and rate evidence for the US, UK, Canada and NZ for each card. Each card has: school-hours fit, typical blocks, chips (remote, hours, block, start-up, skill, checks, space, car), four dot ratings (demand evidence, income leverage, room in the market, sells without pitching), what you would do, who pays, reach, minimum resources and start-up, ongoing costs and fees, skills, permissions/checks (Australia), observed rates (not typical earnings), time to first dollar, poor-fit reasons, what to verify, shape of the work, a first inexpensive test and named sources. The front matter explains the FACT/EST/UNKNOWN labels, the index of the 23 options, and a 'researched and excluded' list.",
+    "sections": [
+      "Cover",
+      "How to read a card",
+      "Index · Part 1 of 2 (options 1-12)",
+      "Index · Part 2 of 2 (options 13-23) + Researched and excluded",
+      "Card 01 Specialist tutoring for adults and homeschool families (own clients)",
+      "Card 02 Language conversation lessons (Preply, italki, direct)",
+      "Card 03 Bookkeeping clean-up and software training (not regulated tax work)",
+      "Card 04 Resume, LinkedIn and selection-criteria writing",
+      "Card 05 Social media management for local businesses",
+      "Card 06 Print-on-demand brand via Printify to Etsy",
+      "Card 07 Personalised gifts and keepsakes (vinyl, laser, embroidery)",
+      "Card 08 Alterations and repairs as a design-led service",
+      "Card 09 Virtual assistant to online business manager",
+      "Card 10 Curated pre-loved fashion brand (Depop)",
+      "Card 11 Reselling via Facebook Marketplace and eBay",
+      "Card 12 Etsy digital downloads in a micro-niche",
+      "Card 13 UGC video for brands",
+      "Card 14 Affiliate content via Pinterest and a blog",
+      "Card 15 Hosted room or granny flat on Airbnb",
+      "Card 16 Fractional HR and recruitment support",
+      "Card 17 Shopify store set-up and monthly care for local brands",
+      "Card 18 Pinterest management for product brands and bloggers",
+      "Card 19 Podcast and short-form video editing",
+      "Card 20 Canva template packs for one profession",
+      "Card 21 Email flows and copy for small e-commerce brands",
+      "Card 22 Translation and bilingual content (French, Spanish, English)",
+      "Card 23 Productised consulting from your former profession",
+      "By country · Outside Australia: what changes (cards 01-23, US/UK/CA/NZ)"
+    ],
+    "customer_problem": "'23 realistic ways to earn around school hours' ... 'Whether your particular customers will pay you is the one thing no card can know. That is the whole point of the 14 days.' (Cover; How to read a card)",
+    "content_types": [
+      "research",
+      "guidance",
+      "example"
+    ],
+    "proposed_destination": [
+      "opportunity research database",
+      "FIT Finder questionnaire/results",
+      "rules guide"
+    ],
+    "proposed_form": [
+      "structured data",
+      "educational article"
+    ],
+    "duplicates_with": [
+      "opportunities.json (out of scope, consistency only): name, group, chips, dot ratings, contact, start-up index values and the text fields (do, who pays, reach, first test, poor fit, verify) match the card text and the workbook Options sheet.",
+      "workbook: Options sheet columns B-AD repeat card fields; Fit Finder rows 13, 15 and 18 quote the card's poor-fit, first-test and verify lines.",
+      "rules-guides: the By-country 'key rule' column repeats Rules Guide facts (for example the UK 30 sales / about £1,700 platform-reporting exclusion, US 1099-K $20,000/200, FTC disclosure, Canada vulnerable-sector checks, NZ Criminal Record Check).",
+      "start-here: the sample table quotes the card 21, 4 and 9 poor-fit and first-test text.",
+      "card 16 and card 23 repeat the same Expert360 HR-consultant rate sentence word for word.",
+      "card 6, card 12 and card 20 repeat Etsy fee lines (card 12 says 'Etsy fees as on card 6').",
+      "source/cards.py: an OLDER 25-card generator. Its options differ (pet care, cleaning, baking, candles, transcription, Parkhound, Spacer, Turo, Releaseit, Mable). It writes to /home/claude/kit/ and does not generate this 23-card PDF.",
+      "source/common.py (shared by all PDF generators): VERSION = 'Version 1.3 · 21 October 2026', the DISCLAIMER text, nav links and the cover/band templates. It imports restyle_html from /home/claude/brand/print, which is not in the folder, so the build is not reproducible from these sources alone. Its CSS colours (#D0245C, #121012) are not the README brand tokens."
+    ],
+    "missing_information": [
+      "The generator for the current 23-card PDF is not in source/ (cards.py is the old 25-card version).",
+      "The index start-up chip conflicts with the card body ranges: card 1 'under A$150' vs 'A$0-300 (EST)'; card 4 'under A$75' vs 'A$0-150'; card 5 'under A$150' vs 'A$0-300'; card 8 'under A$100' vs 'A$0-800'; card 15 'A$400+' vs 'A$265-1,500'; card 20 'under A$100' vs 'A$50-200'; card 21 'under A$50' vs 'A$0-100'; card 19 'A$200+' vs 'A$0-200 plus a capable laptop'.",
+      "Canva Pro cost is inconsistent: 'about A$20/month' (cards 5, 12) vs 'about A$18 a month' (cards 18, 20).",
+      "Card 1 rates: 'Cluey pays employed tutors about A$30.84-31.20' vs poor-fit 'AU$25-31/hr platform tutors'. The ranges differ.",
+      "Card 23 uses Expert360 HR-consultant day rates as evidence for productised consulting in any profession.",
+      "Card 13: 'the guide doesn't state the currency, probably A$'. The currency is unknown.",
+      "The 'How to read a card' page says the four dots 'feed the Fit Finder's commercial score', but the workbook does not use 'sells without pitching' (X) in the commercial score.",
+      "Expert360's fee to experts is UNKNOWN (flagged on p.2 and card 16).",
+      "Card 6 lists Etsy AU fees as 6.5% + 3% + A$0.25 but omits the Offsite Ads and regulatory operating fee mentioned on card 20.",
+      "The By-country pages have many 'No rate evidence found (UNKNOWN)' and 'No specific rule found (UNKNOWN)' cells (for example all four countries on card 4)."
+    ],
+    "research_verification": [
+      "Card 1: WWCC NSW A$112 for five years (FACT); Superprof free for tutors (FACT); public liability ~A$40/month (EST); Cluey A$30.84-31.20/hr (EST, Indeed); start-up A$0-300 (EST); 2-6 weeks (EST). Last checked 16 Oct 2026.",
+      "Card 2: Preply 33% until 20 hours, 18% after 400 hours, 100% of trial; italki about 21% (EST, Pensight Oct 2026). Repeated unlabelled in 'Why this might be a poor fit'.",
+      "Card 3: TPB BAS-service line (FACT, Dec 2025 factsheet); bookkeeper ads A$36.50/hr (EST, Indeed); PI/PL A$40-60/month (EST).",
+      "Card 4: resume tiers under A$300 / A$300-1,000 / A$1,000+ (EST, Arielle, Jan 2026).",
+      "Card 5: A$22-38 junior, A$38-65 mid, retainers A$1,500-5,000 (EST, solohourly, Aug 2026); Canva about A$20/month (EST).",
+      "Card 6: Etsy AU 6.5% + 3% + A$0.25 (FACT); Printify Premium US$39/month for about 20% off (FACT); Etsy AI disclosure (EST, Etsy Creativity Standards); listings US$0.20.",
+      "Card 7: cutting machine A$300-600, laser A$1,500+ (EST); public liability A$40/month (EST).",
+      "Card 8: A$10-50 per item, median about A$30 (EST, Airtasker Sept 2026); Airtasker 20% Bronze to 12.5% Platinum (FACT); package example 'five hems and two zips for A$120' (unlabelled).",
+      "Card 9: VAs A$35-65/hr (EST, VA Masters Sept 2026); employee median about A$31 (EST, PayScale June 2026).",
+      "Card 10: Depop AU 0% seller fee since 22 July 2026, buyers up to 5% + A$1 (FACT). The 'Who pays' line repeats '0% in Australia since July 2026' without a label.",
+      "Card 11: eBay AU free for non-Pro sellers up to A$25,000 in 12 months (FACT); Facebook Marketplace about 10% on shipped checkout (EST). The 'How you reach them' line repeats 'AU$25,000' without a label.",
+      "Card 12: UK Etsy £2-8 per file (EST); 'a few hundred pounds a month' claims unverified.",
+      "Card 13: about A$100/video beginners, A$175 median (EST); Billo US$50-150 / US$150-500 (EST).",
+      "Card 14: Amazon Associates 1-10% (EST); 3 qualifying sales within 180 days (FACT, checked 21 Oct 2026); hosting A$10-30/month (EST); 'A$5K-50K a month' claims called promotional.",
+      "Card 15: NSW STRA rules (FACT, NSW Planning); STRA registration A$65 and renewal A$25/year (FACT); Airbnb host-only fee 15.5% (EST, Hostfully).",
+      "Card 16: Legal Profession Uniform Law s10 (FACT); accessory liability for Fair Work breaches (EST, law-firm commentary); Expert360 A$900-1,200/day, A$1,200-1,700+, projects A$5,000-20,000 (EST, checked 21 Oct 2026); retainers A$2,500-6,000 (EST, FairWorkMate May 2026); Upwork US$29-150/hr (EST); Upwork 0-15% (FACT).",
+      "Card 17: Airtasker tasks A$200-400 set-up, A$900 custom, A$50-100 edits (EST, 11-16 Oct 2026); AU guides A$2,000-8,000, A$90-150/hr, A$150-750/month care (EST); Airtasker 12.5-20% + tax (FACT, checked 21 Oct 2026); Fiverr 20% (EST); Shopify Partner 20% of subscription for four years + 0.1% (FACT, checked 21 Oct 2026).",
+      "Card 18: Pinterest VA US$6-12 / US$25-50; retainers US$300-700 / 700-1,500 / 1,500-3,000 (EST); Canva Pro about A$18, Tailwind US$15-25 (EST).",
+      "Card 19: podcast editing US$50-100 / 150-350 / 350-600 per episode (EST, Sept 2026); Airtasker A$120 / A$400 / A$1,000 (EST, 16 Oct 2026); Freelancer CapCut US$20-40 (EST); Descript about US$24, CapCut Pro about US$10 (EST).",
+      "Card 20: Etsy US$0.20 listing, 6.5%, 15% Offsite Ads (12% over US$10K), AU regulatory operating fee (FACT); real-estate packs US$17.50-26 (EST, Oct 2026); '92,100 sales and 8,600 reviews' shop statistic (unlabelled beyond the EST range); own Shopify store about A$50+/month (EST).",
+      "Card 21: Fiverr guide US$150-400 / 300-1,200 / 500-2,000 a month (EST, Aug 2026); seller with 191 reviews US$400 per three-email flow (EST); Upwork US$35-79 packages, US$20-30 to US$50-150/hr (EST); Spam Act / ACL / TGA claims (unlabelled legal statements).",
+      "Card 22: AUSIT minimum A$0.25/word, A$0.33 specialist, revision A$65/hr (FACT, Nov 2025); ProZ EUR 0.10-0.15 (EST); NAATI requirement (FACT); ProZ about US$150/year (unlabelled).",
+      "Card 23: TPB, legal admission and AFSL requirements (FACT); pricing heuristic 'hours x your former day-rate equivalent plus 20-30% for scoping risk' (unlabelled method).",
+      "Index excluded list: Redbubble 'tier fees take 26-50% of margin', 'non-hosted Airbnb in Greater Sydney (180-day cap)', 'Uber Carshare (closed Sept 2024)', 'BAS ... without registration (illegal)'. All unlabelled and undated on that page.",
+      "By country (checked 19 Oct 2026): every rate and rule cell needs re-checking. Examples: UK tutoring £30-50/hr (EST, May 2026); Canada Job Bank wage floors 2023-24 (FACT); US BLS bookkeeping median US$24.36/hr May 2025 (FACT); IRS PTIN $18.75 (FACT); eBay US 13.6% final value fee up to US$7,500 (FACT); Trade Me no success fee since 10 March 2026, Ping 2.19% (FACT); Depop US 0% from 15 Jul 2024 (FACT); UK rent-a-room £7,500 (FACT); NZ 8.5% flat-rate credit (FACT); US interpreters median US$28.93/hr (FACT)."
+    ],
+    "compliance_flags": [
+      "'lawyer' appears in product copy on card 16 ('Only admitted lawyers may engage in legal practice'; '...questions to a lawyer or the Fair Work Ombudsman'; '...must go to a lawyer'). Card 23 says 'legal advice needs admission'. These are referrals, not credential claims, but the owner rule says never use 'lawyer' near a product.",
+      "Third-party income figures appear (for example card 14 'A$5K-50K a month' claims, card 12 'a few hundred pounds a month', card 20 '92,100 sales'). Each is framed as unverified or promotional, not as an HLE claim. Low risk, but review against the no-income-claims rule.",
+      "Card body figures are labelled FACT/EST/UNKNOWN with per-card dates, but several repeated figures in 'Who pays', 'How you reach them' and 'Why this might be a poor fit' have no label (cards 2, 10, 11). The index and excluded list have no labels.",
+      "No [the former trading entity], no refund wording, no testimonials, no urgency, no AI people found."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "The structured fields already exist in opportunities.json and match. The card text can feed the research database now. Re-verify the dated figures and resolve the start-up chip versus body-range conflicts and the unlabelled repeats."
+    }
+  },
+  {
+    "id": "ai-shortcut-system",
+    "title": "The AI Shortcut System",
+    "file": "01_income-fit-test/kit/03_AI_Shortcut_System.pdf",
+    "version": "1.3 (footer 'Version 1.3 · 21 October 2026')",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "15-page guide with 12 copy-and-paste prompts for Claude or ChatGPT, one per slow step of the 14-Day Test Plan (Days 1, 4, 5, 6, 7, 8, 9, 10-11, 12, 13, 14 and any day). Opening pages explain how to use a chatbot for first-timers, four forbidden outputs (invented demand or market size, competitor revenue or 'typical earnings', statements about legal or tax obligations, earnings projections), and what the AI is and is not for. Each workflow page has the same shape: what it does, when to use it, what to have ready, the prompt, an example of a useful response, doing it without AI, what a good answer looks like, before you trust it, then, and a privacy line. Workflow 12 is a routine for checking whether the AI invented a claim.",
+    "sections": [
+      "Cover",
+      "Before you start: If you have never used Claude or ChatGPT",
+      "The twelve workflows (index table)",
+      "Workflow 01 · Day 1 · Turn what you already know into things people pay for",
+      "Workflow 02 · Day 4 · Research the people who would buy",
+      "Workflow 03 · Day 5 · Map the competitors and the substitutes",
+      "Workflow 04 · Day 6 · Itemise your costs for the calculator",
+      "Workflow 05 · Day 7 · Write your minimum offer in one sentence",
+      "Workflow 06 · Day 8 · Make the simplest honest sample",
+      "Workflow 07 · Day 9 · Plan who you will talk to, and write the first message",
+      "Workflow 08 · Day 10-11 · Turn conversations into notes you can use",
+      "Workflow 09 · Day 12 · Write the listing, page or post for a small sales test",
+      "Workflow 10 · Day 13 · Count what happened and what it cost you",
+      "Workflow 11 · Day 14 · Make the call: go, adjust or stop",
+      "Workflow 12 · Any day · Check whether the AI just made something up"
+    ],
+    "customer_problem": "'Twelve copy-and-paste workflows ... that do the slow parts of the 14 days: research, structure, drafting and counting. Written for someone who has never opened either.' (Cover)",
+    "content_types": [
+      "workflow",
+      "template",
+      "example",
+      "guidance"
+    ],
+    "proposed_destination": [
+      "AI prompt library",
+      "14-day plan tracker"
+    ],
+    "proposed_form": [
+      "AI instruction",
+      "structured data",
+      "educational article"
+    ],
+    "duplicates_with": [
+      "14-day-test-plan: each plan day names its workflow. The plan's 'Expected output' lines repeat the workflow output lists (for example Day 4 'five questions to ask on Day 10'; Day 6 'Moderate-scenario profit ..., effective hourly return, and breakeven').",
+      "14-day-test-plan Day 9 and workflow 7 'Before you trust it' both carry the spam-law line (Spam Act, CASL, PECR, CAN-SPAM).",
+      "go-no-go-scorecard: workflow 11 restates the decision. Workflow 10's results table (reached, conversations, interested, committed, paid) is the scorecard input.",
+      "start-here: the 'Which tool, which day' table repeats the workflow-to-day map.",
+      "source/workflows.py generates this PDF; its prompt text matches the PDF.",
+      "source/common.py (shared by all PDF generators): VERSION = 'Version 1.3 · 21 October 2026', the DISCLAIMER text, nav links and the cover/band templates. It imports restyle_html from /home/claude/brand/print, which is not in the folder, so the build is not reproducible from these sources alone. Its CSS colours (#D0245C, #121012) are not the README brand tokens."
+    ],
+    "missing_information": [
+      "Workflow 11 asks for 'Scorecard total: [X] of 36, which the card says is: [GO / ADJUST / STOP band]'. The scorecard says the total is 'context only, not the verdict', has no bands, and its verdicts are NEXT TEST / ADJUST / STOP / INSUFFICIENT EVIDENCE ('GO' is not one of them).",
+      "Workflow 1 'Then' says enter skill areas as 'Fit Finder (questions 13 and 14)'. In the workbook they are the 14th and 15th of 17 questions (C19, C20). In the report they are questions 15 and 16 of 20 (location is Q1). Plan Day 2 says 'Answer questions 13-15'.",
+      "Workflow 10 example says 'Fewer than ten conversations: directional only', while the prompt and the scorecard use a 5-conversation threshold.",
+      "Workflow 7 asks for targets 'over 5 days' within '14 days of honest outreach'. The intended time window is unclear.",
+      "Workflow 3 references an 'observed rates' line on the card; on the cards it is headed 'OBSERVED RATES IN AUSTRALIA (NOT TYPICAL EARNINGS)'. This is a naming mismatch."
+    ],
+    "research_verification": [
+      "'Claude is at claude.ai; ChatGPT is at chatgpt.com. Both have a free version that is enough for this kit.' Platform claim; unlabelled and undated.",
+      "Workflow 7 'Before you trust it': 'spam laws apply (Spam Act, CASL, PECR, CAN-SPAM)'. Legal claim; unlabelled and undated.",
+      "'The AI service may store what you paste' (privacy line). Platform claim; unlabelled.",
+      "Example responses contain illustrative figures ($450-650 price range; $40 insurance; total start-up $180; fixed $60; variable 1.8%; $225 a week; reached 22 → 7 (32%) → 2 (29%); $47 spent; '$55-90 an hour'). They are presented as examples, not labelled FACT/EST."
+    ],
+    "compliance_flags": [
+      "Workflow 11 prompt example text 'What I would need to be true to keep going: [e.g. 300 a week within 3 months; no evenings]' puts an income figure in a template. It is a user-entered placeholder, but review it against the no-income-claims rule.",
+      "Prompts explicitly forbid testimonials, urgency ('limited time, only X spots left, don't miss out'), invented reviews and earnings projections. These align with the owner rules.",
+      "Workflow 9 asks the user to '[state yours]' refund or redo policy for their own offer. This is the buyer's policy, not HLE's, so no conflict.",
+      "No [the former trading entity], no lawyer/barrister/counsel, no AI people."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "The prompts are well structured and already parameterised with [BRACKETS]. They can become an AI prompt library once the Workflow 11 'GO/band' wording is aligned to the scorecard verdicts and the question numbering is fixed."
+    }
+  },
+  {
+    "id": "14-day-test-plan",
+    "title": "The 14-Day Test Plan",
+    "file": "01_income-fit-test/kit/04_14_Day_Test_Plan.pdf",
+    "version": "1.3 (cover and footers 'Version 1.3 · 21 October 2026')",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "16-page daily plan: cover, an at-a-glance page and one page per day for Days 1-14. Each day page has a time estimate (20-60 min), today's objective, a 30-60 minute core task in three steps, the expected output ('save this'), what to open, an optional stretch, a notes box, a done checkbox and a progress bar. There are three milestones (Day 3 choose, Day 10 talk to real people, Day 14 decide) and four phases (Days 1-3, 4-9, 10-12, 13-14). Two honest limits are stated: replies take days, and a first sale is not guaranteed. A firm dated yes or deposit counts as a commitment, and fewer than five conversations means 'not enough information'.",
+    "sections": [
+      "Cover (phases)",
+      "The plan at a glance (14-day grid, What this plan promises, How to use the pages, Two honest limits)",
+      "Day 01 Map your hours and constraints",
+      "Day 02 Run the Fit Finder",
+      "Day 03 Choose one (Milestone)",
+      "Day 04 Research the customer",
+      "Day 05 Look at competitors and substitutes",
+      "Day 06 Run the Reality Calculator",
+      "Day 07 Define your minimum offer",
+      "Day 08 Make the simplest honest sample",
+      "Day 09 Plan who you will talk to",
+      "Day 10 Talk to real prospects (Milestone)",
+      "Day 11 Collect feedback and objections",
+      "Day 12 Run a small sales or preorder test",
+      "Day 13 Count interest, costs and hours",
+      "Day 14 Go, adjust or stop (Milestone)"
+    ],
+    "customer_problem": "'One objective, one task, one output and one checkbox a day. Thirty to sixty minutes, designed around pick-up rather than against it.' It 'does not promise you will earn money in 14 days'. (Cover; What this plan promises)",
+    "content_types": [
+      "workflow",
+      "guidance",
+      "template"
+    ],
+    "proposed_destination": [
+      "14-day plan tracker"
+    ],
+    "proposed_form": [
+      "interactive feature",
+      "structured data",
+      "downloadable resource"
+    ],
+    "duplicates_with": [
+      "ai-shortcut-system: each day calls workflow N, and the expected outputs repeat that workflow's deliverables.",
+      "go-no-go-scorecard: Day 14 repeats the four verdicts and points to the gates. The 'Two honest limits' text repeats the scorecard's 5-conversation rule and its commitment definition.",
+      "workbook: Day 6 describes the Reality Calculator inputs and the 5/10/15 table; Day 14 points to '3 Scorecard'.",
+      "start-here: the 'Which tool, which day' table repeats the plan.",
+      "00_Your_Income_Fit_Report.html (out of scope): contains its own dated, personalised 14-day plan whose day titles differ (for example Day 1 'Read your report and commit', Day 13 'Count everything', Day 14 'Decide: go, adjust or stop').",
+      "Generated by source/plan.py (out of scope; plan.py also writes 05_Go_No_Go_Scorecard.html).",
+      "source/common.py (shared by all PDF generators): VERSION = 'Version 1.3 · 21 October 2026', the DISCLAIMER text, nav links and the cover/band templates. It imports restyle_html from /home/claude/brand/print, which is not in the folder, so the build is not reproducible from these sources alone. Its CSS colours (#D0245C, #121012) are not the README brand tokens."
+    ],
+    "missing_information": [
+      "Day 1 says answer 'Fit Finder questions 1-12' and Day 2 'questions 13-15'. That covers only 15 questions; the workbook has 17 (+ location) and the report 20.",
+      "Day 6 says 'Read the moderate scenario', while the workbook calls it 'Base'. Day 6 Stretch uses 'base-scenario'. The terms are mixed on the same page.",
+      "Start Here says the report has already done Days 1-3, but this plan still gives Days 1-3 as Workbook tasks. There is no note on which path applies.",
+      "Day 9 asks for 10-20 contacts, and Day 10 needs 'five or more real conversations'. The Scorecard 'Reach' scale tops out at '10 or more'. Consistent, noted for implementation.",
+      "Day 14 lists the verdict as 'NEXT TEST, ADJUST, STOP or INSUFFICIENT EVIDENCE' but has no slow-buying guidance. That guidance is only in the scorecard.",
+      "Version 1.3 while the product is 1.4."
+    ],
+    "research_verification": [
+      "Day 9: 'in Australia and Canada even one unsolicited commercial email can need consent (Spam Act, CASL), the UK has PECR, and in the US CAN-SPAM requires an opt-out.' Legal claim; not labelled FACT/EST and no check date.",
+      "Day timings (20-60 min per day) and the claim 'replies are likelier' in the morning (Day 9 stretch). Unlabelled assertion."
+    ],
+    "compliance_flags": [
+      "No income claims: 'Tests interest. Does not promise income.' and 'a first sale in 14 days is not guaranteed'. Compliant.",
+      "No refund wording, no [the former trading entity], no lawyer/barrister/counsel, no testimonials, no urgency."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "The daily structure maps directly to a tracker (day, objective, three steps, output, tool, stretch, checkbox). Fix the question-range references and the moderate/base wording when importing."
+    }
+  },
+  {
+    "id": "go-no-go-scorecard",
+    "title": "The Go / No-Go Scorecard",
+    "file": "01_income-fit-test/kit/05_Go_No_Go_Scorecard.pdf",
+    "version": "1.3 (cover and footers 'Version 1.3 · 21 October 2026')",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "4-page decision tool. Twelve questions are each scored 0-3 with an anchored guide, then a total of 36 that is 'context only, not the verdict'. Evidence gates are applied in order: Gate 1 enough evidence (Reach 0 or 1 → INSUFFICIENT EVIDENCE); Gate 2 willingness (0 → STOP); Gate 3 demand gate with different standards for Service, Product and Slow-buying market; then total ≥24 → NEXT TEST or <24 → ADJUST if demand passes, and an ADJUST-or-STOP rule if it fails. Each of the four verdicts has a next-step paragraph. The final page ('After Day 14') invites buyers to reply with their verdict and mentions a planned optional membership.",
+    "sections": [
+      "Cover",
+      "The Go / No-Go Scorecard: Twelve questions, four possible verdicts (scoring table)",
+      "Reading your score: The gates, in order",
+      "Verdict boxes: NEXT TEST, ADJUST, STOP, INSUFFICIENT EVIDENCE",
+      "Your verdict and the next experiment (write-in)",
+      "After Day 14: whatever your verdict, you're not done (Tell us your verdict; A membership, later; If you're at NEXT TEST; If you're at STOP)"
+    ],
+    "customer_problem": "'Twelve questions and three gates, so the decision at day 14 rests on evidence of demand, never on how much you enjoyed it.' (Cover)",
+    "content_types": [
+      "question",
+      "formula",
+      "guidance",
+      "template"
+    ],
+    "proposed_destination": [
+      "go/no-go scorecard"
+    ],
+    "proposed_form": [
+      "interactive feature",
+      "structured data",
+      "downloadable resource"
+    ],
+    "duplicates_with": [
+      "workbook '3 Scorecard': the same 12 questions, scales and gate logic, implemented as formulas C20, C21, C23 and B26. Differences: the workbook uses 'Base-scenario' and the PDF 'moderate-scenario'; the workbook STOP text adds '(contact comfort, hours, what you enjoyed)'; the NEXT TEST text adds '(insurance, a listing, a tool)'.",
+      "14-day-test-plan Day 14 and 'Two honest limits'.",
+      "ai-shortcut-system workflow 11 (with a conflicting 'GO / band' framing).",
+      "00_Your_Income_Fit_Report.html (out of scope): has its own 'Go: next test / Adjust / Stop' lines. They use the demand-gate thresholds but add a calculator hourly-rate condition, omit the ≥24 total and the slow-buying path, and say ADJUST = 'repeat Days 9-12' (the scorecard says Days 7-12 for a demand-fail ADJUST).",
+      "Generated by source/plan.py (out of scope).",
+      "source/common.py (shared by all PDF generators): VERSION = 'Version 1.3 · 21 October 2026', the DISCLAIMER text, nav links and the cover/band templates. It imports restyle_html from /home/claude/brand/print, which is not in the folder, so the build is not reproducible from these sources alone. Its CSS colours (#D0245C, #121012) are not the README brand tokens."
+    ],
+    "missing_information": [
+      "'Two ADJUST rounds without a commitment is a STOP' needs round history. Neither the PDF nor the workbook tracks rounds.",
+      "Product demand gate 'Commitments 1+ (an order or pre-order) and Purchase interest 1+'. It is not said whether an order also counts as purchase interest (so an order with no separate price question may fail the gate).",
+      "Start-up cost scale '1 = all of it' versus '2 = about half'. The boundaries between 'about half', 'all of it' and 'well under' are not numeric.",
+      "Profitability scale compares against 'what you would accept'. The workbook has no input for this; the report asks 'the least you'd accept for an hour'.",
+      "Gate 1 wording 'Reach scored 0 or 1 (fewer than five real conversations)' relies on the Reach scale (1 = 3-4). This is consistent but implicit."
+    ],
+    "research_verification": [
+      "No external figures, fees or legal claims. The thresholds (5 conversations; total 24) are method parameters, not research claims."
+    ],
+    "compliance_flags": [
+      "'you found out for the price of this kit and 14 days' (STOP box). This refers to the price without stating it. Fine.",
+      "'We're planning an optional membership' / 'The kit is complete on its own' / 'No income promises, ever.' No urgency. Compliant.",
+      "'Tell us your verdict ... The most-asked answer shapes the next update.' Collecting feedback; be careful not to reuse it as testimonials.",
+      "No refund wording, no [the former trading entity], no lawyer/barrister/counsel."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "The rules are fully specified and already implemented in the workbook formula C23. They port directly to deterministic code; see fit-kit-methods.md section a for test cases."
+    }
+  },
+  {
+    "id": "rules-guides",
+    "title": "Rules Guides (the rules, in plain words)",
+    "file": "01_income-fit-test/kit/06_Rules_Guides.pdf",
+    "version": "1.3 (footer 'Rules Guides · Version 1.3 · 21 October 2026')",
+    "product": "Income Fit Test v1.4",
+    "price_usd": null,
+    "content_summary": "19-page country guide for Australia (checked 17 Oct 2026), the United States, the United Kingdom, Canada and New Zealand (each checked 19 Oct 2026). Each chapter answers about 11 numbered questions: registration/ID, hobby or business, structure and name, records, declaring income and paying tax, what you can claim, GST/VAT/sales-tax thresholds, platform reporting, insurance/licences/checks, benefits interactions, and free help. Canada adds '12 Quebec in brief'. Each item carries its check date and links to official pages. EST and UNKNOWN are marked inline; 'Worth a qualified check' notes flag gaps. It is framed as 'A map, not advice'.",
+    "sections": [
+      "Cover (country list with check dates)",
+      "Australia 1-11 (ABN; Hobby or business; Structure and name; Records; Declaring income and paying tax; What can I claim; GST A$75,000; Insurance; Licences, permits and checks; Centrelink/CCS; Use these before you pay anyone)",
+      "United States 1-11 (Register/tax ID; Hobby or business; Structure and name; Records; Declaring income and paying tax; What can I claim; Sales tax; Forms from platforms and clients; Insurance, licences and checks; Benefits interactions; Where the free help is + FTC disclosure)",
+      "United Kingdom 1-11 (Register; Hobby or trading; Structure and name; Records; Declaring income and paying tax; What can I claim; VAT; Digital platform reporting; Insurance, licences and checks; Benefits interactions; Where the free help is)",
+      "Canada 1-12 (Business Number; Hobby or business; Structure and name; Records; Declaring income and paying tax; What can I claim; GST/HST small supplier; Digital platform reporting; Insurance, licences and checks; Benefits; Free help; Quebec in brief)",
+      "New Zealand 1-11 (Register; Hobby or business; Structure and name; Records; Declaring income and paying tax; What can I claim; GST $60,000; Digital platform reporting and 2024 GST changes; Insurance, licences and checks; Benefits interactions; Where the free help is)"
+    ],
+    "customer_problem": "'Registering, tax, records, thresholds, insurance, checks, benefits and free help, for five countries, with links to the pages we checked and any gaps marked UNKNOWN.' (Cover)",
+    "content_types": [
+      "research",
+      "guidance"
+    ],
+    "proposed_destination": [
+      "rules guide",
+      "downloadable resource"
+    ],
+    "proposed_form": [
+      "structured data",
+      "educational article"
+    ],
+    "duplicates_with": [
+      "opportunity-cards By-country pages repeat many rules (UK platform-reporting 30 sales / about £1,700; US 1099-K $20,000 / 200; FTC disclosure; Canada vulnerable-sector checks; NZ Criminal Record Check; NZ 8.5% flat-rate credit; UK rent-a-room). Cards 2, 10 and 11 point to 'Rules Guide, Australia, items 2 and 5'.",
+      "14-day-test-plan Day 9 and ai-shortcut-system workflow 7 repeat the spam-law summary.",
+      "source/quickstart.py contains an OLDER Australia-only 'Australian Quick Start' (10 questions, checked 16 Oct 2026) that this guide replaced. Its figures differ (see missing_information).",
+      "Likely generated by source/rules.py (out of scope; not verified here). The README describes rules.py as 'country rules'.",
+      "00_Your_Income_Fit_Report.html (out of scope) is described as containing 'rules for 5 countries'.",
+      "source/common.py (shared by all PDF generators): VERSION = 'Version 1.3 · 21 October 2026', the DISCLAIMER text, nav links and the cover/band templates. It imports restyle_html from /home/claude/brand/print, which is not in the folder, so the build is not reproducible from these sources alone. Its CSS colours (#D0245C, #121012) are not the README brand tokens."
+    ],
+    "missing_information": [
+      "US item 11 says 'FTC disclosure (applies to options 5, 13, 14 and 18 in Part B)'. No 'Part B' exists in the kit; it presumably means the Opportunity Cards.",
+      "Voice inconsistency: first person in several items ('not on the page I opened', 'I didn't check an IRD list item by item'), versus 'we' elsewhere.",
+      "Many items are UNKNOWN (for example the US 92.35% earnings factor, state 1099-K thresholds, US DBA fees, the UK VAT deregistration threshold, CPP rates, NZ childcare income limits).",
+      "AU item 6 says the 2026-27 home-office and car rates were not yet published.",
+      "UK item 10 says the free-childcare figure (£2,539) differs from Tax-Free Childcare (£2,643.68) and may be outdated.",
+      "There is no 'Part 6 of 6' cover banner like the other PDFs (the other covers say 'PART n OF 6').",
+      "Older source quickstart.py gives ASIC fees of 'about A$44-45 / A$102-104' versus A$47 / A$108 here. It also says 'Report your income in the pay period you earn it' for Centrelink, contradicting item 10 here ('you do not report business takings in your fortnightly employment-income reporting')."
+    ],
+    "research_verification": [
+      "Labelling convention: only EST and UNKNOWN are marked. Figures from official pages are implicitly FACT ('each answer links to the official page we checked on that date'). Under the owner rule, the FACT label is not shown explicitly. Every item carries a 'CHECKED <date>' stamp.",
+      "AU: ABN withholding 47% and A$75 exception; ASIC business name A$47 / 1 yr and A$108 / 3 yrs from 1 July 2026; records 5 years; PAYG instalments roughly A$4,000 instalment income / A$1,000 tax; small business income tax offset 16% up to A$1,000; sharing-economy reporting from 1 July 2023 / 1 July 2024; WFH fixed rate 70c/hr 2025-26; car 88c/km up to 5,000 km 2025-26; A$20,000 instant asset write-off 'permanent from 1 July 2026' for turnover under A$10m; GST A$75,000 and 21 days; WWCC NSW A$112 / 5 yrs; NDIS Worker Check NSW A$112 in 2026-27 (read from ABLIS only); Centrelink 14-day notice rules; Service NSW Business Connect up to 8 hours free.",
+      "US: EIN free; IRS 11 hobby factors; OBBBA hobby-expense permanence (EST, U. Illinois, checked 21 Oct 2026); record retention 3/2/6/7/4 years; SE tax 15.3% (12.4% + 2.9%), wage base $184,500 for 2026, filing threshold $400, additional Medicare 0.9% above $200,000 / $250,000; estimated-tax threshold $1,000 and 2026 due dates; home office $5/sq ft up to 300 sq ft ($1,500); mileage 72.5c 2026 (70c 2025); Wayfair $100,000 / 200; 1099-NEC $2,000 for 2026 (up from $600); 1099-K $20,000 and 200 transactions; CCDF 85% of state median, child under 13; SNAP 10-day reporting.",
+      "UK: Self Assessment registration over £1,000, deadline 5 Oct 2026 for 2025-26; UTR activation about 10 working days (EST, mygov.scot, last updated 2020); trading allowance £1,000; records 5 years after 31 Jan; paper return 31 Oct 2026, online 31 Jan 2027; Class 4 6% £12,570-£50,270 and 2% above; Class 2 SPT £7,105, voluntary £3.65/week; payments on account rule (£1,000, 80%); MTD £50k / £30k / £20k thresholds and 2026-27 penalty-point easement (EST, Xero UK, checked 21 Oct 2026); WFH £10/£18/£26 per month; mileage 45p/25p/24p; VAT £90,000 and 30-day rules; platform reporting 30 sales / €2,000 (about £1,700); UC MIF and 12-month start-up period; Tax-Free Childcare £2 per £8, £500 / £1,000 a quarter, £2,643.68 / 3 months, £100,000; Start Up Loans £500-£25,000 at 7.5% over 1-5 years, 60 months trading; helpline numbers.",
+      "Canada: BN rules; Ontario business name $60 / 5 years; fine up to $2,000 (EST, Legal Line); records 6 years; instalments over $3,000 ($1,800 Quebec); meals 50%; car log 10% rule; GST/HST $30,000; platform reporting from 2024 (due 31 Jan); CCB max $8,157 under 6 and $6,883 aged 6-17, reduction from $38,237; EI 12-month wait; Ontario Works $200 exemption then half; Futurpreneur up to $25,000, ages 18-39 (EST); CRA clinics $40,000 limit and T4A box 048 under $1,000; Quebec Law 14 (EST, CFIB).",
+      "NZ: IR595; NZBN optional; records 7 years; IR3 due 7 July 2026; file if more than $200 untaxed income; provisional tax over $5,000 RIT; ACC Earners' levy $1.52 per $100 and Working Safer $0.08; home-office $57.30/m² for 2026 income year; kilometre rates Tier 1 petrol $1.20 / diesel $1.30 / hybrid $0.90 / EV $1.22 (first 14,000 km), Tier 2 $0.37 / $0.38 / $0.24 / $0.23; GST $60,000 and 15%; platform rules from 1 Jan 2024; listed-services GST 15% / 6.5% / 8.5%; OSCAR 20 / 50 hrs; RBPN subsidies up to 50% capped at $5,000; CAB 0800 367 222."
+    ],
+    "compliance_flags": [
+      "Refund wording in the footer matches exactly: 'Full refund within 14 days of purchase, no questions asked.'",
+      "General, not personalised: 'A map, not advice'. It refers users to an accountant or the free services. No personalised legal output.",
+      "AU item 10 mentions 'financial counsellors are free'. This is the word 'counsellors', not 'counsel'. No credential issue.",
+      "No [the former trading entity], no lawyer/barrister, no income claims (the 'Most people using this kit will be well under A$75,000' lines are about thresholds, not earnings promises)."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "The content is strong and dated, but tax and benefit figures change at each tax year, FACT labels are implicit rather than explicit, and several items are UNKNOWN. Convert to structured, per-item dated records with explicit labels, fix the 'Part B' reference, and re-verify before shipping."
+    }
+  }
+]
