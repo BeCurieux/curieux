@@ -1,11 +1,12 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { appUrl, serverEnv, sessionSecret } from "@/env";
 import { afterSignIn } from "@/lib/auth/after-sign-in";
 import { LOCAL_SESSION_COOKIE, createLocalSession } from "@/lib/auth/local-session";
+import { requestOrigin } from "@/lib/auth/origin";
 import { localStore } from "@/lib/data";
 import { userClient } from "@/lib/supabase/clients";
 
@@ -45,7 +46,10 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
   const supabase = await userClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${appUrl()}/auth/callback`, shouldCreateUser: true },
+    options: {
+      emailRedirectTo: `${requestOrigin(await headers(), appUrl())}/auth/callback`,
+      shouldCreateUser: true,
+    },
   });
   if (error) {
     // Rate limits and the like. Don't reveal whether the account exists.
