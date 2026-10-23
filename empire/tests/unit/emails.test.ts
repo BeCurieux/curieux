@@ -47,3 +47,24 @@ describe("welcome sequence", () => {
     expect(text).toContain(`A$${r.perOrder.contribution.toFixed(2)}`);
   });
 });
+
+describe("launch copy (docs/phase-1/LAUNCH_COPY.md)", () => {
+  const copy = readFileSync("docs/phase-1/LAUNCH_COPY.md", "utf8");
+
+  it("passes the claims guard and has no pressure tactics", () => {
+    expect(checkClaims(copy.split("\n"), profile)).toEqual([]);
+    expect(copy).not.toMatch(/last chance|ends (tonight|soon)|only \d+ left|hurry|countdown/i);
+  });
+
+  it("uses the exact refund sentence wherever the US$19 price is offered", () => {
+    for (const block of copy.split(/^## /m).filter((b) => /US\$19/.test(b)))
+      expect(block).toContain(REFUND_POLICY);
+  });
+
+  it("carries the welcome emails word for word", () => {
+    for (const e of emails) {
+      const body = e.body.split("\n").slice(1).join("\n").trim();
+      expect(copy).toContain(body);
+    }
+  });
+});

@@ -96,7 +96,7 @@ export async function ModuleView({
             when you upgrade.
           </p>
           <div className="mt-5">
-            <ButtonLink href="/account">See the Launch Pack</ButtonLink>
+            <ButtonLink href="/pricing">See the Launch Pack</ButtonLink>
           </div>
         </Card>
       ) : null}
@@ -186,7 +186,7 @@ export async function ModuleView({
                 signup and footer — each with what to check after.
               </p>
               <div className="mt-4">
-                <ButtonLink href="/account">See the Launch Pack</ButtonLink>
+                <ButtonLink href="/pricing">See the Launch Pack</ButtonLink>
               </div>
             </Card>
           ) : null}

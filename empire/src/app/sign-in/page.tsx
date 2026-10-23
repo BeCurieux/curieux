@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { serverEnv } from "@/env";
 import { currentUser } from "@/lib/auth/session";
+import { safeNext } from "@/lib/auth/next-path";
 import { SiteHeader } from "@/components/shell/site-header";
 import { Card } from "@/components/ui/card";
 import { ViewBeacon } from "@/components/beacon";
@@ -12,10 +13,11 @@ export const metadata: Metadata = { title: "Sign in" };
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ start?: string; error?: string }>;
+  searchParams: Promise<{ start?: string; error?: string; next?: string }>;
 }) {
-  if (await currentUser()) redirect("/studio");
-  const { start, error } = await searchParams;
+  const { start, error, next: rawNext } = await searchParams;
+  const next = safeNext(rawNext);
+  if (await currentUser()) redirect(next);
   return (
     <>
       {start ? <ViewBeacon name="preview_started" /> : null}
@@ -36,7 +38,7 @@ export default async function SignInPage({
               That sign-in link didn't work — it may have expired. Ask for a new one below.
             </p>
           ) : null}
-          <SignInForm local={serverEnv().EMPIRE_BACKEND === "local"} />
+          <SignInForm local={serverEnv().EMPIRE_BACKEND === "local"} next={next} />
         </Card>
       </main>
     </>

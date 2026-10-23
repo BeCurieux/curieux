@@ -50,7 +50,13 @@ export function SiteFooter() {
           </p>
           <p className="mt-1">{TAGLINE}</p>
         </div>
-        <nav aria-label="Legal" className="flex flex-wrap gap-4">
+        <nav aria-label="Footer" className="flex flex-wrap gap-4">
+          <Link href="/fit" className="hover:text-aubergine">
+            Free FIT Finder
+          </Link>
+          <Link href="/ads/tools/calculator" className="hover:text-aubergine">
+            Free ads calculator
+          </Link>
           <Link href="/pricing" className="hover:text-aubergine">
             Pricing
           </Link>

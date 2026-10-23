@@ -30,6 +30,7 @@ export const EVENTS = [
   "task_updated",
   "fit_completed",
   "calculator_viewed",
+  "fit_landing_viewed",
   "offer_clicked",
 ] as const;
 export type EventName = (typeof EVENTS)[number];

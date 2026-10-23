@@ -6,6 +6,7 @@ import { z } from "zod";
 import { appUrl, serverEnv, sessionSecret } from "@/env";
 import { afterSignIn } from "@/lib/auth/after-sign-in";
 import { LOCAL_SESSION_COOKIE, createLocalSession } from "@/lib/auth/local-session";
+import { NEXT_COOKIE, safeNext } from "@/lib/auth/next-path";
 import { requestOrigin } from "@/lib/auth/origin";
 import { localStore } from "@/lib/data";
 import { userClient } from "@/lib/supabase/clients";
@@ -26,6 +27,7 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
   );
   if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message };
   const email = parsed.data;
+  const next = safeNext(form.get("next"));
 
   if (serverEnv().EMPIRE_BACKEND === "local") {
     // Local backend: no email is sent. Fine for development and tests only;
@@ -40,9 +42,22 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
       maxAge: session.maxAge,
     });
     await afterSignIn(user);
-    redirect("/studio");
+    redirect(next);
   }
 
+  // The emailed link comes back to /auth/callback, which reads this to send
+  // her on to the page she wanted. A cookie rather than a query string, so
+  // the callback URL stays exactly the one on Supabase's allow-list.
+  const jar = await cookies();
+  if (next === "/studio") jar.delete(NEXT_COOKIE);
+  else
+    jar.set(NEXT_COOKIE, next, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: appUrl().startsWith("https:"),
+      path: "/",
+      maxAge: 60 * 60,
+    });
   const supabase = await userClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,

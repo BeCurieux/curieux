@@ -32,6 +32,8 @@ Here's the ten-minute version:
 
 Most ideas don't fail because they're bad. They fail because they don't fit the week you actually have. That's all this checks.
 
+Prefer to answer on screen? The free FIT Finder asks 20 questions and shows your top three ideas, saved to a free account: [Link: studio.herlittleempire.com/fit]
+
 Vee
 Her Little Empire
 
@@ -101,6 +103,8 @@ What's in it:
 - A calculator for each idea, using the least you'd accept for an hour of your time.
 - The rules that apply where you live, for five countries.
 - A dated 14-day plan to test one idea cheaply, and how to decide at the end.
+
+Buy it with your email, then sign in to Empire Studio with the same email: the same report works there as an interactive version that saves your answers and your 14-day plan.
 
 Who it isn't for: anyone looking for a promise. It can't tell you whether your customers will pay; only a real test can. That's what the 14-day plan is for.
 

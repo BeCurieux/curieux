@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { serverEnv } from "@/env";
 import { CATALOGUE } from "@/content/catalogue";
 import { LAUNCH_PACK, REFUND_POLICY } from "@/lib/billing/plans";
+import { launchPackOnSale } from "@/lib/billing/on-sale";
 import { loadAccess } from "@/lib/generation/run";
 import { studio } from "@/lib/studio/context";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export default async function Account() {
     repo.listUsage(new Date(0).toISOString()),
   ]);
   const env = serverEnv();
+  const onSale = launchPackOnSale();
   const refunded = entitlements.filter(
     (e) => e.status === "refunded" && e.productType === "launch_pack",
   );
@@ -69,7 +71,8 @@ export default async function Account() {
           ) : null}
         </Card>
 
-        {access.plan === "free" || access.generations - used < 10 ? (
+        {(onSale || env.EMPIRE_BACKEND === "local") &&
+        (access.plan === "free" || access.generations - used < 10) ? (
           <Card className="border-aubergine">
             <h2 className="text-2xl">
               {access.plan === "free" ? `Get the ${LAUNCH_PACK.name}` : "Need another pack?"}
@@ -80,7 +83,7 @@ export default async function Account() {
               Everything you make stays yours. {REFUND_POLICY}
             </p>
             <div className="mt-5">
-              {env.GUMROAD_PRODUCT_URL ? (
+              {onSale ? (
                 <a
                   href="/api/billing/checkout"
                   className="bg-aubergine text-ivory hover:bg-aubergine-deep inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
@@ -89,7 +92,7 @@ export default async function Account() {
                 </a>
               ) : (
                 <p className="text-mute text-sm">
-                  Checkout isn't connected in this environment (GUMROAD_PRODUCT_URL).
+                  Local only: checkout isn't connected (GUMROAD_PRODUCT_URL, GUMROAD_PRODUCT_ID).
                 </p>
               )}
             </div>
