@@ -22,6 +22,9 @@ export type CatalogueStatus = "on-sale" | "free" | "off-sale" | "unreleased";
 /** The Income Fit Test on Gumroad (founder, 22 Oct 2026; may move once the shop scripts run). */
 export const INCOME_FIT_TEST_URL = "https://herlittleempireco.gumroad.com/l/income-fit-test";
 
+/** The free 5-Question Fit Check on Gumroad (permalink `fit-check`, founder, 22 Oct 2026). */
+export const FIT_CHECK_URL = "https://herlittleempireco.gumroad.com/l/fit-check";
+
 export interface CatalogueItem {
   slug: string;
   title: string;

@@ -29,6 +29,8 @@ export const EVENTS = [
   "purchase_refunded",
   "task_updated",
   "fit_completed",
+  "calculator_viewed",
+  "offer_clicked",
 ] as const;
 export type EventName = (typeof EVENTS)[number];
 

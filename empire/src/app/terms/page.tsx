@@ -5,7 +5,8 @@ import { CONSUMER_RIGHTS, LAUNCH_PACK, REFUND_POLICY, SELLER } from "@/lib/billi
 
 export const metadata: Metadata = { title: "Terms and refunds" };
 
-// Plain-language terms. Reviewed by a lawyer before launch: see docs/QA-REPORT.md.
+// Plain-language terms. Needs a professional review before taking payments:
+// docs/QA-REPORT.md and docs/launch/PLATFORM_INTEGRATION_PLAN.md §5.
 export default function Terms() {
   return (
     <>
@@ -31,6 +32,13 @@ export default function Terms() {
           facts, claims, prices, policies and images. Empire Studio doesn't guarantee sales or
           results.
         </p>
+        <h2 className="mt-8 text-2xl">Free tools</h2>
+        <p>
+          The Ads Profitability Calculator and the FIT Finder work from the numbers and answers you
+          give them. Their results are estimates to help you decide; they don&apos;t predict what
+          you&apos;ll earn or what an ad will do, and they aren&apos;t financial, tax or legal
+          advice.
+        </p>
         <h2 className="mt-8 text-2xl">Shopify and other tools</h2>
         <p>
           Empire Studio isn't made by or affiliated with Shopify. Shopify Sidekick prompts are
@@ -47,7 +55,10 @@ export default function Terms() {
           .
         </p>
         <h2 className="mt-8 text-2xl">Earlier Her Little Empire downloads</h2>
-        <p>Anything you bought before stays yours on Gumroad under the terms you bought it with.</p>
+        <p>
+          Anything you bought before stays yours on Gumroad under the terms you bought it with. For
+          Her Little Empire downloads bought on Gumroad: {REFUND_POLICY} {CONSUMER_RIGHTS}
+        </p>
       </main>
       <SiteFooter />
     </>

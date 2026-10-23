@@ -10,6 +10,8 @@ const CLIENT_EVENTS = new Set<EventName>([
   "preview_started",
   "asset_copied",
   "asset_downloaded",
+  "calculator_viewed",
+  "offer_clicked",
 ]);
 
 export async function POST(request: Request) {

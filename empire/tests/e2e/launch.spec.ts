@@ -152,7 +152,7 @@ test("signed-out visitors are sent to sign in", async ({ page }) => {
   await expect(page).toHaveURL(/\/sign-in/);
 });
 
-for (const path of ["/", "/pricing", "/sign-in"]) {
+for (const path of ["/", "/pricing", "/sign-in", "/privacy", "/terms"]) {
   test(`no serious accessibility issues on ${path}`, async ({ page }) => {
     await page.goto(path);
     const results = await new AxeBuilder({ page }).analyze();

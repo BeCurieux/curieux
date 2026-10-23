@@ -42,8 +42,9 @@ export function ConsentBanner() {
       className="no-print border-line bg-paper fixed inset-x-3 bottom-3 z-40 mx-auto max-w-xl rounded-2xl border p-4 shadow-lg sm:inset-x-auto sm:right-4"
     >
       <p className="text-charcoal text-sm">
-        We use one first-party cookie to understand which parts of Empire Studio help people (no ad
-        trackers, ever). Sign-in cookies are always on because the studio needs them.
+        If you agree, we use our own cookies to understand which parts of Her Little Empire&apos;s
+        tools help people (no ad trackers, ever). Sign-in cookies are always on because the studio
+        needs them.
       </p>
       <div className="mt-3 flex gap-2">
         <button
