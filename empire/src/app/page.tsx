@@ -2,6 +2,7 @@ import { SiteFooter, SiteHeader } from "@/components/shell/site-header";
 import { ButtonLink } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/card";
 import { ViewBeacon } from "@/components/beacon";
+import { TAGLINE } from "@/content/brand";
 import { LAUNCH_PACK, REFUND_POLICY } from "@/lib/billing/plans";
 
 const OUTPUTS = [
@@ -62,7 +63,7 @@ export default function Home() {
                 See what's included
               </ButtonLink>
             </div>
-            <p className="text-mute mt-4 text-sm">Ambitious. Unavailable for nonsense.</p>
+            <p className="text-mute mt-4 text-sm">{TAGLINE}</p>
           </div>
           <Card className="bg-aubergine text-ivory self-start">
             <div className="flex items-center justify-between gap-3">
