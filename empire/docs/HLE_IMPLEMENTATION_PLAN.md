@@ -14,9 +14,9 @@ Milestones follow the brief's build sequence. Each is a separate, reviewable ste
 
 The numbers come first, because every later module's worked examples depend on them.
 
-- `src/lib/ads/calculator.ts`: net revenue, contribution before and after ads, break-even CAC, break-even ROAS (only where defined), actual CAC and ROAS, break-even spend by order count, and low/base/high scenarios. Handles GST included, excluded or not registered, fixed and percentage fees, refunds, upsells and discounts.
-- Fixtures worked out independently, covering zero purchases, zero margin, negative margin, a discount larger than the price, 100% refunds and fractional fees.
-- Module 1, The Numbers, written in full with AUD examples computed by the same engine.
+- [x] `src/lib/ads/calculator.ts`: net revenue, contribution before and after ads, break-even CAC, break-even ROAS (only where defined), actual CAC and ROAS, break-even spend by order count, and low/base/high scenarios. Handles GST included, excluded or not registered, fixed and percentage fees, refunds, upsells and discounts.
+- [x] Fixtures worked out independently, covering zero purchases, zero margin, negative margin, a discount larger than the price, 100% refunds and fractional fees.
+- [x] Module 1, The Numbers, written in full with AUD examples computed by the same engine (`content/ads/modules/01-the-numbers.md`; a test recomputes every figure it quotes).
 
 **Accepted when:** all fixtures pass; no output is ever Infinity or NaN; Module 1 has every required part (outcome, prerequisites, time estimate, instruction, worked example, mistakes, checklist, assessment with answers, dated sources).
 
