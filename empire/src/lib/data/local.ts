@@ -1,5 +1,5 @@
 import "server-only";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { BusinessProfile, ProfileFacts, ProfileVersion } from "@/lib/domain/profile";
@@ -15,8 +15,15 @@ import type {
   Purchase,
   UsageRow,
 } from "@/lib/domain/records";
-import { countBy, repeatUsage } from "@/lib/analytics/metrics";
-import type { AdminMetrics, SystemRepo, UserRepo } from "./repo";
+import { countBy, funnelBySource, repeatUsage } from "@/lib/analytics/metrics";
+import type {
+  AdminMetrics,
+  EmailSignup,
+  EmailSignupInput,
+  EmailSignupResult,
+  SystemRepo,
+  UserRepo,
+} from "./repo";
 
 // The local backend: one JSON file, for development, tests and demos.
 //
@@ -42,6 +49,7 @@ interface Data {
   usage: UsageRow[];
   events: AnalyticsEvent[];
   fitResults: FitResult[];
+  emailSignups: EmailSignup[];
 }
 
 const empty = (): Data => ({
@@ -56,6 +64,7 @@ const empty = (): Data => ({
   usage: [],
   events: [],
   fitResults: [],
+  emailSignups: [],
 });
 
 const now = () => new Date().toISOString();
@@ -517,6 +526,35 @@ class LocalSystemRepo implements SystemRepo {
     });
   }
 
+  recordEmailSignup(input: EmailSignupInput): Promise<EmailSignupResult> {
+    return this.store.tx((d) => {
+      const existing = d.emailSignups.find((s) => s.email === input.email);
+      if (existing && !existing.unsubscribedAt) return "already" as const;
+      if (existing) {
+        Object.assign(existing, input, { consentedAt: now(), unsubscribedAt: null });
+        return "resubscribed" as const;
+      }
+      d.emailSignups.push({
+        ...input,
+        id: randomUUID(),
+        consentedAt: now(),
+        unsubscribedAt: null,
+        unsubscribeToken: randomBytes(24).toString("base64url"),
+        createdAt: now(),
+      });
+      return "new" as const;
+    });
+  }
+
+  unsubscribeEmail(token: string): Promise<boolean> {
+    return this.store.tx((d) => {
+      const row = d.emailSignups.find((s) => s.unsubscribeToken === token && !s.unsubscribedAt);
+      if (!row) return false;
+      row.unsubscribedAt = now();
+      return true;
+    });
+  }
+
   adminMetrics(): Promise<AdminMetrics> {
     return this.store.tx((d) => {
       const monthAgo = new Date(Date.now() - 30 * 86_400_000).toISOString();
@@ -548,6 +586,11 @@ class LocalSystemRepo implements SystemRepo {
           d.events.filter((e) => e.name === "signup_completed"),
           (e) => String(e.props.source ?? "direct"),
         ),
+        emailSignups: {
+          active: d.emailSignups.filter((s) => !s.unsubscribedAt).length,
+          unsubscribed: d.emailSignups.filter((s) => s.unsubscribedAt).length,
+        },
+        funnel: funnelBySource(d.events),
       };
     }, false);
   }

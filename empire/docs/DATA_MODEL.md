@@ -40,6 +40,10 @@ user_id)`, so nothing can point at another customer's profile even if the
 
 Only her answers and progress are stored. The report is recomputed from the answers by the deterministic engine each time it's opened, so it can't drift from the scoring. The server merges each progress change into what's saved, so the calculator and the plan never overwrite each other.
 
+## Email sign-ups
+
+`email_signups` (migration `20261024000005`): one row per address that asked for emails on the Fit Check page, with the exact consent wording and its version (`src/content/consent.ts`), when she agreed, the campaign names that brought her (source, medium, campaign; no other tracking data), the landing page, an unsubscribe token and `unsubscribed_at`. Not linked to accounts. Service role only: row level security is on with no policies, and the RLS suite checks that customers and visitors can't read or add rows. Re-consenting after unsubscribing updates the same row with the new consent.
+
 ## Assets and versions
 
 An asset is (profile, module, product?). Its current state is its highest

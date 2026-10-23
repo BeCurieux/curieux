@@ -12,7 +12,7 @@ export async function signIn(page: Page) {
   await expect(page).toHaveURL(/\/studio/);
 }
 
-export async function takeQuiz(page: Page) {
+export async function takeQuiz(page: Page, name = "Vee") {
   await page.goto("/studio/fit");
   // Her Little Empire's promise heads the Fit Finder.
   await expect(
@@ -45,7 +45,7 @@ export async function takeQuiz(page: Page) {
   await choose("No, keep me off camera");
   await page.getByRole("spinbutton").fill("30");
   await next();
-  await page.getByLabel("What should we call you on your report?", { exact: true }).fill("Vee");
+  await page.getByLabel("What should we call you on your report?", { exact: true }).fill(name);
   await page.getByRole("button", { name: "Build my report →" }).click();
   await expect(page).toHaveURL(/\/studio\/fit\/[0-9a-f-]+$/);
 }

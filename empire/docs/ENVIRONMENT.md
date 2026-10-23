@@ -27,6 +27,7 @@ Variables (Production and Preview). Locally, copy `.env.example` to
 | `CRON_SECRET`                          | for payments                   | 24+ characters. Vercel sends it to `/api/billing/recheck`.                                                                                                  |
 | `NEXT_PUBLIC_INCOME_FIT_TEST_URL`      | no                             | The Income Fit Test's Gumroad link, for the FIT Finder's "get the full report" button. Defaults to https://herlittleempireco.gumroad.com/l/income-fit-test. |
 | `NEXT_PUBLIC_LAUNCH_PACK_PRICE_USD`    | no                             | Display price in whole US dollars, no `$` (default 49, shown as US$49). Must match Gumroad.                                                                 |
+| `EMPIRE_EMAIL_OPTIN`                   | no                             | `on` shows the email opt-in on `/fit-check` (default `off`). Turn on only once a sender for the welcome emails is set up.                                   |
 | `ADMIN_EMAILS`                         | no                             | Comma-separated emails that can open `/admin`.                                                                                                              |
 
 Note: the generic names `AI_PROVIDER`/`AI_MODEL` are deliberately not used —

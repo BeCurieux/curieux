@@ -107,6 +107,27 @@ export interface PurchaseUpsert {
   purchasedAt: string;
 }
 
+export interface EmailSignupInput {
+  email: string;
+  /** The exact wording she agreed to, and its version. */
+  consentText: string;
+  consentVersion: string;
+  source: string | null;
+  medium: string | null;
+  campaign: string | null;
+  landing: string | null;
+}
+
+export interface EmailSignup extends EmailSignupInput {
+  id: string;
+  consentedAt: string;
+  unsubscribedAt: string | null;
+  unsubscribeToken: string;
+  createdAt: string;
+}
+
+export type EmailSignupResult = "new" | "already" | "resubscribed";
+
 export interface AdminMetrics {
   events: Record<string, number>;
   users: number;
@@ -119,6 +140,9 @@ export interface AdminMetrics {
   repeatUsers7d: number;
   repeatUsers30d: number;
   sources: Record<string, number>;
+  emailSignups: { active: number; unsubscribed: number };
+  /** Funnel events by campaign source (src/lib/analytics/metrics.ts). */
+  funnel: Record<string, Record<string, number>>;
 }
 
 export interface SystemRepo {
@@ -136,6 +160,10 @@ export interface SystemRepo {
   syncEntitlement(purchase: Purchase): Promise<Entitlement | null>;
 
   track(event: AnalyticsEvent): Promise<void>;
+  /** One row per address; re-consenting after unsubscribing records the new consent. */
+  recordEmailSignup(input: EmailSignupInput): Promise<EmailSignupResult>;
+  /** True if the token matched an active sign-up. */
+  unsubscribeEmail(token: string): Promise<boolean>;
   adminMetrics(): Promise<AdminMetrics>;
 
   /** Every row the customer owns, and her login. Irreversible. */

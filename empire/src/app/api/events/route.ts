@@ -12,6 +12,8 @@ const CLIENT_EVENTS = new Set<EventName>([
   "asset_downloaded",
   "calculator_viewed",
   "fit_landing_viewed",
+  "fit_check_viewed",
+  "offer_viewed",
   "offer_clicked",
 ]);
 

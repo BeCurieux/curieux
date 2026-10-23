@@ -4,6 +4,7 @@ import { isAdminEmail, serverEnv } from "@/env";
 import { requireUser } from "@/lib/auth/session";
 import { systemRepo } from "@/lib/data";
 import { Card, PageHeader } from "@/components/ui/card";
+import { FUNNEL_EVENTS } from "@/lib/analytics/metrics";
 import { CATALOGUE } from "@/content/catalogue";
 import { METHODOLOGY } from "@/content/methodology";
 import { MODULES } from "@/lib/domain/modules";
@@ -150,6 +151,51 @@ export default async function Admin() {
               <li className="text-mute">No signups yet. Add ?utm_source=… to links you share.</li>
             ) : null}
           </ul>
+        </Card>
+        <Card className="lg:col-span-2">
+          <h2 className="text-2xl">Marketing funnel by source (last 90 days)</h2>
+          <p className="text-mute mt-1 text-sm">
+            Counted from our own events only. Instagram reach, followers and Meta ad results
+            aren&apos;t here: they live in Instagram Insights and Ads Manager. Purchases arrive from
+            Gumroad without campaign data, so they show under &ldquo;(none recorded)&rdquo;.
+          </p>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-mute">
+                  <th scope="col" className="py-1 pr-3 font-semibold">
+                    Source
+                  </th>
+                  {FUNNEL_EVENTS.map((e) => (
+                    <th key={e} scope="col" className="px-2 py-1 font-semibold">
+                      {e.replace(/_/g, " ")}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(m.funnel).map(([source, row]) => (
+                  <tr key={source} className="border-line border-t">
+                    <th scope="row" className="py-2 pr-3 font-medium">
+                      {source}
+                    </th>
+                    {FUNNEL_EVENTS.map((e) => (
+                      <td key={e} className="font-num px-2 py-2">
+                        {row[e] ?? 0}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {Object.keys(m.funnel).length === 0 ? (
+              <p className="text-mute mt-2 text-sm">No funnel events yet.</p>
+            ) : null}
+          </div>
+          <p className="text-mute mt-4 text-sm">
+            Email sign-ups with consent: {m.emailSignups.active} active,{" "}
+            {m.emailSignups.unsubscribed} unsubscribed.
+          </p>
         </Card>
         <Card className="lg:col-span-2">
           <h2 className="text-2xl">Content conversion status</h2>

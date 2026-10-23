@@ -44,3 +44,38 @@ export function countBy<T>(rows: T[], key: (row: T) => string | null | undefined
   }
   return out;
 }
+
+/** The steps the marketing dashboard shows, in funnel order. */
+export const FUNNEL_EVENTS = [
+  "landing_viewed",
+  "fit_landing_viewed",
+  "fit_check_viewed",
+  "calculator_viewed",
+  "offer_viewed",
+  "offer_clicked",
+  "signup_completed",
+  "fit_completed",
+  "email_consent_given",
+  "purchase_verified",
+  "purchase_refunded",
+] as const;
+
+/**
+ * Funnel counts by campaign source. Events without a source (direct visits,
+ * and purchases, which arrive from Gumroad without campaign data) are
+ * grouped under "(none recorded)" rather than guessed.
+ */
+export function funnelBySource(
+  events: { name: string; props?: Record<string, unknown> | null }[],
+): Record<string, Record<string, number>> {
+  const wanted = new Set<string>(FUNNEL_EVENTS);
+  const out: Record<string, Record<string, number>> = {};
+  for (const e of events) {
+    if (!wanted.has(e.name)) continue;
+    const raw = e.props?.source;
+    const source = typeof raw === "string" && raw ? raw : "(none recorded)";
+    const row = (out[source] ??= {});
+    row[e.name] = (row[e.name] ?? 0) + 1;
+  }
+  return out;
+}

@@ -44,7 +44,8 @@ export default function Privacy() {
           <strong>Usage:</strong> our own analytics record which features are used, not what you
           wrote. With your consent we set a random identifier to connect visits and remember which
           campaign link brought you. Without it, visits are counted but not connected. There are no
-          advertising trackers.
+          advertising trackers: no Meta (Facebook or Instagram) pixel, no Google Analytics, and
+          nothing that builds advertising audiences from your visit.
         </p>
         <p>
           <strong>The free calculators:</strong> the numbers you type into the Ads Profitability
@@ -69,6 +70,13 @@ export default function Privacy() {
         <p>
           Sign-in emails are sent only when you ask for one. We send news or offers only if you
           chose to receive them, and every one of those has a way to stop them.
+        </p>
+        <p>
+          If you ask for our emails on the Fit Check page, we keep your email address, the exact
+          wording you agreed to, when you agreed, and the name of the link or campaign that brought
+          you (for example &ldquo;instagram&rdquo;), so we can show you agreed and stop when you
+          ask. Unsubscribing takes one click; we then keep the record, marked unsubscribed, so we
+          never email you again by mistake. To have it removed entirely, write to us.
         </p>
 
         <h2 className="mt-8 text-2xl">How long we keep it, and deleting it</h2>

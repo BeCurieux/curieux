@@ -31,6 +31,10 @@ const serverSchema = z
       .transform((value) => (value ? value.replace(/\/+$/, "") : undefined))
       .pipe(z.url().optional()),
 
+    // The Fit Check page's email opt-in. Off until a sender for the welcome
+    // emails is chosen, so nobody signs up for emails that can't be sent.
+    EMPIRE_EMAIL_OPTIN: z.enum(["on", "off"]).default("off"),
+
     EMPIRE_AI_PROVIDER: z.enum(["mock", "anthropic"]).default("mock"),
     ANTHROPIC_API_KEY: optional,
     EMPIRE_AI_MODEL: z.string().default("claude-opus-5-5"),
