@@ -17,12 +17,12 @@ Work top to bottom. Each step's acceptance test must pass before the next step s
 
 ## Phase B: review and merge
 
-| #   | Step                                                                       | Acceptance test                                                                      | Status |
-| --- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------ |
-| B1  | 🔒 Vee merges PR BeCurieux/curieux#68                                      | `main` contains `empire/`; Vercel production deployment for `empire-studio` succeeds | ⬜     |
-| B2  | 🔒 Rebase `hle-ads` on `main`, push, open its PR                           | CI `check` green; Vercel preview builds                                              | ⬜     |
-| B3  | Vee reviews on the preview: calculator, privacy, terms; emails in the repo | Her written sign-off, or a list of changes (which go into the same PR)               | ⬜     |
-| B4  | 🔒 Merge the `hle-ads` PR                                                  | `/ads/tools/calculator` loads on production                                          | ⬜     |
+| #   | Step                                                                       | Acceptance test                                                                      | Status                              |
+| --- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------- |
+| B1  | 🔒 Vee merges PR BeCurieux/curieux#68                                      | `main` contains `empire/`; Vercel production deployment for `empire-studio` succeeds | ✅ merged 25 Oct; deploy UNVERIFIED |
+| B2  | 🔒 Rebase `hle-ads` on `main`, push, open its PR                           | CI `check` green; Vercel preview builds                                              | ✅ PR #69 (stacked, not rebased)    |
+| B3  | Vee reviews on the preview: calculator, privacy, terms; emails in the repo | Her written sign-off, or a list of changes (which go into the same PR)               | ⬜                                  |
+| B4  | 🔒 Merge the `hle-ads` PR                                                  | `/ads/tools/calculator` loads on production                                          | ✅ merged 25 Oct; page UNVERIFIED   |
 
 ## Phase C: hosting
 

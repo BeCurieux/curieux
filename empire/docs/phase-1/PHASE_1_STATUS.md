@@ -2,6 +2,8 @@
 
 **23 October 2026.** The goal is **one verified end-to-end sale** of the Income Fit Test, before any new feature work.
 
+> **Status update, 25 October 2026:** PR BeCurieux/curieux#68 and PR BeCurieux/curieux#69 (`hle-ads`) are merged into `main`, and the email sign-up migration (`20261024000005`) is applied to the Supabase project. Studio still isn't public on `studio.herlittleempire.com` (Vercel Pro and DNS pending) and Gumroad isn't connected. The rest of this document describes the date above.
+
 **Founder decisions in force:**
 
 - The Income Fit Test (US$19) is the first paid offer.
@@ -101,8 +103,8 @@ Each step's acceptance test must pass before the next. 🔒 = founder approval.
 | #   | Step                                                                                               | Owner             | Done when                                                                                                         |
 | --- | -------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
 | A   | Review this folder: copy, corrections, plan; and the privacy/terms drafts                          | Founder           | Written yes, or changes                                                                                           |
-| B1  | 🔒 Merge #68                                                                                       | Founder           | Production deployment of `main` succeeds                                                                          |
-| B2  | 🔒 Push `hle-ads` as a PR; 🔒 merge when green                                                     | Build → Founder   | CI green; `/fit`, `/ads/tools/calculator` live on production                                                      |
+| B1  | ✅ Merged 25 Oct 2026: #68                                                                         | Founder           | Production deployment of `main` succeeds                                                                          |
+| B2  | ✅ Merged 25 Oct 2026: `hle-ads` as PR #69, CI green                                               | Build → Founder   | CI green; `/fit`, `/ads/tools/calculator` live on production                                                      |
 | C1  | 🔒 Vercel Pro                                                                                      | Founder           | Plan shows Pro                                                                                                    |
 | C2  | 🔒 DNS `studio` record; `APP_URL`; Supabase Site URL and redirect list; custom SMTP                | Founder (+ Build) | An emailed sign-in from `/fit` lands back on `/studio/fit` on the custom domain (verifies the return cookie live) |
 | C3  | 🔒 Supabase Pro (recommended before the first real customer)                                       | Founder           | Backups listed                                                                                                    |

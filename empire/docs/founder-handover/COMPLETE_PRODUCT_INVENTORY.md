@@ -2,6 +2,8 @@
 
 **Prepared 23 October 2026.** Sources:
 
+> **Status update, 25 October 2026:** PR BeCurieux/curieux#68 and PR BeCurieux/curieux#69 (`hle-ads`) are merged into `main`, and the email sign-up migration (`20261024000005`) is applied to the Supabase project. Studio still isn't public on `studio.herlittleempire.com` (Vercel Pro and DNS pending) and Gumroad isn't connected. The rest of this document describes the date above.
+
 - the founder's `catalog.py`, copied into `src/content/catalogue.ts` and `docs/CATALOGUE.md` (prices, bundles, on-sale status, 22 Oct 2026);
 - the content register (`content/register.json`), built by reading all 68 files the founder supplied (`01_income-fit-test/`, `02_products/`, `03_brand/`);
 - this repository's code and tests.

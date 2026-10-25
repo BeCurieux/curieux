@@ -42,7 +42,7 @@ Only her answers and progress are stored. The report is recomputed from the answ
 
 ## Email sign-ups
 
-`email_signups` (migration `20261024000005`): one row per address that asked for emails on the Fit Check page, with the exact consent wording and its version (`src/content/consent.ts`), when she agreed, the campaign names that brought her (source, medium, campaign; no other tracking data), the landing page, an unsubscribe token and `unsubscribed_at`. Not linked to accounts. Service role only: row level security is on with no policies, and the RLS suite checks that customers and visitors can't read or add rows. Re-consenting after unsubscribing updates the same row with the new consent.
+`email_signups` (migration `20261024000005`): one row per address that asked for emails on the Fit Check page, with the exact consent wording and its version (`src/content/consent.ts`), when she agreed, the campaign names that brought her (source, medium, campaign; no other tracking data), the landing page, an unsubscribe token and `unsubscribed_at`. Not linked to accounts. Service role only: row level security is on with no policies, and the RLS suite checks that customers and visitors can't read or add rows. Re-consenting after unsubscribing updates the same row with the new consent. Applied to the Supabase project on 25 Oct 2026.
 
 ## Assets and versions
 

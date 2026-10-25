@@ -22,7 +22,7 @@ Paid ads are a separate, optional plan: AD_TEST_PLAN.md (A$15/day maximum, not a
 **URLs:**
 
 - All four work on the local build and are tested.
-- They work at `https://studio.herlittleempire.com/...` **after** the merges and the domain are approved. Until then, no public URL serves them. Branch `hle-ads` isn't pushed.
+- They work at `https://studio.herlittleempire.com/...` **after** the domain is approved and set up. The code is merged into `main` (25 Oct 2026); until the domain is live, no public URL serves them.
 - The Gumroad listings (`herlittleempireco.gumroad.com/l/income-fit-test`, `/l/fit-check`) are founder-supplied and UNVERIFIED live.
 
 ## 2. Tagged links

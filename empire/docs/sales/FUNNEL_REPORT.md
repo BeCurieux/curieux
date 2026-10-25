@@ -4,16 +4,16 @@
 
 Every event in the database came from the founder's own testing on the preview on 23 Oct 2026. No public traffic has reached Studio: it isn't public yet.
 
-| Funnel step                            | Value               | What the value means                                                                                                             |
-| -------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Website visitors (herlittleempire.com) | **Not tracked**     | The website's analytics aren't connected to Studio, and the site couldn't be reached from here. **Unknown, not zero**            |
-| Studio visitors (page views)           | 5                   | 4 landing and 1 pricing view, **all founder testing**                                                                            |
-| Fit Check users                        | **Not tracked yet** | The `/fit-check` page and its events aren't deployed (branch unpushed). Gumroad's free-download count is in Gumroad (UNVERIFIED) |
-| Income Fit Test page views             | **Not tracked yet** | `/income-fit-test` isn't deployed                                                                                                |
-| Checkout starts                        | **Not tracked yet** | The buy-button click events aren't deployed; Gumroad's own checkout steps aren't visible to Studio                               |
-| Verified purchases                     | **Not tracked**     | Gumroad isn't connected. **This is not zero sales:** any sales are on Gumroad and visible only in Gumroad's dashboard            |
-| Refunds                                | **Not tracked**     | Same                                                                                                                             |
-| Purchases in Studio's database         | 0                   | A real zero for Studio's table, but **only because nothing can arrive yet**                                                      |
+| Funnel step                            | Value               | What the value means                                                                                                                                                      |
+| -------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Website visitors (herlittleempire.com) | **Not tracked**     | The website's analytics aren't connected to Studio, and the site couldn't be reached from here. **Unknown, not zero**                                                     |
+| Studio visitors (page views)           | 5                   | 4 landing and 1 pricing view, **all founder testing**                                                                                                                     |
+| Fit Check users                        | **Not tracked yet** | The `/fit-check` page and its events aren't public yet (merged into `main` 25 Oct 2026; custom domain not live). Gumroad's free-download count is in Gumroad (UNVERIFIED) |
+| Income Fit Test page views             | **Not tracked yet** | `/income-fit-test` isn't public yet                                                                                                                                       |
+| Checkout starts                        | **Not tracked yet** | The buy-button click events aren't public yet; Gumroad's own checkout steps aren't visible to Studio                                                                      |
+| Verified purchases                     | **Not tracked**     | Gumroad isn't connected. **This is not zero sales:** any sales are on Gumroad and visible only in Gumroad's dashboard                                                     |
+| Refunds                                | **Not tracked**     | Same                                                                                                                                                                      |
+| Purchases in Studio's database         | 0                   | A real zero for Studio's table, but **only because nothing can arrive yet**                                                                                               |
 
 **Rule:**
 
