@@ -3,7 +3,7 @@
 **24 October 2026.**
 
 - **The goal:** an ethical, profitable digital-product business, with growth toward 100,000 genuine Instagram followers. **100,000 is an ambition, not a forecast.** Nothing here predicts followers, reach or sales.
-- **Built** means it's in the code, tested on the local backend, on branch `hle-ads`, **not deployed**.
+- **Built** means it's in the code, tested on the local backend, merged into `main` on 25 Oct 2026, **not yet public** on the custom domain.
 - **Blocked** means the source or integration isn't available, or it needs a founder decision. Blocked items aren't counted as done.
 
 **Documents:**
@@ -43,8 +43,8 @@
 
 | Priority | Change                                                                                                                                                                  | Owner              | Depends on                                                        |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------- |
-| P0       | 🔒 Merge PR #68; 🔒 push and merge `hle-ads` (includes `/fit-check`, `/income-fit-test`, the dashboard and the opt-in, off)                                             | Founder → Build    | —                                                                 |
-| P0       | 🔒 Apply migration `20261024000005_email_signups` to the Supabase project (it's in the repo; applying it changes production)                                            | Founder → Build    | Merge                                                             |
+| P0       | ✅ Done 25 Oct 2026: PR #68 and the `hle-ads` PR (#69) merged (`/fit-check`, `/income-fit-test`, the dashboard and the opt-in, off)                                     | Founder → Build    | —                                                                 |
+| P0       | ✅ Done 25 Oct 2026: migration `20261024000005_email_signups` applied to the Supabase project (RLS on, no policies, table empty)                                        | Founder → Build    | Merge                                                             |
 | P0       | 🔒 Vercel Pro; `studio.herlittleempire.com` live (docs/phase-1/PHASE_1_STATUS.md)                                                                                       | Founder            | —                                                                 |
 | P0       | Instagram bio link → `studio.herlittleempire.com/fit-check?utm_source=instagram&utm_medium=bio&utm_campaign=evergreen`                                                  | Founder            | Domain live                                                       |
 | P0       | 🔒 Gumroad connected and one verified test sale (docs/phase-1/GUMROAD_CONNECTION_CHECKLIST.md)                                                                          | Founder + Build    | Domain live                                                       |

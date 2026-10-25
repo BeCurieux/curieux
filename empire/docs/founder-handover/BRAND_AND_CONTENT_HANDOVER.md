@@ -2,6 +2,8 @@
 
 **Prepared 23 October 2026.** Sources:
 
+> **Status update, 25 October 2026:** PR BeCurieux/curieux#68 and PR BeCurieux/curieux#69 (`hle-ads`) are merged into `main`, and the email sign-up migration (`20261024000005`) is applied to the Supabase project. Studio still isn't public on `studio.herlittleempire.com` (Vercel Pro and DNS pending) and Gumroad isn't connected. The rest of this document describes the date above.
+
 - the founder's brand files as audited (`03_brand/visual-identity.html`, `PRINT_STYLE.md`, fonts; summarised in `content/register.json` → `brand-system`);
 - her decisions (`content/REGISTER.md` §3, `content/CORRECTIONS.md`);
 - what's implemented in Empire Studio.

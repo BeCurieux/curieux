@@ -2,6 +2,8 @@
 
 **Goal: one verified end-to-end sale before any new Academy features.** A buyer goes from herlittleempire.com or a free tool, through Gumroad, to verified access in Empire Studio, and a test refund works.
 
+> **Status update, 25 October 2026:** PR BeCurieux/curieux#68 and PR BeCurieux/curieux#69 (`hle-ads`) are merged into `main`, and the email sign-up migration (`20261024000005`) is applied to the Supabase project. Studio still isn't public on `studio.herlittleempire.com` (Vercel Pro and DNS pending) and Gumroad isn't connected. The rest of this document describes the date above.
+
 **Strategy (founder, 23 Oct 2026):**
 
 - herlittleempire.com is the brand entry point.

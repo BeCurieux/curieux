@@ -2,6 +2,8 @@
 
 _Generated 23 October 2026 by joining the six files in this folder, in this order: executive summary, website and tech, products, brand and content, funnel, launch decisions. The separate files are the source; screenshots are in `screenshots/` and aren't included here._
 
+> **Status update, 25 October 2026:** PR BeCurieux/curieux#68 and PR BeCurieux/curieux#69 (`hle-ads`) are merged into `main`, and the email sign-up migration (`20261024000005`) is applied to the Supabase project. Studio still isn't public on `studio.herlittleempire.com` (Vercel Pro and DNS pending) and Gumroad isn't connected. The rest of this document describes the date above.
+
 ---
 
 ## Executive summary: Her Little Empire handover

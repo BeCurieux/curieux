@@ -2,6 +2,8 @@
 
 **Prepared 23 October 2026.** Labels per step:
 
+> **Status update, 25 October 2026:** PR BeCurieux/curieux#68 and PR BeCurieux/curieux#69 (`hle-ads`) are merged into `main`, and the email sign-up migration (`20261024000005`) is applied to the Supabase project. Studio still isn't public on `studio.herlittleempire.com` (Vercel Pro and DNS pending) and Gumroad isn't connected. The rest of this document describes the date above.
+
 - **VERIFIED WORKING**: seen working in a real environment (or covered by an automated test against real code, as stated).
 - **BUILT BUT UNTESTED**: code exists but hasn't run against the real service.
 - **BROKEN**.
