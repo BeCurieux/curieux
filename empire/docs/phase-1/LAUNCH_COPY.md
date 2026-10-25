@@ -115,7 +115,7 @@ Then check the six red flags, including licences, big upfront spending, cold mes
 
 **[Get the free Fit Check]**
 
-Gumroad sends it to your email. If you choose to hear from us at checkout, you'll also get five short emails on testing an idea honestly; you can stop them any time.
+No sign-up: no account and no password. Gumroad just asks where to send the file. Follow-up emails are optional and only if you ask for them; you can stop them any time.
 
 ### Want the full answer?
 

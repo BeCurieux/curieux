@@ -156,6 +156,20 @@ export default function IncomeFitTestPage() {
               </figure>
             ))}
           </div>
+          <div className="mt-6">
+            <OfferLink
+              href="/images/income-fit-test/sample-report.jpg"
+              offer="sample-report"
+              source="offer-page"
+              variant="secondary"
+            >
+              See a whole sample report
+            </OfferLink>
+            <p className="text-mute mt-2 text-sm">
+              One long image of a complete report, for a test account named Sam. The calculator is
+              empty because it only works from your own numbers.
+            </p>
+          </div>
         </section>
 
         <section aria-labelledby="inside" className="mt-14">

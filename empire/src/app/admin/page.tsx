@@ -5,7 +5,8 @@ import { requireUser } from "@/lib/auth/session";
 import { systemRepo } from "@/lib/data";
 import { Card, PageHeader } from "@/components/ui/card";
 import { FUNNEL_EVENTS } from "@/lib/analytics/metrics";
-import { CATALOGUE } from "@/content/catalogue";
+import { sevenDayReport } from "@/lib/analytics/sales-report";
+import { CATALOGUE, catalogueItem } from "@/content/catalogue";
 import { METHODOLOGY } from "@/content/methodology";
 import { MODULES } from "@/lib/domain/modules";
 
@@ -55,11 +56,76 @@ export default async function Admin() {
     ["Checklist updates", e("task_updated")],
   ];
   const env = serverEnv();
+  const sales = sevenDayReport(m.recentEvents, new Date(), {
+    gumroadConnected: Boolean(
+      env.GUMROAD_ACCESS_TOKEN &&
+      env.GUMROAD_PING_SECRET &&
+      (catalogueItem("income-fit-test")?.gumroadProductIds.length ?? 0) > 0,
+    ),
+    emailOptInOn: env.EMPIRE_EMAIL_OPTIN === "on",
+  });
+  const statusLabel = { tracked: "Tracked", partial: "Partly tracked", not_tracked: "Not tracked" };
   return (
     <main id="main" className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
       <PageHeader eyebrow="Founder dashboard" title="Are people using what they make?">
         Last 90 days of events. Measures use, not just generation.
       </PageHeader>
+      <Card className="mb-6">
+        <h2 className="text-2xl">Last seven days: Income Fit Test and Fit Check</h2>
+        <p className="text-mute mt-1 text-sm">
+          Days in UTC. &ldquo;Not tracked&rdquo; means the number can&apos;t be seen here yet, not
+          that it&apos;s zero.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="text-mute">
+                <th scope="col" className="py-1 pr-3 font-semibold">
+                  Step
+                </th>
+                {sales.days.map((d) => (
+                  <th key={d} scope="col" className="px-2 py-1 font-semibold">
+                    {d.slice(5)}
+                  </th>
+                ))}
+                <th scope="col" className="px-2 py-1 font-semibold">
+                  7 days
+                </th>
+                <th scope="col" className="px-2 py-1 font-semibold">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sales.rows.map((r) => (
+                <tr key={r.key} className="border-line border-t align-top">
+                  <th scope="row" className="py-2 pr-3 font-medium">
+                    {r.label}
+                    <span className="text-mute block text-xs font-normal">{r.note}</span>
+                  </th>
+                  {r.perDay.map((n, i) => (
+                    <td key={sales.days[i]} className="font-num px-2 py-2">
+                      {n ?? "–"}
+                    </td>
+                  ))}
+                  <td className="font-num px-2 py-2 font-semibold">{r.total ?? "–"}</td>
+                  <td
+                    className={`px-2 py-2 text-xs ${
+                      r.status === "tracked"
+                        ? "text-success"
+                        : r.status === "partial"
+                          ? "text-warning"
+                          : "text-danger"
+                    }`}
+                  >
+                    {statusLabel[r.status]}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <h2 className="text-2xl">Funnel</h2>

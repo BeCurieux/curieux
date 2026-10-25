@@ -25,7 +25,9 @@ const QUESTIONS = [
 // Public page for the free Fit Check. Gumroad delivers the PDF; the optional
 // opt-in below is separate and only shows once a sender is set up.
 export default function FitCheckPage() {
-  const optInOpen = serverEnv().EMPIRE_EMAIL_OPTIN === "on";
+  const env = serverEnv();
+  const optInOpen = env.EMPIRE_EMAIL_OPTIN === "on";
+  const direct = env.FIT_CHECK_DOWNLOAD_URL;
   return (
     <>
       <ViewBeacon name="fit_check_viewed" />
@@ -57,20 +59,35 @@ export default function FitCheckPage() {
               customers, and anything that promises income or asks you to pay to join.
             </p>
             <div className="mt-6">
-              <OfferLink href={FIT_CHECK_URL} offer="fit-check" source="fit-check-page">
-                Get the free Fit Check
-              </OfferLink>
-              <p className="text-mute mt-2 text-sm">
-                A printable PDF, delivered by Gumroad, which asks for your email to send it.
-              </p>
+              {direct ? (
+                <>
+                  <OfferLink href={direct} offer="fit-check-pdf" source="fit-check-page">
+                    Download the free Fit Check (PDF)
+                  </OfferLink>
+                  <p className="text-mute mt-2 text-sm">
+                    No sign-up: no account, no email, no password. Just the printable.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <OfferLink href={FIT_CHECK_URL} offer="fit-check" source="fit-check-page">
+                    Get the free Fit Check
+                  </OfferLink>
+                  <p className="text-mute mt-2 text-sm">
+                    No sign-up: no account and no password. It&apos;s a printable PDF from our
+                    Gumroad shop, which asks where to send the file.
+                  </p>
+                </>
+              )}
             </div>
           </Card>
 
           <Card className="bg-blush-soft">
-            <h2 className="text-2xl">Want five short emails as well?</h2>
+            <h2 className="text-2xl">Want a follow-up by email? (Optional)</h2>
             <p className="text-mute mt-2 text-sm">
-              Optional. How to test an idea honestly, what the numbers really look like, and when
-              &ldquo;not enough evidence yet&rdquo; is the right answer. No income promises.
+              Entirely optional, and not needed for the Fit Check. Five short emails: how to test an
+              idea honestly, what the numbers really look like, and when &ldquo;not enough evidence
+              yet&rdquo; is the right answer. No income promises.
             </p>
             <div className="mt-4">
               {optInOpen ? (

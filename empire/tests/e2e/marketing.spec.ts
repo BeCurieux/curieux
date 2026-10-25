@@ -77,3 +77,34 @@ for (const path of ["/fit-check", "/income-fit-test", "/unsubscribe?token=x"]) {
     ).toEqual([]);
   });
 }
+
+test("the founder's seven-day view says what isn't tracked instead of showing zero sales", async ({
+  page,
+}) => {
+  await page.goto("/sign-in");
+  await page.getByRole("button", { name: "No thanks" }).click();
+  await page.getByLabel("Your email").fill("founder@example.test");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/studio/);
+  await page.goto("/admin");
+  await expect(
+    page.getByRole("heading", { name: "Last seven days: Income Fit Test and Fit Check" }),
+  ).toBeVisible();
+  const purchases = page.getByRole("row", { name: /Verified purchases/ }).first();
+  await expect(purchases).toContainText("Not tracked");
+  await expect(purchases).toContainText("not the same as zero sales");
+});
+
+test("the Fit Check promises no sign-up, and the offer page links a whole sample report", async ({
+  page,
+}) => {
+  await page.goto("/fit-check");
+  await page.getByRole("button", { name: "No thanks" }).click();
+  await expect(page.getByText(/No sign-up: no account and no password/)).toBeVisible();
+  await expect(page.getByText(/not needed for the Fit Check/)).toBeVisible();
+  await page.goto("/income-fit-test");
+  const sample = page.getByRole("link", { name: "See a whole sample report" });
+  await expect(sample).toHaveAttribute("href", "/images/income-fit-test/sample-report.jpg");
+  const res = await page.request.get("/images/income-fit-test/sample-report.jpg");
+  expect(res.status()).toBe(200);
+});

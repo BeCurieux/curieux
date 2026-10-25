@@ -719,7 +719,7 @@ export class SupabaseSystemRepo implements SystemRepo {
     const [events, profiles, entitlements, generations, cost, users, signups] = await Promise.all([
       this.db
         .from("analytics_events")
-        .select("name,user_id,props,created_at")
+        .select("name,user_id,anonymous_id,props,created_at")
         .gte("created_at", since90)
         .limit(50_000),
       this.db.from("business_profiles").select("id", { count: "exact", head: true }),
@@ -770,6 +770,20 @@ export class SupabaseSystemRepo implements SystemRepo {
       funnel: funnelBySource(
         ev.map((e) => ({ name: e.name as string, props: (e.props as Row) ?? null })),
       ),
+      recentEvents: ev
+        .filter(
+          (e) => (e.created_at as string) >= new Date(Date.now() - 8 * 86_400_000).toISOString(),
+        )
+        .map((e) => {
+          const props = (e.props as Row) ?? {};
+          return {
+            name: e.name as string,
+            at: e.created_at as string,
+            source: typeof props.source === "string" ? props.source : null,
+            path: typeof props.path === "string" ? props.path : null,
+            anonymousId: (e.anonymous_id as string | null) ?? null,
+          };
+        }),
     };
   }
 

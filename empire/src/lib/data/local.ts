@@ -591,6 +591,15 @@ class LocalSystemRepo implements SystemRepo {
           unsubscribed: d.emailSignups.filter((s) => s.unsubscribedAt).length,
         },
         funnel: funnelBySource(d.events),
+        recentEvents: d.events
+          .filter((e) => e.createdAt >= new Date(Date.now() - 8 * 86_400_000).toISOString())
+          .map((e) => ({
+            name: e.name,
+            at: e.createdAt,
+            source: typeof e.props.source === "string" ? e.props.source : null,
+            path: typeof e.props.path === "string" ? e.props.path : null,
+            anonymousId: e.anonymousId,
+          })),
       };
     }, false);
   }

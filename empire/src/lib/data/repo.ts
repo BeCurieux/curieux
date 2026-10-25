@@ -1,3 +1,4 @@
+import type { RecentEvent } from "@/lib/analytics/sales-report";
 import type {
   BrandBlueprint,
   BusinessProfile,
@@ -143,6 +144,8 @@ export interface AdminMetrics {
   emailSignups: { active: number; unsubscribed: number };
   /** Funnel events by campaign source (src/lib/analytics/metrics.ts). */
   funnel: Record<string, Record<string, number>>;
+  /** Raw events from the last 8 days, for the seven-day sales view. */
+  recentEvents: RecentEvent[];
 }
 
 export interface SystemRepo {
