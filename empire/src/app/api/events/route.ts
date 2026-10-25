@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth/session";
+import { isAutomatedVisitor } from "@/lib/analytics/automated";
 import { track, type EventName } from "@/lib/analytics/track";
 
 // Events the browser reports. Only these names; properties are filtered by
@@ -26,6 +27,8 @@ export async function POST(request: Request) {
   }
   const name = typeof body.name === "string" ? (body.name as EventName) : null;
   if (!name || !CLIENT_EVENTS.has(name)) return NextResponse.json({ ok: false }, { status: 400 });
+  // Deployment checks and crawlers get the same answer but aren't counted.
+  if (isAutomatedVisitor(request.headers.get("user-agent"))) return NextResponse.json({ ok: true });
   const props =
     body.props && typeof body.props === "object" ? (body.props as Record<string, unknown>) : {};
   const user = await currentUser().catch(() => null);

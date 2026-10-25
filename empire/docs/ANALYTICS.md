@@ -9,7 +9,10 @@ cookie banner; declining still counts events without linking them. Campaign
 names (`utm_source` or `ref`, `utm_medium`, `utm_campaign`) are sent with the
 page view itself; only the source is remembered in a cookie (for a later
 sign-up), and only after consent. Purchases come from Gumroad without
-campaign data, so they can't be attributed to a campaign.
+campaign data, so they can't be attributed to a campaign. Browser events
+from machines (Vercel's post-deployment checks, crawlers, headless browsers;
+matched on the User-Agent in `src/lib/analytics/automated.ts`) are dropped
+before they're stored.
 
 | Brief metric                         | Event / source                                                                         |
 | ------------------------------------ | -------------------------------------------------------------------------------------- |
