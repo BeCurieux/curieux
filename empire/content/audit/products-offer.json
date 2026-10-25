@@ -1,0 +1,902 @@
+[
+  {
+    "id": "little-offer-kit",
+    "title": "Your Little Offer Kit",
+    "file": [
+      "02_products/content/little-offer-kit.json",
+      "02_products/pdf/little-offer-kit.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": 19,
+    "bundles": [
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Walks a beginner from idea to a live US$7-27 digital product on Gumroad in one weekend (or four evenings). Gives 25 example ideas, a four-question 1-5 scoring worksheet (14+ = good weekend project, below 12 = narrow it) and a one-sentence promise formula. Includes an hour-by-hour weekend plan, an outline template, simple design rules, file-format guidance and a quality checklist. Covers pricing tiers and five steps to a price, Gumroad setup and fees (FACT/UNKNOWN labelled, checked Oct 2026), and templates for product description, receipt, refund note and sales page. Ends with 5 launch posts, 5 story slides, 3 DMs, a launch email, after-launch measurement and a sources table. JSON and PDF match: every JSON string appears in the PDF; the PDF adds only cover, contents, section numbers and the legal/refund footer.",
+    "sections": [
+      "What a little offer is (and who it suits)",
+      "25 little-offer ideas to spark yours",
+      "Pick yours: the four-question score",
+      "The weekend plan, hour by hour",
+      "Build it: outline, design and file formats",
+      "Quality checklist before you publish",
+      "Price it: simple pricing logic",
+      "Set up on Gumroad, step by step",
+      "Product description, receipt and refund note",
+      "Your sales page template",
+      "5 launch posts and 5 story slides",
+      "DMs for people who ask, and an email to your people",
+      "After launch: measure, improve or move on",
+      "Sources"
+    ],
+    "customer_problem": "\"Make and launch a small, honest US$7-27 digital product in one weekend, from idea to Gumroad link.\" (tagline); \"One problem, one person, one result.\" (Start here)",
+    "content_types": [
+      "guidance",
+      "question",
+      "formula",
+      "template",
+      "workflow",
+      "example",
+      "research"
+    ],
+    "proposed_destination": "product_listing (product description template, FAQ, 'What it's not'); homepage_copy / theme_brief (sales page template); social_content (5 launch posts + 5 story slides); email_sequence (launch email, feedback email); pricing calculator (price ladder, five steps, fee maths); launch checklist (weekend plan, quality checklist); brand_blueprint (simple design rules: 2 fonts, 3 colours)",
+    "proposed_form": "AI instruction (templates and rules for product_listing, social_content, email_sequence); structured data (price tiers, fee table with check dates); interactive feature (idea scoring worksheet, weekend plan checklist, quality checklist)",
+    "duplicates_with": [
+      {
+        "id": "sell-it-simply-workbook",
+        "note": "Both have a sales page template, a price ladder, launch posts/stories, Gumroad/Etsy fee facts and no-fake-scarcity rules; Sell It Simply says it 'doesn't repeat' the LOK build plan (Start here, 'This course is the next step')."
+      },
+      {
+        "id": "price-it-right",
+        "note": "Both use '5 similar/comparable offers' market comparison and honest founding/launch-price rules; LOK is result-size/tier based, Price It Right is cost-floor based."
+      },
+      {
+        "id": "ai-business-assistant-pack",
+        "note": "Prompts 2.1 (one-sentence offer), 2.5 (FAQ), 5.1 and 5.5 (product description, 'what you get') cover the same jobs as the LOK templates, with a different promise formula."
+      },
+      {
+        "id": "first-5-customers",
+        "note": "LOK 'DMs for people who ask' and the launch email overlap with First 5 Customers' message scripts (LOK is inbound-only; F5C includes first contact)."
+      }
+    ],
+    "missing_information": [
+      "Version not in JSON (PDF only).",
+      "Card-processing fee on Gumroad is UNKNOWN by the kit's own label.",
+      "No Shopify guidance: the kit is built around Gumroad (with Etsy/Stan/Payhip alternatives), so Shopify setup, fees and checkout are absent for Empire Studio.",
+      "Sections 4/5/6/8/9/11/12 are cross-referenced by number in the text but the JSON has no section numbers (only the PDF numbers them)."
+    ],
+    "research_verification": [
+      "Gumroad 10% + US$0.50 per transaction on direct/profile sales: FACT (checked Oct 2026), gumroad.com/pricing (Set up on Gumroad table; Sources).",
+      "Gumroad 30% per transaction via Discover: FACT (checked Oct 2026), gumroad.com/pricing.",
+      "Gumroad fee excludes card processing/PayPal fees: FACT (checked Oct 2026), Gumroad help article 66; amount UNKNOWN; a third-party blog says 2.9% + US$0.30, labelled 'not verified by us' (Sources).",
+      "Gumroad is merchant of record for sales tax/VAT/GST since 1 January 2025: FACT (checked Oct 2026).",
+      "Etsy US$0.20 listing fee and 6.5% transaction fee: FACT (checked Oct 2026), etsy.com/legal/fees.",
+      "Stan Store Creator US$29/mo or US$300/yr, Creator Pro US$99/mo, 14-day trial, no Stan transaction fee: labelled FACT (checked Oct 2026) in Sources, but the in-body Alternatives row says only 'checked Oct 2026 on stan.store' without the FACT label; the US$300/yr figure is absent from the Sources row.",
+      "Payhip free plan 5% fee, collects/remits EU/UK VAT and US/Canadian sales tax: FACT (checked Oct 2026).",
+      "Illustrative fee maths (US$7 -> about US$5.80; US$12 -> US$10.30; US$19 -> US$16.60; US$27 -> US$23.80) is labelled 'illustrative', not FACT/EST.",
+      "All idea prices are labelled 'Example' and tier prices 'Illustrative'; these are not FACT/EST/UNKNOWN labels as such.",
+      "Check dates are month-only ('Oct 2026'), not a day; the owner's rule asks for a check date (a day-level date is used in other products, e.g. Side Income Money System).",
+      "Legal/platform claims without labels: paper sizes by country (callout in Build it); consumer-law rights in AU/UK/EU (refund callout); spam laws named by country (Scripts callout)."
+    ],
+    "compliance_flags": [
+      "Refund policy note template (Templates section) offers '[we offer refunds within [X] days ... / we handle refund requests case by case]': this is a template for the buyer's own product, but it differs from the mandated wording 'Full refund within 14 days of purchase, no questions asked.' Owner should decide whether Empire Studio may generate any other refund wording.",
+      "PLR/MRR are mentioned only to reject them ('Why we avoid PLR and MRR'): not a violation.",
+      "No income claims, fake urgency or testimonials found; the sales page check explicitly forbids them.",
+      "No '[the former trading entity]', 'lawyer', 'barrister' or 'counsel' found."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Templates are complete and already follow the no-hype rules; they can become AI instructions for product_listing, social_content and email_sequence now. Gumroad-specific setup and fee data need re-labelling with day-level check dates and a Shopify equivalent before use in a Shopify app."
+    }
+  },
+  {
+    "id": "sell-it-simply-workbook",
+    "title": "Sell It Simply Workbook",
+    "file": [
+      "02_products/content/sell-it-simply-workbook.json",
+      "02_products/pdf/sell-it-simply-workbook.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": null,
+    "bundles": [],
+    "content_summary": "Companion workbook to a 'Sell It Simply video course' (8 modules), for the months after a product is live. Covers positioning in the customer's own words (a 'Find her words' method, a positioning card and a one-sentence promise), a six-part sales page template, a six-image shot list and image honesty test. Also covers price ladders, upsell/cross-sell/bundle/order-bump wording, faceless Instagram with comment-to-DM, Pinterest (10 pin-title formulas) and Etsy facts. Includes email consent basics for five countries, a four-email welcome sequence, a two-week launch plan, honest review rules and request templates, and a weekly numbers tracker with a school-hours selling week. Facts are labelled FACT/EST/UNKNOWN (checked Oct 2026). JSON and PDF match; the PDF adds only cover, contents, numbering and footer.",
+    "sections": [
+      "How to use this workbook",
+      "Position: who it is really for",
+      "Your sales page, in six parts",
+      "Images and mock-ups that sell honestly",
+      "Price ladders, bundles, upsells and order bumps",
+      "Instagram without your face",
+      "Pinterest: be found by people searching",
+      "Etsy for digital downloads",
+      "Your email list: consent basics and a sign-up that asks properly",
+      "Your four-email welcome sequence",
+      "Simple launches and evergreen selling",
+      "Reviews and social proof, done honestly",
+      "Your numbers and a school-hours selling week",
+      "Sources"
+    ],
+    "customer_problem": "\"A product for everyone speaks to no one in particular.\" (Module 1 intro); \"Sell It Simply is about the months after: who it is for, how it is shown, how it is priced, where it is found, and a routine you can keep.\" (Start here)",
+    "content_types": [
+      "research",
+      "guidance",
+      "question",
+      "template",
+      "workflow",
+      "example",
+      "formula"
+    ],
+    "proposed_destination": "brand_blueprint (positioning/ideal customer: 'Find her words', positioning card, voice-in-three-words checklist); homepage_copy and product_listing (six-part sales page, five-question page check, headline drafts); image_briefs (six-image shot list, honesty test, licences); email_sequence (four-email welcome sequence, waitlist post, honest launch-price email, review request); social_content (teach/show/invite post grid, comment-to-DM caption, story frames, pin title formulas); launch checklist (two-week launch table, evergreen setup); money/pricing (ladder, Etsy fee worksheet); weekly tracker (five numbers)",
+    "proposed_form": "AI instruction (sales page, email, social, image brief templates and rules); structured data (Etsy/Gumroad/Meta/Pinterest facts and email consent table with check dates); interactive feature (positioning card, two-week launch checklist, weekly tracker)",
+    "duplicates_with": [
+      {
+        "id": "little-offer-kit",
+        "note": "Sales page template, price ladder, launch posts/stories, review/feedback rules and Etsy/Gumroad fees repeated in a fuller form."
+      },
+      {
+        "id": "get-found",
+        "note": "Pinterest and Etsy discoverability guidance overlaps with Get Found's Pinterest and Etsy pages (different emphasis; both cite official pages)."
+      },
+      {
+        "id": "ai-business-assistant-pack",
+        "note": "Prompts 1.1 (ideal customer), 3.6 (newsletter), 4.x (social) and 9.x (reviews) cover the same jobs."
+      },
+      {
+        "id": "client-paperwork-kit",
+        "note": "Testimonial permission and honest-review rules repeated (Permission to quote vs Testimonial permission form)."
+      },
+      {
+        "id": "90-day-grow-plan",
+        "note": "Weekly numbers review and 'change one thing at a time' rule repeated."
+      }
+    ],
+    "missing_information": [
+      "Not listed in catalog.py: no price, no bundle, not on Gumroad per ON_GUMROAD; the 'Sell It Simply video course' it accompanies is also absent from catalog.py (catalog 'video-course' is the Income Fit Test video course).",
+      "Version not in JSON.",
+      "No Shopify-specific guidance (channels covered: Instagram, Pinterest, Etsy, Gumroad).",
+      "Etsy payment processing rate UNKNOWN by its own label."
+    ],
+    "research_verification": [
+      "Etsy: US$0.20 listing fee, four-month expiry with auto-renew; 6.5% transaction fee; processing fee varies by bank location (rate UNKNOWN); Offsite Ads 15% or 12% after US$10,000 in 365 days, capped US$100/order; VAT on digital items in certain countries; 5 files x 20MB; no variations; must be made/designed by you; AI disclosure; 100-day review window. All FACT (checked Oct 2026), Etsy fees policy / help / seller policy (Etsy section; Sources rows 0-6).",
+      "Gumroad upsells, cross-sells, bundles, discount codes: FACT (checked Oct 2026); percentage/fixed codes, minimums, limits: EST (third-party DeepWiki); 'order bump' as named feature: UNKNOWN (Module 3 table; Sources 11-15).",
+      "Pinterest business account free with analytics/ads; claim website via HTML tag/TXT/file: FACT (checked Oct 2026).",
+      "Pinterest pin ratio 2:3 (1000 x 1500): labelled FACT but sourced partly to 'current pin-size guides' (secondary), which by the system's own definition (Side Income Money System) would be EST.",
+      "Instagram private replies: one per comment within 7 days; follow-ups within 24 hours of a reply: FACT (checked Oct 2026), Meta for Developers.",
+      "Email consent table for AU (unsubscribe within 5 working days), US (10 business days, postal address), UK (soft opt-in, guidance under review after Data (Use and Access) Act), Canada (purchase implies consent for two years; mailing address valid 60 days; 10 business days), NZ (5 working days): FACT (checked Oct 2026) in Sources; the in-body table is headed 'checked Oct 2026' without per-row labels. The Canadian '60 days' address detail is not in the Sources row.",
+      "FTC Consumer Reviews and Testimonials Rule in effect 21 October 2024; ACCC online reviews rules: FACT (checked Oct 2026).",
+      "Check dates are month-only ('Oct 2026').",
+      "All prices (US$12, US$29, US$39, US$5 order bump) and times labelled as examples/illustrative."
+    ],
+    "compliance_flags": [
+      "Refund wording is delegated to the seller ('[Your refund note, in line with consumer law in your country]'); not the mandated HLE wording. Owner decision needed if Empire Studio generates refund text.",
+      "Social-proof example '\"made by a mum who uses it every week\" - only if true' is conditional; acceptable but touches the faceless-founder rule if generators default to family references.",
+      "Testimonials only with permission and exact words: compliant.",
+      "No income claims, fake urgency, PLR/MRR, '[the former trading entity]' or 'lawyer'/'barrister'/'counsel' found."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Most complete copy, email and social method in scope; already fully labelled. Needs a catalog decision (unpriced, not on Gumroad) and Shopify substitutions for Etsy/Gumroad specifics, but the templates themselves are channel-neutral."
+    }
+  },
+  {
+    "id": "side-income-money-system",
+    "title": "Side Income Money System",
+    "file": [
+      "02_products/content/side-income-money-system.json",
+      "02_products/pdf/side-income-money-system.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": 19,
+    "bundles": [
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Guide to an accompanying spreadsheet (Start here, Income log, Expense log, Tax set-aside, Monthly summary, Year-end checklist) for tracking side-income money. Explains setting up a separate account and a receipts system, and lists the income and expense log columns (business amount = total x business-use %). The tax set-aside is profit (income minus business expenses, floored at zero) x a user-chosen percentage; no percentage is recommended. Includes general deductibility principles, registration thresholds and record-keeping periods for AU, US, UK, Canada and NZ (FACT, with day-level check dates), and a benefits-reporting reminder. Also a 20-minute monthly routine, a year-end pack checklist and when to see an accountant. JSON and PDF match; the PDF adds cover, contents, numbering and footer.",
+    "sections": [
+      "How this system works",
+      "Set up a separate account",
+      "What to record, and how",
+      "A receipts system that runs itself",
+      "Your tax set-aside: how the calculator works",
+      "Deductible or not: general principles",
+      "Registration and threshold watch",
+      "How long to keep your records",
+      "Benefits and childcare support: report your income",
+      "Your 20-minute monthly money routine",
+      "Your year-end pack checklist",
+      "When to see an accountant",
+      "Official sources to keep handy"
+    ],
+    "customer_problem": "\"A simple way to track every dollar in and out, set tax money aside, and walk into tax time with a tidy pack.\" (tagline); \"Keeping business money apart from household money is the single most useful thing you can do.\" (Step 1)",
+    "content_types": [
+      "research",
+      "guidance",
+      "formula",
+      "template",
+      "workflow",
+      "example"
+    ],
+    "proposed_destination": "money calculator (set-aside formula, threshold watch at 75%, income/expense log schema); launch checklist (separate account, receipts setup, monthly routine); downloadable resource (country rules and record-keeping tables, year-end checklist)",
+    "proposed_form": "interactive feature (money calculator implementing A-E formula and threshold share); structured data (country thresholds and retention periods with labels and check dates); downloadable resource (spreadsheet + guide)",
+    "duplicates_with": [
+      {
+        "id": "14-day-tracker",
+        "note": "Money log (spent/received) and record-keeping advice repeated; the Tracker's 'five to seven years' conflicts with this product's country table (US default 3 years)."
+      },
+      {
+        "id": "90-day-grow-plan",
+        "note": "'Four simple systems' record keeping and payments, and real hourly return inputs overlap."
+      },
+      {
+        "id": "client-paperwork-kit",
+        "note": "Both note Canada/NZ rules on records stored outside the country; CPK cross-references this guide."
+      },
+      {
+        "id": "price-it-right",
+        "note": "Invoice template's GST/tax-invoice rules overlap with the registration-threshold section."
+      }
+    ],
+    "missing_information": [
+      "The spreadsheet (catalog FILES: 'Her-Little-Empire_Side-Income-Money-System.xlsx') is not in the folder, so cell formulas, the 75% pink threshold, the drop-downs and how fees are 'carried across' cannot be verified.",
+      "It is ambiguous whether platform fees are entered once in the Income log ('Fees deducted') and copied automatically to expenses, or must also be entered in the Expense log (Income log tip: 'the sheet can carry them across'; Step 4: income 'plus fees' and expenses 'including fees').",
+      "No pricing formula exists in this product, although the brief pairs it with Price It Right.",
+      "Version not in JSON."
+    ],
+    "research_verification": [
+      "AU: ABN free; 47% withholding if no ABN quoted: FACT (checked 17 Oct 2026). GST registration at A$75,000, 21 days: FACT (17 Oct 2026). Records 5 years: FACT (ATO, 17 Oct 2026).",
+      "US: SBA 'won't need to register anywhere': FACT (19 Oct 2026). Self-employment tax at US$400 net earnings: FACT. State sales tax thresholds: UNKNOWN (per state). 1099-NEC at US$2,000 for 2026 payments; 1099-K above US$20,000 and more than 200 transactions: FACT (19 Oct 2026). Records 3/6/7 years etc.: FACT (IRS, 19 Oct 2026).",
+      "UK: Self Assessment above £1,000; 5 October deadline: FACT. VAT £90,000 rolling 12 months/next 30 days: FACT. MTD thresholds £50,000/£30,000/£20,000 from April 2026/2027/2028: FACT. Trading allowance either/or rule: FACT (gov.uk, 19 Oct 2026). Records 5 years after 31 January: FACT.",
+      "Canada: BN only when registering for a CRA program: FACT. GST/HST small supplier at $30,000 over four quarters: FACT. Records six years, kept in Canada: FACT (CRA, 19 Oct 2026).",
+      "NZ: no sole-trader registration, IRD number: FACT. GST at $60,000: FACT. Records 7 tax years; overseas storage needs IRD approval: FACT (19 Oct 2026).",
+      "Unlabelled legal claims: 'In Australia, only a registered BAS or tax agent may advise on GST or lodge for a fee' (When to see an accountant); 'Digital records are generally accepted if complete, readable and can't be altered' (receipts callout).",
+      "Figure-labelling legend given explicitly (Official sources callout): FACT = official page on check date; EST = estimate or secondary source; UNKNOWN = not confirmed."
+    ],
+    "compliance_flags": [
+      "No set-aside percentage or tax rate is recommended, so there is no personalised tax output. Empire Studio's money calculator must keep the user-entered % and must not suggest one.",
+      "The word 'counsellor' ('free financial counsellor') appears; it is not 'counsel' and not a credential, so not a violation.",
+      "No income claims, urgency, testimonials, '[the former trading entity]' or 'lawyer'/'barrister' found."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "The formula and country tables are implementation-ready, but the spreadsheet is missing (so fee handling is ambiguous) and US/UK figures were checked 19 Oct 2026 and will need re-checking at each tax year. The content targets service/side income in five countries rather than Shopify store accounting."
+    }
+  },
+  {
+    "id": "client-paperwork-kit",
+    "title": "Client Paperwork Kit",
+    "file": [
+      "02_products/content/client-paperwork-kit.json",
+      "02_products/pdf/client-paperwork-kit.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": 19,
+    "bundles": [
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Starting templates for a service client journey: proposal, simple service agreement (12 clauses plus Schedule A), onboarding form, privacy note, invoice reminder sequence (with invoice, 3 days before, +1, +7, +14 days), scope-change confirmation, offboarding/handover email, and testimonial request and permission form. Every template is headed '[STARTING TEMPLATE – edit before use. A starting template, not legal advice. ...]'. Includes a clause-by-clause table of questions to ask a lawyer, data-habit checklists, and a 'Get it checked' page listing where to find legal help in AU, US, UK, Canada and NZ. JSON and PDF match apart from one template header string the comparison script flagged because of an en-dash; the PDF adds cover, contents and footer.",
+    "sections": [
+      "How to use this kit",
+      "Proposal template",
+      "Simple service agreement",
+      "Client onboarding form",
+      "Privacy note for handling client data",
+      "Invoice reminder sequence",
+      "Scope change confirmation",
+      "Offboarding and handover email",
+      "Testimonial permission form",
+      "Get it checked",
+      "Your paperwork checklist"
+    ],
+    "customer_problem": "\"Good paperwork is a kindness to you and your client. It sets expectations before anyone is disappointed.\" (Start here)",
+    "content_types": [
+      "template",
+      "guidance",
+      "workflow",
+      "question",
+      "research"
+    ],
+    "proposed_destination": "downloadable resource (static templates); possibly the launch checklist (paperwork checklist). Not suitable as an AI generator for Empire Studio's Shopify product flow.",
+    "proposed_form": "downloadable resource",
+    "duplicates_with": [
+      {
+        "id": "price-it-right",
+        "note": "Quote vs proposal template, invoice template, payment terms and late-payment chasing (PIR has one chase script; CPK has a 5-step sequence)."
+      },
+      {
+        "id": "90-day-grow-plan",
+        "note": "'Terms of service starter' and 'Templates to keep in one folder' overlap with the agreement and onboarding templates."
+      },
+      {
+        "id": "ai-business-assistant-pack",
+        "note": "Prompt 6.6 'Simple terms draft' and 8.1 'Onboarding questionnaire' generate the same documents."
+      },
+      {
+        "id": "sell-it-simply-workbook",
+        "note": "Testimonial/permission-to-quote rules repeated."
+      },
+      {
+        "id": "side-income-money-system",
+        "note": "Records stored outside Canada/NZ; cross-referenced."
+      }
+    ],
+    "missing_information": [
+      "Not on Gumroad per catalog.py ON_GUMROAD (in FILES/PRICE and The Whole Empire only).",
+      "Version not in JSON.",
+      "Clause 7 and 8 text is truncated in this audit's rendering only; full text is present in the JSON/PDF."
+    ],
+    "research_verification": [
+      "AU: 47% withholding if no ABN quoted: FACT (ATO, checked 17 Oct 2026) (Proposal 'Before you send').",
+      "UK: own name and business name on official paperwork: FACT (gov.uk, 19 Oct 2026).",
+      "Quebec Law 14 (Bill 96) French-language requirement: EST (CFIB summary, 19 Oct 2026).",
+      "NZ Citizens Advice Bureau 0800 367 222: FACT (19 Oct 2026).",
+      "Unlabelled legal claims: consumer protection may apply to individuals; some terms may not be enforceable (service agreement callout); privacy laws may apply only above a certain size (privacy intro)."
+    ],
+    "compliance_flags": [
+      "'lawyer' appears 11 times, plus 'attorney' and 'solicitor', including in a cover item ('\"Get it checked\": where to find a local lawyer or free legal help') and the clause table header 'Questions to ask a lawyer'. The owner rule says: never use 'lawyer', 'barrister' or 'counsel' near a product. The context is referral, not Vee's credentials, but it literally conflicts; owner decision needed.",
+      "Personalised legal outputs: turning these templates into an AI generator that fills in agreements for a specific user would risk the 'no personalised legal outputs' rule. Keep them as static starting templates with the standard disclaimer.",
+      "The testimonial content is about collecting real testimonials with consent: compliant.",
+      "Refund wording only appears in agreement clauses (deposit refundable or not); it is not HLE's own refund policy."
+    ],
+    "reuse": {
+      "status": "blocked",
+      "reason": "Not relevant to the Empire Studio generators (service-client paperwork, not a Shopify product store). As an AI feature it would create personalised legal-style outputs, and the 'lawyer' wording conflicts with the owner's rule. Usable only as a downloadable resource after an owner decision on the wording."
+    }
+  },
+  {
+    "id": "90-day-grow-plan",
+    "title": "The 90-Day Grow Plan",
+    "file": [
+      "02_products/content/90-day-grow-plan.json",
+      "02_products/pdf/90-day-grow-plan.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": 24,
+    "bundles": [
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "A 90-day plan for after a successful 14-day test, in three 30-day phases (Prove it again, Make it repeatable, Make it steady) with weekly goals and 30-60 minute daily tasks. Decisions at day 30, 60 and 90 rest on three measures: paying customers, repeat customers and real hourly return = (money received - all costs) / all hours, with a worked example. Includes a baseline and own-minimums page, illustrative customer minimums by offer type, a raising-prices checkpoint at day 60 (3+ of 6 signs means test a higher price), four simple systems (customer sheet, templates, payments, records), a weekly review worksheet, stop/pivot/pause options, energy boundaries and a day-90 decision page. JSON and PDF match; the PDF adds cover, contents and footer.",
+    "sections": [
+      "Who this plan is for and how it works",
+      "Set your starting point and your own minimums",
+      "The three numbers that make every decision",
+      "Prove it again",
+      "Day 30 checkpoint: did it prove itself again?",
+      "Make it repeatable",
+      "Day 60 checkpoint: is it repeatable?",
+      "Raising prices checkpoint",
+      "Make it steady",
+      "Four simple systems to set up",
+      "Your weekly review worksheet",
+      "When to stop or pivot",
+      "Protecting your time and energy",
+      "Your day-90 decision page"
+    ],
+    "customer_problem": "\"This plan is for after a first test went well: real people showed real interest.\" (Start here); \"Feeling busy is not evidence. These three numbers are.\" (Your measures)",
+    "content_types": [
+      "guidance",
+      "formula",
+      "workflow",
+      "question",
+      "template",
+      "example"
+    ],
+    "proposed_destination": "launch checklist/tracker (post-launch phases, weekly review fields, checkpoints); money calculator (real hourly return); pricing calculator (day-60 price check); email_sequence (only the price-change message; no launch email sequence exists here)",
+    "proposed_form": "interactive feature (weekly review tracker, checkpoint decision logic, real hourly return calculator); structured data (phase/week/task table)",
+    "duplicates_with": [
+      {
+        "id": "price-it-right",
+        "note": "Price-raise logic and messages (PIR: 30 days' notice, 15-25% EST; 90-day: day 60, 3+ ticks, one clear step, e.g. $40 to $50)."
+      },
+      {
+        "id": "14-day-tracker",
+        "note": "Same real hourly return formula (received - spent) / hours, and the same evidence definitions (paid/deposit counts; likes don't)."
+      },
+      {
+        "id": "ai-business-assistant-pack",
+        "note": "Prompts 7.2 (real hourly return), 10.2 (weekly review) and 10.6 (90-day check-in) repeat the measures."
+      },
+      {
+        "id": "client-paperwork-kit",
+        "note": "Terms of service starter and templates list overlap."
+      },
+      {
+        "id": "side-income-money-system",
+        "note": "Record keeping and separate-account advice."
+      }
+    ],
+    "missing_information": [
+      "Depends on the Income Fit Test Go/No-Go Scorecard and 14-day test (out of scope).",
+      "No launch email sequence content; only a price-change message, a kind boundary reply and a list of template names (enquiry reply, offer, confirmation, onboarding, delivery, follow-up, 'not now').",
+      "Version not in JSON."
+    ],
+    "research_verification": [
+      "Worked example ($300 received, $45 costs, 12 hours -> $21.25/hr) labelled 'Example only, in any currency' (Your measures).",
+      "Customer minimums table labelled 'Illustrative ... example only'.",
+      "Price raise example ($40 to $50) labelled 'Example only'.",
+      "No platform fees, statistics or tax figures given; tax/registration only referred to generally ('differ in Australia, the US, the UK, Canada and New Zealand')."
+    ],
+    "compliance_flags": [
+      "Explicitly sets no income targets ('There are no income targets in this plan'): compliant.",
+      "No testimonials, urgency, '[the former trading entity]', 'lawyer'/'barrister'/'counsel' or PLR/MRR found.",
+      "Terms of service starter carries the standard 'not legal advice' line."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Measures and checkpoint logic are implementable now, but the plan assumes a service/side-income test with the Income Fit Test upstream; it needs adapting to a Shopify store launch (orders and products rather than clients) before it powers the tracker."
+    }
+  },
+  {
+    "id": "ai-business-assistant-pack",
+    "title": "AI Business Assistant Pack",
+    "file": [
+      "02_products/content/ai-business-assistant-pack.json",
+      "02_products/pdf/ai-business-assistant-pack.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": 12,
+    "bundles": [
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Sixty fill-in-the-blank prompts for any AI chat assistant, in 10 sections: finding customers, writing your offer, emails and DMs, social content, listings and product descriptions, admin, pricing thinking, client delivery, reviews and feedback, and weekly planning. Opens with an 'About me' context starter and five prompting habits, and an AI safety checklist (check facts, no private data, disclose AI where required, no fake reviews). Prompts build in HLE guardrails such as 'No hype words', 'Do not invent features', 'Mark any answer that depends on my policies with [CHECK]', 'Do not suggest a market rate' and 'Do not predict income'. JSON and PDF match exactly (0 strings missing).",
+    "sections": [
+      "How to use these prompts",
+      "Using AI safely",
+      "Finding customers",
+      "Writing your offer",
+      "Emails and DMs",
+      "Social content",
+      "Listings and product descriptions",
+      "Admin and organisation",
+      "Pricing thinking",
+      "Client delivery",
+      "Reviews and feedback",
+      "Planning your week"
+    ],
+    "customer_problem": "\"Sixty copy-and-paste prompts that help you draft, plan and organise your side business with any AI chat assistant, safely.\" (tagline); \"AI is a helpful drafting partner. It is not a source of truth and it is not a professional adviser.\" (Using AI safely)",
+    "content_types": [
+      "template",
+      "guidance",
+      "question",
+      "workflow"
+    ],
+    "proposed_destination": "Prompt scaffolding for all generators: brand_blueprint (1.1 ideal customer, About-me tone field, 4.3 caption in my voice); product_listing (2.4 benefits, 2.5 FAQ with [CHECK], 5.1 product description, 5.2 titles, 5.3 search words, 5.5 'what you get', 5.6 listing check); homepage_copy (2.1 one-sentence offer, 2.2 offer page outline, 2.6 plain-English check); social_content (4.1-4.6); email_sequence (3.6 newsletter); pricing calculator (7.1 costs, 7.2 real hourly return); global safety rules",
+    "proposed_form": "AI instruction",
+    "duplicates_with": [
+      {
+        "id": "little-offer-kit",
+        "note": "One-sentence offer (different formula), product description and 'what you get' prompts mirror LOK templates."
+      },
+      {
+        "id": "sell-it-simply-workbook",
+        "note": "Ideal customer, newsletter, social and review prompts mirror SIS modules."
+      },
+      {
+        "id": "price-it-right",
+        "note": "7.2 real hourly return and 7.5 price change message overlap with PIR."
+      },
+      {
+        "id": "90-day-grow-plan",
+        "note": "10.2 weekly review questions and 10.6 90-day check-in mirror the plan's measures."
+      },
+      {
+        "id": "client-paperwork-kit",
+        "note": "6.6 terms draft, 8.1 onboarding questionnaire."
+      }
+    ],
+    "missing_information": [
+      "Not on Gumroad per catalog.py ON_GUMROAD.",
+      "No prompts for brand palette, typography, photo direction, store theme or SEO meta descriptions.",
+      "Version not in JSON."
+    ],
+    "research_verification": [
+      "No figures, fees or statistics are stated. Platform-rule claims are general and unlabelled: 'Some marketplaces require you to disclose AI-generated images or designs' (Section 5 callout); 'some claims (health, earnings, eco, best) are regulated in many countries' (Using AI safely)."
+    ],
+    "compliance_flags": [
+      "Prompt 6.6 (simple terms draft) and the 'legal-style wording' note could produce legal-style outputs for a specific user. The pack labels them as starting templates, but in Empire Studio this must not become a personalised legal output.",
+      "Strong compliance otherwise: forbids fake reviews and testimonials and presenting AI text as a customer's words.",
+      "No '[the former trading entity]', 'lawyer'/'barrister'/'counsel', income claims or urgency found."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Already written as AI instructions with HLE guardrails; prompts can be lifted into generator system prompts with minimal change (drop service-only prompts and 6.6)."
+    }
+  },
+  {
+    "id": "fit-check-freebie",
+    "title": "The 5-Question Fit Check",
+    "file": [
+      "02_products/content/fit-check-freebie.json",
+      "02_products/pdf/fit-check-freebie.pdf"
+    ],
+    "version": "1.1 (PDF footer: 'Version 1.1 · October 2026'); JSON has no version field",
+    "price_usd": null,
+    "bundles": [],
+    "content_summary": "Free printable that filters side-income ideas against the user's real week in ten minutes. Five questions: weekly hours, longest reliable block, evenings/weekends, start-up money and preferred customer contact. Each of up to three ideas is scored 0/1/2 per question (max 10): 8-10 worth testing first, 5-7 possible, 0-4 park it. Six red flags (including licences, upfront spend, cold messaging only, promised income/pay-to-join). Ends with a 14-day test outline and an upsell to the Income Fit Test. JSON and PDF match.",
+    "sections": [
+      "How to use this in ten minutes",
+      "The five questions",
+      "Score up to three ideas",
+      "Signs it's 'not right now'",
+      "Test one idea in 14 days"
+    ],
+    "customer_problem": "\"Most side-income ideas don't fail because they're bad. They fail because they don't fit the week you actually have.\" (Start here)",
+    "content_types": [
+      "question",
+      "formula",
+      "guidance"
+    ],
+    "proposed_destination": "FIT Finder (pre-launch fit filter / lead magnet)",
+    "proposed_form": "interactive feature (5-question 0-2 scoring with banded result)",
+    "duplicates_with": [
+      {
+        "id": "little-offer-kit",
+        "note": "Both have a scoring worksheet for up to three ideas (LOK: four questions scored 1-5, total out of 20; Fit Check: five questions scored 0-2, total out of 10): two different scales for a similar job."
+      },
+      {
+        "id": "14-day-tracker",
+        "note": "'Talk to five real people ... Decide on day 14' matches the Tracker thresholds (5+ conversations)."
+      }
+    ],
+    "missing_information": [
+      "Not in catalog.py (freebie; no price or bundle).",
+      "How each idea is judged to 'fit' each answer is left to the user; no mapping data (the Income Fit Test database, out of scope, would supply it)."
+    ],
+    "research_verification": [
+      "'The Income Fit Test matches 17 questions (plus 2 optional) against 23 researched ideas ... US$19' (Next step callout). The README describes the report as having a '20-question quiz'. These are inconsistent counts (17 + 2 = 19, not 20); the source of truth (01_income-fit-test) is out of scope. FLAG.",
+      "US$19 price matches catalog.py PRICE['income-fit-test']."
+    ],
+    "compliance_flags": [
+      "Refund wording '14-day refund' (Next step callout) is shortened and differs from the mandated 'Full refund within 14 days of purchase, no questions asked.' (The PDF footer does carry the full wording.)",
+      "Rejects MLM/pay-to-join: compliant. No income claims, testimonials or urgency."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Small, self-contained scoring logic suitable for FIT Finder; fix the question-count claim and the refund wording first."
+    }
+  },
+  {
+    "id": "price-it-right",
+    "title": "Price It Right",
+    "file": [
+      "02_products/addons/Price_It_Right.pdf"
+    ],
+    "version": "unknown",
+    "price_usd": 5,
+    "bundles": [
+      "empire-bundle (The Empire Bundle, US$39)",
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Seven-page Income Fit Test add-on on setting and defending a first price. Step 1 sets a price from three numbers: the floor (all hours x minimum hourly return + costs + fees), the market (low/middle/high of five comparable offers) and the value to the buyer, plus decision rules and a worked example. Step 2 chooses a price format (hourly, fixed package, retainer, product, paid pilot) and gives a package fill-in template. It provides quote and invoice templates, word-for-word scripts for price conversations, founding-price endings and price rises, payment terms, and an after-five-customers price check. No JSON source exists; the PDF is the only version.",
+    "sections": [
+      "Step 1: Set your first price",
+      "How to choose",
+      "Step 2: Choose the right price format",
+      "Turn a service into a package",
+      "Template: Quote",
+      "Template: Invoice",
+      "Scripts: What to say when price comes up",
+      "Scripts: Ending a founding price, raising a price",
+      "Payment terms that protect a small business",
+      "After five customers: The price check"
+    ],
+    "customer_problem": "\"Set your first price, quote it without flinching, get paid on time, and raise it when the evidence says you can.\" (cover)",
+    "content_types": [
+      "formula",
+      "template",
+      "guidance",
+      "example",
+      "workflow"
+    ],
+    "proposed_destination": "pricing calculator (floor/market/value formula and decision rules; price check signals); product_listing (package template fields: name says the result, for, you get, not included); downloadable resource (quote/invoice templates, scripts)",
+    "proposed_form": "interactive feature (pricing calculator); structured data (decision rules, signal table); downloadable resource (templates/scripts)",
+    "duplicates_with": [
+      {
+        "id": "little-offer-kit",
+        "note": "Market comparison of five similar offers and honest founding/launch-price rules; LOK adds product tiers and fee maths."
+      },
+      {
+        "id": "90-day-grow-plan",
+        "note": "Price-rise checkpoint and price-change message."
+      },
+      {
+        "id": "client-paperwork-kit",
+        "note": "Quote vs proposal, invoice, payment terms, late-payment chasing."
+      },
+      {
+        "id": "ai-business-assistant-pack",
+        "note": "7.2 real hourly return, 7.5 price change message, 3.4 saying no kindly."
+      },
+      {
+        "id": "14-day-tracker",
+        "note": "'Real hourly return' feeds the Go/No-Go Scorecard in both."
+      }
+    ],
+    "missing_information": [
+      "No version stated.",
+      "No JSON/structured source.",
+      "Depends on the Income Fit Test 'Reality Calculator' and 'Go / No-Go Scorecard' (out of scope) for the minimum hourly return input.",
+      "Decision rules do not cover a floor between market middle and high, or a floor below market low: unknown.",
+      "No digital-product or Shopify-specific pricing (product format row only says fees and postage eat margin; check the platform's fee calculator)."
+    ],
+    "research_verification": [
+      "'A common rule of thumb is to raise by 15–25% for the next buyer (EST, not a rule)' (price check): labelled EST but has no source or check date.",
+      "Worked example ($35/hr x 8 hours = $280 floor; market $250-$600, middle about $400; $380 founding then $420) labelled 'illustrative'.",
+      "Unlabelled legal claims: 'write \"Tax invoice\" only if you are registered for GST'; ABN in Australia / NZBN in New Zealand; 'Consumer law in your country gives buyers rights you can't remove (for example, the Australian Consumer Law)'.",
+      "Payment-term rules (50% deposit; packages under $200 paid upfront; retainers monthly in advance, 30 days' notice; 30 days' notice for price rises) are HLE recommendations, unlabelled.",
+      "Cover footer: 'Costs and rates are observations on the date shown and will change', but no date is shown anywhere in the document."
+    ],
+    "compliance_flags": [
+      "Founding price scripts require a real end date and real 'who gets it': compliant with no fake urgency.",
+      "Refund mention: 'write your policy down before your first sale' (seller's own policy); footer carries mandated wording.",
+      "No '[the former trading entity]', 'lawyer'/'barrister'/'counsel', income claims or testimonials found."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Formula and decision rules are precise enough to implement and unit-test now (see methods file). Scripts and invoice are service-oriented; use them as downloadable resources."
+    }
+  },
+  {
+    "id": "first-5-customers",
+    "title": "First 5 Customers",
+    "file": [
+      "02_products/addons/First_5_Customers.pdf"
+    ],
+    "version": "unknown",
+    "price_usd": 7,
+    "bundles": [
+      "empire-bundle (The Empire Bundle, US$39)",
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Twenty-page Income Fit Test add-on with word-for-word outreach scripts for each of the 23 Opportunity Cards. A 'Read this first' page sets the rhythm: five new personalised messages a day on Days 3-12, one follow-up 3-4 days later, log every reply, and evidence = payment, deposit, pre-order, booked paid session or signed quote. Three safety rules cover messaging only people with a real reason, following platform rules, and never inventing proof. Each option page has where to find your first five, a watch-out, and four scripts: first message, follow-up, the ask (Scorecard evidence) and a review request. Option 17 covers Shopify store set-up for local brands (a service, not a Shopify seller's own launch).",
+    "sections": [
+      "Read this first: How to use these scripts",
+      "The daily rhythm / What counts as evidence",
+      "Three rules that keep you safe and liked",
+      "Index: Find your option",
+      "Options 1-23 (each: Where to find your first five; Watch out; 1 First message; 2 Follow-up (3-4 days later); 3 The ask; 4 Asking for a review)"
+    ],
+    "customer_problem": "\"You don't need a big audience to test an idea. You need five real conversations and one person willing to pay.\" (Read this first)",
+    "content_types": [
+      "template",
+      "guidance",
+      "workflow",
+      "example"
+    ],
+    "proposed_destination": "email_sequence (structure only: announce -> one follow-up after 3-4 days -> clear ask -> review request); launch checklist/tracker (5 messages/day rhythm, evidence definitions); social_content (listing-tweak follow-ups for marketplace options)",
+    "proposed_form": "AI instruction (message structure and rules); structured data (per-option scripts); educational article (safety rules)",
+    "duplicates_with": [
+      {
+        "id": "14-day-tracker",
+        "note": "Same evidence definitions and Days 3-12 rhythm; both log every reply."
+      },
+      {
+        "id": "get-found",
+        "note": "Review requests and platform off-platform rules repeated; Get Found's routine points to these scripts."
+      },
+      {
+        "id": "little-offer-kit",
+        "note": "LOK DMs/launch email overlap (LOK: inbound only, 'We don't cold-message strangers')."
+      },
+      {
+        "id": "price-it-right",
+        "note": "Founding-price asks and deposit wording overlap with PIR scripts."
+      }
+    ],
+    "missing_information": [
+      "No version stated; no JSON source.",
+      "No email-list launch sequence: scripts are 1:1 messages, not a broadcast sequence to subscribers.",
+      "No option for a Shopify product seller's own launch (option 17 is a Shopify set-up service)."
+    ],
+    "research_verification": [
+      "Platform rules stated without FACT/EST label or check date: Preply/italki off-platform ban; Etsy bans discounts/freebies for reviews; eBay off-platform/feedback rules; Depop, Airbnb, Fiverr and Upwork off-platform rules; Canva licence terms; Shopify collaborator access (Options 2, 6, 10-15, 17, 19-22).",
+      "Legal/regulatory claims without labels or dates: spam laws (Spam Act, PECR, CASL, CAN-SPAM); AU BAS-agent registration, UK AML supervision, US PTIN (Option 3); working-with-children checks (Option 1); FTC/ASA/ACCC/Ad Standards disclosure (Options 13-14); NAATI certification (Option 22); Fair Work Ombudsman/ACAS (Option 16); short-stay registration (Option 15).",
+      "'regular reselling can count as a business for tax' (Option 11): unlabelled.",
+      "Cover footer: 'observations on the date shown' but no date is shown."
+    ],
+    "compliance_flags": [
+      "'lawyer' appears near a product: Option 16 watch-out 'send award, contract and dismissal questions to a lawyer or the relevant body'. Conflicts literally with the owner's rule.",
+      "Option 7 script begins 'I'm a local mum ...': a user-voice template, not Vee, but generators should not default to family references (faceless founder rule).",
+      "Review requests target customers who are pleased ('I'm so glad the sessions are helping'), while Get Found's Google Business Profile page says 'Don't ask only happy customers for reviews'. Internal tension.",
+      "Founding-price asks are compliant only if real; the document requires 'Never invent proof ... no \"only 2 spots left\" unless it's true'."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Message structure and rules are reusable, but the content is built around 23 service/side-income options, not a Shopify store launch, and the platform/legal claims need FACT/EST labels and check dates."
+    }
+  },
+  {
+    "id": "get-found",
+    "title": "Get Found",
+    "file": [
+      "02_products/addons/Get_Found.pdf"
+    ],
+    "version": "unknown (each platform page says 'CHECKED 19 OCTOBER 2026')",
+    "price_usd": 7,
+    "bundles": [
+      "empire-bundle (The Empire Bundle, US$39)",
+      "faceless-content-bundle (The Faceless Content Bundle, US$29)",
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Thirteen-page Income Fit Test add-on on how buyers discover sellers on 12 platforms, 'in each platform's own words'. Opens with four shared ranking principles (relevance: use the words buyers type; completeness; satisfaction; consistency) and three things that never work (buying engagement, keyword stuffing, moving buyers off-platform). Maps each of the 23 options to 1-3 platforms and gives a 30-minute weekly routine. Twelve platform pages (Instagram, Pinterest, LinkedIn, Etsy, eBay, Depop, Facebook Marketplace, Google Business Profile, Google Search (simple website), Airbnb, Preply, Fiverr) each list how you're found, five 'do this week' actions, three things to avoid and the official pages checked.",
+    "sections": [
+      "Read this first: There is no secret hack",
+      "Three things that never work for long",
+      "Your option: Where to focus",
+      "Every week: The 30-minute routine",
+      "Instagram",
+      "Pinterest",
+      "LinkedIn",
+      "Etsy",
+      "eBay",
+      "Depop",
+      "Facebook Marketplace",
+      "Google Business Profile",
+      "Google Search (simple website)",
+      "Airbnb",
+      "Preply",
+      "Fiverr"
+    ],
+    "customer_problem": "\"Anyone selling a trick to 'beat the algorithm' is guessing. The platforms publish the basics, and they are surprisingly similar.\" (Read this first)",
+    "content_types": [
+      "research",
+      "guidance",
+      "workflow"
+    ],
+    "proposed_destination": "product_listing SEO fields (Google Search page: unique titles, short meta descriptions, customers' words, alt text, readable URLs); image_briefs (platform image rules); social_content (Instagram/Pinterest do/avoid); launch checklist (30-minute weekly routine)",
+    "proposed_form": "AI instruction (SEO and discoverability rules); structured data (platform rules with check date and source); educational article",
+    "duplicates_with": [
+      {
+        "id": "sell-it-simply-workbook",
+        "note": "Pinterest and Etsy guidance overlaps (SIS adds pin-title formulas and an Etsy fee table)."
+      },
+      {
+        "id": "first-5-customers",
+        "note": "Review-request step points to F5C scripts; platform off-platform rules repeated."
+      },
+      {
+        "id": "ai-business-assistant-pack",
+        "note": "5.2 listing titles and 5.3 search words prompts implement the 'relevance' principle."
+      }
+    ],
+    "missing_information": [
+      "No Shopify page or Shopify SEO guidance (Shopify only appears as option 17's platforms: Google Business Profile, LinkedIn).",
+      "Nothing on collection descriptions.",
+      "Meta description guidance is one line ('Clear, unique page titles, short meta descriptions and descriptive link text'); no length.",
+      "No version stated."
+    ],
+    "research_verification": [
+      "Every platform page is headed 'CHECKED 19 OCTOBER 2026' and lists official pages, but only Facebook Marketplace carries a FACT label ('FACT (from official Meta pages). Some points come from a 2018 Meta engineering post and may have changed'). The other 11 pages have no FACT/EST/UNKNOWN labels.",
+      "Some sources are old: Instagram (31 May 2023, April 2023, 30 April 2024), LinkedIn (June 2017 x2, undated PDF), Meta engineering (Oct 2018, May 2021).",
+      "Specific rules/figures: Etsy 13 tags, each up to 20 characters; eBay title under 80 characters; Instagram Reels 9:16; Pinterest 2:3; Preply hidden at 5 absences, 40% short-notice reschedules or 20% cancellations for tutors with 5+ bookings in 90 days, and messages unanswered over 24 hours; Google says meta keywords aren't used. All are covered by the page check date but unlabelled.",
+      "'Judge a platform after six to eight weeks' (routine): unlabelled estimate."
+    ],
+    "compliance_flags": [
+      "Discourages buying reviews/engagement and asking only happy customers: compliant.",
+      "No '[the former trading entity]', 'lawyer'/'barrister'/'counsel', income claims or urgency found."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Principles and the Google Search page are directly usable for SEO instructions, but the platform pages need FACT/EST labels per the owner's rule, and Shopify/collection SEO is absent."
+    }
+  },
+  {
+    "id": "brand-in-a-box",
+    "title": "Brand-in-a-Box (guide)",
+    "file": [
+      "02_products/addons/Brand_in_a_Box_Guide.pdf"
+    ],
+    "version": "unknown (PDF CreationDate 22 Oct 2026; no version in text)",
+    "price_usd": 9,
+    "bundles": [
+      "empire-bundle (The Empire Bundle, US$39)",
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Three-page guide to four editable templates (Service_Menu.pptx A4, Price_List.pptx 4:5, Six_Launch_Posts.pptx six 4:5 posts, Etsy_Banner.pptx 4:1) for Canva, PowerPoint, Keynote or Google Slides. Gives import steps and a 'Make it yours in ten minutes' list: swap the fictional example businesses (Larkspur Ledger, Quillwort & Co. Flowers), change one accent colour (terracotta #B5543C) everywhere while keeping the cream and near-black, and use Cormorant Garamond (headings) plus Inter (text) or 'any elegant serif plus a clean sans'. It also says to use only real customer quotes with permission and only real founding offers and 'usually' prices. Page 3 is a single preview image of all templates. There is no brand strategy method: no positioning, ideal customer, personality, tone or photo direction exercises.",
+    "sections": [
+      "Cover: look real on day one",
+      "Start here: Open your templates (In Canva / In PowerPoint, Keynote or Google Slides)",
+      "Make it yours in ten minutes",
+      "Preview: What's inside (image only)"
+    ],
+    "customer_problem": "\"look real on day one.\" (cover)",
+    "content_types": [
+      "template",
+      "guidance",
+      "example"
+    ],
+    "proposed_destination": "brand_blueprint (palette rule: one accent + cream + near-black; type pairing: elegant serif + clean sans; consistency rule) and social_content (six launch post structure from the preview: Now open, What I do, Who it's for, How it works, Founding offer, Kind words); downloadable resource (the template files)",
+    "proposed_form": "AI instruction (palette/typography/consistency rules, post structure); downloadable resource",
+    "duplicates_with": [
+      {
+        "id": "little-offer-kit",
+        "note": "Simple design rules (2 fonts, 3 colours) and the honest founding/'was' price rule."
+      },
+      {
+        "id": "sell-it-simply-workbook",
+        "note": "Image plan (three brand colours, two fonts) and 'colours, fonts and tone match' checklist; honest social proof."
+      },
+      {
+        "id": "price-it-right",
+        "note": "Founding offer rules repeated; the Larkspur example price differs (PIR: $380 founding then $420; BiB preview: '$380 (usually $480)')."
+      }
+    ],
+    "missing_information": [
+      "The template files themselves (catalog FILES: 'Her-Little-Empire_Brand-in-a-Box.zip') are not in the folder; only the guide PDF is.",
+      "No method for positioning, ideal customer, brand personality, tone of voice, photo direction or colour selection beyond 'pick your own [accent]'.",
+      "Cream and near-black hex values are not given (only #B5543C).",
+      "No version stated."
+    ],
+    "research_verification": [
+      "'Both [Cormorant Garamond and Inter] are free in Canva and Google Fonts' (Make it yours): unlabelled claim, no check date.",
+      "Canva import steps (Create/Upload -> Import file): unlabelled platform claim.",
+      "Example prices are labelled fictional ('Example businesses, names and prices are fictional and only there to show the layout')."
+    ],
+    "compliance_flags": [
+      "'Kind words' post rule: 'a real quote from a real customer, used with their permission. Never invent one.' Compliant.",
+      "Preview shows a founding offer 'The Tidy-Up for $380 (usually $480) until 30 November' as a fictional example; compliant only if users follow the stated rule ('Only show a \"usually\" price if it is the price you actually charge').",
+      "No '[the former trading entity]', 'lawyer'/'barrister'/'counsel' or income claims found."
+    ],
+    "reuse": {
+      "status": "needs-work",
+      "reason": "Gives only a few brand rules (one accent colour, serif + sans pairing, consistency); it cannot by itself replace the brand_blueprint generator's method. The template files are missing from the folder."
+    }
+  },
+  {
+    "id": "14-day-tracker",
+    "title": "14-Day Tracker",
+    "file": [
+      "02_products/addons/14_Day_Tracker.pdf"
+    ],
+    "version": "unknown (PDF CreationDate 22 Oct 2026; no version in text)",
+    "price_usd": 4,
+    "bundles": [
+      "empire-bundle (The Empire Bundle, US$39)",
+      "the-whole-empire (The Whole Empire, US$99)"
+    ],
+    "content_summary": "Twelve-page printable companion to the Income Fit Test 14-day plan. It has a 'test at a glance' page (option, time per day, who will pay, maximum spend, three places to find people, offer, test price) and 'what would count as a yes' targets (5+ real conversations, 2+ asked price/how to buy, 1+ paid/deposited/pre-ordered). Fourteen identical daily half-pages record date, minutes, today's task, who I spoke to, four signal tick-boxes and one thing learned. Also a conversation log, a money log and a Day 14 summary in Scorecard order, including real hourly return = (received - spent) / hours.",
+    "sections": [
+      "Before Day 1: My test at a glance",
+      "What would count as a yes",
+      "Day 1 to Day 14 (daily half-pages)",
+      "Every conversation: Conversation log",
+      "Every dollar: Money log",
+      "Day 14: Summary for the Scorecard"
+    ],
+    "customer_problem": "\"Decide now, before you're attached to the idea.\" (What would count as a yes); \"Count only what people did, not what they said they might do.\" (Day 14)",
+    "content_types": [
+      "template",
+      "workflow",
+      "formula"
+    ],
+    "proposed_destination": "launch checklist/tracker (daily log schema, thresholds, Day 14 summary); money calculator (money log, real hourly return)",
+    "proposed_form": "interactive feature (tracker with fields and threshold logic)",
+    "duplicates_with": [
+      {
+        "id": "first-5-customers",
+        "note": "Same evidence definitions and logging."
+      },
+      {
+        "id": "90-day-grow-plan",
+        "note": "Same real hourly return formula and weekly/daily review fields."
+      },
+      {
+        "id": "side-income-money-system",
+        "note": "Money log and record retention (with a conflicting retention claim)."
+      }
+    ],
+    "missing_information": [
+      "Daily tasks are not included; each day says 'TODAY'S TASK (FROM THE 14-DAY PLAN)', which is in the Income Fit Test (out of scope: 01_income-fit-test/source/plan.py, 04_14_Day_Test_Plan.pdf).",
+      "Hours must be derived from 'Total minutes spent' (divide by 60); not stated.",
+      "No version stated."
+    ],
+    "research_verification": [
+      "'most countries expect you to keep them for five to seven years' (Money log): unlabelled, no date, and contradicts Side Income Money System's FACT table (US: 3 years by default; UK: at least 5 years after the 31 January deadline). FLAG.",
+      "Thresholds 5+/2+/1+ are stated to match the Scorecard ('The Scorecard uses the same thresholds'); Scorecard out of scope, so not verified here."
+    ],
+    "compliance_flags": [
+      "None found. No income claims (the footer says 'No income guarantees')."
+    ],
+    "reuse": {
+      "status": "immediate",
+      "reason": "Clear field schema and thresholds that map directly onto a tracker; fix the record-retention line and link the daily tasks from the 14-day plan."
+    }
+  }
+]

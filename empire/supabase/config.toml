@@ -1,0 +1,30 @@
+# Local Supabase stack for `npx supabase start` (needs Docker).
+project_id = "empire-studio"
+
+[api]
+port = 54421
+schemas = ["public"]
+
+[db]
+port = 54422
+major_version = 16
+
+[studio]
+port = 54423
+
+[inbucket]
+port = 54424
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+otp_expiry = 3600
+
+[storage]
+file_size_limit = "5MiB"

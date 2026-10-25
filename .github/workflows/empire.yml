@@ -1,0 +1,92 @@
+# Does Empire Studio build, and do customers stay apart?
+#
+# Scoped to empire/ like the sibling apps' workflows. Row level security is
+# tested against a real Postgres service with a stub of Supabase's auth
+# schema (scripts/rls-test.sh), so no Docker-in-Docker or Supabase CLI is
+# needed. End-to-end tests run on the local backend with the offline
+# generator: no secrets, no network, no AI spend.
+
+name: empire
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "empire/**"
+      - ".github/workflows/empire.yml"
+  pull_request:
+    paths:
+      - "empire/**"
+      - ".github/workflows/empire.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: empire-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: empire
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: empire/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint, format, typecheck
+        run: |
+          npm run lint
+          npm run format:check
+          npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Row level security tests
+        env:
+          RLS_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: npm run test:rls
+
+      - name: Build
+        env:
+          EMPIRE_BACKEND: local
+          EMPIRE_AI_PROVIDER: mock
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: empire/playwright-report
+          retention-days: 7
