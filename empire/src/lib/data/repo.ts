@@ -141,7 +141,8 @@ export interface AdminMetrics {
   repeatUsers7d: number;
   repeatUsers30d: number;
   sources: Record<string, number>;
-  emailSignups: { active: number; unsubscribed: number };
+  /** null when the email_signups table isn't there yet (migration not applied). */
+  emailSignups: { active: number; unsubscribed: number } | null;
   /** Funnel events by campaign source (src/lib/analytics/metrics.ts). */
   funnel: Record<string, Record<string, number>>;
   /** Raw events from the last 8 days, for the seven-day sales view. */

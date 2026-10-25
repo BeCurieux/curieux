@@ -733,7 +733,9 @@ export class SupabaseSystemRepo implements SystemRepo {
       this.db.auth.admin.listUsers({ perPage: 1 }),
       this.db.from("email_signups").select("unsubscribed_at").limit(100_000),
     ]);
-    const sig = (check(signups) as Row[]) ?? [];
+    // Before migration 20261024000005 is applied the table doesn't exist; the
+    // dashboard says so instead of failing.
+    const sig = signups.error ? null : ((signups.data as Row[] | null) ?? []);
     const ev = (check(events) as Row[]) ?? [];
     const ent = (check(entitlements) as Row[]) ?? [];
     const gen = (check(generations) as Row[]) ?? [];
@@ -763,10 +765,12 @@ export class SupabaseSystemRepo implements SystemRepo {
         ev.filter((e) => e.name === "signup_completed"),
         (e) => String((e.props as Row)?.source ?? "direct"),
       ),
-      emailSignups: {
-        active: sig.filter((r) => !r.unsubscribed_at).length,
-        unsubscribed: sig.filter((r) => r.unsubscribed_at).length,
-      },
+      emailSignups: sig
+        ? {
+            active: sig.filter((r) => !r.unsubscribed_at).length,
+            unsubscribed: sig.filter((r) => r.unsubscribed_at).length,
+          }
+        : null,
       funnel: funnelBySource(
         ev.map((e) => ({ name: e.name as string, props: (e.props as Row) ?? null })),
       ),

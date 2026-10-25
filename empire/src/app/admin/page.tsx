@@ -259,8 +259,9 @@ export default async function Admin() {
             ) : null}
           </div>
           <p className="text-mute mt-4 text-sm">
-            Email sign-ups with consent: {m.emailSignups.active} active,{" "}
-            {m.emailSignups.unsubscribed} unsubscribed.
+            {m.emailSignups
+              ? `Email sign-ups with consent: ${m.emailSignups.active} active, ${m.emailSignups.unsubscribed} unsubscribed.`
+              : "Email sign-ups: not set up yet (database migration 20261024000005 not applied)."}
           </p>
         </Card>
         <Card className="lg:col-span-2">
