@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { afterSignIn } from "@/lib/auth/after-sign-in";
+import { NEXT_COOKIE, safeNext } from "@/lib/auth/next-path";
 import { userClient } from "@/lib/supabase/clients";
 
 // Where the emailed sign-in link lands. Exchanges the one-time code for a
@@ -23,5 +24,7 @@ export async function GET(request: NextRequest) {
     return to("/sign-in?error=1");
   }
   await afterSignIn({ id: data.user.id, email: data.user.email, createdAt: data.user.created_at });
-  return to("/studio");
+  const response = to(safeNext(request.cookies.get(NEXT_COOKIE)?.value));
+  response.cookies.delete(NEXT_COOKIE);
+  return response;
 }

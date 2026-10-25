@@ -16,6 +16,9 @@ function toSignIn(request: NextRequest) {
   const url = request.nextUrl.clone();
   url.pathname = "/sign-in";
   url.search = "";
+  // Back to the page she asked for once she's signed in (checked again by safeNext).
+  if (request.nextUrl.pathname !== "/studio")
+    url.searchParams.set("next", request.nextUrl.pathname);
   return NextResponse.redirect(url);
 }
 

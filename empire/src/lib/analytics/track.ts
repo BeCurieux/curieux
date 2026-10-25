@@ -29,12 +29,21 @@ export const EVENTS = [
   "purchase_refunded",
   "task_updated",
   "fit_completed",
+  "calculator_viewed",
+  "fit_landing_viewed",
+  "fit_check_viewed",
+  "offer_viewed",
+  "offer_clicked",
+  "email_consent_given",
+  "email_unsubscribed",
 ] as const;
 export type EventName = (typeof EVENTS)[number];
 
 const ALLOWED_PROPS = new Set([
   "module",
   "source",
+  "medium",
+  "campaign",
   "plan",
   "section",
   "status",

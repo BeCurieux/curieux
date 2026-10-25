@@ -1,4 +1,5 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   BrandBlueprint,
@@ -18,8 +19,15 @@ import type {
   Purchase,
   UsageRow,
 } from "@/lib/domain/records";
-import { countBy, repeatUsage } from "@/lib/analytics/metrics";
-import type { AdminMetrics, NewGeneration, SystemRepo, UserRepo } from "./repo";
+import { countBy, funnelBySource, repeatUsage } from "@/lib/analytics/metrics";
+import type {
+  AdminMetrics,
+  EmailSignupInput,
+  EmailSignupResult,
+  NewGeneration,
+  SystemRepo,
+  UserRepo,
+} from "./repo";
 
 // The Supabase backend. Customer reads and writes run as the customer (row
 // level security applies); see supabase/migrations for the policies. The
@@ -656,13 +664,62 @@ export class SupabaseSystemRepo implements SystemRepo {
     );
   }
 
+  async recordEmailSignup(input: EmailSignupInput): Promise<EmailSignupResult> {
+    const fields = {
+      consent_text: input.consentText,
+      consent_version: input.consentVersion,
+      source: input.source,
+      medium: input.medium,
+      campaign: input.campaign,
+      landing: input.landing,
+    };
+    const existing = check(
+      await this.db
+        .from("email_signups")
+        .select("id,unsubscribed_at")
+        .eq("email", input.email)
+        .maybeSingle(),
+    ) as Row | null;
+    if (existing && !existing.unsubscribed_at) return "already";
+    if (existing) {
+      check(
+        await this.db
+          .from("email_signups")
+          .update({ ...fields, consented_at: new Date().toISOString(), unsubscribed_at: null })
+          .eq("id", existing.id as string),
+      );
+      return "resubscribed";
+    }
+    const { error } = await this.db.from("email_signups").insert({
+      ...fields,
+      email: input.email,
+      unsubscribe_token: randomBytes(24).toString("base64url"),
+    });
+    // Two submissions at once: the unique email wins once; the other is "already".
+    if (error && (error as { code?: string }).code === "23505") return "already";
+    if (error) throw new Error(error.message);
+    return "new";
+  }
+
+  async unsubscribeEmail(token: string): Promise<boolean> {
+    const rows = check(
+      await this.db
+        .from("email_signups")
+        .update({ unsubscribed_at: new Date().toISOString() })
+        .eq("unsubscribe_token", token)
+        .is("unsubscribed_at", null)
+        .select("id"),
+    ) as Row[] | null;
+    return (rows ?? []).length > 0;
+  }
+
   async adminMetrics(): Promise<AdminMetrics> {
     const since90 = new Date(Date.now() - 90 * 86_400_000).toISOString();
     const since30 = new Date(Date.now() - 30 * 86_400_000).toISOString();
-    const [events, profiles, entitlements, generations, cost, users] = await Promise.all([
+    const [events, profiles, entitlements, generations, cost, users, signups] = await Promise.all([
       this.db
         .from("analytics_events")
-        .select("name,user_id,props,created_at")
+        .select("name,user_id,anonymous_id,props,created_at")
         .gte("created_at", since90)
         .limit(50_000),
       this.db.from("business_profiles").select("id", { count: "exact", head: true }),
@@ -674,7 +731,11 @@ export class SupabaseSystemRepo implements SystemRepo {
         .limit(100_000),
       this.db.from("usage_ledger").select("estimated_cost").gte("created_at", since30),
       this.db.auth.admin.listUsers({ perPage: 1 }),
+      this.db.from("email_signups").select("unsubscribed_at").limit(100_000),
     ]);
+    // Before migration 20261024000005 is applied the table doesn't exist; the
+    // dashboard says so instead of failing.
+    const sig = signups.error ? null : ((signups.data as Row[] | null) ?? []);
     const ev = (check(events) as Row[]) ?? [];
     const ent = (check(entitlements) as Row[]) ?? [];
     const gen = (check(generations) as Row[]) ?? [];
@@ -704,6 +765,29 @@ export class SupabaseSystemRepo implements SystemRepo {
         ev.filter((e) => e.name === "signup_completed"),
         (e) => String((e.props as Row)?.source ?? "direct"),
       ),
+      emailSignups: sig
+        ? {
+            active: sig.filter((r) => !r.unsubscribed_at).length,
+            unsubscribed: sig.filter((r) => r.unsubscribed_at).length,
+          }
+        : null,
+      funnel: funnelBySource(
+        ev.map((e) => ({ name: e.name as string, props: (e.props as Row) ?? null })),
+      ),
+      recentEvents: ev
+        .filter(
+          (e) => (e.created_at as string) >= new Date(Date.now() - 8 * 86_400_000).toISOString(),
+        )
+        .map((e) => {
+          const props = (e.props as Row) ?? {};
+          return {
+            name: e.name as string,
+            at: e.created_at as string,
+            source: typeof props.source === "string" ? props.source : null,
+            path: typeof props.path === "string" ? props.path : null,
+            anonymousId: (e.anonymous_id as string | null) ?? null,
+          };
+        }),
     };
   }
 

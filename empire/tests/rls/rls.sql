@@ -137,6 +137,16 @@ select pg_temp.act_as('11111111-1111-1111-1111-111111111111');
 select pg_temp.expect_error($q$select * from public.analytics_events$q$, 'read analytics');
 commit;
 
+-- Email sign-ups are server-only: no visitor or customer can read or add one.
+begin;
+select pg_temp.act_as('11111111-1111-1111-1111-111111111111');
+select pg_temp.expect_error($q$select * from public.email_signups$q$, 'read email sign-ups');
+commit;
+begin;
+set local role anon;
+select pg_temp.expect_error($q$insert into public.email_signups (email, consent_text, consent_version, unsubscribe_token) values ('x@example.test', 'consent wording here', 'v1', repeat('a', 32))$q$, 'anon adds email sign-up');
+commit;
+
 -- Bea sees none of Ava's generations; anonymous visitors see nothing at all.
 begin;
 select pg_temp.act_as('22222222-2222-2222-2222-222222222222');

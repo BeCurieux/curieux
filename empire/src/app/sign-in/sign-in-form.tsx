@@ -6,7 +6,7 @@ import { Notice } from "@/components/ui/card";
 import { useFormAction } from "@/components/ui/use-form-action";
 import { signIn, type SignInState } from "./actions";
 
-export function SignInForm({ local }: { local: boolean }) {
+export function SignInForm({ local, next }: { local: boolean; next: string }) {
   const { state, onSubmit, pending } = useFormAction<SignInState>(signIn, { status: "idle" });
 
   if (state.status === "sent") {
@@ -21,6 +21,7 @@ export function SignInForm({ local }: { local: boolean }) {
   const error = state.status === "error" ? state.message : undefined;
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
+      <input type="hidden" name="next" value={next} />
       <Field
         id="email"
         label="Your email"

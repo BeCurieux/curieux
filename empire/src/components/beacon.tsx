@@ -28,9 +28,21 @@ export function ViewBeacon({ name, props }: { name: string; props?: Record<strin
     const source =
       new URLSearchParams(window.location.search).get("utm_source") ??
       new URLSearchParams(window.location.search).get("ref");
-    if (source)
+    // The view itself carries the campaign name. Remembering it for a later
+    // sign-up needs a cookie, so that only happens once analytics is accepted.
+    const consented = document.cookie.split("; ").includes("empire_consent=yes");
+    if (source && consented)
       document.cookie = `empire_source=${encodeURIComponent(source.slice(0, 40))}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
-    sendEvent(name, JSON.parse(key) as Record<string, string>);
+    const props = JSON.parse(key) as Record<string, string>;
+    const params = new URLSearchParams(window.location.search);
+    const medium = params.get("utm_medium");
+    const campaign = params.get("utm_campaign");
+    sendEvent(name, {
+      ...props,
+      ...(source ? { source: source.slice(0, 40) } : {}),
+      ...(medium ? { medium: medium.slice(0, 40) } : {}),
+      ...(campaign ? { campaign: campaign.slice(0, 40) } : {}),
+    });
   }, [name, key]);
   return null;
 }

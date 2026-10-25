@@ -4,10 +4,12 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card, PageHeader } from "@/components/ui/card";
 import { ViewBeacon } from "@/components/beacon";
 import { FREE, LAUNCH_PACK, REFUND_POLICY } from "@/lib/billing/plans";
+import { launchPackOnSale } from "@/lib/billing/on-sale";
 
 export const metadata: Metadata = { title: "Pricing" };
 
 export default function Pricing() {
+  const onSale = launchPackOnSale();
   return (
     <>
       <ViewBeacon name="pricing_viewed" />
@@ -58,13 +60,22 @@ export default function Pricing() {
                 generations.
               </p>
             </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <ButtonLink href="/account">Get the Launch Pack</ButtonLink>
-            </div>
-            <p className="text-mute mt-3 text-sm">
-              Paid securely through Gumroad. {REFUND_POLICY} After a refund, your saved work stays
-              but new generations stop.
-            </p>
+            {onSale ? (
+              <>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <ButtonLink href="/account">Get the Launch Pack</ButtonLink>
+                </div>
+                <p className="text-mute mt-3 text-sm">
+                  Paid securely through Gumroad. {REFUND_POLICY} After a refund, your saved work
+                  stays but new generations stop.
+                </p>
+              </>
+            ) : (
+              <p className="text-charcoal border-line mt-8 rounded-2xl border p-4 text-sm">
+                <strong>Not on sale yet.</strong> The free studio works now; the Launch Pack will be
+                offered here once checkout is ready.
+              </p>
+            )}
           </Card>
         </div>
         <Card className="mt-6">

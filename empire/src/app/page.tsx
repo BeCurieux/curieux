@@ -4,6 +4,7 @@ import { Badge, Card } from "@/components/ui/card";
 import { ViewBeacon } from "@/components/beacon";
 import { TAGLINE } from "@/content/brand";
 import { LAUNCH_PACK, REFUND_POLICY } from "@/lib/billing/plans";
+import { launchPackOnSale } from "@/lib/billing/on-sale";
 
 const OUTPUTS = [
   ["Brand Blueprint", "Positioning, ideal customer, palette, type, tone and photo direction."],
@@ -142,8 +143,10 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-5 py-16 text-center sm:px-8">
           <h2 className="text-4xl">Try it free. Upgrade when it's earned it.</h2>
           <p className="text-mute mx-auto mt-4 max-w-xl text-lg">
-            The free studio gives you a brand preview and a real Sidekick prompt for your store. The{" "}
-            {LAUNCH_PACK.name} is {LAUNCH_PACK.priceLabel}, once. {REFUND_POLICY}
+            The free studio gives you a brand preview and a real Sidekick prompt for your store.{" "}
+            {launchPackOnSale()
+              ? `The ${LAUNCH_PACK.name} is ${LAUNCH_PACK.priceLabel}, once. ${REFUND_POLICY}`
+              : `The ${LAUNCH_PACK.name} isn't on sale yet.`}
           </p>
           <div className="mt-8 flex justify-center">
             <ButtonLink href="/sign-in?start=1">Start free</ButtonLink>
