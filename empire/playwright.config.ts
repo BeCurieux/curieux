@@ -38,6 +38,7 @@ export default defineConfig({
       EMPIRE_BACKEND: "local",
       EMPIRE_AI_PROVIDER: "mock",
       EMPIRE_DATA_DIR: ".data/e2e",
+      APP_URL: `http://localhost:${PORT}`,
       EMPIRE_EMAIL_OPTIN: "on",
       EMPIRE_SESSION_SECRET: "e2e-session-secret-at-least-32-characters-long",
       ADMIN_EMAILS: "founder@example.test",

@@ -38,6 +38,14 @@ const serverSchema = z
     // asked (e.g. /downloads/5-question-fit-check.pdf once the file is added).
     // Unset: the page links to the free Gumroad listing instead.
     FIT_CHECK_DOWNLOAD_URL: optional,
+    // The welcome emails go out through Resend (src/lib/email/). Without a
+    // key, outside production, they're written to EMPIRE_DATA_DIR/outbox.jsonl.
+    RESEND_API_KEY: optional,
+    // e.g. "Vee at Her Little Empire <hello@herlittleempire.com>"; the domain
+    // must be verified in Resend.
+    EMAIL_FROM: optional,
+    // Replies go here (email 5 asks for them). Defaults to the seller email.
+    EMAIL_REPLY_TO: optional.pipe(z.email().optional()),
 
     EMPIRE_AI_PROVIDER: z.enum(["mock", "anthropic"]).default("mock"),
     ANTHROPIC_API_KEY: optional,
@@ -76,6 +84,11 @@ const serverSchema = z
     }
     if (env.EMPIRE_AI_PROVIDER === "anthropic")
       need("ANTHROPIC_API_KEY", "required for EMPIRE_AI_PROVIDER=anthropic");
+    if (env.EMPIRE_EMAIL_OPTIN === "on" && env.VERCEL_ENV === "production") {
+      need("RESEND_API_KEY", "the opt-in promises emails, so production needs a sender");
+      need("EMAIL_FROM", "the sender address for the welcome emails");
+      need("CRON_SECRET", "the daily job that sends welcome emails 2 to 5");
+    }
     if (env.GUMROAD_PRODUCT_URL) {
       need("GUMROAD_PRODUCT_ID", "needed to verify Gumroad purchases");
       need("GUMROAD_PING_SECRET", "needed to accept Gumroad pings");

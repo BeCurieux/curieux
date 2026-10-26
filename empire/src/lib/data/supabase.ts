@@ -22,6 +22,7 @@ import type {
 import { countBy, funnelBySource, repeatUsage } from "@/lib/analytics/metrics";
 import type {
   AdminMetrics,
+  EmailSignup,
   EmailSignupInput,
   EmailSignupResult,
   NewGeneration,
@@ -180,6 +181,23 @@ const toPurchase = (r: Row): Purchase => ({
   purchasedAt: r.purchased_at as string,
   lastVerifiedAt: r.last_verified_at as string,
   createdAt: r.created_at as string,
+});
+
+const toEmailSignup = (r: Row): EmailSignup => ({
+  id: r.id as string,
+  email: r.email as string,
+  consentText: r.consent_text as string,
+  consentVersion: r.consent_version as string,
+  source: (r.source as string | null) ?? null,
+  medium: (r.medium as string | null) ?? null,
+  campaign: (r.campaign as string | null) ?? null,
+  landing: (r.landing as string | null) ?? null,
+  consentedAt: r.consented_at as string,
+  unsubscribedAt: (r.unsubscribed_at as string | null) ?? null,
+  unsubscribeToken: r.unsubscribe_token as string,
+  createdAt: r.created_at as string,
+  welcomeSent: Number(r.welcome_sent ?? 0),
+  welcomeLastSentAt: (r.welcome_last_sent_at as string | null) ?? null,
 });
 
 const toUsage = (r: Row): UsageRow => ({
@@ -708,6 +726,38 @@ export class SupabaseSystemRepo implements SystemRepo {
         .update({ unsubscribed_at: new Date().toISOString() })
         .eq("unsubscribe_token", token)
         .is("unsubscribed_at", null)
+        .select("id"),
+    ) as Row[] | null;
+    return (rows ?? []).length > 0;
+  }
+
+  async findEmailSignup(email: string): Promise<EmailSignup | null> {
+    const row = check(
+      await this.db.from("email_signups").select("*").eq("email", email).maybeSingle(),
+    ) as Row | null;
+    return row ? toEmailSignup(row) : null;
+  }
+
+  async welcomeCandidates(limit: number): Promise<EmailSignup[]> {
+    const rows = check(
+      await this.db
+        .from("email_signups")
+        .select("*")
+        .is("unsubscribed_at", null)
+        .lt("welcome_sent", 5)
+        .order("consented_at", { ascending: true })
+        .limit(limit),
+    ) as Row[] | null;
+    return (rows ?? []).map(toEmailSignup);
+  }
+
+  async advanceWelcome(id: string, from: number, to: number, at: string | null): Promise<boolean> {
+    const rows = check(
+      await this.db
+        .from("email_signups")
+        .update({ welcome_sent: to, welcome_last_sent_at: at })
+        .eq("id", id)
+        .eq("welcome_sent", from)
         .select("id"),
     ) as Row[] | null;
     return (rows ?? []).length > 0;

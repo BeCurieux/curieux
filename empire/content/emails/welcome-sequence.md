@@ -1,6 +1,6 @@
 # Welcome sequence: five emails
 
-**For:** people who downloaded the free 5-Question Fit Check, or used the Ads Profitability Calculator and chose to hear from Her Little Empire. **Status:** draft for Vee's review (23 Oct 2026). **Sent from:** Gumroad's own emails to customers if they fit (UNKNOWN: check the dashboard), otherwise the email service chosen at launch.
+**For:** people who downloaded the free 5-Question Fit Check, or used the Ads Profitability Calculator and chose to hear from Her Little Empire. **Status:** draft for Vee's review (23 Oct 2026; email 1's first line and footer reworded 26 Oct 2026 so they're true for people who sign up before downloading). **Sent from:** Empire Studio, through Resend (`src/lib/email/`): email 1 straight after sign-up, the others on the days in each heading, from the daily scheduled job. `[first name]` is left out (no names are collected); `[Link: …]` becomes the real link.
 
 **Rules every email follows:**
 
@@ -21,7 +21,7 @@ The test `tests/unit/emails.test.ts` runs the claims guard over every email and 
 
 Hi [first name],
 
-The link to your 5-Question Fit Check is in your Gumroad receipt, and it stays in your Gumroad library whenever you need it again.
+Here's your 5-Question Fit Check, if you haven't downloaded it yet: [Link: Fit Check]
 
 Here's the ten-minute version:
 
@@ -37,7 +37,7 @@ Prefer to answer on screen? The free FIT Finder asks 20 questions and shows your
 Vee
 Her Little Empire
 
-You're getting this because you downloaded the Fit Check and said yes to emails. To stop them, use the unsubscribe link below; you'll still have your download.
+You're getting this because you asked for these emails on the Fit Check page. To stop them, use the unsubscribe link below; your download is yours to keep.
 
 ---
 

@@ -5,6 +5,8 @@ import { serverEnv } from "@/env";
 import { EMAIL_CONSENT_TEXT, EMAIL_CONSENT_VERSION } from "@/content/consent";
 import { track } from "@/lib/analytics/track";
 import { systemRepo } from "@/lib/data";
+import { senderFromEnv } from "@/lib/email/send";
+import { sendNextWelcome, welcomeDeps } from "@/lib/email/welcome";
 
 export interface OptInState {
   status: "idle" | "done" | "error";
@@ -51,6 +53,20 @@ export async function optIn(_prev: OptInState, form: FormData): Promise<OptInSta
       ...(campaign ? { campaign } : {}),
       path: "/fit-check",
     });
+  if (result !== "already") await sendFirstEmail(parsed.data);
   // The same answer whether or not she was already on the list.
   return { status: "done" };
+}
+
+// Email 1 goes out straight away. If it fails, the daily job retries it, so
+// a sending problem never turns into an error on the page.
+async function sendFirstEmail(email: string): Promise<void> {
+  try {
+    const sender = senderFromEnv();
+    const repo = systemRepo();
+    const signup = sender ? await repo.findEmailSignup(email) : null;
+    if (sender && signup) await sendNextWelcome(signup, welcomeDeps(repo, sender));
+  } catch (error) {
+    console.error("welcome email 1", error instanceof Error ? error.message : error);
+  }
 }

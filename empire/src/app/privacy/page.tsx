@@ -59,7 +59,9 @@ export default function Privacy() {
           <strong>Anthropic</strong> receives the details you enter when you ask the studio to write
           something, for that request only; it isn&apos;t used to advertise to you and isn&apos;t
           sold. <strong>Gumroad</strong> handles checkout and downloads under its own privacy
-          policy. Sign-in emails are sent through an email delivery service.
+          policy. Sign-in emails are sent through an email delivery service. <strong>Resend</strong>{" "}
+          sends the welcome emails you ask for, in the United States; it receives your email address
+          and the emails we send you, and nothing else.
         </p>
         <p>
           This means your information is stored and processed outside Australia, mainly in the
