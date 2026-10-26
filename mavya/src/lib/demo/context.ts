@@ -15,7 +15,8 @@ export async function familyContext() {
 
 export async function businessContext() {
   const owner = await requireOwner();
-  return { ...owner, demo: isDemoStaff(owner.viewer, "owner") };
+  // sandbox: a pretend school from "Try it yourself" (docs/TRY_IT_YOURSELF.md).
+  return { ...owner, sandbox: owner.demo, demo: isDemoStaff(owner.viewer, "owner") };
 }
 
 export async function instructorContext() {
