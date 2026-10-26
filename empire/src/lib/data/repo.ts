@@ -125,6 +125,9 @@ export interface EmailSignup extends EmailSignupInput {
   unsubscribedAt: string | null;
   unsubscribeToken: string;
   createdAt: string;
+  /** How many of the five welcome emails have gone out (0 to 5). */
+  welcomeSent: number;
+  welcomeLastSentAt: string | null;
 }
 
 export type EmailSignupResult = "new" | "already" | "resubscribed";
@@ -168,6 +171,15 @@ export interface SystemRepo {
   recordEmailSignup(input: EmailSignupInput): Promise<EmailSignupResult>;
   /** True if the token matched an active sign-up. */
   unsubscribeEmail(token: string): Promise<boolean>;
+  findEmailSignup(email: string): Promise<EmailSignup | null>;
+  /** Active sign-ups that haven't had all five welcome emails, oldest first. */
+  welcomeCandidates(limit: number): Promise<EmailSignup[]>;
+  /**
+   * Compare-and-set on welcomeSent: moves it from `from` to `to` (and sets
+   * welcomeLastSentAt to `at`) only if it's still `from`. False if another
+   * run got there first.
+   */
+  advanceWelcome(id: string, from: number, to: number, at: string | null): Promise<boolean>;
   adminMetrics(): Promise<AdminMetrics>;
 
   /** Every row the customer owns, and her login. Irreversible. */

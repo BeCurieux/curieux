@@ -125,7 +125,7 @@ The Income Fit Test matches 20 questions against 23 researched ideas and gives y
 
 ## 3. Five-email welcome sequence
 
-For people who got the Fit Check (or used a free tool) **and chose to hear from us**. Sent from Gumroad's customer emails if they can run a timed sequence (UNVERIFIED), otherwise from the mailing service chosen at launch. The source file is `content/emails/welcome-sequence.md`; it's copied below so this document stands alone. The test checks the two stay identical.
+For people who got the Fit Check (or used a free tool) **and chose to hear from us**. Sent by Empire Studio through Resend (chosen 26 Oct 2026). The source file is `content/emails/welcome-sequence.md`; it's copied below so this document stands alone. The test checks the two stay identical.
 
 ### Email 1 · Day 0 · Your Fit Check
 
@@ -134,7 +134,7 @@ For people who got the Fit Check (or used a free tool) **and chose to hear from 
 
 Hi [first name],
 
-The link to your 5-Question Fit Check is in your Gumroad receipt, and it stays in your Gumroad library whenever you need it again.
+Here's your 5-Question Fit Check, if you haven't downloaded it yet: [Link: Fit Check]
 
 Here's the ten-minute version:
 
@@ -150,7 +150,7 @@ Prefer to answer on screen? The free FIT Finder asks 20 questions and shows your
 Vee
 Her Little Empire
 
-You're getting this because you downloaded the Fit Check and said yes to emails. To stop them, use the unsubscribe link below; you'll still have your download.
+You're getting this because you asked for these emails on the Fit Check page. To stop them, use the unsubscribe link below; your download is yours to keep.
 
 ---
 

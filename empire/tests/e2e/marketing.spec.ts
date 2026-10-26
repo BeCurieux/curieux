@@ -46,6 +46,44 @@ test("unsubscribing takes one click from the emailed link", async ({ page }) => 
   await expect(page.getByText("Already off the list")).toBeVisible();
 });
 
+test("signing up sends welcome email 1 at once, and the mail app can unsubscribe in one click", async ({
+  page,
+}) => {
+  const email = unique("welcome");
+  await page.goto("/fit-check?utm_source=instagram");
+  await page.getByRole("button", { name: "No thanks" }).click();
+  await page.getByLabel("Your email").fill(email);
+  await page.getByRole("checkbox", { name: /five welcome emails/ }).check();
+  await page.getByRole("button", { name: "Send me the emails" }).click();
+  await expect(page.getByText("You're on the list")).toBeVisible();
+
+  // Without a Resend key, outside production, emails land in the outbox file.
+  const sent = readFileSync(".data/e2e/outbox.jsonl", "utf8")
+    .trim()
+    .split("\n")
+    .map(
+      (line) =>
+        JSON.parse(line) as {
+          to: string;
+          subject: string;
+          text: string;
+          headers: Record<string, string>;
+        },
+    )
+    .filter((e) => e.to === email);
+  expect(sent).toHaveLength(1);
+  expect(sent[0]!.subject).toBe("Your Fit Check (and how to use it in ten minutes)");
+  expect(sent[0]!.text).toContain("utm_campaign=welcome-1");
+  const oneClick = /<(.+)>/.exec(sent[0]!.headers["List-Unsubscribe"]!)![1]!;
+
+  const res = await page.request.post(oneClick, { data: "List-Unsubscribe=One-Click" });
+  expect(res.status()).toBe(200);
+  const token = new URL(oneClick).searchParams.get("token");
+  await page.goto(`/unsubscribe?token=${token}`);
+  await page.getByRole("button", { name: "Unsubscribe" }).click();
+  await expect(page.getByText("Already off the list")).toBeVisible();
+});
+
 test("the offer page shows real screens, the limits and the exact refund sentence", async ({
   page,
 }) => {

@@ -541,6 +541,8 @@ class LocalSystemRepo implements SystemRepo {
         unsubscribedAt: null,
         unsubscribeToken: randomBytes(24).toString("base64url"),
         createdAt: now(),
+        welcomeSent: 0,
+        welcomeLastSentAt: null,
       });
       return "new" as const;
     });
@@ -551,6 +553,33 @@ class LocalSystemRepo implements SystemRepo {
       const row = d.emailSignups.find((s) => s.unsubscribeToken === token && !s.unsubscribedAt);
       if (!row) return false;
       row.unsubscribedAt = now();
+      return true;
+    });
+  }
+
+  findEmailSignup(email: string): Promise<EmailSignup | null> {
+    return this.store.tx((d) => {
+      const row = d.emailSignups.find((s) => s.email === email);
+      return row ? withWelcomeDefaults(row) : null;
+    });
+  }
+
+  welcomeCandidates(limit: number): Promise<EmailSignup[]> {
+    return this.store.tx((d) =>
+      d.emailSignups
+        .map(withWelcomeDefaults)
+        .filter((s) => !s.unsubscribedAt && s.welcomeSent < 5)
+        .sort((a, b) => a.consentedAt.localeCompare(b.consentedAt))
+        .slice(0, limit),
+    );
+  }
+
+  advanceWelcome(id: string, from: number, to: number, at: string | null): Promise<boolean> {
+    return this.store.tx((d) => {
+      const row = d.emailSignups.find((s) => s.id === id);
+      if (!row || (row.welcomeSent ?? 0) !== from) return false;
+      row.welcomeSent = to;
+      row.welcomeLastSentAt = at;
       return true;
     });
   }
@@ -620,4 +649,13 @@ class LocalSystemRepo implements SystemRepo {
       d.events = d.events.map((e) => (e.userId === userId ? { ...e, userId: null } : e));
     });
   }
+}
+
+// Sign-ups saved before the welcome emails existed have no progress fields.
+function withWelcomeDefaults(row: EmailSignup): EmailSignup {
+  return {
+    ...row,
+    welcomeSent: row.welcomeSent ?? 0,
+    welcomeLastSentAt: row.welcomeLastSentAt ?? null,
+  };
 }
