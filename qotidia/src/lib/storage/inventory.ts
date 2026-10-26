@@ -15,6 +15,7 @@
 // and you carry the orphans across.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { readAllPages, type PageResult } from "@/lib/supabase/paged";
 import type { Bucket } from "./provider";
 
 /** Which table named this key. Reported, so a shortfall names its table. */
@@ -39,37 +40,21 @@ export interface StoredObject {
 }
 
 /**
- * PostgREST caps a response at its configured `max-rows` — a thousand by
- * default — and says nothing whatsoever about having done so. A select that
- * reads "every asset" quietly becomes "the first thousand assets", and for a
- * migration that means leaving the rest of somebody's photographs behind
- * with a summary that says it finished.
- *
- * So every read here is paged explicitly, ordered by a unique column so the
- * pages cannot overlap or skip.
+ * Every read here is paged, ordered by a unique column so pages cannot
+ * overlap or skip. See paged.ts for what goes wrong otherwise — briefly,
+ * PostgREST hands back the first thousand rows without mentioning it, and a
+ * migration that reads "every asset" would move a thousand of them and
+ * report that it was done.
  */
-const PAGE = 1000;
-
-async function readAll(
-  db: SupabaseClient,
-  table: string,
-  columns: string
-): Promise<Record<string, unknown>[]> {
-  const rows: Record<string, unknown>[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await db
-      .from(table)
-      .select(columns)
-      .order("id", { ascending: true })
-      .range(from, from + PAGE - 1);
-    if (error) throw new Error(`could not read ${table}: ${error.message}`);
-    const batch = (data ?? []) as unknown as Record<string, unknown>[];
-    rows.push(...batch);
-    // A short page is the last page. Asking again would cost a round trip to
-    // be told the same thing.
-    if (batch.length < PAGE) return rows;
-  }
-}
+const readAll = (db: SupabaseClient, table: string, columns: string) =>
+  readAllPages<Record<string, unknown>>(table, (from, to) =>
+    // The cast is because the column list is a variable rather than a
+    // literal, which is all supabase-js needs to give up on inferring a row
+    // type and hand back GenericStringError[]. The three callers below are
+    // the only ones, and each names its columns immediately above.
+    db.from(table).select(columns).order("id", { ascending: true }).range(from, to) as unknown as
+      PromiseLike<PageResult<Record<string, unknown>>>
+  );
 
 const text = (value: unknown): string | null =>
   typeof value === "string" && value.length > 0 ? value : null;
