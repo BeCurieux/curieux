@@ -21,6 +21,9 @@ psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f tests/rls/stub-auth.sql
 for file in supabase/migrations/*.sql; do
   psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$file"
 done
-psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -o /dev/null -f tests/rls/rls.sql
+for file in tests/rls/rls.sql tests/rls/schema.sql; do
+  echo "  $file"
+  psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -o /dev/null -f "$file"
+done
 psql_admin -c "drop database $DB"
 echo "Row level security: all checks passed."

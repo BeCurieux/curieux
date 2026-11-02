@@ -5,27 +5,7 @@
 \set ON_ERROR_STOP on
 set client_min_messages = warning;
 
-create function pg_temp.act_as(uid text) returns void language plpgsql as $$
-begin
-  perform set_config('request.jwt.claim.sub', uid, true);
-  execute 'set local role authenticated';
-end $$;
-
-create function pg_temp.act_as_anon() returns void language plpgsql as $$
-begin
-  perform set_config('request.jwt.claim.sub', '', true);
-  execute 'set local role anon';
-end $$;
-
-create function pg_temp.expect_error(stmt text, label text) returns void language plpgsql as $$
-begin
-  begin
-    execute stmt;
-  exception when others then
-    return;
-  end;
-  raise exception 'expected failure: %', label;
-end $$;
+\ir helpers.sql
 
 -- Three people sign in for the first time. Cleo is the founder.
 insert into auth.users (id, email) values

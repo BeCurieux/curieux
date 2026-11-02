@@ -16,8 +16,8 @@ before the next.
 | Step | What                                                                                                       | State             |
 | ---- | ---------------------------------------------------------------------------------------------------------- | ----------------- |
 | 1    | Foundation: magic-link auth, `/login`, protected `/learn`, profiles trigger, admins, Playwright smoke test | Done (2026-11-02) |
-| 2    | Schema: every table in Data model, RLS, entitlement resolution, products seed                              | Next              |
-| 3    | Content pipeline and lesson pages                                                                          |                   |
+| 2    | Schema: every table in Data model, RLS, entitlement resolution, products seed                              | Done (2026-11-02) |
+| 3    | Content pipeline and lesson pages                                                                          | Next              |
 | 4    | Calculators and `/verdict`                                                                                 |                   |
 | 5    | Commerce: Stripe Checkout, webhook, refunds                                                                |                   |
 | 6    | Public pages                                                                                               |                   |
@@ -37,6 +37,27 @@ before the next.
 - Empire Studio, next door, takes payment through Gumroad; this app uses
   Stripe as the spec says. Nothing is shared between the two apps yet,
   including their Supabase projects.
+
+**Step 2 notes for later steps** (details: [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md))
+
+- **Founder to decide: USD prices.** The spec gives AUD only, so
+  `products.price_usd_cents` is null. Step 5 must refuse USD for a product
+  without one, not invent a price.
+- Entitlements: `my_tier()`, `can_access(tier)` and `my_benchmark_pack()`
+  for the signed-in person; `tier_of(user)` and `has_benchmark_pack_of(user)`
+  for the server. Course and founding include the benchmark pack, so the
+  webhook doesn't grant a separate pack row with them.
+- Lessons: name the columns you select (`select *` is refused). The video
+  and script come from `lesson_content(lesson_id)`, which checks the tier;
+  `lesson_assets.storage_path` is server-only (step 3's signed route).
+- Spec's `order` column is `position`. Added: `lessons.slug`,
+  `lessons.example`, `modules.hidden`, `calc_runs.currency`,
+  `orders.refunded_at`.
+- Orders, entitlements, leads, email_events and the verdict review are
+  written only by the server. Users write lesson_progress, calc_runs and
+  verdicts (module0+; sending for review is founding only).
+- `calc_runs.calculator_slug` references `calculators`, so step 4 seeds the
+  calculator rows before anything can be saved.
 
 ## Run it locally
 
