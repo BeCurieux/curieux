@@ -1,0 +1,75 @@
+# Local Supabase stack for development and the end-to-end tests:
+#   npx supabase start      (needs Docker; applies supabase/migrations)
+# Ports are 545xx so this runs beside Empire Studio's stack (544xx).
+project_id = "her-little-empire-course"
+
+[api]
+port = 54521
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+port = 54522
+shadow_port = 54520
+major_version = 17
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54523
+
+# Mailpit catches every email the local stack sends. The sign-in smoke test
+# reads the magic link from it: http://127.0.0.1:54524
+[local_smtp]
+enabled = true
+port = 54524
+
+[realtime]
+enabled = false
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "http://localhost:3300"
+additional_redirect_urls = ["http://localhost:3300/auth/confirm", "http://127.0.0.1:3300/auth/confirm"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+# Generous locally so the test suite can sign in several times in a row.
+[auth.rate_limit]
+email_sent = 100
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+max_frequency = "1s"
+otp_expiry = 3600
+
+# The magic link goes to /auth/confirm with a token hash, not Supabase's
+# default ?code= link. A code link only works in the browser that asked for
+# it; a token hash works wherever she opens the email (the Instagram in-app
+# browser, Mail on her phone). Copy this template into the hosted project:
+# Authentication → Email Templates → Magic Link (docs/AUTH.md).
+[auth.email.template.magic_link]
+subject = "Your sign-in link for Her Little Empire"
+content_path = "./supabase/templates/magic_link.html"
+
+# Her first sign-in creates the account, and Supabase sends the "confirm
+# signup" email instead of the magic link. Same link, same wording.
+[auth.email.template.confirmation]
+subject = "Your sign-in link for Her Little Empire"
+content_path = "./supabase/templates/magic_link.html"

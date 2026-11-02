@@ -1,0 +1,92 @@
+# Does the Her Little Empire course platform build, does sign-in work, and
+# do people stay apart?
+#
+# Scoped to course/ like the sibling apps' workflows. A real local Supabase
+# stack (the CLI, on the runner's Docker) applies the migrations and serves
+# Auth, so the Playwright smoke test signs in through the real magic-link
+# email, read back from the stack's Mailpit. The stack's keys are read from
+# `supabase status` after it starts, so none are written in this file.
+
+name: course
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "course/**"
+      - ".github/workflows/course.yml"
+  pull_request:
+    paths:
+      - "course/**"
+      - ".github/workflows/course.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: course-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: course
+    env:
+      APP_URL: http://localhost:3300
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: course/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint, format, typecheck
+        run: |
+          npm run lint
+          npm run format:check
+          npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Start Supabase (applies the migrations)
+        run: |
+          npm run db:start
+          npx supabase status -o env | sed -nE 's/^([A-Z_]+)="?([^"]*)"?$/\1=\2/p' > ../stack.env
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' ../stack.env | cut -d= -f2-)"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^PUBLISHABLE_KEY=' ../stack.env | cut -d= -f2-)"
+            echo "SUPABASE_SECRET_KEY=$(grep '^SECRET_KEY=' ../stack.env | cut -d= -f2-)"
+            echo "MAILPIT_URL=$(grep '^MAILPIT_URL=' ../stack.env | cut -d= -f2-)"
+          } >> "$GITHUB_ENV"
+          rm ../stack.env
+
+      - name: Row level security tests
+        env:
+          RLS_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54522/postgres
+        run: npm run test:rls
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: course-playwright-report
+          path: course/playwright-report
+          retention-days: 7
