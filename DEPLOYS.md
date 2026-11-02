@@ -40,6 +40,7 @@ Build & Deployment → Root Directory:
 | `curieux-rifc` | `waterline` | shares `waterline/vercel.json` — being deleted, see below |
 | *(not yet created)* | `tildie` | yes — framework, build, ignore, the daily prune cron; see `tildie/SHOPIFY-APP.md`, stage 4 |
 | *(not yet created)* | `empire` | yes — framework, ignore, the daily Gumroad refund recheck cron; see `empire/README.md` → Deploy |
+| *(not yet created)* | `course` | yes — framework, ignore, region `syd1`; see `course/README.md` → Deploy |
 
 Every Root Directory above is **already set** — this half needed no work. The
 values are not guesses: Vercel's own PR comment carries a base64 payload naming

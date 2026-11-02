@@ -1,0 +1,53 @@
+{
+  "name": "her-little-empire-course",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Her Little Empire course platform: the Product Check, Module 0 and the full course, with calculators, verdicts and the founding cohort. Built from SPEC.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev -p 3300",
+    "build": "next build",
+    "start": "next start -p 3300",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:rls": "./scripts/rls-test.sh",
+    "test:e2e": "playwright test",
+    "db:start": "supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "admin:add": "tsx --env-file-if-exists=.env.local scripts/add-admin.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
+    "next": "^16.4.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.2",
+    "prettier": "^3.9.10",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "supabase": "^3.0.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}
