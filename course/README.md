@@ -17,8 +17,8 @@ before the next.
 | ---- | ---------------------------------------------------------------------------------------------------------- | ----------------- |
 | 1    | Foundation: magic-link auth, `/login`, protected `/learn`, profiles trigger, admins, Playwright smoke test | Done (2026-11-02) |
 | 2    | Schema: every table in Data model, RLS, entitlement resolution, products seed                              | Done (2026-11-02) |
-| 3    | Content pipeline and lesson pages                                                                          | Next              |
-| 4    | Calculators and `/verdict`                                                                                 |                   |
+| 3    | Content pipeline and lesson pages                                                                          | Done (2026-11-03) |
+| 4    | Calculators and `/verdict`                                                                                 | Next              |
 | 5    | Commerce: Stripe Checkout, webhook, refunds                                                                |                   |
 | 6    | Public pages                                                                                               |                   |
 | 7    | Email: Resend, sequences, daily cron                                                                       |                   |
@@ -57,6 +57,24 @@ before the next.
   verdicts (module0+; sending for review is founding only).
 - `calc_runs.calculator_slug` references `calculators`, so step 4 seeds the
   calculator rows before anything can be saved.
+
+**Step 3 notes for later steps** (how to write lessons: [`docs/CONTENT.md`](docs/CONTENT.md))
+
+- Lessons are markdown in `content/modules/`; `npm run content:seed` loads
+  them. Only two placeholder lessons exist (0.1 and 0.2, both free, as the
+  spec's free tier says). The founder's scripts replace them.
+- One access rule for lessons: `can_open_lesson(lesson)` for the caller and
+  `user_can_open_lesson(user, lesson)` for the server. It is the lesson's
+  `min_tier`, or the benchmark pack for lessons with
+  `opens_with_benchmark_pack` (the hidden Library). The lesson page,
+  mark-complete and `/api/assets/[id]` all go through it.
+- Downloads: private `lesson-assets` bucket, served by `/api/assets/[id]` as
+  a signed URL that expires in 60 seconds.
+- Videos: `BUNNY_STREAM_LIBRARY_ID`, optionally `BUNNY_STREAM_TOKEN_KEY` for
+  signed embeds; YouTube needs nothing.
+- Locked lessons and modules link to `/pricing`, which arrives in step 6.
+- The "lesson 0.8 completed" email (step 7) can hang off `setLessonDone` in
+  `src/app/learn/actions.ts`.
 
 ## Run it locally
 

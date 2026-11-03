@@ -17,6 +17,10 @@ const serverSchema = z.object({
   // Server only. Bypasses row level security: used for the webhook, admin
   // actions and scripts, never for a signed-in customer's own reads.
   SUPABASE_SECRET_KEY: optional,
+  // Bunny Stream: the library the lesson videos are in, and its embed token
+  // key (optional; when set, embed URLs are signed and expire).
+  BUNNY_STREAM_LIBRARY_ID: optional,
+  BUNNY_STREAM_TOKEN_KEY: optional,
   APP_URL: z
     .url()
     .default("http://localhost:3300")

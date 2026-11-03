@@ -19,6 +19,8 @@ TEST_URL="$(echo "$ADMIN_URL" | sed -E "s#/[^/?]*(\?|$)#/$DB\1#")"
 
 psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f tests/rls/stub-auth.sql
 for file in supabase/migrations/*.sql; do
+  # Needs Supabase's storage schema; four lines, checked by the e2e tests.
+  case "$file" in *_storage.sql) continue ;; esac
   psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$file"
 done
 for file in tests/rls/rls.sql tests/rls/schema.sql; do
