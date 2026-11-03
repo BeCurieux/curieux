@@ -29,6 +29,8 @@ const EARNINGS = [
 
 const sources = [
   ...files(path.join(ROOT, "content/pages"), /\.md$/),
+  ...files(path.join(ROOT, "content/emails"), /\.md$/),
+  ...files(path.join(ROOT, "emails"), /\.tsx?$/),
   ...files(path.join(ROOT, "src/app"), /\.tsx?$/),
   ...files(path.join(ROOT, "src/components"), /\.tsx?$/),
 ];
@@ -50,9 +52,10 @@ describe("copy", () => {
   });
 
   it("never types a price into page copy", () => {
-    const hits = files(path.join(ROOT, "content/pages"), /\.md$/).filter((file) =>
-      /(?:A\$|US\$|\$)\s?\d/.test(readFileSync(file, "utf8")),
-    );
+    const hits = [
+      ...files(path.join(ROOT, "content/pages"), /\.md$/),
+      ...files(path.join(ROOT, "content/emails"), /\.md$/),
+    ].filter((file) => /(?:A\$|US\$|\$)\s?\d/.test(readFileSync(file, "utf8")));
     expect(hits.map((f) => path.relative(ROOT, f))).toEqual([]);
   });
 });

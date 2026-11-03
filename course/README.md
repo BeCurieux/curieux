@@ -21,8 +21,8 @@ before the next.
 | 4    | Calculators and `/verdict`                                                                                 | Done (2026-11-03) |
 | 5    | Commerce: Stripe Checkout, webhook, refunds                                                                | Done (2026-11-03) |
 | 6    | Public pages                                                                                               | Done (2026-11-03) |
-| 7    | Email: Resend, sequences, daily cron                                                                       | Next              |
-| 8    | Admin                                                                                                      |                   |
+| 7    | Email: Resend, sequences, daily cron                                                                       | Done (2026-11-03) |
+| 8    | Admin                                                                                                      | Next              |
 | 9    | Launch check                                                                                               |                   |
 
 **Step 1 notes for later steps**
@@ -121,6 +121,18 @@ before the next.
 - Hype Check rubric and log: [`docs/HYPE_CHECK.md`](docs/HYPE_CHECK.md).
 - A unit test (`tests/unit/copy.test.ts`) refuses earnings language, GST
   and typed-in prices in page copy and UI code.
+
+**Step 7 notes for later steps** (what's sent when, and setup: [`docs/EMAIL.md`](docs/EMAIL.md))
+
+- The email copy in `content/emails` is placeholder (`draft: true`), like
+  the page copy. Step 9's launch check should refuse drafts there too.
+- `sweepEmails` (`src/lib/email/sweep.ts`) runs after every purchase and
+  refund (`src/lib/commerce/orders.ts`), so the admin refund in step 8 sends
+  the refund confirmation without extra code.
+- The admin page can read `email_events` and `email_suppressions` (admins
+  read all).
+- Needs `RESEND_API_KEY`, `EMAIL_FROM`, `CRON_SECRET` and
+  `EMAIL_TOKEN_SECRET`; the daily cron is in `vercel.json`.
 
 ## Run it locally
 

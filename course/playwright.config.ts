@@ -83,6 +83,12 @@ export default defineConfig({
       STRIPE_WEBHOOK_SECRET: "whsec_e2e_test",
       STRIPE_API_BASE: "http://127.0.0.1:12111",
       SUPPORT_EMAIL: "help@example.test",
+      // The stand-in Resend server (tests/e2e/fake-resend.ts); not a real key.
+      RESEND_API_KEY: "re_fake",
+      RESEND_API_BASE: "http://127.0.0.1:12112",
+      EMAIL_FROM: "Her Little Empire <hello@example.test>",
+      EMAIL_TOKEN_SECRET: "e2e-email-token-secret",
+      CRON_SECRET: "e2e-cron-secret-at-least-24-chars",
     },
   },
 });

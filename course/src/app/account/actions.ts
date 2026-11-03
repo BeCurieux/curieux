@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/session";
 import { refundOrder } from "@/lib/commerce/orders";
+import { suppress, unsuppress } from "@/lib/email/suppress";
 import { refundable } from "@/lib/commerce/plan";
 import { userClient } from "@/lib/supabase/server";
 
@@ -36,4 +37,15 @@ export async function requestRefund(form: FormData): Promise<void> {
   revalidatePath("/account");
   revalidatePath("/learn");
   redirect("/account?refund=done");
+}
+
+// Email preferences (SPEC.md → /account): course tips and reminders on or
+// off. Receipts and sign-in links aren't affected.
+export async function setMarketingEmails(form: FormData): Promise<void> {
+  const user = await currentUser();
+  if (!user?.email) redirect("/login?next=/account");
+  const on = form.get("marketing") === "on";
+  const ok = on ? await unsuppress(user.email) : await suppress(user.email);
+  revalidatePath("/account");
+  redirect(ok ? `/account?emails=${on ? "on" : "off"}` : "/account?emails=error");
 }
