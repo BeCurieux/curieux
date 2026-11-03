@@ -18,8 +18,8 @@ before the next.
 | 1    | Foundation: magic-link auth, `/login`, protected `/learn`, profiles trigger, admins, Playwright smoke test | Done (2026-11-02) |
 | 2    | Schema: every table in Data model, RLS, entitlement resolution, products seed                              | Done (2026-11-02) |
 | 3    | Content pipeline and lesson pages                                                                          | Done (2026-11-03) |
-| 4    | Calculators and `/verdict`                                                                                 | Next              |
-| 5    | Commerce: Stripe Checkout, webhook, refunds                                                                |                   |
+| 4    | Calculators and `/verdict`                                                                                 | Done (2026-11-03) |
+| 5    | Commerce: Stripe Checkout, webhook, refunds                                                                | Next              |
 | 6    | Public pages                                                                                               |                   |
 | 7    | Email: Resend, sequences, daily cron                                                                       |                   |
 | 8    | Admin                                                                                                      |                   |
@@ -75,6 +75,20 @@ before the next.
 - Locked lessons and modules link to `/pricing`, which arrives in step 6.
 - The "lesson 0.8 completed" email (step 7) can hang off `setLessonDone` in
   `src/app/learn/actions.ts`.
+
+**Step 4 notes for later steps** (formulas and open decisions: [`docs/CALCULATORS.md`](docs/CALCULATORS.md))
+
+- Twelve calculators in `src/lib/calc/`; `npm run content:seed` also writes
+  their rows (tier, module, form schema) so RLS can check saved runs.
+- `/tools`, `/tools/[slug]` (autosave via `src/app/tools/actions.ts`, which
+  recomputes on the server) and `/verdict` (margin and break-even re-read
+  from her latest Unit Economics run on save).
+- Cash Cycle is Module 0 (the verdict reads it). The other seven are course.
+- Founding members send a verdict for review from `/verdict`. The review
+  (`review_md`) is written by the server; the admin page that writes it is
+  step 8.
+- Several one-line specs needed reading; they're listed in
+  docs/CALCULATORS.md for the founder to confirm.
 
 ## Run it locally
 
