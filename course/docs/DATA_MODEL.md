@@ -88,17 +88,18 @@ admin writes go through server actions that check `is_admin()` first.
 
 ## Products
 
-Seeded by the migration, prices from SPEC.md → Access tiers, in cents:
+AUD prices from SPEC.md → Access tiers (migration 2). USD prices are the AUD
+prices converted at about 0.70 USD per AUD (mid-market, early November 2026)
+and rounded to the nearest whole dollar (migration 3). All in cents.
 
-| slug             | tier             | AUD   | USD     | places |
-| ---------------- | ---------------- | ----- | ------- | ------ |
-| `product-check`  | `free`           | 0     | —       |        |
-| `module-0`       | `module0`        | 4900  | not set |        |
-| `course`         | `course`         | 25000 | not set |        |
-| `founding`       | `founding`       | 34900 | not set | 30     |
-| `benchmark-pack` | `benchmark_pack` | 2900  | not set |        |
+| slug             | tier             | AUD   | USD   | places |
+| ---------------- | ---------------- | ----- | ----- | ------ |
+| `product-check`  | `free`           | 0     | 0     |        |
+| `module-0`       | `module0`        | 4900  | 3400  |        |
+| `course`         | `course`         | 25000 | 17500 |        |
+| `founding`       | `founding`       | 34900 | 24400 | 30     |
+| `benchmark-pack` | `benchmark_pack` | 2900  | 2000  |        |
 
-The spec gives no USD prices, so `price_usd_cents` is null until the founder
-sets them (SQL editor: `update public.products set price_usd_cents = … where
-slug = '…'`). Checkout (step 5) must refuse USD for a product with no USD
-price rather than invent one.
+With the Module 0 credit, the course is A$201 or US$141. To change a price:
+`update public.products set price_usd_cents = … where slug = '…'` (SQL
+editor), and create the matching Stripe price in step 5.
