@@ -22,6 +22,7 @@ export const TEMPLATES = [
   "founding_welcome",
   "refund",
   "verdict_meaning",
+  "review_ready",
 ] as const;
 export type TemplateId = (typeof TEMPLATES)[number];
 

@@ -22,8 +22,8 @@ before the next.
 | 5    | Commerce: Stripe Checkout, webhook, refunds                                                                | Done (2026-11-03) |
 | 6    | Public pages                                                                                               | Done (2026-11-03) |
 | 7    | Email: Resend, sequences, daily cron                                                                       | Done (2026-11-03) |
-| 8    | Admin                                                                                                      | Next              |
-| 9    | Launch check                                                                                               |                   |
+| 8    | Admin                                                                                                      | Done (2026-11-03) |
+| 9    | Launch check                                                                                               | Next              |
 
 **Step 1 notes for later steps**
 
@@ -133,6 +133,14 @@ before the next.
   read all).
 - Needs `RESEND_API_KEY`, `EMAIL_FROM`, `CRON_SECRET` and
   `EMAIL_TOKEN_SECRET`; the daily cron is in `vercel.json`.
+
+**Step 8 notes for later steps** (what each tab does: [`docs/ADMIN.md`](docs/ADMIN.md))
+
+- `/admin`: five tabs (Buyers, Leads, Cohort, Verdicts, Numbers) plus
+  `/admin/leads.csv`; `requireAdmin()` 404s anyone else. Admin refunds use
+  the same `refundOrder` as customers; reviews email `review_ready`.
+- Step 9's signed-out sweep should include `/admin` and `/admin/leads.csv`
+  (both redirect to sign-in when signed out, and 404 for non-admins).
 
 ## Run it locally
 
