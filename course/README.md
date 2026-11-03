@@ -19,8 +19,8 @@ before the next.
 | 2    | Schema: every table in Data model, RLS, entitlement resolution, products seed                              | Done (2026-11-02) |
 | 3    | Content pipeline and lesson pages                                                                          | Done (2026-11-03) |
 | 4    | Calculators and `/verdict`                                                                                 | Done (2026-11-03) |
-| 5    | Commerce: Stripe Checkout, webhook, refunds                                                                | Next              |
-| 6    | Public pages                                                                                               |                   |
+| 5    | Commerce: Stripe Checkout, webhook, refunds                                                                | Done (2026-11-03) |
+| 6    | Public pages                                                                                               | Next              |
 | 7    | Email: Resend, sequences, daily cron                                                                       |                   |
 | 8    | Admin                                                                                                      |                   |
 | 9    | Launch check                                                                                               |                   |
@@ -89,6 +89,19 @@ before the next.
   step 8.
 - Several one-line specs needed reading; they're listed in
   docs/CALCULATORS.md for the founder to confirm.
+
+**Step 5 notes for later steps** (how payments work and how to set up Stripe: [`docs/PAYMENTS.md`](docs/PAYMENTS.md))
+
+- `/checkout/[product]` takes product slugs: `module-0`, `course`,
+  `founding`, `benchmark-pack`. Step 6's pricing page links there.
+- `src/lib/commerce/orders.ts`: `recordCheckoutSession` (webhook and
+  success page) and `refundOrder` (account page now, admin in step 8).
+- Step 7 hooks the receipt, onboarding and refund-confirmation emails onto
+  `recordCheckoutSession` and `refundOrder` / `recordRefund`.
+- `/account` has purchases and refunds. Email preferences (step 7) and
+  delete account are still to add.
+- Needs `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPPORT_EMAIL`, and
+  `npm run stripe:setup` once per Stripe mode.
 
 ## Run it locally
 

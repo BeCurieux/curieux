@@ -21,6 +21,13 @@ const serverSchema = z.object({
   // key (optional; when set, embed URLs are signed and expire).
   BUNNY_STREAM_LIBRARY_ID: optional,
   BUNNY_STREAM_TOKEN_KEY: optional,
+  // Stripe (step 5). Test-mode keys until launch.
+  STRIPE_SECRET_KEY: optional,
+  STRIPE_WEBHOOK_SECRET: optional,
+  // Only for the test suite's stand-in Stripe server.
+  STRIPE_API_BASE: optional,
+  // Where refund requests go after the 14 days (a mailto on /account).
+  SUPPORT_EMAIL: optional,
   APP_URL: z
     .url()
     .default("http://localhost:3300")

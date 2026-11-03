@@ -23,7 +23,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "admin:add": "tsx --env-file-if-exists=.env.local scripts/add-admin.ts",
-    "content:seed": "tsx --env-file-if-exists=.env.local scripts/seed-content.ts"
+    "content:seed": "tsx --env-file-if-exists=.env.local scripts/seed-content.ts",
+    "stripe:setup": "tsx --env-file-if-exists=.env.local scripts/stripe-setup.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -33,6 +34,7 @@
     "react-dom": "^19.3.1",
     "react-markdown": "^10.1.0",
     "server-only": "^0.0.1",
+    "stripe": "^23.1.0",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"
   },
