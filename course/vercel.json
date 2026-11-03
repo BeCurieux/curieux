@@ -2,5 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
-  "regions": ["syd1"]
+  "regions": ["syd1"],
+  "crons": [
+    {
+      "path": "/api/cron/email",
+      "schedule": "7 23 * * *"
+    }
+  ]
 }

@@ -16,7 +16,7 @@
     "incremental": true,
     "types": ["node"],
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./src/*"] }
+    "paths": { "@/*": ["./src/*"], "@emails/*": ["./emails/*"] }
   },
   "include": [
     "next-env.d.ts",

@@ -28,6 +28,18 @@ const serverSchema = z.object({
   STRIPE_API_BASE: optional,
   // Where refund requests go after the 14 days (a mailto on /account).
   SUPPORT_EMAIL: optional,
+  // Email (step 7), sent through Resend.
+  RESEND_API_KEY: optional,
+  // e.g. "Her Little Empire <hello@herlittleempire.com>"; the domain must be
+  // verified in Resend.
+  EMAIL_FROM: optional,
+  EMAIL_REPLY_TO: optional,
+  // Only for the test suite's stand-in Resend server.
+  RESEND_API_BASE: optional,
+  // Signs unsubscribe links. Falls back to SUPABASE_SECRET_KEY.
+  EMAIL_TOKEN_SECRET: optional,
+  // Vercel sends it to the cron routes as a bearer token.
+  CRON_SECRET: optional,
   APP_URL: z
     .url()
     .default("http://localhost:3300")

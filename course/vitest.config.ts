@@ -3,6 +3,7 @@ import { defineConfig } from "vitest/config";
 
 const alias = {
   "@": path.resolve(import.meta.dirname, "src"),
+  "@emails": path.resolve(import.meta.dirname, "emails"),
   "server-only": path.resolve(import.meta.dirname, "tests/stubs/server-only.ts"),
 };
 

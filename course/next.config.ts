@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   // The public pages read their copy from content/pages at run time.
-  outputFileTracingIncludes: { "/**": ["./content/pages/**/*"] },
+  outputFileTracingIncludes: { "/**": ["./content/pages/**/*", "./content/emails/**/*"] },
   async headers() {
     return [
       {

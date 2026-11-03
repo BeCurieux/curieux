@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth/session";
 import { refundable, REFUND_DAYS } from "@/lib/commerce/plan";
 import { loadAccess } from "@/lib/course/queries";
 import { userClient } from "@/lib/supabase/server";
-import { requestRefund } from "./actions";
+import { requestRefund, setMarketingEmails } from "./actions";
 
 export const metadata: Metadata = { title: "Your account" };
 
@@ -34,13 +34,15 @@ const date = (iso: string) =>
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ refund?: string }>;
+  searchParams: Promise<{ refund?: string; emails?: string }>;
 }) {
   const user = await requireUser("/account");
-  const { refund } = await searchParams;
+  const { refund, emails } = await searchParams;
   const supabase = await userClient();
-  const [access, orders] = await Promise.all([
+  const [access, suppression, orders] = await Promise.all([
     loadAccess(supabase),
+    // Row level security: she sees only whether her own address is unsubscribed.
+    supabase.from("email_suppressions").select("id").maybeSingle(),
     supabase
       .from("orders")
       .select(
@@ -146,6 +148,39 @@ export default async function AccountPage({
             );
           })}
         </ul>
+      </section>
+
+      <section className="mt-10" aria-labelledby="email-prefs">
+        <h2 id="email-prefs" className="text-2xl">
+          Email preferences
+        </h2>
+        {emails === "on" || emails === "off" ? (
+          <p role="status" className="mt-2 font-semibold">
+            Saved.
+          </p>
+        ) : null}
+        <form action={setMarketingEmails} className="mt-3 space-y-3">
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              name="marketing"
+              defaultChecked={!suppression.data}
+              className="mt-1 size-5"
+            />
+            <span>
+              Course tips and reminders
+              <span className="text-mute block text-base">
+                Receipts and sign-in links always come.
+              </span>
+            </span>
+          </label>
+          <button
+            type="submit"
+            className="border-accent text-accent rounded-full border px-5 py-3 font-semibold"
+          >
+            Save email preferences
+          </button>
+        </form>
       </section>
     </main>
   );

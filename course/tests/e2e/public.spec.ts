@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { magicLinkFor, service, uniqueEmail } from "./helpers";
+import { emailsTo, linkIn } from "./fake-resend";
+import { service, uniqueEmail } from "./helpers";
 
 // The public pages (build step 6): no sign-in to view, mobile-first, prices
 // from the database in the visitor's currency, lead capture that records
@@ -100,7 +101,12 @@ test("/check: email first, then the magic link opens the free lessons", async ({
   // Supabase creates the account when it sends the link, so the lead is linked at once.
   expect(await leadOf(email)).toMatchObject({ source: "product_check" });
 
-  await page.goto(await magicLinkFor(email));
+  // The "lead captured" email: sign-in link plus "start with lesson 0.2".
+  await expect.poll(async () => (await emailsTo(email)).length).toBe(1);
+  const [welcome] = await emailsTo(email);
+  expect(welcome!.subject).toBe("Your free Product Check is ready");
+  expect(welcome!.text).toMatch(/lesson 0\.2/i);
+  await page.goto(linkIn(welcome!, /\/auth\/confirm\?token_hash=/));
   await expect(page).toHaveURL(/\/learn$/);
   await expect(page.getByTestId("module-module-0")).toContainText("0 of 2 done");
   expect((await leadOf(email))?.converted_user_id).not.toBeNull();

@@ -1,7 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { z } from "zod";
+import { serverEnv } from "@/env";
 import { sendMagicLink } from "@/lib/auth/magic-link";
+import { requestOrigin } from "@/lib/auth/origin";
+import { sendEmail } from "@/lib/email/send";
+import { emailConfigured } from "@/lib/email/transport";
 import { serviceClient } from "@/lib/supabase/server";
 
 // Every public email form: /check (lead, then a sign-in link to the free
@@ -54,13 +59,48 @@ export async function joinFree(
   const result = await capture(form, source);
   if (!result.ok)
     return "fake" in result ? { status: "sent" } : { status: "error", message: result.message };
-  if (!(await sendMagicLink(result.email, "/learn")))
+  const sent = emailConfigured()
+    ? await sendWelcome(result.email)
+    : await sendMagicLink(result.email, "/learn");
+  if (!sent)
     return {
       status: "error",
       message: "We couldn't send your link just now. Wait a minute and try again.",
       email: result.email,
     };
   return { status: "sent", email: result.email };
+}
+
+/**
+ * The "lead captured" email (SPEC.md → Email): her sign-in link plus "start
+ * with lesson 0.2", sent through Resend rather than Supabase's plain
+ * sign-in email. The link is made with the admin API and lands on
+ * /auth/confirm like every other sign-in link. One per minute per address,
+ * so a double-click doesn't send two.
+ */
+async function sendWelcome(email: string): Promise<boolean> {
+  const origin = requestOrigin(await headers(), serverEnv().APP_URL);
+  const { data, error } = await serviceClient().auth.admin.generateLink({
+    type: "magiclink",
+    email,
+    options: { redirectTo: `${origin}/auth/confirm` },
+  });
+  if (error || !data.properties?.hashed_token) {
+    console.error("lead welcome link", error?.message);
+    return false;
+  }
+  // A brand-new address gets a "signup" link, an existing one "magiclink";
+  // /auth/confirm accepts both.
+  const type = data.properties.verification_type ?? "magiclink";
+  const link = `${origin}/auth/confirm?token_hash=${data.properties.hashed_token}&type=${type}`;
+  const minute = new Date().toISOString().slice(0, 16);
+  const outcome = await sendEmail(
+    "lead_welcome",
+    `lead_welcome:${minute}`,
+    { leadEmail: email },
+    { magic_link: link },
+  );
+  return outcome === "sent" || outcome === "duplicate";
 }
 
 export async function joinWaitlist(_prev: LeadState, form: FormData): Promise<LeadState> {

@@ -1,6 +1,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import type { AccessTier } from "@/lib/course/tiers";
+import { sweepEmails } from "@/lib/email/sweep";
 import { serviceClient } from "@/lib/supabase/server";
 import { purchaseFromSession, type Owned, type Product } from "./plan";
 import { stripe } from "./stripe";
@@ -81,7 +82,22 @@ export async function recordCheckoutSession(sessionId: string): Promise<RecordOu
     }
     console.warn("founding sold out; refunded", purchase.sessionId);
   }
+  if (status === "recorded" || status === "duplicate") await emailsFor(purchase.userId);
   return { status, userId: purchase.userId, productSlug: purchase.productSlug };
+}
+
+/**
+ * Receipt, founding welcome, first onboarding email, refund confirmation:
+ * whatever she's owed now. Never fails the purchase or refund it follows;
+ * the daily cron sends anything this misses.
+ */
+async function emailsFor(userId: string | null | undefined) {
+  if (!userId) return;
+  try {
+    await sweepEmails({ userId });
+  } catch (error) {
+    console.error("emails after purchase/refund", error instanceof Error ? error.message : error);
+  }
 }
 
 const isAlreadyRefunded = (error: unknown) =>
@@ -89,10 +105,17 @@ const isAlreadyRefunded = (error: unknown) =>
 
 /** Records a refund Stripe has made (the webhook's charge.refunded). */
 export async function recordRefund(paymentIntent: string): Promise<string> {
-  const { data, error } = await serviceClient().rpc("record_refund", {
-    p_payment_intent: paymentIntent,
-  });
+  const db = serviceClient();
+  const { data, error } = await db.rpc("record_refund", { p_payment_intent: paymentIntent });
   if (error) throw new Error(`record_refund: ${error.message}`);
+  if (data === "refunded" || data === "already") {
+    const { data: order } = await db
+      .from("orders")
+      .select("user_id")
+      .eq("stripe_payment_intent", paymentIntent)
+      .maybeSingle();
+    await emailsFor(order?.user_id);
+  }
   return data as string;
 }
 

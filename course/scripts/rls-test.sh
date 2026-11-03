@@ -23,7 +23,7 @@ for file in supabase/migrations/*.sql; do
   case "$file" in *_storage.sql) continue ;; esac
   psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$file"
 done
-for file in tests/rls/rls.sql tests/rls/schema.sql tests/rls/commerce.sql tests/rls/public.sql; do
+for file in tests/rls/rls.sql tests/rls/schema.sql tests/rls/commerce.sql tests/rls/public.sql tests/rls/email.sql; do
   echo "  $file"
   psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -o /dev/null -f "$file"
 done

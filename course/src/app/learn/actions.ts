@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
+import { sendVerdictMeaning } from "@/lib/email/lesson";
 import { userClient } from "@/lib/supabase/server";
 
 // Mark a lesson done, or not done. Row level security decides whether she
@@ -22,7 +23,7 @@ export async function setLessonDone(form: FormData): Promise<void> {
   });
   if (!parsed.success) return;
   const { lessonId, path, done } = parsed.data;
-  await requireUser(path);
+  const user = await requireUser(path);
   const supabase = await userClient();
 
   if (done === "true") {
@@ -30,6 +31,8 @@ export async function setLessonDone(form: FormData): Promise<void> {
       .from("lesson_progress")
       .upsert({ lesson_id: lessonId }, { onConflict: "user_id,lesson_id", ignoreDuplicates: true });
     if (error) console.error("mark done", error.message);
+    // Lesson 0.8 sends "your verdict is saved; here's what it means".
+    else await sendVerdictMeaning(user.id, user.email ?? "", lessonId);
   } else {
     const { error } = await supabase.from("lesson_progress").delete().eq("lesson_id", lessonId);
     if (error) console.error("mark not done", error.message);
