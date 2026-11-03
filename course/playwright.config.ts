@@ -78,6 +78,11 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: supabaseEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
       SUPABASE_SECRET_KEY: supabaseEnv.SUPABASE_SECRET_KEY,
       APP_URL: `http://localhost:${PORT}`,
+      // The stand-in Stripe server (tests/e2e/fake-stripe.ts); not real keys.
+      STRIPE_SECRET_KEY: "sk_test_fake",
+      STRIPE_WEBHOOK_SECRET: "whsec_e2e_test",
+      STRIPE_API_BASE: "http://127.0.0.1:12111",
+      SUPPORT_EMAIL: "help@example.test",
     },
   },
 });
