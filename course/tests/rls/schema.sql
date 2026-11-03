@@ -37,12 +37,12 @@ do $$ begin
 end $$;
 
 -- ---------------------------------------------------------------------------
--- Products: seeded as the spec prices them, no GST anywhere.
+-- Products: AUD as the spec prices them, USD converted (migration 3), no GST.
 
 do $$ begin
-  if (select string_agg(slug || ':' || tier || ':' || price_aud_cents, ',' order by price_aud_cents, slug) from public.products)
-     <> 'product-check:free:0,benchmark-pack:benchmark_pack:2900,module-0:module0:4900,course:course:25000,founding:founding:34900' then
-    raise exception 'products seed wrong: %', (select string_agg(slug || ':' || price_aud_cents, ',') from public.products);
+  if (select string_agg(slug || ':' || tier || ':' || price_aud_cents || ':' || price_usd_cents, ',' order by price_aud_cents, slug) from public.products)
+     <> 'product-check:free:0:0,benchmark-pack:benchmark_pack:2900:2000,module-0:module0:4900:3400,course:course:25000:17500,founding:founding:34900:24400' then
+    raise exception 'products seed wrong: %', (select string_agg(slug || ':' || price_aud_cents || ':' || price_usd_cents, ',') from public.products);
   end if;
   if (select places_total from public.products where tier = 'founding') <> 30 then raise exception 'founding places_total must be 30'; end if;
   if (select count(*) from public.products where places_total is not null) <> 1 then raise exception 'only founding is limited'; end if;

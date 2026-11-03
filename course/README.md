@@ -40,9 +40,8 @@ before the next.
 
 **Step 2 notes for later steps** (details: [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md))
 
-- **Founder to decide: USD prices.** The spec gives AUD only, so
-  `products.price_usd_cents` is null. Step 5 must refuse USD for a product
-  without one, not invent a price.
+- USD prices are set (migration `20261103000003_usd_prices.sql`): the AUD
+  prices at about 0.70, rounded to whole dollars. Every product has both.
 - Entitlements: `my_tier()`, `can_access(tier)` and `my_benchmark_pack()`
   for the signed-in person; `tier_of(user)` and `has_benchmark_pack_of(user)`
   for the server. Course and founding include the benchmark pack, so the
