@@ -53,7 +53,7 @@ enable_anonymous_sign_ins = false
 email_sent = 100
 
 [auth.email]
-enable_signup = true
+enabled = true
 double_confirm_changes = true
 enable_confirmations = false
 max_frequency = "1s"
