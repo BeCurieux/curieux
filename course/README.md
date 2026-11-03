@@ -20,8 +20,8 @@ before the next.
 | 3    | Content pipeline and lesson pages                                                                          | Done (2026-11-03) |
 | 4    | Calculators and `/verdict`                                                                                 | Done (2026-11-03) |
 | 5    | Commerce: Stripe Checkout, webhook, refunds                                                                | Done (2026-11-03) |
-| 6    | Public pages                                                                                               | Next              |
-| 7    | Email: Resend, sequences, daily cron                                                                       |                   |
+| 6    | Public pages                                                                                               | Done (2026-11-03) |
+| 7    | Email: Resend, sequences, daily cron                                                                       | Next              |
 | 8    | Admin                                                                                                      |                   |
 | 9    | Launch check                                                                                               |                   |
 
@@ -102,6 +102,25 @@ before the next.
   delete account are still to add.
 - Needs `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPPORT_EMAIL`, and
   `npm run stripe:setup` once per Stripe mode.
+
+**Step 6 notes for later steps**
+
+- **The copy is placeholder.** Every file in `content/pages` is
+  `draft: true` and shows a "Draft copy" notice. Terms and privacy are
+  explicitly not legal text. The founder's copy replaces them, and step 9's
+  launch check should refuse any `draft: true`. Prices in copy are
+  `{{price:…}}` tokens (`content/pages/README.md`).
+- "The three gates" on the home page is a placeholder heading: the spec
+  names the section, not its content.
+- Leads: `capture_lead` (migration 7), sources `product_check`,
+  `hype_check`, `waitlist`, or `keyword` for ManyChat links
+  (`utm_source=manychat`). Waitlist interests in `leads.interests`.
+- Step 7: the "lead captured" email (magic link plus "start with lesson
+  0.2") replaces the plain Supabase sign-in email for /check and /hype; the
+  three-email nudge reads `leads`.
+- Hype Check rubric and log: [`docs/HYPE_CHECK.md`](docs/HYPE_CHECK.md).
+- A unit test (`tests/unit/copy.test.ts`) refuses earnings language, GST
+  and typed-in prices in page copy and UI code.
 
 ## Run it locally
 
