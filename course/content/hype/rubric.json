@@ -1,0 +1,120 @@
+{
+  "version": "v1-draft",
+  "draft": true,
+  "note": "Starter word lists from the categories in SPEC.md (dollar amounts with timeframes, passive, guaranteed, anyone can, urgency words, missing costs or hours). The founder's word lists replace these. Patterns are case-insensitive regular expressions. See docs/HYPE_CHECK.md.",
+  "signals": [
+    {
+      "id": "money_timeframe",
+      "label": "A dollar amount with a timeframe",
+      "weight": 25,
+      "max": 2,
+      "patterns": [
+        "(?:\\$|a\\$|us\\$|£|€)\\s?\\d[\\d,.]*\\s?(?:k|m)?\\b[^.!?\\n]{0,30}?\\b(?:a|per|in|every|/)\\s?(?:day|week|month|year|mo|wk|yr|\\d+\\s?(?:days|weeks|months))\\b",
+        "\\b(?:six|seven|6|7)[- ]figures?\\b"
+      ]
+    },
+    {
+      "id": "passive",
+      "label": "Passive",
+      "weight": 15,
+      "max": 2,
+      "patterns": [
+        "\\bpassive\\b",
+        "\\bwhile (?:you|i) sleep\\b",
+        "\\bon autopilot\\b",
+        "\\bhands[- ]off\\b"
+      ]
+    },
+    {
+      "id": "guaranteed",
+      "label": "Guaranteed",
+      "weight": 20,
+      "max": 2,
+      "patterns": [
+        "\\bguarantee(?:d|s)?\\b",
+        "\\bno risk\\b",
+        "\\brisk[- ]free\\b",
+        "\\bcan'?t lose\\b"
+      ]
+    },
+    {
+      "id": "anyone_can",
+      "label": "Anyone can",
+      "weight": 15,
+      "max": 2,
+      "patterns": [
+        "\\banyone can\\b",
+        "\\banybody can\\b",
+        "\\bno experience (?:needed|required)\\b",
+        "\\beven if you'?ve never\\b"
+      ]
+    },
+    {
+      "id": "urgency",
+      "label": "Urgency",
+      "weight": 10,
+      "max": 2,
+      "patterns": [
+        "\\blimited (?:spots|time|places)\\b",
+        "\\btoday only\\b",
+        "\\bact now\\b",
+        "\\bonly \\d+ (?:spots|places|left)\\b",
+        "\\bdon'?t miss\\b",
+        "\\bclosing (?:soon|tonight)\\b",
+        "\\blast chance\\b"
+      ]
+    }
+  ],
+  "omissions": [
+    {
+      "id": "costs",
+      "weight": 10,
+      "finding": "What it cost: stock, ads, fees, the tools.",
+      "patterns": [
+        "\\bcosts?\\b",
+        "\\bspent\\b",
+        "\\bspend\\b",
+        "\\bfees?\\b",
+        "\\bstock\\b",
+        "\\binventory\\b",
+        "\\bexpenses?\\b",
+        "\\bmargins?\\b"
+      ]
+    },
+    {
+      "id": "hours",
+      "weight": 10,
+      "finding": "How many hours it takes.",
+      "patterns": [
+        "\\bhours?\\b",
+        "\\bhrs\\b",
+        "\\bevenings?\\b",
+        "\\bweekends?\\b",
+        "\\bfull[- ]time\\b",
+        "\\bpart[- ]time\\b"
+      ]
+    },
+    {
+      "id": "typical",
+      "weight": 0,
+      "finding": "What's typical, rather than the best case.",
+      "patterns": ["\\btypical\\b", "\\baverage\\b", "\\bmost people\\b", "\\bresults vary\\b"]
+    },
+    {
+      "id": "failures",
+      "weight": 0,
+      "finding": "Anything that didn't work.",
+      "patterns": ["\\bfail(?:ed|ure|s)?\\b", "\\bdidn'?t work\\b", "\\bmistakes?\\b", "\\blost\\b"]
+    },
+    {
+      "id": "timeline",
+      "weight": 0,
+      "finding": "How long it took to get there.",
+      "patterns": [
+        "\\btook (?:me )?\\d+",
+        "\\bafter \\d+ (?:weeks|months|years)\\b",
+        "\\b\\d+ years?\\b"
+      ]
+    }
+  ]
+}
