@@ -38,6 +38,10 @@ export default async function LearnPage() {
         Signed in as <span data-testid="signed-in-email">{user.email}</span>
       </p>
       {admin ? <p className="text-mute">You're an admin.</p> : null}
+      <nav aria-label="Course" className="mt-4 flex flex-wrap gap-x-6 gap-y-2 font-semibold">
+        <Link href="/tools">Tools</Link>
+        <Link href="/verdict">Product Verdict</Link>
+      </nav>
 
       {resume ? (
         <Link

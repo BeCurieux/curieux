@@ -8,11 +8,16 @@
 // listed, not deleted, because deleting a lesson deletes everyone's progress
 // on it. Run with --prune to delete them.
 //
+// It also writes the twelve calculators (name, tier, module, form schema)
+// from src/lib/calc, so the database matches the code.
+//
 // Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (environment or
 // .env.local). Against production, run it with production's values.
 
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { CALCULATORS } from "../src/lib/calc";
+import { schemaJson } from "../src/lib/calc/types";
 import { ContentError, loadContent } from "../src/lib/content/load";
 
 const prune = process.argv.includes("--prune");
@@ -105,6 +110,23 @@ for (const mod of modules) {
   }
 }
 
+// The calculators: code is the source; the rows let row level security
+// check a saved run against the calculator's tier.
+const { data: moduleRows, error: moduleListError } = await db.from("modules").select("id, number");
+fail("listing modules", moduleListError);
+const moduleId = (number: number | null) => moduleRows.find((m) => m.number === number)?.id ?? null;
+const { error: calcError } = await db.from("calculators").upsert(
+  CALCULATORS.map((calc) => ({
+    slug: calc.slug,
+    name: calc.name,
+    min_tier: calc.minTier,
+    module_id: moduleId(calc.moduleNumber),
+    schema_json: schemaJson(calc),
+  })),
+  { onConflict: "slug" },
+);
+fail("calculators", calcError);
+
 const { data: allLessons, error: listError } = await db.from("lessons").select("id, number, title");
 fail("listing lessons", listError);
 const { data: allModules, error: listModulesError } = await db.from("modules").select("id, slug");
@@ -112,7 +134,9 @@ fail("listing modules", listModulesError);
 const staleLessons = allLessons.filter((lesson) => !keptLessonIds.has(lesson.id));
 const staleModules = allModules.filter((mod) => !keptModuleIds.has(mod.id));
 
-console.log(`Seeded ${modules.length} module(s) and ${lessonCount} lesson(s).`);
+console.log(
+  `Seeded ${modules.length} module(s), ${lessonCount} lesson(s) and ${CALCULATORS.length} calculators.`,
+);
 if (missingFiles.length) {
   console.warn(`\nNot in the lesson-assets bucket yet (upload them, or the download links fail):`);
   for (const file of missingFiles) console.warn(`  ${file}`);
