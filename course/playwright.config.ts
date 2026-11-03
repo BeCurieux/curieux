@@ -52,6 +52,7 @@ if (!supabaseEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || !supabaseEnv.SUPABASE_S
 
 export default defineConfig({
   testDir: "tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,

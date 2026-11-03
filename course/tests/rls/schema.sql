@@ -493,3 +493,67 @@ do $$ begin
   if exists (select 1 from public.entitlements where user_id = '99999999-0000-0000-0000-000000000001') then raise exception 'entitlements survived'; end if;
   if exists (select 1 from public.verdicts where user_id = '99999999-0000-0000-0000-000000000001') then raise exception 'verdicts survived'; end if;
 end $$;
+
+-- ---------------------------------------------------------------------------
+-- Lesson access in one place (migration 5): tier, or the benchmark pack for
+-- library lessons that say so.
+
+insert into auth.users (id, email) values
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'pia@example.test'),
+  ('cccccccc-0000-0000-0000-000000000001', 'quin@example.test');
+-- Pia bought only the benchmark pack (say, a hand grant); Quin is free.
+insert into public.entitlements (user_id, tier) values ('bbbbbbbb-0000-0000-0000-000000000001', 'benchmark_pack');
+insert into public.modules (id, slug, number, title, position, hidden)
+  values ('00000000-0000-0000-0000-0000000000a9', 'library', 9, 'Library', 9, true);
+insert into public.lessons (id, module_id, slug, number, title, min_tier, position, opens_with_benchmark_pack, script_md) values
+  ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000a9', 'benchmarks', '9.1', 'Benchmarks', 'course', 1, true, 'benchmarks'),
+  ('00000000-0000-0000-0000-0000000000d2', '00000000-0000-0000-0000-0000000000a9', 'templates', '9.2', 'Templates', 'course', 2, false, 'templates');
+
+do $$ begin
+  if not public.user_can_open_lesson('bbbbbbbb-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000d1') then
+    raise exception 'pack owner should open the benchmark lesson';
+  end if;
+  if public.user_can_open_lesson('bbbbbbbb-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000d2') then
+    raise exception 'pack owner should not open other course lessons';
+  end if;
+  if public.user_can_open_lesson('cccccccc-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000d1') then
+    raise exception 'free user opened the benchmark lesson';
+  end if;
+  if not public.user_can_open_lesson('eeeeeeee-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000d1') then
+    raise exception 'module0 buyer with the bump should open the benchmark lesson';
+  end if;
+  if public.user_can_open_lesson('cccccccc-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000') then
+    raise exception 'a missing lesson opened';
+  end if;
+  if has_function_privilege('authenticated', 'public.user_can_open_lesson(uuid, uuid)', 'execute') then
+    raise exception 'user_can_open_lesson is callable over the API';
+  end if;
+end $$;
+
+begin;
+select pg_temp.act_as('bbbbbbbb-0000-0000-0000-000000000001');
+do $$ begin
+  if (select script_md from public.lesson_content('00000000-0000-0000-0000-0000000000d1')) <> 'benchmarks' then
+    raise exception 'pack owner should get the benchmark lesson content';
+  end if;
+  if exists (select 1 from public.lesson_content('00000000-0000-0000-0000-0000000000d2')) then
+    raise exception 'pack owner got another course lesson';
+  end if;
+  if not public.can_open_lesson('00000000-0000-0000-0000-0000000000d1') then raise exception 'can_open_lesson wrong'; end if;
+end $$;
+insert into public.lesson_progress (lesson_id) values ('00000000-0000-0000-0000-0000000000d1');
+select pg_temp.expect_error($q$insert into public.lesson_progress (lesson_id) values ('00000000-0000-0000-0000-0000000000d2')$q$, 'pack owner completes a course lesson');
+commit;
+begin;
+select pg_temp.act_as('cccccccc-0000-0000-0000-000000000001');
+select pg_temp.expect_error($q$insert into public.lesson_progress (lesson_id) values ('00000000-0000-0000-0000-0000000000d1')$q$, 'free user completes a pack lesson');
+commit;
+-- The flag is part of the public outline, so /learn can show the pack opens it.
+begin;
+select pg_temp.act_as_anon();
+do $$ begin
+  if (select count(*) from public.lessons where opens_with_benchmark_pack) <> 1 then
+    raise exception 'anon should read opens_with_benchmark_pack';
+  end if;
+end $$;
+commit;
