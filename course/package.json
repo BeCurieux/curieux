@@ -24,7 +24,8 @@
     "db:reset": "supabase db reset",
     "admin:add": "tsx --env-file-if-exists=.env.local scripts/add-admin.ts",
     "content:seed": "tsx --env-file-if-exists=.env.local scripts/seed-content.ts",
-    "stripe:setup": "tsx --env-file-if-exists=.env.local scripts/stripe-setup.ts"
+    "stripe:setup": "tsx --env-file-if-exists=.env.local scripts/stripe-setup.ts",
+    "launch:check": "tsx --env-file-if-exists=.env.production.local scripts/launch-check.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.12",

@@ -23,7 +23,7 @@ before the next.
 | 6    | Public pages                                                                                               | Done (2026-11-03) |
 | 7    | Email: Resend, sequences, daily cron                                                                       | Done (2026-11-03) |
 | 8    | Admin                                                                                                      | Done (2026-11-03) |
-| 9    | Launch check                                                                                               | Next              |
+| 9    | Launch check: signed-out sweep, no GST, `npm run launch:check`, launch checklist                           | Done (2026-11-04) |
 
 **Step 1 notes for later steps**
 
@@ -142,6 +142,19 @@ before the next.
 - Step 9's signed-out sweep should include `/admin` and `/admin/leads.csv`
   (both redirect to sign-in when signed out, and 404 for non-admins).
 
+**Step 9: the launch** (the checklist: [`docs/LAUNCH.md`](docs/LAUNCH.md))
+
+- `npm run launch:check` is the gate: content (no `draft: true`, no
+  placeholder lessons, the founder's Hype Check lists), GST (none, no
+  Stripe tax options), production's environment (live keys, https, no test
+  stand-ins) and production's database (Stripe price ids, an admin,
+  lessons). It fails today on the 26 placeholder files only the founder can
+  replace.
+- `tests/e2e/launch.spec.ts` sweeps every gated route signed out and looks
+  for GST on every page, at checkout, in what Stripe is asked for and in the
+  receipt. `tests/unit/launch.test.ts` checks every gated page, route and
+  server action makes its own server-side check.
+
 ## Run it locally
 
 Needs Node 22 and Docker (for the local Supabase stack).
@@ -173,16 +186,8 @@ stack on the runner.
 
 ## Deploy
 
-Not deployed yet. When it is:
-
-1. **Supabase:** a new project (Sydney, `ap-southeast-2`, to sit beside
-   Vercel's `syd1`). Apply `supabase/migrations/*.sql` in order
-   (`npx supabase db push` or the SQL editor). Then the Auth settings in
-   [`docs/AUTH.md`](docs/AUTH.md) — the email template change is required,
-   not optional.
-2. **Vercel:** new project from this repo, **Root Directory `course`** (see
-   `../DEPLOYS.md`). Environment variables from `.env.example`.
-3. **Admin:** sign in once on the live site, then add yourself (SQL in
-   `scripts/add-admin.ts`).
+Not deployed yet. [`docs/LAUNCH.md`](docs/LAUNCH.md) is the whole list, in
+order: Supabase, Stripe live mode, Resend, Vercel (**Root Directory
+`course`**, see `../DEPLOYS.md`), then `npm run launch:check`.
 
 Keys go in `.env.local` and Vercel, never in the repository.
