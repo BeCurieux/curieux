@@ -41,6 +41,7 @@ export default async function LearnPage() {
       <nav aria-label="Course" className="mt-4 flex flex-wrap gap-x-6 gap-y-2 font-semibold">
         <Link href="/tools">Tools</Link>
         <Link href="/verdict">Product Verdict</Link>
+        {admin ? <Link href="/admin">Admin</Link> : null}
       </nav>
 
       {resume ? (

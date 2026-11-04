@@ -72,6 +72,9 @@ export function Result({
         return (
           <div
             key={table.key}
+            role="region"
+            aria-label={table.label}
+            tabIndex={0}
             className="border-line bg-paper mt-4 overflow-x-auto rounded-2xl border"
           >
             <table className="w-full text-left">
