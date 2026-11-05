@@ -116,6 +116,34 @@ describe("making a pretend school", () => {
     expect(hours).toBeLessThanOrEqual(24);
   });
 
+  it("has a busy week: spots to fill, make-ups done, fees paid online", async () => {
+    const { owner, orgId } = first;
+    const { data: spots } = await owner.rpc("open_spots", { p_org: orgId, p_days: 7 });
+    expect(spots!.reduce((n, s) => n + s.spots, 0)).toBe(2);
+    for (const s of spots!) {
+      const { data: who } = await owner.rpc("vacancy_candidates", {
+        p_occurrence: s.occurrence_id,
+      });
+      expect(who!.length).toBeGreaterThan(0);
+    }
+    const { data: tally } = await owner.rpc("fill_tally", { p_org: orgId, p_days: 84 });
+    expect(tally![0]!.makeups_delivered).toBe(2);
+    const { count: paid } = await owner
+      .from("online_payments")
+      .select("id", { count: "exact", head: true })
+      .eq("organisation_id", orgId)
+      .eq("status", "paid");
+    expect(paid).toBe(4);
+    // A class today or later this week, whatever day the visitor comes.
+    const { count: soon } = await owner
+      .from("class_occurrences")
+      .select("id", { count: "exact", head: true })
+      .eq("organisation_id", orgId)
+      .eq("status", "scheduled")
+      .lte("starts_at", new Date(Date.now() + 6 * 86_400_000).toISOString());
+    expect(soon).toBeGreaterThanOrEqual(2);
+  });
+
   it("each visitor sees only their own school", async () => {
     const { data } = await second.owner
       .from("families")

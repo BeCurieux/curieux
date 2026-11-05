@@ -13,10 +13,24 @@ outreach emails that say "have a play" instead of "can we talk".
   owner, "Alex".
 - The school has a pool (Erina), four levels, six classes, 13 families,
   a month of past lessons with attendance, two make-up credits (one about
-  to run out), three families waiting for a full Saturday class (a new-class
+  to run out), three families waiting for a full class (a new-class
   opportunity), this term's fees with two families behind, and three
   families showing warning signs (missed lessons, a paused place, overdue
   fees).
+- A busy week, so Today isn't a screen of zeros (9 October 2026, after the
+  founder asked for a clearer demo):
+  - classes today, in two days and in five, whatever day the school is
+    made; the Starfish classes are in two and five days, so their spots
+    are always inside "this week";
+  - two children away this week (Charlie and Henry), so there are 2 spots
+    to fill, with children holding make-up credits ready to offer them to.
+    Ovyko only offers automatically to families with the parent app, which
+    pretend families don't have, so the visitor taps "Offer spot" themselves;
+  - two make-ups that already happened, and four families who paid online
+    this month (pretend payments, no card).
+- **Try these four things** on Today, in place of the set-up steps (which
+  a visitor didn't do): fill a spot, see who might leave, see what families
+  want, record a payment (opens the Harper family). Each is one tap.
 - A banner on every business screen: it's pretend, nothing sends emails or
   takes payments, when it's deleted, a link to join the founding schools,
   and "Leave the demo" (signs out).
@@ -56,10 +70,13 @@ outreach emails that say "have a play" instead of "can we talk".
 ## Tests
 
 - `tests/rls/try_demo.test.ts`: only the secret key makes one; it's
-  filled as described; visitors can't see each other's; 5 a day; no
+  filled as described, with 2 spots to fill, 2 make-ups done, 4 online
+  payments and lessons this week; visitors can't see each other's; 5 a day; no
   invites, public page or payments; deleted when it expires.
 - `tests/e2e/try-it.spec.ts`: tap the button on the website, land on Today
-  with the banner and warning signs, see the families, payments switched
+  with the banner, the tour (no set-up steps), 2 spots and warning signs;
+  offer a spot; open the Harpers from the tour; see the families, payments switched
   off, leave the demo.
 
-Migration: `supabase/migrations/20261025000042_try_it_yourself.sql`.
+Migrations: `supabase/migrations/20261025000042_try_it_yourself.sql`, and
+`20261026000043_livelier_demo.sql` (the busy week).
